@@ -38,12 +38,40 @@
     <result column="sms_code" property="smsCode" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Base_Column_List" >
-    account_id, user_id, provider_name, responsible, responsible_phone, license, license_time_create, 
-    license_time_end, business_type, regist_address, register_address_detail, discount, 
-    bank_name, bank_num, bank_user_name, contract_create_date, contract_end_date, remittance_type, 
-    remittanced, account_status, create_date, update_date, remark, balance, income, contract_responsible, 
-    contract_responsible_phone, contract_license, contract_license_create, contract_license_end, 
-    contract_register_address, contract_register_address_detail, upload_mode, sms_code
+    account_id,
+    user_id,
+    provider_name,
+    responsible,
+    responsible_phone,
+    license,
+    license_time_create,
+    license_time_end,
+    business_type,
+    regist_address,
+    register_address_detail,
+    discount,
+    bank_name,
+    bank_num,
+    bank_user_name,
+    contract_create_date,
+    contract_end_date,
+    remittance_type,
+    remittanced,
+    account_status,
+    create_date,
+    update_date,
+    remark,
+    balance,
+    income,
+    contract_responsible,
+    contract_responsible_phone,
+    contract_license,
+    contract_license_create,
+    contract_license_end,
+    contract_register_address,
+    contract_register_address_detail,
+    upload_mode,
+    sms_code
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
     select 
@@ -86,6 +114,7 @@
       #{contractRegisterAddressDetail,jdbcType=VARCHAR}, #{uploadMode,jdbcType=VARCHAR}, 
       #{smsCode,jdbcType=VARCHAR})
   </insert>
+
   <insert id="insertSelective" parameterType="com.sao.so.supplier.domain.Account" >
     insert into t_account
     <trim prefix="(" suffix=")" suffixOverrides="," >
@@ -335,6 +364,7 @@
     sms_code = #{smsCode,jdbcType=VARCHAR}
     where account_id = #{accountId,jdbcType=BIGINT}
   </update>
+
   <update id="updateByPrimaryKeySelective" parameterType="com.sao.so.supplier.domain.Account" >
     update t_account
     <set >
