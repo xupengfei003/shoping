@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.sao.so.shop.dao.CartItemDao" >
-  <resultMap id="BaseResultMap" type="com.sao.so.shop.domain.CartItem" >
+<mapper namespace="com.sao.so.supplier.dao.CartItemDao" >
+  <resultMap id="BaseResultMap" type="com.sao.so.supplier.domain.CartItem" >
     <id column="id" property="id" jdbcType="BIGINT" />
     <result column="user_id" property="userId" jdbcType="BIGINT" />
     <result column="supplier_id" property="supplierId" jdbcType="BIGINT" />
@@ -73,7 +73,7 @@
     delete from cart_item
     where id = #{id,jdbcType=BIGINT}
   </delete>
-  <insert id="insert" parameterType="com.sao.so.shop.domain.CartItem" >
+  <insert id="insert" parameterType="com.sao.so.supplier.domain.CartItem" >
     insert into cart_item (id, user_id, supplier_id,
     commodity_id, commodity_price, commodity_name,
     commodity_properties, commodity_pic, supplier_name,
@@ -85,7 +85,7 @@
     #{createdAt,jdbcType=BIGINT}, #{updatedAt,jdbcType=BIGINT}, #{count,jdbcType=INTEGER}
     )
   </insert>
-  <insert id="insertSelective" parameterType="com.sao.so.shop.domain.CartItem" >
+  <insert id="insertSelective" parameterType="com.sao.so.supplier.domain.CartItem" >
     insert into cart_item
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -164,7 +164,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.sao.so.shop.domain.CartItem" >
+  <update id="updateByPrimaryKeySelective" parameterType="com.sao.so.supplier.domain.CartItem" >
     update cart_item
     <set >
       <if test="userId != null" >
@@ -203,7 +203,7 @@
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.sao.so.shop.domain.CartItem" >
+  <update id="updateByPrimaryKey" parameterType="com.sao.so.supplier.domain.CartItem" >
     update cart_item
     set user_id = #{userId,jdbcType=BIGINT},
     supplier_id = #{supplierId,jdbcType=BIGINT},

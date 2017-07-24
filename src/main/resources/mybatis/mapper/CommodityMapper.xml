@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.sao.so.shop.dao.CommodityDao">
+<mapper namespace="com.sao.so.supplier.dao.CommodityDao">
     <sql id="baseColumns">
           id,
           brand_id AS brandId,
           name
     </sql>
-    <select id="findOne" resultType="com.sao.so.shop.domain.Commodity">
+    <select id="findOne" resultType="com.sao.so.supplier.domain.Commodity">
         SELECT
         <include refid="baseColumns"/>
         FROM commodity WHERE id=#{id}
     </select>
-    <select id="findByName" resultType="com.sao.so.shop.domain.Commodity">
+    <select id="findByName" resultType="com.sao.so.supplier.domain.Commodity">
         SELECT
         <include refid="baseColumns"/>
         FROM commodity WHERE name LIKE #{name}
@@ -29,7 +29,7 @@
     <update id="update">
         UPDATE commodity SET name=#{name},brand_id = #{brandId} WHERE id = #{id}
     </update>
-    <select id="findByIds" parameterType="Long[]" resultType="com.sao.so.shop.pojo.output.CommodityExportOutput">
+    <select id="findByIds" parameterType="Long[]" resultType="com.sao.so.supplier.pojo.output.CommodityExportOutput">
         SELECT
         sc.commodity_id AS commId,
         sc.code69 AS code69,

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.sao.so.shop.dao.SupplierCommodityDao">
+<mapper namespace="com.sao.so.supplier.dao.SupplierCommodityDao">
 
-    <resultMap id="BaseResultMap" type="com.sao.so.shop.domain.SupplierCommodity">
+    <resultMap id="BaseResultMap" type="com.sao.so.supplier.domain.SupplierCommodity">
         <id column="ID" property="id"/>
         <result column="SKU" property="sku"/>
         <result column="SUPPLIER_ID" property="supplierId"/>
@@ -131,7 +131,7 @@
         UPDATE supplier_commodity SET deleted=#{deleted},updated_at=#{updatedAt} WHERE id=#{id}
     </delete>
     <!--获取商品详情-->
-    <select id="findSupplierCommodityInfo" resultType="com.sao.so.shop.domain.SupplierCommodity">
+    <select id="findSupplierCommodityInfo" resultType="com.sao.so.supplier.domain.SupplierCommodity">
         SELECT
         id,
         brand,
@@ -153,7 +153,7 @@
         FROM supplier_commodity WHERE code69 = #{code69}
     </select>
     <!--获取商品详情-->
-    <select id="findOne" resultType="com.sao.so.shop.domain.SupplierCommodity">
+    <select id="findOne" resultType="com.sao.so.supplier.domain.SupplierCommodity">
         SELECT
         id,
         brand,
@@ -174,7 +174,7 @@
         unit_price AS unitPrice
         FROM supplier_commodity WHERE id = #{id}
     </select>
-    <select id="find" resultType="com.sao.so.shop.domain.SupplierCommodity">
+    <select id="find" resultType="com.sao.so.supplier.domain.SupplierCommodity">
         SELECT
         <include refid="searchColumns"/>
         FROM supplier_commodity sc
