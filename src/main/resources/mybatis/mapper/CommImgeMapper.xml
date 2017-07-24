@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.sao.so.supplier.dao.CommImgeDao">
+<mapper namespace="so.sao.shop.supplier.dao.CommImgeDao">
     <sql id="baseColumns">
         id,
         sc_id AS  scId,
@@ -10,12 +10,12 @@
         size
     </sql>
 
-    <select id="find" resultType="com.sao.so.supplier.domain.CommImge">
+    <select id="find" resultType="so.sao.shop.supplier.domain.CommImge">
         SELECT
         <include refid="baseColumns"/>
         FROM comm_imge WHERE sc_id = #{scId}
     </select>
-    <select id="findOne" resultType="com.sao.so.supplier.domain.CommImge">
+    <select id="findOne" resultType="so.sao.shop.supplier.domain.CommImge">
         SELECT
         <include refid="baseColumns"/>
         FROM comm_imge WHERE id=#{id}

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.sao.so.supplier.dao.CommCategoryShipDao">
+<mapper namespace="so.sao.shop.supplier.dao.CommCategoryShipDao">
     <insert id="save"  useGeneratedKeys="true" keyProperty="id">
         insert comm_category_ship (
             comm_id,
@@ -14,7 +14,7 @@
             #{categoryName}
         )
     </insert>
-    <select id="findById"  resultType="com.sao.so.supplier.domain.CommCategoryShip">
+    <select id="findById"  resultType="so.sao.shop.supplier.domain.CommCategoryShip">
         SELECT
             id,
             comm_id AS commId,

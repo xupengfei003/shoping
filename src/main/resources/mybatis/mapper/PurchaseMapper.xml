@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.sao.so.supplier.dao.PurchaseDao">
+<mapper namespace="so.sao.shop.supplier.dao.PurchaseDao">
 
   <!-- 通用查询映射结果 -->
-  <resultMap id="BaseResultMap" type="com.sao.so.supplier.domain.Purchase">
+  <resultMap id="BaseResultMap" type="so.sao.shop.supplier.domain.Purchase">
     <id column="order_id" property="orderId" />
     <result column="store_id" property="storeId" />
     <result column="user_id" property="userId" />
@@ -55,7 +55,7 @@
   </sql>
 
   <!-- 根据ID查询订单信息 -->
-  <select id="findById" parameterType="java.lang.Long" resultType="com.sao.so.supplier.domain.Purchase">
+  <select id="findById" parameterType="java.lang.Long" resultType="so.sao.shop.supplier.domain.Purchase">
       select
       <include refid="Base_Column_List" />
       from purchase
@@ -117,7 +117,7 @@
 
 
     <!--查询全部订单-->
-    <resultMap id="OrderAllList" type="com.sao.so.supplier.pojo.vo.PurchasesVo">
+    <resultMap id="OrderAllList" type="so.sao.shop.supplier.pojo.vo.PurchasesVo">
         <id column="order_id" property="orderId" />
         <result column="order_receiver_name" property="orderReceiverName"/>
         <result column="order_receiver_mobile" property="orderReceiverMobile"/>
@@ -131,7 +131,7 @@
     <sql id="Order_Column_List">
         order_id, order_receiver_name, order_receiver_mobile, order_create_time, order_price, order_status,order_payment_time, order_payment_method, order_payment_num
     </sql>
-    <select id="findPage" resultMap="OrderAllList" parameterType="com.sao.so.supplier.pojo.input.PurchaseSelectInput" >
+    <select id="findPage" resultMap="OrderAllList" parameterType="so.sao.shop.supplier.pojo.input.PurchaseSelectInput" >
         SELECT
         <include refid="Order_Column_List" />
         FROM purchase
@@ -218,7 +218,7 @@
 
     <!--删除订单-->
 
-    <update id="deleteByOrderId" parameterType="com.sao.so.supplier.pojo.vo.PurchasesVo">
+    <update id="deleteByOrderId" parameterType="so.sao.shop.supplier.pojo.vo.PurchasesVo">
         UPDATE purchase
         SET
         order_status = -1
@@ -229,7 +229,7 @@
 
     </update>
 
-    <resultMap id="accountUserMap" type="com.sao.so.supplier.domain.AccountUser">
+    <resultMap id="accountUserMap" type="so.sao.shop.supplier.domain.AccountUser">
         <id column="user_id" property="userId" />
         <result column="provider_name" property="providerName"/>
     </resultMap>

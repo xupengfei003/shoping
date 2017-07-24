@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.sao.so.supplier.dao.SysRegionDao">
-    <resultMap id="areaMap" type="com.sao.so.supplier.domain.SysRegion">
+<mapper namespace="so.sao.shop.supplier.dao.SysRegionDao">
+    <resultMap id="areaMap" type="so.sao.shop.supplier.domain.SysRegion">
         <id column="sr_id" jdbcType="INTEGER" property="srId"/>
         <id column="name" jdbcType="VARCHAR" property="name"/>
         <id column="level" jdbcType="INTEGER" property="level"/>

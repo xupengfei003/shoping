@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.sao.so.supplier.dao.AccountDao" >
-  <resultMap id="BaseResultMap" type="com.sao.so.supplier.domain.Account" >
+<mapper namespace="so.sao.shop.supplier.dao.AccountDao" >
+  <resultMap id="BaseResultMap" type="so.sao.shop.supplier.domain.Account" >
     <id column="account_id" property="accountId" jdbcType="BIGINT" />
     <result column="user_id" property="userId" jdbcType="BIGINT" />
     <result column="provider_name" property="providerName" jdbcType="VARCHAR" />
@@ -86,7 +86,7 @@
     where account_id = #{accountId,jdbcType=BIGINT}
   </update>
 
-  <insert id="insert" parameterType="com.sao.so.supplier.domain.Account" >
+  <insert id="insert" parameterType="so.sao.shop.supplier.domain.Account" >
     insert into t_account (account_id, user_id, provider_name, 
       responsible, responsible_phone, license, 
       license_time_create, license_time_end, business_type, 
@@ -115,7 +115,7 @@
       #{smsCode,jdbcType=VARCHAR})
   </insert>
 
-  <insert id="insertSelective" parameterType="com.sao.so.supplier.domain.Account" >
+  <insert id="insertSelective" parameterType="so.sao.shop.supplier.domain.Account" >
     insert into t_account
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="accountId != null" >
@@ -327,7 +327,7 @@
     </trim>
   </insert>
 
-  <update id="updateByPrimaryKey" parameterType="com.sao.so.supplier.domain.Account" >
+  <update id="updateByPrimaryKey" parameterType="so.sao.shop.supplier.domain.Account" >
     update t_account
     set user_id = #{userId,jdbcType=BIGINT},
     provider_name = #{providerName,jdbcType=VARCHAR},
@@ -365,7 +365,7 @@
     where account_id = #{accountId,jdbcType=BIGINT}
   </update>
 
-  <update id="updateByPrimaryKeySelective" parameterType="com.sao.so.supplier.domain.Account" >
+  <update id="updateByPrimaryKeySelective" parameterType="so.sao.shop.supplier.domain.Account" >
     update t_account
     <set >
       <if test="userId != null" >
@@ -479,7 +479,7 @@
     WHERE user_id = #{userId}
   </select>
 
-  <update id="updateAccountByUserId" parameterType="com.sao.so.supplier.domain.Account">
+  <update id="updateAccountByUserId" parameterType="so.sao.shop.supplier.domain.Account">
     UPDATE t_account
     <set>
       <if test="balance != null">
@@ -491,7 +491,7 @@
     </set>
     WHERE user_id = #{userId,jdbcType=BIGINT}
   </update>
-  <insert id="saveBatch" parameterType="com.sao.so.supplier.domain.Account">
+  <insert id="saveBatch" parameterType="so.sao.shop.supplier.domain.Account">
     INSERT INTO
 	    t_account(user_id,
 	    provider_name,
@@ -555,12 +555,12 @@
     WHERE user_id=#{userId};
   </select>
   <!--根据账户表（t_account）中的user_id（用户id）字段修改账户表（t_account）中用户的余额-->
-  <update id="updateUserBalance" parameterType="com.sao.so.supplier.domain.Account">
+  <update id="updateUserBalance" parameterType="so.sao.shop.supplier.domain.Account">
     UPDATE t_account
     SET balance = #{account.balance}
     WHERE user_id=#{account.userId};
   </update>
-<select id="findPage" resultMap="BaseResultMap" parameterType="com.sao.so.supplier.domain.Condition">
+<select id="findPage" resultMap="BaseResultMap" parameterType="so.sao.shop.supplier.domain.Condition">
           SELECT account_id,user_id,create_date,provider_name,responsible,contract_end_date, contract_responsible_phone,
                  contract_register_address
             FROM t_account

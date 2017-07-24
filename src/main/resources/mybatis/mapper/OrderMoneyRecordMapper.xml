@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.sao.so.supplier.dao.OrderMoneyRecordDao">
-  <resultMap id="BaseResultMap" type="com.sao.so.supplier.domain.OrderMoneyRecord">
+<mapper namespace="so.sao.shop.supplier.dao.OrderMoneyRecordDao">
+  <resultMap id="BaseResultMap" type="so.sao.shop.supplier.domain.OrderMoneyRecord">
     <id column="record_id" jdbcType="BIGINT" property="recordId" />
     <result column="user_id" jdbcType="BIGINT" property="userId" />
     <result column="bank_name" jdbcType="VARCHAR" property="bankName" />
@@ -19,7 +19,7 @@
   </sql>
 
   <!--保存提现申请-->
-  <insert id="save" parameterType="com.sao.so.supplier.domain.OrderMoneyRecord" useGeneratedKeys="true">
+  <insert id="save" parameterType="so.sao.shop.supplier.domain.OrderMoneyRecord" useGeneratedKeys="true">
     INSERT INTO order_money_record (user_id, bank_name, bank_name_branch, bank_account, total_money, state, created_at, updated_at, serial_number, order_id)
     VALUES(#{userId}, #{bankName}, #{bankNameBranch}, #{bankAccount}, #{totalMoney}, #{state}, #{createdAt}, #{updatedAt}, #{serialNumber}, #{orderId})
     <selectKey resultType="java.lang.Long" order="AFTER" keyProperty="recordId">
@@ -58,7 +58,7 @@
   </select>
 
   <!--根据提现申请记录修改提现申请状态-->
-  <update id="updateOrderMoneyRecord" parameterType="com.sao.so.supplier.domain.OrderMoneyRecord">
+  <update id="updateOrderMoneyRecord" parameterType="so.sao.shop.supplier.domain.OrderMoneyRecord">
     UPDATE order_money_record
     <set>
       <if test="state != null">
