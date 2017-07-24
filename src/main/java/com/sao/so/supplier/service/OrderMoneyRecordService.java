@@ -1,6 +1,8 @@
 package com.sao.so.supplier.service;
 
+import com.sao.so.supplier.pojo.input.OrderMoneyRecordInput;
 import com.sao.so.supplier.pojo.output.OrderMoneyRecordOutput;
+import com.sao.so.supplier.pojo.output.RecordToPurchaseOutput;
 
 import java.util.Map;
 
@@ -21,9 +23,10 @@ public interface OrderMoneyRecordService {
      * 查询提现申请记录
      * @param pageNum 页码
      * @param pageSize 每页条数
+     * @param input 入参
      * @return
      */
-    OrderMoneyRecordOutput searchOrderMoneyRecords(Integer pageNum, Integer pageSize);
+    OrderMoneyRecordOutput searchOrderMoneyRecords(Integer pageNum, Integer pageSize, OrderMoneyRecordInput input);
 
     /**
      * 更新审核状态
@@ -41,6 +44,16 @@ public interface OrderMoneyRecordService {
      * @param pageSize
      * @return
      */
-    OrderMoneyRecordOutput searchOrderMoneyRecords(Long userId,Integer pageNum,Integer pageSize);
+    OrderMoneyRecordOutput searchOrderMoneyRecords(Long userId, OrderMoneyRecordInput put, Integer pageNum, Integer pageSize);
+
+
+    /**
+     * 根据提现申请记录查询该记录所对应的订单列表，并根据pageNum和pageSize进行分页展示
+     * @param recordId
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
+    RecordToPurchaseOutput searchOMRPurchaseDetails(Long recordId, Integer pageNum, Integer pageSize);
 
 }

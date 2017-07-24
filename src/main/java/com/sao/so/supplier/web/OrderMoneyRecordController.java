@@ -2,8 +2,10 @@ package com.sao.so.supplier.web;
 
 import com.sao.so.supplier.config.Constant;
 import com.sao.so.supplier.pojo.BaseResult;
+import com.sao.so.supplier.pojo.input.OrderMoneyRecordInput;
 import com.sao.so.supplier.pojo.output.OrderMoneyRecordAddOutput;
 import com.sao.so.supplier.pojo.output.OrderMoneyRecordOutput;
+import com.sao.so.supplier.pojo.output.RecordToPurchaseOutput;
 import com.sao.so.supplier.service.OrderMoneyRecordService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -62,12 +64,26 @@ public class OrderMoneyRecordController {
     }
 
 
+    /**
+     * 查询提现申请列表
+     * @param pageNum 页码
+     * @param pageSize 每页条数
+     * @param input 入参
+     * @return
+     */
     @ApiOperation(value = "查询提现申请列表", notes = "查询提现申请列表")
     @GetMapping(value = "/search")
-    public OrderMoneyRecordOutput search(Integer pageNum, Integer pageSize) {
-        return orderMoneyRecordService.searchOrderMoneyRecords(pageNum, pageSize);
+    public OrderMoneyRecordOutput search(Integer pageNum, Integer pageSize, OrderMoneyRecordInput input) {
+        return orderMoneyRecordService.searchOrderMoneyRecords(pageNum, pageSize, input);
     }
 
+
+    /**
+     * 更新提现申请状态
+     * @param recordId 提现记录id
+     * @param state 提现记录状态
+     * @return
+     */
     @ApiOperation(value = "更新提现申请状态", notes = "更新提现申请状态")
     @PutMapping(value = "/orderMoneyRecord/{recordId}")
     public BaseResult updateState(@PathVariable("recordId") Long recordId, @RequestParam("state") String state) {
@@ -105,15 +121,38 @@ public class OrderMoneyRecordController {
 
     /**
      * 根据提现申请表中的申请人ID查询申请该ID下所有的申请记录，并根据pageNum和pageSize进行分页
+     *
      * @param id
      * @param pageNum
      * @param pageSize
      * @return
      */
-    @ApiOperation(value = "根据申请人ID查询申请提现记录",notes = "根据申请人的ID，对提现申请表进行全查询，并根据pageNum和pageSize进行分页")
+    @ApiOperation(value = "根据申请人ID查询申请提现记录", notes = "根据申请人的ID，对提现申请表进行全查询，并根据pageNum和pageSize进行分页")
     @GetMapping(value = "/orderMoneyRecords/{id}")//访问路径
-    public OrderMoneyRecordOutput getBalance(@PathVariable("id") @Validated Long id, Integer pageNum, Integer pageSize){
-        return orderMoneyRecordService.searchOrderMoneyRecords(id,pageNum,pageSize);//根据Service方法，返回余额对象
+    public OrderMoneyRecordOutput searchOrderMoneyRecords(OrderMoneyRecordInput put, Integer pageNum, Integer pageSize,@PathVariable("id") @Validated Long id) {
+        OrderMoneyRecordOutput orderMoneyRecordOutput = new OrderMoneyRecordOutput();
+        try{
+            orderMoneyRecordOutput=orderMoneyRecordService.searchOrderMoneyRecords(id, put, pageNum, pageSize);//根据Service方法，返回余额对象
+        }catch (Exception e){
+            e.printStackTrace();
+            orderMoneyRecordOutput.setCode(Constant.CodeConfig.CODE_SYSTEM_EXCEPTION);
+            orderMoneyRecordOutput.setMessage(Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
+        }
+        return orderMoneyRecordOutput;
+    }
+
+
+    /**
+     * 根据提现申请记录查询该记录所对应的订单列表
+     * @param recordId 提现记录id
+     * @param pageNum 页码
+     * @param pageSize 每页条数
+     * @return
+     */
+    @ApiOperation(value = "根据提现申请记录查询该记录所对应的订单列表", notes = "根据提现申请记录查询该记录所对应的订单列表，并根据pageNum和pageSize进行分页")
+    @GetMapping(value = "/orderMoneyRecord/searchPurchasesByRecordId/{recordId}")
+    public RecordToPurchaseOutput searchOMRPurchaseDetails(@PathVariable("recordId") Long recordId, Integer pageNum, Integer pageSize) {
+        return orderMoneyRecordService.searchOMRPurchaseDetails(recordId, pageNum, pageSize);
     }
 
 }

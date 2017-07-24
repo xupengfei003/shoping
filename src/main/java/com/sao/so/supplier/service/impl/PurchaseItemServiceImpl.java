@@ -23,9 +23,6 @@ public class PurchaseItemServiceImpl implements PurchaseItemService {
     @Autowired
     PurchaseItemDao purchaseItemDao;
 
-    private int count = 0;//订单明细条数
-
-
     /**
      * 根据订单编号查询所有相关的订单明细记录（分页）
      * @param pageNum 当前页码
@@ -48,31 +45,46 @@ public class PurchaseItemServiceImpl implements PurchaseItemService {
          *   ①.封装PageInfo时要封装：当前页码，每页显示条数，数据集合
          * 5.将PageInfo对象封装到output类中返回
          */
-        RecordToPurchaseOutput output = null;//出参对象
+        RecordToPurchaseOutput output = new RecordToPurchaseOutput();//出参对象
+
         //1.1判断当前页码和每页显示条数是否为空
         if (null==pageNum){
-            pageNum=1;
+            pageNum = 1;
         }
         if (null==pageSize){
-            pageSize=5;
-        }
-        //1.2根据订单编号查找是否存在此订单对应的订单明细，如果条数为0直接返回
-        count = purchaseItemDao.countByOrderId(orderId);//访问持久化层获取符合条件的条数
-        if(count==0){
-            //封装错误信息并返回
-            output = this.getOutPut(pageNum,pageSize,null, Constant.NoExistCodeConfig.NOSTORE);
-            return output;
+            pageSize = 10;
         }
 
-        //2.访问持久化层，获取数据集合
-        PageHelper.startPage(pageNum,pageSize); //分页
-        List<PurchaseItem> purchaseItemList = purchaseItemDao.findPage(orderId); //访问持久化层获取数据
+        //分页
+        PageHelper.startPage(pageNum,pageSize);
 
-        //3.将获得的list集合中的对象全部转化成vo层的对象
-        List<AccountPurchaseItemVo> purchaseItemVos = this.inversion(purchaseItemList);
+        //访问持久化层获取数据
+        List<PurchaseItem> purchaseItemList = purchaseItemDao.findPage(orderId);
 
-        //4.将转化后的数据集合封装到PageInfo对象中,封装成功信息和code
-        output =this.getOutPut(pageNum,pageSize,purchaseItemVos,Constant.CodeConfig.CODE_SUCCESS);
+        if(null != purchaseItemList && !purchaseItemList.isEmpty()){
+
+            PageInfo<PurchaseItem> pageInfo = new PageInfo<>(purchaseItemList);
+
+            //3.将获得的list集合中的对象全部转化成vo层的对象
+            List<AccountPurchaseItemVo> purchaseItemVos = this.inversion(purchaseItemList);
+
+            PageInfo<AccountPurchaseItemVo> pageInfoVo = new PageInfo<>();
+            pageInfoVo.setPageNum(pageNum);
+            pageInfoVo.setPageSize(pageSize);
+            pageInfoVo.setTotal(pageInfo.getTotal());
+            pageInfoVo.setPages(pageInfo.getPages());
+            pageInfoVo.setSize(pageInfo.getSize());
+            pageInfoVo.setList(purchaseItemVos);
+
+            //4.将转化后的数据集合封装到PageInfo对象中,封装成功信息和code
+            output.setCode(Constant.CodeConfig.CODE_SUCCESS);
+            output.setMessage(Constant.MessageConfig.MSG_SUCCESS);
+            output.setPageInfo(pageInfoVo);
+        } else {
+            output.setCode(Constant.CodeConfig.CODE_NOT_FOUND_RESULT);
+            output.setMessage(Constant.MessageConfig.MSG_NOT_FOUND_RESULT);
+            output.setPageInfo(null);
+        }
         return output;
     }
 
@@ -97,47 +109,6 @@ public class PurchaseItemServiceImpl implements PurchaseItemService {
             }
         }
         return purchaseItemVos;
-    }
-
-    /**
-     * 根据参数封装output类
-     * @param pageNum 当前页码
-     * @param pageSize 每页显示条数
-     * @param purchaseItemVos 前台展示数据
-     * @param code 标记（正常/异常）
-     * @return
-     */
-    private RecordToPurchaseOutput getOutPut(Integer pageNum, Integer pageSize,List<AccountPurchaseItemVo> purchaseItemVos,int code){
-        RecordToPurchaseOutput output = new RecordToPurchaseOutput();//出参
-        output.setCode(code);//设置出参code码
-        switch (code){
-            case 1:
-                output.setMessage(Constant.MessageConfig.MSG_SUCCESS);//设置出参信息
-                break;
-            case 102:
-                output.setMessage(Constant.NoExistMessageConfig.NOORDER);//此订单不存在
-                break;
-            default:
-                output.setCode(Constant.CodeConfig.CODE_SYSTEM_EXCEPTION);//错误code
-                output.setMessage(Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);//系统异常
-                break;
-        }
-        PageInfo<AccountPurchaseItemVo> pageInfo = new PageInfo<>();//分页工具
-        pageInfo.setPageNum(pageNum);//设置当前页码
-        pageInfo.setPageSize(pageSize);//设置每页显示条数
-        pageInfo.setList(purchaseItemVos);//设置展示数据
-        pageInfo.setPages(this.getPages(pageSize));//设置总页码
-        pageInfo.setTotal(count);//总记录数
-        output.setPageInfo(pageInfo);//将分页工具封装到出参对象中
-        return output;
-    }
-    /**
-     * 根据每页显示条数计算总页码
-     * @param pageSize 每页显示条数
-     * @return 总页码
-     */
-    private int getPages(int pageSize){
-        return count%pageSize==0?count/pageSize:count/pageSize+1;//计算总页码
     }
 
 }

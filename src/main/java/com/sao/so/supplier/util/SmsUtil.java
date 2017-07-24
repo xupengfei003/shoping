@@ -27,10 +27,10 @@ public class SmsUtil {
     public static final String domain = "dysmsapi.aliyuncs.com";
 
     // TODO 此处需要替换成开发者自己的AK(在阿里云访问控制台寻找)
-    public static final String accessKeyId = "LTAIKVZNEdvxDvmV";
-    public static final String accessKeySecret = "YpP6faV1ahCK7gUaFZ6s8bkmvvG4sw";
-    public static final String signName = "透云科技";
-    public static final String templateCode = "SMS_77780010";
+    public static final String accessKeyId = "LTAIJ5WCST5NTxKK";
+    public static final String accessKeySecret = "w5ZgY1edGDrCB3NlDt5IseCsnlJZLV";
+    public static final String signName = "透云";
+    public static final String templateCode = "SMS_78585197";
 
     public static String getVerCode(){
         String vcode = "";
@@ -64,7 +64,7 @@ public class SmsUtil {
         request.setTemplateCode(SmsUtil.templateCode);
         //可选:模板中的变量替换JSON串,如模板内容为"亲爱的${name},您的验证码为${code}"时,此处的值为
         Map<String, String> jsonCode = new HashMap<String, String>();
-        jsonCode.put("name",code);
+        jsonCode.put("code",code);//TODO 改成线上模板
         String jsonObject = new ObjectMapper().writeValueAsString(jsonCode);
         request.setTemplateParam(jsonObject);
         //可选:outId为提供给业务方扩展字段,最终在短信回执消息中将此值带回给调用者

@@ -3,6 +3,7 @@ package com.sao.so.supplier.dao;
 
 import com.sao.so.supplier.domain.AccountUser;
 import com.sao.so.supplier.domain.Purchase;
+import com.sao.so.supplier.pojo.input.AccountPurchaseInput;
 import com.sao.so.supplier.pojo.input.PurchaseSelectInput;
 import com.sao.so.supplier.pojo.vo.PurchasesVo;
 import org.apache.ibatis.annotations.Param;
@@ -108,20 +109,6 @@ public interface PurchaseDao {
     int updatePurchaseAccountStatus(@Param("userId") Long userId);
 
     /**
-     * 根据商家编号查找所有相关订单记录
-     * @param storeId 商家编号
-     * @return 查询的相关记录
-     */
-    List<Purchase> findPageByStoreId(Long storeId);
-
-    /**
-     * 根据商家编号查询记录总条数
-     * @param storeId 商家编号
-     * @return 符合条件的记录条数
-     */
-    int countByStoreId(Long storeId);
-
-    /**
      * 根据商户ID查询订单状态并返回总金额
      * @param storeId
      * @return
@@ -131,4 +118,38 @@ public interface PurchaseDao {
 
 
 
+    /**
+     * 查询该商户下已完成且已统计的订单id
+     * @return 订单id,多个以逗号分隔
+     */
+    String findOrderIdsByStatus(@Param("storeId") Long storeId);
+
+
+    /**
+     * 根据提现申请记录查询该记录所对应的订单列表
+     * @param orderIds
+     * @return
+     */
+    List<Purchase> findPageOMRPurchaseDetails(String[] orderIds);
+    /**
+     * 根据商家编号查找所有相关订单记录
+     * @param storeId 商家编号
+     * @return 查询的相关记录
+     */
+    List<Purchase> findPageByStoreId(@Param("input") AccountPurchaseInput input, @Param("storeId") Long storeId);
+
+    /**
+     * 根据商家编号查询记录总条数
+     * @param storeId 商家编号
+     * @return 符合条件的记录条数
+     */
+    int countByStoreId(@Param("storeId") Long storeId);
+
+    /**
+     * 有条件根据商家编号查找所有相关订单记录
+     * @param storeId 商家编号
+     * @param input 查询条件封装类
+     * @return
+     */
+    int countByStoreIdAndInput(@Param("storeId") Long storeId,@Param("input")AccountPurchaseInput input);
 }

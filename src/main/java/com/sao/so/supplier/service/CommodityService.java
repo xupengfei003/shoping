@@ -1,6 +1,7 @@
 package com.sao.so.supplier.service;
 
 import com.github.pagehelper.PageInfo;
+import com.sao.so.supplier.domain.Account;
 import com.sao.so.supplier.pojo.BaseResult;
 import com.sao.so.supplier.pojo.input.CommodityInput;
 import com.sao.so.supplier.pojo.output.CommodityExportOutput;
@@ -42,6 +43,13 @@ public interface CommodityService {
      * @return
      */
     public List<CommodityExportOutput> findByIds(Long[] ids);
+
+    /**
+     * 根据userId查Account实体
+     * @param userId
+     * @return
+     */
+    public Account findAccountByUserId(Long userId);
 
     /**
      * 删除商品图片

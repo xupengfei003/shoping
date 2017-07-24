@@ -8,8 +8,12 @@ import com.sao.so.supplier.dao.OrderMoneyRecordDao;
 import com.sao.so.supplier.dao.PurchaseDao;
 import com.sao.so.supplier.domain.Account;
 import com.sao.so.supplier.domain.OrderMoneyRecord;
+import com.sao.so.supplier.domain.Purchase;
+import com.sao.so.supplier.pojo.input.OrderMoneyRecordInput;
 import com.sao.so.supplier.pojo.output.OrderMoneyRecordOutput;
+import com.sao.so.supplier.pojo.output.RecordToPurchaseOutput;
 import com.sao.so.supplier.pojo.vo.OrderMoneyRecordVo;
+import com.sao.so.supplier.pojo.vo.PurchaseVo;
 import com.sao.so.supplier.service.OrderMoneyRecordService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -72,6 +76,11 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
             }
 
             /**
+             * 查询该商户下已完成且已统计的订单id
+             */
+            String orderIds = purchaseDao.findOrderIdsByStatus(userId);
+
+            /**
              * 获取入参中的值
              */
             String bankName = account.getBankName();
@@ -92,6 +101,7 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
             omr.setCreatedAt(System.currentTimeMillis());
             omr.setUpdatedAt(System.currentTimeMillis());
             omr.setSerialNumber(serialNumber);
+            omr.setOrderId(orderIds);
             orderMoneyRecordDao.save(omr);
             Long recordId = omr.getRecordId();
             if(null != recordId) {
@@ -108,22 +118,21 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
      * 查询提现申请记录
      * @param pageNum 页码
      * @param pageSize 每页条数
+     * @param input 入参
      * @return
      */
     @Override
-    public OrderMoneyRecordOutput searchOrderMoneyRecords(Integer pageNum, Integer pageSize) {
+    public OrderMoneyRecordOutput searchOrderMoneyRecords(Integer pageNum, Integer pageSize, OrderMoneyRecordInput input) {
         OrderMoneyRecordOutput output = new OrderMoneyRecordOutput();
+
+        //默认第一页
         if(null == pageNum) {
             pageNum = 1;
         }
+        //默认每页10条
         if(null == pageSize) {
             pageSize = 10;
         }
-
-        /**
-         * 查询提现申请总条数
-         */
-        int totalNum = orderMoneyRecordDao.findCountByState();
 
         /**
          * 设置分页
@@ -133,25 +142,34 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
         /**
          * 查询提现申请记录列表
          */
-        List<OrderMoneyRecord> list = orderMoneyRecordDao.findPageByState();
+        List<OrderMoneyRecord> list = orderMoneyRecordDao.findPageByState(input);
+        if(null != list && !list.isEmpty()){
 
-        /**
-         * 对象转换
-         */
-        List<OrderMoneyRecordVo> returnList = convertOrderMoneyRecordVo(list);
+            PageInfo<OrderMoneyRecord> pageInfo = new PageInfo<>(list);
 
-        /**
-         * 返回分页数据
-         */
-        PageInfo<OrderMoneyRecordVo> pageInfo = new PageInfo<>();
-        pageInfo.setPageNum(pageNum);
-        pageInfo.setPageSize(pageSize);
-        pageInfo.setTotal(totalNum);
-        pageInfo.setPages(this.totalPageNum(pageSize, totalNum));
-        pageInfo.setList(returnList);
-        output.setPageInfo(pageInfo);
-        output.setCode(Constant.CodeConfig.CODE_SUCCESS);
-        output.setMessage(Constant.MessageConfig.MSG_SUCCESS);
+            //对象转换
+            List<OrderMoneyRecordVo> returnList = convertOrderMoneyRecordVo(list);
+
+            /**
+             * 设置分页数据信息
+             */
+            PageInfo<OrderMoneyRecordVo> pageInfoVo = new PageInfo<>();
+            pageInfoVo.setPageNum(pageNum);
+            pageInfoVo.setPageSize(pageSize);
+            pageInfoVo.setPages(pageInfo.getPages());
+            pageInfoVo.setTotal(pageInfo.getTotal());
+            pageInfoVo.setSize(pageInfo.getSize());
+            pageInfoVo.setList(returnList);
+
+            output.setCode(Constant.CodeConfig.CODE_SUCCESS);
+            output.setMessage(Constant.MessageConfig.MSG_SUCCESS);
+            output.setPageInfo(pageInfoVo);
+
+        } else {
+            output.setCode(Constant.CodeConfig.CODE_NOT_FOUND_RESULT);
+            output.setMessage(Constant.MessageConfig.MSG_NOT_FOUND_RESULT);
+            output.setPageInfo(null);
+        }
         return output;
     }
 
@@ -260,17 +278,6 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
 
 
     /**
-     * 计算总页数
-     * @param pageSize
-     * @param totalNum
-     * @return
-     */
-    private int totalPageNum(int pageSize, int totalNum){
-        return totalNum%pageSize == 0 ? totalNum/pageSize : totalNum/pageSize + 1;
-    }
-
-
-    /**
      * 1.根据提现申请表中的申请人ID查询申请该ID下所有的申请记录，并根据pageNum和pageSize进行分页展示
      *   返回开发规定的提现申请记录的Output对象
      *   ①、利用PageHelper开启分页；
@@ -286,21 +293,22 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
      * @return
      */
     @Override
-    public OrderMoneyRecordOutput searchOrderMoneyRecords(Long userId,Integer pageNum,Integer pageSize) {
+    public OrderMoneyRecordOutput searchOrderMoneyRecords(Long userId, OrderMoneyRecordInput put, Integer pageNum, Integer pageSize) {
         //创建提现申请记录的Output对象；
         OrderMoneyRecordOutput orderMoneyRecordOutput = new OrderMoneyRecordOutput();
         /**
          * ①、利用PageHelper开启分页；
          */
         Integer PageHelperPageNum =pageNum==null ? 1: pageNum;//默认第一页
-        Integer PageHelperPageSize = pageSize==null ? 5: pageSize;//默认每页5条
+        Integer PageHelperPageSize = pageSize==null ? 10: pageSize;//默认每页5条
         PageHelper.startPage(PageHelperPageNum,PageHelperPageSize);
 
         /**
          *  ②、根据分页信息查询提现申请的 List<OrderMoneyRecord>,并取得OrderMoneyRecord的分页信息；
          */
-        List<OrderMoneyRecord> orderMoneyRecordList = orderMoneyRecordDao.findPage(userId);
-        if (orderMoneyRecordList!=null){//判断取得的List集合是否为空
+
+        List<OrderMoneyRecord> orderMoneyRecordList = orderMoneyRecordDao.findPage(userId,put);
+        if (orderMoneyRecordList!=null&&orderMoneyRecordList.size()!=0){//判断取得的List集合是否为空
             //取得OrderMoneyRecord的分页信息
             PageInfo<OrderMoneyRecord> pageInfo = new PageInfo<>(orderMoneyRecordList);
 
@@ -331,13 +339,128 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
              * ⑥、若查询结果为空，则提null、状态码及message封装进提现申请记录的Output对象（OrderMoneyRecordOutput）；
              */
             orderMoneyRecordOutput.setPageInfo(null);//分页信息
-            orderMoneyRecordOutput.setCode(Constant.CodeConfig.CODE_SUCCESS);//成功状态码
-            orderMoneyRecordOutput.setMessage(Constant.MessageConfig.MSG_SUCCESS);//成功信息
+            orderMoneyRecordOutput.setCode(Constant.CodeConfig.CODE_NOT_FOUND_RESULT);//状态码
+            orderMoneyRecordOutput.setMessage(Constant.MessageConfig.MSG_NOT_FOUND_RESULT);//信息
         }
         /**
          * ⑦、返回提现申请记录的Output对象（OrderMoneyRecordOutput）。
          */
         return orderMoneyRecordOutput;
+    }
+
+
+    /**
+     * 根据提现申请记录查询该记录所对应的订单列表，并根据pageNum和pageSize进行分页展示
+     * @param recordId
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
+    @Override
+    public RecordToPurchaseOutput searchOMRPurchaseDetails(Long recordId, Integer pageNum, Integer pageSize){
+        RecordToPurchaseOutput output = new RecordToPurchaseOutput();
+        if(null == recordId){
+            output.setCode(Constant.CodeConfig.CODE_NOT_EMPTY);
+            output.setMessage(Constant.MessageConfig.MSG_NOT_EMPTY);
+            return output;
+        }
+
+        //默认为第一页
+        if(null == pageNum){
+            pageNum = 1;
+        }
+        //默认每页10条
+        if(null == pageSize){
+            pageSize = 10;
+        }
+
+        /**
+         * 通过提现记录id,获取该提现申请实体
+         */
+        OrderMoneyRecord orderMoneyRecord = orderMoneyRecordDao.findOne(recordId);
+        if(null == orderMoneyRecord){
+            output.setCode(Constant.CodeConfig.CODE_NOT_FOUND_RESULT);
+            output.setMessage(Constant.MessageConfig.MSG_NOT_FOUND_RESULT);
+            return output;
+        }
+
+        String orderIds = orderMoneyRecord.getOrderId();
+        if(StringUtils.isEmpty(orderIds)){
+            output.setCode(Constant.CodeConfig.CODE_NOT_EMPTY);
+            output.setMessage(Constant.MessageConfig.MSG_NOT_EMPTY);
+            return output;
+        }
+
+        //把订单ids字符串以逗号分隔，放到数组中
+        String[] orderIdsArr = orderIds.split(",");
+
+        /**
+         * 利用PageHelper开启分页
+         */
+        PageHelper.startPage(pageNum, pageSize);
+
+        /**
+         * 根据所传进去orderId数组，查询订单列表
+         */
+        List<Purchase> purchaseList = purchaseDao.findPageOMRPurchaseDetails(orderIdsArr);
+
+        if(null != purchaseList && !purchaseList.isEmpty()){
+
+            PageInfo<Purchase> pageInfo = new PageInfo<>(purchaseList);
+
+            //对象转化
+            List<PurchaseVo> purchaseVoList = convertPurchaseVo(purchaseList);
+
+            /**
+             * 设置返回时的PageInfo信息
+             */
+            PageInfo<PurchaseVo> pageInfoVo = new PageInfo<>();
+            pageInfoVo.setPageNum(pageNum);
+            pageInfoVo.setPageSize(pageSize);
+            pageInfoVo.setTotal(pageInfo.getTotal());
+            pageInfoVo.setPages(pageInfo.getPages());
+            pageInfoVo.setSize(pageInfo.getSize());
+            pageInfoVo.setList(purchaseVoList);
+
+            output.setCode(Constant.CodeConfig.CODE_SUCCESS);
+            output.setMessage(Constant.MessageConfig.MSG_SUCCESS);
+            output.setPageInfo(pageInfoVo);
+        } else {
+            output.setCode(Constant.CodeConfig.CODE_NOT_FOUND_RESULT);
+            output.setMessage(Constant.MessageConfig.MSG_NOT_FOUND_RESULT);
+            output.setPageInfo(null);
+        }
+        return output;
+    }
+
+
+    /**
+     * 订单对象转换成PurchasesVo
+     * @param list
+     * @return
+     */
+    public List<PurchaseVo> convertPurchaseVo(List<Purchase> list){
+        List<PurchaseVo> purchaseVoList = new ArrayList<>();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        for(Purchase purchase : list){
+            PurchaseVo purchaseVo = new PurchaseVo();
+            purchaseVo.setOrderId(purchase.getOrderId());
+            purchaseVo.setStoreId(purchase.getStoreId());
+            purchaseVo.setUserId(purchase.getUserId());
+            purchaseVo.setOrderPrice(purchase.getOrderPrice());
+            purchaseVo.setOrderReceiverName(purchase.getOrderReceiverName());
+            purchaseVo.setOrderReceiverMobile(purchase.getOrderReceiverMobile());
+            purchaseVo.setOrderAddress(purchase.getOrderAddress());
+            purchaseVo.setOrderShipMethod(purchase.getOrderShipMethod());
+            purchaseVo.setOrderPaymentNum(purchase.getOrderPaymentNum());
+            purchaseVo.setOrderCreateTime(sdf.format(purchase.getOrderCreateTime()));
+            purchaseVo.setOrderPaymentMethod(purchase.getOrderPaymentMethod());
+            purchaseVo.setOrderPaymentTime(sdf.format(purchase.getOrderPaymentTime()));
+            purchaseVo.setOrderStatus(purchase.getOrderStatus());
+            purchaseVo.setAccountStatus(purchase.getAccountStatus());
+            purchaseVoList.add(purchaseVo);
+        }
+        return purchaseVoList;
     }
 
 }

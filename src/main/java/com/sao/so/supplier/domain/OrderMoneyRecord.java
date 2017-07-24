@@ -53,6 +53,11 @@ public class OrderMoneyRecord {
      */
     private String serialNumber;
 
+    /**
+     * 申请提现金额所对应的订单id,多个以逗号分隔
+     */
+    private String orderId;
+
     public Long getRecordId() {
         return recordId;
     }
@@ -131,5 +136,13 @@ public class OrderMoneyRecord {
 
     public void setSerialNumber(String serialNumber) {
         this.serialNumber = serialNumber == null ? null : serialNumber.trim();
+    }
+
+    public String getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(String orderId) {
+        this.orderId = orderId;
     }
 }

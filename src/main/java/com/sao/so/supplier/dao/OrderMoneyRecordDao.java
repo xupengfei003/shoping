@@ -2,6 +2,7 @@ package com.sao.so.supplier.dao;
 
 
 import com.sao.so.supplier.domain.OrderMoneyRecord;
+import com.sao.so.supplier.pojo.input.OrderMoneyRecordInput;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -20,9 +21,10 @@ public interface OrderMoneyRecordDao {
 
     /**
      * 查询提现申请记录列表
+     * @param input 入参
      * @return
      */
-    List<OrderMoneyRecord> findPageByState();
+    List<OrderMoneyRecord> findPageByState(@Param("input") OrderMoneyRecordInput input);
 
     /**
      * 更新提现申请记录状态
@@ -39,16 +41,10 @@ public interface OrderMoneyRecordDao {
     OrderMoneyRecord findOne(@Param("recordId") Long recordId);
 
     /**
-     * 查询提现申请记录总条数
-     * @return
-     */
-    int findCountByState();
-
-    /**
      * 根据提现申请表（order_money_record）中的申请人ID（user_id）查询申请该ID下所有的申请记录
      * @param userId
      * @return
      */
-    List<OrderMoneyRecord> findPage(@Param("userId") Long userId);
+    List<OrderMoneyRecord> findPage(@Param("userId") Long userId, @Param("put")OrderMoneyRecordInput put);
 
 }

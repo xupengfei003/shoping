@@ -255,46 +255,103 @@
     <update id="updateAccountStatus" parameterType="java.lang.Long">
         UPDATE supplier
         SET account_status = 2
-        WHERE store_id = #{userId} and order_status = 7 and account_status = 1
+        WHERE store_id = #{userId} and order_status = 4 and account_status = 1
     </update>
 
     <!--根据商家id统计该账户名下订单状态（已完成）+ 账户状态（未统计）金额累计之和-->
     <select id="findUncountedMoney" resultType="java.math.BigDecimal" parameterType="java.lang.Long">
         SELECT SUM(order_price)
         FROM purchase
-        WHERE store_id=#{userId} AND order_status=7 AND account_status=0;
+        WHERE store_id=#{userId} AND order_status=4 AND account_status=0;
     </select>
 
     <!--根据商家id，修改该账户名下订单状态（已完成）+ 账户状态（未统计）为 订单状态（已完成）+ 账户状态（已统计）-->
     <update id="updatePurchaseAccountStatus" parameterType="java.lang.Long">
         UPDATE purchase
         SET account_status = 1
-        WHERE store_id=#{userId} AND order_status=7 AND account_status=0;
+        WHERE store_id=#{userId} AND order_status=4 AND account_status=0;
     </update>
 
+    <!-- 查询该商户下已完成且已统计的订单id -->
+    <select id="findOrderIdsByStatus" resultType="String" parameterType="java.lang.Long">
+        SELECT GROUP_CONCAT(order_id)
+        FROM purchase
+        WHERE order_status = 4 AND account_status = 1 AND store_id = #{storeId}
+    </select>
+
+    <!-- 根据提现申请记录查询该记录所对应的订单列表 -->
+    <select id="findPageOMRPurchaseDetails" resultMap="BaseResultMap" parameterType="java.lang.String">
+        SELECT
+          order_id,
+          store_id,
+          user_id,
+          order_price,
+          order_receiver_name,
+          order_receiver_mobile,
+          order_address,
+          order_ship_method,
+          order_payment_num,
+          order_create_time,
+          order_payment_method,
+          order_payment_time,
+          order_status,
+          account_status
+        FROM purchase
+        WHERE order_id IN
+          <foreach item="orderId"   collection="array" open="(" separator="," close=")">
+            #{orderId,jdbcType=VARCHAR}
+          </foreach>
+    </select>
     <!-- 分页条件检索-->
-    <select id="findPageByStoreId" resultMap="BaseResultMap" parameterType="java.lang.Long">
+    <select id="findPageByStoreId" resultMap="BaseResultMap">
         SELECT
         ORDER_ID,ORDER_STATUS,ORDER_PRICE,ORDER_PAYMENT_METHOD,ORDER_RECEIVER_NAME,ORDER_RECEIVER_MOBILE
         FROM PURCHASE
-        WHERE STORE_ID = #{store_id,jdbcType=BIGINT}
-        AND ORDER_STATUS=7
+        WHERE STORE_ID = #{storeId,jdbcType=BIGINT}
+        AND ORDER_STATUS=4
         AND ACCOUNT_STATUS='1'
+        <if test="input!=null">
+            <if test="input.beginDate != null">
+                AND ORDER_CREATE_TIME &gt;= #{input.beginDate}
+            </if>
+            <if test="input.endDate != null">
+                AND ORDER_CREATE_TIME &lt;= #{input.endDate}
+            </if>
+            <if test="input.beginMoney != null">
+                AND ORDER_PRICE &gt;= #{input.beginMoney}
+            </if>
+            <if test="input.endMoney != null">
+                AND ORDER_PRICE &lt;= #{input.endMoney}
+            </if>
+        </if>
+        ORDER BY ORDER_CREATE_TIME DESC
     </select>
-
-    <!--条件查询数量-->
+    <!--根据商家编号查询数量-->
     <select id="countByStoreId" resultType="java.lang.Integer" parameterType="java.lang.Long">
         SELECT COUNT(store_id)
         FROM purchase
         WHERE store_id = #{storeId,jdbcType=BIGINT}
     </select>
-
-    <!-- 查询订单状态 -->
-    <select id="findOrderStatus" resultType="java.lang.Double" parameterType="java.lang.Long">
-        SELECT SUM(ORDER_PRICE)
-        FROM PURCHASE
-        WHERE STORE_ID= #{storeId} and order_status = 7
+    <!--有条件检索条数-->
+    <select id="countByStoreIdAndInput" resultType="java.lang.Integer">
+        SELECT COUNT(store_id)
+        FROM purchase
+        WHERE store_id = #{storeId,jdbcType=BIGINT}
+        AND ORDER_STATUS=4
+        AND ACCOUNT_STATUS='1'
+        <if test="input!=null">
+            <if test="input.beginDate != null">
+                AND ORDER_CREATE_TIME &gt;= #{input.beginDate}
+            </if>
+            <if test="input.endDate != null">
+                AND ORDER_CREATE_TIME &lt;= #{input.endDate}
+            </if>
+            <if test="input.beginMoney != null">
+                AND ORDER_PRICE &gt;= #{input.beginMoney}
+            </if>
+            <if test="input.endMoney != null">
+                AND ORDER_PRICE &lt;= #{input.endMoney}
+            </if>
+        </if>
     </select>
-
-
 </mapper>

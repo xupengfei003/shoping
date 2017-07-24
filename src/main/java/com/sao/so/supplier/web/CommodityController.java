@@ -38,15 +38,18 @@ public class CommodityController {
     private CommodityService commodityService;
 
     @ApiOperation(value="查询供应商商品信息集合", notes="根据参数返回符合条件的商品信息集合")
-    @GetMapping(value="/search/{supplierId}")
-    public PageInfo search(@PathVariable Long supplierId,@RequestParam(required = false) String commCode69,@RequestParam(required = false) Long commId,
+    @GetMapping(value="/search")
+    public PageInfo search(HttpServletRequest request, @RequestParam(required = false) Long supplierId,@RequestParam(required = false) String commCode69,@RequestParam(required = false) Long commId,
                            @RequestParam(required = false) String suppCommCode,@RequestParam(required = false) String commName,
                            @RequestParam(required = false) Integer status,@RequestParam(required = false) Long typeId,@RequestParam(required = false) Double minPrice,
                            @RequestParam(required = false) Double maxPrice,@RequestParam int pageNum, @RequestParam int pageSize){
+        if(supplierId==null||supplierId==0){
+            supplierId = commodityService.findAccountByUserId(((User) request.getAttribute(com.sao.so.supplier.util.Constant.REQUEST_USER)).getId()).getAccountId();
+        }
         return commodityService.searchCommodities(supplierId, commCode69, commId, suppCommCode, commName, status, typeId, minPrice, maxPrice, pageNum, pageSize);
     }
 
-    @ApiOperation(value="查询商品信息集合", notes="根据参数返回符合条件的商品信息集合")
+   /* @ApiOperation(value="查询商品信息集合", notes="根据参数返回符合条件的商品信息集合")
     @GetMapping(value="/search")
     public PageInfo searchAll(HttpServletRequest request,@RequestParam(required = false) String commCode69,@RequestParam(required = false) Long commId,
                               @RequestParam(required = false) String suppCommCode,@RequestParam(required = false) String commName,
@@ -55,7 +58,7 @@ public class CommodityController {
         //获取供应商ID
         Long supplierId = ((User) request.getAttribute(com.sao.so.supplier.util.Constant.REQUEST_USER)).getId();
         return commodityService.searchCommodities(supplierId, commCode69, commId, suppCommCode, commName, status, typeId, minPrice, maxPrice, pageNum, pageSize);
-    }
+    }*/
 
     @ApiOperation(value="查询商品详情信息", notes="根据ID返回相应的商品信息")
     @GetMapping(value="/get/{id}")

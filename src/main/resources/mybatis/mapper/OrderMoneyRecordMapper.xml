@@ -12,15 +12,16 @@
     <result column="created_at" jdbcType="BIGINT" property="createdAt" />
     <result column="updated_at" jdbcType="BIGINT" property="updatedAt" />
     <result column="serial_number" jdbcType="VARCHAR" property="serialNumber" />
+    <result column="order_id" jdbcType="VARCHAR" property="orderId" />
   </resultMap>
   <sql id="Base_Column_List">
-    record_id, user_id, bank_name, bank_name_branch, bank_account, total_money, state, created_at, updated_at, serial_number
+    record_id, user_id, bank_name, bank_name_branch, bank_account, total_money, state, created_at, updated_at, serial_number, order_id
   </sql>
 
   <!--保存提现申请-->
   <insert id="save" parameterType="com.sao.so.supplier.domain.OrderMoneyRecord" useGeneratedKeys="true">
-    INSERT INTO order_money_record (user_id, bank_name, bank_name_branch, bank_account, total_money, state, created_at, updated_at, serial_number)
-    VALUES(#{userId}, #{bankName}, #{bankNameBranch}, #{bankAccount}, #{totalMoney}, #{state}, #{createdAt}, #{updatedAt}, #{serialNumber})
+    INSERT INTO order_money_record (user_id, bank_name, bank_name_branch, bank_account, total_money, state, created_at, updated_at, serial_number, order_id)
+    VALUES(#{userId}, #{bankName}, #{bankNameBranch}, #{bankAccount}, #{totalMoney}, #{state}, #{createdAt}, #{updatedAt}, #{serialNumber}, #{orderId})
     <selectKey resultType="java.lang.Long" order="AFTER" keyProperty="recordId">
       SELECT LAST_INSERT_ID()
     </selectKey>
@@ -31,7 +32,21 @@
     select
       <include refid="Base_Column_List" />
     FROM order_money_record
-    WHERE state = 0
+    WHERE state = '0'
+      <if test="input != null">
+        <if test="input.startTime != null and input.startTime != '' ">
+          AND created_at &gt;= #{input.startTime}
+        </if>
+        <if test="input.endTime != null and input.endTime != '' ">
+          AND created_at &lt;= #{input.endTime}
+        </if>
+        <if test="input.startMoney != null and input.startMoney != '' ">
+          AND total_money &gt;= #{input.startMoney}
+        </if>
+        <if test="input.endMoney != null and input.endMoney != '' ">
+          AND total_money &lt;= #{input.endMoney}
+        </if>
+      </if>
   </select>
 
   <!--根据提现申请id查找提现申请实体-->
@@ -56,15 +71,8 @@
     WHERE record_id = #{recordId,jdbcType=BIGINT}
   </update>
 
-  <!--查找提现申请总条数-->
-  <select id="findCountByState" resultType="int">
-    SELECT count(record_id)
-    FROM order_money_record
-    WHERE state = '0'
-  </select>
-
   <!--根据UserId查询该账户名下所有的提现记录-->
-  <select id="findPage" resultMap="BaseResultMap" parameterType="java.lang.Long">
+  <select id="findPage" resultMap="BaseResultMap">
     SELECT record_id,
     user_id,
     bank_name,
@@ -76,7 +84,25 @@
     updated_at,
     serial_number
     FROM order_money_record
-    WHERE user_id=#{userId} ORDER BY created_at DESC
+    WHERE user_id=#{userId}
+    <if test="put !=null">
+      <if test="put.startTime !=null and put.startTime !=''">
+        And created_at &gt;= #{put.startTime,jdbcType=BIGINT}
+      </if>
+      <if test="put.endTime !=null and put.endTime !=''">
+        And created_at &lt;= #{put.endTime,jdbcType=BIGINT}
+      </if>
+      <if test="put.startMoney !=null and put.startMoney !=''">
+        And total_money &gt;= #{put.startMoney,jdbcType=DECIMAL}
+      </if>
+      <if test="put.endMoney !=null and put.endMoney !=''">
+        And total_money &lt;= #{put.endMoney,jdbcType=DECIMAL}
+      </if>
+      <if test="put.state !=null and put.state !=''">
+        And state = #{put.state,jdbcType=VARCHAR}
+      </if>
+    </if>
+    ORDER BY created_at DESC
   </select>
 
 </mapper>

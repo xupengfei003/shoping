@@ -44,6 +44,8 @@ public class CommodityServiceImpl implements CommodityService {
     private CommBrandDao commBrandDao;
     @Autowired
     private SupplierCommodityDao supplierCommodityDao;
+    @Autowired
+    private AccountDao accountDao;
     @Value("${IMAGE_BASE_URL}")
     private String IMAGE_BASE_URL;
 
@@ -262,6 +264,11 @@ public class CommodityServiceImpl implements CommodityService {
     @Override
     public List<CommodityExportOutput> findByIds(Long[] ids) {
         return commodityDao.findByIds(ids);
+    }
+
+    @Override
+    public Account findAccountByUserId(Long userId){
+        return accountDao.findByUserId(userId);
     }
 
     @Override

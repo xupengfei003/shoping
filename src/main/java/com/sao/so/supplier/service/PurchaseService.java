@@ -1,6 +1,7 @@
 package com.sao.so.supplier.service;
 
 
+import com.sao.so.supplier.pojo.input.AccountPurchaseInput;
 import com.sao.so.supplier.pojo.input.PurchaseInput;
 import com.sao.so.supplier.pojo.input.PurchaseSelectInput;
 import com.sao.so.supplier.pojo.output.PurchaseInfoOutput;
@@ -79,7 +80,7 @@ public interface PurchaseService {
      * @param storeId 商家编号
      * @return 相关记录的集合
      */
-    RecordToPurchaseOutput searchPurchases(Integer pageNum, Integer pageSize, Long storeId);
+    RecordToPurchaseOutput searchPurchases(Integer pageNum, Integer pageSize, AccountPurchaseInput input, Long storeId);
 
     /**
      * 通过商户ID查询订单状态，并返回总金额

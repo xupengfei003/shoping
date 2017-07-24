@@ -2,6 +2,7 @@ package com.sao.so.supplier.web;
 
 import com.sao.so.supplier.config.Constant;
 import com.sao.so.supplier.pojo.BaseResult;
+import com.sao.so.supplier.pojo.input.AccountPurchaseInput;
 import com.sao.so.supplier.pojo.input.PurchaseInput;
 import com.sao.so.supplier.pojo.input.PurchaseSelectInput;
 import com.sao.so.supplier.pojo.output.*;
@@ -205,21 +206,19 @@ public class PurchaseController {
         return baseResult;
     }
 
-
     /**
      * 根据商户id分页显示订单
-     *
-     * @param pageNum  当前页码
+     * @param pageNum 当前页码
      * @param pageSize 每页显示条数
-     * @param storeId  商户ID
+     * @param storeId 商户ID
      * @return 显示数据
      */
-    @ApiOperation(value = "查找订单列表", notes = " 根据商户id分页显示订单")
-    @GetMapping(value = "/account/{storeId}/Purchases")
-    public RecordToPurchaseOutput search(Integer pageNum, Integer pageSize, @PathVariable("storeId") Long storeId) {
-        return purchaseService.searchPurchases(pageNum, pageSize, storeId);
-    }
+    @ApiOperation(value="查找订单列表", notes=" 根据商户id分页显示订单")
+    @GetMapping(value = "/account/Purchases")
+    public RecordToPurchaseOutput search(Integer pageNum, Integer pageSize, AccountPurchaseInput input, @RequestParam Long storeId){
 
+        return purchaseService.searchPurchases(pageNum,pageSize,input,storeId);
+    }
 
     /**
      * 根据商户ID查询订单状态，并计算总金额
