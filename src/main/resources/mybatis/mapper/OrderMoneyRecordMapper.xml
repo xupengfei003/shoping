@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sao.so.shop.dao.OrderMoneyRecordDao">
+  <resultMap id="BaseResultMap" type="com.sao.so.shop.domain.OrderMoneyRecord">
+    <id column="record_id" jdbcType="BIGINT" property="recordId" />
+    <result column="user_id" jdbcType="BIGINT" property="userId" />
+    <result column="bank_name" jdbcType="VARCHAR" property="bankName" />
+    <result column="bank_name_branch" jdbcType="VARCHAR" property="bankNameBranch" />
+    <result column="  bank_account" jdbcType="VARCHAR" property="  bankAccount" />
+    <result column="total_money" jdbcType="DECIMAL" property="totalMoney" />
+    <result column="state" jdbcType="VARCHAR" property="state" />
+    <result column="created_at" jdbcType="BIGINT" property="createdAt" />
+    <result column="updated_at" jdbcType="BIGINT" property="updatedAt" />
+    <result column="serial_number" jdbcType="VARCHAR" property="serialNumber" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    record_id, user_id, bank_name, bank_name_branch, bank_account, total_money, state, created_at, updated_at, serial_number
+  </sql>
+
+  <!--保存提现申请-->
+  <insert id="save" parameterType="com.sao.so.shop.domain.OrderMoneyRecord" useGeneratedKeys="true">
+    INSERT INTO order_money_record (user_id, bank_name, bank_name_branch, bank_account, total_money, state, created_at, updated_at, serial_number)
+    VALUES(#{userId}, #{bankName}, #{bankNameBranch}, #{bankAccount}, #{totalMoney}, #{state}, #{createdAt}, #{updatedAt}, #{serialNumber})
+    <selectKey resultType="java.lang.Long" order="AFTER" keyProperty="recordId">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+  </insert>
+
+  <!--查找提现申请-->
+  <select id="findPageByState" resultMap="BaseResultMap">
+    select
+      <include refid="Base_Column_List" />
+    FROM order_money_record
+    WHERE state = 0
+  </select>
+
+  <!--根据提现申请id查找提现申请实体-->
+  <select id="findOne" resultMap="BaseResultMap">
+    SELECT
+      <include refid="Base_Column_List" />
+    FROM order_money_record
+    WHERE record_id = #{recordId}
+  </select>
+
+  <!--根据提现申请记录修改提现申请状态-->
+  <update id="updateOrderMoneyRecord" parameterType="com.sao.so.shop.domain.OrderMoneyRecord">
+    UPDATE order_money_record
+    <set>
+      <if test="state != null">
+        state = #{state,jdbcType=VARCHAR},
+      </if>
+      <if test="updatedAt != null">
+        updated_at = #{updatedAt,jdbcType=BIGINT},
+      </if>
+    </set>
+    WHERE record_id = #{recordId,jdbcType=BIGINT}
+  </update>
+
+  <!--查找提现申请总条数-->
+  <select id="findCountByState" resultType="int">
+    SELECT count(record_id)
+    FROM order_money_record
+    WHERE state = '0'
+  </select>
+
+  <!--根据UserId查询该账户名下所有的提现记录-->
+  <select id="findPage" resultMap="BaseResultMap" parameterType="java.lang.Long">
+    SELECT record_id,
+    user_id,
+    bank_name,
+    bank_name_branch,
+    bank_account,
+    total_money,
+    state,
+    created_at,
+    updated_at,
+    serial_number
+    FROM order_money_record
+    WHERE user_id=#{userId} ORDER BY created_at DESC
+  </select>
+
+</mapper>

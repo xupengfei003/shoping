@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sao.so.shop.dao.CommCategoryDao">
+
+    <resultMap id="baseCommCategory" type="com.sao.so.shop.domain.CommCategory">
+        <id column="id" property="id"/>
+        <result column="pid" property="pid"/>
+        <result column="name" property="name"/>
+        <result column="remark" property="remark"/>
+        <result column="level" property="level"/>
+        <result column="sort" property="sort"/>
+        <result column="deleted" property="deleted"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <sql id="baseColumns">
+        id AS id,
+        pid AS pid,
+        name AS name,
+        level AS level,
+        remark AS remark,
+        sort AS sort,
+        deleted AS deleted
+    </sql>
+
+    <!--查询商品品类列表-->
+    <select id="find" resultType="com.sao.so.shop.domain.CommCategory">
+        SELECT
+        cy.id,cy.name
+        FROM comm_category cy
+        WHERE
+        cy.pid=#{pid}
+    </select>
+
+    <select id="findOne" resultType="com.sao.so.shop.domain.CommCategory">
+        SELECT
+        <include refid="baseColumns"/>
+        FROM comm_category WHERE id = #{id}
+    </select>
+    <select id="findOneByName" resultType="com.sao.so.shop.domain.CommCategory">
+        SELECT
+        <include refid="baseColumns"/>
+        FROM comm_category WHERE name = #{name}
+    </select>
+
+
+    <!-- 新增商品类型  -->
+    <insert id="save" parameterType="com.sao.so.shop.domain.CommCategory">
+        insert comm_category (
+        pid,
+        name,
+        remark,
+        level,
+        sort,
+        deleted,
+        created_at,
+        updated_at
+        )VALUES (
+        #{commCategory.pid},
+        #{commCategory.name},
+        #{commCategory.remark},
+        #{commCategory.level},
+        #{commCategory.sort},
+        #{commCategory.deleted},
+        #{commCategory.createdAt},
+        #{commCategory.updatedAt}
+        )
+    </insert>
+
+    <!-- 根据商品 名称查询， 返回商品输出对象 -->
+    <select id="findCommCategoryByName" resultMap="baseCommCategory" parameterType="string">
+        SELECT  id,pid,name, remark,level,sort,deleted,created_at, updated_at
+        FROM  comm_category commC
+        WHERE  commC.name =#{commCategoryName}
+    </select> 
+
+    <!-- 根据新增的类型PID 查询商品类型ID = PID 的商品类型的等级level -->
+    <select id="findCommCategoryLevelByPid" parameterType="long" resultType="_int">
+        SELECT LEVEL
+        FROM comm_category
+        WHERE id = #{pid}
+    </select>
+	<!-- 根据商品类型ID，修改商品类型名称、商品类型描述、商品类型顺序、商品类型更新时间-->
+    <update id="update">
+         UPDATE comm_category SET name=#{name},remark=#{remark},sort = #{sort},updated_at = #{updatedAt} WHERE id = #{id} 
+	</update>
+     
+    <delete id="deleteById">
+         DELETE FROM comm_category WHERE id=#{id}
+    </delete>
+</mapper>

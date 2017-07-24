@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sao.so.shop.dao.DeliveryAddressDao">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="com.sao.so.shop.domain.DeliveryAddress">
+		<id column="addr_id" property="addrId" />
+		<result column="consignee" property="consignee" />
+		<result column="consignee_phone" property="consigneePhone" />
+		<result column="addr_province" property="addrProvince" />
+		<result column="addr_city" property="addrCity" />
+		<result column="addr_area" property="addrArea" />
+		<result column="addr_street" property="addrStreet" />
+		<result column="addr_details" property="addrDetails" />
+		<result column="addr_default" property="addrDefault" />
+		<result column="del_state" property="delState" />
+		<result column="created_at" property="createdAt" />
+		<result column="updated_at" property="updatedAt" />
+		<result column="user_id" property="userId" />
+	</resultMap>
+
+	<!--插入收货地址-->
+	<insert id="save" parameterType="com.sao.so.shop.domain.DeliveryAddress" >
+		INSERT INTO t_delivery_address(
+			consignee,
+			consignee_phone,
+			addr_province,
+			addr_city,
+			addr_area,
+			addr_street,
+			addr_details,
+			created_at,
+			user_id)
+		VALUES(
+			#{consignee},
+			#{consigneePhone},
+			#{addrProvince},
+			#{addrCity},
+			#{addrArea},
+			#{addrStreet},
+			#{addrDetails},
+			#{createdAt},
+			#{userId})
+	</insert>
+
+	<!--更新收货地址-->
+	<update id="update"  parameterType="com.sao.so.shop.domain.DeliveryAddress">
+		UPDATE t_delivery_address
+		<trim prefix="set" suffixOverrides=",">
+			<if test="consignee!=null">consignee=#{consignee},</if>
+			<if test="consigneePhone!=null">consignee_phone=#{consigneePhone},</if>
+			<if test="addrProvince!=null">addr_province=#{addrProvince},</if>
+			<if test="addrCity!=null">addr_city=#{addrCity},</if>
+			<if test="addrArea!=null">addr_area=#{addrArea},</if>
+			<if test="addrStreet!=null">addr_street=#{addrStreet},</if>
+			<if test="addrDetails!=null">addr_details=#{addrDetails},</if>
+			<if test="updatedAt!=null">updated_at=#{updatedAt},</if>
+		</trim>
+		WHERE addr_id=#{addrId}
+	</update>
+
+	<!--删除收货地址-->
+	<delete id="deleteByAddrId">
+		UPDATE t_delivery_address
+		SET del_state = 1
+		WHERE addr_id=#{addrId}
+	</delete>
+
+	<!--根据用户id查询收货地址列表-->
+	<select id="findByUserId" resultMap="BaseResultMap" >
+		SELECT
+			addr_id,
+			consignee,
+			consignee_phone,
+			addr_province,
+			addr_city,
+			addr_area,
+			addr_details,
+			addr_default,
+			del_state,
+			created_at,
+			updated_at,
+			user_id
+		FROM t_delivery_address
+		WHERE user_id = #{userId} and del_state = 0
+	</select>
+
+	<!--默认收货地址清零-->
+	<update id="updateDeliveryAddressStatus" >
+		UPDATE t_delivery_address
+		SET addr_default=0
+		WHERE user_id=#{userId} and addr_default = 1
+	</update>
+
+	<!--默认收货地址-->
+	<update id="updateDeliveryAddressStatusByid" >
+		UPDATE t_delivery_address
+		SET addr_default=1
+		WHERE  addr_id=#{id}
+	</update>
+
+</mapper>

@@ -1,0 +1,582 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sao.so.shop.dao.AccountDao" >
+  <resultMap id="BaseResultMap" type="com.sao.so.shop.domain.Account" >
+    <id column="account_id" property="accountId" jdbcType="BIGINT" />
+    <result column="user_id" property="userId" jdbcType="BIGINT" />
+    <result column="provider_name" property="providerName" jdbcType="VARCHAR" />
+    <result column="responsible" property="responsible" jdbcType="VARCHAR" />
+    <result column="responsible_phone" property="responsiblePhone" jdbcType="VARCHAR" />
+    <result column="license" property="license" jdbcType="VARCHAR" />
+    <result column="license_time_create" property="licenseTimeCreate" jdbcType="BIGINT" />
+    <result column="license_time_end" property="licenseTimeEnd" jdbcType="BIGINT" />
+    <result column="business_type" property="businessType" jdbcType="VARCHAR" />
+    <result column="regist_address" property="registAddress" jdbcType="VARCHAR" />
+    <result column="register_address_detail" property="registerAddressDetail" jdbcType="VARCHAR" />
+    <result column="discount" property="discount" jdbcType="VARCHAR" />
+    <result column="bank_name" property="bankName" jdbcType="VARCHAR" />
+    <result column="bank_num" property="bankNum" jdbcType="VARCHAR" />
+    <result column="bank_user_name" property="bankUserName" jdbcType="VARCHAR" />
+    <result column="contract_create_date" property="contractCreateDate" jdbcType="BIGINT" />
+    <result column="contract_end_date" property="contractEndDate" jdbcType="BIGINT" />
+    <result column="remittance_type" property="remittanceType" jdbcType="VARCHAR" />
+    <result column="remittanced" property="remittanced" jdbcType="VARCHAR" />
+    <result column="account_status" property="accountStatus" jdbcType="INTEGER" />
+    <result column="create_date" property="createDate" jdbcType="BIGINT" />
+    <result column="update_date" property="updateDate" jdbcType="BIGINT" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="balance" property="balance" jdbcType="DOUBLE" />
+    <result column="income" property="income" jdbcType="DOUBLE" />
+    <result column="contract_responsible" property="contractResponsible" jdbcType="VARCHAR" />
+    <result column="contract_responsible_phone" property="contractResponsiblePhone" jdbcType="VARCHAR" />
+    <result column="contract_license" property="contractLicense" jdbcType="VARCHAR" />
+    <result column="contract_license_create" property="contractLicenseCreate" jdbcType="BIGINT" />
+    <result column="contract_license_end" property="contractLicenseEnd" jdbcType="BIGINT" />
+    <result column="contract_register_address" property="contractRegisterAddress" jdbcType="VARCHAR" />
+    <result column="contract_register_address_detail" property="contractRegisterAddressDetail" jdbcType="VARCHAR" />
+    <result column="upload_mode" property="uploadMode" jdbcType="VARCHAR" />
+    <result column="sms_code" property="smsCode" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    account_id, user_id, provider_name, responsible, responsible_phone, license, license_time_create, 
+    license_time_end, business_type, regist_address, register_address_detail, discount, 
+    bank_name, bank_num, bank_user_name, contract_create_date, contract_end_date, remittance_type, 
+    remittanced, account_status, create_date, update_date, remark, balance, income, contract_responsible, 
+    contract_responsible_phone, contract_license, contract_license_create, contract_license_end, 
+    contract_register_address, contract_register_address_detail, upload_mode, sms_code
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_account
+    where account_id = #{accountId,jdbcType=BIGINT}
+  </select>
+
+  <update id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    update t_account
+    set account_status = 0
+    where account_id = #{accountId,jdbcType=BIGINT}
+  </update>
+
+  <insert id="insert" parameterType="com.sao.so.shop.domain.Account" >
+    insert into t_account (account_id, user_id, provider_name, 
+      responsible, responsible_phone, license, 
+      license_time_create, license_time_end, business_type, 
+      regist_address, register_address_detail, discount, 
+      bank_name, bank_num, bank_user_name, 
+      contract_create_date, contract_end_date, remittance_type, 
+      remittanced, account_status, create_date, 
+      update_date, remark, balance, 
+      income, contract_responsible, contract_responsible_phone, 
+      contract_license, contract_license_create, 
+      contract_license_end, contract_register_address, 
+      contract_register_address_detail, upload_mode, 
+      sms_code)
+    values (#{accountId,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, #{providerName,jdbcType=VARCHAR}, 
+      #{responsible,jdbcType=VARCHAR}, #{responsiblePhone,jdbcType=VARCHAR}, #{license,jdbcType=VARCHAR}, 
+      #{licenseTimeCreate,jdbcType=BIGINT}, #{licenseTimeEnd,jdbcType=BIGINT}, #{businessType,jdbcType=VARCHAR}, 
+      #{registAddress,jdbcType=VARCHAR}, #{registerAddressDetail,jdbcType=VARCHAR}, #{discount,jdbcType=VARCHAR}, 
+      #{bankName,jdbcType=VARCHAR}, #{bankNum,jdbcType=VARCHAR}, #{bankUserName,jdbcType=VARCHAR}, 
+      #{contractCreateDate,jdbcType=BIGINT}, #{contractEndDate,jdbcType=BIGINT}, #{remittanceType,jdbcType=VARCHAR}, 
+      #{remittanced,jdbcType=VARCHAR}, #{accountStatus,jdbcType=INTEGER}, #{createDate,jdbcType=BIGINT}, 
+      #{updateDate,jdbcType=BIGINT}, #{remark,jdbcType=VARCHAR}, #{balance,jdbcType=DOUBLE}, 
+      #{income,jdbcType=DOUBLE}, #{contractResponsible,jdbcType=VARCHAR}, #{contractResponsiblePhone,jdbcType=VARCHAR}, 
+      #{contractLicense,jdbcType=VARCHAR}, #{contractLicenseCreate,jdbcType=BIGINT}, 
+      #{contractLicenseEnd,jdbcType=BIGINT}, #{contractRegisterAddress,jdbcType=VARCHAR}, 
+      #{contractRegisterAddressDetail,jdbcType=VARCHAR}, #{uploadMode,jdbcType=VARCHAR}, 
+      #{smsCode,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.sao.so.shop.domain.Account" >
+    insert into t_account
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="accountId != null" >
+        account_id,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="providerName != null" >
+        provider_name,
+      </if>
+      <if test="responsible != null" >
+        responsible,
+      </if>
+      <if test="responsiblePhone != null" >
+        responsible_phone,
+      </if>
+      <if test="license != null" >
+        license,
+      </if>
+      <if test="licenseTimeCreate != null" >
+        license_time_create,
+      </if>
+      <if test="licenseTimeEnd != null" >
+        license_time_end,
+      </if>
+      <if test="businessType != null" >
+        business_type,
+      </if>
+      <if test="registAddress != null" >
+        regist_address,
+      </if>
+      <if test="registerAddressDetail != null" >
+        register_address_detail,
+      </if>
+      <if test="discount != null" >
+        discount,
+      </if>
+      <if test="bankName != null" >
+        bank_name,
+      </if>
+      <if test="bankNum != null" >
+        bank_num,
+      </if>
+      <if test="bankUserName != null" >
+        bank_user_name,
+      </if>
+      <if test="contractCreateDate != null" >
+        contract_create_date,
+      </if>
+      <if test="contractEndDate != null" >
+        contract_end_date,
+      </if>
+      <if test="remittanceType != null" >
+        remittance_type,
+      </if>
+      <if test="remittanced != null" >
+        remittanced,
+      </if>
+      <if test="accountStatus != null" >
+        account_status,
+      </if>
+      <if test="createDate != null" >
+        create_date,
+      </if>
+      <if test="updateDate != null" >
+        update_date,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+      <if test="balance != null" >
+        balance,
+      </if>
+      <if test="income != null" >
+        income,
+      </if>
+      <if test="contractResponsible != null" >
+        contract_responsible,
+      </if>
+      <if test="contractResponsiblePhone != null" >
+        contract_responsible_phone,
+      </if>
+      <if test="contractLicense != null" >
+        contract_license,
+      </if>
+      <if test="contractLicenseCreate != null" >
+        contract_license_create,
+      </if>
+      <if test="contractLicenseEnd != null" >
+        contract_license_end,
+      </if>
+      <if test="contractRegisterAddress != null" >
+        contract_register_address,
+      </if>
+      <if test="contractRegisterAddressDetail != null" >
+        contract_register_address_detail,
+      </if>
+      <if test="uploadMode != null" >
+        upload_mode,
+      </if>
+      <if test="smsCode != null" >
+        sms_code,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="accountId != null" >
+        #{accountId,jdbcType=BIGINT},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="providerName != null" >
+        #{providerName,jdbcType=VARCHAR},
+      </if>
+      <if test="responsible != null" >
+        #{responsible,jdbcType=VARCHAR},
+      </if>
+      <if test="responsiblePhone != null" >
+        #{responsiblePhone,jdbcType=VARCHAR},
+      </if>
+      <if test="license != null" >
+        #{license,jdbcType=VARCHAR},
+      </if>
+      <if test="licenseTimeCreate != null" >
+        #{licenseTimeCreate,jdbcType=BIGINT},
+      </if>
+      <if test="licenseTimeEnd != null" >
+        #{licenseTimeEnd,jdbcType=BIGINT},
+      </if>
+      <if test="businessType != null" >
+        #{businessType,jdbcType=VARCHAR},
+      </if>
+      <if test="registAddress != null" >
+        #{registAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="registerAddressDetail != null" >
+        #{registerAddressDetail,jdbcType=VARCHAR},
+      </if>
+      <if test="discount != null" >
+        #{discount,jdbcType=VARCHAR},
+      </if>
+      <if test="bankName != null" >
+        #{bankName,jdbcType=VARCHAR},
+      </if>
+      <if test="bankNum != null" >
+        #{bankNum,jdbcType=VARCHAR},
+      </if>
+      <if test="bankUserName != null" >
+        #{bankUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="contractCreateDate != null" >
+        #{contractCreateDate,jdbcType=BIGINT},
+      </if>
+      <if test="contractEndDate != null" >
+        #{contractEndDate,jdbcType=BIGINT},
+      </if>
+      <if test="remittanceType != null" >
+        #{remittanceType,jdbcType=VARCHAR},
+      </if>
+      <if test="remittanced != null" >
+        #{remittanced,jdbcType=VARCHAR},
+      </if>
+      <if test="accountStatus != null" >
+        #{accountStatus,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=BIGINT},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=BIGINT},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="balance != null" >
+        #{balance,jdbcType=DOUBLE},
+      </if>
+      <if test="income != null" >
+        #{income,jdbcType=DOUBLE},
+      </if>
+      <if test="contractResponsible != null" >
+        #{contractResponsible,jdbcType=VARCHAR},
+      </if>
+      <if test="contractResponsiblePhone != null" >
+        #{contractResponsiblePhone,jdbcType=VARCHAR},
+      </if>
+      <if test="contractLicense != null" >
+        #{contractLicense,jdbcType=VARCHAR},
+      </if>
+      <if test="contractLicenseCreate != null" >
+        #{contractLicenseCreate,jdbcType=BIGINT},
+      </if>
+      <if test="contractLicenseEnd != null" >
+        #{contractLicenseEnd,jdbcType=BIGINT},
+      </if>
+      <if test="contractRegisterAddress != null" >
+        #{contractRegisterAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="contractRegisterAddressDetail != null" >
+        #{contractRegisterAddressDetail,jdbcType=VARCHAR},
+      </if>
+      <if test="uploadMode != null" >
+        #{uploadMode,jdbcType=VARCHAR},
+      </if>
+      <if test="smsCode != null" >
+        #{smsCode,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+
+  <update id="updateByPrimaryKey" parameterType="com.sao.so.shop.domain.Account" >
+    update t_account
+    set user_id = #{userId,jdbcType=BIGINT},
+    provider_name = #{providerName,jdbcType=VARCHAR},
+    responsible = #{responsible,jdbcType=VARCHAR},
+    responsible_phone = #{responsiblePhone,jdbcType=VARCHAR},
+    license = #{license,jdbcType=VARCHAR},
+    license_time_create = #{licenseTimeCreate,jdbcType=BIGINT},
+    license_time_end = #{licenseTimeEnd,jdbcType=BIGINT},
+    business_type = #{businessType,jdbcType=VARCHAR},
+    regist_address = #{registAddress,jdbcType=VARCHAR},
+    register_address_detail = #{registerAddressDetail,jdbcType=VARCHAR},
+    discount = #{discount,jdbcType=VARCHAR},
+    bank_name = #{bankName,jdbcType=VARCHAR},
+    bank_num = #{bankNum,jdbcType=VARCHAR},
+    bank_user_name = #{bankUserName,jdbcType=VARCHAR},
+    contract_create_date = #{contractCreateDate,jdbcType=BIGINT},
+    contract_end_date = #{contractEndDate,jdbcType=BIGINT},
+    remittance_type = #{remittanceType,jdbcType=VARCHAR},
+    remittanced = #{remittanced,jdbcType=VARCHAR},
+    account_status = #{accountStatus,jdbcType=INTEGER},
+    create_date = #{createDate,jdbcType=BIGINT},
+    update_date = #{updateDate,jdbcType=BIGINT},
+    remark = #{remark,jdbcType=VARCHAR},
+    balance = #{balance,jdbcType=DOUBLE},
+    income = #{income,jdbcType=DOUBLE},
+    contract_responsible = #{contractResponsible,jdbcType=VARCHAR},
+    contract_responsible_phone = #{contractResponsiblePhone,jdbcType=VARCHAR},
+    contract_license = #{contractLicense,jdbcType=VARCHAR},
+    contract_license_create = #{contractLicenseCreate,jdbcType=BIGINT},
+    contract_license_end = #{contractLicenseEnd,jdbcType=BIGINT},
+    contract_register_address = #{contractRegisterAddress,jdbcType=VARCHAR},
+    contract_register_address_detail = #{contractRegisterAddressDetail,jdbcType=VARCHAR},
+    upload_mode = #{uploadMode,jdbcType=VARCHAR},
+    sms_code = #{smsCode,jdbcType=VARCHAR}
+    where account_id = #{accountId,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.sao.so.shop.domain.Account" >
+    update t_account
+    <set >
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="providerName != null" >
+        provider_name = #{providerName,jdbcType=VARCHAR},
+      </if>
+      <if test="responsible != null" >
+        responsible = #{responsible,jdbcType=VARCHAR},
+      </if>
+      <if test="responsiblePhone != null" >
+        responsible_phone = #{responsiblePhone,jdbcType=VARCHAR},
+      </if>
+      <if test="license != null" >
+        license = #{license,jdbcType=VARCHAR},
+      </if>
+      <if test="licenseTimeCreate != null" >
+        license_time_create = #{licenseTimeCreate,jdbcType=BIGINT},
+      </if>
+      <if test="licenseTimeEnd != null" >
+        license_time_end = #{licenseTimeEnd,jdbcType=BIGINT},
+      </if>
+      <if test="businessType != null" >
+        business_type = #{businessType,jdbcType=VARCHAR},
+      </if>
+      <if test="registAddress != null" >
+        regist_address = #{registAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="registerAddressDetail != null" >
+        register_address_detail = #{registerAddressDetail,jdbcType=VARCHAR},
+      </if>
+      <if test="discount != null" >
+        discount = #{discount,jdbcType=VARCHAR},
+      </if>
+      <if test="bankName != null" >
+        bank_name = #{bankName,jdbcType=VARCHAR},
+      </if>
+      <if test="bankNum != null" >
+        bank_num = #{bankNum,jdbcType=VARCHAR},
+      </if>
+      <if test="bankUserName != null" >
+        bank_user_name = #{bankUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="contractCreateDate != null" >
+        contract_create_date = #{contractCreateDate,jdbcType=BIGINT},
+      </if>
+      <if test="contractEndDate != null" >
+        contract_end_date = #{contractEndDate,jdbcType=BIGINT},
+      </if>
+      <if test="remittanceType != null" >
+        remittance_type = #{remittanceType,jdbcType=VARCHAR},
+      </if>
+      <if test="remittanced != null" >
+        remittanced = #{remittanced,jdbcType=VARCHAR},
+      </if>
+      <if test="accountStatus != null" >
+        account_status = #{accountStatus,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        create_date = #{createDate,jdbcType=BIGINT},
+      </if>
+      <if test="updateDate != null" >
+        update_date = #{updateDate,jdbcType=BIGINT},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="balance != null" >
+        balance = #{balance,jdbcType=DOUBLE},
+      </if>
+      <if test="income != null" >
+        income = #{income,jdbcType=DOUBLE},
+      </if>
+      <if test="contractResponsible != null" >
+        contract_responsible = #{contractResponsible,jdbcType=VARCHAR},
+      </if>
+      <if test="contractResponsiblePhone != null" >
+        contract_responsible_phone = #{contractResponsiblePhone,jdbcType=VARCHAR},
+      </if>
+      <if test="contractLicense != null" >
+        contract_license = #{contractLicense,jdbcType=VARCHAR},
+      </if>
+      <if test="contractLicenseCreate != null" >
+        contract_license_create = #{contractLicenseCreate,jdbcType=BIGINT},
+      </if>
+      <if test="contractLicenseEnd != null" >
+        contract_license_end = #{contractLicenseEnd,jdbcType=BIGINT},
+      </if>
+      <if test="contractRegisterAddress != null" >
+        contract_register_address = #{contractRegisterAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="contractRegisterAddressDetail != null" >
+        contract_register_address_detail = #{contractRegisterAddressDetail,jdbcType=VARCHAR},
+      </if>
+      <if test="uploadMode != null" >
+        upload_mode = #{uploadMode,jdbcType=VARCHAR},
+      </if>
+      <if test="smsCode != null" >
+        sms_code = #{smsCode,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where account_id = #{accountId,jdbcType=BIGINT}
+  </update>
+
+  <!--根据userId查询账户-->
+  <select id="findByUserId" resultMap="BaseResultMap">
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM t_account
+    WHERE user_id = #{userId}
+  </select>
+
+  <update id="updateAccountByUserId" parameterType="com.sao.so.shop.domain.Account">
+    UPDATE t_account
+    <set>
+      <if test="balance != null">
+        balance = #{balance},
+      </if>
+      <if test="updateDate != null">
+        update_date = #{updateDate},
+      </if>
+    </set>
+    WHERE user_id = #{userId,jdbcType=BIGINT}
+  </update>
+  <insert id="saveBatch" parameterType="com.sao.so.shop.domain.Account">
+    INSERT INTO
+	    t_account(user_id,
+	    provider_name,
+	    responsible,
+	    responsible_phone,
+	    license,license_time_create,
+	    license_time_end,
+	    regist_address,
+	    register_address_detail,
+	    business_type,
+	    contract_responsible,
+	    contract_responsible_phone,
+	    contract_license,
+	    contract_license_create,
+	    contract_license_end,
+	    contract_register_address,
+	    contract_register_address_detail,
+	    contract_create_date,
+	    contract_end_date,
+	    bank_name,
+	    bank_num,
+	    bank_user_name,
+	    remittanced,
+	    upload_mode,
+	    create_date)
+    VALUES
+    <foreach collection="list" item="accounts" index="1" separator=",">
+      (#{accounts.userId},
+          #{accounts.providerName},
+          #{accounts.responsible},
+          #{accounts.responsiblePhone},
+          #{accounts.license},
+          #{accounts.licenseTimeCreate},
+          #{accounts.licenseTimeEnd},
+          #{accounts.registAddress},
+          #{accounts.registerAddressDetail},
+          #{accounts.businessType},
+          #{accounts.contractResponsible},
+          #{accounts.contractResponsiblePhone},
+          #{accounts.contractLicense},
+          #{accounts.contractLicenseCreate},
+          #{accounts.contractLicenseEnd},
+          #{accounts.contractRegisterAddress},
+          #{accounts.contractRegisterAddressDetail},
+          #{accounts.contractCreateDate},
+          #{accounts.contractEndDate},
+          #{accounts.bankName},
+          #{accounts.bankNum},
+          #{accounts.bankUserName},
+          #{accounts.remittanced},
+          #{accounts.uploadMode},
+          #{accounts.createDate})
+    </foreach>
+  </insert>
+
+
+  <!--根据账户表（t_account）中的user_id（用户id）字段查询账户表（t_account）中用户的余额-->
+  <select id="findUserBalance" resultType="java.math.BigDecimal" parameterType="java.lang.Long">
+    SELECT balance
+    FROM t_account
+    WHERE user_id=#{userId};
+  </select>
+  <!--根据账户表（t_account）中的user_id（用户id）字段修改账户表（t_account）中用户的余额-->
+  <update id="updateUserBalance" parameterType="com.sao.so.shop.domain.Account">
+    UPDATE t_account
+    SET balance = #{account.balance}
+    WHERE user_id=#{account.userId};
+  </update>
+<select id="findPage" resultMap="BaseResultMap" parameterType="com.sao.so.shop.domain.Condition">
+          SELECT account_id,user_id,create_date,provider_name,responsible,contract_end_date, contract_responsible_phone,
+                 contract_register_address
+            FROM t_account
+            <where>
+                <if test="beginDate != null">
+                   create_date <![CDATA[>=]]> #{beginDate}
+                </if>
+                <if test="endDate != null">
+                    AND create_date <![CDATA[<=]]> #{endDate}
+                </if>
+                <if test="providerName != null">
+                    AND provider_name LIKE "%${providerName}%"
+                </if>
+				<if test="contractCreateDate != null">
+                    AND contract_create_date <![CDATA[>=]]> #{contractCreateDate}
+                </if>
+                <if test="contractEndDate != null">
+                    AND contract_end_date <![CDATA[<=]]> #{contractEndDate}
+                </if>
+                <if test="contractResponsible != null">
+                    AND contract_responsible = #{contractResponsible}
+                </if>
+                <if test="contractResponsiblePhone != null ">
+                    AND  contract_responsible_phone = #{contractResponsiblePhone}
+                </if>
+                <if test="contractRegisterAddress != null ">
+                    AND  contract_register_address LIKE "%${contractRegisterAddress}%"
+                </if>
+            </where>
+    </select>
+
+    <select id="findOne" resultMap="BaseResultMap" parameterType="long">
+           SELECT account_id,user_id,provider_name,responsible,responsible_phone, license,
+                 license_time,business_type,regist_address, register_address_detail, discount,
+                 bank_name,bank_num,bank_user_name,contract_create_date,contract_end_date,
+                 AREA,area_detail,remittance_type,remittanced, account_status,create_date,
+                 update_date,remark, balance,income,contract_responsible,contract_responsible_phone,
+                 contract_license,contract_license_time,contract_register_address,
+                 contract_register_address_detail
+            FROM
+              t_account
+           WHERE account_id = #{accountId}
+    </select>
+
+    <!-- 修改历史总收入 -->
+    <update id="updateUserPrice">
+      UPDATE T_ACCOUNT SET INCOME = #{account} WHERE USER_ID = #{storeId}
+    </update>
+</mapper>

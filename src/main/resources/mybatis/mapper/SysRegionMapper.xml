@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sao.so.shop.dao.SysRegionDao">
+    <resultMap id="areaMap" type="com.sao.so.shop.domain.SysRegion">
+        <id column="sr_id" jdbcType="INTEGER" property="srId"/>
+        <id column="name" jdbcType="VARCHAR" property="name"/>
+        <id column="level" jdbcType="INTEGER" property="level"/>
+    </resultMap>
+
+    <select id="findByPid" resultMap="areaMap" parameterType="java.lang.Integer">
+        SELECT sr_id,name,level
+        FROM t_sys_region
+        <where>
+            <if test="_parameter == null">
+                level = 0
+            </if>
+            <if test="_parameter != null">
+                parent_id = #{pid}
+            </if>
+        </where>
+    </select>
+</mapper>

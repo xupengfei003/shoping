@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sao.so.shop.dao.CommodityDao">
+    <sql id="baseColumns">
+          id,
+          brand_id AS brandId,
+          name
+    </sql>
+    <select id="findOne" resultType="com.sao.so.shop.domain.Commodity">
+        SELECT
+        <include refid="baseColumns"/>
+        FROM commodity WHERE id=#{id}
+    </select>
+    <select id="findByName" resultType="com.sao.so.shop.domain.Commodity">
+        SELECT
+        <include refid="baseColumns"/>
+        FROM commodity WHERE name LIKE #{name}
+    </select>
+
+    <insert id="save" useGeneratedKeys="true" keyProperty="id">
+        insert commodity (
+            brand_id,
+            name
+        )VALUES (
+            #{brandId},
+            #{name}
+        )
+    </insert>
+    <update id="update">
+        UPDATE commodity SET name=#{name},brand_id = #{brandId} WHERE id = #{id}
+    </update>
+    <select id="findByIds" parameterType="Long[]" resultType="com.sao.so.shop.pojo.output.CommodityExportOutput">
+        SELECT
+        sc.commodity_id AS commId,
+        sc.code69 AS code69,
+        sc.brand AS brandName,
+        sc.name AS commName,
+        sc.code AS supplierCode,
+        sc.unit AS unit,
+        sc.rule_name ruleName,
+        sc.rule_val AS ruleValue,
+        sc.price AS price,
+        sc.unit_price AS unitPrice,
+        sc.inventory AS inventory,
+        sc.status AS status,
+        sc.created_at AS createdAt,
+        sc.updated_at AS updatedAt
+        FROM supplier_commodity sc
+        WHERE sc.id IN
+        <foreach collection="array" item="scId" index="index" open="(" close=")" separator=",">
+            #{scId}
+        </foreach>
+    </select>
+</mapper>

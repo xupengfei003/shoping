@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sao.so.shop.dao.PurchaseDao">
+
+  <!-- 通用查询映射结果 -->
+  <resultMap id="BaseResultMap" type="com.sao.so.shop.domain.Purchase">
+    <id column="order_id" property="orderId" />
+    <result column="store_id" property="storeId" />
+    <result column="user_id" property="userId" />
+    <result column="order_price" property="orderPrice" />
+    <result column="order_receiver_name" property="orderReceiverName" />
+    <result column="order_receiver_mobile" property="orderReceiverMobile" />
+    <result column="order_address" property="orderAddress" />
+    <result column="order_ship_method" property="orderShipMethod" />
+    <result column="order_payment_num" property="orderPaymentNum" />
+    <result column="order_create_time" property="orderCreateTime" />
+    <result column="order_payment_method" property="orderPaymentMethod" />
+    <result column="order_payment_time" property="orderPaymentTime" />
+    <result column="order_refund_reason" property="orderRefundReason" />
+    <result column="order_refund_time" property="orderRefundTime" />
+    <result column="order_refuse_reason" property="orderRefuseReason" />
+    <result column="order_refuse_time" property="orderRefuseTime" />
+    <result column="order_cancel_reason" property="orderCancelReason" />
+    <result column="order_shipment_number" property="orderShipmentNumber" />
+    <result column="order_invoice" property="orderInvoice" />
+    <result column="order_status" property="orderStatus" />
+  </resultMap>
+
+  <!-- 通用查询结果列 -->
+  <sql id="Base_Column_List">
+    order_id AS orderId,
+	store_id AS storeId,
+	user_id AS userId,
+	order_price AS orderPrice,
+	order_receiver_name AS orderReceiverName,
+	order_receiver_mobile AS orderReceiverMobile,
+	order_address AS orderAddress,
+	order_ship_method AS orderShipMethod,
+	order_payment_num AS orderPaymentNum,
+	order_create_time AS orderCreateTime,
+	order_payment_method AS orderPaymentMethod,
+	order_payment_time AS orderPaymentTime,
+	order_refund_reason AS orderRefundReason,
+	order_refund_time AS orderRefundTime,
+	order_refuse_reason AS orderRefuseReason,
+	order_refuse_time AS orderRefuseTime,
+	order_cancel_reason AS orderCancelReason,
+	order_shipment_number AS orderShipmentNumber,
+	order_invoice AS orderInvoice,
+	order_status AS orderStatus,
+	drawback_time AS drawbackTime,
+	distributor_name AS distributorName,
+	distributor_mobile AS distributorMobile,
+	logistics_company AS logisticsCompany
+  </sql>
+
+  <!-- 根据ID查询订单信息 -->
+  <select id="findById" parameterType="java.lang.Long" resultType="com.sao.so.shop.domain.Purchase">
+      select
+      <include refid="Base_Column_List" />
+      from purchase
+      where order_id = #{orderId,jdbcType=BIGINT}
+  </select>
+  <!-- 批量查询订单列表 -->
+    <select id="getOrderListByIds" resultMap="BaseResultMap">
+        SELECT
+        order_id,
+        order_receiver_name,
+        order_receiver_mobile,
+        order_status,
+        order_price,
+        order_create_time,
+        order_payment_method,
+        order_payment_num
+        FROM
+        purchase
+        <if test="orderIdList != null and orderIdList.size() > 0">
+            WHERE order_id IN
+            <foreach item="orderId" index="index" collection="orderIdList"
+                     open="(" separator="," close=")">
+                #{orderId}
+            </foreach>
+        </if>
+    </select>
+  <!-- 添加订单信息 -->
+    <insert id="savePurchase" parameterType="java.util.List">
+        INSERT INTO purchase
+            (
+                order_id,
+                store_id,
+                user_id,
+                order_price,
+                order_receiver_name,
+                order_receiver_mobile,
+                order_address,
+                order_create_time,
+                order_payment_method,
+                order_status
+            )
+        VALUES
+        <foreach collection ="list" item="item" index= "index" separator =",">
+            (
+                #{item.orderId},
+                #{item.storeId},
+                #{item.userId},
+                #{item.orderPrice},
+                #{item.orderReceiverName},
+                #{item.orderReceiverMobile},
+                #{item.orderAddress},
+                #{item.orderCreateTime},
+                #{item.orderPaymentMethod},
+                #{item.orderStatus}
+            )
+        </foreach>
+    </insert>
+
+
+
+    <!--查询全部订单-->
+    <resultMap id="OrderAllList" type="com.sao.so.shop.pojo.vo.PurchasesVo">
+        <id column="order_id" property="orderId" />
+        <result column="order_receiver_name" property="orderReceiverName"/>
+        <result column="order_receiver_mobile" property="orderReceiverMobile"/>
+        <result column="order_status" property="orderStatus"/>
+        <result column="order_price" property="orderPrice"/>
+        <result column="order_create_time" property="orderCreateTime"/>
+        <result column="order_payment_time" property="orderPaymentTime"/>
+        <result column="order_payment_method" property="orderPaymentMethod"/>
+        <result column="order_payment_num" property="orderPaymentNum"/>
+    </resultMap>
+    <sql id="Order_Column_List">
+        order_id, order_receiver_name, order_receiver_mobile, order_create_time, order_price, order_status,order_payment_time, order_payment_method, order_payment_num
+    </sql>
+    <select id="findPage" resultMap="OrderAllList" parameterType="com.sao.so.shop.pojo.input.PurchaseSelectInput" >
+        SELECT
+        <include refid="Order_Column_List" />
+        FROM purchase
+        <where>
+            order_status != -1
+            <if test="orderId != null" >
+                AND order_id LIKE "${orderId}%"
+            </if>
+            <if test="orderReceiverName!=null">
+                AND order_receiver_name LIKE "${orderReceiverName}%"
+            </if>
+
+            <if test="beginDate!=null">
+                AND order_create_time >= #{beginDate}
+            </if>
+            <if test="endDate != null">
+                AND #{endDate} >= order_create_time
+            </if>
+
+            <if test="beginMoney!=null and endMoney == null">
+                AND order_price >= #{beginMoney}
+            </if>
+            <if test="beginMoney ==null and endMoney != null">
+                AND #{endMoney} >= order_price
+            </if>
+            <if test="beginMoney !=null and endMoney != null">
+                AND order_price BETWEEN #{beginMoney} AND #{endMoney}
+            </if>
+
+            <if test="orderReceiverMobile!=null">
+                AND order_receiver_mobile LIKE "${orderReceiverMobile}%"
+            </if>
+
+            <if test="orderPaymentDate!=null">
+                AND #{orderPaymentDate} >= order_payment_time
+            </if>
+
+            <if test="orderPaymentMethod!=null">
+                AND order_payment_method = #{orderPaymentMethod}
+            </if>
+            <if test="orderPaymentNum!=null">
+                AND order_payment_num LIKE "${orderPaymentNum}%"
+            </if>
+
+            --      根据状态查询
+            <if test="orderStatus!=null">
+                AND order_status = #{orderStatus}
+            </if>
+
+            <if test="userId!=null">
+                AND user_id LIKE "${userId}%"
+            </if>
+
+            <if test="storeId!=null">
+                AND store_id LIKE "${storeId}%"
+            </if>
+        </where>
+        ORDER BY order_create_time DESC
+    </select>
+
+    <!--更改订单状态-->
+
+    <update id="updateOrder">
+        UPDATE purchase
+        SET
+        order_status = #{orderStatus}
+        WHERE order_id = #{orderId}
+    </update>
+
+    <!--更改状态辅助操作-->
+    <update id="updateOrderAtr">
+        UPDATE purchase
+        <choose>
+            <when test="drawbackTime!=null">
+                SET drawback_time = #{drawbackTime}
+            </when>
+            <otherwise>
+                <if test="receiveMethod == 1">SET distributor_name = #{name},distributor_mobile = #{number},order_ship_method=1</if>
+                <if test="receiveMethod == 2">SET logistics_company = #{name} ,order_shipment_number = #{number},order_ship_method=2</if>
+            </otherwise>
+        </choose>
+        WHERE order_id = #{orderId}
+    </update>
+
+    <!--删除订单-->
+
+    <update id="deleteByOrderId" parameterType="com.sao.so.shop.pojo.vo.PurchasesVo">
+        UPDATE purchase
+        SET
+        order_status = -1
+        WHERE order_id IN
+        <foreach collection="array" open="(" close=")" separator="," item="orderId" index="i">
+            #{orderId}
+        </foreach>
+
+    </update>
+
+    <resultMap id="accountUserMap" type="com.sao.so.shop.domain.AccountUser">
+        <id column="user_id" property="userId" />
+        <result column="provider_name" property="providerName"/>
+    </resultMap>
+    <!-- 根据商品ID查询供应商信息 -->
+    <select id="findAccountById" resultMap="accountUserMap">
+        SELECT
+            user_id,
+            provider_name
+        FROM
+          t_account
+        WHERE
+        user_id = (
+            SELECT
+              supplier_id
+            FROM
+              supplier_commodity
+            WHERE
+              id = #{id}
+        )
+    </select>
+
+    <!--修改订单账户状态为 已提现-->
+    <update id="updateAccountStatus" parameterType="java.lang.Long">
+        UPDATE supplier
+        SET account_status = 2
+        WHERE store_id = #{userId} and order_status = 7 and account_status = 1
+    </update>
+
+    <!--根据商家id统计该账户名下订单状态（已完成）+ 账户状态（未统计）金额累计之和-->
+    <select id="findUncountedMoney" resultType="java.math.BigDecimal" parameterType="java.lang.Long">
+        SELECT SUM(order_price)
+        FROM purchase
+        WHERE store_id=#{userId} AND order_status=7 AND account_status=0;
+    </select>
+
+    <!--根据商家id，修改该账户名下订单状态（已完成）+ 账户状态（未统计）为 订单状态（已完成）+ 账户状态（已统计）-->
+    <update id="updatePurchaseAccountStatus" parameterType="java.lang.Long">
+        UPDATE purchase
+        SET account_status = 1
+        WHERE store_id=#{userId} AND order_status=7 AND account_status=0;
+    </update>
+
+    <!-- 分页条件检索-->
+    <select id="findPageByStoreId" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        SELECT
+        ORDER_ID,ORDER_STATUS,ORDER_PRICE,ORDER_PAYMENT_METHOD,ORDER_RECEIVER_NAME,ORDER_RECEIVER_MOBILE
+        FROM PURCHASE
+        WHERE STORE_ID = #{store_id,jdbcType=BIGINT}
+        AND ORDER_STATUS=7
+        AND ACCOUNT_STATUS='1'
+    </select>
+
+    <!--条件查询数量-->
+    <select id="countByStoreId" resultType="java.lang.Integer" parameterType="java.lang.Long">
+        SELECT COUNT(store_id)
+        FROM purchase
+        WHERE store_id = #{storeId,jdbcType=BIGINT}
+    </select>
+
+    <!-- 查询订单状态 -->
+    <select id="findOrderStatus" resultType="java.lang.Double" parameterType="java.lang.Long">
+        SELECT SUM(ORDER_PRICE)
+        FROM PURCHASE
+        WHERE STORE_ID= #{storeId} and order_status = 7
+    </select>
+
+
+</mapper>

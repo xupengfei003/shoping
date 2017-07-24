@@ -1,0 +1,48 @@
+buildscript {
+	ext {
+		springBootVersion = '1.5.4.RELEASE'
+	}
+	repositories {
+		maven{url 'http://maven.aliyun.com/nexus/content/groups/public/'}
+		mavenCentral()
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+	}
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = 1.8
+
+repositories {
+	maven{url 'http://maven.aliyun.com/nexus/content/groups/public/'}
+	mavenCentral()
+}
+
+
+dependencies {
+	compile('org.mybatis.spring.boot:mybatis-spring-boot-starter:1.3.0')
+	compile('org.springframework.boot:spring-boot-starter-web')
+	compile('com.github.pagehelper:pagehelper-spring-boot-starter:1.1.2')
+	compile('io.springfox:springfox-swagger-ui:2.5.0')
+	compile('io.springfox:springfox-swagger2:2.5.0')
+	compile('org.springframework.boot:spring-boot-starter-security')
+	compile('org.springframework.security.oauth:spring-security-oauth2')
+	compile('org.springframework.security:spring-security-jwt')
+	compile('org.mybatis.generator:mybatis-generator-maven-plugin:1.3.5')
+	compile('org.springframework.boot:spring-boot-starter-thymeleaf')
+	compile ('org.apache.poi:poi:3.17-beta1')
+	compile ('org.apache.poi:poi-ooxml:3.17-beta1')
+	compile('commons-io:commons-io:+')
+	compile ('org.apache.poi:poi-ooxml-schemas:3.17-beta1')
+	compile ('org.apache.poi:poi-scratchpad:3.17-beta1')
+	runtime('mysql:mysql-connector-java')
+	testCompile('org.springframework.boot:spring-boot-starter-test')
+	//实现上传文件到ftp服务器
+	compile('commons-net:commons-net:3.3')
+	compile fileTree(dir:'lib',include:['aliyun-java-sdk-core-3.2.2.jar','aliyun-java-sdk-dybaseapi-1.0.0-SNAPSHOT.jar','aliyun-java-sdk-dysmsapi-1.0.0-SANPSHOT.jar'])
+}

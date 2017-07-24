@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sao.so.shop.dao.SupplierCommodityDao">
+
+    <resultMap id="BaseResultMap" type="com.sao.so.shop.domain.SupplierCommodity">
+        <id column="ID" property="id"/>
+        <result column="SKU" property="sku"/>
+        <result column="SUPPLIER_ID" property="supplierId"/>
+        <result column="BRAND_ID" property="brandId"/>
+        <result column="BRAND" property="brand"/>
+        <result column="CODE" property="code"/>
+        <result column="CODE69" property="code69"/>
+        <result column="CATAGORY_ONE_ID" property="categoryOneId"/>
+        <result column="CATAGORY_TWO_ID" property="categoryTwoId"/>
+        <result column="CATAGORY_THREE_ID" property="categoryThreeId"/>
+        <result column="COMMODITY_ID" property="commodityId"/>
+        <result column="NAME" property="name"/>
+        <result column="REMARK" property="remark"/>
+        <result column="DESCRIPTION" property="description"/>
+        <result column="STATUS" property="status"/>
+        <result column="RULE_NAME" property="ruleName"/>
+        <result column="RULE_VAL" property="ruleVal"/>
+        <result column="UNIT" property="unit"/>
+        <result column="INVENTORY" property="inventory"/>
+        <result column="MIN_IMG" property="minImg"/>
+        <result column="PRICE" property="price"/>
+        <result column="UNIT_PRICE" property="unitPrice"/>
+        <result column="DELETED" property="deleted"/>
+        <result column="CREATED_BY" property="createdBy"/>
+        <result column="CREATED_AT" property="createdAt"/>
+        <result column="UPDATED_BY" property="updatedBy"/>
+        <result column="UPDATED_AT" property="updatedAt"/>
+    </resultMap>
+
+    <sql id="searchColumns">
+        id AS id,
+        min_img AS minImg,
+        commodity_id AS commodityId,
+        code69 AS code69,
+        code AS code,
+        brand AS brand,
+        name AS name,
+        unit AS unit,
+        rule_name AS ruleName,
+        rule_val AS ruleVal,
+        inventory AS inventory,
+        status AS status,
+        created_at AS createdAt,
+        updated_at AS updatedAt
+    </sql>
+    <insert id="save"  useGeneratedKeys="true" keyProperty="id">
+        insert supplier_commodity (
+            category_one_id,
+            category_two_id,
+            category_three_id,
+            supplier_id,
+            commodity_id,
+            brand_id,
+            brand,
+            code,
+            code69,
+            name,
+            inventory,
+            rule_name,
+            rule_val,
+            unit,
+            price,
+            unit_price,
+            min_img,
+            created_at,
+            updated_at,
+            created_by,
+            updated_by,
+            deleted,
+            status,
+            description,
+            remark
+        )VALUES (
+            #{categoryOneId},
+            #{categoryTwoId},
+            #{categoryThreeId},
+            #{supplierId},
+            #{commodityId},
+            #{brandId},
+            #{brand},
+            #{code},
+            #{code69},
+            #{name},
+            #{inventory},
+            #{ruleName},
+            #{ruleVal},
+            #{unit},
+            #{price},
+            #{unitPrice},
+            #{minImg},
+            #{createdAt},
+            #{updatedAt},
+            #{createdBy},
+            #{updatedBy},
+            #{deleted},
+            #{status},
+            #{description},
+            #{remark}
+        )
+    </insert>
+    <update id="update">
+        UPDATE supplier_commodity SET
+            category_one_id=#{categoryOneId},
+            category_two_id=#{categoryTwoId},
+            category_three_id=#{categoryThreeId},
+            commodity_id=#{commodityId},
+            brand_id=#{brandId},
+            brand=#{brand},
+            code=#{code},
+            code69=#{code69},
+            name=#{name},
+            inventory=#{inventory},
+            rule_name=#{ruleName},
+            rule_val=#{ruleVal},
+            unit=#{unit},
+            price=#{price},
+            unit_price=#{unitPrice},
+            min_img=#{minImg},
+            description = #{description},
+            status = #{status},
+            updated_at=#{updatedAt},
+            updated_by=#{updatedBy}
+        WHERE id = #{id}
+    </update>
+    <delete id="deleteById">
+        UPDATE supplier_commodity SET deleted=#{deleted},updated_at=#{updatedAt} WHERE id=#{id}
+    </delete>
+    <!--获取商品详情-->
+    <select id="findSupplierCommodityInfo" resultType="com.sao.so.shop.domain.SupplierCommodity">
+        SELECT
+        id,
+        brand,
+        category_one_id AS categoryOneId,
+        category_two_id AS categoryTwoId,
+        category_three_id AS categoryThreeId,
+        name,
+        remark,
+        description,
+        code,
+        code69,
+        rule_name AS ruleName,
+        rule_val AS ruleVal,
+        unit,
+        inventory,
+        min_img AS minImg,
+        price,
+        unit_price AS unitPrice
+        FROM supplier_commodity WHERE code69 = #{code69}
+    </select>
+    <!--获取商品详情-->
+    <select id="findOne" resultType="com.sao.so.shop.domain.SupplierCommodity">
+        SELECT
+        id,
+        brand,
+        category_one_id AS categoryOneId,
+        category_two_id AS categoryTwoId,
+        category_three_id AS categoryThreeId,
+        name,
+        remark,
+        description,
+        code,
+        code69,
+        rule_name AS ruleName,
+        rule_val AS ruleVal,
+        unit,
+        inventory,
+        min_img AS minImg,
+        price,
+        unit_price AS unitPrice
+        FROM supplier_commodity WHERE id = #{id}
+    </select>
+    <select id="find" resultType="com.sao.so.shop.domain.SupplierCommodity">
+        SELECT
+        <include refid="searchColumns"/>
+        FROM supplier_commodity sc
+        WHERE sc.deleted = 0
+        AND sc.supplier_id = #{supplierId}
+        <if test="commCode69 != null and commCode69 != ''">
+            AND sc.code69 = #{commCode69}
+        </if>
+        <if test="commId != null and commId != ''">
+            AND sc.commodity_id = #{commId}
+        </if>
+        <if test="suppCommCode != null and suppCommCode != ''">
+            AND sc.code = #{suppCommCode}
+        </if>
+        <if test="commName != null and commName != '' ">
+            AND sc.name LIKE CONCAT ('%',#{commName},'%')
+        </if>
+        <if test="status != null and status != ''">
+            AND sc.`status` = #{status}
+        </if>
+        <if test="minPrice != null and maxPrice == null">
+            AND sc.unit_price<![CDATA[ >= #{minPrice}]]>
+        </if>
+        <if test="minPrice == null and maxPrice != null">
+            AND  sc.unit_price<![CDATA[<= #{maxPrice}]]>
+        </if>
+        <if test="minPrice != null and maxPrice != null">
+            AND sc.unit_price BETWEEN #{minPrice} AND #{maxPrice}
+        </if>
+        <if test="typeId != null and typeId != ''">
+            AND sc.category_one_id = #{typeId}
+        </if>
+        ORDER BY sc.created_at
+    </select>
+    <!--获取商品状态-->
+    <select id="findStatus" resultType="int">
+        SELECT
+        status
+        FROM supplier_commodity WHERE id = #{id}
+    </select>
+
+    <!--上下架商品-->
+    <update id="updateStatusSXj">
+        UPDATE supplier_commodity
+        SET updated_at = #{updatedAt},status = #{status}
+        WHERE id = #{id}
+    </update>
+</mapper>
