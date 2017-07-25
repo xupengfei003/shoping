@@ -4,8 +4,10 @@ import com.github.pagehelper.PageInfo;
 import org.springframework.web.multipart.MultipartFile;
 import so.sao.shop.supplier.domain.Account;
 import so.sao.shop.supplier.pojo.BaseResult;
+import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.CommodityInput;
 import so.sao.shop.supplier.pojo.output.CommodityExportOutput;
+import so.sao.shop.supplier.pojo.output.CommodityImportOutput;
 import so.sao.shop.supplier.pojo.output.CommodityOutput;
 
 import javax.servlet.http.HttpServletRequest;
@@ -81,28 +83,28 @@ public interface CommodityService {
      * @param id
      * @return true or false
      */
-    BaseResult deleteCommodity(Long id);
+    Result deleteCommodity(Long id);
 
     /**
      * 批量删除商品
      * @param ids
      * @return 结果集
      */
-    BaseResult deleteCommodities(Long[] ids);
+    Result deleteCommodities(Long[] ids);
 
     /**
      * 上架商品
      * @param id
      * @return
      */
-    BaseResult updateStatusSj(Long id);
+    Result updateStatusSj(Long id);
 
     /**
      * 下架商品
      * @param id
      * @return
      */
-    BaseResult updateStatusXj(Long id);
+    Result updateStatusXj(Long id);
 
     /**
      * 批量上架商品
@@ -126,5 +128,5 @@ public interface CommodityService {
      * @return 导入结果
      */
 
-    public BaseResult importExcel(MultipartFile multipartFile , HttpServletRequest request);
+    public  List<CommodityImportOutput> importExcel(MultipartFile multipartFile , HttpServletRequest request);
 }

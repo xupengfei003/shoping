@@ -9,8 +9,10 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import so.sao.shop.supplier.domain.User;
 import so.sao.shop.supplier.pojo.BaseResult;
+import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.CommodityInput;
 import so.sao.shop.supplier.pojo.output.CommodityExportOutput;
+import so.sao.shop.supplier.pojo.output.CommodityImportOutput;
 import so.sao.shop.supplier.pojo.output.CommodityOutput;
 import so.sao.shop.supplier.service.CommodityService;
 import so.sao.shop.supplier.util.CommodityExcelView;
@@ -47,17 +49,6 @@ public class CommodityController {
         return commodityService.searchCommodities(supplierId, commCode69, commId, suppCommCode, commName, status, typeId, minPrice, maxPrice, pageNum, pageSize);
     }
 
-   /* @ApiOperation(value="查询商品信息集合", notes="根据参数返回符合条件的商品信息集合")
-    @GetMapping(value="/search")
-    public PageInfo searchAll(HttpServletRequest request,@RequestParam(required = false) String commCode69,@RequestParam(required = false) Long commId,
-                              @RequestParam(required = false) String suppCommCode,@RequestParam(required = false) String commName,
-                              @RequestParam(required = false) Integer status,@RequestParam(required = false) Long typeId,@RequestParam(required = false) Double minPrice,
-                              @RequestParam(required = false) Double maxPrice,@RequestParam int pageNum, @RequestParam int pageSize){
-        //获取供应商ID
-        Long supplierId = ((User) request.getAttribute(Constant.REQUEST_USER)).getId();
-        return commodityService.searchCommodities(supplierId, commCode69, commId, suppCommCode, commName, status, typeId, minPrice, maxPrice, pageNum, pageSize);
-    }*/
-
     @ApiOperation(value="查询商品详情信息", notes="根据ID返回相应的商品信息")
     @GetMapping(value="/get/{id}")
     public CommodityOutput get(@PathVariable Long id){
@@ -72,13 +63,13 @@ public class CommodityController {
 
     @ApiOperation(value="修改商品信息", notes="")
     @PutMapping(value="/update")
-    public BaseResult update(HttpServletRequest request,@Valid @RequestBody CommodityInput commodityInput){
+    public BaseResult update(HttpServletRequest request,@Valid CommodityInput commodityInput){
         return commodityService.updateCommodity(request,commodityInput);
     }
 
     @ApiOperation(value="上架商品", notes="")
     @PutMapping(value="/updateStatusSj/{id}")
-    public BaseResult updateStatusSj(@PathVariable long id){
+    public Result updateStatusSj(@PathVariable long id){
         return commodityService.updateStatusSj(id);
     }
 
@@ -90,7 +81,7 @@ public class CommodityController {
 
     @ApiOperation(value="下架商品", notes="")
     @PutMapping(value="/updateStatusXj/{id}")
-    public BaseResult updateStatusXj(@PathVariable long id){
+    public Result updateStatusXj(@PathVariable long id){
         return commodityService.updateStatusXj(id);
     }
 
@@ -103,13 +94,13 @@ public class CommodityController {
 
     @ApiOperation(value="删除商品信息", notes="根据ID删除相应的商品")
     @DeleteMapping(value="/delete/{id}")
-    public BaseResult delete(@PathVariable Long id){
+    public Result delete(@PathVariable Long id){
         return commodityService.deleteCommodity(id);
     }
 
     @ApiOperation(value="批量删除商品信息", notes="根据ID批量删除相应的商品")
     @DeleteMapping(value="/delete/bulk")
-    public BaseResult delete(@RequestParam Long[] id){
+    public Result delete(@RequestParam Long[] id){
         return commodityService.deleteCommodities(id);
     }
 
@@ -121,7 +112,7 @@ public class CommodityController {
 
     @ApiOperation(value="批量导入商品", notes="通过Excel模板批量导入商品信息")
     @PostMapping(value="/importExcel")
-    public BaseResult importExcel(@RequestParam(value = "excelFile") MultipartFile excelFile, HttpServletRequest request){
+    public  List<CommodityImportOutput> importExcel(@RequestParam(value = "excelFile") MultipartFile excelFile, HttpServletRequest request){
         return   commodityService.importExcel(excelFile,request);
     }
 

@@ -55,6 +55,10 @@ public class SuppCommSearchVo {
      */
     private String status;
     /**
+     * 商品状态数值
+     */
+    private int statusNum;
+    /**
      *  创建时间
      */
     private Long createdAt;
@@ -173,5 +177,13 @@ public class SuppCommSearchVo {
 
     public void setUpdatedAt(Long updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public int getStatusNum() {
+        return statusNum;
+    }
+
+    public void setStatusNum(int statusNum) {
+        this.statusNum = statusNum;
     }
 }

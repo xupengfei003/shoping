@@ -207,13 +207,14 @@ public class PurchaseController {
     }
 
     /**
-     * 根据商户id分页显示订单
+     * 根据商户id及查询条件（起始-结束时间；起始-结束金额范围）分页显示余额明细
      * @param pageNum 当前页码
      * @param pageSize 每页显示条数
-     * @param storeId 商户ID
-     * @return 显示数据
+     * @param input 查询条件封装类
+     * @param storeId 商家编号
+     * @return output出参
      */
-    @ApiOperation(value="查找订单列表", notes=" 根据商户id分页显示订单")
+    @ApiOperation(value="余额明细查询", notes=" 根据商户id及查询条件（起始-结束时间；起始-结束金额范围）分页显示订单")
     @GetMapping(value = "/account/Purchases")
     public RecordToPurchaseOutput search(Integer pageNum, Integer pageSize, AccountPurchaseInput input, @RequestParam Long storeId){
 

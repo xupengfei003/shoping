@@ -22,14 +22,14 @@ public class Swagger2Configure {
         return new Docket(DocumentationType.SWAGGER_2)
             .apiInfo(apiInfo())
             .select()
-            .apis(RequestHandlerSelectors.basePackage("com.sao.so.supplier"))
+            .apis(RequestHandlerSelectors.basePackage("so.sao.shop.supplier"))
             .paths(PathSelectors.any())
             .build();
     }
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-            .title("Demo项目")
+            .title("supplier项目")
             .description("接口列表")
             .version("1.0")
             .build();

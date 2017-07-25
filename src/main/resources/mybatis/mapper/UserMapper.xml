@@ -31,12 +31,12 @@
          WHERE login_name=#{username}
     </select>
     <update id="updatePassword">
-        UPDATE t_user SET login_password=#{loginPassword} WHERE user_id = #{userId}
+        UPDATE t_user SET login_password=#{loginPassword}, last_password_reset_date=#{lastPasswordResetDate} WHERE user_id = #{userId}
     </update>
     <update id="saveSmsCode">
         UPDATE t_user SET sms_code=#{code} WHERE login_name = #{tel}
     </update>
-    <select id="findSmsCode" >
+    <select id="findSmsCode" resultType="String">
         SELECT sms_code FROM t_user WHERE user_id=#{userId}
     </select>
     <insert id="add" parameterType="so.sao.shop.supplier.domain.User">
@@ -47,6 +47,9 @@
         values (#{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR})
     </insert>
     <update id="update">
-        UPDATE t_user SET login_name=#{loginName} WHERE user_id=#{id}
+        UPDATE t_user SET login_name=#{tel} WHERE user_id=#{id}
+    </update>
+    <update id="updateLogoutTime">
+        UPDATE t_user SET logout_time=#{logoutTime} WHERE user_id = #{userId}
     </update>
 </mapper>

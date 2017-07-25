@@ -46,4 +46,5 @@ dependencies {
     compile fileTree(dir:'lib', include: '*.jar')
 
 	testCompile('org.springframework.boot:spring-boot-starter-test')
+	compile('com.microsoft.azure:azure-storage:5.4.0')
 }

@@ -5,6 +5,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import so.sao.shop.supplier.config.Constant;
@@ -93,11 +94,12 @@ public class AccountServiceImpl implements AccountService {
      * 根据id更新用户信息
      *
      * @param id
+     * @param tel
      * @return 返回更新行数
      */
     @Override
-    public int updateUser(Long id) {
-        return userDao.update(id);
+    public int updateUser(Long id, String tel) {
+        return userDao.update(id, tel);
     }
 
     /**
@@ -294,7 +296,8 @@ public class AccountServiceImpl implements AccountService {
                 User user = new User();
                 user.setUsername(phone);
                 String password = SmsUtil.getVerCode();
-                user.setPassword(password);
+                BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+                user.setPassword(encoder.encode(password));
                 user1.setLastPasswordResetDate(new Date().getTime());
                 userDao.add(user);
                 SmsUtil.sendSms(phone, password);

@@ -74,13 +74,15 @@ public interface PurchaseService {
     void exportExcel(HttpServletRequest request, HttpServletResponse response,String orderIds, Integer pageNum, Integer pageSize) throws Exception;
 
     /**
-     * 根据商家编号查找所有相关订单记录(分页)
+     * 根据商家编号及查询条件（起始-结束时间范围；起始-结束金额范围）查找所有相关订单记录(分页)
      * @param pageNum 当前页码
      * @param pageSize 每页显示条数
+     * @param input 查询条件封装类
      * @param storeId 商家编号
-     * @return 相关记录的集合
+     * @return 出参
      */
     RecordToPurchaseOutput searchPurchases(Integer pageNum, Integer pageSize, AccountPurchaseInput input, Long storeId);
+
 
     /**
      * 通过商户ID查询订单状态，并返回总金额

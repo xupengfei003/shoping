@@ -24,13 +24,25 @@ public class CommodityOutput {
      */
     private Long categoryOneId;
     /**
+     * 一级类型Name
+     */
+    private String categoryOneName;
+    /**
      * 二级类型Id
      */
     private Long categoryTwoId;
     /**
+     * 二级类型Name
+     */
+    private String categoryTwoName;
+    /**
      * 三级类型Id
      */
     private Long categoryThreeId;
+    /**
+     * 三级类型Name
+     */
+    private String categoryThreeName;
     /**
      * 商品名称
      */
@@ -79,6 +91,19 @@ public class CommodityOutput {
      * 售价
      */
     private Double unitPrice;
+    /**
+     * 商品状态
+     */
+    private int status;
+    /**
+     * 创建时间
+     */
+    private Long createdAt;
+    /**
+     * 更新时间
+     */
+    private Long updatedAt;
+
     /**
      * 图片集合
      */
@@ -218,6 +243,54 @@ public class CommodityOutput {
 
     public void setUnitPrice(Double unitPrice) {
         this.unitPrice = unitPrice;
+    }
+
+    public String getCategoryOneName() {
+        return categoryOneName;
+    }
+
+    public void setCategoryOneName(String categoryOneName) {
+        this.categoryOneName = categoryOneName;
+    }
+
+    public String getCategoryTwoName() {
+        return categoryTwoName;
+    }
+
+    public void setCategoryTwoName(String categoryTwoName) {
+        this.categoryTwoName = categoryTwoName;
+    }
+
+    public String getCategoryThreeName() {
+        return categoryThreeName;
+    }
+
+    public void setCategoryThreeName(String categoryThreeName) {
+        this.categoryThreeName = categoryThreeName;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public Long getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Long createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Long getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Long updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public List<CommImgeVo> getImgeList() {

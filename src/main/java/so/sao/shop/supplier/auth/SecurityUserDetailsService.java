@@ -35,7 +35,7 @@ public class SecurityUserDetailsService implements UserDetailsService {
                     permissions.stream()
                             .map(t -> new SimpleGrantedAuthority(t.getName()))
                             .collect(Collectors.toList());
-            return new User(user.getId(), user.getUsername(), user.getPassword(), grantedAuthorities,user.getLastPasswordResetDate());
+            return new User(user.getId(), user.getUsername(), user.getPassword(), grantedAuthorities,user.getLastPasswordResetDate(),user.getLogoutTime());
         } else {
             throw new UsernameNotFoundException("用户: " + username + "不存在!");
         }

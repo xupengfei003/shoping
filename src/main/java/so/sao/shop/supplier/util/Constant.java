@@ -23,7 +23,7 @@ public class Constant {
     /**
      * 删除
      */
-    public static final int COMM_ST_FC = 1;
+/*    public static final int COMM_ST_FC = 1;*/
     /**
      * 上架
      */
@@ -40,9 +40,9 @@ public class Constant {
             case Constant.COMM_ST_XZ:
                 st="未上架";
                 break;
-            case Constant.COMM_ST_FC:
+/*            case Constant.COMM_ST_FC:
                 st="已废除";
-                break;
+                break;*/
             case Constant.COMM_ST_SJ:
                 st="上架";
                 break;

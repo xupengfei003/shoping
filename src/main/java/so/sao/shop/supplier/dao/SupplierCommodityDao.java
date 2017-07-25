@@ -39,7 +39,6 @@ public interface SupplierCommodityDao {
     /**
      * 查询商品信息集合
      * @param supplierId 供应商ID
-     * @param isQueryAll 全查标记位
      * @param commCode69 商品编码
      * @param commId 商品ID
      * @param suppCommCode 商家商品编码
@@ -54,6 +53,26 @@ public interface SupplierCommodityDao {
                                  @Param("commId") Long commId, @Param("suppCommCode") String suppCommCode,
                                  @Param("commName") String commName, @Param("status")Integer status,@Param("typeId") Long typeId,
                                  @Param("minPrice") Double minPrice,@Param("maxPrice") Double maxPrice);
+
+
+    /**
+     * 统计查询总记录数
+     * @param supplierId 供应商ID
+     * @param commCode69 商品编码
+     * @param commId 商品ID
+     * @param suppCommCode 商家商品编码
+     * @param commName 商品名称
+     * @param status 状态
+     * @param typeId 类型ID
+     * @param minPrice 价格（低）
+     * @param maxPrice 价格（高）
+     * @return 查询结果结合
+     */
+    Long countTotal(@Param("supplierId")Long supplierId,@Param("commCode69")String commCode69,
+                         @Param("commId") Long commId, @Param("suppCommCode") String suppCommCode,
+                         @Param("commName") String commName, @Param("status")Integer status,@Param("typeId") Long typeId,
+                         @Param("minPrice") Double minPrice,@Param("maxPrice") Double maxPrice);
+
     /**
      * 更新商品状态
      * @param id 商品ID

@@ -99,12 +99,12 @@ public class AccountController {
      * @return 返回更新成功或者失败
      */
     @ApiOperation("修改供应商信息")
-    @PostMapping("/update")
+    @PutMapping("/update")
     public BaseResult update(@RequestBody Account account) {
         //修改用户登录名
-        User user = new User();
-        user.setUsername(account.getResponsiblePhone());
-        accountService.updateUser(account.getUserId());
+        /*User user = new User();
+        user.setUsername(account.getContractResponsiblePhone());*/
+        accountService.updateUser(account.getUserId(), account.getContractResponsiblePhone());
         // 修改用户信息
         int num = accountService.update(account);
         BaseResult baseResult = new BaseResult();
@@ -125,7 +125,7 @@ public class AccountController {
      * @return 返回成功或失败
      */
     @ApiOperation("删除供应商信息")
-    @GetMapping("/delete/{id}")
+    @DeleteMapping("/delete/{id}")
     public BaseResult delete(@PathVariable Long id) {
         int num = accountService.delete(id);
         BaseResult baseResult = new BaseResult();
@@ -145,7 +145,7 @@ public class AccountController {
      * @return
      */
     @ApiOperation("银行信息")
-    @PostMapping("/selectBank")
+    @GetMapping("/selectBank")
     public List<String> selectBank() {
         return accountService.selectBank();
     }
@@ -156,7 +156,7 @@ public class AccountController {
      * @return
      */
     @ApiOperation("行业信息")
-    @PostMapping("/selectHangYe")
+    @GetMapping("/selectHangYe")
     public List<String> selectHangYe() {
         return accountService.selectHangYe();
     }
@@ -174,8 +174,19 @@ public class AccountController {
     public Result<String> createAuthenticationToken(
             User authenticationRequest, HttpServletResponse response) throws AuthenticationException, IOException {
 
-        final String token = authService.login(authenticationRequest.getUsername(), authenticationRequest.getPassword());
-        return new Result<String>(1, "", token);
+        return authService.login(authenticationRequest.getUsername(), authenticationRequest.getPassword());
+    }
+
+    /**
+     * 登出,设置登出时间
+     *
+     * @return
+     */
+    @ApiOperation("登出")
+    @PostMapping(value = "/logout")
+    public Result<String> logout(HttpServletRequest request) {
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        return authService.logout(user.getId());
     }
 
     /**
@@ -265,7 +276,7 @@ public class AccountController {
      */
     @ApiOperation("检验验证码")
     @GetMapping(value = "/verifySmsCode/{code}")
-    public BaseResult verifySmsCode(HttpServletRequest request, String code) {
+    public BaseResult verifySmsCode(HttpServletRequest request, @PathVariable String code) {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         return authService.verifySmsCode(user.getId(), code);
     }
@@ -278,8 +289,8 @@ public class AccountController {
      * @return
      */
     @ApiOperation("密码修改")
-    @PutMapping(value = "/updatePassword")
-    public BaseResult updatePassword(HttpServletRequest request, String encodedPassword) {
+    @PutMapping(value = "/updatePassword/{encodedPassword}")
+    public BaseResult updatePassword(HttpServletRequest request, @PathVariable String encodedPassword) {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         return authService.updatePassword(user.getId(), encodedPassword);
     }
@@ -339,7 +350,7 @@ public class AccountController {
      */
 
     @ApiOperation("供应商上传记录")
-    @PostMapping("/record")
+    @GetMapping("/record")
     public PageInfo<SupplierRecord> findAccount(@RequestBody Condition condition) {
         return supplierRecordService.searchAccountRecord(condition);
     }

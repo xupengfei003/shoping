@@ -118,7 +118,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         "/**/*.css",
                         "/**/*.js"
                 ).permitAll()//允许对于网站静态资源的无授权访问
-                .antMatchers("/user/auth/**").permitAll();//允许匿名访问获取token
+                .antMatchers("/account/auth/**").permitAll();//允许匿名访问获取token
                 //.anyRequest().authenticated();
                 /*.and()
                 .formLogin()

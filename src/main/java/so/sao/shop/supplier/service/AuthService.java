@@ -2,6 +2,7 @@ package so.sao.shop.supplier.service;
 
 import com.aliyuncs.exceptions.ClientException;
 import so.sao.shop.supplier.pojo.BaseResult;
+import so.sao.shop.supplier.pojo.Result;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -22,7 +23,14 @@ public interface AuthService {
      * @return
      * @throws IOException
      */
-    public String login(String username, String password) throws IOException ;
+    public Result login(String username, String password) throws IOException ;
+
+    /**
+     * 登出
+     * @param userId
+     * @return
+     */
+    public Result logout(Long userId) ;
 
     /**
      * 刷新token

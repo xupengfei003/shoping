@@ -23,6 +23,11 @@ public class User implements UserDetails {
     private Long lastPasswordResetDate;
 
     /**
+     * 登出时间
+     */
+    private Long logoutTime;
+
+    /**
      * 拥有的权限,SecurityUserDetailsService中初始化
      */
     private Collection<? extends GrantedAuthority> authorities;
@@ -30,12 +35,13 @@ public class User implements UserDetails {
     public User() {
     }
 
-    public User(Long id, String username, String password, Collection<? extends GrantedAuthority> authorities, Long lastPasswordResetDate) {
+    public User(Long id, String username, String password, Collection<? extends GrantedAuthority> authorities, Long lastPasswordResetDate, Long logoutTime) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.authorities = authorities;
         this.lastPasswordResetDate=lastPasswordResetDate;
+        this.logoutTime = logoutTime;
     }
 
     public Long getId() {
@@ -52,6 +58,14 @@ public class User implements UserDetails {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public Long getLogoutTime() {
+        return logoutTime;
+    }
+
+    public void setLogoutTime(Long logoutTime) {
+        this.logoutTime = logoutTime;
     }
 
     @JsonIgnore

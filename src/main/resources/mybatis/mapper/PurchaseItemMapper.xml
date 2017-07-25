@@ -23,6 +23,7 @@
         <result column="goods_tatol_price" property="goodsTatolPrice"/>
         <result column="goods_image" property="goodsImage"/>
         <result column="goods_name" property="goodsName"/>
+        <result column="brand_name" property="brandName"/>
     </resultMap>
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
@@ -37,7 +38,8 @@
         pi.goods_attribute,
         pi.goods_id,
         pi.goods_number,
-        pi.goods_unit_price
+        pi.goods_tatol_price,
+        pi.brand_name
         FROM
         purchase_item pi
         JOIN purchase p ON p.order_id = pi.order_id

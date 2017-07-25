@@ -20,9 +20,10 @@ public interface UserDao {
     int countPage(@Param("page") Page page);
     List findPage(@Param("page") Page page);
     User findByUsername(String username);
-    int updatePassword(Long userId, String loginPassword, Long lastPasswordResetDate);
+    int updatePassword(@Param("userId")Long userId, @Param("loginPassword")String loginPassword, @Param("lastPasswordResetDate")Long lastPasswordResetDate);
     int saveSmsCode(@Param("tel")String tel, @Param("code")String code);
     String findSmsCode(Long userId);
     Long add(User user);
-    int update(Long id);
+    int update(@Param("id")Long id, @Param("tel")String tel);
+    int updateLogoutTime(@Param("userId")Long userId,@Param("logoutTime")Long logoutTime);
 }

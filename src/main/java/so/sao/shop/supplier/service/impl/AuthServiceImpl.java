@@ -10,11 +10,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import so.sao.shop.supplier.dao.UserDao;
 import so.sao.shop.supplier.domain.User;
 import so.sao.shop.supplier.pojo.BaseResult;
+import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.service.AuthService;
 import so.sao.shop.supplier.util.Constant;
 import so.sao.shop.supplier.util.JwtTokenUtil;
@@ -57,12 +59,27 @@ public class AuthServiceImpl implements AuthService {
      * @return
      * @throws IOException
      */
-    public String login(String username, String password) throws IOException {
+    public Result login(String username, String password) throws IOException {
         UsernamePasswordAuthenticationToken upToken = new UsernamePasswordAuthenticationToken(username, password);
         final Authentication authentication = authenticationManager.authenticate(upToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-        return jwtTokenUtil.generateToken(userDetails);
+        UserDetails userDetails = null;
+        try {
+            userDetails = userDetailsService.loadUserByUsername(username);
+        }catch (UsernameNotFoundException e){
+            return new Result(0,"当前号码无效!","");
+        }
+        return new Result<String>(1, "", jwtTokenUtil.generateToken(userDetails));
+    }
+
+    /**
+     * 登出
+     * @param userId
+     * @return
+     */
+    public Result logout(Long userId){
+        userDao.updateLogoutTime(userId, System.currentTimeMillis());
+        return new Result(1,"登出成功",null);
     }
 
     /**
@@ -74,7 +91,7 @@ public class AuthServiceImpl implements AuthService {
     public String refresh(HttpServletRequest request) throws IOException {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         final String token = jwtTokenUtil.getTokenFromRequest(request);
-        if (jwtTokenUtil.canTokenBeRefreshed(token, new Date(user.getLastPasswordResetDate()))){
+        if (jwtTokenUtil.canTokenBeRefreshed(token, new Date(user.getLastPasswordResetDate()),new Date(user.getLogoutTime()))){
             return jwtTokenUtil.refreshToken(token);
         }
         return null;
@@ -94,11 +111,11 @@ public class AuthServiceImpl implements AuthService {
         if(u!=null&& StringUtils.isNotBlank(u.getUsername())){
             String password = SmsUtil.getVerCode();
             //密码加密保存,忘记密码只能手机验证发送新密码
-            userDao.updatePassword(u.getId(),password, new Date().getTime());
+            userDao.updatePassword(u.getId(),new BCryptPasswordEncoder().encode(password), new Date().getTime());
             SendSmsResponse sendSmsResponse = SmsUtil.sendSms(tel, password);
             return new BaseResult(1, "发送成功");
         }else{
-            return new BaseResult(0, "发送失败");
+            return new BaseResult(0, "当前号码无效!");
         }
     }
 
@@ -147,10 +164,9 @@ public class AuthServiceImpl implements AuthService {
 
         User user = userDao.findOne(userId);
         if(user!=null&& StringUtils.isNotBlank(user.getPassword())){
-            BCryptPasswordEncoder encode = new BCryptPasswordEncoder();
-            userDao.updatePassword(user.getId(),encode.encode(encodedPassword), new Date().getTime());
+            userDao.updatePassword(user.getId(),new BCryptPasswordEncoder().encode(encodedPassword), new Date().getTime());
             return new BaseResult(1,"密码修改成功");
-        }//user1.setLastPasswordResetDate(new Date().getTime());
-        return new BaseResult(0,"旧密码不正确");
+        }
+        return new BaseResult(0,"当前号码无效!");
     }
 }

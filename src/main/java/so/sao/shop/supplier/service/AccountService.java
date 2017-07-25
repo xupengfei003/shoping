@@ -65,9 +65,10 @@ public interface AccountService {
     /**
      * 根据id更新用户信息
      * @param id
+     * @param tel
      * @return 返回更新行数
      */
-    int updateUser(Long id);
+    int updateUser(Long id, String tel);
 
     /**
      * 初始化行业信息

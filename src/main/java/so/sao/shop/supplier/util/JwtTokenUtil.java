@@ -122,6 +122,16 @@ public class JwtTokenUtil implements Serializable {
         return (lastPasswordReset != null && created.before(lastPasswordReset));
     }
 
+    /**
+     * token创建时间和登出时间对比
+     * @param created
+     * @param logoutTime
+     * @return
+     */
+    private Boolean isLogout(Date created, Date logoutTime) {
+        return (logoutTime != null && created.before(logoutTime));
+    }
+
 
     /**
      * 验证token是否失效
@@ -137,7 +147,7 @@ public class JwtTokenUtil implements Serializable {
         Date created = new Date(Long.valueOf(claims.get(CLAIM_KEY_CREATED).toString()));
         return (
                 username.equals(user.getUsername())
-                        && !isTokenExpired(token) && !isCreatedBeforeLastPasswordReset(created, new Date(user.getLastPasswordResetDate())));
+                        && !isTokenExpired(token) && !isCreatedBeforeLastPasswordReset(created, new Date(user.getLastPasswordResetDate()))&& !isLogout(created,new Date(user.getLogoutTime())));
     }
 
     /**
@@ -179,11 +189,11 @@ public class JwtTokenUtil implements Serializable {
      * @return
      * @throws IOException
      */
-    public Boolean canTokenBeRefreshed(String token, Date lastPasswordReset) throws IOException  {
+    public Boolean canTokenBeRefreshed(String token, Date lastPasswordReset, Date logoutTime) throws IOException  {
             Map claims = getClaimsFromToken(token);
         Date created = new Date(Long.valueOf(claims.get(CLAIM_KEY_CREATED).toString()));
         return !isCreatedBeforeLastPasswordReset(created, lastPasswordReset)
-                   && !isTokenExpired(token);
+                   && !isTokenExpired(token) && !isLogout(created, logoutTime);
     }
 
 }

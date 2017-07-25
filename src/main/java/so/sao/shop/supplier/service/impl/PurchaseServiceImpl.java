@@ -435,26 +435,24 @@ public class PurchaseServiceImpl implements PurchaseService {
     }
 
     /**
-     * 根据商家编号查找所有相关订单记录(分页)
+     * 根据商家编号及查询条件（起始-结束时间；起始-结束金额范围）查找所有相关订单记录(分页)
      * @param pageNum 当前页码
      * @param pageSize 每页显示条数
+     * @param input 查询条件封装类
      * @param storeId 商家编号
-     * @return 相关记录的集合
+     * @return output出参
      */
     @Override
     public RecordToPurchaseOutput searchPurchases(Integer pageNum, Integer pageSize, AccountPurchaseInput input, Long storeId) {
         /**
-         * 1.判断参数是否为空，是否合法
-         *   ①.判断当前页码和每页显示条数是否为空，为空赋予默认值，否则继续执行
-         *   ②.判断商户编号storeId 是否存在，存在继续执行，否则结束业务，返回错误代码
-         * 2.访问持久化层，获取数据集合
-         *   ①.使用分页插件设置分页
-         *   ②.访问持久化层方法获取数据
-         * 3.将获取到的数据集合中的泛型转化成vo层的类对象
-         *   ①.将获取到的数据集合使用循环方法依次放入另一个集合中
-         * 4.将转化后的数据集合封装到PageInfo对象中
-         *   ①.封装PageInfo时要封装：当前页码，每页显示条数，总页码,数据集合
-         * 5.将PageInfo对象封装到output出参类中返回
+         * 1、判断参数是否为空
+         *     1.1、判断 pageNum当前页码、pageSize是否为空，若为空给默认值
+         * 2、设置分页，访问持久化层#findfindPageByStoreId方法查询
+         * 3、判断返回结果及是否为空：
+         *     3.1、不为空时出参中封装分页信息（当前页码，总页码，总条数，结果集）、“成功”的code码和message
+         *          3.1.1、将结果集中的泛型（domain类）转化成vo类
+         *     3.2、为空时在出参对象中封装“未查询到结果集”的code码和message
+         *
          */
         RecordToPurchaseOutput output = new RecordToPurchaseOutput();//返回对象
         //1.1、判断当前页码和每页显示条数是否为空
@@ -465,19 +463,21 @@ public class PurchaseServiceImpl implements PurchaseService {
             pageSize = 10;
         }
 
-        //2 分页
+        //2.1、分页
         PageHelper.startPage(pageNum,pageSize);
 
-        //访问持久化层，获取数据
+        //2.2、访问持久化层，获取数据
         List<Purchase> purchaseList = purchaseDao.findPageByStoreId(input,storeId);
 
+        //3、判断返回结果及是否为空：
+        //不为空时
         if(null != purchaseList && !purchaseList.isEmpty()){
             PageInfo<Purchase> pageInfo = new PageInfo<>(purchaseList);
 
-            //3.将获得的list集合中的对象全部转化成vo层的对象
+            //3.1.1、将结果集中的泛型（domain类）转化成vo类
             List<AccountPurchaseVo> purchaseVos = this.inversion(purchaseList);
 
-            //构造返回的PageInfo信息
+            //3.1.2、出参中封装分页信息（当前页码，总页码，总条数，结果集）、“成功”的code码和message
             PageInfo<AccountPurchaseVo> pageInfoVo = new PageInfo<>();
             pageInfoVo.setPageNum(pageNum);
             pageInfoVo.setPageSize(pageSize);
@@ -486,18 +486,17 @@ public class PurchaseServiceImpl implements PurchaseService {
             pageInfoVo.setSize(pageInfo.getSize());
             pageInfoVo.setList(purchaseVos);
 
-            //4.将转化后的数据集合封装到PageInfo对象中,封装成功信息和code
             output.setCode(Constant.CodeConfig.CODE_SUCCESS);
             output.setMessage(Constant.MessageConfig.MSG_SUCCESS);
             output.setPageInfo(pageInfoVo);
-        } else {
+        } else {//为空时
+            // 3.2、在出参对象中封装“未查询到结果集”的code码和message
             output.setCode(Constant.CodeConfig.CODE_NOT_FOUND_RESULT);
             output.setMessage(Constant.MessageConfig.MSG_NOT_FOUND_RESULT);
             output.setPageInfo(null);
         }
         return output;
     }
-
 
     /**
      * 转化集合中的泛型

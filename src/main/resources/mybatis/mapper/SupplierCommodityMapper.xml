@@ -171,7 +171,10 @@
         inventory,
         min_img AS minImg,
         price,
-        unit_price AS unitPrice
+        unit_price AS unitPrice,
+        created_at AS createdAt,
+        updated_at AS updatedAt,
+        supplier_id AS supplierId
         FROM supplier_commodity WHERE id = #{id}
     </select>
     <select id="find" resultType="so.sao.shop.supplier.domain.SupplierCommodity">
@@ -180,19 +183,19 @@
         FROM supplier_commodity sc
         WHERE sc.deleted = 0
         AND sc.supplier_id = #{supplierId}
-        <if test="commCode69 != null and commCode69 != ''">
+        <if test="commCode69 != null">
             AND sc.code69 = #{commCode69}
         </if>
-        <if test="commId != null and commId != ''">
+        <if test="commId != null">
             AND sc.commodity_id = #{commId}
         </if>
-        <if test="suppCommCode != null and suppCommCode != ''">
+        <if test="suppCommCode != null">
             AND sc.code = #{suppCommCode}
         </if>
-        <if test="commName != null and commName != '' ">
+        <if test="commName != null">
             AND sc.name LIKE CONCAT ('%',#{commName},'%')
         </if>
-        <if test="status != null and status != ''">
+        <if test="status != null">
             AND sc.`status` = #{status}
         </if>
         <if test="minPrice != null and maxPrice == null">
@@ -204,10 +207,46 @@
         <if test="minPrice != null and maxPrice != null">
             AND sc.unit_price BETWEEN #{minPrice} AND #{maxPrice}
         </if>
-        <if test="typeId != null and typeId != ''">
+        <if test="typeId != null">
             AND sc.category_one_id = #{typeId}
         </if>
         ORDER BY sc.created_at
+    </select>
+
+    <!--统计查询总记录数-->
+    <select id="countTotal" resultType="java.lang.Long">
+        SELECT
+        count(1)
+        FROM supplier_commodity sc
+        WHERE sc.deleted = 0
+        AND sc.supplier_id = #{supplierId}
+        <if test="commCode69 != null">
+            AND sc.code69 = #{commCode69}
+        </if>
+        <if test="commId != null">
+            AND sc.commodity_id = #{commId}
+        </if>
+        <if test="suppCommCode != null">
+            AND sc.code = #{suppCommCode}
+        </if>
+        <if test="commName != null">
+            AND sc.name LIKE CONCAT ('%',#{commName},'%')
+        </if>
+        <if test="status != null">
+            AND sc.`status` = #{status}
+        </if>
+        <if test="minPrice != null and maxPrice == null">
+            AND sc.unit_price<![CDATA[ >= #{minPrice}]]>
+        </if>
+        <if test="minPrice == null and maxPrice != null">
+            AND  sc.unit_price<![CDATA[<= #{maxPrice}]]>
+        </if>
+        <if test="minPrice != null and maxPrice != null">
+            AND sc.unit_price BETWEEN #{minPrice} AND #{maxPrice}
+        </if>
+        <if test="typeId != null">
+            AND sc.category_one_id = #{typeId}
+        </if>
     </select>
     <!--获取商品状态-->
     <select id="findStatus" resultType="int">
