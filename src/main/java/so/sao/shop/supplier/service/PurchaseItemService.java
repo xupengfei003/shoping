@@ -14,6 +14,6 @@ public interface PurchaseItemService {
      * @param orderId 订单编号
      * @return 相关记录的集合
      */
-    RecordToPurchaseOutput searchPurchaseItems(Integer pageNum, Integer pageSize, Long orderId);
+    RecordToPurchaseOutput searchPurchaseItems(Integer pageNum, Integer pageSize, String orderId);
 
 }

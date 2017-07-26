@@ -24,6 +24,7 @@
     <result column="order_shipment_number" property="orderShipmentNumber" />
     <result column="order_invoice" property="orderInvoice" />
     <result column="order_status" property="orderStatus" />
+    <result column="account_status" property="accountStatus" />
   </resultMap>
 
   <!-- 通用查询结果列 -->
@@ -55,11 +56,11 @@
   </sql>
 
   <!-- 根据ID查询订单信息 -->
-  <select id="findById" parameterType="java.lang.Long" resultType="so.sao.shop.supplier.domain.Purchase">
+  <select id="findById" parameterType="java.lang.String" resultType="so.sao.shop.supplier.domain.Purchase">
       select
       <include refid="Base_Column_List" />
       from purchase
-      where order_id = #{orderId,jdbcType=BIGINT}
+      where order_id = #{orderId,jdbcType=VARCHAR}
   </select>
   <!-- 批量查询订单列表 -->
     <select id="getOrderListByIds" resultMap="BaseResultMap">
@@ -239,7 +240,7 @@
             user_id,
             provider_name
         FROM
-          t_account
+          account
         WHERE
         user_id = (
             SELECT
@@ -253,7 +254,7 @@
 
     <!--修改订单账户状态为 已提现-->
     <update id="updateAccountStatus" parameterType="java.lang.Long">
-        UPDATE supplier
+        UPDATE purchase
         SET account_status = 2
         WHERE store_id = #{userId} and order_status = 4 and account_status = 1
     </update>

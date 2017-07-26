@@ -76,18 +76,18 @@
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
     select 
     <include refid="Base_Column_List" />
-    from t_account
+    from account
     where account_id = #{accountId,jdbcType=BIGINT}
   </select>
 
   <update id="deleteByPrimaryKey" parameterType="java.lang.Long" >
-    update t_account
+    update account
     set account_status = 0
     where account_id = #{accountId,jdbcType=BIGINT}
   </update>
 
   <insert id="insert" parameterType="so.sao.shop.supplier.domain.Account" >
-    insert into t_account (account_id, user_id, provider_name, 
+    insert into account (account_id, user_id, provider_name,
       responsible, responsible_phone, license, 
       license_time_create, license_time_end, business_type, 
       regist_address, register_address_detail, discount, 
@@ -116,7 +116,7 @@
   </insert>
 
   <insert id="insertSelective" parameterType="so.sao.shop.supplier.domain.Account" >
-    insert into t_account
+    insert into account
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="accountId != null" >
         account_id,
@@ -328,7 +328,7 @@
   </insert>
 
   <update id="updateByPrimaryKey" parameterType="so.sao.shop.supplier.domain.Account" >
-    update t_account
+    update account
     set user_id = #{userId,jdbcType=BIGINT},
     provider_name = #{providerName,jdbcType=VARCHAR},
     responsible = #{responsible,jdbcType=VARCHAR},
@@ -366,7 +366,7 @@
   </update>
 
   <update id="updateByPrimaryKeySelective" parameterType="so.sao.shop.supplier.domain.Account" >
-    update t_account
+    update account
     <set >
       <if test="userId != null" >
         user_id = #{userId,jdbcType=BIGINT},
@@ -475,12 +475,12 @@
   <select id="findByUserId" resultMap="BaseResultMap">
     SELECT
     <include refid="Base_Column_List" />
-    FROM t_account
+    FROM account
     WHERE user_id = #{userId}
   </select>
 
   <update id="updateAccountByUserId" parameterType="so.sao.shop.supplier.domain.Account">
-    UPDATE t_account
+    UPDATE account
     <set>
       <if test="balance != null">
         balance = #{balance},
@@ -493,7 +493,7 @@
   </update>
   <insert id="saveBatch" parameterType="so.sao.shop.supplier.domain.Account">
     INSERT INTO
-	    t_account(user_id,
+	    account(user_id,
 	    provider_name,
 	    responsible,
 	    responsible_phone,
@@ -548,25 +548,26 @@
   </insert>
 
 
-  <!--根据账户表（t_account）中的user_id（用户id）字段查询账户表（t_account）中用户的余额-->
+  <!--根据账户表（account）中的user_id（用户id）字段查询账户表（account）中用户的余额-->
   <select id="findUserBalance" resultType="java.math.BigDecimal" parameterType="java.lang.Long">
     SELECT balance
-    FROM t_account
+    FROM account
     WHERE user_id=#{userId};
   </select>
-  <!--根据账户表（t_account）中的user_id（用户id）字段修改账户表（t_account）中用户的余额-->
+  <!--根据账户表（account）中的user_id（用户id）字段修改账户表（account）中用户的余额-->
   <update id="updateUserBalance" parameterType="so.sao.shop.supplier.domain.Account">
-    UPDATE t_account
+    UPDATE account
     SET balance = #{account.balance}
     WHERE user_id=#{account.userId};
   </update>
 <select id="findPage" resultMap="BaseResultMap" parameterType="so.sao.shop.supplier.domain.Condition">
           SELECT account_id,user_id,create_date,provider_name,responsible,contract_end_date, contract_responsible_phone,
                  contract_register_address
-            FROM t_account
+            FROM account
             <where>
+                    account_status != 0
                 <if test="beginDate != null">
-                   create_date <![CDATA[>=]]> #{beginDate}
+                    AND create_date <![CDATA[>=]]> #{beginDate}
                 </if>
                 <if test="endDate != null">
                     AND create_date <![CDATA[<=]]> #{endDate}
@@ -601,12 +602,12 @@
                  contract_license,contract_license_time,contract_register_address,
                  contract_register_address_detail
             FROM
-              t_account
+              account
            WHERE account_id = #{accountId}
     </select>
 
     <!-- 修改历史总收入 -->
     <update id="updateUserPrice">
-      UPDATE T_ACCOUNT SET INCOME = #{account} WHERE USER_ID = #{storeId}
+      UPDATE account SET INCOME = #{account} WHERE USER_ID = #{storeId}
     </update>
 </mapper>

@@ -10,7 +10,7 @@ import java.util.List;
 
 /**
  * Created by niewenchao on 2017/7/19.
- * 账户表（t_account）对应的Dao层
+ * 账户表（account）对应的Dao层
  */
 public interface AccountDao {
 
@@ -78,14 +78,14 @@ public interface AccountDao {
     int updateAccountByUserId(Account account);
 
     /**
-     * 1.根据账户表（t_account）中的用户（user_id）字段查询该表中用户的余额（balance）,返回账户中余额；
+     * 1.根据账户表（account）中的用户（user_id）字段查询该表中用户的余额（balance）,返回账户中余额；
      * @param userId
      * @return
      */
     BigDecimal findUserBalance(@Param("userId") Long userId);
 
     /**
-     * 根据账户表（t_account）中的user_id（用户id）字段修改该表中用户的余额（balance），返回受影响的行数；
+     * 根据账户表（account）中的user_id（用户id）字段修改该表中用户的余额（balance），返回受影响的行数；
      * @param account
      * @return
      */

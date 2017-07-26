@@ -2,6 +2,8 @@ package so.sao.shop.supplier.web;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import so.sao.shop.supplier.config.Constant;
@@ -15,8 +17,10 @@ import so.sao.shop.supplier.service.PurchaseService;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.math.BigInteger;
 import java.util.Map;
+import java.util.List;
 
 /**
  * <p>
@@ -41,22 +45,31 @@ public class PurchaseController {
      */
     @RequestMapping(value = "/createPurchase", method = RequestMethod.POST)
     @ApiOperation(value = "生成订单")
-    public PurchaseOutput createPurchase(@Validated PurchaseInput purchase) {
+    public PurchaseOutput createPurchase(@Valid PurchaseInput purchase, BindingResult result) {
         PurchaseOutput output = new PurchaseOutput();
-        try {
-            Map<String, Object> resMap = purchaseService.savePurchase(purchase);
-            Integer status = Integer.parseInt(String.valueOf(resMap.get("status")));
-            if (status == 1) {
-                output.setCode(Constant.CodeConfig.CODE_SUCCESS);
-                output.setMessage(Constant.MessageConfig.MSG_SUCCESS);
-            } else {
-                output.setCode(Constant.CodeConfig.CODE_FAILURE);
-                output.setMessage(Constant.MessageConfig.MSG_FAILURE);
+        //判断验证是否通过。true 未通过  false通过
+        if(result.hasErrors()){
+            List<ObjectError> list = result.getAllErrors();
+            for(ObjectError error : list){
+                output.setCode(Constant.CodeConfig.CODE_NOT_EMPTY);
+                output.setMessage(error.getDefaultMessage());
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            output.setCode(Constant.CodeConfig.CODE_SYSTEM_EXCEPTION);
-            output.setMessage(Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
+        } else{
+            try {
+                Map<String, Object> resMap = purchaseService.savePurchase(purchase);
+                Integer status = Integer.parseInt(String.valueOf(resMap.get("status")));
+                if (status == 1) {
+                    output.setCode(Constant.CodeConfig.CODE_SUCCESS);
+                    output.setMessage(Constant.MessageConfig.MSG_SUCCESS);
+                } else {
+                    output.setCode(Constant.CodeConfig.CODE_FAILURE);
+                    output.setMessage(Constant.MessageConfig.MSG_FAILURE);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                output.setCode(Constant.CodeConfig.CODE_SYSTEM_EXCEPTION);
+                output.setMessage(Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
+            }
         }
         return output;
     }
@@ -69,7 +82,7 @@ public class PurchaseController {
      */
     @RequestMapping(value = "/purchase/{orderId}", method = RequestMethod.GET)
     @ApiOperation(value = "获取订单详情", notes = "获取订单详情")
-    public PurchaseInfoOutput findById(@PathVariable BigInteger orderId) {
+    public PurchaseInfoOutput findById(@PathVariable String orderId) {
         PurchaseInfoOutput output = new PurchaseInfoOutput();
         try {
             output = purchaseService.findById(orderId);
@@ -154,7 +167,7 @@ public class PurchaseController {
      */
     @RequestMapping(value = "/update/{orderId}/orderStatus", method = RequestMethod.POST)
     @ApiOperation(value = "更改订单状态", notes = "")
-    public BaseResult update(BigInteger orderId, Integer orderStatus, Integer receiveMethod, String name, String number) {
+    public BaseResult update(String orderId, Integer orderStatus, Integer receiveMethod, String name, String number) {
         BaseResult baseResult = new BaseResult();
         baseResult.setCode(Constant.CodeConfig.CODE_SUCCESS);
         baseResult.setMessage(Constant.MessageConfig.MSG_SUCCESS);
@@ -216,9 +229,21 @@ public class PurchaseController {
      */
     @ApiOperation(value="余额明细查询", notes=" 根据商户id及查询条件（起始-结束时间；起始-结束金额范围）分页显示订单")
     @GetMapping(value = "/account/Purchases")
-    public RecordToPurchaseOutput search(Integer pageNum, Integer pageSize, AccountPurchaseInput input, @RequestParam Long storeId){
-
-        return purchaseService.searchPurchases(pageNum,pageSize,input,storeId);
+    public RecordToPurchaseOutput search(Integer pageNum, Integer pageSize, AccountPurchaseInput input, Long storeId){
+        RecordToPurchaseOutput output = new RecordToPurchaseOutput();
+        try {
+            if (null != storeId){
+                output = purchaseService.searchPurchases(pageNum,pageSize,input,storeId);
+            } else {
+                output.setCode(Constant.CodeConfig.CODE_NOT_EMPTY);
+                output.setMessage(Constant.MessageConfig.MSG_NOT_EMPTY);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            output.setCode(Constant.CodeConfig.CODE_SYSTEM_EXCEPTION);
+            output.setMessage(Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
+        }
+        return output;
     }
 
     /**

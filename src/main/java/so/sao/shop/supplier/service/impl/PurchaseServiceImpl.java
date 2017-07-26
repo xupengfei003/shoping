@@ -18,6 +18,7 @@ import so.sao.shop.supplier.pojo.input.PurchaseInput;
 import so.sao.shop.supplier.pojo.input.PurchaseSelectInput;
 import so.sao.shop.supplier.pojo.output.*;
 import so.sao.shop.supplier.pojo.vo.AccountPurchaseVo;
+import so.sao.shop.supplier.pojo.vo.PurchaseInfoVo;
 import so.sao.shop.supplier.pojo.vo.PurchaseItemVo;
 import so.sao.shop.supplier.pojo.vo.PurchasesVo;
 import so.sao.shop.supplier.service.CommodityService;
@@ -122,7 +123,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             purchaseDate.setOrderPaymentMethod(orderPaymentMethod);//支付方式
             purchaseDate.setOrderPrice(totalMoney);//订单总金额
             purchaseDate.setOrderCreateTime(System.currentTimeMillis());//下单时间
-            purchaseDate.setOrderStatus(Constant.OrderStatusConfig.RECEIVED);//订单状态 1待付款2代发货3已发货4已收货5已拒收6已退款
+            purchaseDate.setOrderStatus(Constant.OrderStatusConfig.PAYMENT);//订单状态 1待付款2代发货3已发货4已收货5已拒收6已退款
             listPurchase.add(purchaseDate);
              /*
             1.将订单信息保存至订单表
@@ -143,33 +144,37 @@ public class PurchaseServiceImpl implements PurchaseService {
      * @throws Exception
      */
     @Override
-    public PurchaseInfoOutput findById(BigInteger orderId) throws Exception {
+    public PurchaseInfoOutput findById(String orderId) throws Exception {
         PurchaseInfoOutput purchaseInfoOutput = new PurchaseInfoOutput();
-        Purchase purchase = purchaseDao.findById(Long.parseLong(orderId.toString()));
+        PurchaseInfoVo purchaseInfoVo = new PurchaseInfoVo();
+        Purchase purchase = purchaseDao.findById(orderId);
         if(purchase != null) {
             //PurchaseInfoOutput 添加订单信息
-            purchaseInfoOutput.setOrderId(Long.parseLong(purchase.getOrderId()));
-            purchaseInfoOutput.setOrderReceiverName(purchase.getOrderReceiverName());
-            purchaseInfoOutput.setOrderReceiverMobile(purchase.getOrderReceiverMobile());
-            purchaseInfoOutput.setOrderCreateTime(purchase.getOrderCreateTime());
-            purchaseInfoOutput.setOrderPaymentMethod(purchase.getOrderPaymentMethod());
-            purchaseInfoOutput.setOrderPaymentNum(purchase.getOrderPaymentNum());
-            purchaseInfoOutput.setOrderPaymentTime(purchase.getOrderPaymentTime());
-            purchaseInfoOutput.setOrderPrice(purchase.getOrderPrice());
-            purchaseInfoOutput.setOrderStatus(purchase.getOrderStatus().shortValue());
-            purchaseInfoOutput.setOrderShipMethod(purchase.getOrderShipMethod());
-            purchaseInfoOutput.setOrderShipmentNumber(purchase.getOrderShipmentNumber());
-            purchaseInfoOutput.setLogisticsCompany(purchase.getLogisticsCompany());
-            purchaseInfoOutput.setDistributorName(purchase.getDistributorName());
-            purchaseInfoOutput.setDistributorMobile(purchase.getDistributorMobile());
-            purchaseInfoOutput.setDrawbackTime(purchase.getDrawbackTime());
-
+            purchaseInfoVo.setOrderId(purchase.getOrderId());
+            purchaseInfoVo.setOrderReceiverName(purchase.getOrderReceiverName());
+            purchaseInfoVo.setOrderReceiverMobile(purchase.getOrderReceiverMobile());
+            purchaseInfoVo.setOrderCreateTime(purchase.getOrderCreateTime());
+            purchaseInfoVo.setOrderPaymentMethod(purchase.getOrderPaymentMethod());
+            purchaseInfoVo.setOrderPaymentNum(purchase.getOrderPaymentNum());
+            purchaseInfoVo.setOrderPaymentTime(purchase.getOrderPaymentTime());
+            purchaseInfoVo.setOrderPrice(purchase.getOrderPrice());
+            purchaseInfoVo.setOrderStatus(purchase.getOrderStatus().shortValue());
+            purchaseInfoVo.setOrderShipMethod(purchase.getOrderShipMethod());
+            purchaseInfoVo.setOrderShipmentNumber(purchase.getOrderShipmentNumber());
+            purchaseInfoVo.setLogisticsCompany(purchase.getLogisticsCompany());
+            purchaseInfoVo.setDistributorName(purchase.getDistributorName());
+            purchaseInfoVo.setDistributorMobile(purchase.getDistributorMobile());
+            purchaseInfoVo.setDrawbackTime(purchase.getDrawbackTime());
 
             //PurchaseInfoOutput 添加订单明细列表
-            List<PurchaseItemVo> purchaseItemVoList = purchaseItemDao.getOrderDetailByOId(Long.parseLong(purchase.getOrderId().toString()));
+            List<PurchaseItemVo> purchaseItemVoList = purchaseItemDao.getOrderDetailByOId(purchase.getOrderId());
+
             if(purchaseItemVoList != null && purchaseItemVoList.size() > 0) {
-                purchaseInfoOutput.setPurchaseItemVoList(purchaseItemVoList);
+                purchaseInfoVo.setPurchaseItemVoList(purchaseItemVoList);
+            } else {
+                purchaseInfoVo.setPurchaseItemVoList(new ArrayList<>());
             }
+            purchaseInfoOutput.setPurchaseInfoVo(purchaseInfoVo);
         }
         return purchaseInfoOutput;
     }
@@ -229,7 +234,7 @@ public class PurchaseServiceImpl implements PurchaseService {
      * @return boolean
      */
     @Override
-    public boolean updateOrder(BigInteger orderId, Integer orderStatus,Integer receiveMethod,String name,String number) {
+    public boolean updateOrder(String orderId, Integer orderStatus,Integer receiveMethod,String name,String number) {
         if(orderStatus==Constant.OrderStatusConfig.REFUNDED){
             Date drawbackTime = new Date();
             Long drawbackDate = drawbackTime.getTime();

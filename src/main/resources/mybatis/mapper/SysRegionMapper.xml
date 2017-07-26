@@ -9,7 +9,7 @@
 
     <select id="findByPid" resultMap="areaMap" parameterType="java.lang.Integer">
         SELECT sr_id,name,level
-        FROM t_sys_region
+        FROM sys_region
         <where>
             <if test="_parameter == null">
                 level = 0

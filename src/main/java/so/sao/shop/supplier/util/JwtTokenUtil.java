@@ -119,7 +119,7 @@ public class JwtTokenUtil implements Serializable {
      * @return
      */
     private Boolean isCreatedBeforeLastPasswordReset(Date created, Date lastPasswordReset) {
-        return (lastPasswordReset != null && created.before(lastPasswordReset));
+        return created.before(lastPasswordReset);
     }
 
     /**
@@ -129,7 +129,7 @@ public class JwtTokenUtil implements Serializable {
      * @return
      */
     private Boolean isLogout(Date created, Date logoutTime) {
-        return (logoutTime != null && created.before(logoutTime));
+        return created.before(logoutTime);
     }
 
 
@@ -147,7 +147,7 @@ public class JwtTokenUtil implements Serializable {
         Date created = new Date(Long.valueOf(claims.get(CLAIM_KEY_CREATED).toString()));
         return (
                 username.equals(user.getUsername())
-                        && !isTokenExpired(token) && !isCreatedBeforeLastPasswordReset(created, new Date(user.getLastPasswordResetDate()))&& !isLogout(created,new Date(user.getLogoutTime())));
+                        && !isTokenExpired(token) && user.getLastPasswordResetDate()!=null && !isCreatedBeforeLastPasswordReset(created, new Date(user.getLastPasswordResetDate())) && (user.getLogoutTime()==null || !isLogout(created,new Date(user.getLogoutTime()))));
     }
 
     /**
@@ -183,17 +183,18 @@ public class JwtTokenUtil implements Serializable {
     }
 
     /**
-     * 判断是否可以刷新token
+     * 判断是否可以刷新token(token是否过期/token创建时间在修改密码之前/是否登出)
+     *
      * @param token
      * @param lastPasswordReset
      * @return
      * @throws IOException
      */
-    public Boolean canTokenBeRefreshed(String token, Date lastPasswordReset, Date logoutTime) throws IOException  {
+    public Boolean canTokenBeRefreshed(String token, Long lastPasswordReset, Long logoutTime) throws IOException  {
             Map claims = getClaimsFromToken(token);
         Date created = new Date(Long.valueOf(claims.get(CLAIM_KEY_CREATED).toString()));
-        return !isCreatedBeforeLastPasswordReset(created, lastPasswordReset)
-                   && !isTokenExpired(token) && !isLogout(created, logoutTime);
+        return !isTokenExpired(token) && lastPasswordReset!=null && !isCreatedBeforeLastPasswordReset(created, new Date(lastPasswordReset))
+                    && (logoutTime==null || !isLogout(created, new Date(logoutTime)));
     }
 
 }

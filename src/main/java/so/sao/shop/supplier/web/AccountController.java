@@ -236,7 +236,11 @@ public class AccountController {
 
     @GetMapping("/search")
     @ApiOperation(value = "根据id查询供应商")
-    public Account get(@RequestParam Long id) {
+    public Account get(@RequestParam Long id, HttpServletRequest request) {
+        if(id == null || id == 0){
+            User user = (User) request.getAttribute(Constant.REQUEST_USER);
+            id = accountService.selectByUserId(user.getId()).getAccountId();
+        }
         return accountService.selectById(id);
     }
 

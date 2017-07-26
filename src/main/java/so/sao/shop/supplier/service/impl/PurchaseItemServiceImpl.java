@@ -31,7 +31,7 @@ public class PurchaseItemServiceImpl implements PurchaseItemService {
      * @return 相关记录的集合
      */
     @Override
-    public RecordToPurchaseOutput searchPurchaseItems(Integer pageNum, Integer pageSize, Long orderId) {
+    public RecordToPurchaseOutput searchPurchaseItems(Integer pageNum, Integer pageSize, String orderId) {
         /**
          * 1.判断参数是否为空，是否合法
          *   ①.判断当前页码和每页显示条数是否为空，为空赋予默认值，否则继续执行

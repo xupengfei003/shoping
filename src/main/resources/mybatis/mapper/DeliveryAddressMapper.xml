@@ -21,7 +21,7 @@
 
 	<!--插入收货地址-->
 	<insert id="save" parameterType="so.sao.shop.supplier.domain.DeliveryAddress" >
-		INSERT INTO t_delivery_address(
+		INSERT INTO delivery_address(
 			consignee,
 			consignee_phone,
 			addr_province,
@@ -45,7 +45,7 @@
 
 	<!--更新收货地址-->
 	<update id="update"  parameterType="so.sao.shop.supplier.domain.DeliveryAddress">
-		UPDATE t_delivery_address
+		UPDATE delivery_address
 		<trim prefix="set" suffixOverrides=",">
 			<if test="consignee!=null">consignee=#{consignee},</if>
 			<if test="consigneePhone!=null">consignee_phone=#{consigneePhone},</if>
@@ -61,7 +61,7 @@
 
 	<!--删除收货地址-->
 	<delete id="deleteByAddrId">
-		UPDATE t_delivery_address
+		UPDATE delivery_address
 		SET del_state = 1
 		WHERE addr_id=#{addrId}
 	</delete>
@@ -81,20 +81,20 @@
 			created_at,
 			updated_at,
 			user_id
-		FROM t_delivery_address
+		FROM delivery_address
 		WHERE user_id = #{userId} and del_state = 0
 	</select>
 
 	<!--默认收货地址清零-->
 	<update id="updateDeliveryAddressStatus" >
-		UPDATE t_delivery_address
+		UPDATE delivery_address
 		SET addr_default=0
 		WHERE user_id=#{userId} and addr_default = 1
 	</update>
 
 	<!--默认收货地址-->
 	<update id="updateDeliveryAddressStatusByid" >
-		UPDATE t_delivery_address
+		UPDATE delivery_address
 		SET addr_default=1
 		WHERE  addr_id=#{id}
 	</update>

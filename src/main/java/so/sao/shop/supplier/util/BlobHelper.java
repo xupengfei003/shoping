@@ -18,10 +18,10 @@ public class BlobHelper {
         {
             String blobStorageConnectionString = String.format("DefaultEndpointsProtocol=%s;"
                             + "AccountName=%s;"
-                            + "AccountKey=%s"
-                            + "EndpointSuffix=%s",
-                    storageConfig.getDefaultEndpointsProtocol(),
-                    storageConfig.getAccountName(), storageConfig.getAccountKey(),storageConfig.getEndpointSuffix());
+                            + "AccountKey=%s;"
+                            +"EndpointSuffix=%s",
+                    storageConfig.getDefaultEndpointsProtocol(),storageConfig.getAccountName(),
+					 storageConfig.getAccountKey(),storageConfig.getEndpointSuffix());
 
             CloudStorageAccount account = CloudStorageAccount.parse(blobStorageConnectionString);
             CloudBlobClient serviceClient = account.createCloudBlobClient();

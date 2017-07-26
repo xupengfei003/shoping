@@ -35,7 +35,7 @@ public interface PurchaseService {
      * @return PurchaseOutput
      * @throws Exception
      */
-    PurchaseInfoOutput findById(BigInteger orderId) throws Exception;
+    PurchaseInfoOutput findById(String orderId) throws Exception;
 
     /**
      *
@@ -53,7 +53,7 @@ public interface PurchaseService {
      * @param orderStatus
      * @return
      */
-    boolean updateOrder(BigInteger orderId, Integer orderStatus,Integer receiveMethod,String name,String number);
+    boolean updateOrder(String orderId, Integer orderStatus,Integer receiveMethod,String name,String number);
 
     /**
      *

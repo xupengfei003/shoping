@@ -34,7 +34,7 @@ public class PurchaseItemController {
      */
     @ApiOperation(value="分页显示订单明细列表", notes="  根据订单编号分页显示订单明细")
     @GetMapping(value = "/purchase/{orderId}/PurchaseItems")
-    public RecordToPurchaseOutput search(Integer pageNum, Integer pageSize, @PathVariable("orderId") Long orderId){
+    public RecordToPurchaseOutput search(Integer pageNum, Integer pageSize, @PathVariable("orderId") String orderId){
         return purchaseItemService.searchPurchaseItems(pageNum,pageSize,orderId);
     }
 

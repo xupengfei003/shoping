@@ -52,9 +52,7 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
          */
         Calendar cal = Calendar.getInstance();
         int currentNum = cal.get(Calendar.DAY_OF_MONTH);
-        if(Constant.OMRTimePeriodConfig.START_DATE <= currentNum && currentNum <= Constant.OMRTimePeriodConfig.END_DATE){
-
-        }else{
+        if(currentNum < Constant.OMRTimePeriodConfig.START_DATE || currentNum > Constant.OMRTimePeriodConfig.END_DATE){
             output.put("status", Constant.OMRCodeConfig.OMR_CODE_NOT_TIME_PERIOD);
             return output;
         }
@@ -63,16 +61,19 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
          * 2.判断提现金额 >= 最小提现金额
          */
         Account account = accountDao.findByUserId(userId);
-        if(null == account){
+        if(null == account) {
             output.put("status", Constant.OMRCodeConfig.OMR_CODE_ACCOUNT_NOT_EXIST);
         } else {
             BigDecimal totalMoney = account.getBalance();
             BigDecimal minWithdraw = Constant.OMRMinWithdrawConfig.MIN_TOTAL_MONEY;
-            if(null != minWithdraw && null != totalMoney) {
-                if(totalMoney.compareTo(minWithdraw) == -1) {
-                    output.put("status", Constant.OMRCodeConfig.OMR_CODE_MIN_WITHDRAW);
-                    return output;
-                }
+            if(null == minWithdraw || null == totalMoney){
+                output.put("status", 0);
+            }
+
+            //申请提现金额 小于 最小提现金额
+            if(totalMoney.compareTo(minWithdraw) == -1) {
+                output.put("status", Constant.OMRCodeConfig.OMR_CODE_MIN_WITHDRAW);
+                return output;
             }
 
             /**
@@ -92,17 +93,17 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
              * 保存提现申请
              */
             OrderMoneyRecord omr = new OrderMoneyRecord();
-            omr.setUserId(userId);
-            omr.setBankName(bankName);
-            omr.setBankNameBranch(bankNameBranch);
-            omr.setBankAccount(bankAccount);
-            omr.setTotalMoney(totalMoney);
-            omr.setState("0");
-            omr.setCreatedAt(System.currentTimeMillis());
-            omr.setUpdatedAt(System.currentTimeMillis());
-            omr.setSerialNumber(serialNumber);
-            omr.setOrderId(orderIds);
-            orderMoneyRecordDao.save(omr);
+            omr.setUserId(userId);//申请人id
+            omr.setBankName(bankName);//开户行
+            omr.setBankNameBranch(bankNameBranch);//开户支行
+            omr.setBankAccount(bankAccount);//银行卡号
+            omr.setTotalMoney(totalMoney);//提现金额
+            omr.setState("0");//状态
+            omr.setCreatedAt(System.currentTimeMillis());//创建时间
+            omr.setUpdatedAt(System.currentTimeMillis());//更新时间
+            omr.setSerialNumber(serialNumber);//
+            omr.setOrderId(orderIds);//银行流水号
+            orderMoneyRecordDao.save(omr);//订单编号
             Long recordId = omr.getRecordId();
             if(null != recordId) {
                 output.put("status", Constant.CodeConfig.CODE_SUCCESS);
@@ -191,61 +192,67 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
          * 4.更新Account中balance(余额)字段
          * 5.更新提现金额对应订单中的账户状态
          */
-        if(null != recordId){
-            OrderMoneyRecord orderMoneyRecord = orderMoneyRecordDao.findOne(recordId);
-            if(null != orderMoneyRecord){
-                if(!StringUtils.isEmpty(state) && "1".equals(state)){
-                    /**
-                     * 提现申请状态修改：申请中改为审核通过
-                     */
-                    orderMoneyRecord.setRecordId(recordId);
-                    orderMoneyRecord.setState(state);
-                    orderMoneyRecord.setUpdatedAt(System.currentTimeMillis());
-                    int modifyNum = orderMoneyRecordDao.updateOrderMoneyRecord(orderMoneyRecord);
-                    if(modifyNum > 0){
-                        output.put("status", 1);
-                    }
-                    return output;
-                } else if(!StringUtils.isEmpty(state) && "2".equals(state)){
-                    String tmpState = orderMoneyRecord.getState();
-                    if(!StringUtils.isEmpty(tmpState) && "1".equals(tmpState)) {
-                        /**
-                         * 提现申请状态修改：审核通过改为已提现
-                         */
-                        orderMoneyRecord.setRecordId(recordId);
-                        orderMoneyRecord.setState(state);
-                        orderMoneyRecord.setUpdatedAt(System.currentTimeMillis());
-                        int doneNum = orderMoneyRecordDao.updateOrderMoneyRecord(orderMoneyRecord);
-                        Long tmpUserId = orderMoneyRecord.getUserId();
-                        Account account = accountDao.findByUserId(tmpUserId);
-                        if(null != account){
-                            BigDecimal tmpBalance = account.getBalance().subtract(orderMoneyRecord.getTotalMoney());
-                            /**
-                             * 更新Account中balance(余额)字段
-                             */
-                            account.setBalance(tmpBalance);
-                            account.setUpdateDate(System.currentTimeMillis());
-                            account.setUserId(tmpUserId);
-                            accountDao.updateAccountByUserId(account);
-                            /**
-                             * 更新提现金额对应订单中的账户状态
-                             */
-                            purchaseDao.updateAccountStatus(tmpUserId);
-                            if(doneNum > 0){
-                                output.put("status", 2);
-                            }
-                            return output;
-                        }
-                    }else{
-                        output.put("status", 3);
-                        return output;
-                    }
-                } else {
-                    output.put("status", 4);
-                }
-            }
+        OrderMoneyRecord orderMoneyRecord = orderMoneyRecordDao.findOne(recordId);
+        if(null == orderMoneyRecord){
+            output.put("status", 0);
+            return output;
         }
-        output.put("status", 5);
+
+        if("1".equals(state)){
+            /**
+             * 提现申请状态修改：申请中改为审核通过
+             */
+            orderMoneyRecord.setRecordId(recordId);
+            orderMoneyRecord.setState(state);
+            orderMoneyRecord.setUpdatedAt(System.currentTimeMillis());
+            int modifyNum = orderMoneyRecordDao.updateOrderMoneyRecord(orderMoneyRecord);
+            if(modifyNum == 0){
+                output.put("status", 0);
+                return output;
+            }
+            output.put("status", 1);
+        } else if("2".equals(state)){
+            String tmpState = orderMoneyRecord.getState();
+            if("1".equals(tmpState)) {
+                /**
+                 * 提现申请状态修改：审核通过改为已提现
+                 */
+                orderMoneyRecord.setRecordId(recordId);
+                orderMoneyRecord.setState(state);
+                orderMoneyRecord.setUpdatedAt(System.currentTimeMillis());
+                int doneNum = orderMoneyRecordDao.updateOrderMoneyRecord(orderMoneyRecord);
+                Long tmpUserId = orderMoneyRecord.getUserId();
+                Account account = accountDao.findByUserId(tmpUserId);
+                if(null == account){
+                    output.put("status", 0);
+                    return output;
+                }
+
+                BigDecimal tmpBalance = account.getBalance().subtract(orderMoneyRecord.getTotalMoney());
+                /**
+                 * 更新Account中balance(余额)字段
+                 */
+                account.setBalance(tmpBalance);
+                account.setUpdateDate(System.currentTimeMillis());
+                account.setUserId(tmpUserId);
+                accountDao.updateAccountByUserId(account);
+
+                /**
+                 * 更新提现金额对应订单中的账户状态
+                 */
+                purchaseDao.updateAccountStatus(tmpUserId);
+
+                if(doneNum == 0){
+                    output.put("status", 0);
+                    return output;
+                }
+                output.put("status", 2);
+            }else{
+                output.put("status", 3);
+            }
+        } else {
+            output.put("status", 4);
+        }
         return output;
     }
 
@@ -359,11 +366,6 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
     @Override
     public RecordToPurchaseOutput searchOMRPurchaseDetails(Long recordId, Integer pageNum, Integer pageSize){
         RecordToPurchaseOutput output = new RecordToPurchaseOutput();
-        if(null == recordId){
-            output.setCode(Constant.CodeConfig.CODE_NOT_EMPTY);
-            output.setMessage(Constant.MessageConfig.MSG_NOT_EMPTY);
-            return output;
-        }
 
         //默认为第一页
         if(null == pageNum){
@@ -455,7 +457,7 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
             purchaseVo.setOrderPaymentNum(purchase.getOrderPaymentNum());
             purchaseVo.setOrderCreateTime(sdf.format(purchase.getOrderCreateTime()));
             purchaseVo.setOrderPaymentMethod(purchase.getOrderPaymentMethod());
-            purchaseVo.setOrderPaymentTime(sdf.format(purchase.getOrderPaymentTime()));
+            purchaseVo.setOrderPaymentTime(purchase.getOrderPaymentTime()==null?null:sdf.format(purchase.getOrderPaymentTime()));
             purchaseVo.setOrderStatus(purchase.getOrderStatus());
             purchaseVo.setAccountStatus(purchase.getAccountStatus());
             purchaseVoList.add(purchaseVo);

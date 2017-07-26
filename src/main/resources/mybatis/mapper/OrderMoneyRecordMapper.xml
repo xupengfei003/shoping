@@ -6,7 +6,7 @@
     <result column="user_id" jdbcType="BIGINT" property="userId" />
     <result column="bank_name" jdbcType="VARCHAR" property="bankName" />
     <result column="bank_name_branch" jdbcType="VARCHAR" property="bankNameBranch" />
-    <result column="  bank_account" jdbcType="VARCHAR" property="  bankAccount" />
+    <result column="bank_account" jdbcType="VARCHAR" property="bankAccount" />
     <result column="total_money" jdbcType="DECIMAL" property="totalMoney" />
     <result column="state" jdbcType="VARCHAR" property="state" />
     <result column="created_at" jdbcType="BIGINT" property="createdAt" />

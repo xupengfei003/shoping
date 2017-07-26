@@ -93,4 +93,19 @@ public class Constant {
      */
     public static final String IMG_FILE_GIF = ".gif";
 
+
+     /*Azure微软云上传相关常量*/
+    /**
+     * 容器名称
+     */
+    public static final String AZURE_CONTAINER = "shop-supplier";
+    /**
+     * 缩略图默认宽度
+     */
+    public static final int THUMBNAIL_DEFAULT_WIDTH = 150;
+    /**
+     * 缩略图默认高度
+     */
+    public static final int THUMBNAIL_DEFAULT_HEIGHT = 150;
+
 }

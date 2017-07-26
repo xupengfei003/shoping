@@ -36,7 +36,7 @@ public interface PurchaseDao {
      * @param orderId
      * @return
      */
-    Purchase findById(Long orderId);
+    Purchase findById(String orderId);
 
     /**
      * 查询订单列表
@@ -53,7 +53,7 @@ public interface PurchaseDao {
      * @param orderStatus
      * @return boolean
      */
-    boolean updateOrder(@Param("orderId") BigInteger orderId, @Param("orderStatus") Integer orderStatus);
+    boolean updateOrder(@Param("orderId") String orderId, @Param("orderStatus") Integer orderStatus);
 
     /**
      * 更改状态辅助操作（更改退款时间、插入物流配送方式）
@@ -64,7 +64,7 @@ public interface PurchaseDao {
      * @param number
      * @return boolean
      */
-    boolean updateOrderAtr(@Param("orderId") BigInteger orderId, @Param("drawbackTime") Long drawbackTime,
+    boolean updateOrderAtr(@Param("orderId") String orderId, @Param("drawbackTime") Long drawbackTime,
                            @Param("receiveMethod") Integer receiveMethod, @Param("name") String name, @Param("number") String number);
 
     /**

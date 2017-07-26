@@ -9,7 +9,7 @@ public class PurchasesVo {
     /**
      * 订单ID
      */
-    private Long orderId;
+    private String orderId;
 
     /**
      * 收货人姓名
@@ -51,11 +51,11 @@ public class PurchasesVo {
      */
     private String orderPaymentNum;
 
-    public Long getOrderId() {
+    public String getOrderId() {
         return orderId;
     }
 
-    public void setOrderId(Long orderId) {
+    public void setOrderId(String orderId) {
         this.orderId = orderId;
     }
 

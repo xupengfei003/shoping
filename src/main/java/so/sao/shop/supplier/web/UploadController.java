@@ -1,24 +1,29 @@
 package so.sao.shop.supplier.web;
 
+import com.microsoft.azure.storage.blob.CloudBlobContainer;
+import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
-import so.sao.shop.supplier.pojo.output.UploadOutput;
+import so.sao.shop.supplier.config.StorageConfig;
+import so.sao.shop.supplier.pojo.BaseResult;
+import so.sao.shop.supplier.pojo.Result;
+import so.sao.shop.supplier.pojo.vo.BlobUpload;
+import so.sao.shop.supplier.util.BlobHelper;
 import so.sao.shop.supplier.util.Constant;
-import so.sao.shop.supplier.util.FtpUtil;
 
 import javax.imageio.ImageIO;
-import javax.servlet.http.HttpServletRequest;
+import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
+import java.io.*;
+import java.util.*;
 import java.util.List;
 
 /**
@@ -29,92 +34,120 @@ import java.util.List;
 @RequestMapping("/upload")
 @Api(description = "图片上传接口")
 public class UploadController {
+    @Autowired
+    private StorageConfig storageConfig;
 
-    @Value("${web.upload-path}")
-    private String webUploadPath;
-    //获取ip地址
-    @Value("${FTP_ADDRESS}")
-    private String FTP_ADDRESS;
-    //端口号
-    @Value("${FTP_PORT}")
-    private String FTP_PORT;
-    //用户名
-    @Value("${FTP_USERNAME}")
-    private String FTP_USERNAME;
-    //密码
-    @Value("${FTP_PASSWORD}")
-    private String FTP_PASSWORD;
-    //基本路径
-    @Value("${FTP_BASEPATH}")
-    private String FTP_BASEPATH;
-    //下载地址地基础url
-    @Value("${IMAGE_BASE_URL}")
-    private String IMAGE_BASE_URL;
+    @ApiOperation(value = "文件批量上传", notes = "")
+    @PostMapping(value = "/file")
+    public Object loadFile(@RequestPart("file") MultipartFile[] multipartFile) {
+        List<BlobUpload> blobUploadEntities = new ArrayList<BlobUpload>();
+        Map<String,String> map = new HashMap<>();
+        try {
+            if (multipartFile != null) {
+                //获取或创建container
+                CloudBlobContainer blobContainer = BlobHelper.getBlobContainer(Constant.AZURE_CONTAINER.toLowerCase(), storageConfig);
+                for (int i = 0; i < multipartFile.length; i++) {
+                    MultipartFile tempMultipartFile = multipartFile[i];
+                    if (!tempMultipartFile.isEmpty()) {
+                        try {
+                           //获取上传文件的名称及文件类型
+                            BlobUpload blobUploadEntity = new BlobUpload();
+                            String fileName = tempMultipartFile.getOriginalFilename();
+                            String extensionName = StringUtils.substringAfter(fileName, ".");
 
-    @ApiOperation(value="文件批量上传", notes="")
-    @PostMapping(value="/file")
-    public UploadOutput loadFile(MultipartFile file){
-        UploadOutput upload = new UploadOutput();
-        // 获得原始文件名
-        String fileName = file.getOriginalFilename();
-        if(!isImageFile(fileName)){
-           throw new RuntimeException("图片格式不正确！");
+                            //过滤非jpg,png,jpeg,gif格式的文件
+                            if (!(tempMultipartFile.getContentType().toLowerCase().equals("image/jpg")
+                                    || tempMultipartFile.getContentType().toLowerCase().equals("image/jpeg")
+                                    || tempMultipartFile.getContentType().toLowerCase().equals("image/png")
+                                    || tempMultipartFile.getContentType().toLowerCase().equals("image/gif"))) {
+                                map.put("fileName",fileName);
+                                Result resultMsg = new Result(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE, "上传的文件中包含非jpg/png/jpeg/gif格式",map);
+                                return resultMsg;
+                            }
+
+                            //拼装blob的名称(新的图片文件名 =UUID+"."图片扩展名)
+                            String newFileName = UUID.randomUUID() + "." + extensionName;
+                            String preName = getBlobPreName(extensionName, false).toLowerCase();
+                            String blobName = preName + newFileName;
+
+                            //设置文件类型，并且上传到azure blob
+                            CloudBlockBlob blob = blobContainer.getBlockBlobReference(blobName);
+                            blob.getProperties().setContentType(tempMultipartFile.getContentType());
+                            blob.upload(tempMultipartFile.getInputStream(), tempMultipartFile.getSize());
+
+                            //生成缩略图，并上传至AzureStorage
+                            BufferedImage img = new BufferedImage(Constant.THUMBNAIL_DEFAULT_WIDTH, Constant.THUMBNAIL_DEFAULT_HEIGHT, BufferedImage.TYPE_INT_RGB);
+                            img.createGraphics().drawImage(ImageIO.read(tempMultipartFile.getInputStream()).getScaledInstance(Constant.THUMBNAIL_DEFAULT_WIDTH, Constant.THUMBNAIL_DEFAULT_HEIGHT, Image.SCALE_SMOOTH), 0, 0, null);
+                            ByteArrayOutputStream thumbnailStream = new ByteArrayOutputStream();
+                            ImageIO.write(img, "jpg", thumbnailStream);
+                            InputStream inputStream = new ByteArrayInputStream(thumbnailStream.toByteArray());
+
+                            String thumbnailPreName = getBlobPreName(extensionName, true).toLowerCase();
+                            String newThumbnailName = UUID.randomUUID().toString();
+                            String blobThumbnail = thumbnailPreName + newThumbnailName + ".jpg";
+                            CloudBlockBlob thumbnailBlob = blobContainer.getBlockBlobReference(blobThumbnail);
+                            thumbnailBlob.getProperties().setContentType("image/jpeg");
+                            thumbnailBlob.upload(inputStream, thumbnailStream.toByteArray().length);
+
+                            //将上传后的图片URL返
+                            blobUploadEntity.setFileName(fileName);
+                            blobUploadEntity.setUrl(blob.getUri().toString());
+                            blobUploadEntity.setMinImgUrl(thumbnailBlob.getUri().toString());
+                            blobUploadEntity.setType(extensionName);
+                            try {
+                                BufferedImage sourceImg = ImageIO.read(tempMultipartFile.getInputStream());
+                                blobUploadEntity.setSize(sourceImg.getWidth() + "*" + sourceImg.getHeight());
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            blobUploadEntities.add(blobUploadEntity);
+                        } catch (Exception e) {
+                            BaseResult resultMsg = new BaseResult(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE, "文件上传异常");
+                            return resultMsg;
+                        }
+                    }else {
+                        map.put("fileName",tempMultipartFile.getOriginalFilename());
+                        Result resultMsg = new Result(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE, "上传文件为空",map);
+                        return resultMsg;
+                    }
+                }
+                Result result = new Result(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SUCCESS, "文件上传成功", blobUploadEntities);
+                return result;
+            }else{
+                BaseResult resultMsg = new BaseResult(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE, "请选择需要上传的文件");
+                return resultMsg;
+            }
+        } catch (Exception e) {
+            BaseResult resultMsg = new BaseResult(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE, "文件上传异常");
+            return resultMsg;
         }
-        // 获取图片的扩展名
-        String extensionName = StringUtils.substringAfter(fileName, ".");
-        // 新的图片文件名 = 获取时间戳+"."图片扩展名
-        String newFileName = String.valueOf(System.currentTimeMillis()) + "." + extensionName;
-        upload.setFileName(newFileName);
-        upload.setType(extensionName);
-        upload.setUrl(extensionName+File.separator+newFileName);
-        upload.setBaseUrl(IMAGE_BASE_URL);
-        try {
-            BufferedImage sourceImg =ImageIO.read(file.getInputStream());
-            upload.setSize(sourceImg.getWidth()+"*"+sourceImg.getHeight());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        //端口号
-        int port = Integer.parseInt(FTP_PORT);
-        //调用方法，上传文件
-        try {
-            boolean result = FtpUtil.uploadFile(FTP_ADDRESS, port,
-                    FTP_USERNAME, FTP_PASSWORD, FTP_BASEPATH, extensionName,
-                    newFileName, file.getInputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return upload;
-    }
-    @ApiOperation(value="文件批量上传", notes="")
-    @PostMapping(value="/files")
-    public List<UploadOutput> loadFiles(HttpServletRequest request){
-        List<MultipartFile> files = ((MultipartHttpServletRequest) request)
-                .getFiles("file");
-        List uploadList=new ArrayList();
-        for (int i = 0; i < files.size(); i++) {
-            UploadOutput upload = loadFile(files.get(i));
-            uploadList.add(upload);
-        }
-        return uploadList;
     }
 
     /**
-     * 判断文件是否为图片文件
-     * @param fileName
+     * 获取图片名父目录
+     * @param fileType
+     * @param thumbnail
      * @return
      */
-    private Boolean isImageFile(String fileName) {
-        String [] imgType = new String[]{Constant.IMG_FILE_JPG,Constant.IMG_FILE_JPEG,Constant.IMG_FILE_PNG,Constant.IMG_FILE_BMP,Constant.IMG_FILE_GIF};
-        if(fileName==null) {
-            return false;
+    private String getBlobPreName(String fileType, Boolean thumbnail)
+    {
+        String afterName = "";
+        if (thumbnail)
+        {
+            afterName = "thumbnail/";
         }
-        fileName = fileName.toLowerCase();
-        for(String type : imgType) {
-            if(fileName.endsWith(type)) {
-                return true;
-            }
+        switch (fileType)
+        {
+            case "png":
+                return "png/" + afterName;
+            case "jpg":
+                return "jpg/" + afterName;
+            case "jpeg":
+                return "jpeg/" + afterName;
+            case "gif":
+                return "gif/" + afterName;
+            default :
+                return "";
         }
-        return false;
     }
 }

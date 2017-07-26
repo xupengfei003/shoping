@@ -10,7 +10,7 @@ public class PurchaseSelectInput {
     /**
      * 订单编号
      */
-    private BigInteger orderId;
+    private String orderId;
 
     /**
      * 收货人姓名
@@ -81,11 +81,11 @@ public class PurchaseSelectInput {
      */
     private BigInteger storeId;
 
-    public BigInteger getOrderId() {
+    public String getOrderId() {
         return orderId;
     }
 
-    public void setOrderId(BigInteger orderId) {
+    public void setOrderId(String orderId) {
         this.orderId = orderId;
     }
 

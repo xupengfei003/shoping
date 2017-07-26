@@ -63,7 +63,7 @@ public class CommodityController {
 
     @ApiOperation(value="修改商品信息", notes="")
     @PutMapping(value="/update")
-    public BaseResult update(HttpServletRequest request,@Valid CommodityInput commodityInput){
+    public BaseResult update(HttpServletRequest request,@Valid @RequestBody CommodityInput commodityInput){
         return commodityService.updateCommodity(request,commodityInput);
     }
 

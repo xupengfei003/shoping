@@ -10,7 +10,7 @@
 
     <select id="findPage" resultMap="accountMap" parameterType="so.sao.shop.supplier.domain.Condition">
         SELECT FROM_UNIXTIME(create_date/1000,'%Y-%m-%d %H:%i:%s') AS createDate,provider_name,responsible,upload_mode
-        FROM t_account
+        FROM account
         WHERE upload_mode = #{uploadMode}
         AND create_date
         BETWEEN #{beginDate}

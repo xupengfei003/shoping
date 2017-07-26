@@ -10,7 +10,7 @@ import java.util.List;
 
 /**
  * Created by xujc on 2017/7/18.
- * 账户表（t_account）对应的Service层
+ * 账户表（account）对应的Service层
  */
 public interface AccountService {
 

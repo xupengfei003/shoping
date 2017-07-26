@@ -124,7 +124,8 @@
             description = #{description},
             status = #{status},
             updated_at=#{updatedAt},
-            updated_by=#{updatedBy}
+            updated_by=#{updatedBy},
+            remark = #{remark}
         WHERE id = #{id}
     </update>
     <delete id="deleteById">
@@ -174,7 +175,8 @@
         unit_price AS unitPrice,
         created_at AS createdAt,
         updated_at AS updatedAt,
-        supplier_id AS supplierId
+        supplier_id AS supplierId,
+        status
         FROM supplier_commodity WHERE id = #{id}
     </select>
     <select id="find" resultType="so.sao.shop.supplier.domain.SupplierCommodity">

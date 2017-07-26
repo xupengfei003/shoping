@@ -91,7 +91,7 @@ public class AuthServiceImpl implements AuthService {
     public String refresh(HttpServletRequest request) throws IOException {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         final String token = jwtTokenUtil.getTokenFromRequest(request);
-        if (jwtTokenUtil.canTokenBeRefreshed(token, new Date(user.getLastPasswordResetDate()),new Date(user.getLogoutTime()))){
+        if (jwtTokenUtil.canTokenBeRefreshed(token, user.getLastPasswordResetDate(), user.getLogoutTime())){
             return jwtTokenUtil.refreshToken(token);
         }
         return null;

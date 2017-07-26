@@ -180,10 +180,10 @@ public class AccountServiceImpl implements AccountService {
      * 账户状态（account_status）为未统计的订单金额（order_price）之和
      * ②、判断统计金额是否为空，非空则将订单表（purchase）中账户状态列（account_status）
      * 中的未统计（状态码：0）改为已统计（状态码：1）
-     * ③、根据账户表（t_account）中的用户（user_id）字段查询账户表（t_account）中用户的余额；
+     * ③、根据账户表（account）中的用户（user_id）字段查询账户表（account）中用户的余额；
      * ④、第①步中统计的金额与第③步查询的余额相加，得到用户的总余额；
-     * ⑤、根据账户表（t_account）中的user_id（用户id）字段，
-     * 将得到的总余额同步到账户表中（t_account）的余额（balance）；
+     * ⑤、根据账户表（account）中的user_id（用户id）字段，
+     * 将得到的总余额同步到账户表中（account）的余额（balance）；
      * ⑥、将得到的用户总余额添加到规范规定的返回对象之中。
      * ⑦、捕获可能出现的异常
      *
@@ -217,7 +217,7 @@ public class AccountServiceImpl implements AccountService {
             }
 
             /**
-             * ③、根据账户表（t_account）中的用户（user_id）字段查询账户表（t_account）中用户的余额；
+             * ③、根据账户表（account）中的用户（user_id）字段查询账户表（account）中用户的余额；
              */
             BigDecimal oldBalance = accountDao.findUserBalance(userId);//通过Dao层的方法，根据用户ID查询用户余额
             if (oldBalance == null || oldBalance.compareTo(BigDecimal.ZERO) == 0) {//判断查询出的金额是否为空，或是否为0
@@ -231,8 +231,8 @@ public class AccountServiceImpl implements AccountService {
             newBalance = newBalance.setScale(2, BigDecimal.ROUND_HALF_UP);//给结果保留两位小数
 
             /**
-             * ⑤、根据账户表（t_account）中的user_id（用户id）字段，
-             *    将得到的总余额同步到账户表中（t_account）的余额（balance）；
+             * ⑤、根据账户表（account）中的user_id（用户id）字段，
+             *    将得到的总余额同步到账户表中（account）的余额（balance）；
              */
             Account account = new Account();//新建一个账户类的对象
             account.setUserId(userId);//将用户的ID Set进账户类对象
