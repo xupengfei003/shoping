@@ -28,6 +28,11 @@ public class User implements UserDetails {
     private Long logoutTime;
 
     /**
+     * 1管理员，0供应商(一期暂时)
+     */
+    private String isAdmin;
+
+    /**
      * 拥有的权限,SecurityUserDetailsService中初始化
      */
     private Collection<? extends GrantedAuthority> authorities;
@@ -66,6 +71,14 @@ public class User implements UserDetails {
 
     public void setLogoutTime(Long logoutTime) {
         this.logoutTime = logoutTime;
+    }
+
+    public String getIsAdmin() {
+        return isAdmin;
+    }
+
+    public void setIsAdmin(String isAdmin) {
+        this.isAdmin = isAdmin;
     }
 
     @JsonIgnore

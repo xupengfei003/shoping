@@ -46,6 +46,7 @@ public class PurchaseInput {
     /**
      * 订单详情信息
      */
+    @NotNull(message="商品列表属性不能为空")
     private List<PurchaseItemVo> listPurchaseItem;
 
 

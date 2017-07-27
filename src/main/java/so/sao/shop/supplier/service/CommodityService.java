@@ -23,14 +23,14 @@ public interface CommodityService {
      * @param commodityInput 商品信息对象
      * @return 保存结果
      */
-    public BaseResult saveCommodity(HttpServletRequest request,CommodityInput commodityInput);
+    BaseResult saveCommodity(HttpServletRequest request,CommodityInput commodityInput);
 
     /**
      * 修改商品
      * @param commodityInput 商品信息对象
      * @return 修改结果
      */
-    public BaseResult updateCommodity(HttpServletRequest request, CommodityInput commodityInput);
+    BaseResult updateCommodity(HttpServletRequest request, CommodityInput commodityInput);
 
     /**
      * 根据供应商商品ID获取商品详细信息

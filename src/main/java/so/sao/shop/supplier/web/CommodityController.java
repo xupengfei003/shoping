@@ -19,8 +19,12 @@ import so.sao.shop.supplier.util.CommodityExcelView;
 import so.sao.shop.supplier.util.Constant;
 import so.sao.shop.supplier.util.ExcelView;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.io.*;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -128,5 +132,52 @@ public class CommodityController {
         map.put("name", "商品信息表");
         ExcelView excelView = new CommodityExcelView();
         return new ModelAndView(excelView, map);
+    }
+
+    /**
+     * 供应商信息模板下载
+     *
+     * @param request
+     * @param response
+     * @throws IOException
+     */
+    @ApiOperation("商品信息模板下载")
+    @GetMapping("/down")
+    public void downLoadExcel(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        URL save = Thread.currentThread().getContextClassLoader().getResource("");
+        String str = save.toString();
+        str = str.substring(6, str.length());
+        str = str.replaceAll("%20", " ");
+        int num = str.lastIndexOf("supplier");//supplier 为项目名，应用到不同的项目中，这个需要修改！
+        str = str.substring(0, num + "supplier".length());
+        str = str + "/file/Commodity.xls";//Excel模板所在的路径。
+        File f = new File(str);
+        // 设置response参数，可以打开下载页面
+        response.reset();
+        response.setContentType("application/vnd.ms-excel;charset=utf-8");
+        String filename = "商品信息.xls";
+        filename = new String(filename.getBytes("Utf-8"), "iso-8859-1");
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+        response.setCharacterEncoding("UTF-8");
+        response.setHeader("Content-Type", "application/octet-stream");
+        ServletOutputStream out = response.getOutputStream();
+        BufferedInputStream bis = null;
+        BufferedOutputStream bos = null;
+        try {
+            bis = new BufferedInputStream(new FileInputStream(f));
+            bos = new BufferedOutputStream(out);
+            byte[] buff = new byte[2048];
+            int bytesRead;
+            while (-1 != (bytesRead = bis.read(buff, 0, buff.length))) {
+                bos.write(buff, 0, bytesRead);
+            }
+        } catch (final IOException e) {
+            throw e;
+        } finally {
+            if (bis != null)
+                bis.close();
+            if (bos != null)
+                bos.close();
+        }
     }
 }
