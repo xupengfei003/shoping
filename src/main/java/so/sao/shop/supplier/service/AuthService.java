@@ -1,6 +1,5 @@
 package so.sao.shop.supplier.service;
 
-import com.aliyuncs.exceptions.ClientException;
 import so.sao.shop.supplier.pojo.BaseResult;
 import so.sao.shop.supplier.pojo.Result;
 
@@ -46,7 +45,7 @@ public interface AuthService {
      * @return
      * @throws IOException
      */
-    public BaseResult getPassword(String tel) throws IOException, ClientException;
+    public BaseResult getPassword(String tel) throws IOException;
 
 
     /**
@@ -54,7 +53,7 @@ public interface AuthService {
      * @param tel
      * @return
      */
-    public BaseResult sendCode(String tel) throws IOException, ClientException;
+    public BaseResult sendCode(String tel) throws IOException;
 
     /**
      * 验证码校验

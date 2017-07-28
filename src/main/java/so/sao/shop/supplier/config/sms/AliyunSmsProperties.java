@@ -9,9 +9,9 @@ public class AliyunSmsProperties {
 
     private String accessKeySecret;
 
-    private String endpointName;
+    private String mnsEndpoint;
 
-    private String regionId;
+    private String topic;
 
     /**
      * 短信签名
@@ -21,7 +21,7 @@ public class AliyunSmsProperties {
     /**
      * 短信模板
      */
-    private String templateCode;
+    private String smsTemplateCode;
 
     public String getAccessKeyId() {
         return accessKeyId;
@@ -39,20 +39,20 @@ public class AliyunSmsProperties {
         this.accessKeySecret = accessKeySecret;
     }
 
-    public String getEndpointName() {
-        return endpointName;
+    public String getMnsEndpoint() {
+        return mnsEndpoint;
     }
 
-    public void setEndpointName(String endpointName) {
-        this.endpointName = endpointName;
+    public void setMnsEndpoint(String mnsEndpoint) {
+        this.mnsEndpoint = mnsEndpoint;
     }
 
-    public String getRegionId() {
-        return regionId;
+    public String getTopic() {
+        return topic;
     }
 
-    public void setRegionId(String regionId) {
-        this.regionId = regionId;
+    public void setTopic(String topic) {
+        this.topic = topic;
     }
 
     public String getSignName() {
@@ -63,11 +63,11 @@ public class AliyunSmsProperties {
         this.signName = signName;
     }
 
-    public String getTemplateCode() {
-        return templateCode;
+    public String getSmsTemplateCode() {
+        return smsTemplateCode;
     }
 
-    public void setTemplateCode(String templateCode) {
-        this.templateCode = templateCode;
+    public void setSmsTemplateCode(String smsTemplateCode) {
+        this.smsTemplateCode = smsTemplateCode;
     }
 }

@@ -1,6 +1,5 @@
 package so.sao.shop.supplier.web;
 
-import com.aliyuncs.exceptions.ClientException;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -227,7 +226,7 @@ public class AccountController {
      */
     @ApiOperation("忘记密码")
     @GetMapping(value = "/findPassword/{tel}")
-    public BaseResult getPassword(@PathVariable String tel) throws IOException, ClientException {
+    public BaseResult getPassword(@PathVariable String tel) throws IOException {
         return authService.getPassword(tel);
     }
 
@@ -280,11 +279,10 @@ public class AccountController {
      * @param tel
      * @return
      * @throws IOException
-     * @throws ClientException
      */
     @ApiOperation("发送验证码")
     @GetMapping(value = "/sendCode/{tel}")
-    public BaseResult sendCode(@PathVariable String tel) throws IOException, ClientException {
+    public BaseResult sendCode(@PathVariable String tel) throws IOException {
         return authService.sendCode(tel);
     }
 

@@ -1,7 +1,6 @@
 package so.sao.shop.supplier.service.impl;
 
-import com.aliyuncs.dysmsapi.model.v20170525.SendSmsResponse;
-import com.aliyuncs.exceptions.ClientException;
+import com.aliyun.mns.model.TopicMessage;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -13,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import so.sao.shop.supplier.config.sms.SmsService;
 import so.sao.shop.supplier.dao.UserDao;
 import so.sao.shop.supplier.domain.User;
 import so.sao.shop.supplier.pojo.BaseResult;
@@ -20,10 +20,10 @@ import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.service.AuthService;
 import so.sao.shop.supplier.util.Constant;
 import so.sao.shop.supplier.util.JwtTokenUtil;
-import so.sao.shop.supplier.util.SmsUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Date;
 
 /**
@@ -41,10 +41,13 @@ public class AuthServiceImpl implements AuthService {
     private JwtTokenUtil jwtTokenUtil;
 
     @Autowired
+    private SmsService smsService;
+
+    @Autowired
     public AuthServiceImpl(
             AuthenticationManager authenticationManager,
             UserDetailsService userDetailsService,
-            UserDao userDao,JwtTokenUtil jwtTokenUtil) {
+            UserDao userDao, JwtTokenUtil jwtTokenUtil) {
         this.authenticationManager = authenticationManager;
         this.userDetailsService = userDetailsService;
         this.userDao = userDao;
@@ -99,20 +102,19 @@ public class AuthServiceImpl implements AuthService {
 
     /**
      * 忘记密码
-     * @param tel
+     * @param phone
      * @return
      * @throws IOException
-     * @throws ClientException
      */
     @Override
-    public BaseResult getPassword(String tel) throws IOException, ClientException {
-        User u = userDao.findByUsername(tel);
+    public BaseResult getPassword(String phone) throws IOException {
+        User u = userDao.findByUsername(phone);
         //判断当前登录人和接收密码手机是否一直
         if(u!=null&& StringUtils.isNotBlank(u.getUsername())){
-            String password = SmsUtil.getVerCode();
+            String password = smsService.getVerCode();
             //密码加密保存,忘记密码只能手机验证发送新密码
             userDao.updatePassword(u.getId(),new BCryptPasswordEncoder().encode(password), new Date().getTime());
-            SendSmsResponse sendSmsResponse = SmsUtil.sendSms(tel, password);
+            smsService.sendSms(Collections.singletonList(phone), password);
             return new BaseResult(1, "发送成功");
         }else{
             return new BaseResult(0, "当前号码无效!");
@@ -121,20 +123,20 @@ public class AuthServiceImpl implements AuthService {
 
     /**
      * 发送验证码
-     * @param tel
+     * @param phone
      * @return
      * @throws IOException
-     * @throws ClientException
      */
     @Override
-    public BaseResult sendCode(String tel) throws IOException, ClientException {
-        String code = SmsUtil.getVerCode();
-        userDao.saveSmsCode(tel, code);
-        SendSmsResponse sendSmsResponse = SmsUtil.sendSms(tel, code);
-        if(sendSmsResponse.getCode() != null && sendSmsResponse.getCode().equals("OK")) {
+    public BaseResult sendCode(String phone) throws IOException {
+        String code = smsService.getVerCode();
+        userDao.saveSmsCode(phone, code);
+        TopicMessage topicMessage = smsService.sendSms(Collections.singletonList(phone), code);
+        if(topicMessage != null) {
             return new BaseResult(1,"发送成功");
+        } else {
+            return new BaseResult(0,"发送失败");
         }
-        return new BaseResult(0,"发送失败");
     }
 
     /**

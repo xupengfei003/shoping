@@ -1,6 +1,5 @@
 package so.sao.shop.supplier.service.impl;
 
-import com.aliyuncs.exceptions.ClientException;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -16,9 +15,7 @@ import so.sao.shop.supplier.domain.Condition;
 import so.sao.shop.supplier.domain.User;
 import so.sao.shop.supplier.pojo.output.AccountBalanceOutput;
 import so.sao.shop.supplier.service.AccountService;
-import so.sao.shop.supplier.util.SmsUtil;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -296,21 +293,17 @@ public class AccountServiceImpl implements AccountService {
     public Long saveUser(String phone) {
         User user1 = userDao.findByUsername(phone);
         if (user1 == null) {
-            try {
-                User user = new User();
-                user.setUsername(phone);
-                String password = SmsUtil.getVerCode();
-                BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-                user.setPassword(encoder.encode(password));
-                user1.setLastPasswordResetDate(new Date().getTime());
-                user.setIsAdmin("0");
-                userDao.add(user);
-                smsService.sendSms(phone, password);
+            User user = new User();
+            user.setUsername(phone);
+            String password = smsService.getVerCode();
+            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+            user.setPassword(encoder.encode(password));
+            user1.setLastPasswordResetDate(new Date().getTime());
+            user.setIsAdmin("0");
+            userDao.add(user);
+            smsService.sendSms(Collections.singletonList(phone), password);
 //                SmsUtil.sendSms(phone, password);
-                return user.getId();
-            } catch (ClientException | IOException e) {
-                return 0L;
-            }
+            return user.getId();
         } else {
             return user1.getId();
         }
