@@ -13,12 +13,12 @@ public class Condition {
     /**
      * 开始时间
      */
-	@JsonFormat(pattern="yyyy/MM/dd HH:mm:ss", timezone="GMT+8")
+	@JsonFormat(pattern="yyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date beginDate;
     /**
      * 截止时间
      */
-	@JsonFormat(pattern="yyyy/MM/dd HH:mm:ss", timezone="GMT+8")
+	@JsonFormat(pattern="yyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date endDate;
 
     /**
@@ -28,12 +28,12 @@ public class Condition {
     /**
      * 合同截止日期
      */
-    @JsonFormat(pattern="yyyy/MM/dd HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern="yyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date contractEndDate;
     /**
      * 合同创建日期
       */
-    @JsonFormat(pattern="yyyy/MM/dd HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern="yyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date contractCreateDate;
     /**
      * 法人代表（合同）
