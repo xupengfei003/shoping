@@ -408,7 +408,7 @@ public class CommodityServiceImpl implements CommodityService {
                 return result;
             }
             //删除商品,deleted更新为1
-            supplierCommodityDao.deleteById(id, true, System.currentTimeMillis());
+            supplierCommodityDao.deleteById(id, true, new Date());
         }
 
         result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SUCCESS);
@@ -447,7 +447,7 @@ public class CommodityServiceImpl implements CommodityService {
         }
         for(long id : idList){
             //删除商品,deleted更新为1
-            supplierCommodityDao.deleteById(id, true, System.currentTimeMillis());
+            supplierCommodityDao.deleteById(id, true, new Date());
         }
         if(null != idNotList && idNotList.size() > 0){
             result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);

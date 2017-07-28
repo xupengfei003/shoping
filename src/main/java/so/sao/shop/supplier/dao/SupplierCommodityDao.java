@@ -4,6 +4,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import so.sao.shop.supplier.domain.SupplierCommodity;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -93,7 +94,7 @@ public interface SupplierCommodityDao {
      * @param id 商品
      * @return 删除结果
      */
-    boolean deleteById(@Param("id") long id, @Param("deleted") Boolean deleted, @Param("updatedAt")long updatedBy);
+    boolean deleteById(@Param("id") long id, @Param("deleted") Boolean deleted, @Param("updatedAt")Date updatedBy);
 
     /**
      * 上下架商品
