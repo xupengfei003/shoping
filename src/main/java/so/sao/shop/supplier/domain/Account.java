@@ -61,7 +61,6 @@ public class Account {
 	/**
 	 * 供应商注册地址（省，市，区）
 	 */
-	@NotEmpty(message = "供应商注册地址不能为空")
 	private String registAddress;
 	 /**
      * 供应商注册地址（省）
@@ -122,7 +121,6 @@ public class Account {
 	/**
 	 * remittance_type=1时表示每月哪天,remittance_type=2时表示天数
 	 */
-	@NotEmpty(message = "天数不能为空")
 	private String remittanced;
 	/**
 	 * 用户状态
@@ -181,7 +179,6 @@ public class Account {
 	/**
 	 * 合同注册地址（省，市，区）
 	 */
-	@NotEmpty(message = "合同注册地址不能为空")
 	private String contractRegisterAddress;
 	/**
      * 合同注册地址（省）

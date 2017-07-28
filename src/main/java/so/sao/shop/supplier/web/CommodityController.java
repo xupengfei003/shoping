@@ -154,12 +154,9 @@ public class CommodityController {
     @GetMapping("/down")
     public void downLoadExcel(HttpServletRequest request, HttpServletResponse response) throws IOException {
         URL save = Thread.currentThread().getContextClassLoader().getResource("");
-        String str = save.toString();
-        str = str.substring(6, str.length());
+        String str = save.toString().replace("build/classes/java/main/","file/Commodity.xls") ;//Excel模板所在的路径。
         str = str.replaceAll("%20", " ");
-        int num = str.lastIndexOf("supplier");//supplier 为项目名，应用到不同的项目中，这个需要修改！
-        str = str.substring(0, num + "supplier".length());
-        str = str + "/file/Commodity.xls";//Excel模板所在的路径。
+        str = str.replaceAll("file:/", "");
         File f = new File(str);
         // 设置response参数，可以打开下载页面
         response.reset();
