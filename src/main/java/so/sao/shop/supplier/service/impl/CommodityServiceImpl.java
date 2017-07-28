@@ -351,7 +351,7 @@ public class CommodityServiceImpl implements CommodityService {
             suppCommSearchVo.setCommId(supplierCommodity.getCommodityId());
             suppCommSearchVo.setCode69(supplierCommodity.getCode69());
             suppCommSearchVo.setCode(supplierCommodity.getCode());
-            suppCommSearchVo.setBrandName(supplierCommodity.getName());
+            suppCommSearchVo.setBrandName(supplierCommodity.getBrand());
             suppCommSearchVo.setCommName(supplierCommodity.getName());
             suppCommSearchVo.setUnit(supplierCommodity.getUnit());
             suppCommSearchVo.setRuleName(supplierCommodity.getRuleName());
