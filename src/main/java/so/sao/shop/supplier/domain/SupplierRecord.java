@@ -12,7 +12,7 @@ public class SupplierRecord {
     /**
      * 上传日期
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern="yyyy/MM/dd HH:mm:ss", timezone="GMT+8")
     private Date createDate;
     /**
      * 供应商名称

@@ -29,19 +29,19 @@ public class AccountUser {
     /**
      * 激活时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern="yyyy/MM/dd HH:mm:ss", timezone="GMT+8")
     private Date activeTime;
 
     /**
      * 登录时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern="yyyy/MM/dd HH:mm:ss", timezone="GMT+8")
     private Date loginTime;
 
     /**
      * 上次登录时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern="yyyy/MM/dd HH:mm:ss", timezone="GMT+8")
     private Date lastLoginTime;
 
     /**
@@ -137,13 +137,13 @@ public class AccountUser {
     /**
      * 创建时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern="yyyy/MM/dd HH:mm:ss", timezone="GMT+8")
     private Date createdAt;
 
     /**
      * 修改时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern="yyyy/MM/dd HH:mm:ss", timezone="GMT+8")
     private Date updatedAt;
 
     /**
