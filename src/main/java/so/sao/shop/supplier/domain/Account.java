@@ -305,11 +305,11 @@ public class Account {
 	}
 
 	public String getRegistAddress() {
-		return registAddress;
+		return this.registAddressProvince+"-"+this.registAddressCity+"-"+this.registAddressDistrict;
 	}
 
 	public void setRegistAddress(String registAddress) {
-		this.registAddress = registAddress == null ? null : registAddress.trim();
+		this.registAddress = this.registAddressProvince+"-"+this.registAddressCity+"-"+this.registAddressDistrict;
 	}
 
 	public String getRegisterAddressDetail() {
@@ -457,11 +457,11 @@ public class Account {
 	}
 
 	public String getContractRegisterAddress() {
-		return contractRegisterAddress;
+		return this.contractRegisterAddressProvince+"-"+this.contractRegisterAddressCity+"-"+this.contractRegisterAddressDistrict;
 	}
 
 	public void setContractRegisterAddress(String contractRegisterAddress) {
-		this.contractRegisterAddress = contractRegisterAddress == null ? null : contractRegisterAddress.trim();
+		this.contractRegisterAddress = this.contractRegisterAddressProvince+"-"+this.contractRegisterAddressCity+"-"+this.contractRegisterAddressDistrict;
 	}
 
 	public String getContractRegisterAddressDetail() {
