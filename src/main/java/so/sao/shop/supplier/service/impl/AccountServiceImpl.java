@@ -9,6 +9,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import so.sao.shop.supplier.config.Constant;
+import so.sao.shop.supplier.config.sms.SmsService;
 import so.sao.shop.supplier.dao.*;
 import so.sao.shop.supplier.domain.Account;
 import so.sao.shop.supplier.domain.Condition;
@@ -47,6 +48,9 @@ public class AccountServiceImpl implements AccountService {
 
     @Autowired
     private DictItemMapper dictItemDao;
+
+    @Autowired
+    private SmsService smsService;
 
     /**
      * 初始化银行信息
@@ -300,12 +304,11 @@ public class AccountServiceImpl implements AccountService {
                 user.setPassword(encoder.encode(password));
                 user1.setLastPasswordResetDate(new Date().getTime());
                 userDao.add(user);
-                SmsUtil.sendSms(phone, password);
+                smsService.sendSms(phone, password);
+//                SmsUtil.sendSms(phone, password);
                 return user.getId();
-            } catch (ClientException e) {
-                return 0l;
-            } catch (IOException e) {
-                return 0l;
+            } catch (ClientException | IOException e) {
+                return 0L;
             }
         } else {
             return user1.getId();

@@ -2,7 +2,7 @@ package so.sao.shop.supplier.config.azure;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@ConfigurationProperties(prefix = "shop.blob")
+@ConfigurationProperties(prefix = "shop.azure.blob")
 public class AzureBlobProperties {
 
     private String accountName;

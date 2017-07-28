@@ -22,15 +22,15 @@ import java.util.Map;
  */
 public class SmsUtil {
     //产品名称:云通信短信API产品,开发者无需替换
-    public static final String product = "Dysmsapi";
+    private static final String product = "Dysmsapi";
     //产品域名,开发者无需替换
     public static final String domain = "dysmsapi.aliyuncs.com";
 
     // TODO 此处需要替换成开发者自己的AK(在阿里云访问控制台寻找)
-    public static final String accessKeyId = "LTAIJ5WCST5NTxKK";
-    public static final String accessKeySecret = "w5ZgY1edGDrCB3NlDt5IseCsnlJZLV";
-    public static final String signName = "透云";
-    public static final String templateCode = "SMS_78585197";
+    private static final String accessKeyId = "LTAIJ5WCST5NTxKK";
+    private static final String accessKeySecret = "w5ZgY1edGDrCB3NlDt5IseCsnlJZLV";
+    private static final String signName = "透云";
+    private static final String templateCode = "SMS_78585197";
 
     public static String getVerCode(){
         String vcode = "";
