@@ -94,8 +94,8 @@ public class ImportExcelImpl implements ImportExcel {
         //总列数
         int totalCells = 0;
         //得到Excel的列数(前提是有行数)，从第二行算起
-        if(totalRows>=3 && sheet.getRow(2) != null){
-            totalCells=sheet.getRow(2).getPhysicalNumberOfCells();
+        if(totalRows>=3 && sheet.getRow(3) != null){
+            totalCells=sheet.getRow(3).getPhysicalNumberOfCells();
         }
         List<Account> userKnowledgeBaseList=new ArrayList<Account>();
         Account tempUserKB;
@@ -106,7 +106,6 @@ public class ImportExcelImpl implements ImportExcel {
             Row row = sheet.getRow(r);
             tempUserKB = new Account();
             try{
-                User user = new User();
                 //循环Excel的列
                 for(int c = 0; c <totalCells; c++){
                     Cell cell = row.getCell(c);
@@ -175,22 +174,29 @@ public class ImportExcelImpl implements ImportExcel {
                         else if(c==21)
                             tempUserKB.setRemittanced(cell.getStringCellValue());
                     }
-                    /**
-                     * 此处增加用户信息，根据tempUserKB.getResponsiblePhone插入用户信息
-                     * 查询用户id增加进tempUserKB
-                     */
-                    Long id = accountService.saveUser(tempUserKB.getContractResponsiblePhone());
-                    if(id!=0l){
-                        tempUserKB.setUserId(id);
-                    }else{
-                        return "插入用户信息失败!";
+                }
+                /**
+                 * 此处增加用户信息，根据tempUserKB.getResponsiblePhone插入用户信息
+                 * 查询用户id增加进tempUserKB
+                 */
+                Long id = accountService.saveUser(tempUserKB.getContractResponsiblePhone());
+                if(id!=0l){
+                    tempUserKB.setUserId(id);
+                }else{
+                    if(tempFile.exists()){
+                        tempFile.delete();
                     }
+                    return "插入用户信息失败!";
                 }
                 tempUserKB.setUploadMode("2");
                 tempUserKB.setCreateDate(new Date().getTime());
                 userKnowledgeBaseList.add(tempUserKB);
             }catch(Exception e){
                 log.error("excel数据解析异常"+e);
+                if(tempFile.exists()){
+                    tempFile.delete();
+                }
+                return "excel数据解析异常";
             }
         }
         //删除上传的临时文件

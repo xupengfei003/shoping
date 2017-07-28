@@ -266,12 +266,6 @@ public class AccountServiceImpl implements AccountService {
      */
     @Override
     public PageInfo searchAccount(Condition condition) {
-        if (condition.getBeginTime() != null) {
-            condition.setBeginDate(condition.getBeginTime().getTime());
-        }
-        if (condition.getContractCreateTime() != null) {
-            condition.setContractCreateDate(condition.getContractCreateTime().getTime());
-        }
         if (condition.getPageNum() == null) {
             condition.setPageNum(1);
         }

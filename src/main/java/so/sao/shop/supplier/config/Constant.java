@@ -59,7 +59,7 @@ public interface Constant {
         /**
          * 未查找到结果
          */
-        public static final String MSG_NOT_FOUND_RESULT = "未查找到结果";
+        public static final String MSG_NOT_FOUND_RESULT = "暂无订单数据";
     }
 
     interface OrderStatusConfig{

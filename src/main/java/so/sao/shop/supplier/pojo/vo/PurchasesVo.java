@@ -51,6 +51,11 @@ public class PurchasesVo {
      */
     private String orderPaymentNum;
 
+    /**
+     * 更新时间
+     */
+    private Long updateTime;
+
     public String getOrderId() {
         return orderId;
     }
@@ -123,4 +128,11 @@ public class PurchasesVo {
         this.orderPaymentNum = orderPaymentNum;
     }
 
+    public Long getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(Long updateTime) {
+        this.updateTime = updateTime;
+    }
 }

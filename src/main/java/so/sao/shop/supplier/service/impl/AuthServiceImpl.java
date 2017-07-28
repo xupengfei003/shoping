@@ -39,19 +39,19 @@ public class AuthServiceImpl implements AuthService {
     private UserDetailsService userDetailsService;
     private UserDao userDao;
     private JwtTokenUtil jwtTokenUtil;
-
-    @Autowired
     private SmsService smsService;
+
 
     @Autowired
     public AuthServiceImpl(
             AuthenticationManager authenticationManager,
             UserDetailsService userDetailsService,
-            UserDao userDao, JwtTokenUtil jwtTokenUtil) {
+            UserDao userDao,JwtTokenUtil jwtTokenUtil,SmsService smsService) {
         this.authenticationManager = authenticationManager;
         this.userDetailsService = userDetailsService;
         this.userDao = userDao;
         this.jwtTokenUtil=jwtTokenUtil;
+        this.smsService=smsService;
     }
 
     /**

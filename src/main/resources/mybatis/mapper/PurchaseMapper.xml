@@ -75,13 +75,6 @@
         order_payment_num
         FROM
         purchase
-        <if test="orderIdList != null and orderIdList.size() > 0">
-            WHERE order_id IN
-            <foreach item="orderId" index="index" collection="orderIdList"
-                     open="(" separator="," close=")">
-                #{orderId}
-            </foreach>
-        </if>
     </select>
   <!-- 添加订单信息 -->
     <insert id="savePurchase" parameterType="java.util.List">
@@ -128,9 +121,10 @@
         <result column="order_payment_time" property="orderPaymentTime"/>
         <result column="order_payment_method" property="orderPaymentMethod"/>
         <result column="order_payment_num" property="orderPaymentNum"/>
+        <result column="updated_at" property="updateTime"/>
     </resultMap>
     <sql id="Order_Column_List">
-        order_id, order_receiver_name, order_receiver_mobile, order_create_time, order_price, order_status,order_payment_time, order_payment_method, order_payment_num
+        order_id, order_receiver_name, order_receiver_mobile, order_create_time, order_price, order_status,order_payment_time, order_payment_method, order_payment_num,updated_at
     </sql>
     <select id="findPage" resultMap="OrderAllList" parameterType="so.sao.shop.supplier.pojo.input.PurchaseSelectInput" >
         SELECT
@@ -190,7 +184,7 @@
                 AND store_id LIKE "${storeId}%"
             </if>
         </where>
-        ORDER BY order_create_time DESC
+        ORDER BY updated_at DESC
     </select>
 
     <!--更改订单状态-->
@@ -198,7 +192,8 @@
     <update id="updateOrder">
         UPDATE purchase
         SET
-        order_status = #{orderStatus}
+        order_status = #{orderStatus},
+        updated_at = #{updateDate}
         WHERE order_id = #{orderId}
     </update>
 

@@ -67,11 +67,10 @@ public interface PurchaseService {
      * POI批量导出订单列表
      * @param request request
      * @param response response
-     * @param orderIds orderIds
      * @param pageNum pageNum
      * @param pageSize pageSize
      */
-    void exportExcel(HttpServletRequest request, HttpServletResponse response,String orderIds, Integer pageNum, Integer pageSize) throws Exception;
+    void exportExcel(HttpServletRequest request, HttpServletResponse response, String pageNum, Integer pageSize) throws Exception;
 
     /**
      * 根据商家编号及查询条件（起始-结束时间范围；起始-结束金额范围）查找所有相关订单记录(分页)

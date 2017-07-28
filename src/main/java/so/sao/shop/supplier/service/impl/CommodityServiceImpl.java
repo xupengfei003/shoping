@@ -403,7 +403,7 @@ public class CommodityServiceImpl implements CommodityService {
             //商品需下架才可删除
             if(status != Constant.COMM_ST_XJ){
                 result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-                result.setMsg("商品需下架才可删除");
+                result.setMessage("商品需下架才可删除");
                 result.setData(map);
                 return result;
             }
@@ -412,7 +412,7 @@ public class CommodityServiceImpl implements CommodityService {
         }
 
         result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SUCCESS);
-        result.setMsg("删除商品成功");
+        result.setMessage("删除商品成功");
         result.setData(map);
         return result;
     }
@@ -451,12 +451,12 @@ public class CommodityServiceImpl implements CommodityService {
         }
         if(null != idNotList && idNotList.size() > 0){
             result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-            result.setMsg("商品需下架才可删除,id:"+idNotList);
+            result.setMessage("商品需下架才可删除,id:"+idNotList);
             result.setData(map);
             return result;
         }
         result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SUCCESS);
-        result.setMsg("删除商品成功");
+        result.setMessage("删除商品成功");
         result.setData(map);
         return result;
     }
@@ -474,7 +474,7 @@ public class CommodityServiceImpl implements CommodityService {
         if(null == supplierCommodity){
             result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
 
-            result.setMsg("该商品不存在");
+            result.setMessage("该商品不存在");
             return result;
         }
         supplierCommodity = assemblyObject(id,Constant.COMM_ST_SJ);
@@ -482,12 +482,12 @@ public class CommodityServiceImpl implements CommodityService {
         if (flag)
         {
             result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SUCCESS);
-            result.setMsg("上架商品成功");
+            result.setMessage("上架商品成功");
             map.put("status",Constant.COMM_ST_SJ);
             result.setData(map);
         }else {
             result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-            result.setMsg("上架商品失败");
+            result.setMessage("上架商品失败");
         }
         return result;
     }
@@ -512,7 +512,7 @@ public class CommodityServiceImpl implements CommodityService {
         SupplierCommodity supplierCommodity = supplierCommodityDao.findOne(id);
         if(null == supplierCommodity){
             result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-            result.setMsg("该商品不存在");
+            result.setMessage("该商品不存在");
             return result;
         }
         supplierCommodity = assemblyObject(id,Constant.COMM_ST_XJ);
@@ -520,12 +520,12 @@ public class CommodityServiceImpl implements CommodityService {
         if (flag)
         {
             result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SUCCESS);
-            result.setMsg("下架商品成功");
+            result.setMessage("下架商品成功");
             map.put("status",Constant.COMM_ST_XJ);
             result.setData(map);
         }else {
             result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-            result.setMsg("下架商品失败");
+            result.setMessage("下架商品失败");
         }
         return result;
     }

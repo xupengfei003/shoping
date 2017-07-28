@@ -7,16 +7,6 @@ import java.util.Date;
  * Created by acer on 2017/7/20.
  */
 public class Condition {
-    
-     /**
-     * 开始时间(做类型转换)
-     */
-    private Date beginTime;
-    
-	 /**
-     * 截止时间(做类型转换)
-     */
-    private Date endTime;
    
     /**
      * 开始时间
@@ -26,16 +16,6 @@ public class Condition {
      * 截止时间
      */
     private Long endDate;
-
-    /**
-     * 合同截止日期(做类型转换)
-     */
-    private Date contractEndTime;
-    /**
-     * 合同创建日期(做类型转换)
-     */
-    private Date contractCreateTime;
-
 
     /**
      * 供应商名称
@@ -136,21 +116,6 @@ public class Condition {
         this.contractRegisterAddress = contractRegisterAddress;
     }
 
-    public Date getBeginTime() {
-        return beginTime;
-    }
-
-    public void setBeginTime(Date beginTime) {
-        this.beginTime = beginTime;
-    }
-
-    public Date getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(Date endTime) {
-        this.endTime = endTime;
-    }
 
     public void setBeginDate(Long beginDate) {
         this.beginDate = beginDate;
@@ -162,22 +127,6 @@ public class Condition {
 
     public Long getEndDate() {
         return endDate;
-    }
-
-     public Date getContractEndTime() {
-        return contractEndTime;
-    }
-
-    public void setContractEndTime(Date contractEndTime) {
-        this.contractEndTime = contractEndTime;
-    }
-
-    public Date getContractCreateTime() {
-        return contractCreateTime;
-    }
-
-    public void setContractCreateTime(Date contractCreateTime) {
-        this.contractCreateTime = contractCreateTime;
     }
 
     public Integer getPageNum() {

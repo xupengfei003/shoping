@@ -8,7 +8,7 @@ package so.sao.shop.supplier.pojo;
  **/
 public class Result<T>{
     private Integer code;
-    private String msg;
+    private String message;
     /**
      * 返回数据
      */
@@ -16,9 +16,9 @@ public class Result<T>{
 
     public Result(){}
 
-    public Result(Integer code, String msg, T data){
+    public Result(Integer code, String message, T data){
         this.code = code;
-        this.msg = msg;
+        this.message = message;
         this.data = data;
     }
 
@@ -30,12 +30,12 @@ public class Result<T>{
         this.code = code;
     }
 
-    public String getMsg() {
-        return msg;
+    public String getMessage() {
+        return message;
     }
 
-    public void setMsg(String msg) {
-        this.msg = msg;
+    public void setMessage(String message) {
+        this.message = message;
     }
 
     public T getData() {

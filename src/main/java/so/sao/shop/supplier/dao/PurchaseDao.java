@@ -53,7 +53,7 @@ public interface PurchaseDao {
      * @param orderStatus
      * @return boolean
      */
-    boolean updateOrder(@Param("orderId") String orderId, @Param("orderStatus") Integer orderStatus);
+    boolean updateOrder(@Param("orderId") String orderId, @Param("orderStatus") Integer orderStatus,@Param("updateDate") Long updateDate);
 
     /**
      * 更改状态辅助操作（更改退款时间、插入物流配送方式）
@@ -80,7 +80,7 @@ public interface PurchaseDao {
      *
      * @return List<Purchase>
      */
-    List<Purchase> getOrderListByIds(@Param("orderIdList") List<String> orderIdList);
+    List<Purchase> getOrderListByIds();
 
     /**
      * 根据商品ID查询供应商信息
