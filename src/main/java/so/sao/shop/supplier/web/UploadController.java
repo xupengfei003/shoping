@@ -6,6 +6,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -21,10 +22,7 @@ import so.sao.shop.supplier.util.Constant;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.*;
 import java.util.List;
 
@@ -63,7 +61,8 @@ public class UploadController {
                                     || tempMultipartFile.getContentType().toLowerCase().equals("image/png")
                                     || tempMultipartFile.getContentType().toLowerCase().equals("image/gif"))) {
                                 map.put("fileName",fileName);
-                                return new Result(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE, "上传的文件中包含非jpg/png/jpeg/gif格式",map);
+                                Result resultMsg = new Result(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE, "上传的文件中包含非jpg/png/jpeg/gif格式",map);
+                                return resultMsg;
                             }
 
                             //拼装blob的名称(新的图片文件名 =UUID+"."图片扩展名)
@@ -103,19 +102,24 @@ public class UploadController {
                             }
                             blobUploadEntities.add(blobUploadEntity);
                         } catch (Exception e) {
-                            return new BaseResult(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE, "文件上传异常");
+                            BaseResult resultMsg = new BaseResult(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE, "文件上传异常");
+                            return resultMsg;
                         }
                     }else {
                         map.put("fileName",tempMultipartFile.getOriginalFilename());
-                        return new Result(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE, "上传文件为空",map);
+                        Result resultMsg = new Result(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE, "上传文件为空",map);
+                        return resultMsg;
                     }
                 }
-                return new Result(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SUCCESS, "文件上传成功", blobUploadEntities);
+                Result result = new Result(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SUCCESS, "文件上传成功", blobUploadEntities);
+                return result;
             }else{
-                return new BaseResult(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE, "请选择需要上传的文件");
+                BaseResult resultMsg = new BaseResult(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE, "请选择需要上传的文件");
+                return resultMsg;
             }
         } catch (Exception e) {
-            return new BaseResult(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE, "文件上传异常");
+            BaseResult resultMsg = new BaseResult(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE, "文件上传异常");
+            return resultMsg;
         }
     }
 

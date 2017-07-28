@@ -117,7 +117,7 @@ public class AccountServiceImpl implements AccountService {
         // 创建日期
         Date date = new Date();
         account.setCreateDate(date.getTime());
-        return accountDao.insert(account);
+        return accountDao.insertSelective(account);
     }
 
     /**
@@ -303,6 +303,7 @@ public class AccountServiceImpl implements AccountService {
                 BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
                 user.setPassword(encoder.encode(password));
                 user1.setLastPasswordResetDate(new Date().getTime());
+                user.setIsAdmin("0");
                 userDao.add(user);
                 smsService.sendSms(phone, password);
 //                SmsUtil.sendSms(phone, password);

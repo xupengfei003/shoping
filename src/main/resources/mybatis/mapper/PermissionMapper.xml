@@ -8,7 +8,7 @@
         <result column="per_desc" jdbcType="VARCHAR" property="description"/>
     </resultMap>
 
-    <select id="findAll"  resultType="so.sao.shop.supplier.domain.Permission">
+    <select id="findAll"  resultMap="PermissionResultMap">
         SELECT per_id, per_name, per_desc, per_url
           FROM permission
     </select>

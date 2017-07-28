@@ -23,7 +23,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by xujc on 2017/7/18.
@@ -178,6 +180,20 @@ public class AccountController {
     }
 
     /**
+     * 获取admin标记(一期暂时)
+     * @param request
+     * @return
+     */
+    @ApiOperation("获取admin标记")
+    @GetMapping(value = "/isAdmin")
+    public Result isAdmin(HttpServletRequest request){
+        Map result = new HashMap();
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        result.put("isAdmin",user.getIsAdmin());
+        return new Result(1,"",result);
+    }
+
+    /**
      * 登出,设置登出时间
      *
      * @return
@@ -315,12 +331,12 @@ public class AccountController {
         str = str.replaceAll("%20", " ");
         int num = str.lastIndexOf("supplier");//supplier 为项目名，应用到不同的项目中，这个需要修改！
         str = str.substring(0, num + "supplier".length());
-        str = str + "/file/template.xlsx";//Excel模板所在的路径。
+        str = str + "/file/Commodity.xls";//Excel模板所在的路径。
         File f = new File(str);
         // 设置response参数，可以打开下载页面
         response.reset();
         response.setContentType("application/vnd.ms-excel;charset=utf-8");
-        String filename = "供应商信息.xlsx";
+        String filename = "商品信息.xls";
         filename = new String(filename.getBytes("Utf-8"), "iso-8859-1");
         response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
         response.setCharacterEncoding("UTF-8");

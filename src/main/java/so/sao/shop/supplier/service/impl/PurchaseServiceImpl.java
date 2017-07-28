@@ -63,6 +63,7 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Transactional
     public Map<String,Object> savePurchase(PurchaseInput purchase) throws Exception{
         Map<String,Object> output = new HashMap<>();
+        output.put("status", Constant.CodeConfig.CODE_FAILURE);
         /*
             1.根据商户进行拆单
                 a.根据商品查出所有商户信息。
@@ -77,9 +78,15 @@ public class PurchaseServiceImpl implements PurchaseService {
         for (PurchaseItemVo purchaseItem : listPurchaseItem) {
             //a.根据商品查出所有商户信息。
             Long goodsId = purchaseItem.getGoodsId();//商品ID
-            AccountUser accountUser = purchaseDao.findAccountById(goodsId);
-            set.add(accountUser.getUserId());
+            if(null != goodsId){
+                AccountUser accountUser = purchaseDao.findAccountById(goodsId);
+                if(null != accountUser){
+                    set.add(accountUser.getUserId());
+                }
+            }
         }
+        boolean flag = false;
+        int counter = 1;
         //b.循环商户ID生成订单
         List<Purchase> listPurchase = new ArrayList<>();
         for (Long struId : set){
@@ -132,8 +139,14 @@ public class PurchaseServiceImpl implements PurchaseService {
          */
             int result = purchaseDao.savePurchase(listPurchase);
             int resultSum = purchaseItemDao.savePurchaseItem(listItem);
+            if(result > 0 && resultSum > 0 && counter == set.size()){
+                flag = true;
+            }
+            counter ++;
         }
-        output.put("status", Constant.CodeConfig.CODE_SUCCESS);
+        if (flag) {
+            output.put("status", Constant.CodeConfig.CODE_SUCCESS);
+        }
         return output;
     }
 

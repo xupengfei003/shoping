@@ -12,6 +12,7 @@
         <result column="login_password" jdbcType="VARCHAR" property="password"/>
         <result column="last_password_reset_date" jdbcType="BIGINT" property="lastPasswordResetDate"/>
         <result column="logout_time" jdbcType="BIGINT" property="logoutTime"/>
+        <result column="isAdmin" jdbcType="CHAR" property="isAdmin"/>
     </resultMap>
     <select id="findOne" resultMap="BaseResultMap">
         SELECT user_id, login_name, login_password
@@ -27,7 +28,7 @@
           FROM user
     </select> 
     <select id="findByUsername" resultMap="BaseResultMap">
-        SELECT user_id, login_name, login_password, last_password_reset_date, logout_time
+        SELECT user_id, login_name, login_password, last_password_reset_date, logout_time, isAdmin
           FROM user
          WHERE login_name=#{username}
     </select>

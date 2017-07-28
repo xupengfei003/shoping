@@ -4,7 +4,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.pojo.BaseResult;
@@ -18,9 +17,8 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.math.BigInteger;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
