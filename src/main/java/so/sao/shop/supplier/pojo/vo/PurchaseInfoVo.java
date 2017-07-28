@@ -1,6 +1,9 @@
 package so.sao.shop.supplier.pojo.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -35,7 +38,8 @@ public class PurchaseInfoVo {
     /**
      * 下单时间
      */
-    private Long orderCreateTime;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date orderCreateTime;
 
     /**
      * 支付方式
@@ -45,7 +49,8 @@ public class PurchaseInfoVo {
     /**
      * 支付时间
      */
-    private Long orderPaymentTime;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date orderPaymentTime;
 
     /**
      * 支付流水号
@@ -60,7 +65,8 @@ public class PurchaseInfoVo {
     /**
      * 退款时间
      */
-    private Long drawbackTime;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date drawbackTime;
 
     /**
      * 配送人姓名
@@ -127,28 +133,12 @@ public class PurchaseInfoVo {
         this.orderPrice = orderPrice;
     }
 
-    public Long getOrderCreateTime() {
-        return orderCreateTime;
-    }
-
-    public void setOrderCreateTime(Long orderCreateTime) {
-        this.orderCreateTime = orderCreateTime;
-    }
-
     public Integer getOrderPaymentMethod() {
         return orderPaymentMethod;
     }
 
     public void setOrderPaymentMethod(Integer orderPaymentMethod) {
         this.orderPaymentMethod = orderPaymentMethod;
-    }
-
-    public Long getOrderPaymentTime() {
-        return orderPaymentTime;
-    }
-
-    public void setOrderPaymentTime(Long orderPaymentTime) {
-        this.orderPaymentTime = orderPaymentTime;
     }
 
     public String getOrderPaymentNum() {
@@ -165,14 +155,6 @@ public class PurchaseInfoVo {
 
     public void setOrderShipMethod(Integer orderShipMethod) {
         this.orderShipMethod = orderShipMethod;
-    }
-
-    public Long getDrawbackTime() {
-        return drawbackTime;
-    }
-
-    public void setDrawbackTime(Long drawbackTime) {
-        this.drawbackTime = drawbackTime;
     }
 
     public String getDistributorName() {
@@ -213,5 +195,29 @@ public class PurchaseInfoVo {
 
     public void setPurchaseItemVoList(List<PurchaseItemVo> purchaseItemVoList) {
         this.purchaseItemVoList = purchaseItemVoList;
+    }
+
+    public Date getOrderCreateTime() {
+        return orderCreateTime;
+    }
+
+    public void setOrderCreateTime(Date orderCreateTime) {
+        this.orderCreateTime = orderCreateTime;
+    }
+
+    public Date getOrderPaymentTime() {
+        return orderPaymentTime;
+    }
+
+    public void setOrderPaymentTime(Date orderPaymentTime) {
+        this.orderPaymentTime = orderPaymentTime;
+    }
+
+    public Date getDrawbackTime() {
+        return drawbackTime;
+    }
+
+    public void setDrawbackTime(Date drawbackTime) {
+        this.drawbackTime = drawbackTime;
     }
 }

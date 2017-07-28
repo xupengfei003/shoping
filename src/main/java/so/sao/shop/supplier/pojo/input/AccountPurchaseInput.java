@@ -1,7 +1,10 @@
 package so.sao.shop.supplier.pojo.input;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import javax.validation.constraints.Min;
 import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * <p>
@@ -16,12 +19,14 @@ public class AccountPurchaseInput {
     /**
      * 开始时间,用于比较
      */
-    private Long beginDate;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date beginDate;
 
     /**
      * 截至时间,用于比较
      */
-    private Long endDate;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date endDate;
 
     /**
      * 起始金额
@@ -47,20 +52,19 @@ public class AccountPurchaseInput {
         return endMoney;
     }
 
-    public Long getBeginDate() {
+    public Date getBeginDate() {
         return beginDate;
     }
 
-    public void setBeginDate(Long beginDate) {
+    public void setBeginDate(Date beginDate) {
         this.beginDate = beginDate;
-
     }
 
-    public Long getEndDate() {
+    public Date getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(Long endDate) {
+    public void setEndDate(Date endDate) {
         this.endDate = endDate;
     }
 

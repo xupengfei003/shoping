@@ -1,5 +1,9 @@
 package so.sao.shop.supplier.pojo.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.util.Date;
+
 /**
  * Created by liugang on 2017/7/20.
  * 商品查询响应体
@@ -61,11 +65,13 @@ public class SuppCommSearchVo {
     /**
      *  创建时间
      */
-    private Long createdAt;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date createdAt;
     /**
      *  更新时间
      */
-    private Long updatedAt;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date updatedAt;
 
     public Long getId() {
         return id;
@@ -163,27 +169,27 @@ public class SuppCommSearchVo {
         this.status = status;
     }
 
-    public Long getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Long createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Long getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Long updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
     public int getStatusNum() {
         return statusNum;
     }
 
     public void setStatusNum(int statusNum) {
         this.statusNum = statusNum;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Date getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

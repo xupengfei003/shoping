@@ -6,6 +6,8 @@ import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,6 +22,7 @@ import so.sao.shop.supplier.util.ExcelImportUtils;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.io.*;
 import java.net.URL;
 import java.util.HashMap;
@@ -59,25 +62,37 @@ public class AccountController {
      */
     @ApiOperation("添加供应商信息")
     @PostMapping("/save")
-    public BaseResult save(@RequestBody Account account) {
+    public BaseResult save(@Valid @RequestBody Account account,BindingResult result) {
         BaseResult baseResult = new BaseResult();
-        /**
-         * 插入用户信息
-         */
-        Long id = accountService.saveUser(account.getContractResponsiblePhone());
-        if (id != 0l) {
-            account.setUserId(id);
-        } else {
-            baseResult.setMessage("插入用户信息失败!");
-            return baseResult;
-        }
-        int num = accountService.insert(account);
-        if (num < 0) {
-            baseResult.setCode(0);
-            baseResult.setMessage("添加失败");
-        } else {
-            baseResult.setCode(1);
-            baseResult.setMessage("添加成功");
+        //判断验证是否通过。true 未通过  false通过
+        if(result.hasErrors()) {
+            List<ObjectError> list = result.getAllErrors();
+            for (ObjectError error : list) {
+                baseResult.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_NOT_EMPTY);
+                baseResult.setMessage(error.getDefaultMessage());
+            }
+        }else{
+            /**
+             * 插入用户信息
+             */
+            Long id = accountService.saveUser(account.getContractResponsiblePhone());
+            if (id == 0l) {
+                baseResult.setMessage("插入用户信息失败!");
+
+            } else if(id == 1l){
+                baseResult.setMessage("此供应商信息已经存在");
+                return baseResult;
+            }else{
+                account.setUserId(id);
+            }
+            int num = accountService.insert(account);
+            if (num < 0) {
+                baseResult.setCode(0);
+                baseResult.setMessage("添加失败");
+            } else {
+                baseResult.setCode(1);
+                baseResult.setMessage("添加成功");
+            }
         }
         return baseResult;
     }
@@ -101,20 +116,27 @@ public class AccountController {
      */
     @ApiOperation("修改供应商信息")
     @PutMapping("/update")
-    public BaseResult update(@RequestBody Account account) {
-        //修改用户登录名
-        /*User user = new User();
-        user.setUsername(account.getContractResponsiblePhone());*/
-        accountService.updateUser(account.getUserId(), account.getContractResponsiblePhone());
-        // 修改用户信息
-        int num = accountService.update(account);
+    public BaseResult update(@Valid @RequestBody Account account,BindingResult result) {
         BaseResult baseResult = new BaseResult();
-        if (num < 0) {
-            baseResult.setCode(0);
-            baseResult.setMessage("修改失败");
-        } else {
-            baseResult.setCode(1);
-            baseResult.setMessage("修改成功");
+        //判断验证是否通过。true 未通过  false通过
+        if(result.hasErrors()) {
+            List<ObjectError> list = result.getAllErrors();
+            for (ObjectError error : list) {
+                baseResult.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_NOT_EMPTY);
+                baseResult.setMessage(error.getDefaultMessage());
+            }
+        }else{
+            //修改用户登录名
+            accountService.updateUser(account.getUserId(), account.getContractResponsiblePhone());
+            // 修改用户信息
+            int num = accountService.update(account);
+            if (num < 0) {
+                baseResult.setCode(0);
+                baseResult.setMessage("修改失败");
+            } else {
+                baseResult.setCode(1);
+                baseResult.setMessage("修改成功");
+            }
         }
         return baseResult;
     }
@@ -369,7 +391,7 @@ public class AccountController {
 
     @ApiOperation("供应商上传记录")
     @GetMapping("/record")
-    public PageInfo<SupplierRecord> findAccount(@RequestBody Condition condition) {
+    public PageInfo<SupplierRecord> findAccount(Condition condition) {
         return supplierRecordService.searchAccountRecord(condition);
     }
 

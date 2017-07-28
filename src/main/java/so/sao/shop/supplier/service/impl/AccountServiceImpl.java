@@ -112,8 +112,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public int insert(Account account) {
         // 创建日期
-        Date date = new Date();
-        account.setCreateDate(date.getTime());
+        account.setCreateDate(new Date());
         return accountDao.insertSelective(account);
     }
 
@@ -148,7 +147,7 @@ public class AccountServiceImpl implements AccountService {
         Account account = accountDao.selectByPrimaryKey(accountId);
         if (account != null) {
             String[] accStr = account.getRegistAddress().split("-");
-            String[] ConStr = account.getContractRegisterAddress().split("-");
+            String[] conStr = account.getContractRegisterAddress().split("-");
             List<Map> list = new ArrayList<Map>();
 
             Map<String, Object> accMap = new HashMap<String, Object>();
@@ -156,15 +155,17 @@ public class AccountServiceImpl implements AccountService {
             /**
              * 用来存放分割后的Account的注册地址
              */
-            accMap.put("province", accStr[0]);
-            accMap.put("city", accStr[1]);
-            accMap.put("area", accStr[2]);
+            int accStrLength = accStr.length;
+            accMap.put("province", accStrLength>0?accStr[0]:"");
+            accMap.put("city", accStrLength>1?accStr[1]:"");
+            accMap.put("area", accStrLength>1?accStr[2]:"");
             /**
              * 用来存放分割后的合同上的注册地址
              */
-            conMap.put("province", ConStr[0]);
-            conMap.put("city", ConStr[1]);
-            conMap.put("area", ConStr[2]);
+            int conStrLength = conStr.length;
+            conMap.put("province", conStrLength>0?conStr[0]:"");
+            conMap.put("city", conStrLength>1?conStr[1]:"");
+            conMap.put("area", conStrLength>2?conStr[2]:"");
 
             list.add(accMap);
             list.add(conMap);
@@ -299,7 +300,7 @@ public class AccountServiceImpl implements AccountService {
 //                SmsUtil.sendSms(phone, password);
             return user.getId();
         } else {
-            return user1.getId();
+            return 1l;
         }
     }
 }

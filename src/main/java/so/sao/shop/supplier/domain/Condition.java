@@ -2,6 +2,8 @@ package so.sao.shop.supplier.domain;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 /**
  * 查询条件
  * Created by acer on 2017/7/20.
@@ -11,11 +13,13 @@ public class Condition {
     /**
      * 开始时间
      */
-    private Long beginDate;
+	@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date beginDate;
     /**
      * 截止时间
      */
-    private Long endDate;
+	@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date endDate;
 
     /**
      * 供应商名称
@@ -24,11 +28,13 @@ public class Condition {
     /**
      * 合同截止日期
      */
-    private Long contractEndDate;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date contractEndDate;
     /**
      * 合同创建日期
       */
-    private Long contractCreateDate;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date contractCreateDate;
     /**
      * 法人代表（合同）
      */
@@ -50,7 +56,6 @@ public class Condition {
      * 每页长度
      */
     private Integer pageSize;
-
     /**
      * 供应商上传方式
      */
@@ -64,7 +69,7 @@ public class Condition {
         this.uploadMode = uploadMode;
     }
 
-    public Long getBeginDate() {
+    public Date getBeginDate() {
         return beginDate;
     }
 
@@ -76,19 +81,19 @@ public class Condition {
         this.providerName = providerName;
     }
 
-    public Long getContractEndDate() {
+    public Date getContractEndDate() {
         return contractEndDate;
     }
 
-    public void setContractEndDate(Long contractEndDate) {
+    public void setContractEndDate(Date contractEndDate) {
         this.contractEndDate = contractEndDate;
     }
 
-    public Long getContractCreateDate() {
+    public Date getContractCreateDate() {
         return contractCreateDate;
     }
 
-    public void setContractCreateDate(Long contractCreateDate) {
+    public void setContractCreateDate(Date contractCreateDate) {
         this.contractCreateDate = contractCreateDate;
     }
 
@@ -117,15 +122,15 @@ public class Condition {
     }
 
 
-    public void setBeginDate(Long beginDate) {
+    public void setBeginDate(Date beginDate) {
         this.beginDate = beginDate;
     }
 
-    public void setEndDate(Long endDate) {
+    public void setEndDate(Date endDate) {
         this.endDate = endDate;
     }
 
-    public Long getEndDate() {
+    public Date getEndDate() {
         return endDate;
     }
 

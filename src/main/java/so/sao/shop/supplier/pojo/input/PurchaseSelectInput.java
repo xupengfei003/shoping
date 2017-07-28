@@ -1,7 +1,10 @@
 package so.sao.shop.supplier.pojo.input;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Date;
 
 /**
  * Created by acer on 2017/7/20.
@@ -26,12 +29,14 @@ public class PurchaseSelectInput {
     /**
      * 开始时间
      */
-    private Long beginDate;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date beginDate;
 
     /**
      * 截至时间
      */
-    private Long endDate;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date endDate;
 
     /**
      * 起始金额
@@ -54,7 +59,7 @@ public class PurchaseSelectInput {
     /**
      * 付款时间
      */
-    private Long orderPaymentDate;
+    private Date orderPaymentDate;
 
     /**
      * 支付方式
@@ -97,22 +102,6 @@ public class PurchaseSelectInput {
         this.orderReceiverName = orderReceiverName;
     }
 
-    public Long getBeginDate() {
-        return beginDate;
-    }
-
-    public void setBeginDate(Long beginDate) {
-        this.beginDate = beginDate;
-    }
-
-    public Long getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(Long endDate) {
-        this.endDate = endDate;
-    }
-
     public BigDecimal getBeginMoney() {
         return beginMoney;
     }
@@ -137,11 +126,27 @@ public class PurchaseSelectInput {
         this.orderReceiverMobile = orderReceiverMobile;
     }
 
-    public Long getOrderPaymentDate() {
+    public Date getBeginDate() {
+        return beginDate;
+    }
+
+    public void setBeginDate(Date beginDate) {
+        this.beginDate = beginDate;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
+    }
+
+    public Date getOrderPaymentDate() {
         return orderPaymentDate;
     }
 
-    public void setOrderPaymentDate(Long orderPaymentDate) {
+    public void setOrderPaymentDate(Date orderPaymentDate) {
         this.orderPaymentDate = orderPaymentDate;
     }
 

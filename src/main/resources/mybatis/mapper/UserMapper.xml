@@ -10,8 +10,8 @@
         <id column="user_id" jdbcType="BIGINT" property="id"/>
         <result column="login_name" jdbcType="VARCHAR" property="username"/>
         <result column="login_password" jdbcType="VARCHAR" property="password"/>
-        <result column="last_password_reset_date" jdbcType="BIGINT" property="lastPasswordResetDate"/>
-        <result column="logout_time" jdbcType="BIGINT" property="logoutTime"/>
+        <result column="last_password_reset_date"   property="lastPasswordResetDate"/>
+        <result column="logout_time"  property="logoutTime"/>
         <result column="isAdmin" jdbcType="CHAR" property="isAdmin"/>
     </resultMap>
     <select id="findOne" resultMap="BaseResultMap">

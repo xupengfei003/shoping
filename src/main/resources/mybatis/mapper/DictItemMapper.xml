@@ -6,7 +6,7 @@
     <result column="dict_type" property="dictType" jdbcType="VARCHAR" />
     <result column="name" property="name" jdbcType="VARCHAR" />
     <result column="code" property="code" jdbcType="VARCHAR" />
-    <result column="create_time" property="createTime" jdbcType="BIGINT" />
+    <result column="create_time" property="createTime" />
   </resultMap>
 
   <select id="selectBank" resultType="java.lang.String" >

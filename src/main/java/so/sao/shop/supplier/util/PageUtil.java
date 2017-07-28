@@ -15,8 +15,8 @@ public class PageUtil {
         {
             return new Page(Constant.PAGE_NUM_DEFAULT, Constant.PAGE_SIZE_DEFAULT);
         }
-        int pageNum = page.getPageNum();
-        int pageSize = page.getRows();
+        int pageNum = page.getPageNum() == null ? Constant.PAGE_NUM_DEFAULT : page.getPageNum();
+        int pageSize = page.getRows() == null ? Constant.PAGE_SIZE_DEFAULT : page.getRows();
         //分页参数校验、处理
         pageNum = pageNum > 0 ? pageNum : Constant.PAGE_NUM_DEFAULT;
         pageSize = pageSize > 0 ? pageSize : Constant.PAGE_SIZE_DEFAULT;

@@ -8,31 +8,37 @@
     <result column="responsible" property="responsible" jdbcType="VARCHAR" />
     <result column="responsible_phone" property="responsiblePhone" jdbcType="VARCHAR" />
     <result column="license" property="license" jdbcType="VARCHAR" />
-    <result column="license_time_create" property="licenseTimeCreate" jdbcType="BIGINT" />
-    <result column="license_time_end" property="licenseTimeEnd" jdbcType="BIGINT" />
+    <result column="license_time_create" property="licenseTimeCreate" />
+    <result column="license_time_end" property="licenseTimeEnd"  />
     <result column="business_type" property="businessType" jdbcType="VARCHAR" />
     <result column="regist_address" property="registAddress" jdbcType="VARCHAR" />
+    <result column="regist_address_province" property="registAddressProvince" jdbcType="VARCHAR" />
+    <result column="regist_address_city" property="registAddressCity" jdbcType="VARCHAR" />
+    <result column="regist_address_district" property="registAddressDistrict" jdbcType="VARCHAR" />
     <result column="register_address_detail" property="registerAddressDetail" jdbcType="VARCHAR" />
     <result column="discount" property="discount" jdbcType="VARCHAR" />
     <result column="bank_name" property="bankName" jdbcType="VARCHAR" />
     <result column="bank_num" property="bankNum" jdbcType="VARCHAR" />
     <result column="bank_user_name" property="bankUserName" jdbcType="VARCHAR" />
-    <result column="contract_create_date" property="contractCreateDate" jdbcType="BIGINT" />
-    <result column="contract_end_date" property="contractEndDate" jdbcType="BIGINT" />
+    <result column="contract_create_date" property="contractCreateDate" />
+    <result column="contract_end_date" property="contractEndDate"  />
     <result column="remittance_type" property="remittanceType" jdbcType="VARCHAR" />
     <result column="remittanced" property="remittanced" jdbcType="VARCHAR" />
     <result column="account_status" property="accountStatus" jdbcType="INTEGER" />
-    <result column="create_date" property="createDate" jdbcType="BIGINT" />
-    <result column="update_date" property="updateDate" jdbcType="BIGINT" />
+    <result column="create_date" property="createDate"  />
+    <result column="update_date" property="updateDate" />
     <result column="remark" property="remark" jdbcType="VARCHAR" />
     <result column="balance" property="balance" jdbcType="DOUBLE" />
     <result column="income" property="income" jdbcType="DOUBLE" />
     <result column="contract_responsible" property="contractResponsible" jdbcType="VARCHAR" />
     <result column="contract_responsible_phone" property="contractResponsiblePhone" jdbcType="VARCHAR" />
     <result column="contract_license" property="contractLicense" jdbcType="VARCHAR" />
-    <result column="contract_license_create" property="contractLicenseCreate" jdbcType="BIGINT" />
-    <result column="contract_license_end" property="contractLicenseEnd" jdbcType="BIGINT" />
+    <result column="contract_license_create" property="contractLicenseCreate" />
+    <result column="contract_license_end" property="contractLicenseEnd" />
     <result column="contract_register_address" property="contractRegisterAddress" jdbcType="VARCHAR" />
+    <result column="contract_register_address_province" property="contractRegisterAddressProvince" jdbcType="VARCHAR" />
+    <result column="contract_register_address_city" property="contractRegisterAddressCity" jdbcType="VARCHAR" />
+    <result column="contract_register_address_district" property="contractRegisterAddressDistrict" jdbcType="VARCHAR" />
     <result column="contract_register_address_detail" property="contractRegisterAddressDetail" jdbcType="VARCHAR" />
     <result column="upload_mode" property="uploadMode" jdbcType="VARCHAR" />
     <result column="sms_code" property="smsCode" jdbcType="VARCHAR" />
@@ -48,6 +54,9 @@
     license_time_end,
     business_type,
     regist_address,
+    regist_address_province,
+    regist_address_city,
+    regist_address_district,
     register_address_detail,
     discount,
     bank_name,
@@ -69,6 +78,9 @@
     contract_license_create,
     contract_license_end,
     contract_register_address,
+    contract_register_address_province,
+    contract_register_address_city,
+    contract_register_address_district,
     contract_register_address_detail,
     upload_mode,
     sms_code
@@ -90,27 +102,32 @@
     insert into account (account_id, user_id, provider_name,
       responsible, responsible_phone, license, 
       license_time_create, license_time_end, business_type, 
-      regist_address, register_address_detail, discount, 
+      regist_address,regist_address_province,regist_address_city,
+      regist_address_district, register_address_detail, discount,
       bank_name, bank_num, bank_user_name, 
       contract_create_date, contract_end_date, remittance_type, 
       remittanced, account_status, create_date, 
       update_date, remark, balance, 
       income, contract_responsible, contract_responsible_phone, 
       contract_license, contract_license_create, 
-      contract_license_end, contract_register_address, 
+      contract_license_end, contract_register_address,
+       contract_register_address_province,contract_register_address_city,
+       contract_register_address_district,
       contract_register_address_detail, upload_mode, 
       sms_code)
     values (#{accountId,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, #{providerName,jdbcType=VARCHAR}, 
       #{responsible,jdbcType=VARCHAR}, #{responsiblePhone,jdbcType=VARCHAR}, #{license,jdbcType=VARCHAR}, 
-      #{licenseTimeCreate,jdbcType=BIGINT}, #{licenseTimeEnd,jdbcType=BIGINT}, #{businessType,jdbcType=VARCHAR}, 
-      #{registAddress,jdbcType=VARCHAR}, #{registerAddressDetail,jdbcType=VARCHAR}, #{discount,jdbcType=VARCHAR}, 
+      #{licenseTimeCreate}, #{licenseTimeEnd}, #{businessType,jdbcType=VARCHAR},
+      #{registAddress,jdbcType=VARCHAR},#{registAddressProvince,jdbcType=VARCHAR},#{registAddressCity,jdbcType=VARCHAR},#{registAddressDistrict,jdbcType=VARCHAR},
+       #{registerAddressDetail,jdbcType=VARCHAR}, #{discount,jdbcType=VARCHAR},
       #{bankName,jdbcType=VARCHAR}, #{bankNum,jdbcType=VARCHAR}, #{bankUserName,jdbcType=VARCHAR}, 
-      #{contractCreateDate,jdbcType=BIGINT}, #{contractEndDate,jdbcType=BIGINT}, #{remittanceType,jdbcType=VARCHAR}, 
-      #{remittanced,jdbcType=VARCHAR}, #{accountStatus,jdbcType=INTEGER}, #{createDate,jdbcType=BIGINT}, 
-      #{updateDate,jdbcType=BIGINT}, #{remark,jdbcType=VARCHAR}, #{balance,jdbcType=DOUBLE}, 
+      #{contractCreateDate}, #{contractEndDate}, #{remittanceType,jdbcType=VARCHAR},
+      #{remittanced,jdbcType=VARCHAR}, #{accountStatus,jdbcType=INTEGER}, #{createDate},
+      #{updateDate}, #{remark,jdbcType=VARCHAR}, #{balance,jdbcType=DOUBLE},
       #{income,jdbcType=DOUBLE}, #{contractResponsible,jdbcType=VARCHAR}, #{contractResponsiblePhone,jdbcType=VARCHAR}, 
       #{contractLicense,jdbcType=VARCHAR}, #{contractLicenseCreate,jdbcType=BIGINT}, 
-      #{contractLicenseEnd,jdbcType=BIGINT}, #{contractRegisterAddress,jdbcType=VARCHAR}, 
+      #{contractLicenseEnd,jdbcType=BIGINT},#{contractRegisterAddress,jdbcType=VARCHAR}, #{contractRegisterAddressProvince,jdbcType=VARCHAR},
+      #{contractRegisterAddressCity,jdbcType=VARCHAR}, #{contractRegisterAddressDistrict,jdbcType=VARCHAR},
       #{contractRegisterAddressDetail,jdbcType=VARCHAR}, #{uploadMode,jdbcType=VARCHAR}, 
       #{smsCode,jdbcType=VARCHAR})
   </insert>
@@ -147,6 +164,15 @@
       </if>
       <if test="registAddress != null" >
         regist_address,
+      </if>
+      <if test="registAddressProvince != null" >
+        regist_address_province,
+      </if>
+      <if test="registAddressCity != null" >
+        regist_address_city,
+      </if>
+      <if test="registAddressDistrict != null" >
+        regist_address_district,
       </if>
       <if test="registerAddressDetail != null" >
         register_address_detail,
@@ -211,6 +237,15 @@
       <if test="contractRegisterAddress != null" >
         contract_register_address,
       </if>
+      <if test="contractRegisterAddressProvince != null" >
+        contract_register_address_province,
+      </if>
+      <if test="contractRegisterAddressCity != null" >
+        contract_register_address_city,
+      </if>
+      <if test="contractRegisterAddressDistrict != null" >
+        contract_register_address_district,
+      </if>
       <if test="contractRegisterAddressDetail != null" >
         contract_register_address_detail,
       </if>
@@ -241,16 +276,25 @@
         #{license,jdbcType=VARCHAR},
       </if>
       <if test="licenseTimeCreate != null" >
-        #{licenseTimeCreate,jdbcType=BIGINT},
+        #{licenseTimeCreate},
       </if>
       <if test="licenseTimeEnd != null" >
-        #{licenseTimeEnd,jdbcType=BIGINT},
+        #{licenseTimeEnd},
       </if>
       <if test="businessType != null" >
         #{businessType,jdbcType=VARCHAR},
       </if>
       <if test="registAddress != null" >
         #{registAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="registAddressProvince != null" >
+        #{registAddressProvince,jdbcType=VARCHAR},
+      </if>
+      <if test="registAddressCity != null" >
+        #{registAddressCity,jdbcType=VARCHAR},
+      </if>
+      <if test="registAddressDistrict != null" >
+        #{registAddressDistrict,jdbcType=VARCHAR},
       </if>
       <if test="registerAddressDetail != null" >
         #{registerAddressDetail,jdbcType=VARCHAR},
@@ -268,10 +312,10 @@
         #{bankUserName,jdbcType=VARCHAR},
       </if>
       <if test="contractCreateDate != null" >
-        #{contractCreateDate,jdbcType=BIGINT},
+        #{contractCreateDate},
       </if>
       <if test="contractEndDate != null" >
-        #{contractEndDate,jdbcType=BIGINT},
+        #{contractEndDate},
       </if>
       <if test="remittanceType != null" >
         #{remittanceType,jdbcType=VARCHAR},
@@ -283,10 +327,10 @@
         #{accountStatus,jdbcType=INTEGER},
       </if>
       <if test="createDate != null" >
-        #{createDate,jdbcType=BIGINT},
+        #{createDate},
       </if>
       <if test="updateDate != null" >
-        #{updateDate,jdbcType=BIGINT},
+        #{updateDate},
       </if>
       <if test="remark != null" >
         #{remark,jdbcType=VARCHAR},
@@ -315,6 +359,15 @@
       <if test="contractRegisterAddress != null" >
         #{contractRegisterAddress,jdbcType=VARCHAR},
       </if>
+      <if test="contractRegisterAddressProvince != null" >
+        #{contractRegisterAddressProvince,jdbcType=VARCHAR},
+      </if>
+      <if test="contractRegisterAddressCity != null" >
+        #{contractRegisterAddressCity,jdbcType=VARCHAR},
+      </if>
+      <if test="contractRegisterAddressDistrict != null" >
+        #{contractRegisterAddressDistrict,jdbcType=VARCHAR},
+      </if>
       <if test="contractRegisterAddressDetail != null" >
         #{contractRegisterAddressDetail,jdbcType=VARCHAR},
       </if>
@@ -334,22 +387,25 @@
     responsible = #{responsible,jdbcType=VARCHAR},
     responsible_phone = #{responsiblePhone,jdbcType=VARCHAR},
     license = #{license,jdbcType=VARCHAR},
-    license_time_create = #{licenseTimeCreate,jdbcType=BIGINT},
-    license_time_end = #{licenseTimeEnd,jdbcType=BIGINT},
+    license_time_create = #{licenseTimeCreate},
+    license_time_end = #{licenseTimeEnd},
     business_type = #{businessType,jdbcType=VARCHAR},
     regist_address = #{registAddress,jdbcType=VARCHAR},
+    regist_address_province = #{registAddressProvince,jdbcType=VARCHAR},
+    regist_address_city = #{registAddressCity,jdbcType=VARCHAR},
+    regist_address_district = #{registAddressDistrict,jdbcType=VARCHAR},
     register_address_detail = #{registerAddressDetail,jdbcType=VARCHAR},
     discount = #{discount,jdbcType=VARCHAR},
     bank_name = #{bankName,jdbcType=VARCHAR},
     bank_num = #{bankNum,jdbcType=VARCHAR},
     bank_user_name = #{bankUserName,jdbcType=VARCHAR},
-    contract_create_date = #{contractCreateDate,jdbcType=BIGINT},
-    contract_end_date = #{contractEndDate,jdbcType=BIGINT},
+    contract_create_date = #{contractCreateDate},
+    contract_end_date = #{contractEndDate},
     remittance_type = #{remittanceType,jdbcType=VARCHAR},
     remittanced = #{remittanced,jdbcType=VARCHAR},
     account_status = #{accountStatus,jdbcType=INTEGER},
-    create_date = #{createDate,jdbcType=BIGINT},
-    update_date = #{updateDate,jdbcType=BIGINT},
+    create_date = #{createDate},
+    update_date = #{updateDate},
     remark = #{remark,jdbcType=VARCHAR},
     balance = #{balance,jdbcType=DOUBLE},
     income = #{income,jdbcType=DOUBLE},
@@ -359,6 +415,9 @@
     contract_license_create = #{contractLicenseCreate,jdbcType=BIGINT},
     contract_license_end = #{contractLicenseEnd,jdbcType=BIGINT},
     contract_register_address = #{contractRegisterAddress,jdbcType=VARCHAR},
+    contract_register_address_province = #{contractRegisterAddressProvince,jdbcType=VARCHAR},
+    contract_register_address_city = #{contractRegisterAddressCity,jdbcType=VARCHAR},
+    contract_register_address_district = #{contractRegisterAddressDistrict,jdbcType=VARCHAR},
     contract_register_address_detail = #{contractRegisterAddressDetail,jdbcType=VARCHAR},
     upload_mode = #{uploadMode,jdbcType=VARCHAR},
     sms_code = #{smsCode,jdbcType=VARCHAR}
@@ -384,16 +443,25 @@
         license = #{license,jdbcType=VARCHAR},
       </if>
       <if test="licenseTimeCreate != null" >
-        license_time_create = #{licenseTimeCreate,jdbcType=BIGINT},
+        license_time_create = #{licenseTimeCreate},
       </if>
       <if test="licenseTimeEnd != null" >
-        license_time_end = #{licenseTimeEnd,jdbcType=BIGINT},
+        license_time_end = #{licenseTimeEnd},
       </if>
       <if test="businessType != null" >
         business_type = #{businessType,jdbcType=VARCHAR},
       </if>
       <if test="registAddress != null" >
         regist_address = #{registAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="registAddressProvince != null" >
+        regist_address_province = #{registAddressProvince,jdbcType=VARCHAR},
+      </if>
+      <if test="registAddressCity != null" >
+        regist_address_city = #{registAddressCity,jdbcType=VARCHAR},
+      </if>
+      <if test="registAddressDistrict != null" >
+        regist_address_district = #{registAddressDistrict,jdbcType=VARCHAR},
       </if>
       <if test="registerAddressDetail != null" >
         register_address_detail = #{registerAddressDetail,jdbcType=VARCHAR},
@@ -411,10 +479,10 @@
         bank_user_name = #{bankUserName,jdbcType=VARCHAR},
       </if>
       <if test="contractCreateDate != null" >
-        contract_create_date = #{contractCreateDate,jdbcType=BIGINT},
+        contract_create_date = #{contractCreateDate},
       </if>
       <if test="contractEndDate != null" >
-        contract_end_date = #{contractEndDate,jdbcType=BIGINT},
+        contract_end_date = #{contractEndDate},
       </if>
       <if test="remittanceType != null" >
         remittance_type = #{remittanceType,jdbcType=VARCHAR},
@@ -426,10 +494,10 @@
         account_status = #{accountStatus,jdbcType=INTEGER},
       </if>
       <if test="createDate != null" >
-        create_date = #{createDate,jdbcType=BIGINT},
+        create_date = #{createDate},
       </if>
       <if test="updateDate != null" >
-        update_date = #{updateDate,jdbcType=BIGINT},
+        update_date = #{updateDate},
       </if>
       <if test="remark != null" >
         remark = #{remark,jdbcType=VARCHAR},
@@ -457,6 +525,15 @@
       </if>
       <if test="contractRegisterAddress != null" >
         contract_register_address = #{contractRegisterAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="contractRegisterAddressProvince != null" >
+        contract_register_address_province = #{contractRegisterAddressProvince,jdbcType=VARCHAR},
+      </if>
+      <if test="contractRegisterAddressCity != null" >
+        contract_register_address_city = #{contractRegisterAddressCity,jdbcType=VARCHAR},
+      </if>
+      <if test="contractRegisterAddressDistrict != null" >
+        contract_register_address_district = #{contractRegisterAddressDistrict,jdbcType=VARCHAR},
       </if>
       <if test="contractRegisterAddressDetail != null" >
         contract_register_address_detail = #{contractRegisterAddressDetail,jdbcType=VARCHAR},
@@ -500,6 +577,9 @@
 	    license,license_time_create,
 	    license_time_end,
 	    regist_address,
+        regist_address_province,
+        regist_address_city,
+        regist_address_district,
 	    register_address_detail,
 	    business_type,
 	    contract_responsible,
@@ -508,6 +588,9 @@
 	    contract_license_create,
 	    contract_license_end,
 	    contract_register_address,
+        contract_register_address_province,
+        contract_register_address_city,
+        contract_register_address_district,
 	    contract_register_address_detail,
 	    contract_create_date,
 	    contract_end_date,
@@ -527,6 +610,9 @@
           #{accounts.licenseTimeCreate},
           #{accounts.licenseTimeEnd},
           #{accounts.registAddress},
+          #{accounts.registAddressProvince},
+          #{accounts.registAddressCity},
+          #{accounts.registAddressDistrict},
           #{accounts.registerAddressDetail},
           #{accounts.businessType},
           #{accounts.contractResponsible},
@@ -535,6 +621,9 @@
           #{accounts.contractLicenseCreate},
           #{accounts.contractLicenseEnd},
           #{accounts.contractRegisterAddress},
+          #{accounts.contractRegisterAddressProvince},
+          #{accounts.contractRegisterAddressCity},
+          #{accounts.contractRegisterAddressDistrict},
           #{accounts.contractRegisterAddressDetail},
           #{accounts.contractCreateDate},
           #{accounts.contractEndDate},
@@ -561,35 +650,45 @@
     WHERE user_id=#{account.userId};
   </update>
 <select id="findPage" resultMap="BaseResultMap" parameterType="so.sao.shop.supplier.domain.Condition">
-          SELECT account_id,user_id,create_date,provider_name,responsible,contract_end_date, contract_responsible_phone,
-                 contract_register_address
+          SELECT account_id,user_id,create_date,provider_name,responsible,contract_end_date, contract_responsible_phone,regist_address_province,
+                  regist_address_city,regist_address_district  ,contract_register_address_province,contract_register_address_city,
+                  contract_register_address_district,  contract_register_address
             FROM account
             <where>
                     account_status != 0
-                <if test="beginDate != null">
+                <if test="beginDate != null and beginDate != ''">
                     AND create_date <![CDATA[>=]]> #{beginDate}
                 </if>
-                <if test="endDate != null">
+                <if test="endDate != null and endDate != ''">
                     AND create_date <![CDATA[<=]]> #{endDate}
                 </if>
-                <if test="providerName != null">
+                <if test="providerName != null and providerName != ''">
                     AND provider_name LIKE "%${providerName}%"
                 </if>
-				<if test="contractCreateDate != null">
+				<if test="contractCreateDate != null and contractCreateDate != ''">
                     AND contract_create_date <![CDATA[>=]]> #{contractCreateDate}
                 </if>
-                <if test="contractEndDate != null">
+                <if test="contractEndDate != null and contractEndDate != ''">
                     AND contract_end_date <![CDATA[<=]]> #{contractEndDate}
                 </if>
-                <if test="contractResponsible != null">
+                <if test="contractResponsible != null and contractResponsible != ''">
                     AND contract_responsible = #{contractResponsible}
                 </if>
-                <if test="contractResponsiblePhone != null ">
+                <if test="contractResponsiblePhone != null and contractResponsiblePhone != ''">
                     AND  contract_responsible_phone = #{contractResponsiblePhone}
                 </if>
-                <if test="contractRegisterAddress != null ">
+                <if test="contractRegisterAddress != null and contractRegisterAddress != ''">
                     AND  contract_register_address LIKE "%${contractRegisterAddress}%"
+                </if><!--
+                <if test="contractRegisterAddress != null ">
+                  AND  contract_register_address_province LIKE "%${contractRegisterAddress}%"
                 </if>
+                <if test="contractRegisterAddress != null ">
+                  AND  contract_register_address_city LIKE "%${contractRegisterAddress}%"
+                </if>
+                <if test="contractRegisterAddress != null ">
+                  AND  contract_register_address_district LIKE "%${contractRegisterAddress}%"
+                </if>-->
             </where>
     </select>
 

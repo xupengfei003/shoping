@@ -1,7 +1,9 @@
 package so.sao.shop.supplier.pojo.output;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import so.sao.shop.supplier.pojo.vo.CommImgeVo;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -98,11 +100,13 @@ public class CommodityOutput {
     /**
      * 创建时间
      */
-    private Long createdAt;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date createdAt;
     /**
      * 更新时间
      */
-    private Long updatedAt;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date updatedAt;
 
     /**
      * 图片集合
@@ -277,19 +281,19 @@ public class CommodityOutput {
         this.status = status;
     }
 
-    public Long getCreatedAt() {
+    public Date getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Long createdAt) {
+    public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Long getUpdatedAt() {
+    public Date getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(Long updatedAt) {
+    public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
     }
 

@@ -5,6 +5,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import so.sao.shop.supplier.pojo.output.CommodityExportOutput;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -94,9 +95,9 @@ public class CommodityExcelView extends ExcelView{
         }else if(commodityExportOutput.getInventory() == null){
             commodityExportOutput.setInventory(0.0);
         }else if(commodityExportOutput.getCreatedAt() == null){
-            commodityExportOutput.setCreatedAt(0l);
+            commodityExportOutput.setCreatedAt(new Date());
         }else if(commodityExportOutput.getUpdatedAt() == null){
-            commodityExportOutput.setUpdatedAt(0l);
+            commodityExportOutput.setUpdatedAt(new Date());
         }
         return commodityExportOutput;
 

@@ -9,7 +9,6 @@ public class CommImge{
      * ID
      */
     private Long id;
-
     /**
      * 供应商与商品关系ID
      */

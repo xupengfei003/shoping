@@ -10,6 +10,7 @@ import so.sao.shop.supplier.domain.CartItem;
 import so.sao.shop.supplier.pojo.input.CartItemInput;
 import so.sao.shop.supplier.service.CartService;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -73,7 +74,7 @@ public class CartServiceImpl implements CartService {
         CartItem cartItem = new CartItem();
         cartItem.setId(cartitemId);
         cartItem.setCount(number);
-        cartItem.setUpdatedAt(System.currentTimeMillis());
+        cartItem.setUpdatedAt(new Date());
         return cartItemDao.updateByPrimaryKeySelective(cartItem)>0?true:false;
     }
 
@@ -100,7 +101,8 @@ public class CartServiceImpl implements CartService {
         cartItem.setCommodityPic(cartItemInput.getCommodityPic());
         cartItem.setCommodityProperties(cartItemInput.getCommodityProperties());
         cartItem.setCount(cartItemInput.getCount());
-        cartItem.setCreatedAt(System.currentTimeMillis());cartItem.setCreatedAt(System.currentTimeMillis());
+        cartItem.setCreatedAt(new Date());
+        cartItem.setCreatedAt(new Date());
 
         return cartItem;
     }

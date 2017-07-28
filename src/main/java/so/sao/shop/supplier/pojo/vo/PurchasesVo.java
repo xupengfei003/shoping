@@ -1,6 +1,9 @@
 package so.sao.shop.supplier.pojo.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * Created by bzh on 2017/7/20.
@@ -34,7 +37,8 @@ public class PurchasesVo {
     /**
      * 下单时间
      */
-    private Long orderCreateTime;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date orderCreateTime;
 
     /**
      * 支付时间
@@ -54,7 +58,8 @@ public class PurchasesVo {
     /**
      * 更新时间
      */
-    private Long updateTime;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date updateTime;
 
     public String getOrderId() {
         return orderId;
@@ -96,14 +101,6 @@ public class PurchasesVo {
         this.orderStatus = orderStatus;
     }
 
-    public Long getOrderCreateTime() {
-        return orderCreateTime;
-    }
-
-    public void setOrderCreateTime(Long orderCreateTime) {
-        this.orderCreateTime = orderCreateTime;
-    }
-
     public Long getOrderPaymentTime() {
         return orderPaymentTime;
     }
@@ -128,11 +125,19 @@ public class PurchasesVo {
         this.orderPaymentNum = orderPaymentNum;
     }
 
-    public Long getUpdateTime() {
+    public Date getOrderCreateTime() {
+        return orderCreateTime;
+    }
+
+    public void setOrderCreateTime(Date orderCreateTime) {
+        this.orderCreateTime = orderCreateTime;
+    }
+
+    public Date getUpdateTime() {
         return updateTime;
     }
 
-    public void setUpdateTime(Long updateTime) {
+    public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
     }
 }

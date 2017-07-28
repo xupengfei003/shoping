@@ -107,4 +107,35 @@ public interface SupplierCommodityDao {
      * @return
      */
     SupplierCommodity findSupplierCommodityInfo(@Param("code69")String code69);
+
+
+    /**
+     * 查询所有商品信息集合
+     * @param id scID
+     * @param commName 商品名称
+     * @param code69 商品编码
+     * @param suppCommCode 商家商品编码
+     * @param typeId 类型ID
+     * @param minPrice 价格（低）
+     * @param maxPrice 价格（高）
+     * @return 查询结果结合
+     */
+    List<SupplierCommodity> findAll(@Param("id")Long id, @Param("commName") String commName, @Param("code69") String code69,
+                                    @Param("suppCommCode") String suppCommCode, @Param("typeId") Long typeId,
+                                    @Param("minPrice") Double minPrice,@Param("maxPrice") Double maxPrice);
+
+    /**
+     * 统计查询总记录数
+     * @param id scID
+     * @param commName 商品名称
+     * @param suppCommCode 商家商品编码
+     * @param code69 商品编码
+     * @param typeId 类型ID
+     * @param minPrice 价格（低）
+     * @param maxPrice 价格（高）
+     * @return 总记录条数
+     */
+    Long countAllTotal(@Param("id")Long id,@Param("commName") String commName, @Param("code69") String code69,
+                       @Param("suppCommCode") String suppCommCode,@Param("typeId") Long typeId,
+                       @Param("minPrice") Double minPrice,@Param("maxPrice") Double maxPrice);
 }

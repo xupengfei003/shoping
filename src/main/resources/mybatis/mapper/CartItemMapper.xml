@@ -11,8 +11,8 @@
     <result column="commodity_properties" property="commodityProperties" jdbcType="VARCHAR" />
     <result column="commodity_pic" property="commodityPic" jdbcType="VARCHAR" />
     <result column="supplier_name" property="supplierName" jdbcType="VARCHAR" />
-    <result column="created_at" property="createdAt" jdbcType="BIGINT" />
-    <result column="updated_at" property="updatedAt" jdbcType="BIGINT" />
+    <result column="created_at" property="createdAt"  />
+    <result column="updated_at" property="updatedAt"  />
     <result column="count" property="count" jdbcType="INTEGER" />
   </resultMap>
   <sql id="Base_Column_List" >

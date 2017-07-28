@@ -13,6 +13,7 @@ import java.util.Collection;
  * @create 2017-07-08 21:33
  **/
 public class User implements UserDetails {
+	
     private Long id;
     private String username;
     private String password;

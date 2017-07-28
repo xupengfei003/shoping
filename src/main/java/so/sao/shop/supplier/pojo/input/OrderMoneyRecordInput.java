@@ -1,6 +1,9 @@
 package so.sao.shop.supplier.pojo.input;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * Created by niewenchao on 2017/7/24.
@@ -11,12 +14,14 @@ public class OrderMoneyRecordInput {
     /**
      * 查询起始时间
      */
-    private Long startTime;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date startTime;
 
     /**
      * 查询结束时间
      */
-    private Long endTime;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date endTime;
 
     /**
      * 提现金额起始值
@@ -33,19 +38,19 @@ public class OrderMoneyRecordInput {
      */
     private String state;
 
-    public Long getStartTime() {
+    public Date getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(Long startTime) {
+    public void setStartTime(Date startTime) {
         this.startTime = startTime;
     }
 
-    public Long getEndTime() {
+    public Date getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(Long endTime) {
+    public void setEndTime(Date endTime) {
         this.endTime = endTime;
     }
 

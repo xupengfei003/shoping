@@ -1,6 +1,9 @@
 package so.sao.shop.supplier.domain;
 
 import java.math.BigDecimal;
+import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 public class AccountUser {
     /**
@@ -26,17 +29,20 @@ public class AccountUser {
     /**
      * 激活时间
      */
-    private Long activeTime;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date activeTime;
 
     /**
      * 登录时间
      */
-    private Long loginTime;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date loginTime;
 
     /**
      * 上次登录时间
      */
-    private Long lastLoginTime;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date lastLoginTime;
 
     /**
      * 用户状态(0 删除，1启用，2停用)
@@ -131,12 +137,14 @@ public class AccountUser {
     /**
      * 创建时间
      */
-    private Long createdAt;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date createdAt;
 
     /**
      * 修改时间
      */
-    private Long updatedAt;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date updatedAt;
 
     /**
      * 备注
@@ -175,27 +183,27 @@ public class AccountUser {
         this.userEmail = userEmail == null ? null : userEmail.trim();
     }
 
-    public Long getActiveTime() {
+    public Date getActiveTime() {
         return activeTime;
     }
 
-    public void setActiveTime(Long activeTime) {
+    public void setActiveTime(Date activeTime) {
         this.activeTime = activeTime;
     }
 
-    public Long getLoginTime() {
+    public Date getLoginTime() {
         return loginTime;
     }
 
-    public void setLoginTime(Long loginTime) {
+    public void setLoginTime(Date loginTime) {
         this.loginTime = loginTime;
     }
 
-    public Long getLastLoginTime() {
+    public Date getLastLoginTime() {
         return lastLoginTime;
     }
 
-    public void setLastLoginTime(Long lastLoginTime) {
+    public void setLastLoginTime(Date lastLoginTime) {
         this.lastLoginTime = lastLoginTime;
     }
 
@@ -343,19 +351,19 @@ public class AccountUser {
         this.income = income;
     }
 
-    public Long getCreatedAt() {
+    public Date getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Long createdAt) {
+    public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Long getUpdatedAt() {
+    public Date getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(Long updatedAt) {
+    public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
     }
 

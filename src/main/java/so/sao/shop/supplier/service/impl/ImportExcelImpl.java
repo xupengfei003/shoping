@@ -121,12 +121,12 @@ public class ImportExcelImpl implements ImportExcel {
                             tempUserKB.setLicense(cell.getStringCellValue());
                         else if(c==4){
                             if(cell.getStringCellValue()!=null){
-                                tempUserKB.setLicenseTimeCreate(sdf.parse(cell.getStringCellValue()).getTime());
+                                tempUserKB.setLicenseTimeCreate(sdf.parse(cell.getStringCellValue()));
                             }
                         }
                         else if(c==5){
                             if(cell.getStringCellValue()!=null){
-                                tempUserKB.setLicenseTimeEnd(sdf.parse(cell.getStringCellValue()).getTime());
+                                tempUserKB.setLicenseTimeEnd(sdf.parse(cell.getStringCellValue()));
                             }
                         }
                         else if(c==6)
@@ -143,12 +143,12 @@ public class ImportExcelImpl implements ImportExcel {
                             tempUserKB.setContractLicense(cell.getStringCellValue());
                         else if(c==12) {
                             if (cell.getStringCellValue() != null) {
-                                tempUserKB.setContractLicenseCreate(sdf.parse(cell.getStringCellValue()).getTime());
+                                tempUserKB.setContractLicenseCreate(sdf.parse(cell.getStringCellValue()));
                             }
                         }
                         else if(c==13) {
                             if (cell.getStringCellValue() != null) {
-                                tempUserKB.setContractLicenseEnd(sdf.parse(cell.getStringCellValue()).getTime());
+                                tempUserKB.setContractLicenseEnd(sdf.parse(cell.getStringCellValue()));
                             }
                         }
                         else if(c==14)
@@ -157,12 +157,12 @@ public class ImportExcelImpl implements ImportExcel {
                             tempUserKB.setContractRegisterAddressDetail(cell.getStringCellValue());
                         else if(c==16) {
                             if(cell.getStringCellValue()!=null){
-                                tempUserKB.setContractCreateDate(sdf.parse(cell.getStringCellValue()).getTime());
+                                tempUserKB.setContractCreateDate(sdf.parse(cell.getStringCellValue()));
                             }
                         }
                         else if(c==17) {
                             if(cell.getStringCellValue()!=null){
-                                tempUserKB.setContractEndDate(sdf.parse(cell.getStringCellValue()).getTime());
+                                tempUserKB.setContractEndDate(sdf.parse(cell.getStringCellValue()));
                             }
                         }
                         else if(c==18)
@@ -189,7 +189,7 @@ public class ImportExcelImpl implements ImportExcel {
                     return "插入用户信息失败!";
                 }
                 tempUserKB.setUploadMode("2");
-                tempUserKB.setCreateDate(new Date().getTime());
+                tempUserKB.setCreateDate(new Date());
                 userKnowledgeBaseList.add(tempUserKB);
             }catch(Exception e){
                 log.error("excel数据解析异常"+e);

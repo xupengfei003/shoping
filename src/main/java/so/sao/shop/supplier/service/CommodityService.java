@@ -1,6 +1,7 @@
 package so.sao.shop.supplier.service;
 
 import com.github.pagehelper.PageInfo;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import so.sao.shop.supplier.domain.Account;
 import so.sao.shop.supplier.pojo.BaseResult;
@@ -76,7 +77,23 @@ public interface CommodityService {
      * @return PageInfo pageInfo对象
      */
     PageInfo searchCommodities(Long supplierId, String commCode69, Long commId, String suppCommCode, String commName, Integer status, Long typeId,
-                               Double minPrice, Double maxPrice, int pageNum, int pageSize);
+                               Double minPrice, Double maxPrice, Integer pageNum, Integer pageSize);
+
+
+    /**
+     * 根据查询条件查询商品详情
+     * @param id  scID
+     * @param commName 商品名称
+     * @param code69  商品编码
+     * @param suppCommCode 商家商品编码
+     * @param typeId 类型ID
+     * @param minPrice 价格（低）
+     * @param maxPrice 价格（高）
+     * @param pageNum 当前页号
+     * @param pageSize 页面大小
+     * @return PageInfo pageInfo对象
+     */
+    PageInfo searchAllCommodities(Long id, String commName, String code69, String suppCommCode,  Long typeId, Double minPrice,Double maxPrice, Integer pageNum, Integer pageSize);
 
     /**
      * 删除商品

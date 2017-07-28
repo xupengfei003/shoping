@@ -9,8 +9,8 @@
     <result column="bank_account" jdbcType="VARCHAR" property="bankAccount" />
     <result column="total_money" jdbcType="DECIMAL" property="totalMoney" />
     <result column="state" jdbcType="VARCHAR" property="state" />
-    <result column="created_at" jdbcType="BIGINT" property="createdAt" />
-    <result column="updated_at" jdbcType="BIGINT" property="updatedAt" />
+    <result column="created_at"  property="createdAt" />
+    <result column="updated_at" property="updatedAt" />
     <result column="serial_number" jdbcType="VARCHAR" property="serialNumber" />
     <result column="order_id" jdbcType="VARCHAR" property="orderId" />
   </resultMap>

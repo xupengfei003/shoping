@@ -95,7 +95,7 @@ public class PurchaseController {
     }
 
     /**
-     * POI批量导出订单列表
+     * POI导出(当前页/所选页/全部)订单列表
      *
      * @param request  request
      * @param response response
@@ -132,11 +132,13 @@ public class PurchaseController {
     public PurchaseSelectOutput search(Integer pageNum, Integer rows, PurchaseSelectInput purchaseSelectInput) {
         PurchaseSelectOutput purchaseSelectOutputList = new PurchaseSelectOutput();
         try {
-            if (pageNum != null && rows != null) {
-                purchaseSelectOutputList = purchaseService.searchOrders(pageNum, rows, purchaseSelectInput);
-            } else {
-                purchaseSelectOutputList = purchaseService.searchOrders(1, 10, purchaseSelectInput);
+            if (rows == null || rows <= 0) {
+                rows = 10;
             }
+            if (pageNum == null || pageNum <= 0) {
+                pageNum = 1;
+            }
+            purchaseSelectOutputList = purchaseService.searchOrders(pageNum, rows, purchaseSelectInput);
             if (purchaseSelectOutputList.getPageInfo().getSize() > 0) {
                 purchaseSelectOutputList.setCode(Constant.CodeConfig.CODE_SUCCESS);
                 purchaseSelectOutputList.setMessage(Constant.MessageConfig.MSG_SUCCESS);
@@ -164,7 +166,7 @@ public class PurchaseController {
      */
     @RequestMapping(value = "/update/{orderId}/orderStatus", method = RequestMethod.POST)
     @ApiOperation(value = "更改订单状态", notes = "")
-    public BaseResult update(String orderId, Integer orderStatus, Integer receiveMethod, String name, String number) {
+    public BaseResult update(@PathVariable("orderId") String orderId, Integer orderStatus, Integer receiveMethod, String name, String number) {
         BaseResult baseResult = new BaseResult();
         baseResult.setCode(Constant.CodeConfig.CODE_SUCCESS);
         baseResult.setMessage(Constant.MessageConfig.MSG_SUCCESS);

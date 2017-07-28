@@ -110,8 +110,8 @@ public class CommodityServiceImpl implements CommodityService {
                 sc.setStatus(Constant.COMM_ST_XZ);
                 sc.setCreatedBy(supplierId);
                 sc.setUpdatedBy(supplierId);
-                sc.setCreatedAt(new Date().getTime());
-                sc.setUpdatedAt(new Date().getTime());
+                sc.setCreatedAt(new Date());
+                sc.setUpdatedAt(new Date());
                 supplierCommodityDao.save(sc);
                 //保存图片
                 if(null!=commodityInput.getImgeList()){
@@ -186,7 +186,7 @@ public class CommodityServiceImpl implements CommodityService {
                 sc.setPrice(commodityVo.getPrice());
                 sc.setUnitPrice(commodityVo.getUnitPrice());
                 sc.setStatus(Constant.COMM_ST_XZ);
-                sc.setUpdatedAt(new Date().getTime());
+                sc.setUpdatedAt(new Date());
                 sc.setUpdatedBy(supplierId);
                 SupplierCommodity supplierCommodity = supplierCommodityDao.findSupplierCommodityInfo(commodityVo.getCode69());
                 if (commodityVo.getId() != null) {
@@ -331,7 +331,7 @@ public class CommodityServiceImpl implements CommodityService {
      */
     @Override
     public PageInfo searchCommodities(Long supplierId, String commCode69, Long commId, String suppCommCode, String commName, Integer status, Long typeId,
-                                      Double minPrice, Double maxPrice, int pageNum, int pageSize) {
+                                      Double minPrice, Double maxPrice, Integer pageNum, Integer pageSize) {
         Page page = new Page(pageNum, pageSize);
         //入参校验
         priceCheck(minPrice, maxPrice);
@@ -496,7 +496,7 @@ public class CommodityServiceImpl implements CommodityService {
         SupplierCommodity supplierCommodity = new SupplierCommodity();
         supplierCommodity.setId(id);
         supplierCommodity.setStatus(status);
-        supplierCommodity.setUpdatedAt(new Date().getTime());
+        supplierCommodity.setUpdatedAt(new Date());
         return supplierCommodity;
     }
 
@@ -759,4 +759,56 @@ public class CommodityServiceImpl implements CommodityService {
         }
         return commodityImportOutputList;
     }
+
+    /**
+     * 根据查询条件查询商品详情
+     * @param id           scID
+     * @param commName     商品名称
+     * @param code69       商品编码
+     * @param suppCommCode 商家商品编码
+     * @param typeId       类型ID
+     * @param minPrice     价格（低）
+     * @param maxPrice     价格（高）
+     * @param pageNum      当前页号
+     * @param pageSize     页面大小
+     * @return PageInfo pageInfo对象
+     */
+    @Override
+    public PageInfo searchAllCommodities(Long id, String commName, String code69, String suppCommCode, Long typeId, Double minPrice, Double maxPrice, Integer pageNum, Integer pageSize) {
+        Page page = new Page(pageNum, pageSize);
+        //入参校验
+        priceCheck(minPrice, maxPrice);
+        //分页参数校验
+        page = PageUtil.pageCheck(page);
+        //开始分页
+        PageHelper.startPage(page.getPageNum(),page.getRows());
+        List<SupplierCommodity> suppCommList = supplierCommodityDao.findAll(id, commName, code69, suppCommCode, typeId, minPrice, maxPrice);
+        Long countTotal = supplierCommodityDao.countAllTotal(id, commName, code69, suppCommCode, typeId, minPrice, maxPrice);
+        List<SuppCommSearchVo> respList = new ArrayList<SuppCommSearchVo>();
+        //重新组装VO
+        for (SupplierCommodity supplierCommodity : suppCommList)
+        {
+            SuppCommSearchVo suppCommSearchVo = new SuppCommSearchVo();
+            suppCommSearchVo.setId(supplierCommodity.getId());
+            suppCommSearchVo.setMinImg(supplierCommodity.getMinImg());
+            suppCommSearchVo.setCommId(supplierCommodity.getCommodityId());
+            suppCommSearchVo.setCode69(supplierCommodity.getCode69());
+            suppCommSearchVo.setCode(supplierCommodity.getCode());
+            suppCommSearchVo.setBrandName(supplierCommodity.getName());
+            suppCommSearchVo.setCommName(supplierCommodity.getName());
+            suppCommSearchVo.setUnit(supplierCommodity.getUnit());
+            suppCommSearchVo.setRuleName(supplierCommodity.getRuleName());
+            suppCommSearchVo.setRuleVal(supplierCommodity.getRuleVal());
+            suppCommSearchVo.setInventory(supplierCommodity.getInventory());
+            suppCommSearchVo.setStatusNum(supplierCommodity.getStatus());
+            suppCommSearchVo.setStatus(Constant.getStatus(supplierCommodity.getStatus()));
+            suppCommSearchVo.setCreatedAt(supplierCommodity.getCreatedAt());
+            suppCommSearchVo.setUpdatedAt(supplierCommodity.getUpdatedAt());
+            respList.add(suppCommSearchVo);
+        }
+        PageInfo<SuppCommSearchVo> pageInfo = new PageInfo<SuppCommSearchVo>(respList);
+        pageInfo.setTotal(countTotal);
+        return pageInfo;
+    }
+
 }

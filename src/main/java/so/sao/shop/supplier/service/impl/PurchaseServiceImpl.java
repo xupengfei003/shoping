@@ -32,8 +32,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -129,8 +129,9 @@ public class PurchaseServiceImpl implements PurchaseService {
             purchaseDate.setOrderAddress(orderAddress);//收货人地址
             purchaseDate.setOrderPaymentMethod(orderPaymentMethod);//支付方式
             purchaseDate.setOrderPrice(totalMoney);//订单总金额
-            purchaseDate.setOrderCreateTime(System.currentTimeMillis());//下单时间
+            purchaseDate.setOrderCreateTime(new Date());//下单时间
             purchaseDate.setOrderStatus(Constant.OrderStatusConfig.PAYMENT);//订单状态 1待付款2代发货3已发货4已收货5已拒收6已退款
+            purchaseDate.setUpdatedAt(new Date());//更新时间
             listPurchase.add(purchaseDate);
              /*
             1.将订单信息保存至订单表
@@ -202,31 +203,6 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Override
     public PurchaseSelectOutput searchOrders(Integer pageNum, Integer rows, PurchaseSelectInput purchaseSelectInput) {
         PageHelper.startPage(pageNum, rows);
-
-       /* //1.转换起始时间格式，数据库下单时间比较
-        Date beginTime = purchaseSelectInput.getBeginTime();
-        if (beginTime != null) {
-            Long beginDate = beginTime.getTime();
-            purchaseSelectInput.setBeginDate(beginDate);
-        }
-        purchaseSelectInput.setBeginDate(null);
-
-        //2.转换截至时间格式，数据库下单时间比较
-        Date endTime = purchaseSelectInput.getEndTime();
-        if (endTime != null) {
-            Long endDate = endTime.getTime();
-            purchaseSelectInput.setEndDate(endDate);
-        }
-        purchaseSelectInput.setEndDate(null);
-
-        //3.转换时间格式，数据库支付时间比较
-        Date orderPaymentTime = purchaseSelectInput.getOrderPaymentTime();
-        if (orderPaymentTime != null) {
-            Long orderPaymentDate = orderPaymentTime.getTime();
-            purchaseSelectInput.setOrderPaymentDate(orderPaymentDate);
-        }
-        purchaseSelectInput.setOrderPaymentDate(null);*/
-
         List<PurchasesVo> orderList = purchaseDao.findPage(purchaseSelectInput);
         if (orderList.size() > 0) {
             PurchaseSelectOutput purchaseSelectOutput = new PurchaseSelectOutput();
@@ -247,15 +223,15 @@ public class PurchaseServiceImpl implements PurchaseService {
      * @return boolean
      */
     @Override
+    @Transactional
     public boolean updateOrder(String orderId, Integer orderStatus,Integer receiveMethod,String name,String number) {
         if(orderStatus==Constant.OrderStatusConfig.REFUNDED){
-            Date drawbackTime = new Date();
-            Long drawbackDate = drawbackTime.getTime();
-            boolean flag = purchaseDao.updateOrderAtr(orderId,drawbackDate ,null,null,null);
+            Long drawbackDate = System.currentTimeMillis();
+            purchaseDao.updateOrderAtr(orderId,drawbackDate ,null,null,null);
         }else if(orderStatus==Constant.OrderStatusConfig.ISSUE_SHIP){
             purchaseDao.updateOrderAtr(orderId,null,receiveMethod,name,number);
         }
-        Long updateDate = new Date().getTime();
+        Long updateDate = System.currentTimeMillis();
         return purchaseDao.updateOrder(orderId, orderStatus,updateDate);
     }
 
@@ -272,7 +248,7 @@ public class PurchaseServiceImpl implements PurchaseService {
     }
 
     /**
-     * POI批量导出订单列表
+     * POI导出(当前页/所选页/全部)订单列表
      * @param request request
      * @param response response
      * @param pageNum pageNum
@@ -332,19 +308,20 @@ public class PurchaseServiceImpl implements PurchaseService {
 
         List<Purchase> purchaseList = new ArrayList<>();
         List<Purchase> orderList;
-        List<String> pageNumList;
+        List<Integer> pageNumList;
 
         if(pageNum != null && pageNum.length() > 0 && pageSize != null){ //获取区间页列表
-            pageNumList = Arrays.asList(pageNum.split(","));
-
+            //java8新特性 逗号分隔字符串转List<Integer>
+            pageNumList = Arrays.asList(pageNum.split(",")).stream().map(s -> Integer.parseInt(s.trim())).collect(Collectors.toList());
             if(pageNumList.size() > 1){
-                for(int i = Integer.parseInt(pageNumList.get(0)); i<=Integer.parseInt(pageNumList.get(1)); i++){
+                Collections.sort(pageNumList);
+                for(int i = pageNumList.get(0); i<=pageNumList.get(1); i++){
                     PageHelper.startPage(i, pageSize);
                     orderList = purchaseDao.getOrderListByIds();
                     purchaseList.addAll(orderList);
                 }
             } else { //获取当前页列表
-                PageHelper.startPage(Integer.parseInt(pageNumList.get(0)), pageSize);
+                PageHelper.startPage(pageNumList.get(0), pageSize);
                 purchaseList = purchaseDao.getOrderListByIds();
             }
 

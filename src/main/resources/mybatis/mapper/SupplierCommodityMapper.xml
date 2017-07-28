@@ -263,4 +263,68 @@
         SET updated_at = #{updatedAt},status = #{status}
         WHERE id = #{id}
     </update>
+
+    <select id="findAll" resultType="so.sao.shop.supplier.domain.SupplierCommodity">
+        SELECT
+        <include refid="searchColumns"/>
+        FROM supplier_commodity sc
+        WHERE sc.deleted = 0
+        <if test="id != null">
+            AND sc.id = #{id}
+        </if>
+        <if test="commName != null">
+            AND sc.name LIKE CONCAT ('%',#{commName},'%')
+        </if>
+        <if test="code69 != null">
+            AND sc.code69 = #{code69}
+        </if>
+        <if test="suppCommCode != null">
+            AND sc.code = #{suppCommCode}
+        </if>
+        <if test="minPrice != null and maxPrice == null">
+            AND sc.unit_price<![CDATA[ >= #{minPrice}]]>
+        </if>
+        <if test="minPrice == null and maxPrice != null">
+            AND  sc.unit_price<![CDATA[<= #{maxPrice}]]>
+        </if>
+        <if test="minPrice != null and maxPrice != null">
+            AND sc.unit_price BETWEEN #{minPrice} AND #{maxPrice}
+        </if>
+        <if test="typeId != null">
+            AND sc.category_one_id = #{typeId}
+        </if>
+        ORDER BY sc.created_at
+    </select>
+
+    <!--统计查询总记录数-->
+    <select id="countAllTotal" resultType="java.lang.Long">
+        SELECT
+        count(1)
+        FROM supplier_commodity sc
+        WHERE sc.deleted = 0
+        <if test="id != null">
+            AND sc.id = #{id}
+        </if>
+        <if test="commName != null">
+            AND sc.name LIKE CONCAT ('%',#{commName},'%')
+        </if>
+        <if test="code69 != null">
+            AND sc.code69 = #{code69}
+        </if>
+        <if test="suppCommCode != null">
+            AND sc.code = #{suppCommCode}
+        </if>
+        <if test="minPrice != null and maxPrice == null">
+            AND sc.unit_price<![CDATA[ >= #{minPrice}]]>
+        </if>
+        <if test="minPrice == null and maxPrice != null">
+            AND  sc.unit_price<![CDATA[<= #{maxPrice}]]>
+        </if>
+        <if test="minPrice != null and maxPrice != null">
+            AND sc.unit_price BETWEEN #{minPrice} AND #{maxPrice}
+        </if>
+        <if test="typeId != null">
+            AND sc.category_one_id = #{typeId}
+        </if>
+    </select>
 </mapper>

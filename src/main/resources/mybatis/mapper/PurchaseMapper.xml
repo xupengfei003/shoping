@@ -25,6 +25,7 @@
     <result column="order_invoice" property="orderInvoice" />
     <result column="order_status" property="orderStatus" />
     <result column="account_status" property="accountStatus" />
+    <result column="updated_at" property="updatedAt" />
   </resultMap>
 
   <!-- 通用查询结果列 -->
@@ -89,7 +90,8 @@
                 order_address,
                 order_create_time,
                 order_payment_method,
-                order_status
+                order_status,
+                updated_at
             )
         VALUES
         <foreach collection ="list" item="item" index= "index" separator =",">
@@ -103,7 +105,8 @@
                 #{item.orderAddress},
                 #{item.orderCreateTime},
                 #{item.orderPaymentMethod},
-                #{item.orderStatus}
+                #{item.orderStatus},
+                #{item.updatedAt}
             )
         </foreach>
     </insert>

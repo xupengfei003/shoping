@@ -46,11 +46,20 @@ public class CommodityController {
     public PageInfo search(HttpServletRequest request, @RequestParam(required = false) Long supplierId,@RequestParam(required = false) String commCode69,@RequestParam(required = false) Long commId,
                            @RequestParam(required = false) String suppCommCode,@RequestParam(required = false) String commName,
                            @RequestParam(required = false) Integer status,@RequestParam(required = false) Long typeId,@RequestParam(required = false) Double minPrice,
-                           @RequestParam(required = false) Double maxPrice,@RequestParam int pageNum, @RequestParam int pageSize){
+                           @RequestParam(required = false) Double maxPrice,@RequestParam(required = false) Integer pageNum, @RequestParam(required = false) Integer pageSize){
         if(supplierId==null||supplierId==0){
             supplierId = commodityService.findAccountByUserId(((User) request.getAttribute(Constant.REQUEST_USER)).getId()).getAccountId();
         }
         return commodityService.searchCommodities(supplierId, commCode69, commId, suppCommCode, commName, status, typeId, minPrice, maxPrice, pageNum, pageSize);
+    }
+
+    @ApiOperation(value="查询所有商品信息集合", notes="根据参数返回符合条件的商品信息集合")
+    @GetMapping(value="/searchAll")
+    public PageInfo searchAll(@RequestParam(required = false) Long id, @RequestParam(required = false) String commName, @RequestParam(required = false) String code69,
+                              @RequestParam(required = false) String suppCommCode, @RequestParam(required = false) Long typeId, @RequestParam(required = false) Double minPrice,
+                              @RequestParam(required = false) Double maxPrice, @RequestParam(required = false) Integer pageNum, @RequestParam(required = false) Integer pageSize){
+
+        return commodityService.searchAllCommodities(id, commName, code69, suppCommCode,typeId, minPrice, maxPrice, pageNum, pageSize);
     }
 
     @ApiOperation(value="查询商品详情信息", notes="根据ID返回相应的商品信息")

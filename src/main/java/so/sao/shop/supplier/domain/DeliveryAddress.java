@@ -1,6 +1,10 @@
 package so.sao.shop.supplier.domain;
 
 
+import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -73,7 +77,6 @@ public class DeliveryAddress {
 
 	/**
      * 删除状态(0：未删除；1：已删除)
-
      */
 	@ApiModelProperty(hidden = true)
 	private Integer delState;
@@ -82,13 +85,15 @@ public class DeliveryAddress {
      * 创建时间
      */
 	@ApiModelProperty(hidden = true)
-	private Long createdAt;
+	@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+	private Date createdAt;
 
     /**
      * 更新时间
      */
 	@ApiModelProperty(hidden = true)
-	private Long updatedAt;
+	@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+	private Date updatedAt;
 
     /**
      * 用户id
@@ -169,19 +174,19 @@ public class DeliveryAddress {
 		this.delState = delState;
 	}
 
-	public Long getCreatedAt() {
+	public Date getCreatedAt() {
 		return createdAt;
 	}
 
-	public void setCreatedAt(Long createdAt) {
+	public void setCreatedAt(Date createdAt) {
 		this.createdAt = createdAt;
 	}
 
-	public Long getUpdatedAt() {
+	public Date getUpdatedAt() {
 		return updatedAt;
 	}
 
-	public void setUpdatedAt(Long updatedAt) {
+	public void setUpdatedAt(Date updatedAt) {
 		this.updatedAt = updatedAt;
 	}
 

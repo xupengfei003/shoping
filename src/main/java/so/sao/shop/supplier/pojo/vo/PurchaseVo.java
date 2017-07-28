@@ -1,7 +1,10 @@
 package so.sao.shop.supplier.pojo.vo;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * Created by niewenchao on 2017/7/24.
@@ -56,7 +59,8 @@ public class PurchaseVo {
     /**
      * 下单时间
      */
-    private String orderCreateTime;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date orderCreateTime;
 
     /**
      * 支付方式
@@ -66,7 +70,8 @@ public class PurchaseVo {
     /**
      * 订单支付时间
      */
-    private String orderPaymentTime;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date orderPaymentTime;
 
     /**
      * 订单状态
@@ -150,28 +155,12 @@ public class PurchaseVo {
         this.orderPaymentNum = orderPaymentNum;
     }
 
-    public String getOrderCreateTime() {
-        return orderCreateTime;
-    }
-
-    public void setOrderCreateTime(String orderCreateTime) {
-        this.orderCreateTime = orderCreateTime;
-    }
-
     public Integer getOrderPaymentMethod() {
         return orderPaymentMethod;
     }
 
     public void setOrderPaymentMethod(Integer orderPaymentMethod) {
         this.orderPaymentMethod = orderPaymentMethod;
-    }
-
-    public String getOrderPaymentTime() {
-        return orderPaymentTime;
-    }
-
-    public void setOrderPaymentTime(String orderPaymentTime) {
-        this.orderPaymentTime = orderPaymentTime;
     }
 
     public Integer getOrderStatus() {
@@ -184,6 +173,22 @@ public class PurchaseVo {
 
     public String getAccountStatus() {
         return accountStatus;
+    }
+
+    public Date getOrderCreateTime() {
+        return orderCreateTime;
+    }
+
+    public void setOrderCreateTime(Date orderCreateTime) {
+        this.orderCreateTime = orderCreateTime;
+    }
+
+    public Date getOrderPaymentTime() {
+        return orderPaymentTime;
+    }
+
+    public void setOrderPaymentTime(Date orderPaymentTime) {
+        this.orderPaymentTime = orderPaymentTime;
     }
 
     public void setAccountStatus(String accountStatus) {

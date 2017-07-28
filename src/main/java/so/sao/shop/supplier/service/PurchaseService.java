@@ -11,7 +11,6 @@ import so.sao.shop.supplier.pojo.output.SumIncome;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.math.BigInteger;
 import java.util.Map;
 
 /**
@@ -64,7 +63,7 @@ public interface PurchaseService {
     boolean deletePurchase(String orderIds);
 
     /**
-     * POI批量导出订单列表
+     * POI导出(当前页/所选页/全部)订单列表
      * @param request request
      * @param response response
      * @param pageNum pageNum
