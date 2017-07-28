@@ -292,7 +292,7 @@ public class AccountServiceImpl implements AccountService {
             String password = smsService.getVerCode();
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
             user.setPassword(encoder.encode(password));
-            user1.setLastPasswordResetDate(new Date().getTime());
+            user.setLastPasswordResetDate(new Date().getTime());
             user.setIsAdmin("0");
             userDao.add(user);
             smsService.sendSms(Collections.singletonList(phone), password);
