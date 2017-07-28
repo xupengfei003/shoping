@@ -99,17 +99,16 @@ public class PurchaseController {
      *
      * @param request  request
      * @param response response
-     * @param orderIds  orderIds
      * @param pageNum  pageNum
      * @param pageSize pageSize
      */
     @RequestMapping(value = "/export", method = RequestMethod.GET)
     @ApiOperation(value = "POI批量导出订单列表", notes = "POI批量导出订单列表")
     @ResponseBody
-    public BaseResult exportExcel(HttpServletRequest request, HttpServletResponse response, String orderIds, Integer pageNum, Integer pageSize) {
+    public BaseResult exportExcel(HttpServletRequest request, HttpServletResponse response, String pageNum, Integer pageSize) {
         BaseResult result = new BaseResult();
         try {
-            purchaseService.exportExcel(request, response, orderIds, pageNum, pageSize);
+            purchaseService.exportExcel(request, response, pageNum, pageSize);
             result.setCode(Constant.CodeConfig.CODE_SUCCESS);
             result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
         } catch (Exception e) {

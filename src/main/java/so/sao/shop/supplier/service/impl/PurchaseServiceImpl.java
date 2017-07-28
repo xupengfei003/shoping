@@ -255,7 +255,8 @@ public class PurchaseServiceImpl implements PurchaseService {
         }else if(orderStatus==Constant.OrderStatusConfig.ISSUE_SHIP){
             purchaseDao.updateOrderAtr(orderId,null,receiveMethod,name,number);
         }
-        return purchaseDao.updateOrder(orderId, orderStatus);
+        Long updateDate = new Date().getTime();
+        return purchaseDao.updateOrder(orderId, orderStatus,updateDate);
     }
 
     /**
@@ -274,12 +275,11 @@ public class PurchaseServiceImpl implements PurchaseService {
      * POI批量导出订单列表
      * @param request request
      * @param response response
-     * @param orderIds orderIds
      * @param pageNum pageNum
      * @param pageSize pageSize
      */
     @Override
-    public void exportExcel(HttpServletRequest request, HttpServletResponse response,String orderIds, Integer pageNum, Integer pageSize) throws Exception{
+    public void exportExcel(HttpServletRequest request, HttpServletResponse response, String pageNum, Integer pageSize) throws Exception{
 
         //创建HSSFWorkbook对象(excel的文档对象)
         HSSFWorkbook wb = new HSSFWorkbook();
@@ -330,19 +330,33 @@ public class PurchaseServiceImpl implements PurchaseService {
         cell.setCellValue("支付流水号");
         cell.setCellStyle(style);
 
-        //判断是否是批量导出
-        List<String> orderIdList = null;
-        if(orderIds != null && orderIds.length() > 0){
-            orderIdList = Arrays.asList(orderIds.split(","));
-        } else if(pageNum != null && pageSize != null){ //判断是否是分页查询列表
-            PageHelper.startPage(pageNum, pageSize);
+        List<Purchase> purchaseList = new ArrayList<>();
+        List<Purchase> orderList;
+        List<String> pageNumList;
+
+        if(pageNum != null && pageNum.length() > 0 && pageSize != null){ //获取区间页列表
+            pageNumList = Arrays.asList(pageNum.split(","));
+
+            if(pageNumList.size() > 1){
+                for(int i = Integer.parseInt(pageNumList.get(0)); i<=Integer.parseInt(pageNumList.get(1)); i++){
+                    PageHelper.startPage(i, pageSize);
+                    orderList = purchaseDao.getOrderListByIds();
+                    purchaseList.addAll(orderList);
+                }
+            } else { //获取当前页列表
+                PageHelper.startPage(Integer.parseInt(pageNumList.get(0)), pageSize);
+                purchaseList = purchaseDao.getOrderListByIds();
+            }
+
+        } else { //查询全部列表
+            purchaseList = purchaseDao.getOrderListByIds();
         }
-        List<Purchase> orderList = purchaseDao.getOrderListByIds(orderIdList);
+
 
         //向单元格里填充数据
         HSSFCell cellTemp = null;
-        for (int i = 0; i < orderList.size(); i++) {
-            Purchase purchase = orderList.get(i);
+        for (int i = 0; i < purchaseList.size(); i++) {
+            Purchase purchase = purchaseList.get(i);
             sheet.setColumnWidth(0, 20 * 256);
             row = sheet.createRow(i + 1);
             cellTemp = row.createCell(0);

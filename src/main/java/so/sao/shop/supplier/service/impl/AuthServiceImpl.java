@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import so.sao.shop.supplier.config.sms.SmsService;
 import so.sao.shop.supplier.dao.UserDao;
 import so.sao.shop.supplier.domain.User;
 import so.sao.shop.supplier.pojo.BaseResult;
@@ -39,16 +40,18 @@ public class AuthServiceImpl implements AuthService {
     private UserDetailsService userDetailsService;
     private UserDao userDao;
     private JwtTokenUtil jwtTokenUtil;
+    private SmsService smsService;
 
     @Autowired
     public AuthServiceImpl(
             AuthenticationManager authenticationManager,
             UserDetailsService userDetailsService,
-            UserDao userDao,JwtTokenUtil jwtTokenUtil) {
+            UserDao userDao,JwtTokenUtil jwtTokenUtil,SmsService smsService) {
         this.authenticationManager = authenticationManager;
         this.userDetailsService = userDetailsService;
         this.userDao = userDao;
         this.jwtTokenUtil=jwtTokenUtil;
+        this.smsService=smsService;
     }
 
     /**
@@ -109,10 +112,10 @@ public class AuthServiceImpl implements AuthService {
         User u = userDao.findByUsername(tel);
         //判断当前登录人和接收密码手机是否一直
         if(u!=null&& StringUtils.isNotBlank(u.getUsername())){
-            String password = SmsUtil.getVerCode();
+            String password = smsService.getVerCode();
             //密码加密保存,忘记密码只能手机验证发送新密码
             userDao.updatePassword(u.getId(),new BCryptPasswordEncoder().encode(password), new Date().getTime());
-            SendSmsResponse sendSmsResponse = SmsUtil.sendSms(tel, password);
+            SendSmsResponse sendSmsResponse = smsService.sendSms(tel, password);
             return new BaseResult(1, "发送成功");
         }else{
             return new BaseResult(0, "当前号码无效!");
@@ -128,9 +131,9 @@ public class AuthServiceImpl implements AuthService {
      */
     @Override
     public BaseResult sendCode(String tel) throws IOException, ClientException {
-        String code = SmsUtil.getVerCode();
+        String code = smsService.getVerCode();
         userDao.saveSmsCode(tel, code);
-        SendSmsResponse sendSmsResponse = SmsUtil.sendSms(tel, code);
+        SendSmsResponse sendSmsResponse = smsService.sendSms(tel, code);
         if(sendSmsResponse.getCode() != null && sendSmsResponse.getCode().equals("OK")) {
             return new BaseResult(1,"发送成功");
         }

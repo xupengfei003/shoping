@@ -392,7 +392,7 @@ public class AccountController {
      */
     @ApiOperation("供应商信息上传")
     @PostMapping("/upload")
-    public String excelUpload(HttpServletRequest request, HttpServletResponse response, @RequestBody MultipartFile file) {
+    public String excelUpload(HttpServletRequest request, HttpServletResponse response, MultipartFile file) {
         //判断文件是否为空
         if (file == null) {
             return "文件不能为空";
@@ -408,7 +408,7 @@ public class AccountController {
 
         //进一步判断文件内容是否为空（即判断其大小是否为0或其名称是否为null）
         long size = file.getSize();
-        if (StringUtils.isEmpty(fileName) || size == 0) {
+        if (StringUtils.isEmpty(fileName) || size <= 9700) {
             return "文件内容为空";
         }
 
