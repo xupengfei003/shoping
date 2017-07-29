@@ -36,11 +36,18 @@ public interface AccountDao {
     int insertSelective(Account record);
 
     /**
-     * 根据id查询供应商信息
+     * 根据id查询供应商信息(省市区汉字)
      * @param accountId 供应商id
      * @return 返回供应商信息
      */
     Account selectByPrimaryKey(Long accountId);
+
+    /**
+     * 根据id查询供应商信息(省市区编码)
+     * @param accountId 供应商id
+     * @return 返回供应商信息
+     */
+    Account selectById(Long accountId);
 
     /**
      * 修改供应商信息

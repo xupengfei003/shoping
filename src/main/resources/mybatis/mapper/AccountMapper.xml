@@ -54,9 +54,6 @@
     license_time_end,
     business_type,
     regist_address,
-    p.name regist_address_province,
-    c.name regist_address_city,
-    d.name regist_address_district,
     register_address_detail,
     discount,
     bank_name,
@@ -78,16 +75,18 @@
     contract_license_create,
     contract_license_end,
     contract_register_address,
-    cp.name contract_register_address_province,
-    cc.name contract_register_address_city,
-    cd.name contract_register_address_district,
     contract_register_address_detail,
     upload_mode,
     sms_code
   </sql>
+
+  <!-- 查询出省市区汉字字段-->
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
     select 
-    <include refid="Base_Column_List" />
+    <include refid="Base_Column_List" /> ,p.name regist_address_province,
+    c.name regist_address_city,d.name regist_address_district,
+    cp.name contract_register_address_province,    cc.name contract_register_address_city,
+    cd.name contract_register_address_district
     from account, sys_region p, sys_region c, sys_region d
     , sys_region cp, sys_region cc, sys_region cd
    where account_id = #{accountId,jdbcType=BIGINT}
@@ -97,6 +96,24 @@
      and contract_register_address_province = cp.sr_id
      and contract_register_address_city = cc.sr_id
      and contract_register_address_district = cd.sr_id
+  </select>
+
+  <!-- 查询出省市区编码字段-->
+  <select id="selectById" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select
+    <include refid="Base_Column_List" /> ,regist_address_province,
+    regist_address_city, regist_address_district,
+    contract_register_address_province, contract_register_address_city,
+    contract_register_address_district
+    from account, sys_region p, sys_region c, sys_region d
+    , sys_region cp, sys_region cc, sys_region cd
+    where account_id = #{accountId,jdbcType=BIGINT}
+    and regist_address_province = p.sr_id
+    and regist_address_city = c.sr_id
+    and regist_address_district = d.sr_id
+    and contract_register_address_province = cp.sr_id
+    and contract_register_address_city = cc.sr_id
+    and contract_register_address_district = cd.sr_id
   </select>
 
   <update id="deleteByPrimaryKey" parameterType="java.lang.Long" >
@@ -558,7 +575,9 @@
   <!--根据userId查询账户-->
   <select id="findByUserId" resultMap="BaseResultMap">
     SELECT
-    <include refid="Base_Column_List" />
+    <include refid="Base_Column_List" />,p.name regist_address_province,
+    c.name regist_address_city,d.name regist_address_district,cp.name contract_register_address_province,
+    cc.name contract_register_address_city,    cd.name contract_register_address_district
     FROM account,sys_region p, sys_region c, sys_region d
     , sys_region cp, sys_region cc, sys_region cd
     WHERE user_id = #{userId}
@@ -664,12 +683,18 @@
     WHERE user_id=#{account.userId};
   </update>
 <select id="findPage" resultMap="BaseResultMap" parameterType="so.sao.shop.supplier.domain.Condition">
-          SELECT account_id,user_id,create_date,provider_name,responsible,contract_end_date, contract_responsible_phone,regist_address_province,
-                  regist_address_city,regist_address_district  ,contract_register_address_province,contract_register_address_city,
-                  contract_register_address_district,  contract_register_address
-            FROM account
+          SELECT account_id,user_id,create_date,provider_name,responsible,contract_end_date, contract_responsible_phone,p.name regist_address_province,
+                  c.name regist_address_city,d.name regist_address_district  ,cp.name contract_register_address_province,cc.name contract_register_address_city,
+                  cd.name contract_register_address_district,  contract_register_address
+            FROM account,sys_region p, sys_region c, sys_region d, sys_region cp, sys_region cc, sys_region cd
             <where>
                     account_status != 0
+              AND regist_address_province = p.sr_id
+              AND regist_address_city = c.sr_id
+              AND regist_address_district = d.sr_id
+              AND contract_register_address_province = cp.sr_id
+              AND contract_register_address_city = cc.sr_id
+              AND contract_register_address_district = cd.sr_id
                 <if test="beginDate != null and beginDate != ''">
                     AND create_date <![CDATA[>=]]> #{beginDate}
                 </if>

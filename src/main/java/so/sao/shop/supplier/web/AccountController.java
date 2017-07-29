@@ -272,13 +272,30 @@ public class AccountController {
      */
 
     @GetMapping("/search")
-    @ApiOperation(value = "根据id查询供应商")
+    @ApiOperation(value = "根据id查询供应商(省市区汉字)")
     public Account get(@RequestParam Long id, HttpServletRequest request) {
         if(id == null || id == 0){
             User user = (User) request.getAttribute(Constant.REQUEST_USER);
             id = accountService.selectByUserId(user.getId()).getAccountId();
         }
         return accountService.selectById(id);
+    }
+
+    /**
+     * 根据id查询供应商详细信息
+     *
+     * @param id
+     * @return
+     */
+
+    @GetMapping("/search0")
+    @ApiOperation(value = "根据id查询供应商(省市区编码)")
+    public Account get0(@RequestParam Long id, HttpServletRequest request) {
+        if(id == null || id == 0){
+            User user = (User) request.getAttribute(Constant.REQUEST_USER);
+            id = accountService.selectByUserId(user.getId()).getAccountId();
+        }
+        return accountService.selectById0(id);
     }
 
     /**

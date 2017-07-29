@@ -139,7 +139,7 @@ public class AccountServiceImpl implements AccountService {
     /**
      * 根据id查询供应商信息
      *
-     * @param accountId 供应商id
+     * @param accountId 供应商id(省市区汉字)
      * @return 返回供应商信息
      */
     @Override
@@ -175,6 +175,16 @@ public class AccountServiceImpl implements AccountService {
         return new Account();
     }
 
+    /**
+     * 根据id查询供应商信息(省市区编码)
+     *
+     * @param accountId 供应商id
+     * @return 返回供应商信息
+     */
+    @Override
+    public Account selectById0(Long accountId) {
+       return accountDao.selectById(accountId);
+    }
 
     /**
      * 1.根据用户ID获取用户的可用余额；
@@ -280,6 +290,7 @@ public class AccountServiceImpl implements AccountService {
 
     /**
      * 根据手机号码插入用户信息
+     *
      *
      * @param phone
      * @return 返回用户id
