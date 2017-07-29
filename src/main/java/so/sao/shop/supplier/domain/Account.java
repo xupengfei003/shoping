@@ -52,7 +52,7 @@ public class Account {
 	 */
 	@NotNull(message = "供应商营业执照截至时间不能为空")
 	@JsonFormat(pattern="yyy-MM-dd", timezone="GMT+8")
-	private Date licenseTimeEnd;
+	private Date licenseTimeEnd; 
 	/**
 	 * 供应商行业类型
 	 */
