@@ -1,5 +1,8 @@
 package so.sao.shop.supplier.config.sms;
 
+import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.aliyun.mns.client.CloudAccount;
 import com.aliyun.mns.client.CloudTopic;
 import com.aliyun.mns.client.MNSClient;
@@ -8,10 +11,6 @@ import com.aliyun.mns.model.BatchSmsAttributes;
 import com.aliyun.mns.model.MessageAttributes;
 import com.aliyun.mns.model.RawTopicMessage;
 import com.aliyun.mns.model.TopicMessage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 
 public class SmsService {
@@ -27,21 +26,21 @@ public class SmsService {
      * @return 返回请求结果
      */
     public TopicMessage sendSms(List<String> phoneNumbers, String code) {
-        /**
-         * Step 1. 获取主题引用
+        /*
+          Step 1. 获取主题引用
          */
         CloudAccount account = new CloudAccount(properties.getAccessKeyId(), properties.getAccessKeySecret(), properties.getMnsEndpoint());
         MNSClient client = account.getMNSClient();
         CloudTopic topic = client.getTopicRef(properties.getTopic());
-        /**
-         * Step 2. 设置SMS消息体（必须）
-         *
-         * 注：目前暂时不支持消息内容为空，需要指定消息内容，不为空即可。
+        /*
+          Step 2. 设置SMS消息体（必须）
+
+          注：目前暂时不支持消息内容为空，需要指定消息内容，不为空即可。
          */
         RawTopicMessage msg = new RawTopicMessage();
         msg.setMessageBody("sms-message");
-        /**
-         * Step 3. 生成SMS消息属性
+        /*
+          Step 3. 生成SMS消息属性
          */
         MessageAttributes messageAttributes = new MessageAttributes();
         BatchSmsAttributes batchSmsAttributes = new BatchSmsAttributes();
@@ -59,8 +58,8 @@ public class SmsService {
         }
         messageAttributes.setBatchSmsAttributes(batchSmsAttributes);
         try {
-            /**
-             * Step 4. 发布SMS消息
+            /*
+              Step 4. 发布SMS消息
              */
             TopicMessage topicMessage = topic.publishMessage(msg, messageAttributes);
             LOGGER.info("MessageId: {}", topicMessage.getMessageId());

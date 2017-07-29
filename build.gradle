@@ -48,8 +48,9 @@ dependencies {
     compile group: 'commons-codec', name: 'commons-codec', version: '1.10'
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.6'
     compile('commons-io:commons-io:+')
+	compile group: 'com.aliyun.mns', name: 'aliyun-sdk-mns', version: '1.1.8.4'
 
-    compile fileTree(dir:'lib', include: '*.jar')
+//    compile fileTree(dir:'lib', include: '*.jar')
 
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 	compile('com.microsoft.azure:azure-storage:5.4.0')
