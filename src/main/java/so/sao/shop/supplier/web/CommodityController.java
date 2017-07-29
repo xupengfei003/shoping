@@ -4,6 +4,7 @@ import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.ClassUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
@@ -153,10 +154,7 @@ public class CommodityController {
     @ApiOperation("商品信息模板下载")
     @GetMapping("/down")
     public void downLoadExcel(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        URL save = org.springframework.util.ResourceUtils.getURL("classpath:resources/file/");
-
-        String str = save.toString()+"Commodity.xls" ;//Excel模板所在的路径。
-
+        String str =  ClassUtils.getDefaultClassLoader().getResource("").getPath()+"resources/file/Commodity.xls" ;//Excel模板所在的路径。
         File f = new File(str);
         // 设置response参数，可以打开下载页面
         response.reset();

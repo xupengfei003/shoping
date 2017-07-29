@@ -18,6 +18,6 @@
   </select>
 
   <select id="selectHangYeDict" resultMap="BaseResultMap" >
-    select name from dict_item where dict_type = 3
+    select name, code from dict_item where dict_type = 3
   </select>
 </mapper>
