@@ -214,11 +214,11 @@ public class AccountController {
     }
 
     /**
-     * 获取admin标记(一期暂时)
+     * 获取当前登陆供应商名
      * @param request
      * @return
      */
-    @ApiOperation("获取admin标记")
+    @ApiOperation("获取当前登陆供应商名")
     @GetMapping(value = "/username")
     public Result getUserName(HttpServletRequest request){
         Map result = new HashMap();

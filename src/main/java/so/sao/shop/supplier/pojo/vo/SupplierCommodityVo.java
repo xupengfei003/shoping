@@ -4,6 +4,7 @@ import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.Min;
+import java.util.List;
 
 /**
  * 供应商商品关系表
@@ -62,6 +63,11 @@ public class SupplierCommodityVo {
     @Min(value=0)
     private Double unitPrice;
 
+    /**
+     * 图片集合
+     */
+    private List<CommImgeVo> imgeList;
+
     public Long getId() {
         return id;
     }
@@ -70,6 +76,13 @@ public class SupplierCommodityVo {
         this.id = id;
     }
 
+    public List<CommImgeVo> getImgeList() {
+        return imgeList;
+    }
+
+    public void setImgeList(List<CommImgeVo> imgeList) {
+        this.imgeList = imgeList;
+    }
 
     public Double getUnitPrice() {
         return unitPrice;

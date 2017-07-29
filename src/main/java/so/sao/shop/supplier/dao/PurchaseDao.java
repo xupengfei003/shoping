@@ -2,14 +2,14 @@ package so.sao.shop.supplier.dao;
 
 
 import org.apache.ibatis.annotations.Param;
-import so.sao.shop.supplier.domain.AccountUser;
+import so.sao.shop.supplier.domain.Account;
 import so.sao.shop.supplier.domain.Purchase;
 import so.sao.shop.supplier.pojo.input.AccountPurchaseInput;
 import so.sao.shop.supplier.pojo.input.PurchaseSelectInput;
 import so.sao.shop.supplier.pojo.vo.PurchasesVo;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -53,7 +53,7 @@ public interface PurchaseDao {
      * @param orderStatus
      * @return boolean
      */
-    boolean updateOrder(@Param("orderId") String orderId, @Param("orderStatus") Integer orderStatus,@Param("updateDate") Long updateDate);
+    boolean updateOrder(@Param("orderId") String orderId, @Param("orderStatus") Integer orderStatus,@Param("updateDate") Date updateDate);
 
     /**
      * 更改状态辅助操作（更改退款时间、插入物流配送方式）
@@ -64,7 +64,7 @@ public interface PurchaseDao {
      * @param number
      * @return boolean
      */
-    boolean updateOrderAtr(@Param("orderId") String orderId, @Param("drawbackTime") Long drawbackTime,
+    boolean updateOrderAtr(@Param("orderId") String orderId, @Param("drawbackTime") Date drawbackTime,
                            @Param("receiveMethod") Integer receiveMethod, @Param("name") String name, @Param("number") String number);
 
     /**
@@ -88,7 +88,7 @@ public interface PurchaseDao {
      * @param id 商品ID
      * @return
      */
-    AccountUser findAccountById(@Param("id") long id);
+    Account findAccountById(@Param("id") long id);
 
     /**
      * 更新订单中账户状态

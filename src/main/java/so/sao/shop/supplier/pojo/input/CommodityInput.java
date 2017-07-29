@@ -41,10 +41,6 @@ public class CommodityInput {
      */
     private String description;
     /**
-     * 图片集合
-     */
-    private List<CommImgeVo> imgeList;
-    /**
      * 商品集合
      */
     private List<SupplierCommodityVo> commodityList;
@@ -63,14 +59,6 @@ public class CommodityInput {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public List<CommImgeVo> getImgeList() {
-        return imgeList;
-    }
-
-    public void setImgeList(List<CommImgeVo> imgeList) {
-        this.imgeList = imgeList;
     }
 
     public List<SupplierCommodityVo> getCommodityList() {

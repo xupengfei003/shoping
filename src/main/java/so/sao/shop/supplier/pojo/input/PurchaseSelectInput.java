@@ -20,23 +20,27 @@ public class PurchaseSelectInput {
      */
     private String orderReceiverName;
 
+    /**
+     * 开始时间,后台比较
+     */
+    private Date beginTime;
 
-//    private Date beginTime;
-
-
-//    private Date endTime;
+    /**
+     * 截至时间,后台比较
+     */
+    private Date endTime;
 
     /**
      * 开始时间
      */
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
-    private Date beginDate;
+    private String beginDate;
 
     /**
      * 截至时间
      */
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
-    private Date endDate;
+    private String endDate;
 
     /**
      * 起始金额
@@ -53,13 +57,16 @@ public class PurchaseSelectInput {
      */
     private String orderReceiverMobile;
 
-
-//    private Date orderPaymentTime;
+    /**
+     * 付款时间,后台比较
+     */
+    private Date orderPaymentTime;
 
     /**
      * 付款时间
      */
-    private Date orderPaymentDate;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private String orderPaymentDate;
 
     /**
      * 支付方式
@@ -126,27 +133,27 @@ public class PurchaseSelectInput {
         this.orderReceiverMobile = orderReceiverMobile;
     }
 
-    public Date getBeginDate() {
+    public String getBeginDate() {
         return beginDate;
     }
 
-    public void setBeginDate(Date beginDate) {
+    public void setBeginDate(String beginDate) {
         this.beginDate = beginDate;
     }
 
-    public Date getEndDate() {
+    public String getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(Date endDate) {
+    public void setEndDate(String endDate) {
         this.endDate = endDate;
     }
 
-    public Date getOrderPaymentDate() {
+    public String getOrderPaymentDate() {
         return orderPaymentDate;
     }
 
-    public void setOrderPaymentDate(Date orderPaymentDate) {
+    public void setOrderPaymentDate(String orderPaymentDate) {
         this.orderPaymentDate = orderPaymentDate;
     }
 
@@ -188,5 +195,29 @@ public class PurchaseSelectInput {
 
     public void setStoreId(BigInteger storeId) {
         this.storeId = storeId;
+    }
+
+    public Date getBeginTime() {
+        return beginTime;
+    }
+
+    public void setBeginTime(Date beginTime) {
+        this.beginTime = beginTime;
+    }
+
+    public Date getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(Date endTime) {
+        this.endTime = endTime;
+    }
+
+    public Date getOrderPaymentTime() {
+        return orderPaymentTime;
+    }
+
+    public void setOrderPaymentTime(Date orderPaymentTime) {
+        this.orderPaymentTime = orderPaymentTime;
     }
 }

@@ -35,6 +35,10 @@ public interface Constant {
          * 未查找到结果
          */
         public final Integer CODE_NOT_FOUND_RESULT = 4;
+        /**
+         * 入参时间格式不正确
+         */
+        public final Integer CODE_DATE_INPUT_FORMAT_ERROR = 5;
     }
     /**
      * Message定义
@@ -60,6 +64,11 @@ public interface Constant {
          * 未查找到结果
          */
         public static final String MSG_NOT_FOUND_RESULT = "暂无订单数据";
+
+        /**
+         * 入参时间格式不正确
+         */
+        public static final String MSG_DATE_INPUT_FORMAT_ERROR = "时间格式不正确";
     }
 
     interface OrderStatusConfig{

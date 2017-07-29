@@ -46,5 +46,5 @@ public interface CartItemDao {
      * @param supplierId
      * @param commodityId
      */
-    CartItem findExistsCartItem(@Param("user_id")Long userId, @Param("supplier_id")Long supplierId, @Param("commodity_id")Long commodityId);
+    List<CartItem> findExistsCartItem(@Param("user_id")Long userId, @Param("supplier_id")Long supplierId, @Param("commodity_id")Long commodityId);
 }

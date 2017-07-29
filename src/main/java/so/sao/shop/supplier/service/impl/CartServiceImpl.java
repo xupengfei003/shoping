@@ -31,12 +31,15 @@ public class CartServiceImpl implements CartService {
         }
         CartItem cartItem = new CartItem();
         cartItem = convertToCartItem(cartItemInput);
+        cartItem.setCreatedAt(new Date());
         //查询是否存在相同的商品
-        CartItem existsCartItem = cartItemDao.findExistsCartItem(cartItem.getUserId(),cartItem.getSupplierId(),cartItem.getCommodityId());
-        if(existsCartItem!=null){//如果存在，则更新商品数量
+        List<CartItem> existsCartItemLit = cartItemDao.findExistsCartItem(cartItem.getUserId(),cartItem.getSupplierId(),cartItem.getCommodityId());
+        if(existsCartItemLit!=null&&existsCartItemLit.size()>0){//如果存在，则更新商品数量
+            CartItem existsCartItem = existsCartItemLit.get(0);
             CartItem updateCartItem = new CartItem();
             updateCartItem.setId(existsCartItem.getId());
             updateCartItem.setCount(existsCartItem.getCount()+cartItemInput.getCount());
+            updateCartItem.setUpdatedAt(new Date());
             return cartItemDao.updateByPrimaryKeySelective(updateCartItem)>0?true:false;
         }else{
             return cartItemDao.insertSelective(cartItem)>0?true:false;
@@ -101,9 +104,6 @@ public class CartServiceImpl implements CartService {
         cartItem.setCommodityPic(cartItemInput.getCommodityPic());
         cartItem.setCommodityProperties(cartItemInput.getCommodityProperties());
         cartItem.setCount(cartItemInput.getCount());
-        cartItem.setCreatedAt(new Date());
-        cartItem.setCreatedAt(new Date());
-
         return cartItem;
     }
 }

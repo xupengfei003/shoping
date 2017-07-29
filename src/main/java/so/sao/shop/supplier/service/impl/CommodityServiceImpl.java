@@ -114,8 +114,8 @@ public class CommodityServiceImpl implements CommodityService {
                 sc.setUpdatedAt(new Date());
                 supplierCommodityDao.save(sc);
                 //保存图片
-                if(null!=commodityInput.getImgeList()){
-                    for (CommImgeVo imgeVo:commodityInput.getImgeList()) {
+                if(null!=commodityVo.getImgeList()){
+                    for (CommImgeVo imgeVo:commodityVo.getImgeList()) {
                         CommImge imge=new CommImge();
                         imge.setScId(sc.getId());
                         imge.setName(imgeVo.getName());
@@ -219,8 +219,8 @@ public class CommodityServiceImpl implements CommodityService {
                 commImgeDao.deleteByIds(ids);
 
                 //保存图片
-                if (null != commodityInput.getImgeList()) {
-                    for (CommImgeVo imgeVo : commodityInput.getImgeList()) {
+                if (null != commodityVo.getImgeList()) {
+                    for (CommImgeVo imgeVo : commodityVo.getImgeList()) {
                         CommImge imge = new CommImge();
                         imge.setScId(sc.getId());
                         imge.setUrl(imgeVo.getUrl());
@@ -334,6 +334,9 @@ public class CommodityServiceImpl implements CommodityService {
                                       Double minPrice, Double maxPrice, Integer pageNum, Integer pageSize) {
         Page page = new Page(pageNum, pageSize);
         //入参校验
+        commCode69 = stringParamCheck(commCode69);
+        suppCommCode = stringParamCheck(suppCommCode);
+        commName =stringParamCheck(commName);
         priceCheck(minPrice, maxPrice);
         //分页参数校验
         page = PageUtil.pageCheck(page);
@@ -777,6 +780,9 @@ public class CommodityServiceImpl implements CommodityService {
     public PageInfo searchAllCommodities(Long id, String commName, String code69, String suppCommCode, Long typeId, Double minPrice, Double maxPrice, Integer pageNum, Integer pageSize) {
         Page page = new Page(pageNum, pageSize);
         //入参校验
+        commName = stringParamCheck(commName);
+        code69 = stringParamCheck(code69);
+        suppCommCode =stringParamCheck(suppCommCode);
         priceCheck(minPrice, maxPrice);
         //分页参数校验
         page = PageUtil.pageCheck(page);
@@ -809,6 +815,19 @@ public class CommodityServiceImpl implements CommodityService {
         PageInfo<SuppCommSearchVo> pageInfo = new PageInfo<SuppCommSearchVo>(respList);
         pageInfo.setTotal(countTotal);
         return pageInfo;
+    }
+
+    /**
+     * 字符串前后去空格
+     * @param string  需要去空格的字符串
+     * @return String 处理后的字符串
+     */
+    private String stringParamCheck(String string) {
+        if (null != string)
+        {
+            string = string.trim();
+        }
+        return  string;
     }
 
 }

@@ -2,6 +2,7 @@ package so.sao.shop.supplier.web;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
@@ -12,11 +13,13 @@ import so.sao.shop.supplier.pojo.input.PurchaseInput;
 import so.sao.shop.supplier.pojo.input.PurchaseSelectInput;
 import so.sao.shop.supplier.pojo.output.*;
 import so.sao.shop.supplier.service.PurchaseService;
+import so.sao.shop.supplier.util.DateUtil;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -131,6 +134,23 @@ public class PurchaseController {
     @ApiOperation(value = "查询订单列表", notes = "*")
     public PurchaseSelectOutput search(Integer pageNum, Integer rows, PurchaseSelectInput purchaseSelectInput) {
         PurchaseSelectOutput purchaseSelectOutputList = new PurchaseSelectOutput();
+        purchaseSelectOutputList.setCode(Constant.CodeConfig.CODE_DATE_INPUT_FORMAT_ERROR);
+        purchaseSelectOutputList.setMessage(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
+        if (!StringUtils.isEmpty(purchaseSelectInput.getBeginDate())) {
+            if (!DateUtil.isDate(purchaseSelectInput.getBeginDate())) {
+                return purchaseSelectOutputList;
+            }
+        }
+        if (!StringUtils.isEmpty(purchaseSelectInput.getEndDate())) {
+            if (!DateUtil.isDate(purchaseSelectInput.getEndDate())) {
+                return purchaseSelectOutputList;
+            }
+        }
+        if (!StringUtils.isEmpty(purchaseSelectInput.getOrderPaymentDate())) {
+            if (!DateUtil.isDate(purchaseSelectInput.getOrderPaymentDate())) {
+                return purchaseSelectOutputList;
+            }
+        }
         try {
             if (rows == null || rows <= 0) {
                 rows = 10;

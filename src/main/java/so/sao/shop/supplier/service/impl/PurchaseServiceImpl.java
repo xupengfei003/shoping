@@ -10,7 +10,7 @@ import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.dao.AccountDao;
 import so.sao.shop.supplier.dao.PurchaseDao;
 import so.sao.shop.supplier.dao.PurchaseItemDao;
-import so.sao.shop.supplier.domain.AccountUser;
+import so.sao.shop.supplier.domain.Account;
 import so.sao.shop.supplier.domain.Purchase;
 import so.sao.shop.supplier.domain.PurchaseItem;
 import so.sao.shop.supplier.pojo.input.AccountPurchaseInput;
@@ -32,7 +32,11 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.sql.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.Date;
 import java.util.stream.Collectors;
 
 /**
@@ -79,7 +83,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             //a.根据商品查出所有商户信息。
             Long goodsId = purchaseItem.getGoodsId();//商品ID
             if(null != goodsId){
-                AccountUser accountUser = purchaseDao.findAccountById(goodsId);
+                Account accountUser = purchaseDao.findAccountById(goodsId);
                 if(null != accountUser){
                     set.add(accountUser.getUserId());
                 }
@@ -203,6 +207,20 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Override
     public PurchaseSelectOutput searchOrders(Integer pageNum, Integer rows, PurchaseSelectInput purchaseSelectInput) {
         PageHelper.startPage(pageNum, rows);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        try {
+            if(null!=purchaseSelectInput.getBeginDate()){
+                purchaseSelectInput.setBeginTime(sdf.parse(purchaseSelectInput.getBeginDate()));
+            }
+            if(null!=purchaseSelectInput.getEndDate()){
+                purchaseSelectInput.setEndTime(sdf.parse(purchaseSelectInput.getEndDate()));
+            }
+            if(null!=purchaseSelectInput.getOrderPaymentDate()){
+                purchaseSelectInput.setOrderPaymentTime(sdf.parse(purchaseSelectInput.getOrderPaymentDate()));
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
         List<PurchasesVo> orderList = purchaseDao.findPage(purchaseSelectInput);
         if (orderList.size() > 0) {
             PurchaseSelectOutput purchaseSelectOutput = new PurchaseSelectOutput();
@@ -226,12 +244,12 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Transactional
     public boolean updateOrder(String orderId, Integer orderStatus,Integer receiveMethod,String name,String number) {
         if(orderStatus==Constant.OrderStatusConfig.REFUNDED){
-            Long drawbackDate = System.currentTimeMillis();
+            Date drawbackDate = new Date();
             purchaseDao.updateOrderAtr(orderId,drawbackDate ,null,null,null);
         }else if(orderStatus==Constant.OrderStatusConfig.ISSUE_SHIP){
             purchaseDao.updateOrderAtr(orderId,null,receiveMethod,name,number);
         }
-        Long updateDate = System.currentTimeMillis();
+        Date updateDate = new Date();
         return purchaseDao.updateOrder(orderId, orderStatus,updateDate);
     }
 

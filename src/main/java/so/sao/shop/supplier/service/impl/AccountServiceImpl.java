@@ -291,7 +291,6 @@ public class AccountServiceImpl implements AccountService {
     /**
      * 根据手机号码插入用户信息
      *
-     *
      * @param phone
      * @return 返回用户id
      */

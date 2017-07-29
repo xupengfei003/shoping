@@ -142,41 +142,35 @@
                 AND order_receiver_name LIKE "${orderReceiverName}%"
             </if>
 
-            <if test="beginDate!=null">
-                AND order_create_time >= #{beginDate}
+            <if test="beginTime!=null">
+                AND order_create_time >= TRIM(#{beginTime})
             </if>
-            <if test="endDate != null">
-                AND #{endDate} >= order_create_time
-            </if>
-
-            <if test="beginMoney!=null and endMoney == null">
-                AND order_price >= #{beginMoney}
-            </if>
-            <if test="beginMoney ==null and endMoney != null">
-                AND #{endMoney} >= order_price
-            </if>
-            <if test="beginMoney !=null and endMoney != null">
-                AND order_price BETWEEN #{beginMoney} AND #{endMoney}
+            <if test="endTime != null">
+                <![CDATA[AND order_create_time <= TRIM(#{endTime})]]>
             </if>
 
+            <if test="beginMoney!=null">
+                AND order_price >= TRIM(#{beginMoney})
+            </if>
+            <if test="endMoney != null">
+                <![CDATA[AND order_price <= TRIM(#{endMoney})]]>
+            </if>
             <if test="orderReceiverMobile!=null">
                 AND order_receiver_mobile LIKE "${orderReceiverMobile}%"
             </if>
 
-            <if test="orderPaymentDate!=null">
-                AND #{orderPaymentDate} >= order_payment_time
+            <if test="orderPaymentTime!=null">
+                <![CDATA[AND order_payment_time <= TRIM(#{orderPaymentTime})]]>
             </if>
 
             <if test="orderPaymentMethod!=null">
-                AND order_payment_method = #{orderPaymentMethod}
+                AND order_payment_method = TRIM(#{orderPaymentMethod})
             </if>
             <if test="orderPaymentNum!=null">
                 AND order_payment_num LIKE "${orderPaymentNum}%"
             </if>
-
-            --      根据状态查询
             <if test="orderStatus!=null">
-                AND order_status = #{orderStatus}
+                AND order_status = TRIM(#{orderStatus})
             </if>
 
             <if test="userId!=null">
@@ -228,7 +222,7 @@
 
     </update>
 
-    <resultMap id="accountUserMap" type="so.sao.shop.supplier.domain.AccountUser">
+    <resultMap id="accountUserMap" type="so.sao.shop.supplier.domain.Account">
         <id column="user_id" property="userId" />
         <result column="provider_name" property="providerName"/>
     </resultMap>

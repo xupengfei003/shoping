@@ -78,7 +78,7 @@ public class Condition {
     }
 
     public void setProviderName(String providerName) {
-        this.providerName = providerName;
+        this.providerName = providerName!=null?providerName.replaceAll(" ","").trim():null;
     }
 
     public Date getContractEndDate() {
@@ -102,7 +102,7 @@ public class Condition {
     }
 
     public void setContractResponsible(String contractResponsible) {
-        this.contractResponsible = contractResponsible;
+        this.contractResponsible = contractResponsible!=null?contractResponsible.replaceAll(" ","").trim():null;
     }
 
     public String getContractResponsiblePhone() {
