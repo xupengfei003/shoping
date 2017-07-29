@@ -53,7 +53,7 @@ public class AzureBlobService {
      * 单文件上传
      * @param multipartFile  文件内容
      * @param containerName  容器名称
-     * @return
+     * @return BlobUpload
      */
     public BlobUpload uploadFile(MultipartFile multipartFile, String containerName) {
         try {
@@ -85,7 +85,7 @@ public class AzureBlobService {
      * 多文件上传
      * @param multipartFile  文件内容
      * @param containerName  容器名称
-     * @return
+     * @return List<BlobUpload>
      */
     public List<BlobUpload> uploadFiles(MultipartFile[] multipartFile, String containerName) {
         List<BlobUpload> buList = new ArrayList<BlobUpload>();
@@ -93,14 +93,13 @@ public class AzureBlobService {
             // Retrieve reference to a previously created container.
             CloudBlobContainer container = getBlobContainer(containerName);
             // 循环文件
-            for (int i=0;i<multipartFile.length;i++) {
-                MultipartFile tempMultipartFile = multipartFile[i];
+            for (MultipartFile tempMultipartFile : multipartFile) {
                 if (!tempMultipartFile.isEmpty()) {
                     String fileExtension = getFileExtension(tempMultipartFile.getOriginalFilename()).toLowerCase();
                     // 使用UUID方式命名
                     LocalDate now = LocalDate.now();
-                    String blobName =  now.getYear()+"/"+ now.getMonthValue()+"/"+ now.getDayOfMonth()
-                            + "/"+ UUIDGenerator.getUUID() + fileExtension;
+                    String blobName = now.getYear() + "/" + now.getMonthValue() + "/" + now.getDayOfMonth()
+                            + "/" + UUIDGenerator.getUUID() + fileExtension;
 
                     // 设置文件类型，并且上传到azure blob
                     CloudBlockBlob blob = container.getBlockBlobReference(blobName);
