@@ -58,7 +58,6 @@ public class AccountController {
      * @param account 供应商信息
      * @return 返回添加结果
      * @throws IOException
-     * @throws ClientException
      */
     @ApiOperation("添加供应商信息")
     @PostMapping("/save")
@@ -211,6 +210,21 @@ public class AccountController {
         Map result = new HashMap();
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         result.put("isAdmin",user.getIsAdmin());
+        return new Result(1,"",result);
+    }
+
+    /**
+     * 获取admin标记(一期暂时)
+     * @param request
+     * @return
+     */
+    @ApiOperation("获取admin标记")
+    @GetMapping(value = "/username")
+    public Result getUserName(HttpServletRequest request){
+        Map result = new HashMap();
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        Account account = accountService.selectByUserId(user.getId());
+        result.put("username",account!=null?account.getProviderName():"");
         return new Result(1,"",result);
     }
 
