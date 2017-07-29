@@ -58,6 +58,10 @@ public class Account {
 	 */
 	@NotEmpty(message = "供应商行业类型不能为空")
 	private String businessType;
+	/**
+	 * 供应商注册地址（省，市，区）
+	 */
+	private String registAddress;
 	 /**
      * 供应商注册地址（省）
      */
@@ -300,7 +304,13 @@ public class Account {
 		this.businessType = businessType == null ? null : businessType.trim();
 	}
 
-	
+	public String getRegistAddress() {
+		return this.registAddressProvince+"-"+this.registAddressCity+"-"+this.registAddressDistrict;
+	}
+
+	public void setRegistAddress(String registAddress) {
+		this.registAddress = this.registAddressProvince+"-"+this.registAddressCity+"-"+this.registAddressDistrict;
+	}
 
 	public String getRegisterAddressDetail() {
 		return registerAddressDetail;
