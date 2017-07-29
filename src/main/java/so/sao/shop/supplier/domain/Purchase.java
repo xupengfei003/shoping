@@ -54,7 +54,7 @@ public class Purchase {
     /**
      * 下单时间
      */
-    @JsonFormat(pattern="yyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date orderCreateTime;
     /**
      * 支付方式
@@ -63,7 +63,7 @@ public class Purchase {
     /**
      * 订单支付时间
      */
-    @JsonFormat(pattern="yyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date orderPaymentTime;
     /**
      * 买家申请退货理由
@@ -72,7 +72,7 @@ public class Purchase {
     /**
      * 卖家申请退货时间
      */
-    @JsonFormat(pattern="yyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date orderRefundTime;
     /**
      * 卖家拒绝理由
@@ -81,7 +81,7 @@ public class Purchase {
     /**
      * 卖家拒绝时间
      */
-    @JsonFormat(pattern="yyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date orderRefuseTime;
     /**
      * 买家取消订单原因
@@ -112,7 +112,7 @@ public class Purchase {
     /**
      * 退款时间
      */
-    @JsonFormat(pattern="yyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date drawbackTime;
 
     /**
@@ -133,7 +133,7 @@ public class Purchase {
     /**
      * 更新时间
      */
-    @JsonFormat(pattern="yyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date updatedAt;
 
     public String getAccountStatus() {

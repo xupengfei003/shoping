@@ -37,7 +37,7 @@ public class PurchasesVo {
     /**
      * 下单时间
      */
-    @JsonFormat(pattern="yyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date orderCreateTime;
 
     /**
@@ -58,7 +58,7 @@ public class PurchasesVo {
     /**
      * 更新时间
      */
-    @JsonFormat(pattern="yyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date updateTime;
 
     public String getOrderId() {

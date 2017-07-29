@@ -32,7 +32,7 @@ import java.util.List;
 @Service
 public class ImportExcelImpl implements ImportExcel {
     private static Logger log = Logger.getLogger(ImportExcelImpl.class);
-    private static SimpleDateFormat sdf = new SimpleDateFormat("yyy-MM-dd");
+    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy/mm/dd");
     @Autowired
     private AccountDao accountDao;
 

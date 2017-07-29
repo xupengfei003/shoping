@@ -45,14 +45,14 @@ public class Account {
 	 * 供应商营业执照开始时间
 	 */
 	@NotNull(message = "供应商营业执照开始时间不能为空")
-	@JsonFormat(pattern="yyy-MM-dd", timezone="GMT+8")
+	@JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
 	private Date licenseTimeCreate;
 	/**
 	 * 供应商营业执照截至时间
 	 */
 	@NotNull(message = "供应商营业执照截至时间不能为空")
-	@JsonFormat(pattern="yyy-MM-dd", timezone="GMT+8")
-	private Date licenseTimeEnd; 
+	@JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
+	private Date licenseTimeEnd;
 	/**
 	 * 供应商行业类型
 	 */
@@ -105,13 +105,13 @@ public class Account {
 	 * 合同开始日期
 	 */
 	@NotNull(message = "合同开始日期不能为空")
-	@JsonFormat(pattern="yyy-MM-dd", timezone="GMT+8")
+	@JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
 	private Date contractCreateDate;
 	/**
 	 * 合同截至日期
 	 */
 	@NotNull(message = "合同截至日期不能为空")
-	@JsonFormat(pattern="yyy-MM-dd", timezone="GMT+8")
+	@JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
 	private Date contractEndDate;
 	/**
 	 * 汇款结算方式 1:自然月 2:固定时间
@@ -129,12 +129,12 @@ public class Account {
 	/**
 	 * 用户创建日期
 	 */
-	@JsonFormat(pattern="yyy-MM-dd", timezone="GMT+8")
+	@JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
 	private Date createDate;
 	/**
 	 * 用户修改日期
 	 */
-	@JsonFormat(pattern="yyy-MM-dd", timezone="GMT+8")
+	@JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
 	private Date updateDate;
 	/**
 	 * 备注
@@ -168,13 +168,13 @@ public class Account {
 	 * 合同营业执照开始日期
 	 */
 	@NotNull(message = "合同营业执照开始日期不能为空")
-	@JsonFormat(pattern="yyy-MM-dd", timezone="GMT+8")
+	@JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
 	private Date contractLicenseCreate;
 	/**
 	 * 合同营业执照截至日期
 	 */
 	@NotNull(message = "合同营业执照截至日期不能为空")
-	@JsonFormat(pattern="yyy-MM-dd", timezone="GMT+8")
+	@JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
 	private Date contractLicenseEnd;
 	/**
 	 * 合同注册地址（省，市，区）

@@ -85,14 +85,14 @@ public class DeliveryAddress {
      * 创建时间
      */
 	@ApiModelProperty(hidden = true)
-	@JsonFormat(pattern="yyy-MM-dd HH:mm:ss", timezone="GMT+8")
+	@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
 	private Date createdAt;
 
     /**
      * 更新时间
      */
 	@ApiModelProperty(hidden = true)
-	@JsonFormat(pattern="yyy-MM-dd HH:mm:ss", timezone="GMT+8")
+	@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
 	private Date updatedAt;
 
     /**
