@@ -154,10 +154,8 @@ public class CommodityController {
     @ApiOperation("商品信息模板下载")
     @GetMapping("/down")
     public void downLoadExcel(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String str =  ClassUtils.getDefaultClassLoader().getResource("").getPath()+"resources/file/Commodity.xls" ;//Excel模板所在的路径。
-        File f = new File(str);
         // 设置response参数，可以打开下载页面
-        response.reset();
+        //response.reset();
         response.setContentType("application/vnd.ms-excel;charset=utf-8");
         String filename = "商品信息.xls";
         filename = new String(filename.getBytes("Utf-8"), "iso-8859-1");
@@ -168,13 +166,14 @@ public class CommodityController {
         BufferedInputStream bis = null;
         BufferedOutputStream bos = null;
         try {
-            bis = new BufferedInputStream(new FileInputStream(f));
+            bis = new BufferedInputStream(getClass().getResourceAsStream("file/Commodity.xls"));
             bos = new BufferedOutputStream(out);
             byte[] buff = new byte[2048];
             int bytesRead;
             while (-1 != (bytesRead = bis.read(buff, 0, buff.length))) {
                 bos.write(buff, 0, bytesRead);
             }
+            bos.flush();
         } catch (final IOException e) {
             throw e;
         } finally {
