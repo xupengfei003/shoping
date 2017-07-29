@@ -125,8 +125,8 @@
       #{remittanced,jdbcType=VARCHAR}, #{accountStatus,jdbcType=INTEGER}, #{createDate},
       #{updateDate}, #{remark,jdbcType=VARCHAR}, #{balance,jdbcType=DOUBLE},
       #{income,jdbcType=DOUBLE}, #{contractResponsible,jdbcType=VARCHAR}, #{contractResponsiblePhone,jdbcType=VARCHAR}, 
-      #{contractLicense,jdbcType=VARCHAR}, #{contractLicenseCreate,jdbcType=BIGINT}, 
-      #{contractLicenseEnd,jdbcType=BIGINT},#{contractRegisterAddress,jdbcType=VARCHAR}, #{contractRegisterAddressProvince,jdbcType=VARCHAR},
+      #{contractLicense,jdbcType=VARCHAR}, #{contractLicenseCreate},
+      #{contractLicenseEnd},#{contractRegisterAddress,jdbcType=VARCHAR}, #{contractRegisterAddressProvince,jdbcType=VARCHAR},
       #{contractRegisterAddressCity,jdbcType=VARCHAR}, #{contractRegisterAddressDistrict,jdbcType=VARCHAR},
       #{contractRegisterAddressDetail,jdbcType=VARCHAR}, #{uploadMode,jdbcType=VARCHAR}, 
       #{smsCode,jdbcType=VARCHAR})
