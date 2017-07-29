@@ -12,6 +12,7 @@ import so.sao.shop.supplier.config.sms.SmsService;
 import so.sao.shop.supplier.dao.*;
 import so.sao.shop.supplier.domain.Account;
 import so.sao.shop.supplier.domain.Condition;
+import so.sao.shop.supplier.domain.DictItem;
 import so.sao.shop.supplier.domain.User;
 import so.sao.shop.supplier.pojo.output.AccountBalanceOutput;
 import so.sao.shop.supplier.service.AccountService;
@@ -79,6 +80,17 @@ public class AccountServiceImpl implements AccountService {
     public List<String> selectHangYe() {
         return dictItemDao.selectHangYe();
     }
+
+    /**
+     * 初始化银行信息
+     *
+     * @return 返回银行列表
+     */
+    @Override
+    public List<DictItem> selectHangYeDict() {
+        return dictItemDao.selectHangYeDict();
+    }
+
 
     /**
      * 增加用户信息
@@ -183,7 +195,7 @@ public class AccountServiceImpl implements AccountService {
      */
     @Override
     public Account selectById0(Long accountId) {
-       return accountDao.selectById(accountId);
+        return accountDao.selectById(accountId);
     }
 
     /**

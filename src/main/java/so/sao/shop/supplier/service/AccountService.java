@@ -3,6 +3,7 @@ package so.sao.shop.supplier.service;
 import com.github.pagehelper.PageInfo;
 import so.sao.shop.supplier.domain.Account;
 import so.sao.shop.supplier.domain.Condition;
+import so.sao.shop.supplier.domain.DictItem;
 import so.sao.shop.supplier.domain.User;
 import so.sao.shop.supplier.pojo.output.AccountBalanceOutput;
 
@@ -82,6 +83,13 @@ public interface AccountService {
      * @return 行业信息列表
      */
     List<String> selectHangYe();
+
+    /**
+     * 初始化行业信息(包含code)
+     * @return 行业信息列表
+     */
+    List<DictItem> selectHangYeDict();
+
 
     /**
      * 1.根据用户ID获取用户的可用余额（余额分为上次提现剩余金额和订单增量余额）

@@ -152,13 +152,11 @@ public class CommodityController {
      */
     @ApiOperation("商品信息模板下载")
     @GetMapping("/down")
-    public String downLoadExcel(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        return Thread.currentThread().getContextClassLoader().getResource("").toString();
-       /* org.springframework.util.ResourceUtils.getURL("classpath:resource/file/Commodity.xls")
-        URL save = Thread.currentThread().getContextClassLoader().getResource("");
-        String str = save.toString().replace("classes/","resources/main/file/Commodity.xls") ;//Excel模板所在的路径。
-        str = str.replaceAll("%20", " ");
-        str = str.replaceAll("file:/", "");
+    public void downLoadExcel(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        URL save = org.springframework.util.ResourceUtils.getURL("classpath:resources/file/");
+
+        String str = save.toString()+"Commodity.xls" ;//Excel模板所在的路径。
+
         File f = new File(str);
         // 设置response参数，可以打开下载页面
         response.reset();
@@ -186,6 +184,6 @@ public class CommodityController {
                 bis.close();
             if (bos != null)
                 bos.close();
-        }*/
+        }
     }
 }

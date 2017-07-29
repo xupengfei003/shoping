@@ -184,6 +184,17 @@ public class AccountController {
     }
 
     /**
+     * 初始化行业信息
+     *
+     * @return
+     */
+    @ApiOperation("行业信息(字典项)")
+    @GetMapping("/selectHangYeDict")
+    public List<DictItem> selectHangYeDict() {
+        return accountService.selectHangYeDict();
+    }
+
+    /**
      * 登陆获取token
      *
      * @param authenticationRequest
