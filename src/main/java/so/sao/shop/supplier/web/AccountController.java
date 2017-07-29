@@ -273,7 +273,7 @@ public class AccountController {
 
     @GetMapping("/search")
     @ApiOperation(value = "根据id查询供应商(省市区汉字)")
-    public Account get(@RequestParam Long id, HttpServletRequest request) {
+    public Account get(@RequestParam(required = false) Long id, HttpServletRequest request) {
         if(id == null || id == 0){
             User user = (User) request.getAttribute(Constant.REQUEST_USER);
             id = accountService.selectByUserId(user.getId()).getAccountId();
@@ -290,7 +290,7 @@ public class AccountController {
 
     @GetMapping("/search0")
     @ApiOperation(value = "根据id查询供应商(省市区编码)")
-    public Account get0(@RequestParam Long id, HttpServletRequest request) {
+    public Account get0(@RequestParam(required = false) Long id, HttpServletRequest request) {
         if(id == null || id == 0){
             User user = (User) request.getAttribute(Constant.REQUEST_USER);
             id = accountService.selectByUserId(user.getId()).getAccountId();
