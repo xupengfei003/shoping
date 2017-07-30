@@ -3,8 +3,6 @@ package so.sao.shop.supplier.util;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.multipart.MultipartFile;
 import so.sao.shop.supplier.config.StorageConfig;
 import so.sao.shop.supplier.pojo.BaseResult;
 import so.sao.shop.supplier.pojo.Result;
@@ -24,17 +22,9 @@ import java.util.List;
 
 public class FileUtil {
 
-
-	public static void main(String[] args) {
-		String dirName = "d:/yhatm/topic/";// 创建目录
-		FileUtil.createDir(dirName);
-	}
-
 	/**
 	 * 创建目录
-	 * 
-	 * @param destDirName
-	 *            目标目录名
+	 * @param destDirName  目标目录
 	 * @return 目录创建成功返回true，否则返回false
 	 */
 	public static boolean createDir(String destDirName) {
@@ -55,11 +45,7 @@ public class FileUtil {
 
 	/**
 	 * 删除文件
-	 * 
-	 * @param filePathAndName
-	 *            String 文件路径及名称 如c:/fqf.txt
-	 *
-	 *            String
+	 * @param filePathAndName String 文件路径及名称 如c:/fqf.txt
 	 * @return boolean
 	 */
 	public static void delFile(String filePathAndName) {
@@ -79,7 +65,6 @@ public class FileUtil {
 
 	/**
 	 * 读取到字节数组0
-	 * 
 	 * @param filePath //路径
 	 * @throws IOException
 	 */
@@ -109,7 +94,6 @@ public class FileUtil {
 
 	/**
 	 * 读取到字节数组1
-	 * 
 	 * @param filePath
 	 * @return
 	 * @throws IOException
@@ -146,7 +130,6 @@ public class FileUtil {
 
 	/**
 	 * 读取到字节数组2
-	 * 
 	 * @param filePath
 	 * @return
 	 * @throws IOException
@@ -200,6 +183,7 @@ public class FileUtil {
         }
         return flag;
     }
+
 	 /**
      * 删除目录（文件夹）以及目录下的文件
      * @param   sPath 被删除目录的文件路径
@@ -256,9 +240,9 @@ public class FileUtil {
 			}
 		}
     }
+
 	/**
 	 * Mapped File way MappedByteBuffer 可以在处理大文件时，提升性能
-	 * 
 	 * @param filePath
 	 * @return
 	 * @throws IOException
@@ -291,6 +275,7 @@ public class FileUtil {
 			}
 		}
 	}
+
    /**
     * 判断文件是否存在
     */
@@ -303,6 +288,7 @@ public class FileUtil {
 		}
 		return flag;
 	}
+
 	/**
 	 * 获取文件夹下的所有文件
 	 */
@@ -409,6 +395,7 @@ public class FileUtil {
 
 
 	}
+
 	/**
 	 * 获取图片名父目录
 	 * @param fileType
@@ -424,10 +411,10 @@ public class FileUtil {
 		}
 		switch (fileType)
 		{
-			case "png":
-				return "png/" + afterName;
 			case "jpg":
 				return "jpg/" + afterName;
+			case "png":
+				return "png/" + afterName;
 			case "jpeg":
 				return "jpeg/" + afterName;
 			case "gif":

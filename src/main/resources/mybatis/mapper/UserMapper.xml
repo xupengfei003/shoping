@@ -12,7 +12,7 @@
         <result column="login_password" jdbcType="VARCHAR" property="password"/>
         <result column="last_password_reset_date"   property="lastPasswordResetDate"/>
         <result column="logout_time"  property="logoutTime"/>
-        <result column="isAdmin" jdbcType="CHAR" property="isAdmin"/>
+        <result column="is_admin" jdbcType="CHAR" property="isAdmin"/>
     </resultMap>
     <select id="findOne" resultMap="BaseResultMap">
         SELECT user_id, login_name, login_password
@@ -28,7 +28,7 @@
           FROM user
     </select> 
     <select id="findByUsername" resultMap="BaseResultMap">
-        SELECT user_id, login_name, login_password, last_password_reset_date, logout_time, isAdmin
+        SELECT user_id, login_name, login_password, last_password_reset_date, logout_time, is_admin
           FROM user
          WHERE login_name=#{username}
     </select>
@@ -45,8 +45,8 @@
         <selectKey resultType="java.lang.Long" order="AFTER" keyProperty="id">
             SELECT LAST_INSERT_ID() AS id
         </selectKey>
-        insert into user (login_name, login_password, last_password_reset_date)
-        values (#{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, #{lastPasswordResetDate})
+        insert into user (login_name, login_password, last_password_reset_date, is_admin)
+        values (#{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, #{lastPasswordResetDate}, #{isAdmin})
     </insert>
     <update id="update">
         UPDATE user SET login_name=#{tel} WHERE user_id=#{id}

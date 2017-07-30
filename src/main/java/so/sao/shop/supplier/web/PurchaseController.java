@@ -7,6 +7,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 import so.sao.shop.supplier.config.Constant;
+import so.sao.shop.supplier.domain.User;
 import so.sao.shop.supplier.pojo.BaseResult;
 import so.sao.shop.supplier.pojo.input.AccountPurchaseInput;
 import so.sao.shop.supplier.pojo.input.PurchaseInput;
@@ -20,6 +21,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -134,39 +136,46 @@ public class PurchaseController {
 
     @GetMapping(value = "/search")
     @ApiOperation(value = "查询订单列表", notes = "*")
-    public PurchaseSelectOutput search(Integer pageNum, Integer rows, PurchaseSelectInput purchaseSelectInput) {
+    public PurchaseSelectOutput search(HttpServletRequest request, Integer pageNum, Integer rows, PurchaseSelectInput purchaseSelectInput) {
         PurchaseSelectOutput purchaseSelectOutputList = new PurchaseSelectOutput();
         purchaseSelectOutputList.setCode(Constant.CodeConfig.CODE_DATE_INPUT_FORMAT_ERROR);
         purchaseSelectOutputList.setMessage(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
-        if (!StringUtils.isEmpty(purchaseSelectInput.getBeginDate()) && !DateUtil.isDate(purchaseSelectInput.getBeginDate())) {
-            return purchaseSelectOutputList;
-        }
-        if (!StringUtils.isEmpty(purchaseSelectInput.getEndDate()) && !DateUtil.isDate(purchaseSelectInput.getEndDate())) {
-            return purchaseSelectOutputList;
-        }
-        if (!StringUtils.isEmpty(purchaseSelectInput.getOrderPaymentDate())) {
-            if (!DateUtil.isDate(purchaseSelectInput.getOrderPaymentDate())) {
+        User user = (User) request.getAttribute(so.sao.shop.supplier.util.Constant.REQUEST_USER);
+        if(null == user){
+            purchaseSelectOutputList.setCode(Constant.CodeConfig.CODE_USER_NOT_LOGIN);
+            purchaseSelectOutputList.setMessage(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
+        } else {
+            purchaseSelectInput.setStoreId(BigInteger.valueOf(user.getId()));
+            if (!StringUtils.isEmpty(purchaseSelectInput.getBeginDate()) && !DateUtil.isDate(purchaseSelectInput.getBeginDate())) {
                 return purchaseSelectOutputList;
             }
-        }
-        try {
-            if (rows == null || rows <= 0) {
-                rows = 10;
+            if (!StringUtils.isEmpty(purchaseSelectInput.getEndDate()) && !DateUtil.isDate(purchaseSelectInput.getEndDate())) {
+                return purchaseSelectOutputList;
             }
-            if (pageNum == null || pageNum <= 0) {
-                pageNum = 1;
+            if (!StringUtils.isEmpty(purchaseSelectInput.getOrderPaymentDate())) {
+                if (!DateUtil.isDate(purchaseSelectInput.getOrderPaymentDate())) {
+                    return purchaseSelectOutputList;
+                }
             }
-            purchaseSelectOutputList = purchaseService.searchOrders(pageNum, rows, purchaseSelectInput);
-            if (purchaseSelectOutputList.getPageInfo().getSize() > 0) {
-                purchaseSelectOutputList.setCode(Constant.CodeConfig.CODE_SUCCESS);
-                purchaseSelectOutputList.setMessage(Constant.MessageConfig.MSG_SUCCESS);
-            } else {
-                purchaseSelectOutputList.setCode(Constant.CodeConfig.CODE_NOT_FOUND_RESULT);
-                purchaseSelectOutputList.setMessage(Constant.MessageConfig.MSG_NOT_FOUND_RESULT);
+            try {
+                if (rows == null || rows <= 0) {
+                    rows = 10;
+                }
+                if (pageNum == null || pageNum <= 0) {
+                    pageNum = 1;
+                }
+                purchaseSelectOutputList = purchaseService.searchOrders(pageNum, rows, purchaseSelectInput);
+                if (purchaseSelectOutputList.getPageInfo().getSize() > 0) {
+                    purchaseSelectOutputList.setCode(Constant.CodeConfig.CODE_SUCCESS);
+                    purchaseSelectOutputList.setMessage(Constant.MessageConfig.MSG_SUCCESS);
+                } else {
+                    purchaseSelectOutputList.setCode(Constant.CodeConfig.CODE_NOT_FOUND_RESULT);
+                    purchaseSelectOutputList.setMessage(Constant.MessageConfig.MSG_NOT_FOUND_RESULT);
+                }
+            } catch (Exception e) {
+                purchaseSelectOutputList.setCode(Constant.CodeConfig.CODE_FAILURE);
+                purchaseSelectOutputList.setMessage(Constant.MessageConfig.MSG_FAILURE);
             }
-        } catch (Exception e) {
-            purchaseSelectOutputList.setCode(Constant.CodeConfig.CODE_FAILURE);
-            purchaseSelectOutputList.setMessage(Constant.MessageConfig.MSG_FAILURE);
         }
         return purchaseSelectOutputList;
     }

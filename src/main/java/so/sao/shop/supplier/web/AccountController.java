@@ -75,6 +75,7 @@ public class AccountController {
              * 插入用户和供应商信息
              */
         	baseResult.setMessage(accountService.saveUserAndAccount(account));
+            baseResult.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SUCCESS);
         }
         return baseResult;
     }

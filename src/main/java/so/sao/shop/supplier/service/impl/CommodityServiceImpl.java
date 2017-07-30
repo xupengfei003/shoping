@@ -2,14 +2,12 @@ package so.sao.shop.supplier.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import org.apache.commons.io.FileUtils;
 import org.apache.tomcat.util.http.fileupload.disk.DiskFileItemFactory;
 import org.apache.tomcat.util.http.fileupload.servlet.ServletFileUpload;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartFile; 
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import so.sao.shop.supplier.config.StorageConfig;
@@ -215,13 +213,16 @@ public class CommodityServiceImpl implements CommodityService {
 
                 //清空原有大图数据信息
                 List<CommImge> imges = commImgeDao.find(sc.getId());
-                List<Long> ids = new ArrayList<>();
-                for (CommImge commImge : imges)
+                if (imges != null || imges.size() > 0)
                 {
-                    Long id = commImge.getId();
-                    ids.add(id);
+                    List<Long> ids = new ArrayList<>();
+                    for (CommImge commImge : imges)
+                    {
+                        Long id = commImge.getId();
+                        ids.add(id);
+                    }
+                    commImgeDao.deleteByIds(ids);
                 }
-                commImgeDao.deleteByIds(ids);
 
                 //保存图片
                 if (null != commodityVo.getImgeList()) {
@@ -787,8 +788,9 @@ public class CommodityServiceImpl implements CommodityService {
                                 commImgeVo.setSize(blobUpload.getSize());
                                 commImgeVo.setUrl(blobUpload.getUrl());
                                 commImgeVo.setType(blobUpload.getType());
-
+                                commImgeVoList.add(commImgeVo);
                             }
+                            supplierCommodityVo.setImgeList(commImgeVoList);
                         }
                     }else if("商品名称".equals(key)){
                         commodityInput.setName(value);

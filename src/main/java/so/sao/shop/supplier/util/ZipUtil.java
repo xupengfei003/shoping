@@ -1,9 +1,5 @@
 package so.sao.shop.supplier.util;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,16 +18,11 @@ import org.apache.tools.zip.ZipFile;
 public class ZipUtil {
 	private static final int BUFFEREDSIZE = 1024;
 
-
-
 	 /**
 	  * 解压zip或者rar包的内容到指定的目录下，可以处理其文件夹下包含子文件夹的情况
 	  * 
-	  * @param zipFilename
-	  *            要解压的zip或者rar包文件
-	  * @param outputDirectory
-	  *            解压后存放的目录
-	  * 
+	  * @param zipFilename 要解压的zip或者rar包文件
+	  * @param outputDirectory  解压后存放的目录
 	  */
 	 public static void unzipZipRar(String zipFilename, String outputDirectory)
 	   throws Exception {
@@ -210,15 +201,4 @@ public class ZipUtil {
           new File(sourceFile).delete();  
       }
 	 }
-    
-	public static void main(String[] args) {
-		ZipUtil cpr = new ZipUtil();
-		try {
-			//cpr.zip("d:/333.zip", "d:/333", false);
-			cpr.deCompress("d:/99999999999.rar", "d:/cheziliang",false);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-	}
 }
