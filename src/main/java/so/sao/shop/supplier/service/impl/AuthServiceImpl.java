@@ -63,9 +63,14 @@ public class AuthServiceImpl implements AuthService {
      * @throws IOException
      */
     public Result login(String username, String password) throws IOException {
-        UsernamePasswordAuthenticationToken upToken = new UsernamePasswordAuthenticationToken(username, password);
-        final Authentication authentication = authenticationManager.authenticate(upToken);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        try{
+            UsernamePasswordAuthenticationToken upToken = new UsernamePasswordAuthenticationToken(username, password);
+            final Authentication authentication = authenticationManager.authenticate(upToken);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        }catch (Exception e){
+            return new Result(0,"用户名或密码错误!","");
+        }
+
         UserDetails userDetails = null;
         try {
             userDetails = userDetailsService.loadUserByUsername(username);
