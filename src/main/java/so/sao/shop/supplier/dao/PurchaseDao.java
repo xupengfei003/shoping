@@ -94,8 +94,9 @@ public interface PurchaseDao {
      * 更新订单中账户状态
      *
      * @param userId 商家id
+     * @return
      */
-    void updateAccountStatus(@Param("userId") Long userId);
+    int updateAccountStatus(@Param("userId") Long userId);
 
     /**
      * 1.根据订单表（purchase）中的商户（store_id）字段查询该表中订单状态（order_status）为已完成，

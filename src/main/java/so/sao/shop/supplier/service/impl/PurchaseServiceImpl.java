@@ -470,7 +470,7 @@ public class PurchaseServiceImpl implements PurchaseService {
      * @return output出参
      */
     @Override
-    public RecordToPurchaseOutput searchPurchases(Integer pageNum, Integer pageSize, AccountPurchaseInput input, Long storeId) {
+    public RecordToPurchaseOutput searchPurchases(Integer pageNum, Integer pageSize, AccountPurchaseInput input, Long storeId) throws ParseException {
         /**
          * 1、判断参数是否为空
          *     1.1、判断 pageNum当前页码、pageSize是否为空，若为空给默认值
@@ -492,6 +492,16 @@ public class PurchaseServiceImpl implements PurchaseService {
 
         //2.1、分页
         PageHelper.startPage(pageNum,pageSize);
+        //判断input是否为空。不为空将字符串的时间转化成Date
+        if (null !=input){
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            if (null !=input.getBeginTime()){
+                input.setBeginDate(sdf.parse(input.getBeginTime()));
+            }
+            if (null != input.getEndTime()){
+                input.setEndDate(sdf.parse(input.getEndTime()));
+            }
+        }
 
         //2.2、访问持久化层，获取数据
         List<Purchase> purchaseList = purchaseDao.findPageByStoreId(input,storeId);

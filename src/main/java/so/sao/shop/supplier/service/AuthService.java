@@ -45,7 +45,7 @@ public interface AuthService {
      * @return
      * @throws IOException
      */
-    public BaseResult getPassword(String tel) throws IOException;
+    public BaseResult getPassword(String tel, Long userId) throws IOException;
 
 
     /**

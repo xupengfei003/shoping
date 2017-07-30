@@ -45,6 +45,8 @@
         rule_val AS ruleVal,
         inventory AS inventory,
         status AS status,
+        price AS price,
+        unit_price AS unitPrice,
         created_at AS createdAt,
         updated_at AS updatedAt
     </sql>

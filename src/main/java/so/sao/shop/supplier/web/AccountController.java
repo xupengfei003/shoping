@@ -72,26 +72,9 @@ public class AccountController {
             }
         }else{
             /**
-             * 插入用户信息
+             * 插入用户和供应商信息
              */
-            Long id = accountService.saveUser(account.getContractResponsiblePhone());
-            if (id == 0l) {
-                baseResult.setMessage("插入用户信息失败!");
-
-            } else if(id == 1l){
-                baseResult.setMessage("此供应商信息已经存在");
-                return baseResult;
-            }else{
-                account.setUserId(id);
-            }
-            int num = accountService.insert(account);
-            if (num < 0) {
-                baseResult.setCode(0);
-                baseResult.setMessage("添加失败");
-            } else {
-                baseResult.setCode(1);
-                baseResult.setMessage("添加成功");
-            }
+        	baseResult.setMessage(accountService.saveUserAndAccount(account));
         }
         return baseResult;
     }
@@ -273,8 +256,9 @@ public class AccountController {
      */
     @ApiOperation("忘记密码")
     @GetMapping(value = "/findPassword/{tel}")
-    public BaseResult getPassword(@PathVariable String tel) throws IOException {
-        return authService.getPassword(tel);
+    public BaseResult getPassword(HttpServletRequest request, @PathVariable String tel) throws IOException {
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        return authService.getPassword(tel, user.getId());
     }
 
     /**

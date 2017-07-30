@@ -68,7 +68,7 @@ public interface AccountService {
      * @param user 用户对象
      * @return 变更条数
      */
-    Long add(User user);
+    int add(User user);
 
     /**
      * 根据id更新用户信息
@@ -107,10 +107,10 @@ public interface AccountService {
 
 
     /**
-     * 添加用户
+     * 添加用户和供应商
      * @param phone
      * @return 返回用id
      */
-	Long saveUser(String phone);
+	String saveUserAndAccount(Account account);
 
 }

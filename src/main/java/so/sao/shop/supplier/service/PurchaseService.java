@@ -11,6 +11,7 @@ import so.sao.shop.supplier.pojo.output.SumIncome;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.text.ParseException;
 import java.util.Map;
 
 /**
@@ -79,7 +80,7 @@ public interface PurchaseService {
      * @param storeId 商家编号
      * @return 出参
      */
-    RecordToPurchaseOutput searchPurchases(Integer pageNum, Integer pageSize, AccountPurchaseInput input, Long storeId);
+    RecordToPurchaseOutput searchPurchases(Integer pageNum, Integer pageSize, AccountPurchaseInput input, Long storeId) throws ParseException;
 
 
     /**

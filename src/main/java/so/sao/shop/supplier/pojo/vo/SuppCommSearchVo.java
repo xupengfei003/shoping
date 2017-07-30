@@ -62,6 +62,16 @@ public class SuppCommSearchVo {
      * 商品状态数值
      */
     private int statusNum;
+
+    /**
+     * 市场价
+     */
+    private Double price;
+    /**
+     * 售价
+     */
+    private Double unitPrice;
+
     /**
      *  创建时间
      */
@@ -191,5 +201,21 @@ public class SuppCommSearchVo {
 
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public Double getPrice() {
+        return price;
+    }
+
+    public void setPrice(Double price) {
+        this.price = price;
+    }
+
+    public Double getUnitPrice() {
+        return unitPrice;
+    }
+
+    public void setUnitPrice(Double unitPrice) {
+        this.unitPrice = unitPrice;
     }
 }

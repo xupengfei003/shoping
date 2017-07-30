@@ -4,10 +4,10 @@ import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.ClassUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
+import so.sao.shop.supplier.config.StorageConfig;
 import so.sao.shop.supplier.domain.User;
 import so.sao.shop.supplier.pojo.BaseResult;
 import so.sao.shop.supplier.pojo.Result;
@@ -38,6 +38,8 @@ import java.util.Map;
 @RequestMapping("/comm")
 @Api(description = "商品管理接口")
 public class CommodityController {
+    @Autowired
+    private StorageConfig storageConfig;
 
     @Autowired
     private CommodityService commodityService;
@@ -126,8 +128,8 @@ public class CommodityController {
 
     @ApiOperation(value="批量导入商品", notes="通过Excel模板批量导入商品信息")
     @PostMapping(value="/importExcel")
-    public  List<CommodityImportOutput> importExcel(@RequestParam(value = "excelFile") MultipartFile excelFile, HttpServletRequest request){
-        return   commodityService.importExcel(excelFile,request);
+    public  List<CommodityImportOutput> importExcel(@RequestParam(value = "excelFile") MultipartFile excelFile, HttpServletRequest request ){
+        return   commodityService.importExcel(excelFile,request,storageConfig);
     }
 
     @ApiOperation(value="导出商品信息", notes="导出商品信息到Excel")
@@ -154,8 +156,13 @@ public class CommodityController {
     @ApiOperation("商品信息模板下载")
     @GetMapping("/down")
     public void downLoadExcel(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        URL save = Thread.currentThread().getContextClassLoader().getResource("");
+        String str = save.toString()+"file/Commodity.xls";//Excel模板所在的路径。
+        str = str.replaceAll("%20", " ");
+        str = str.replaceAll("file:/", "");
+        File f = new File(str);
         // 设置response参数，可以打开下载页面
-        //response.reset();
+        response.reset();
         response.setContentType("application/vnd.ms-excel;charset=utf-8");
         String filename = "商品信息.xls";
         filename = new String(filename.getBytes("Utf-8"), "iso-8859-1");
@@ -166,14 +173,13 @@ public class CommodityController {
         BufferedInputStream bis = null;
         BufferedOutputStream bos = null;
         try {
-            bis = new BufferedInputStream(getClass().getResourceAsStream("file/Commodity.xls"));
+            bis = new BufferedInputStream(new FileInputStream(f));
             bos = new BufferedOutputStream(out);
             byte[] buff = new byte[2048];
             int bytesRead;
             while (-1 != (bytesRead = bis.read(buff, 0, buff.length))) {
                 bos.write(buff, 0, bytesRead);
             }
-            bos.flush();
         } catch (final IOException e) {
             throw e;
         } finally {

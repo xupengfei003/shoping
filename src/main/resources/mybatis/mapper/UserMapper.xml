@@ -45,8 +45,8 @@
         <selectKey resultType="java.lang.Long" order="AFTER" keyProperty="id">
             SELECT LAST_INSERT_ID() AS id
         </selectKey>
-        insert into user (login_name, login_password)
-        values (#{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR})
+        insert into user (login_name, login_password, last_password_reset_date)
+        values (#{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, #{lastPasswordResetDate})
     </insert>
     <update id="update">
         UPDATE user SET login_name=#{tel} WHERE user_id=#{id}

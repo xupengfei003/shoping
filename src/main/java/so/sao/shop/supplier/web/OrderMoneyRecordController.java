@@ -13,6 +13,7 @@ import so.sao.shop.supplier.pojo.output.OrderMoneyRecordAddOutput;
 import so.sao.shop.supplier.pojo.output.OrderMoneyRecordOutput;
 import so.sao.shop.supplier.pojo.output.RecordToPurchaseOutput;
 import so.sao.shop.supplier.service.OrderMoneyRecordService;
+import so.sao.shop.supplier.util.DateUtil;
 
 import java.util.Map;
 
@@ -81,7 +82,17 @@ public class OrderMoneyRecordController {
     @GetMapping(value = "/search")
     public OrderMoneyRecordOutput search(Integer pageNum, Integer pageSize, OrderMoneyRecordInput input) {
         OrderMoneyRecordOutput output = new OrderMoneyRecordOutput();
+        output.setCode(Constant.CodeConfig.CODE_DATE_INPUT_FORMAT_ERROR);
+        output.setMessage(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
         try {
+            if(null != input){
+                if(!StringUtils.isEmpty(input.getStartTime()) && !DateUtil.isDate(input.getStartTime())){
+                    return output;
+                }
+                if(!StringUtils.isEmpty(input.getEndTime()) && !DateUtil.isDate(input.getEndTime())){
+                    return output;
+                }
+            }
             output = orderMoneyRecordService.searchOrderMoneyRecords(pageNum, pageSize, input);
         } catch (Exception e) {
             e.printStackTrace();

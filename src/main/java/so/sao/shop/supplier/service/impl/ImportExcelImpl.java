@@ -179,15 +179,7 @@ public class ImportExcelImpl implements ImportExcel {
                  * 此处增加用户信息，根据tempUserKB.getResponsiblePhone插入用户信息
                  * 查询用户id增加进tempUserKB
                  */
-                Long id = accountService.saveUser(tempUserKB.getContractResponsiblePhone());
-                if(id!=0l){
-                    tempUserKB.setUserId(id);
-                }else{
-                    if(tempFile.exists()){
-                        tempFile.delete();
-                    }
-                    return "插入用户信息失败!";
-                }
+               // Long id = accountService.saveUser(tempUserKB.getContractResponsiblePhone());
                 tempUserKB.setUploadMode("2");
                 tempUserKB.setCreateDate(new Date());
                 userKnowledgeBaseList.add(tempUserKB);

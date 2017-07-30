@@ -23,7 +23,7 @@ public interface UserDao {
     int updatePassword(@Param("userId")Long userId, @Param("loginPassword")String loginPassword, @Param("lastPasswordResetDate")Long lastPasswordResetDate);
     int saveSmsCode(@Param("tel")String tel, @Param("code")String code);
     String findSmsCode(Long userId);
-    Long add(User user);
+    int add(User user);
     int update(@Param("id")Long id, @Param("tel")String tel);
     int updateLogoutTime(@Param("userId")Long userId,@Param("logoutTime")Long logoutTime);
 }

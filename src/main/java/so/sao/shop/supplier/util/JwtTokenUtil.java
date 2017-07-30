@@ -108,7 +108,7 @@ public class JwtTokenUtil implements Serializable {
      * @throws IOException
      */
     private Boolean isTokenExpired(String token) throws IOException {
-       Date expiration = new Date((Long)getClaimsFromToken(token).get(CLAIM_KEY_EXPIRATION));
+        Date expiration = new Date((Long)getClaimsFromToken(token).get(CLAIM_KEY_EXPIRATION));
         return expiration.before(new Date());
     }
 
@@ -147,7 +147,7 @@ public class JwtTokenUtil implements Serializable {
         Date created = new Date(Long.valueOf(claims.get(CLAIM_KEY_CREATED).toString()));
         return (
                 username.equals(user.getUsername())
-                        && !isTokenExpired(token) && user.getLastPasswordResetDate()!=null && !isCreatedBeforeLastPasswordReset(created, new Date(user.getLastPasswordResetDate())) && (user.getLogoutTime()==null || !isLogout(created,new Date(user.getLogoutTime()))));
+                        && !isTokenExpired(token) && user.getLastPasswordResetDate()!=null && !isCreatedBeforeLastPasswordReset(created, user.getLastPasswordResetDate()) && (user.getLogoutTime()==null || !isLogout(created,user.getLogoutTime())));
     }
 
     /**
@@ -179,7 +179,7 @@ public class JwtTokenUtil implements Serializable {
      * @param token
      */
     public void verifySignature(String token){
-       JwtHelper.decode(token).verifySignature(new RsaVerifier(publicKey));
+        JwtHelper.decode(token).verifySignature(new RsaVerifier(publicKey));
     }
 
     /**
@@ -190,11 +190,11 @@ public class JwtTokenUtil implements Serializable {
      * @return
      * @throws IOException
      */
-    public Boolean canTokenBeRefreshed(String token, Long lastPasswordReset, Long logoutTime) throws IOException  {
-            Map claims = getClaimsFromToken(token);
+    public Boolean canTokenBeRefreshed(String token, Date lastPasswordReset, Date logoutTime) throws IOException  {
+        Map claims = getClaimsFromToken(token);
         Date created = new Date(Long.valueOf(claims.get(CLAIM_KEY_CREATED).toString()));
-        return !isTokenExpired(token) && lastPasswordReset!=null && !isCreatedBeforeLastPasswordReset(created, new Date(lastPasswordReset))
-                    && (logoutTime==null || !isLogout(created, new Date(logoutTime)));
+        return !isTokenExpired(token) && lastPasswordReset!=null && !isCreatedBeforeLastPasswordReset(created, lastPasswordReset)
+                && (logoutTime==null || !isLogout(created, logoutTime));
     }
 
 }

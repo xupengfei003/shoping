@@ -3,6 +3,7 @@ package so.sao.shop.supplier.service;
 import com.github.pagehelper.PageInfo;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import so.sao.shop.supplier.config.StorageConfig;
 import so.sao.shop.supplier.domain.Account;
 import so.sao.shop.supplier.pojo.BaseResult;
 import so.sao.shop.supplier.pojo.Result;
@@ -145,5 +146,5 @@ public interface CommodityService {
      * @return 导入结果
      */
 
-    public  List<CommodityImportOutput> importExcel(MultipartFile multipartFile , HttpServletRequest request);
+    public  List<CommodityImportOutput> importExcel(MultipartFile multipartFile , HttpServletRequest request, StorageConfig storageConfig);
 }

@@ -5,6 +5,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.Date;
 
 /**
  * 用户实体
@@ -21,12 +22,12 @@ public class User implements UserDetails {
     /**
      * 最后一次修改密码时间
      */
-    private Long lastPasswordResetDate;
+    private Date lastPasswordResetDate;
 
     /**
      * 登出时间
      */
-    private Long logoutTime;
+    private Date logoutTime;
 
     /**
      * 1管理员，0供应商(一期暂时)
@@ -41,7 +42,7 @@ public class User implements UserDetails {
     public User() {
     }
 
-    public User(Long id, String username, String password, Collection<? extends GrantedAuthority> authorities, Long lastPasswordResetDate, Long logoutTime) {
+    public User(Long id, String username, String password, Collection<? extends GrantedAuthority> authorities, Date lastPasswordResetDate, Date logoutTime) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -64,14 +65,6 @@ public class User implements UserDetails {
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    public Long getLogoutTime() {
-        return logoutTime;
-    }
-
-    public void setLogoutTime(Long logoutTime) {
-        this.logoutTime = logoutTime;
     }
 
     public String getIsAdmin() {
@@ -127,12 +120,19 @@ public class User implements UserDetails {
         return true;
     }
 
-    @JsonIgnore
-    public Long getLastPasswordResetDate() {
+    public Date getLastPasswordResetDate() {
         return lastPasswordResetDate;
     }
 
-    public void setLastPasswordResetDate(Long lastPasswordResetDate) {
+    public void setLastPasswordResetDate(Date lastPasswordResetDate) {
         this.lastPasswordResetDate = lastPasswordResetDate;
+    }
+
+    public Date getLogoutTime() {
+        return logoutTime;
+    }
+
+    public void setLogoutTime(Date logoutTime) {
+        this.logoutTime = logoutTime;
     }
 }

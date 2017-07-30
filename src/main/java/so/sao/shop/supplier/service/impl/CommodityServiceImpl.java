@@ -3,11 +3,16 @@ package so.sao.shop.supplier.service.impl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.commons.io.FileUtils;
+import org.apache.tomcat.util.http.fileupload.disk.DiskFileItemFactory;
+import org.apache.tomcat.util.http.fileupload.servlet.ServletFileUpload;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.springframework.web.multipart.commons.CommonsMultipartResolver;
+import so.sao.shop.supplier.config.StorageConfig;
 import so.sao.shop.supplier.dao.*;
 import so.sao.shop.supplier.domain.*;
 import so.sao.shop.supplier.pojo.BaseResult;
@@ -362,6 +367,8 @@ public class CommodityServiceImpl implements CommodityService {
             suppCommSearchVo.setInventory(supplierCommodity.getInventory());
             suppCommSearchVo.setStatus(Constant.getStatus(supplierCommodity.getStatus()));
             suppCommSearchVo.setStatusNum(supplierCommodity.getStatus());
+            suppCommSearchVo.setPrice(supplierCommodity.getPrice());
+            suppCommSearchVo.setUnitPrice(supplierCommodity.getUnitPrice());
             suppCommSearchVo.setCreatedAt(supplierCommodity.getCreatedAt());
             suppCommSearchVo.setUpdatedAt(supplierCommodity.getUpdatedAt());
             respList.add(suppCommSearchVo);
@@ -560,7 +567,7 @@ public class CommodityServiceImpl implements CommodityService {
     }
 
     @Override
-    public  List<CommodityImportOutput> importExcel(MultipartFile multipartFile, HttpServletRequest request) {
+    public  List<CommodityImportOutput> importExcel(MultipartFile multipartFile, HttpServletRequest request, StorageConfig storageConfig) {
         List<CommodityImportOutput> commodityImportOutputList=new ArrayList<CommodityImportOutput>();
         List<Map<String, String>> list=null;
         List<CommodityInput>  commodityInputs=new ArrayList<CommodityInput>();
@@ -576,12 +583,136 @@ public class CommodityServiceImpl implements CommodityService {
             commodityImportOutputList.add(commodityImportOutput);
             return commodityImportOutputList;
         }
+        //解压文件
 
 
-        String realPath = request.getSession().getServletContext().getRealPath("/upload");
+
+        DiskFileItemFactory factory = new DiskFileItemFactory();
+        String hcfilepath = request.getSession().getServletContext()
+                .getRealPath("")
+                + "/";
+        String exceltype = "";
+        factory.setRepository(new File(hcfilepath));// 文件缓存路径
+        ServletFileUpload upload = new ServletFileUpload(factory);
+        upload.setHeaderEncoding("UTF-8");
+        Map resmap = new HashMap();
+
+        String realPath = request.getSession().getServletContext().getRealPath("/file");
+        String ress = "";
+        String res = "0";
+        // String msg = "0";
+        String imgurl = "0";
+        String tempPath = "";
+        String filepath = "";
+        String filename = "";
+        //创建一个通用的多部分解析器
+        CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver(request.getSession().getServletContext());
+        //判断 request 是否有文件上传,即多部分请求
+        if(multipartResolver.isMultipart(request)){
+            //转换成多部分request
+            MultipartHttpServletRequest multiRequest = (MultipartHttpServletRequest)request;
+            //取得request中的所有文件名
+            Iterator<String> iter = multiRequest.getFileNames();
+            if(iter.hasNext()){
+                //记录上传过程起始时的时间，用来计算上传时间
+                int pre = (int) System.currentTimeMillis();
+                //取得上传文件
+                MultipartFile file = multiRequest.getFile(iter.next());
+
+
+                if(file != null){
+                    //取得当前上传文件的文件名称
+                    filename = file.getOriginalFilename();
+                    String imgtype = filename.substring(filename.indexOf("."), filename.length());
+                    //如果名称不为“”,说明该文件存在，否则说明该文件不存在
+                    if(filename.trim() !=""){
+
+                        File fullFile = new File(filename);
+                        String filezspath = request.getSession()
+                                .getServletContext().getRealPath("")
+                                + "/file/";
+                        tempPath = filezspath;// 文件上传到的文件夹
+                        filepath = tempPath + fullFile.getName();
+                        File newFile = new File(tempPath
+                                + fullFile.getName());
+                        if (!new File(tempPath).isDirectory()) {
+                            new File(tempPath).mkdirs();
+                        }
+
+                        try {
+                            file.transferTo(newFile);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+
+                    }
+                }
+                //记录上传该文件后的时间
+                int finaltime = (int) System.currentTimeMillis();
+
+            }
+        }
+        //接下来开始解压缩文件
+        String filezspath = request.getSession().getServletContext().getRealPath("")+ "/file/";
+        String ffname = DateUtil.getStringDate().replaceAll("-", "").replaceAll(" ", "").replaceAll(":", "");
+        try {
+            ZipUtil.deCompress(filezspath+filename,filezspath+ffname,true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        //解压完成后 遍历文件夹 如果有中文则修改为数字
+       FileUtil.getreNameFile(filezspath+ffname, ffname);
+        File file=new File(filezspath+ffname);
+        File[] tempList = file.listFiles();
+        Map excelmap = new HashMap();
+        List jpglist = new ArrayList();
+
+        for (int i = 0; i < tempList.length; i++) {
+            if (tempList[i].isFile()) {
+                String type = tempList[i].toString().substring(tempList[i].toString().lastIndexOf(".") + 1);
+
+                if(type.indexOf("xls")>=0 || type.indexOf("xlsx")>=0){
+                    exceltype = type;
+                    excelmap.put("excel", tempList[i].getName());
+                }else if(type.indexOf("jpg")>=0||type.indexOf("JPG")>=0){
+                    jpglist.add(tempList[i].toString());//存放图片路径
+                }
+
+            }
+            if(tempList[i].isDirectory()) {
+
+                //File fileisdir=new File(filezspath+tempList[i].getName());
+                ffname = ffname + "/" +tempList[i].getName();
+
+                File[] tempListdir = tempList[i].listFiles();
+
+                for (int j = 0; j < tempListdir.length; j++) {
+                    if (tempListdir[j].isFile()) {//是文件
+                        String type = tempListdir[j].toString().substring(tempListdir[j].toString().lastIndexOf(".") + 1);
+
+                        if(type.indexOf("xls")>=0 || type.indexOf("xlsx")>=0){
+                            exceltype = type;
+                            excelmap.put("excel", tempListdir[j].getName());
+                        }else if(type.indexOf("jpg")>=0||type.indexOf("JPG")>=0){
+                            jpglist.add(tempListdir[j].toString());//存放图片路径
+                        }
+                    }
+                }
+            }
+        }
+
+
+
+
+
+
+
+
+       // String realPath = request.getSession().getServletContext().getRealPath("/upload");
         // String path = "E:\\demo";
         //容错处理
-        File dir = new File(realPath);
+      /*  File dir = new File(realPath);
         if(!dir.exists()) {
             dir.mkdirs();
         }
@@ -590,18 +721,20 @@ public class CommodityServiceImpl implements CommodityService {
         // String fileName2 = multipartFile.getName();//excelFile
 
         //文件后缀名
-        String suffix = originalFilename.substring(originalFilename.lastIndexOf("."), originalFilename.length());
+        String suffix = originalFilename.substring(originalFilename.lastIndexOf("."), originalFilename.length());*/
         // String     imgpath = username + suffix;
         String excelpath="";
-        //文件copy到项目路径下
+
+        excelpath=filezspath+ffname+"/"+excelmap.get("excel").toString();
+       /* //文件copy到项目路径下
         try {
             FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), new File(
                     realPath, originalFilename));
-            excelpath=realPath+"/"+originalFilename;
+            excelpath=filezspath+ffname+"/"+originalFilename;
 
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
 
         //使用工具类 获取Excel 内容
         if(!"".equals(excelpath)){
@@ -609,7 +742,7 @@ public class CommodityServiceImpl implements CommodityService {
         }
         Map<String, String> map = null;
         List<CommRuleVo> ruleList=new ArrayList<CommRuleVo>();
-
+        FileUtil fileutil =new FileUtil();
         // Excel 内容转 CommodityInput对象
         if(null!=list){
             for (int i = 0; i < list.size(); i++) {
@@ -630,6 +763,33 @@ public class CommodityServiceImpl implements CommodityService {
                         supplierCommodityVo.setCode69(value);
                     }else  if("商品品牌".equals(key)){
                         commodityInput.setBrand(value);
+                    }else  if("图片".equals(key)){
+                        String [] imgs = new String[15];
+                     if(value.contains(",")){
+                      imgs=value.split(",");
+                     }else{
+                         imgs[0]=value;
+                     }
+                    // 上传图片
+
+                        Result obj=    (Result)   fileutil.UploadFiles(filezspath+ffname,imgs , storageConfig);
+                        if(obj.getCode()==so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SUCCESS){
+                            List<BlobUpload> blobUploadEntities=    ( List<BlobUpload>) obj.getData();
+                            List<CommImgeVo> commImgeVoList= new ArrayList<CommImgeVo>();
+                            for(int t=0;t<blobUploadEntities.size();t++){
+                                BlobUpload  blobUpload= blobUploadEntities.get(t);
+                                if(t==0){
+                                    supplierCommodityVo.setMinImg(blobUpload.getMinImgUrl());
+                                }
+                                CommImgeVo commImgeVo= new CommImgeVo();
+
+                                commImgeVo.setName(blobUpload.getFileName());
+                                commImgeVo.setSize(blobUpload.getSize());
+                                commImgeVo.setUrl(blobUpload.getUrl());
+                                commImgeVo.setType(blobUpload.getType());
+
+                            }
+                        }
                     }else if("商品名称".equals(key)){
                         commodityInput.setName(value);
                     }else  if("商家编码".equals(key)){
@@ -760,6 +920,8 @@ public class CommodityServiceImpl implements CommodityService {
             }
 
         }
+
+        fileutil.deleteDirectory(filezspath+ffname);
         return commodityImportOutputList;
     }
 
@@ -808,6 +970,8 @@ public class CommodityServiceImpl implements CommodityService {
             suppCommSearchVo.setInventory(supplierCommodity.getInventory());
             suppCommSearchVo.setStatusNum(supplierCommodity.getStatus());
             suppCommSearchVo.setStatus(Constant.getStatus(supplierCommodity.getStatus()));
+            suppCommSearchVo.setPrice(supplierCommodity.getPrice());
+            suppCommSearchVo.setUnitPrice(supplierCommodity.getUnitPrice());
             suppCommSearchVo.setCreatedAt(supplierCommodity.getCreatedAt());
             suppCommSearchVo.setUpdatedAt(supplierCommodity.getUpdatedAt());
             respList.add(suppCommSearchVo);

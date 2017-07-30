@@ -17,7 +17,7 @@ public interface OrderMoneyRecordService {
      * @param userId
      * @return
      */
-    Map<String, Object> saveOrderMoneyRecord(Long userId);
+    Map<String, Object> saveOrderMoneyRecord(Long userId) throws Exception;
 
     /**
      * 查询提现申请记录
@@ -34,7 +34,7 @@ public interface OrderMoneyRecordService {
      * @param state
      * @return
      */
-    Map<String, Object> updateOrderMoneyRecordState(Long recordId, String state);
+    Map<String, Object> updateOrderMoneyRecordState(Long recordId, String state) throws Exception;
 
     /**
      * 根据提现申请表中的申请人ID查询申请该ID下所有的申请记录，并根据pageNum和pageSize进行分页展示

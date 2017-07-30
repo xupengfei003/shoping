@@ -107,10 +107,10 @@ public class AuthServiceImpl implements AuthService {
      * @throws IOException
      */
     @Override
-    public BaseResult getPassword(String phone) throws IOException {
+    public BaseResult getPassword(String phone, Long userId) throws IOException {
         User u = userDao.findByUsername(phone);
         //判断当前登录人和接收密码手机是否一直
-        if(u!=null&& StringUtils.isNotBlank(u.getUsername())){
+        if(u!=null&& StringUtils.isNotBlank(u.getUsername())&&u.getId()==userId){
             String password = smsService.getVerCode();
             //密码加密保存,忘记密码只能手机验证发送新密码
             userDao.updatePassword(u.getId(),new BCryptPasswordEncoder().encode(password), new Date().getTime());

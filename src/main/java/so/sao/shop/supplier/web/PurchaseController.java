@@ -14,11 +14,14 @@ import so.sao.shop.supplier.pojo.input.PurchaseSelectInput;
 import so.sao.shop.supplier.pojo.output.*;
 import so.sao.shop.supplier.service.PurchaseService;
 import so.sao.shop.supplier.util.DateUtil;
+import so.sao.shop.supplier.util.StringUtil;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -49,13 +52,13 @@ public class PurchaseController {
     public PurchaseOutput createPurchase(@Valid PurchaseInput purchase, BindingResult result) {
         PurchaseOutput output = new PurchaseOutput();
         //判断验证是否通过。true 未通过  false通过
-        if(result.hasErrors()){
+        if (result.hasErrors()) {
             List<ObjectError> list = result.getAllErrors();
-            for(ObjectError error : list){
+            for (ObjectError error : list) {
                 output.setCode(Constant.CodeConfig.CODE_NOT_EMPTY);
                 output.setMessage(error.getDefaultMessage());
             }
-        } else{
+        } else {
             try {
                 Map<String, Object> resMap = purchaseService.savePurchase(purchase);
                 Integer status = Integer.parseInt(String.valueOf(resMap.get("status")));
@@ -118,7 +121,6 @@ public class PurchaseController {
             result.setCode(Constant.CodeConfig.CODE_SYSTEM_EXCEPTION);
             result.setMessage(Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
         }
-
         return result;
     }
 
@@ -136,15 +138,11 @@ public class PurchaseController {
         PurchaseSelectOutput purchaseSelectOutputList = new PurchaseSelectOutput();
         purchaseSelectOutputList.setCode(Constant.CodeConfig.CODE_DATE_INPUT_FORMAT_ERROR);
         purchaseSelectOutputList.setMessage(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
-        if (!StringUtils.isEmpty(purchaseSelectInput.getBeginDate())) {
-            if (!DateUtil.isDate(purchaseSelectInput.getBeginDate())) {
-                return purchaseSelectOutputList;
-            }
+        if (!StringUtils.isEmpty(purchaseSelectInput.getBeginDate()) && !DateUtil.isDate(purchaseSelectInput.getBeginDate())) {
+            return purchaseSelectOutputList;
         }
-        if (!StringUtils.isEmpty(purchaseSelectInput.getEndDate())) {
-            if (!DateUtil.isDate(purchaseSelectInput.getEndDate())) {
-                return purchaseSelectOutputList;
-            }
+        if (!StringUtils.isEmpty(purchaseSelectInput.getEndDate()) && !DateUtil.isDate(purchaseSelectInput.getEndDate())) {
+            return purchaseSelectOutputList;
         }
         if (!StringUtils.isEmpty(purchaseSelectInput.getOrderPaymentDate())) {
             if (!DateUtil.isDate(purchaseSelectInput.getOrderPaymentDate())) {
@@ -170,7 +168,6 @@ public class PurchaseController {
             purchaseSelectOutputList.setCode(Constant.CodeConfig.CODE_FAILURE);
             purchaseSelectOutputList.setMessage(Constant.MessageConfig.MSG_FAILURE);
         }
-
         return purchaseSelectOutputList;
     }
 
@@ -240,27 +237,42 @@ public class PurchaseController {
 
     /**
      * 根据商户id及查询条件（起始-结束时间；起始-结束金额范围）分页显示余额明细
-     * @param pageNum 当前页码
+     *
+     * @param pageNum  当前页码
      * @param pageSize 每页显示条数
-     * @param input 查询条件封装类
-     * @param storeId 商家编号
+     * @param input    查询条件封装类
+     * @param storeId  商家编号
      * @return output出参
      */
-    @ApiOperation(value="余额明细查询", notes=" 根据商户id及查询条件（起始-结束时间；起始-结束金额范围）分页显示订单")
+    @ApiOperation(value = "余额明细查询", notes = " 根据商户id及查询条件（起始-结束时间；起始-结束金额范围）分页显示订单")
     @GetMapping(value = "/account/Purchases")
-    public RecordToPurchaseOutput search(Integer pageNum, Integer pageSize, AccountPurchaseInput input, Long storeId){
+    public RecordToPurchaseOutput search(Integer pageNum, Integer pageSize, AccountPurchaseInput input, Long storeId) {
         RecordToPurchaseOutput output = new RecordToPurchaseOutput();
-        try {
-            if (null != storeId){
-                output = purchaseService.searchPurchases(pageNum,pageSize,input,storeId);
-            } else {
-                output.setCode(Constant.CodeConfig.CODE_NOT_EMPTY);
-                output.setMessage(Constant.MessageConfig.MSG_NOT_EMPTY);
+        output.setCode(Constant.CodeConfig.CODE_DATE_INPUT_FORMAT_ERROR);
+        output.setMessage(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
+
+        //判断条件类是否为空？ 不为判断是否有时间条件，
+            //若有时间条件，判断时间格式是否正确
+        if (null != input){
+            if (!StringUtils.isEmpty(input.getBeginTime()) && !DateUtil.isDate(input.getBeginTime())){
+                return output;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            output.setCode(Constant.CodeConfig.CODE_SYSTEM_EXCEPTION);
-            output.setMessage(Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
+            if (!StringUtils.isEmpty(input.getEndTime()) && !DateUtil.isDate(input.getEndTime())){
+                return output;
+            }
+        }
+
+        //判断入参是否有商家编号，没有返回错误信息
+        if (null != storeId) {
+            try {
+                output = purchaseService.searchPurchases(pageNum, pageSize, input, storeId);
+            } catch (ParseException e) {
+                output.setCode(Constant.CodeConfig.CODE_FAILURE);
+                output.setMessage(Constant.MessageConfig.MSG_FAILURE);
+            }
+        } else {
+            output.setCode(Constant.CodeConfig.CODE_NOT_EMPTY);
+            output.setMessage(Constant.MessageConfig.MSG_NOT_EMPTY);
         }
         return output;
     }

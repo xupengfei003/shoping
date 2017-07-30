@@ -99,7 +99,7 @@ public class AccountServiceImpl implements AccountService {
      * @return 变更条数
      */
     @Override
-    public Long add(User user) {
+    public int add(User user) {
         return userDao.add(user);
     }
 
@@ -301,28 +301,28 @@ public class AccountServiceImpl implements AccountService {
     }
 
     /**
-     * 根据手机号码插入用户信息
+     * 插入用户和供应商信息
      *
-     * @param phone
      * @return 返回用户id
      */
     @Override
-    public Long saveUser(String phone) {
-        User user1 = userDao.findByUsername(phone);
+    @Transactional
+    public String saveUserAndAccount(Account account) {
+        User user1 = userDao.findByUsername(account.getContractResponsiblePhone());
         if (user1 == null) {
             User user = new User();
-            user.setUsername(phone);
+            user.setUsername(account.getContractResponsiblePhone());
             String password = smsService.getVerCode();
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
             user.setPassword(encoder.encode(password));
-            user.setLastPasswordResetDate(new Date().getTime());
+            user.setLastPasswordResetDate(new Date());
             user.setIsAdmin("0");
             userDao.add(user);
-            smsService.sendSms(Collections.singletonList(phone), password);
-//                SmsUtil.sendSms(phone, password);
-            return user.getId();
+            accountDao.insert(account);
+            smsService.sendSms(Collections.singletonList(account.getContractResponsiblePhone()), password);
+            return "用户和供应商添加成功！";
         } else {
-            return 1l;
+            return "此供应商已经存在！";
         }
     }
 }

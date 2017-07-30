@@ -21,6 +21,7 @@ import so.sao.shop.supplier.pojo.vo.PurchaseVo;
 import so.sao.shop.supplier.service.OrderMoneyRecordService;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -45,7 +46,7 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
 	 */
 	@Override
 	@Transactional(rollbackFor = Exception.class)
-	public Map<String, Object> saveOrderMoneyRecord(Long userId) {
+	public Map<String, Object> saveOrderMoneyRecord(Long userId) throws Exception {
 		Map<String, Object> output = new HashMap<>();
 
 		/**
@@ -134,11 +135,11 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
 		OrderMoneyRecordOutput output = new OrderMoneyRecordOutput();
 
 		// 默认第一页
-		if (null == pageNum) {
+		if (null == pageNum || pageNum <= 0) {
 			pageNum = 1;
 		}
 		// 默认每页10条
-		if (null == pageSize) {
+		if (null == pageSize || pageSize <= 0) {
 			pageSize = 10;
 		}
 
@@ -146,6 +147,24 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
 		 * 设置分页
 		 */
 		PageHelper.startPage(pageNum, pageSize);
+
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		try {
+			if(null != input){
+				//转换查询起始时间为Date
+				if(null != input.getStartTime()){
+					input.setStartDate(sdf.parse(input.getStartTime()));
+				}
+				//转换查询结束时间为Date
+				if(null != input.getEndTime()){
+					input.setEndDate(sdf.parse(input.getEndTime()));
+				}
+			}
+		} catch (ParseException e) {
+			e.printStackTrace();
+		} catch (Exception e){
+			e.printStackTrace();
+		}
 
 		/**
 		 * 查询提现申请记录列表
@@ -192,11 +211,13 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
 	 */
 	@Override
 	@Transactional(rollbackFor = Exception.class)
-	public Map<String, Object> updateOrderMoneyRecordState(Long recordId, String state) {
+	public Map<String, Object> updateOrderMoneyRecordState(Long recordId, String state) throws Exception {
 		Map<String, Object> output = new HashMap<>();
 		/**
-		 * 1.查找该recordId对应的OrderMoneyRecord实体 2.修改OrderMoneyRecord的state状态从 申请中改为审核通过
-		 * 3.修改OrderMoneyRecord的state状态从 审核通过改为已提现 4.更新Account中balance(余额)字段
+		 * 1.查找该recordId对应的OrderMoneyRecord实体
+		 * 2.修改OrderMoneyRecord的state状态从 申请中改为审核通过
+		 * 3.修改OrderMoneyRecord的state状态从 审核通过改为已提现
+		 * 4.更新Account中balance(余额)字段
 		 * 5.更新提现金额对应订单中的账户状态
 		 */
 		OrderMoneyRecord orderMoneyRecord = orderMoneyRecordDao.findOne(recordId);
@@ -227,7 +248,7 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
 				orderMoneyRecord.setRecordId(recordId);
 				orderMoneyRecord.setState(state);
 				orderMoneyRecord.setUpdatedAt(new Date());
-				int doneNum = orderMoneyRecordDao.updateOrderMoneyRecord(orderMoneyRecord);
+				int orderMoneyRecordNum = orderMoneyRecordDao.updateOrderMoneyRecord(orderMoneyRecord);
 				Long tmpUserId = orderMoneyRecord.getUserId();
 				Account account = accountDao.findByUserId(tmpUserId);
 				if (null == account) {
@@ -242,14 +263,14 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
 				account.setBalance(tmpBalance);
 				account.setUpdateDate(new Date());
 				account.setUserId(tmpUserId);
-				accountDao.updateAccountByUserId(account);
+				int accountNum = accountDao.updateAccountByUserId(account);
 
 				/**
 				 * 更新提现金额对应订单中的账户状态
 				 */
-				purchaseDao.updateAccountStatus(tmpUserId);
+				int purchaseNum = purchaseDao.updateAccountStatus(tmpUserId);
 
-				if (doneNum == 0) {
+				if (orderMoneyRecordNum == 0 || accountNum == 0 || purchaseNum == 0) {
 					output.put("status", 0);
 					return output;
 				}
@@ -272,7 +293,6 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
 	 */
 	private List<OrderMoneyRecordVo> convertOrderMoneyRecordVo(List<OrderMoneyRecord> list) {
 		List<OrderMoneyRecordVo> tmpList = new ArrayList<>();
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		if (null != list && !list.isEmpty()) {
 			for (OrderMoneyRecord omr : list) {
 				OrderMoneyRecordVo ormVo = new OrderMoneyRecordVo();
@@ -315,8 +335,8 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
 		/**
 		 * ①、利用PageHelper开启分页；
 		 */
-		Integer PageHelperPageNum = pageNum == null ? 1 : pageNum;// 默认第一页
-		Integer PageHelperPageSize = pageSize == null ? 10 : pageSize;// 默认每页5条
+		Integer PageHelperPageNum = (pageNum == null || pageNum <= 0) ? 1 : pageNum;// 默认第一页
+		Integer PageHelperPageSize = (pageSize == null || pageSize <= 0) ? 10 : pageSize;// 默认每页5条
 		PageHelper.startPage(PageHelperPageNum, PageHelperPageSize);
 
 		/**
@@ -377,11 +397,11 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
 		RecordToPurchaseOutput output = new RecordToPurchaseOutput();
 
 		// 默认为第一页
-		if (null == pageNum) {
+		if (null == pageNum || pageNum <= 0) {
 			pageNum = 1;
 		}
 		// 默认每页10条
-		if (null == pageSize) {
+		if (null == pageSize || pageSize <= 0) {
 			pageSize = 10;
 		}
 
@@ -452,7 +472,6 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
 	 */
 	public List<PurchaseVo> convertPurchaseVo(List<Purchase> list) {
 		List<PurchaseVo> purchaseVoList = new ArrayList<>();
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		for (Purchase purchase : list) {
 			PurchaseVo purchaseVo = new PurchaseVo();
 			purchaseVo.setOrderId(purchase.getOrderId());

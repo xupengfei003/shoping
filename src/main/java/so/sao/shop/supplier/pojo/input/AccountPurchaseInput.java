@@ -27,7 +27,14 @@ public class AccountPurchaseInput {
      */
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date endDate;
-
+    /**
+     * 开始时间  用于判断时间格式
+     */
+    private String beginTime;
+    /**
+     * 结束时间  用于判断时间格式
+     */
+    private String endTime;
     /**
      * 起始金额
      */
@@ -72,11 +79,30 @@ public class AccountPurchaseInput {
         this.endMoney = endMoney;
     }
 
+    public String getBeginTime() {
+        return beginTime;
+    }
+
+    public void setBeginTime(String beginTime) {
+        this.beginTime = beginTime;
+    }
+
+    public String getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(String endTime) {
+        this.endTime = endTime;
+    }
+
     @Override
     public String toString() {
         return "AccountPurchaseInput{" +
+                "beginDate=" + beginDate +
+                ", endDate=" + endDate +
+                ", beginTime='" + beginTime + '\'' +
+                ", endTime='" + endTime + '\'' +
                 ", beginMoney=" + beginMoney +
-                ", endMoney=" + endMoney +
                 ", endMoney=" + endMoney +
                 '}';
     }
