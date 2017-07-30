@@ -689,7 +689,7 @@
                   cd.name contract_register_address_district,  contract_register_address
             FROM account,sys_region p, sys_region c, sys_region d, sys_region cp, sys_region cc, sys_region cd
             <where>
-                    account_status != 0
+                    account_status == 1
               AND regist_address_province = p.sr_id
               AND regist_address_city = c.sr_id
               AND regist_address_district = d.sr_id
@@ -706,7 +706,7 @@
                     AND provider_name LIKE "%${providerName}%"
                 </if>
 				<if test="contractCreateDate != null ">
-                    AND contract_create_date <![CDATA[>=]]> #{contractCreateDate}
+                    AND contract_end_date <![CDATA[>=]]> #{contractCreateDate}
                 </if>
                 <if test="contractEndDate != null ">
                     AND contract_end_date <![CDATA[<=]]> #{contractEndDate}

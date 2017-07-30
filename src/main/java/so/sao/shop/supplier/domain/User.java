@@ -19,6 +19,8 @@ public class User implements UserDetails {
     private String username;
     private String password;
 
+    private Long accountId;
+
     /**
      * 最后一次修改密码时间
      */
@@ -134,5 +136,13 @@ public class User implements UserDetails {
 
     public void setLogoutTime(Date logoutTime) {
         this.logoutTime = logoutTime;
+    }
+
+    public Long getAccountId() {
+        return accountId;
+    }
+
+    public void setAccountId(Long accountId) {
+        this.accountId = accountId;
     }
 }

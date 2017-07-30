@@ -107,7 +107,7 @@ public interface SupplierCommodityDao {
      * @param code69
      * @return
      */
-    SupplierCommodity findSupplierCommodityInfo(@Param("code69")String code69);
+    SupplierCommodity findSupplierCommodityInfo(@Param("code69")String code69,@Param("accountId") Long accountId);
 
 
     /**

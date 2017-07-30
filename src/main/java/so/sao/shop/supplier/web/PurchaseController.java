@@ -145,7 +145,10 @@ public class PurchaseController {
             purchaseSelectOutputList.setCode(Constant.CodeConfig.CODE_USER_NOT_LOGIN);
             purchaseSelectOutputList.setMessage(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         } else {
-            purchaseSelectInput.setStoreId(BigInteger.valueOf(user.getId()));
+            if(purchaseSelectInput.getStoreId() == null ){
+                purchaseSelectInput.setStoreId(BigInteger.valueOf(user.getAccountId()));
+            }
+
             if (!StringUtils.isEmpty(purchaseSelectInput.getBeginDate()) && !DateUtil.isDate(purchaseSelectInput.getBeginDate())) {
                 return purchaseSelectOutputList;
             }

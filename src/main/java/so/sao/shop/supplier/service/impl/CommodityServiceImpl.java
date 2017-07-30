@@ -53,10 +53,12 @@ public class CommodityServiceImpl implements CommodityService {
 
     @Override
     @Transactional
-    public BaseResult saveCommodity(HttpServletRequest request,@Valid CommodityInput commodityInput) {
+    public BaseResult saveCommodity(HttpServletRequest request,@Valid CommodityInput commodityInput,Long accountId) {
         BaseResult result=new BaseResult();
         //获取供应商ID
-        Long supplierId = findAccountByUserId(((User) request.getAttribute(Constant.REQUEST_USER)).getId()).getAccountId();
+        if(accountId==null||accountId==0){
+            accountId = findAccountByUserId(((User) request.getAttribute(Constant.REQUEST_USER)).getId()).getAccountId();
+        }
         //验证品牌是否存在，不存在则新增
         CommBrand brand = commBrandDao.findByName(commodityInput.getBrand());
         if (null==brand){
@@ -80,7 +82,7 @@ public class CommodityServiceImpl implements CommodityService {
                  result.setMessage("商品编码不能为空");
                  return result;
              }
-            SupplierCommodity supplierCommodity = supplierCommodityDao.findSupplierCommodityInfo(commodityVo.getCode69());
+            SupplierCommodity supplierCommodity = supplierCommodityDao.findSupplierCommodityInfo(commodityVo.getCode69(),accountId);
             if (supplierCommodity != null) {
                 result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
                 result.setMessage("商品编码已存在：" + commodityVo.getCode69());
@@ -94,7 +96,7 @@ public class CommodityServiceImpl implements CommodityService {
                 sc.setBrandId(brand.getId());
                 sc.setBrand(brand.getName());
                 sc.setCommodityId(commodity.getId());
-                sc.setSupplierId(supplierId);
+                sc.setSupplierId(accountId);
                 sc.setDescription(commodityInput.getDescription());
                 sc.setRemark(commodityInput.getRemark());
                 sc.setCategoryOneId(commodityInput.getCategoryOneId());
@@ -111,8 +113,8 @@ public class CommodityServiceImpl implements CommodityService {
                 sc.setPrice(commodityVo.getPrice());
                 sc.setUnitPrice(commodityVo.getUnitPrice());
                 sc.setStatus(Constant.COMM_ST_XZ);
-                sc.setCreatedBy(supplierId);
-                sc.setUpdatedBy(supplierId);
+                sc.setCreatedBy(accountId);
+                sc.setUpdatedBy(accountId);
                 sc.setCreatedAt(new Date());
                 sc.setUpdatedAt(new Date());
                 supplierCommodityDao.save(sc);
@@ -137,10 +139,12 @@ public class CommodityServiceImpl implements CommodityService {
 
     @Override
     @Transactional
-    public BaseResult updateCommodity(HttpServletRequest request, CommodityInput commodityInput) {
+    public BaseResult updateCommodity(HttpServletRequest request, CommodityInput commodityInput,Long supplierId) {
         BaseResult result=new BaseResult();
         //获取供应商ID
-        Long supplierId = findAccountByUserId(((User) request.getAttribute(Constant.REQUEST_USER)).getId()).getAccountId();
+        if(supplierId==null||supplierId==0){
+            supplierId = findAccountByUserId(((User) request.getAttribute(Constant.REQUEST_USER)).getId()).getAccountId();
+        }
         //验证品牌是否存在，不存在则新增
         CommBrand brand = commBrandDao.findByName(commodityInput.getBrand());
         if (null == brand) {
@@ -191,7 +195,7 @@ public class CommodityServiceImpl implements CommodityService {
                 sc.setStatus(Constant.COMM_ST_XZ);
                 sc.setUpdatedAt(new Date());
                 sc.setUpdatedBy(supplierId);
-                SupplierCommodity supplierCommodity = supplierCommodityDao.findSupplierCommodityInfo(commodityVo.getCode69());
+                SupplierCommodity supplierCommodity = supplierCommodityDao.findSupplierCommodityInfo(commodityVo.getCode69(),supplierId);
                 if (commodityVo.getId() != null) {
                     SupplierCommodity supplierComm = supplierCommodityDao.findOne(commodityVo.getId());
                     if(supplierComm != null && !supplierComm.getCode69().equals(commodityVo.getCode69())){
@@ -568,7 +572,7 @@ public class CommodityServiceImpl implements CommodityService {
     }
 
     @Override
-    public  List<CommodityImportOutput> importExcel(MultipartFile multipartFile, HttpServletRequest request, StorageConfig storageConfig) {
+    public  List<CommodityImportOutput> importExcel(MultipartFile multipartFile, HttpServletRequest request, StorageConfig storageConfig,Long supplierId) {
         List<CommodityImportOutput> commodityImportOutputList=new ArrayList<CommodityImportOutput>();
         List<Map<String, String>> list=null;
         List<CommodityInput>  commodityInputs=new ArrayList<CommodityInput>();
@@ -796,7 +800,11 @@ public class CommodityServiceImpl implements CommodityService {
                         commodityImportOutputList.add(commodityImportOutput);
                         it.remove();
                     }else {
-                        SupplierCommodity suppliercommodity = supplierCommodityDao.findSupplierCommodityInfo(code69);
+                        //获取供应商ID
+                        if(supplierId==null||supplierId==0){
+                            supplierId = findAccountByUserId(((User) request.getAttribute(Constant.REQUEST_USER)).getId()).getAccountId();
+                        }
+                        SupplierCommodity suppliercommodity = supplierCommodityDao.findSupplierCommodityInfo(code69,supplierId);
                         if (null != suppliercommodity) {
                             message = "商品编码:" + code69 + "未导入成功！商品编码已存在！";
                             CommodityImportOutput commodityImportOutput=new CommodityImportOutput();
@@ -812,7 +820,7 @@ public class CommodityServiceImpl implements CommodityService {
         }
 
         for(int n=0;n<commodityInputs.size();n++){
-            BaseResult baseResult1=  saveCommodity(request,commodityInputs.get(n));
+            BaseResult baseResult1=  saveCommodity(request,commodityInputs.get(n),supplierId);
             String code69 = commodityInputs.get(n).getCommodityList().get(0).getCode69() == null ? "" : commodityInputs.get(n).getCommodityList().get(0).getCode69();
             if(1!=baseResult1.getCode()){
                 code=1;

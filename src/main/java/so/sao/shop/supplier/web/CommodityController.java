@@ -73,14 +73,14 @@ public class CommodityController {
 
     @ApiOperation(value="新增商品信息", notes="")
     @PostMapping(value="/save")
-    public BaseResult save(HttpServletRequest request,@Valid @RequestBody CommodityInput commodityInput){
-        return commodityService.saveCommodity(request,commodityInput);
+    public BaseResult save(HttpServletRequest request,@Valid @RequestBody CommodityInput commodityInput,@RequestParam(required = false) Long accountId){
+        return commodityService.saveCommodity(request,commodityInput,accountId);
     }
 
     @ApiOperation(value="修改商品信息", notes="")
     @PutMapping(value="/update")
-    public BaseResult update(HttpServletRequest request,@Valid @RequestBody CommodityInput commodityInput){
-        return commodityService.updateCommodity(request,commodityInput);
+    public BaseResult update(HttpServletRequest request,@Valid @RequestBody CommodityInput commodityInput,@RequestParam(required = false) Long accountId){
+        return commodityService.updateCommodity(request,commodityInput,accountId);
     }
 
     @ApiOperation(value="上架商品", notes="")
@@ -128,8 +128,8 @@ public class CommodityController {
 
     @ApiOperation(value="批量导入商品", notes="通过Excel模板批量导入商品信息")
     @PostMapping(value="/importExcel")
-    public  List<CommodityImportOutput> importExcel(@RequestParam(value = "excelFile") MultipartFile excelFile, HttpServletRequest request ){
-        return   commodityService.importExcel(excelFile,request,storageConfig);
+    public  List<CommodityImportOutput> importExcel(@RequestParam(value = "excelFile") MultipartFile excelFile, HttpServletRequest request,@RequestParam(required = false) Long accountId ){
+        return   commodityService.importExcel(excelFile,request,storageConfig,accountId);
     }
 
     @ApiOperation(value="导出商品信息", notes="导出商品信息到Excel")
