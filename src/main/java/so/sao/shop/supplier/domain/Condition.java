@@ -3,6 +3,7 @@ package so.sao.shop.supplier.domain;
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import org.springframework.format.annotation.DateTimeFormat;
 
 /**
  * 查询条件
@@ -13,12 +14,14 @@ public class Condition {
     /**
      * 开始时间
      */
-	@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+	@JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
     private Date beginDate;
     /**
      * 截止时间
      */
-	@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+	@JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
     private Date endDate;
 
     /**
@@ -28,12 +31,14 @@ public class Condition {
     /**
      * 合同截止日期
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
     private Date contractEndDate;
     /**
      * 合同创建日期
       */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
     private Date contractCreateDate;
     /**
      * 法人代表（合同）

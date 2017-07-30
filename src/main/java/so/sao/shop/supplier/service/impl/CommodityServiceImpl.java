@@ -210,11 +210,11 @@ public class CommodityServiceImpl implements CommodityService {
                     }
                     supplierCommodityDao.save(sc);
                 }
-
+                //如果imgList不为空
+                if (commodityVo.getImgeList() != null || commodityVo.getImgeList().size() > 0)
+                {
                 //清空原有大图数据信息
                 List<CommImge> imges = commImgeDao.find(sc.getId());
-                if (imges != null || imges.size() > 0)
-                {
                     List<Long> ids = new ArrayList<>();
                     for (CommImge commImge : imges)
                     {
@@ -222,7 +222,7 @@ public class CommodityServiceImpl implements CommodityService {
                         ids.add(id);
                     }
                     commImgeDao.deleteByIds(ids);
-                }
+                 }
 
                 //保存图片
                 if (null != commodityVo.getImgeList()) {
@@ -585,26 +585,14 @@ public class CommodityServiceImpl implements CommodityService {
             return commodityImportOutputList;
         }
         //解压文件
-
-
-
         DiskFileItemFactory factory = new DiskFileItemFactory();
         String hcfilepath = request.getSession().getServletContext()
                 .getRealPath("")
                 + "/";
-        String exceltype = "";
         factory.setRepository(new File(hcfilepath));// 文件缓存路径
         ServletFileUpload upload = new ServletFileUpload(factory);
         upload.setHeaderEncoding("UTF-8");
-        Map resmap = new HashMap();
-
-        String realPath = request.getSession().getServletContext().getRealPath("/file");
-        String ress = "";
-        String res = "0";
-        // String msg = "0";
-        String imgurl = "0";
         String tempPath = "";
-        String filepath = "";
         String filename = "";
         //创建一个通用的多部分解析器
         CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver(request.getSession().getServletContext());
@@ -615,27 +603,17 @@ public class CommodityServiceImpl implements CommodityService {
             //取得request中的所有文件名
             Iterator<String> iter = multiRequest.getFileNames();
             if(iter.hasNext()){
-                //记录上传过程起始时的时间，用来计算上传时间
-                int pre = (int) System.currentTimeMillis();
                 //取得上传文件
                 MultipartFile file = multiRequest.getFile(iter.next());
-
-
                 if(file != null){
                     //取得当前上传文件的文件名称
                     filename = file.getOriginalFilename();
-                    String imgtype = filename.substring(filename.indexOf("."), filename.length());
                     //如果名称不为“”,说明该文件存在，否则说明该文件不存在
                     if(filename.trim() !=""){
-
                         File fullFile = new File(filename);
-                        String filezspath = request.getSession()
-                                .getServletContext().getRealPath("")
-                                + "/file/";
+                        String filezspath = request.getSession().getServletContext().getRealPath("") + "/file/";
                         tempPath = filezspath;// 文件上传到的文件夹
-                        filepath = tempPath + fullFile.getName();
-                        File newFile = new File(tempPath
-                                + fullFile.getName());
+                        File newFile = new File(tempPath + fullFile.getName());
                         if (!new File(tempPath).isDirectory()) {
                             new File(tempPath).mkdirs();
                         }
@@ -645,13 +623,8 @@ public class CommodityServiceImpl implements CommodityService {
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-
-
                     }
                 }
-                //记录上传该文件后的时间
-                int finaltime = (int) System.currentTimeMillis();
-
             }
         }
         //接下来开始解压缩文件
@@ -672,28 +645,20 @@ public class CommodityServiceImpl implements CommodityService {
         for (int i = 0; i < tempList.length; i++) {
             if (tempList[i].isFile()) {
                 String type = tempList[i].toString().substring(tempList[i].toString().lastIndexOf(".") + 1);
-
                 if(type.indexOf("xls")>=0 || type.indexOf("xlsx")>=0){
-                    exceltype = type;
                     excelmap.put("excel", tempList[i].getName());
                 }else if(type.indexOf("jpg")>=0||type.indexOf("JPG")>=0){
                     jpglist.add(tempList[i].toString());//存放图片路径
                 }
-
             }
+
             if(tempList[i].isDirectory()) {
-
-                //File fileisdir=new File(filezspath+tempList[i].getName());
                 ffname = ffname + "/" +tempList[i].getName();
-
                 File[] tempListdir = tempList[i].listFiles();
-
                 for (int j = 0; j < tempListdir.length; j++) {
                     if (tempListdir[j].isFile()) {//是文件
                         String type = tempListdir[j].toString().substring(tempListdir[j].toString().lastIndexOf(".") + 1);
-
                         if(type.indexOf("xls")>=0 || type.indexOf("xlsx")>=0){
-                            exceltype = type;
                             excelmap.put("excel", tempListdir[j].getName());
                         }else if(type.indexOf("jpg")>=0||type.indexOf("JPG")>=0){
                             jpglist.add(tempListdir[j].toString());//存放图片路径
@@ -703,39 +668,8 @@ public class CommodityServiceImpl implements CommodityService {
             }
         }
 
-
-
-
-
-
-
-
-       // String realPath = request.getSession().getServletContext().getRealPath("/upload");
-        // String path = "E:\\demo";
-        //容错处理
-      /*  File dir = new File(realPath);
-        if(!dir.exists()) {
-            dir.mkdirs();
-        }
-        //Excel 文件名称
-        String originalFilename = multipartFile.getOriginalFilename();//report.xls
-        // String fileName2 = multipartFile.getName();//excelFile
-
-        //文件后缀名
-        String suffix = originalFilename.substring(originalFilename.lastIndexOf("."), originalFilename.length());*/
-        // String     imgpath = username + suffix;
         String excelpath="";
-
         excelpath=filezspath+ffname+"/"+excelmap.get("excel").toString();
-       /* //文件copy到项目路径下
-        try {
-            FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), new File(
-                    realPath, originalFilename));
-            excelpath=filezspath+ffname+"/"+originalFilename;
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
 
         //使用工具类 获取Excel 内容
         if(!"".equals(excelpath)){
@@ -754,10 +688,7 @@ public class CommodityServiceImpl implements CommodityService {
                 SupplierCommodityVo supplierCommodityVo=new SupplierCommodityVo();
                 CommRuleVo commRuleVo=new CommRuleVo();
                 for (Iterator< Map.Entry<String, String>> it = map.entrySet().iterator(); it.hasNext(); ) {
-
-
                     entry = it.next();
-
                     String key=entry.getKey()==null?"":entry.getKey();
                     String value=entry.getValue()==null?"":entry.getValue();
                     if("商品编码".equals(key)){
@@ -766,13 +697,12 @@ public class CommodityServiceImpl implements CommodityService {
                         commodityInput.setBrand(value);
                     }else  if("图片".equals(key)){
                         String [] imgs = new String[15];
-                     if(value.contains(",")){
-                      imgs=value.split(",");
-                     }else{
+                        if(value.contains(",")){
+                             imgs=value.split(",");
+                        }else{
                          imgs[0]=value;
-                     }
+                        }
                     // 上传图片
-
                         Result obj=    (Result)   fileutil.UploadFiles(filezspath+ffname,imgs , storageConfig);
                         if(obj.getCode()==so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SUCCESS){
                             List<BlobUpload> blobUploadEntities=    ( List<BlobUpload>) obj.getData();
@@ -783,7 +713,6 @@ public class CommodityServiceImpl implements CommodityService {
                                     supplierCommodityVo.setMinImg(blobUpload.getMinImgUrl());
                                 }
                                 CommImgeVo commImgeVo= new CommImgeVo();
-
                                 commImgeVo.setName(blobUpload.getFileName());
                                 commImgeVo.setSize(blobUpload.getSize());
                                 commImgeVo.setUrl(blobUpload.getUrl());
@@ -802,9 +731,7 @@ public class CommodityServiceImpl implements CommodityService {
                             if(null!=commCategoryone){
                                 commodityInput.setCategoryOneId(commCategoryone.getId());
                             }
-
                         }
-
                     }else if("商品分类二级".equals(key)){
                         if(!"".equals(value)) {
                             CommCategory commCategorytwo = commCategoryDao.findCommCategoryByName(value);
@@ -845,25 +772,16 @@ public class CommodityServiceImpl implements CommodityService {
                     }else if("计量单位".equals(key)){
                         supplierCommodityVo.setUnit(value);
                     }
-
-
                 }
                 commodityList.add(supplierCommodityVo);
                 ruleList.add(commRuleVo);
                 commodityInput.setCommodityList(commodityList);
                 commodityInputs.add(commodityInput);
-
             }
-
         }
-
-
         //导入数据库
-
         Iterator it=commodityInputs.iterator();
-
         while(it.hasNext()){
-
             CommodityInput commodityInput= (CommodityInput) it.next();
             for (int g = 0; g < commodityInput.getCommodityList().size(); g++) {
                 String code69 = commodityInput.getCommodityList().get(g).getCode69() == null ? "" : commodityInput.getCommodityList().get(g).getCode69();
@@ -877,7 +795,6 @@ public class CommodityServiceImpl implements CommodityService {
                         commodityImportOutput.setCode69(code69);
                         commodityImportOutputList.add(commodityImportOutput);
                         it.remove();
-
                     }else {
                         SupplierCommodity suppliercommodity = supplierCommodityDao.findSupplierCommodityInfo(code69);
                         if (null != suppliercommodity) {
@@ -888,16 +805,10 @@ public class CommodityServiceImpl implements CommodityService {
                             commodityImportOutput.setCode69(code69);
                             commodityImportOutputList.add(commodityImportOutput);
                             it.remove();
-
                         }
                     }
-
                 }
-
-
             }
-
-
         }
 
         for(int n=0;n<commodityInputs.size();n++){
@@ -920,7 +831,6 @@ public class CommodityServiceImpl implements CommodityService {
                 commodityImportOutput.setCode69(code69);
                 commodityImportOutputList.add(commodityImportOutput);
             }
-
         }
 
         fileutil.deleteDirectory(filezspath+ffname);

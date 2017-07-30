@@ -85,7 +85,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             if(null != goodsId){
                 Account accountUser = purchaseDao.findAccountById(goodsId);
                 if(null != accountUser){
-                    set.add(accountUser.getUserId());
+                    set.add(accountUser.getAccountId());
                 }
             }
         }

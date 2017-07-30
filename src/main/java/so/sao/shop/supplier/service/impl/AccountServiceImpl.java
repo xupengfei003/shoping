@@ -136,6 +136,7 @@ public class AccountServiceImpl implements AccountService {
      */
     @Override
     public int update(Account account) {
+        account.setUpdateDate(new Date());
         return accountDao.updateByPrimaryKeySelective(account);
     }
 
@@ -318,6 +319,8 @@ public class AccountServiceImpl implements AccountService {
             user.setLastPasswordResetDate(new Date());
             user.setIsAdmin("0");
             userDao.add(user);
+            account.setCreateDate(new Date());
+            account.setUpdateDate(new Date());
             account.setAccountStatus(1);
             account.setUserId(user.getId());
             accountDao.insert(account);

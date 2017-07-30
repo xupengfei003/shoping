@@ -223,18 +223,18 @@
     </update>
 
     <resultMap id="accountUserMap" type="so.sao.shop.supplier.domain.Account">
-        <id column="user_id" property="userId" />
+        <id column="account_id" property="accountId" />
         <result column="provider_name" property="providerName"/>
     </resultMap>
     <!-- 根据商品ID查询供应商信息 -->
     <select id="findAccountById" resultMap="accountUserMap">
         SELECT
-            user_id,
+            account_id,
             provider_name
         FROM
           account
         WHERE
-        user_id = (
+        account_id = (
             SELECT
               supplier_id
             FROM
