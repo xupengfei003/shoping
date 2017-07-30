@@ -258,8 +258,7 @@ public class AccountController {
     @ApiOperation("忘记密码")
     @GetMapping(value = "/findPassword/{tel}")
     public BaseResult getPassword(HttpServletRequest request, @PathVariable String tel) throws IOException {
-        User user = (User) request.getAttribute(Constant.REQUEST_USER);
-        return authService.getPassword(tel, user.getId());
+        return authService.getPassword(tel);
     }
 
     /**
