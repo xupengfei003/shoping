@@ -81,7 +81,7 @@ public class AuthServiceImpl implements AuthService {
      * @return
      */
     public Result logout(Long userId){
-        userDao.updateLogoutTime(userId, System.currentTimeMillis());
+        userDao.updateLogoutTime(userId, new Date());
         return new Result(1,"登出成功",null);
     }
 
@@ -113,7 +113,7 @@ public class AuthServiceImpl implements AuthService {
         if(u!=null&& StringUtils.isNotBlank(u.getUsername())&&u.getId()==userId){
             String password = smsService.getVerCode();
             //密码加密保存,忘记密码只能手机验证发送新密码
-            userDao.updatePassword(u.getId(),new BCryptPasswordEncoder().encode(password), new Date().getTime());
+            userDao.updatePassword(u.getId(),new BCryptPasswordEncoder().encode(password), new Date());
             smsService.sendSms(Collections.singletonList(phone), password);
             return new BaseResult(1, "发送成功");
         }else{
@@ -166,7 +166,7 @@ public class AuthServiceImpl implements AuthService {
 
         User user = userDao.findOne(userId);
         if(user!=null&& StringUtils.isNotBlank(user.getPassword())){
-            userDao.updatePassword(user.getId(),new BCryptPasswordEncoder().encode(encodedPassword), new Date().getTime());
+            userDao.updatePassword(user.getId(),new BCryptPasswordEncoder().encode(encodedPassword), new Date());
             return new BaseResult(1,"密码修改成功");
         }
         return new BaseResult(0,"当前号码无效!");
