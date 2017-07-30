@@ -318,6 +318,7 @@ public class AccountServiceImpl implements AccountService {
             user.setLastPasswordResetDate(new Date());
             user.setIsAdmin("0");
             userDao.add(user);
+            account.setAccountStatus(1);
             account.setUserId(user.getId());
             accountDao.insert(account);
             smsService.sendSms(Collections.singletonList(account.getContractResponsiblePhone()), password);

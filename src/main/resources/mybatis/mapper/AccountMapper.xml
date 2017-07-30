@@ -716,20 +716,17 @@
                 <if test="contractResponsiblePhone != null and contractResponsiblePhone != ''">
                     AND  contract_responsible_phone = #{contractResponsiblePhone}
                 </if>
-                <if test="contractRegisterAddress != null and contractRegisterAddress != ''">
-                    AND  contract_register_address LIKE "%${contractRegisterAddress}%"
-                </if><!--
-                <if test="contractRegisterAddress != null ">
-                  AND  contract_register_address_province LIKE "%${contractRegisterAddress}%"
+                <if test="contractRegisterAddressProvince != null ">
+                  AND  contract_register_address_province = #{contractRegisterAddressProvince}
                 </if>
-                <if test="contractRegisterAddress != null ">
-                  AND  contract_register_address_city LIKE "%${contractRegisterAddress}%"
+                <if test="contractRegisterAddressCity != null ">
+                  AND  contract_register_address_city = #{contractRegisterAddressCity}
                 </if>
-                <if test="contractRegisterAddress != null ">
-                  AND  contract_register_address_district LIKE "%${contractRegisterAddress}%"
-                </if>-->
-            </where>
-    </select>
+                <if test="contractRegisterAddressDistrict != null ">
+                  AND  contract_register_address_district = #{contractRegisterAddressDistrict}
+                </if>
+    </where>
+  </select>
 
     <select id="findOne" resultMap="BaseResultMap" parameterType="long">
            SELECT account_id,user_id,provider_name,responsible,responsible_phone, license,

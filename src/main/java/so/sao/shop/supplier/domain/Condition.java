@@ -44,9 +44,17 @@ public class Condition {
      */
     private String contractResponsiblePhone;
     /**
-     * 注册地区
+     * 合同注册地址（省）
      */
-    private String contractRegisterAddress;
+    private String contractRegisterAddressProvince;
+    /**
+     * 合同注册地址（市）
+     */
+    private String contractRegisterAddressCity;
+    /**
+     * 合同注册地址（区）
+     */
+    private String contractRegisterAddressDistrict;
 
     /**
      * 页数
@@ -113,15 +121,6 @@ public class Condition {
         this.contractResponsiblePhone = contractResponsiblePhone;
     }
 
-    public String getContractRegisterAddress() {
-        return contractRegisterAddress;
-    }
-
-    public void setContractRegisterAddress(String contractRegisterAddress) {
-        this.contractRegisterAddress = contractRegisterAddress;
-    }
-
-
     public void setBeginDate(Date beginDate) {
         this.beginDate = beginDate;
     }
@@ -149,4 +148,28 @@ public class Condition {
     public void setPageSize(Integer pageSize) {
         this.pageSize = pageSize;
     }
+
+	public String getContractRegisterAddressProvince() {
+		return contractRegisterAddressProvince;
+	}
+
+	public void setContractRegisterAddressProvince(String contractRegisterAddressProvince) {
+		this.contractRegisterAddressProvince = contractRegisterAddressProvince;
+	}
+
+	public String getContractRegisterAddressCity() {
+		return contractRegisterAddressCity;
+	}
+
+	public void setContractRegisterAddressCity(String contractRegisterAddressCity) {
+		this.contractRegisterAddressCity = contractRegisterAddressCity;
+	}
+
+	public String getContractRegisterAddressDistrict() {
+		return contractRegisterAddressDistrict;
+	}
+
+	public void setContractRegisterAddressDistrict(String contractRegisterAddressDistrict) {
+		this.contractRegisterAddressDistrict = contractRegisterAddressDistrict;
+	}
 }

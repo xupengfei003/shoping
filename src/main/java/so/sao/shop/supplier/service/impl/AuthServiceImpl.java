@@ -63,19 +63,18 @@ public class AuthServiceImpl implements AuthService {
      * @throws IOException
      */
     public Result login(String username, String password) throws IOException {
+        UserDetails userDetails = null;
+        try {
+            userDetails = userDetailsService.loadUserByUsername(username);
+        }catch (UsernameNotFoundException e){
+            return new Result(0,"当前号码无效!","");
+        }
         try{
             UsernamePasswordAuthenticationToken upToken = new UsernamePasswordAuthenticationToken(username, password);
             final Authentication authentication = authenticationManager.authenticate(upToken);
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }catch (Exception e){
             return new Result(0,"用户名或密码错误!","");
-        }
-
-        UserDetails userDetails = null;
-        try {
-            userDetails = userDetailsService.loadUserByUsername(username);
-        }catch (UsernameNotFoundException e){
-            return new Result(0,"当前号码无效!","");
         }
         return new Result<String>(1, "", jwtTokenUtil.generateToken(userDetails));
     }
