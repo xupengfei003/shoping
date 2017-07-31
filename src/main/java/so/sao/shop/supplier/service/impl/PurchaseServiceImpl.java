@@ -90,8 +90,8 @@ public class PurchaseServiceImpl implements PurchaseService {
         boolean flag = false;
         int counter = 1;
         //b.循环商户ID生成订单
+        List<Purchase> listPurchase = new ArrayList<>();
         for (Long sId : set){
-            List<Purchase> listPurchase = new ArrayList<>();
             //生成订单编号
             String orderId = NumberGenerate.generateUuid();
             List<PurchaseItem> listItem = new ArrayList<>();
@@ -101,7 +101,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                 Long goodsId = purchaseItem.getGoodsId();//商品ID
                 Account accountUser = purchaseDao.findAccountById(goodsId);
                 //判断当前商品是否属于该商户
-                if(null != accountUser && sId == accountUser.getAccountId()){
+                if(null != accountUser && sId.equals(accountUser.getAccountId())){
                     BigDecimal goodsNumber = new BigDecimal(purchaseItem.getGoodsNumber());//商品数量
                     String goodsAttribute = purchaseItem.getGoodsAttribute();//商品属性
                     //查询商品信息
