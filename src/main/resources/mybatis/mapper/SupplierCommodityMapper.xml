@@ -153,7 +153,7 @@
         min_img AS minImg,
         price,
         unit_price AS unitPrice
-        FROM supplier_commodity sc WHERE code69 = #{code69} AND sc.supplier_id = #{accountId}
+        FROM supplier_commodity sc WHERE code69 = #{code69} AND sc.supplier_id = #{supplierId}
     </select>
     <!--获取商品详情-->
     <select id="findOne" resultType="so.sao.shop.supplier.domain.SupplierCommodity">

@@ -315,7 +315,7 @@ public class FileUtil {
 				//获取或创建container
 				CloudBlobContainer blobContainer = BlobHelper.getBlobContainer(Constant.AZURE_CONTAINER.toLowerCase(), storageConfig);
 				for (int i = 0; i < files.length; i++) {
-					File file = new File(realzippath+"/"+files[i]);
+					File file = new File(realzippath+"/"+files[i].trim());
 					String fileName = file.getName();
 					if (file.exists()) {
 						try {

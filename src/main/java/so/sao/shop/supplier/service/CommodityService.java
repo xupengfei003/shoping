@@ -25,14 +25,14 @@ public interface CommodityService {
      * @param commodityInput 商品信息对象
      * @return 保存结果
      */
-    BaseResult saveCommodity(HttpServletRequest request,CommodityInput commodityInput,Long accountId);
+    BaseResult saveCommodity(HttpServletRequest request,CommodityInput commodityInput,Long supplierId);
 
     /**
      * 修改商品
      * @param commodityInput 商品信息对象
      * @return 修改结果
      */
-    BaseResult updateCommodity(HttpServletRequest request, CommodityInput commodityInput,Long accountId);
+    BaseResult updateCommodity(HttpServletRequest request, CommodityInput commodityInput,Long supplierId);
 
     /**
      * 根据供应商商品ID获取商品详细信息
@@ -146,5 +146,5 @@ public interface CommodityService {
      * @return 导入结果
      */
 
-    public  List<CommodityImportOutput> importExcel(MultipartFile multipartFile , HttpServletRequest request, StorageConfig storageConfig, Long accountId);
+    List<CommodityImportOutput> importExcel(MultipartFile multipartFile , HttpServletRequest request, StorageConfig storageConfig, Long supplierId);
 }
