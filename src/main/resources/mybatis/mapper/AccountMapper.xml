@@ -684,7 +684,7 @@
     WHERE user_id=#{account.userId};
   </update>
 <select id="findPage" resultMap="BaseResultMap" parameterType="so.sao.shop.supplier.domain.Condition">
-          SELECT account_id,user_id,create_date,provider_name,responsible,contract_end_date, contract_responsible_phone,p.name regist_address_province,
+          SELECT contract_responsible,contract_create_date, account_id,user_id,create_date,provider_name, contract_end_date, contract_responsible_phone,p.name regist_address_province,
                   c.name regist_address_city,d.name regist_address_district  ,cp.name contract_register_address_province,cc.name contract_register_address_city,
                   cd.name contract_register_address_district,  contract_register_address
             FROM account,sys_region p, sys_region c, sys_region d, sys_region cp, sys_region cc, sys_region cd

@@ -147,7 +147,7 @@ public class JwtTokenUtil implements Serializable {
         Date created = new Date(Long.valueOf(claims.get(CLAIM_KEY_CREATED).toString()));
         return (
                 username.equals(user.getUsername())
-                        && !isTokenExpired(token) && user.getLastPasswordResetDate()!=null && !isCreatedBeforeLastPasswordReset(created, user.getLastPasswordResetDate()) && (user.getLogoutTime()==null || !isLogout(created,user.getLogoutTime())));
+                        && !isTokenExpired(token) && (user.getLastPasswordResetDate()==null || !isCreatedBeforeLastPasswordReset(created, user.getLastPasswordResetDate())) && (user.getLogoutTime()==null || !isLogout(created,user.getLogoutTime())));
     }
 
     /**
@@ -193,7 +193,7 @@ public class JwtTokenUtil implements Serializable {
     public Boolean canTokenBeRefreshed(String token, Date lastPasswordReset, Date logoutTime) throws IOException  {
         Map claims = getClaimsFromToken(token);
         Date created = new Date(Long.valueOf(claims.get(CLAIM_KEY_CREATED).toString()));
-        return !isTokenExpired(token) && lastPasswordReset!=null && !isCreatedBeforeLastPasswordReset(created, lastPasswordReset)
+        return !isTokenExpired(token) && (lastPasswordReset==null || !isCreatedBeforeLastPasswordReset(created, lastPasswordReset))
                 && (logoutTime==null || !isLogout(created, logoutTime));
     }
 
