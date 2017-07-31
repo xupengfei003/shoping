@@ -69,8 +69,9 @@ public interface PurchaseService {
      * @param response response
      * @param pageNum pageNum
      * @param pageSize pageSize
+     * @param accountId accountId
      */
-    void exportExcel(HttpServletRequest request, HttpServletResponse response, String pageNum, Integer pageSize) throws Exception;
+    void exportExcel(HttpServletRequest request, HttpServletResponse response, String pageNum, Integer pageSize, Long accountId) throws Exception;
 
     /**
      * 根据商家编号及查询条件（起始-结束时间范围；起始-结束金额范围）查找所有相关订单记录(分页)

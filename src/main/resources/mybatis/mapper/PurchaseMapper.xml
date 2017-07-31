@@ -76,6 +76,7 @@
         order_payment_num
         FROM
         purchase
+        WHERE store_id = #{accountId}
     </select>
   <!-- 添加订单信息 -->
     <insert id="savePurchase" parameterType="java.util.List">

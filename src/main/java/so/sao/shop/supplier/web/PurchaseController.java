@@ -113,10 +113,14 @@ public class PurchaseController {
     @RequestMapping(value = "/export", method = RequestMethod.GET)
     @ApiOperation(value = "POI批量导出订单列表", notes = "POI批量导出订单列表")
     @ResponseBody
-    public BaseResult exportExcel(HttpServletRequest request, HttpServletResponse response, String pageNum, Integer pageSize) {
+    public BaseResult exportExcel(HttpServletRequest request, HttpServletResponse response, String pageNum, Integer pageSize, @RequestParam(required = false) Long accountId) {
+        if(accountId == null ){
+            User user = (User) request.getAttribute(so.sao.shop.supplier.util.Constant.REQUEST_USER);
+            accountId = user.getAccountId();
+        }
         BaseResult result = new BaseResult();
         try {
-            purchaseService.exportExcel(request, response, pageNum, pageSize);
+            purchaseService.exportExcel(request, response, pageNum, pageSize, accountId);
             result.setCode(Constant.CodeConfig.CODE_SUCCESS);
             result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
         } catch (Exception e) {

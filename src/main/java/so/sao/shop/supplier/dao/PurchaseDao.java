@@ -77,10 +77,10 @@ public interface PurchaseDao {
 
     /**
      * 批量获取订单列表
-     *
+     * @param accountId 供应商ID
      * @return List<Purchase>
      */
-    List<Purchase> getOrderListByIds();
+    List<Purchase> getOrderListByIds(Long accountId);
 
     /**
      * 根据商品ID查询供应商信息

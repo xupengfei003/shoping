@@ -274,10 +274,11 @@ public class PurchaseServiceImpl implements PurchaseService {
      * @param request request
      * @param response response
      * @param pageNum pageNum
+     * @param accountId accountId
      * @param pageSize pageSize
      */
     @Override
-    public void exportExcel(HttpServletRequest request, HttpServletResponse response, String pageNum, Integer pageSize) throws Exception{
+    public void exportExcel(HttpServletRequest request, HttpServletResponse response, String pageNum, Integer pageSize, Long accountId) throws Exception{
 
         //创建HSSFWorkbook对象(excel的文档对象)
         HSSFWorkbook wb = new HSSFWorkbook();
@@ -339,16 +340,16 @@ public class PurchaseServiceImpl implements PurchaseService {
                 Collections.sort(pageNumList);
                 for(int i = pageNumList.get(0); i<=pageNumList.get(1); i++){
                     PageHelper.startPage(i, pageSize);
-                    orderList = purchaseDao.getOrderListByIds();
+                    orderList = purchaseDao.getOrderListByIds(accountId);
                     purchaseList.addAll(orderList);
                 }
             } else { //获取当前页列表
                 PageHelper.startPage(pageNumList.get(0), pageSize);
-                purchaseList = purchaseDao.getOrderListByIds();
+                purchaseList = purchaseDao.getOrderListByIds(accountId);
             }
 
         } else { //查询全部列表
-            purchaseList = purchaseDao.getOrderListByIds();
+            purchaseList = purchaseDao.getOrderListByIds(accountId);
         }
 
 
