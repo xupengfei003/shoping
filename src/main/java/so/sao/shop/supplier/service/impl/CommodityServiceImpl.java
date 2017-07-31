@@ -445,6 +445,8 @@ public class CommodityServiceImpl implements CommodityService {
         TreeSet<Long> idList = new TreeSet<>();
         //不可删除商品ID集合
         TreeSet<Long> idNotList = new TreeSet<>();
+        //不可删除商品商品编码集合
+        TreeSet<String> codeNotList = new TreeSet<>();
         for(long id : ids){
             //根据商品与供应商关系ID获取供应商商品对象
             SupplierCommodity supplierCommodity = supplierCommodityDao.findOne(id);
@@ -452,9 +454,11 @@ public class CommodityServiceImpl implements CommodityService {
                 map.put("supplierId",supplierCommodity.getSupplierId());
                 //根据商品与供应商关系ID查询商品状态
                 int status = supplierCommodityDao.findStatus(id);
+                String code69 = supplierCommodity.getCode69();
                 //商品需下架才可删除
                 if(status != Constant.COMM_ST_XJ){
                     idNotList.add(id);
+                    codeNotList.add(code69);
                 }else{
                     idList.add(id);
                 }
@@ -466,7 +470,7 @@ public class CommodityServiceImpl implements CommodityService {
         }
         if(null != idNotList && idNotList.size() > 0){
             result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage("商品需下架才可删除,id:"+idNotList);
+            result.setMessage("商品需下架才可删除,商品编码:"+codeNotList);
             result.setData(map);
             return result;
         }

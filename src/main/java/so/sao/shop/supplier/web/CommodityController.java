@@ -46,7 +46,7 @@ public class CommodityController {
 
     @ApiOperation(value="查询供应商商品信息集合", notes="根据参数返回符合条件的商品信息集合")
     @GetMapping(value="/search")
-    public PageInfo search(HttpServletRequest request, @RequestParam(required = false) Long supplierId,@RequestParam(required = false) String commCode69,@RequestParam(required = false) Long commId,
+    public PageInfo search(HttpServletRequest request, @RequestParam(value = "accountId", required = false) Long supplierId,@RequestParam(required = false) String commCode69,@RequestParam(required = false) Long commId,
                            @RequestParam(required = false) String suppCommCode,@RequestParam(required = false) String commName,
                            @RequestParam(required = false) Integer status,@RequestParam(required = false) Long typeId,@RequestParam(required = false) Double minPrice,
                            @RequestParam(required = false) Double maxPrice,@RequestParam(required = false) Integer pageNum, @RequestParam(required = false) Integer pageSize){

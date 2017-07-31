@@ -5,6 +5,7 @@ import so.sao.shop.supplier.domain.Account;
 import so.sao.shop.supplier.domain.Condition;
 import so.sao.shop.supplier.domain.DictItem;
 import so.sao.shop.supplier.domain.User;
+import so.sao.shop.supplier.pojo.BaseResult;
 import so.sao.shop.supplier.pojo.output.AccountBalanceOutput;
 
 import java.util.List;
@@ -108,9 +109,9 @@ public interface AccountService {
 
     /**
      * 添加用户和供应商
-     * @param phone
+     * @param account
      * @return 返回用id
      */
-	String saveUserAndAccount(Account account);
+    BaseResult saveUserAndAccount(Account account);
 
 }

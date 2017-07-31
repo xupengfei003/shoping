@@ -712,10 +712,10 @@
                     AND contract_end_date <![CDATA[<=]]> #{contractEndDate}
                 </if>
                 <if test="contractResponsible != null and contractResponsible != ''">
-                    AND contract_responsible = #{contractResponsible}
+                    AND contract_responsible LIKE "%${contractResponsible}%"
                 </if>
                 <if test="contractResponsiblePhone != null and contractResponsiblePhone != ''">
-                    AND  contract_responsible_phone = #{contractResponsiblePhone}
+                    AND  contract_responsible_phone = LIKE "%${contractResponsiblePhone}%"
                 </if>
                 <if test="contractRegisterAddressProvince != null ">
                   AND  contract_register_address_province = #{contractRegisterAddressProvince}

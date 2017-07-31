@@ -76,8 +76,6 @@ public class PurchaseServiceImpl implements PurchaseService {
             3.生成订单数据
          */
         List<PurchaseItemVo> listPurchaseItem = purchase.getListPurchaseItem();//订单详情
-        //生成订单编号
-        String orderId = NumberGenerate.generateUuid();
         Set<Long> set = new HashSet<>();
         for (PurchaseItemVo purchaseItem : listPurchaseItem) {
             //a.根据商品查出所有商户信息。
@@ -92,31 +90,37 @@ public class PurchaseServiceImpl implements PurchaseService {
         boolean flag = false;
         int counter = 1;
         //b.循环商户ID生成订单
-        List<Purchase> listPurchase = new ArrayList<>();
-        for (Long struId : set){
+        for (Long sId : set){
+            List<Purchase> listPurchase = new ArrayList<>();
+            //生成订单编号
+            String orderId = NumberGenerate.generateUuid();
             List<PurchaseItem> listItem = new ArrayList<>();
             BigDecimal totalMoney = new BigDecimal(0);//订单总价计算
             for (PurchaseItemVo purchaseItem : listPurchaseItem) {
                 //根据商品ID查询商户ID
                 Long goodsId = purchaseItem.getGoodsId();//商品ID
-                BigDecimal goodsNumber = new BigDecimal(purchaseItem.getGoodsNumber());//商品数量
-                String goodsAttribute = purchaseItem.getGoodsAttribute();//商品属性
-                //查询商品信息
-                CommodityOutput commOutput = commodityService.getCommodity(goodsId);
-                //2.生成批量插入订单详情数据
-                PurchaseItem item = new PurchaseItem();
-                item.setGoodsAttribute(goodsAttribute);//商品属性
-                item.setGoodsId(goodsId);//商品ID
-                item.setGoodsNumber(goodsNumber.intValue());//商品数量
-                Double unitPrice = commOutput.getUnitPrice();//商品售价
-                item.setGoodsUnitPrice(new BigDecimal(unitPrice));
-                totalMoney = totalMoney.add(goodsNumber.multiply(new BigDecimal(unitPrice)));//订单总价计算
-                item.setGoodsTatolPrice(goodsNumber.multiply(new BigDecimal(unitPrice)));//单个商品总价
-                item.setGoodsImage(commOutput.getMinImg());//商品图片
-                item.setGoodsName(commOutput.getName());//商品名称
-                item.setBrandName(commOutput.getBrand());//品牌
-                item.setOrderId(orderId);//订单ID
-                listItem.add(item);
+                Account accountUser = purchaseDao.findAccountById(goodsId);
+                //判断当前商品是否属于该商户
+                if(null != accountUser && sId == accountUser.getAccountId()){
+                    BigDecimal goodsNumber = new BigDecimal(purchaseItem.getGoodsNumber());//商品数量
+                    String goodsAttribute = purchaseItem.getGoodsAttribute();//商品属性
+                    //查询商品信息
+                    CommodityOutput commOutput = commodityService.getCommodity(goodsId);
+                    //2.生成批量插入订单详情数据
+                    PurchaseItem item = new PurchaseItem();
+                    item.setGoodsAttribute(goodsAttribute);//商品属性
+                    item.setGoodsId(goodsId);//商品ID
+                    item.setGoodsNumber(goodsNumber.intValue());//商品数量
+                    Double unitPrice = commOutput.getUnitPrice();//商品售价
+                    item.setGoodsUnitPrice(new BigDecimal(unitPrice));
+                    totalMoney = totalMoney.add(goodsNumber.multiply(new BigDecimal(unitPrice)));//订单总价计算
+                    item.setGoodsTatolPrice(goodsNumber.multiply(new BigDecimal(unitPrice)));//单个商品总价
+                    item.setGoodsImage(commOutput.getMinImg());//商品图片
+                    item.setGoodsName(commOutput.getName());//商品名称
+                    item.setBrandName(commOutput.getBrand());//品牌
+                    item.setOrderId(orderId);//订单ID
+                    listItem.add(item);
+                }
             }
             //3.生成订单数据
             Long userId = purchase.getUserId();//买家ID
@@ -126,7 +130,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             Integer orderPaymentMethod = purchase.getOrderPaymentMethod();//支付方式
             Purchase purchaseDate = new Purchase();
             purchaseDate.setOrderId(orderId);//订单ID
-            purchaseDate.setStoreId(struId);//商户ID
+            purchaseDate.setStoreId(sId);//商户ID
             purchaseDate.setUserId(userId);//买家ID
             purchaseDate.setOrderReceiverName(orderReceiverName);//收货人姓名
             purchaseDate.setOrderReceiverMobile(orderReceiverMobile);//收货人电话

@@ -14,6 +14,7 @@ import so.sao.shop.supplier.domain.Account;
 import so.sao.shop.supplier.domain.Condition;
 import so.sao.shop.supplier.domain.DictItem;
 import so.sao.shop.supplier.domain.User;
+import so.sao.shop.supplier.pojo.BaseResult;
 import so.sao.shop.supplier.pojo.output.AccountBalanceOutput;
 import so.sao.shop.supplier.service.AccountService;
 
@@ -308,7 +309,8 @@ public class AccountServiceImpl implements AccountService {
      */
     @Override
     @Transactional
-    public String saveUserAndAccount(Account account) {
+    public BaseResult saveUserAndAccount(Account account) {
+        BaseResult baseResult = new BaseResult();
         User user1 = userDao.findByUsername(account.getContractResponsiblePhone());
         if (user1 == null) {
             User user = new User();
@@ -325,9 +327,13 @@ public class AccountServiceImpl implements AccountService {
             account.setUserId(user.getId());
             accountDao.insert(account);
             smsService.sendSms(Collections.singletonList(account.getContractResponsiblePhone()), password);
-            return "用户和供应商添加成功！";
+            baseResult.setMessage("用户和供应商添加成功！");
+            baseResult.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SUCCESS);
+            return baseResult;
         } else {
-            return "此供应商已经存在！";
+            baseResult.setMessage("此供应商已经存在！");
+            baseResult.setCode(Constant.CodeConfig.CODE_FAILURE);
+            return baseResult;
         }
     }
 }
