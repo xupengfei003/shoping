@@ -145,10 +145,10 @@
             </if>
 
             <if test="beginTime!=null">
-                AND order_create_time >= TRIM(#{beginTime})
+                AND order_create_time >= TRIM(#{beginDate})
             </if>
             <if test="endTime != null">
-                <![CDATA[AND order_create_time <= TRIM(#{endTime})]]>
+                <![CDATA[AND order_create_time <= TRIM(#{endDate})]]>
             </if>
 
             <if test="beginMoney!=null">
@@ -162,7 +162,7 @@
             </if>
 
             <if test="orderPaymentTime!=null">
-                <![CDATA[AND order_payment_time <= TRIM(#{orderPaymentTime})]]>
+                <![CDATA[AND order_payment_time <= TRIM(#{orderPaymentDate})]]>
             </if>
 
             <if test="orderPaymentMethod!=null">

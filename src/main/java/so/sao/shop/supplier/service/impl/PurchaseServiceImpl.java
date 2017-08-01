@@ -209,7 +209,7 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Override
     public PurchaseSelectOutput searchOrders(Integer pageNum, Integer rows, PurchaseSelectInput purchaseSelectInput) {
         PageHelper.startPage(pageNum, rows);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         try {
             if(null!=purchaseSelectInput.getBeginDate()){
                 purchaseSelectInput.setBeginTime(sdf.parse(purchaseSelectInput.getBeginDate()));
