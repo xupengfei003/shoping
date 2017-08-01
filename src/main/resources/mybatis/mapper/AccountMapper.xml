@@ -715,7 +715,7 @@
                     AND contract_responsible LIKE "%${contractResponsible}%"
                 </if>
                 <if test="contractResponsiblePhone != null and contractResponsiblePhone != ''">
-                    AND  contract_responsible_phone = LIKE "%${contractResponsiblePhone}%"
+                    AND  contract_responsible_phone  LIKE "%${contractResponsiblePhone}%"
                 </if>
                 <if test="contractRegisterAddressProvince != null ">
                   AND  contract_register_address_province = #{contractRegisterAddressProvince}

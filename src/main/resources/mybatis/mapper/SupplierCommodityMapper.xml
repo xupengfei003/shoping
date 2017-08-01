@@ -191,7 +191,7 @@
             AND sc.code69 = #{commCode69}
         </if>
         <if test="commId != null">
-            AND sc.commodity_id = #{commId}
+            AND sc.id = #{commId}
         </if>
         <if test="suppCommCode != null">
             AND sc.code = #{suppCommCode}
@@ -203,13 +203,13 @@
             AND sc.`status` = #{status}
         </if>
         <if test="minPrice != null and maxPrice == null">
-            AND sc.unit_price<![CDATA[ >= #{minPrice}]]>
+            AND sc.price<![CDATA[ >= #{minPrice}]]>
         </if>
         <if test="minPrice == null and maxPrice != null">
-            AND  sc.unit_price<![CDATA[<= #{maxPrice}]]>
+            AND  sc.price<![CDATA[<= #{maxPrice}]]>
         </if>
         <if test="minPrice != null and maxPrice != null">
-            AND sc.unit_price BETWEEN #{minPrice} AND #{maxPrice}
+            AND sc.price BETWEEN #{minPrice} AND #{maxPrice}
         </if>
         <if test="typeId != null">
             AND sc.category_one_id = #{typeId}
@@ -228,7 +228,7 @@
             AND sc.code69 = #{commCode69}
         </if>
         <if test="commId != null">
-            AND sc.commodity_id = #{commId}
+            AND sc.id = #{commId}
         </if>
         <if test="suppCommCode != null">
             AND sc.code = #{suppCommCode}
@@ -240,13 +240,13 @@
             AND sc.`status` = #{status}
         </if>
         <if test="minPrice != null and maxPrice == null">
-            AND sc.unit_price<![CDATA[ >= #{minPrice}]]>
+            AND sc.price<![CDATA[ >= #{minPrice}]]>
         </if>
         <if test="minPrice == null and maxPrice != null">
-            AND  sc.unit_price<![CDATA[<= #{maxPrice}]]>
+            AND  sc.price<![CDATA[<= #{maxPrice}]]>
         </if>
         <if test="minPrice != null and maxPrice != null">
-            AND sc.unit_price BETWEEN #{minPrice} AND #{maxPrice}
+            AND sc.price BETWEEN #{minPrice} AND #{maxPrice}
         </if>
         <if test="typeId != null">
             AND sc.category_one_id = #{typeId}
@@ -284,13 +284,13 @@
             AND sc.code = #{suppCommCode}
         </if>
         <if test="minPrice != null and maxPrice == null">
-            AND sc.unit_price<![CDATA[ >= #{minPrice}]]>
+            AND sc.price<![CDATA[ >= #{minPrice}]]>
         </if>
         <if test="minPrice == null and maxPrice != null">
-            AND  sc.unit_price<![CDATA[<= #{maxPrice}]]>
+            AND  sc.price<![CDATA[<= #{maxPrice}]]>
         </if>
         <if test="minPrice != null and maxPrice != null">
-            AND sc.unit_price BETWEEN #{minPrice} AND #{maxPrice}
+            AND sc.price BETWEEN #{minPrice} AND #{maxPrice}
         </if>
         <if test="typeId != null">
             AND sc.category_one_id = #{typeId}
@@ -317,13 +317,13 @@
             AND sc.code = #{suppCommCode}
         </if>
         <if test="minPrice != null and maxPrice == null">
-            AND sc.unit_price<![CDATA[ >= #{minPrice}]]>
+            AND sc.price<![CDATA[ >= #{minPrice}]]>
         </if>
         <if test="minPrice == null and maxPrice != null">
-            AND  sc.unit_price<![CDATA[<= #{maxPrice}]]>
+            AND  sc.price<![CDATA[<= #{maxPrice}]]>
         </if>
         <if test="minPrice != null and maxPrice != null">
-            AND sc.unit_price BETWEEN #{minPrice} AND #{maxPrice}
+            AND sc.price BETWEEN #{minPrice} AND #{maxPrice}
         </if>
         <if test="typeId != null">
             AND sc.category_one_id = #{typeId}

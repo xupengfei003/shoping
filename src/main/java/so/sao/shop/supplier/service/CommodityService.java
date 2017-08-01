@@ -14,6 +14,7 @@ import so.sao.shop.supplier.pojo.output.CommodityOutput;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by QuJunLong on 2017/7/17.
@@ -25,14 +26,14 @@ public interface CommodityService {
      * @param commodityInput 商品信息对象
      * @return 保存结果
      */
-    BaseResult saveCommodity(HttpServletRequest request,CommodityInput commodityInput,Long supplierId);
+    BaseResult saveCommodity(HttpServletRequest request,CommodityInput commodityInput,Long supplierId) throws Exception;
 
     /**
      * 修改商品
      * @param commodityInput 商品信息对象
      * @return 修改结果
      */
-    BaseResult updateCommodity(HttpServletRequest request, CommodityInput commodityInput,Long supplierId);
+    BaseResult updateCommodity(HttpServletRequest request, CommodityInput commodityInput,Long supplierId) throws Exception;
 
     /**
      * 根据供应商商品ID获取商品详细信息
@@ -146,5 +147,5 @@ public interface CommodityService {
      * @return 导入结果
      */
 
-    List<CommodityImportOutput> importExcel(MultipartFile multipartFile , HttpServletRequest request, StorageConfig storageConfig, Long supplierId);
+    Map<String ,List> importExcel(MultipartFile multipartFile , HttpServletRequest request, StorageConfig storageConfig, Long supplierId) throws Exception;
 }

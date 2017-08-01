@@ -20,4 +20,8 @@
   <select id="selectHangYeDict" resultMap="BaseResultMap" >
     select name, code from dict_item where dict_type = 3
   </select>
+
+  <select id="selectExpress" resultMap="BaseResultMap" >
+    select name, code from dict_item where dict_type = 4
+  </select>
 </mapper>

@@ -108,4 +108,13 @@ public class Constant {
      */
     public static final int THUMBNAIL_DEFAULT_HEIGHT = 150;
 
+    /**
+     * 管理员标识 1
+     */
+    public static final String IS_ADMIN = "1";
+    /**
+     * 非管理员标识 0
+     */
+    public static final String IS_NOT_ADMIN = "0";
+
 }

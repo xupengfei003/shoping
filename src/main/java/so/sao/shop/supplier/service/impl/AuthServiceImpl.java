@@ -25,6 +25,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 权限service
@@ -76,7 +78,10 @@ public class AuthServiceImpl implements AuthService {
         }catch (Exception e){
             return new Result(0,"用户名或密码错误!","");
         }
-        return new Result<String>(1, "", jwtTokenUtil.generateToken(userDetails));
+        Map result = new HashMap();
+        result.put("token", jwtTokenUtil.generateToken(userDetails));
+        result.put("user",userDetails);
+        return new Result<Map>(1, "", result);
     }
 
     /**

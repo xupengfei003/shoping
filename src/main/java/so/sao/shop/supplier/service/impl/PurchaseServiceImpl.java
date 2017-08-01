@@ -32,11 +32,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
-import java.sql.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.Date;
 import java.util.stream.Collectors;
 
 /**
@@ -560,6 +558,11 @@ public class PurchaseServiceImpl implements PurchaseService {
             purchaseVos.add(purchaseVo);//将转化后的数据添加到集合中
         }
         return purchaseVos;
+    }
+
+    @Override
+    public Integer findOrderStatus(String orderId) {
+        return purchaseDao.getOrderStatus(orderId);
     }
 
 }

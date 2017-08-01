@@ -156,4 +156,12 @@ public interface PurchaseDao {
      * @return 符合条件的记录条数
      */
     int countByStoreId(@Param("storeId") Long storeId);
+
+    /**
+     *
+     * 获得订单状态
+     * @param orderId
+     * @return
+     */
+    Integer getOrderStatus(@Param("orderId") String orderId);
 }

@@ -4,6 +4,8 @@ import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
@@ -16,6 +18,7 @@ import so.sao.shop.supplier.pojo.output.CommodityExportOutput;
 import so.sao.shop.supplier.pojo.output.CommodityImportOutput;
 import so.sao.shop.supplier.pojo.output.CommodityOutput;
 import so.sao.shop.supplier.service.CommodityService;
+import so.sao.shop.supplier.util.CheckUtil;
 import so.sao.shop.supplier.util.CommodityExcelView;
 import so.sao.shop.supplier.util.Constant;
 import so.sao.shop.supplier.util.ExcelView;
@@ -49,10 +52,10 @@ public class CommodityController {
     public PageInfo search(HttpServletRequest request, @RequestParam(value = "accountId", required = false) Long supplierId,@RequestParam(required = false) String commCode69,@RequestParam(required = false) Long commId,
                            @RequestParam(required = false) String suppCommCode,@RequestParam(required = false) String commName,
                            @RequestParam(required = false) Integer status,@RequestParam(required = false) Long typeId,@RequestParam(required = false) Double minPrice,
-                           @RequestParam(required = false) Double maxPrice,@RequestParam(required = false) Integer pageNum, @RequestParam(required = false) Integer pageSize){
-        if(supplierId==null||supplierId==0){
-            supplierId = commodityService.findAccountByUserId(((User) request.getAttribute(Constant.REQUEST_USER)).getId()).getAccountId();
-        }
+                           @RequestParam(required = false) Double maxPrice,@RequestParam(required = false) Integer pageNum, @RequestParam(required = false) Integer pageSize) throws Exception {
+
+        //供应商ID校验
+        supplierId = CheckUtil.supplierIdCheck(request,supplierId);
         return commodityService.searchCommodities(supplierId, commCode69, commId, suppCommCode, commName, status, typeId, minPrice, maxPrice, pageNum, pageSize);
     }
 
@@ -73,14 +76,34 @@ public class CommodityController {
 
     @ApiOperation(value="新增商品信息", notes="")
     @PostMapping(value="/save")
-    public BaseResult save(HttpServletRequest request,@Valid @RequestBody CommodityInput commodityInput,@RequestParam(required = false) Long supplierId){
-        return commodityService.saveCommodity(request,commodityInput,supplierId);
+    public BaseResult save(HttpServletRequest request,@Valid @RequestBody CommodityInput commodityInput,@RequestParam(required = false) Long supplierId, BindingResult result) throws Exception {
+        if (result.hasErrors()) {
+            BaseResult baseResult = new BaseResult();
+            List<ObjectError> list = result.getAllErrors();
+            for (ObjectError error : list) {
+                baseResult.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_NOT_EMPTY);
+                baseResult.setMessage(error.getDefaultMessage());
+            }
+            return baseResult;
+        }else{
+            return commodityService.saveCommodity(request, commodityInput, supplierId);
+        }
     }
 
     @ApiOperation(value="修改商品信息", notes="")
     @PutMapping(value="/update")
-    public BaseResult update(HttpServletRequest request,@Valid @RequestBody CommodityInput commodityInput,@RequestParam(required = false) Long supplierId){
-        return commodityService.updateCommodity(request,commodityInput,supplierId);
+    public BaseResult update(HttpServletRequest request,@Valid @RequestBody CommodityInput commodityInput,@RequestParam(required = false) Long supplierId, BindingResult result) throws Exception {
+        if (result.hasErrors()) {
+            BaseResult baseResult = new BaseResult();
+            List<ObjectError> list = result.getAllErrors();
+            for (ObjectError error : list) {
+                baseResult.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_NOT_EMPTY);
+                baseResult.setMessage(error.getDefaultMessage());
+            }
+            return baseResult;
+        }else{
+            return commodityService.updateCommodity(request,commodityInput,supplierId);
+        }
     }
 
     @ApiOperation(value="上架商品", notes="")
@@ -128,7 +151,7 @@ public class CommodityController {
 
     @ApiOperation(value="批量导入商品", notes="通过Excel模板批量导入商品信息")
     @PostMapping(value="/importExcel")
-    public  List<CommodityImportOutput> importExcel(@RequestParam(value = "excelFile") MultipartFile excelFile, HttpServletRequest request,@RequestParam(required = false) Long supplierId ){
+    public  Map<String ,List> importExcel(@RequestParam(value = "excelFile") MultipartFile excelFile, HttpServletRequest request,@RequestParam(required = false) Long supplierId ) throws Exception {
         return   commodityService.importExcel(excelFile,request,storageConfig,supplierId);
     }
 

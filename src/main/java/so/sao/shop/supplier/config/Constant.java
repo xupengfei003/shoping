@@ -12,6 +12,10 @@ import java.math.BigDecimal;
  */
 public interface Constant {
     /**
+     * 判断是否是管理员 1是
+     */
+    public static final String ADMIN_STATUS = "1";
+    /**
      * code定义
      */
     interface CodeConfig{
@@ -77,6 +81,17 @@ public interface Constant {
          * 未登录
          */
         public static final String MSG_USER_NOT_LOGIN = "请先登录";
+        /**
+         *  验证登陆用户是否是管理员
+         */
+        public static final String ADMIN_AUTHORITY_EERO = "该登陆用户不是管理员";
+
+        /**
+         * 订单状态不合法
+         */
+        public static final String ORDER_STATUS_EERO = "订单状态不合法";
+
+
     }
 
     interface OrderStatusConfig{

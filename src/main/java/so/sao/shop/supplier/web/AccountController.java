@@ -19,12 +19,10 @@ import so.sao.shop.supplier.service.*;
 import so.sao.shop.supplier.util.Constant;
 import so.sao.shop.supplier.util.ExcelImportUtils;
 
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.*;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,8 +59,14 @@ public class AccountController {
      */
     @ApiOperation("添加供应商信息")
     @PostMapping("/save")
-    public BaseResult save(@Valid @RequestBody Account account,BindingResult result) {
+    public BaseResult save(HttpServletRequest request, @Valid @RequestBody Account account,BindingResult result) {
         BaseResult baseResult = new BaseResult();
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        if(user==null || !user.getIsAdmin().equals(Constant.IS_ADMIN)){
+            baseResult.setCode(0);
+            baseResult.setMessage(so.sao.shop.supplier.config.Constant.MessageConfig.ADMIN_AUTHORITY_EERO);
+            return baseResult;
+        }
         //判断验证是否通过。true 未通过  false通过
         if(result.hasErrors()) {
             List<ObjectError> list = result.getAllErrors();
@@ -74,7 +78,7 @@ public class AccountController {
             /**
              * 插入用户和供应商信息
              */
-        	return accountService.saveUserAndAccount(account);
+            return accountService.saveUserAndAccount(account);
         }
         return baseResult;
     }
@@ -98,8 +102,14 @@ public class AccountController {
      */
     @ApiOperation("修改供应商信息")
     @PutMapping("/update")
-    public BaseResult update(@Valid @RequestBody Account account,BindingResult result) {
+    public BaseResult update(@Valid @RequestBody Account account,BindingResult result, HttpServletRequest request) {
         BaseResult baseResult = new BaseResult();
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        if(user==null || !user.getIsAdmin().equals(Constant.IS_ADMIN)){
+            baseResult.setCode(0);
+            baseResult.setMessage(so.sao.shop.supplier.config.Constant.MessageConfig.ADMIN_AUTHORITY_EERO);
+            return baseResult;
+        }
         //判断验证是否通过。true 未通过  false通过
         if(result.hasErrors()) {
             List<ObjectError> list = result.getAllErrors();
@@ -131,9 +141,15 @@ public class AccountController {
      */
     @ApiOperation("删除供应商信息")
     @DeleteMapping("/delete/{id}")
-    public BaseResult delete(@PathVariable Long id) {
-        int num = accountService.delete(id);
+    public BaseResult delete(@PathVariable Long id, HttpServletRequest request) {
         BaseResult baseResult = new BaseResult();
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        if(user==null || !user.getIsAdmin().equals(Constant.IS_ADMIN)){
+            baseResult.setCode(0);
+            baseResult.setMessage(so.sao.shop.supplier.config.Constant.MessageConfig.ADMIN_AUTHORITY_EERO);
+            return baseResult;
+        }
+        int num = accountService.delete(id);
         if (num < 0) {
             baseResult.setCode(0);
             baseResult.setMessage("删除失败");
@@ -268,7 +284,11 @@ public class AccountController {
      */
     @GetMapping(value = "/account")
     @ApiOperation(value = "查询供应商列表")
-    public PageInfo search(Condition condition) {
+    public PageInfo search(Condition condition, HttpServletRequest request) throws Exception {
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        if(user==null || !user.getIsAdmin().equals(Constant.IS_ADMIN)){
+            throw new Exception();
+        }
         return accountService.searchAccount(condition);
     }
 
@@ -281,11 +301,8 @@ public class AccountController {
 
     @GetMapping("/search")
     @ApiOperation(value = "根据id查询供应商(省市区汉字)")
-    public Account get(@RequestParam(required = false) Long id, HttpServletRequest request) {
-        if(id == null || id == 0){
-            User user = (User) request.getAttribute(Constant.REQUEST_USER);
-            id = accountService.selectByUserId(user.getId()).getAccountId();
-        }
+    public Account get(@RequestParam(required = false) Long id, HttpServletRequest request) throws Exception {
+        id = getAccountId(id, request);
         return accountService.selectById(id);
     }
 
@@ -295,15 +312,30 @@ public class AccountController {
      * @param id
      * @return
      */
-
     @GetMapping("/search0")
     @ApiOperation(value = "根据id查询供应商(省市区编码)")
-    public Account get0(@RequestParam(required = false) Long id, HttpServletRequest request) {
-        if(id == null || id == 0){
-            User user = (User) request.getAttribute(Constant.REQUEST_USER);
-            id = accountService.selectByUserId(user.getId()).getAccountId();
-        }
+    public Account get0(@RequestParam(required = false) Long id, HttpServletRequest request) throws Exception {
+        id = getAccountId(id, request);
         return accountService.selectById0(id);
+    }
+
+    /**
+     * 根据当前登录人角色获取accountId
+     * @param id
+     * @param request
+     * @return
+     * @throws Exception
+     */
+    private Long getAccountId(Long id, HttpServletRequest request) throws Exception {
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        if(user==null){
+            throw new Exception();
+        }else if(user.getIsAdmin().equals(Constant.IS_ADMIN )&&(id == null || id == 0)){
+            throw new Exception();
+        }else if(!user.getIsAdmin().equals(Constant.IS_ADMIN )){
+            id = user.getAccountId();
+        }
+        return id;
     }
 
     /**
@@ -361,53 +393,6 @@ public class AccountController {
     }
 
     /**
-     * 供应商信息模板下载
-     *
-     * @param request
-     * @param response
-     * @throws IOException
-     */
-    @ApiOperation("供应商信息模板下载")
-    @GetMapping("/down")
-    public void downLoadExcel(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        URL save = Thread.currentThread().getContextClassLoader().getResource("");
-        String str = save.toString();
-        str = str.substring(6, str.length());
-        str = str.replaceAll("%20", " ");
-        int num = str.lastIndexOf("supplier");//supplier 为项目名，应用到不同的项目中，这个需要修改！
-        str = str.substring(0, num + "supplier".length());
-        str = str + "/file/Commodity.xls";//Excel模板所在的路径。
-        File f = new File(str);
-        // 设置response参数，可以打开下载页面
-        response.reset();
-        response.setContentType("application/vnd.ms-excel;charset=utf-8");
-        String filename = "商品信息.xls";
-        filename = new String(filename.getBytes("Utf-8"), "iso-8859-1");
-        response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
-        response.setCharacterEncoding("UTF-8");
-        response.setHeader("Content-Type", "application/octet-stream");
-        ServletOutputStream out = response.getOutputStream();
-        BufferedInputStream bis = null;
-        BufferedOutputStream bos = null;
-        try {
-            bis = new BufferedInputStream(new FileInputStream(f));
-            bos = new BufferedOutputStream(out);
-            byte[] buff = new byte[2048];
-            int bytesRead;
-            while (-1 != (bytesRead = bis.read(buff, 0, buff.length))) {
-                bos.write(buff, 0, bytesRead);
-            }
-        } catch (final IOException e) {
-            throw e;
-        } finally {
-            if (bis != null)
-                bis.close();
-            if (bos != null)
-                bos.close();
-        }
-    }
-
-    /**
      * 根据上传开始时间、结束时间、上传方式查询供应商上传记录
      *
      * @param condition 查询参数
@@ -437,7 +422,11 @@ public class AccountController {
      */
     @ApiOperation("供应商信息上传")
     @PostMapping("/upload")
-    public String excelUpload(HttpServletRequest request, HttpServletResponse response, MultipartFile file) {
+    public String excelUpload(HttpServletRequest request, HttpServletResponse response, MultipartFile file) throws Exception {
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        if(user==null || !user.getIsAdmin().equals(Constant.IS_ADMIN)){
+            throw new Exception();
+        }
         //判断文件是否为空
         if (file == null) {
             return "文件不能为空";
@@ -461,5 +450,4 @@ public class AccountController {
         String message = importExcel.batchImport(fileName, file);
         return message;
     }
-
 }

@@ -15,7 +15,6 @@ import so.sao.shop.supplier.pojo.input.PurchaseSelectInput;
 import so.sao.shop.supplier.pojo.output.*;
 import so.sao.shop.supplier.service.PurchaseService;
 import so.sao.shop.supplier.util.DateUtil;
-import so.sao.shop.supplier.util.StringUtil;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -23,8 +22,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.math.BigInteger;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -114,20 +111,33 @@ public class PurchaseController {
     @ApiOperation(value = "POI批量导出订单列表", notes = "POI批量导出订单列表")
     @ResponseBody
     public BaseResult exportExcel(HttpServletRequest request, HttpServletResponse response, String pageNum, Integer pageSize, @RequestParam(required = false) Long accountId) {
-        if(accountId == null ){
-            User user = (User) request.getAttribute(so.sao.shop.supplier.util.Constant.REQUEST_USER);
-            accountId = user.getAccountId();
-        }
         BaseResult result = new BaseResult();
-        try {
-            purchaseService.exportExcel(request, response, pageNum, pageSize, accountId);
-            result.setCode(Constant.CodeConfig.CODE_SUCCESS);
-            result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
-        } catch (Exception e) {
-            result.setCode(Constant.CodeConfig.CODE_SYSTEM_EXCEPTION);
-            result.setMessage(Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
-        }
-        return result;
+        //TODO 前端下载暂时未作token传递
+        /*User user = (User) request.getAttribute(so.sao.shop.supplier.util.Constant.REQUEST_USER);
+        if (null == user) {   //验证用户是否登陆
+            result.setCode(Constant.CodeConfig.CODE_USER_NOT_LOGIN);
+            result.setMessage(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
+            return result;
+        } else {
+            if (user.getIsAdmin().equals(Constant.ADMIN_STATUS)) {  //验证用户是否是管理员
+                if (accountId == null) {
+                    result.setCode(Constant.CodeConfig.CODE_FAILURE);
+                    result.setMessage(Constant.MessageConfig.ADMIN_AUTHORITY_EERO);
+                    return result;
+                }
+            } else {
+                accountId = user.getAccountId();
+            }*/
+            try {
+                purchaseService.exportExcel(request, response, pageNum, pageSize, accountId);
+                result.setCode(Constant.CodeConfig.CODE_SUCCESS);
+                result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
+            } catch (Exception e) {
+                result.setCode(Constant.CodeConfig.CODE_SYSTEM_EXCEPTION);
+                result.setMessage(Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
+            }
+            return result;
+       // }
     }
 
     /**
@@ -145,25 +155,31 @@ public class PurchaseController {
         purchaseSelectOutputList.setCode(Constant.CodeConfig.CODE_DATE_INPUT_FORMAT_ERROR);
         purchaseSelectOutputList.setMessage(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
         User user = (User) request.getAttribute(so.sao.shop.supplier.util.Constant.REQUEST_USER);
-        if(null == user){
+        if (null == user) {
             purchaseSelectOutputList.setCode(Constant.CodeConfig.CODE_USER_NOT_LOGIN);
             purchaseSelectOutputList.setMessage(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         } else {
-            if(purchaseSelectInput.getStoreId() == null ){
+            //判断是否为管理员
+            if (Constant.ADMIN_STATUS.equals(user.getIsAdmin())) {
+                if (null == purchaseSelectInput.getStoreId()) {
+                    purchaseSelectOutputList.setCode(Constant.CodeConfig.CODE_FAILURE);
+                    purchaseSelectOutputList.setMessage(Constant.MessageConfig.ADMIN_AUTHORITY_EERO);
+                    return purchaseSelectOutputList;
+                }
+            } else {
                 purchaseSelectInput.setStoreId(BigInteger.valueOf(user.getAccountId()));
             }
-
+            //判断时间格式
             if (!StringUtils.isEmpty(purchaseSelectInput.getBeginDate()) && !DateUtil.isDate(purchaseSelectInput.getBeginDate())) {
                 return purchaseSelectOutputList;
             }
             if (!StringUtils.isEmpty(purchaseSelectInput.getEndDate()) && !DateUtil.isDate(purchaseSelectInput.getEndDate())) {
                 return purchaseSelectOutputList;
             }
-            if (!StringUtils.isEmpty(purchaseSelectInput.getOrderPaymentDate())) {
-                if (!DateUtil.isDate(purchaseSelectInput.getOrderPaymentDate())) {
-                    return purchaseSelectOutputList;
-                }
+            if (!StringUtils.isEmpty(purchaseSelectInput.getOrderPaymentDate()) && !DateUtil.isDate(purchaseSelectInput.getOrderPaymentDate())) {
+                return purchaseSelectOutputList;
             }
+            //查询订单
             try {
                 if (rows == null || rows <= 0) {
                     rows = 10;
@@ -205,18 +221,23 @@ public class PurchaseController {
         baseResult.setMessage(Constant.MessageConfig.MSG_SUCCESS);
         try {
             if (orderId != null && orderStatus != null) {
+                if(verifyOrderStatus(orderId,orderStatus) == 0){
+                    baseResult.setCode(Constant.CodeConfig.CODE_FAILURE);
+                    baseResult.setMessage(Constant.MessageConfig.ORDER_STATUS_EERO);
+                    return baseResult;
+                }
                 boolean flag = purchaseService.updateOrder(orderId, orderStatus, receiveMethod, name, number);
                 if (!flag) {
                     baseResult.setCode(Constant.CodeConfig.CODE_FAILURE);
                     baseResult.setMessage(Constant.MessageConfig.MSG_FAILURE);
                 }
-            } else {
+            }else{
                 baseResult.setCode(Constant.CodeConfig.CODE_NOT_EMPTY);
                 baseResult.setMessage(Constant.MessageConfig.MSG_NOT_EMPTY);
             }
         } catch (Exception e) {
-            baseResult.setCode(Constant.CodeConfig.CODE_FAILURE);
-            baseResult.setMessage(Constant.MessageConfig.MSG_FAILURE);
+            baseResult.setCode(Constant.CodeConfig.CODE_SYSTEM_EXCEPTION);
+            baseResult.setMessage(Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
         }
         return baseResult;
     }
@@ -268,12 +289,12 @@ public class PurchaseController {
         output.setMessage(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
 
         //判断条件类是否为空？ 不为判断是否有时间条件，
-            //若有时间条件，判断时间格式是否正确
-        if (null != input){
-            if (!StringUtils.isEmpty(input.getBeginTime()) && !DateUtil.isDate(input.getBeginTime())){
+        //若有时间条件，判断时间格式是否正确
+        if (null != input) {
+            if (!StringUtils.isEmpty(input.getBeginTime()) && !DateUtil.isDate(input.getBeginTime())) {
                 return output;
             }
-            if (!StringUtils.isEmpty(input.getEndTime()) && !DateUtil.isDate(input.getEndTime())){
+            if (!StringUtils.isEmpty(input.getEndTime()) && !DateUtil.isDate(input.getEndTime())) {
                 return output;
             }
         }
@@ -303,6 +324,25 @@ public class PurchaseController {
     @GetMapping(value = "/findincome/{storeId}")
     public SumIncome findOrderStatus(@PathVariable("storeId") Long storeId) {
         return purchaseService.findOrderStatus(storeId);
+    }
+
+    //验证订单状态
+    private Integer verifyOrderStatus(String orderId,Integer orderStatus) {
+        Integer getOrderStatus = purchaseService.findOrderStatus(orderId);
+        if(getOrderStatus == Constant.OrderStatusConfig.PAYMENT && orderStatus == Constant.OrderStatusConfig.PENDING_SHIP){
+            getOrderStatus = Constant.OrderStatusConfig.PENDING_SHIP;
+        }else if(getOrderStatus == Constant.OrderStatusConfig.PENDING_SHIP && orderStatus == Constant.OrderStatusConfig.ISSUE_SHIP){
+            getOrderStatus = Constant.OrderStatusConfig.ISSUE_SHIP;
+        }else if(getOrderStatus == Constant.OrderStatusConfig.ISSUE_SHIP && orderStatus == Constant.OrderStatusConfig.RECEIVED){
+            getOrderStatus = Constant.OrderStatusConfig.RECEIVED;
+        }else if(getOrderStatus == Constant.OrderStatusConfig.RECEIVED && orderStatus == Constant.OrderStatusConfig.REJECT){
+            getOrderStatus = Constant.OrderStatusConfig.REJECT;
+        }else if(getOrderStatus == Constant.OrderStatusConfig.REJECT && orderStatus == Constant.OrderStatusConfig.REFUNDED){
+            getOrderStatus = Constant.OrderStatusConfig.REFUNDED;
+        }else{
+            getOrderStatus = 0;
+        }
+        return getOrderStatus;
     }
 
 }

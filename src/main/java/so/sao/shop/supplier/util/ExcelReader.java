@@ -68,8 +68,15 @@ public class ExcelReader {
      * @author ：wanglongjie<br>
      * @createDate ：2015年8月31日下午3:12:06 <br>
      */
-    public static List<Map<String, String>> readExcelContent(String fileName, int contentStartRow) {
-        List<Map<String, String>> list = new ArrayList<>();
+    public static Map<String, Map>  readExcelContent(String fileName, int contentStartRow) {
+
+        Map<String, Map>  maps=new HashMap<>();
+        //Excel中正确记录信息
+        Map<Integer,Map<String, String>> mapright = new HashMap<>();
+        //Excel中错误行号
+        Map<Integer,Map<String, String>> maperror = new HashMap<>();
+
+        List<Integer> errorlist = new ArrayList<>();
         Map<String, String> content = null;
         try {
             InputStream is;
@@ -97,13 +104,34 @@ public class ExcelReader {
             int j = 0;
             row = sheet.getRow(i);
             content = new LinkedHashMap<>();
-            do {
-                content.put(titles[j], getCellFormatValue(row.getCell(j)).trim());
-                j++;
-            } while (j < colNum);
-            list.add(content);
+            if (row == null)
+            {
+                maperror.put(i+1,content);
+                //errorlist.add(i+1);
+                continue;
+            }
+
+
+            if (!(getCellFormatValue(row.getCell(0)).trim() == null || "".equals(getCellFormatValue(row.getCell(0)).trim())))
+            {
+                do {
+                    content.put(titles[j], getCellFormatValue(row.getCell(j)).trim());
+                    j++;
+                } while (j < colNum);
+            }else{
+                maperror.put(i+1,content);
+                content = null ;
+            }
+
+            if(content != null){
+
+                mapright.put(i+1,content);
+            }
+
         }
-        return list;
+        maps.put("mapright",mapright);
+        maps.put("maperror",maperror);
+        return maps;
     }
 	
 	 /**

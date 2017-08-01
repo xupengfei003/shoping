@@ -307,9 +307,10 @@ public class FileUtil {
 	/**
 	 * 上传文件
 	 */
-	public  Object UploadFiles(String  realzippath ,String [] files, StorageConfig storageConfig) {
+	public  List<Result> UploadFiles(String  realzippath ,String [] files, StorageConfig storageConfig) {
 		List<BlobUpload> blobUploadEntities = new ArrayList<BlobUpload>();
 		Map<String,String> map = new HashMap<>();
+		List<Result> results = new ArrayList<>();
 		try {
 			if (files.length !=0) {
 				//获取或创建container
@@ -322,7 +323,6 @@ public class FileUtil {
 							//获取上传文件的名称及文件类型
 							BlobUpload blobUploadEntity = new BlobUpload();
 
-
 							String extensionName = StringUtils.substringAfter(fileName, ".");
 
 							//过滤非jpg,png,jpeg,gif格式的文件
@@ -332,7 +332,8 @@ public class FileUtil {
 									|| fileName.endsWith(".gif"))) {
 								map.put("fileName",fileName);
 								Result resultMsg = new Result(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE, "上传的文件中包含非jpg/png/jpeg/gif格式",map);
-								return resultMsg;
+								results.add(resultMsg);
+								continue;
 							}
 
 							//拼装blob的名称(新的图片文件名 =UUID+"."图片扩展名)
@@ -372,26 +373,31 @@ public class FileUtil {
 							}
 							blobUploadEntities.add(blobUploadEntity);
 						} catch (Exception e) {
-							BaseResult resultMsg = new BaseResult(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE, "文件上传异常");
-							return resultMsg;
+							map.put("fileName:",fileName);
+							Result resultMsg = new Result(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE, "文件上传异常",map);
+							results.add(resultMsg);
+							continue;
 						}
 					}else {
 						map.put("fileName",fileName);
 						Result resultMsg = new Result(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE, "上传文件为空",map);
-						return resultMsg;
+						results.add(resultMsg);
+						continue;
 					}
 				}
 				Result result = new Result(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SUCCESS, "文件上传成功", blobUploadEntities);
-				return result;
+				results.add(result);
 			}else{
-				BaseResult resultMsg = new BaseResult(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE, "请选择需要上传的文件");
-				return resultMsg;
+				map.put("错误原因：","未选择上传的文件");
+				Result resultMsg = new Result(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE, "请选择需要上传的文件",map);
+				results.add(resultMsg);
 			}
 		} catch (Exception e) {
-			BaseResult resultMsg = new BaseResult(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE, "文件上传异常");
-			return resultMsg;
+			map.put("错误原因：","文件上传异常");
+			Result resultMsg = new Result(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE, "文件上传异常",map);
+			results.add(resultMsg);
 		}
-
+		return results;
 
 
 	}

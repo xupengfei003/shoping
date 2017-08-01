@@ -10,4 +10,5 @@ public interface DictItemMapper {
     List<String> selectBank();
     List<String> selectHangYe();
     List<DictItem> selectHangYeDict();
+    List<DictItem> selectExpress();
 }

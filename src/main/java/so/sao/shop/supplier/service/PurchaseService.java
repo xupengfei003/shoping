@@ -91,4 +91,11 @@ public interface PurchaseService {
      */
     SumIncome findOrderStatus(Long storeId);
 
+    /**
+     * 根据订单ID获取订单状态
+     * @param orderId
+     * @return
+     */
+    Integer findOrderStatus(String orderId);
+
 }

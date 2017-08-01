@@ -90,10 +90,10 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             }
         }
         /*if(islogin || new AntPathRequestMatcher("/account/auth*//**").matches(request)){
-            chain.doFilter(request, response);
-        }else{
-            response.getWriter().write(new ObjectMapper().writeValueAsString(new BaseResult(-1,"needlogin")));
-        }*/
+         chain.doFilter(request, response);
+         }else{
+         response.getWriter().write(new ObjectMapper().writeValueAsString(new BaseResult(-1,"needlogin")));
+         }*/
         chain.doFilter(request, response);
     }
 }
