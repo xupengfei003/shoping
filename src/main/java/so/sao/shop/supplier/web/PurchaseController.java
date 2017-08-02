@@ -141,13 +141,14 @@ public class PurchaseController {
     }
 
     /**
-     * 查询全部订单列表
      *
-     * @param
-     * @param
-     * @return
+     * 查询全部订单列表
+     * @param request
+     * @param pageNum
+     * @param rows
+     * @param purchaseSelectInput
+     * @return PurchaseSelectOutput
      */
-
     @GetMapping(value = "/search")
     @ApiOperation(value = "查询订单列表", notes = "*")
     public PurchaseSelectOutput search(HttpServletRequest request, Integer pageNum, Integer rows, PurchaseSelectInput purchaseSelectInput) {
@@ -155,6 +156,7 @@ public class PurchaseController {
         purchaseSelectOutputList.setCode(Constant.CodeConfig.CODE_DATE_INPUT_FORMAT_ERROR);
         purchaseSelectOutputList.setMessage(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
         User user = (User) request.getAttribute(so.sao.shop.supplier.util.Constant.REQUEST_USER);
+        //判断是否登陆
         if (null == user) {
             purchaseSelectOutputList.setCode(Constant.CodeConfig.CODE_USER_NOT_LOGIN);
             purchaseSelectOutputList.setMessage(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
@@ -170,13 +172,7 @@ public class PurchaseController {
                 purchaseSelectInput.setStoreId(BigInteger.valueOf(user.getAccountId()));
             }
             //判断时间格式
-            if (!StringUtils.isEmpty(purchaseSelectInput.getBeginDate()) && !DateUtil.isDate(purchaseSelectInput.getBeginDate())) {
-                return purchaseSelectOutputList;
-            }
-            if (!StringUtils.isEmpty(purchaseSelectInput.getEndDate()) && !DateUtil.isDate(purchaseSelectInput.getEndDate())) {
-                return purchaseSelectOutputList;
-            }
-            if (!StringUtils.isEmpty(purchaseSelectInput.getOrderPaymentDate()) && !DateUtil.isDate(purchaseSelectInput.getOrderPaymentDate())) {
+            if(!verifyDate(purchaseSelectInput)){
                 return purchaseSelectOutputList;
             }
             //查询订单
@@ -204,14 +200,14 @@ public class PurchaseController {
     }
 
     /**
-     * 更改订单状态
      *
+     * 更改订单状态
      * @param orderId
      * @param orderStatus
      * @param receiveMethod
      * @param name
      * @param number
-     * @return
+     * @return BaseResult
      */
     @RequestMapping(value = "/update/{orderId}/orderStatus", method = RequestMethod.POST)
     @ApiOperation(value = "更改订单状态", notes = "")
@@ -343,6 +339,22 @@ public class PurchaseController {
             getOrderStatus = 0;
         }
         return getOrderStatus;
+    }
+
+    //验证时间格式
+    private boolean verifyDate(PurchaseSelectInput purchaseSelectInput) {
+        boolean flag = true;
+        if (!StringUtils.isEmpty(purchaseSelectInput.getBeginDate())) {
+            flag = DateUtil.isDate(purchaseSelectInput.getBeginDate());
+        }
+        if (!StringUtils.isEmpty(purchaseSelectInput.getEndDate())) {
+            flag = DateUtil.isDate(purchaseSelectInput.getEndDate());
+        }
+        if (!StringUtils.isEmpty(purchaseSelectInput.getOrderPaymentDate())) {
+            flag = DateUtil.isDate(purchaseSelectInput.getOrderPaymentDate());
+        }
+        return flag;
+
     }
 
 }

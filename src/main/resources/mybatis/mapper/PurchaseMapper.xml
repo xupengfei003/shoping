@@ -144,11 +144,11 @@
                 AND order_receiver_name LIKE "${orderReceiverName}%"
             </if>
 
-            <if test="beginTime!=null">
-                AND order_create_time >= TRIM(#{beginDate})
+            <if test="beginDate!=null">
+                AND order_create_time >= TRIM(STR_TO_DATE(#{beginDate},'%Y-%m-%d'))
             </if>
-            <if test="endTime != null">
-                <![CDATA[AND order_create_time <= TRIM(#{endDate})]]>
+            <if test="endDate != null">
+               AND order_create_time &lt;= TRIM(DATE_ADD(STR_TO_DATE(#{endDate},'%Y-%m-%d'),INTERVAL 1 DAY))
             </if>
 
             <if test="beginMoney!=null">
@@ -161,8 +161,8 @@
                 AND order_receiver_mobile LIKE "${orderReceiverMobile}%"
             </if>
 
-            <if test="orderPaymentTime!=null">
-                <![CDATA[AND order_payment_time <= TRIM(#{orderPaymentDate})]]>
+            <if test="orderPaymentDate!=null">
+                AND order_payment_time &lt;= TRIM(DATE_ADD(STR_TO_DATE(#{orderPaymentDate},'%Y-%m-%d'),INTERVAL 1 DAY))
             </if>
 
             <if test="orderPaymentMethod!=null">

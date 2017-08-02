@@ -88,8 +88,8 @@ public class PurchaseServiceImpl implements PurchaseService {
         boolean flag = false;
         int counter = 1;
         //b.循环商户ID生成订单
-        List<Purchase> listPurchase = new ArrayList<>();
         for (Long sId : set){
+            List<Purchase> listPurchase = new ArrayList<>();
             //生成订单编号
             String orderId = NumberGenerate.generateUuid();
             List<PurchaseItem> listItem = new ArrayList<>();
@@ -207,22 +207,8 @@ public class PurchaseServiceImpl implements PurchaseService {
      * @return List<Order>
      */
     @Override
-    public PurchaseSelectOutput searchOrders(Integer pageNum, Integer rows, PurchaseSelectInput purchaseSelectInput) {
+    public PurchaseSelectOutput searchOrders(Integer pageNum, Integer rows, PurchaseSelectInput purchaseSelectInput) throws Exception{
         PageHelper.startPage(pageNum, rows);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        try {
-            if(null!=purchaseSelectInput.getBeginDate()){
-                purchaseSelectInput.setBeginTime(sdf.parse(purchaseSelectInput.getBeginDate()));
-            }
-            if(null!=purchaseSelectInput.getEndDate()){
-                purchaseSelectInput.setEndTime(sdf.parse(purchaseSelectInput.getEndDate()));
-            }
-            if(null!=purchaseSelectInput.getOrderPaymentDate()){
-                purchaseSelectInput.setOrderPaymentTime(sdf.parse(purchaseSelectInput.getOrderPaymentDate()));
-            }
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
         List<PurchasesVo> orderList = purchaseDao.findPage(purchaseSelectInput);
         if (orderList.size() > 0) {
             PurchaseSelectOutput purchaseSelectOutput = new PurchaseSelectOutput();

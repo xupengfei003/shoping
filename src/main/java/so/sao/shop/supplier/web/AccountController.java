@@ -114,7 +114,7 @@ public class AccountController {
         if(result.hasErrors()) {
             List<ObjectError> list = result.getAllErrors();
             for (ObjectError error : list) {
-                baseResult.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_NOT_EMPTY);
+                baseResult.setCode(0);
                 baseResult.setMessage(error.getDefaultMessage());
             }
         }else{

@@ -14,6 +14,7 @@
         <result column="goods_image" property="goodsImage"/>
         <result column="goods_name" property="goodsName"/>
         <result column="order_id" property="orderId"/>
+        <result column="brand_name" property="brandName"/>
     </resultMap>
 
     <resultMap id="PurchaseItemList" type="so.sao.shop.supplier.pojo.vo.PurchaseItemVo">
@@ -57,7 +58,8 @@
                 goods_favourable,
                 goods_image,
                 goods_name,
-                order_id
+                order_id,
+                brand_name
             )
         VALUES
         <foreach collection ="list" item="item" index= "index" separator =",">
@@ -70,7 +72,8 @@
                 #{item.goodsFavourable},
                 #{item.goodsImage},
                 #{item.goodsName},
-                #{item.orderId}
+                #{item.orderId},
+                #{item.brandName}
             )
         </foreach>
     </insert>

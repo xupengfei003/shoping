@@ -84,16 +84,13 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
                     request.setAttribute(Constant.REQUEST_USER,userDetails);
                     response.setHeader(tokenHeader,jwtTokenUtil.getTokenFromRequest(request));
                     islogin = true;
-                }else{
-					response.getWriter().write(new ObjectMapper().writeValueAsString(new BaseResult(-1,"needlogin")));
-				}
+                }
             }
         }
-        /*if(islogin || new AntPathRequestMatcher("/account/auth*//**").matches(request)){
-         chain.doFilter(request, response);
-         }else{
-         response.getWriter().write(new ObjectMapper().writeValueAsString(new BaseResult(-1,"needlogin")));
-         }*/
-        chain.doFilter(request, response);
+        if(request.getMethod().equals("OPTIONS") || islogin || new AntPathRequestMatcher("/account/auth/**").matches(request)){
+            chain.doFilter(request, response);
+        }else{
+            response.getWriter().write(new ObjectMapper().writeValueAsString(new BaseResult(-1,"needlogin")));
+        }
     }
 }

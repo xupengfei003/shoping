@@ -44,7 +44,7 @@ public interface PurchaseService {
      * @param rows
      * @return list
      */
-    PurchaseSelectOutput searchOrders(Integer pageNum, Integer rows, PurchaseSelectInput purchaseSelectInput);
+    PurchaseSelectOutput searchOrders(Integer pageNum, Integer rows, PurchaseSelectInput purchaseSelectInput) throws Exception;
 
     /**
      *

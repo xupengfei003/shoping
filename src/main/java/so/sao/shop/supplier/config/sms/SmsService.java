@@ -51,7 +51,7 @@ public class SmsService {
         // 3.3 设置发送短信所使用的模板中参数对应的值（在短信模板中定义的，没有可以不用设置）
         BatchSmsAttributes.SmsReceiverParams smsReceiverParams = new BatchSmsAttributes.SmsReceiverParams();
         smsReceiverParams.setParam("code", code);
-        //smsReceiverParams.setParam("product", "透云平台");
+        smsReceiverParams.setParam("product", "透云平台");
         // 3.4 增加接收短信的号码
         for (String phone : phoneNumbers) {
             batchSmsAttributes.addSmsReceiver(phone, smsReceiverParams);

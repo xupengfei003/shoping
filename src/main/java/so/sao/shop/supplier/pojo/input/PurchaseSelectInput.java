@@ -21,25 +21,15 @@ public class PurchaseSelectInput {
     private String orderReceiverName;
 
     /**
-     * 开始时间,后台比较
-     */
-    private Date beginTime;
-
-    /**
-     * 截至时间,后台比较
-     */
-    private Date endTime;
-
-    /**
      * 开始时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private String beginDate;
 
     /**
      * 截至时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private String endDate;
 
     /**
@@ -58,14 +48,9 @@ public class PurchaseSelectInput {
     private String orderReceiverMobile;
 
     /**
-     * 付款时间,后台比较
-     */
-    private Date orderPaymentTime;
-
-    /**
      * 付款时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private String orderPaymentDate;
 
     /**
@@ -109,6 +94,22 @@ public class PurchaseSelectInput {
         this.orderReceiverName = orderReceiverName;
     }
 
+    public String getBeginDate() {
+        return beginDate;
+    }
+
+    public void setBeginDate(String beginDate) {
+        this.beginDate = beginDate;
+    }
+
+    public String getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(String endDate) {
+        this.endDate = endDate;
+    }
+
     public BigDecimal getBeginMoney() {
         return beginMoney;
     }
@@ -131,22 +132,6 @@ public class PurchaseSelectInput {
 
     public void setOrderReceiverMobile(String orderReceiverMobile) {
         this.orderReceiverMobile = orderReceiverMobile;
-    }
-
-    public String getBeginDate() {
-        return beginDate;
-    }
-
-    public void setBeginDate(String beginDate) {
-        this.beginDate = beginDate;
-    }
-
-    public String getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(String endDate) {
-        this.endDate = endDate;
     }
 
     public String getOrderPaymentDate() {
@@ -195,29 +180,5 @@ public class PurchaseSelectInput {
 
     public void setStoreId(BigInteger storeId) {
         this.storeId = storeId;
-    }
-
-    public Date getBeginTime() {
-        return beginTime;
-    }
-
-    public void setBeginTime(Date beginTime) {
-        this.beginTime = beginTime;
-    }
-
-    public Date getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(Date endTime) {
-        this.endTime = endTime;
-    }
-
-    public Date getOrderPaymentTime() {
-        return orderPaymentTime;
-    }
-
-    public void setOrderPaymentTime(Date orderPaymentTime) {
-        this.orderPaymentTime = orderPaymentTime;
     }
 }
