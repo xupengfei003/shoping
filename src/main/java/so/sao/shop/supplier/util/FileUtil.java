@@ -308,28 +308,27 @@ public class FileUtil {
 	/**
 	 * 上传文件
 	 */
-	public  List<Result> UploadFiles(String  realzippath ,String [] files, StorageConfig storageConfig) {
+	public  List<Result> UploadFiles(String  realzippath ,List<String> files, StorageConfig storageConfig) {
 		List<BlobUpload> blobUploadEntities = new ArrayList<BlobUpload>();
 		Map<String,String> map = new HashMap<>();
 		List<Result> results = new ArrayList<>();
 		try {
-			if (files.length !=0) {
+			if (files.size() !=0) {
 				//获取或创建container
 				CloudBlobContainer blobContainer = BlobHelper.getBlobContainer(Constant.AZURE_CONTAINER.toLowerCase(), storageConfig);
 				File dir =new File(realzippath+"/img");
 				if  (!dir .exists()  && !dir .isDirectory())
 				{
-
 					dir .mkdir();
 				}
 
 
-				for (int i = 0; i < files.length; i++) {
+				for (int i = 0; i < files.size(); i++) {
 					//图片尺寸不变，压缩图片文件大小outputQuality实现,参数1为最高质量
-					Thumbnails.of(realzippath+"/"+files[i].trim())
+					Thumbnails.of(realzippath+"/"+files.get(i).trim())
 							.scale(1f).outputQuality(0.25f)
-							.toFile(realzippath+"/img/"+files[i].trim());
-					File file = new File(realzippath+"/img/"+files[i].trim());
+							.toFile(realzippath+"/img/"+files.get(i).trim());
+					File file = new File(realzippath+"/img/"+files.get(i).trim());
 					String fileName = file.getName();
 					if (file.exists()) {
 						try {

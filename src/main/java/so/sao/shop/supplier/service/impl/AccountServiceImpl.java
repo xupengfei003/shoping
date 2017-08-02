@@ -316,7 +316,7 @@ public class AccountServiceImpl implements AccountService {
      */
     @Override
     @Transactional
-    public BaseResult saveUserAndAccount(Account account) {
+    public synchronized BaseResult saveUserAndAccount(Account account) {
         BaseResult baseResult = new BaseResult();
         User user1 = userDao.findByUsername(account.getContractResponsiblePhone());
         if (user1 == null) {

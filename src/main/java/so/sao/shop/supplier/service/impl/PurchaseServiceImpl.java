@@ -109,7 +109,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                     item.setGoodsAttribute(goodsAttribute);//商品属性
                     item.setGoodsId(goodsId);//商品ID
                     item.setGoodsNumber(goodsNumber.intValue());//商品数量
-                    Double unitPrice = commOutput.getUnitPrice();//商品售价
+                    Double unitPrice = commOutput.getPrice();//商品售价
                     item.setGoodsUnitPrice(new BigDecimal(unitPrice));
                     totalMoney = totalMoney.add(goodsNumber.multiply(new BigDecimal(unitPrice)));//订单总价计算
                     item.setGoodsTatolPrice(goodsNumber.multiply(new BigDecimal(unitPrice)));//单个商品总价

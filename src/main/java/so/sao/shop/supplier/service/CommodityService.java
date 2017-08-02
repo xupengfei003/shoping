@@ -26,14 +26,14 @@ public interface CommodityService {
      * @param commodityInput 商品信息对象
      * @return 保存结果
      */
-    BaseResult saveCommodity(HttpServletRequest request,CommodityInput commodityInput,Long supplierId) throws Exception;
+    BaseResult saveCommodity(CommodityInput commodityInput,Long supplierId) throws Exception;
 
     /**
      * 修改商品
      * @param commodityInput 商品信息对象
      * @return 修改结果
      */
-    BaseResult updateCommodity(HttpServletRequest request, CommodityInput commodityInput,Long supplierId) throws Exception;
+    BaseResult updateCommodity(CommodityInput commodityInput,Long supplierId) throws Exception;
 
     /**
      * 根据供应商商品ID获取商品详细信息

@@ -53,10 +53,9 @@ public class CommodityServiceImpl implements CommodityService {
 
     @Override
     @Transactional
-    public BaseResult saveCommodity(HttpServletRequest request,@Valid CommodityInput commodityInput,Long supplierId) throws Exception {
+    public BaseResult saveCommodity(@Valid CommodityInput commodityInput,Long supplierId) throws Exception {
         BaseResult result=new BaseResult();
-        //校验供应商ID
-       supplierId = CheckUtil.supplierIdCheck(request,supplierId);
+
         //验证品牌是否存在，不存在则新增
         CommBrand brand = commBrandDao.findByName(commodityInput.getBrand());
         if (null==brand){
@@ -137,10 +136,8 @@ public class CommodityServiceImpl implements CommodityService {
 
     @Override
     @Transactional
-    public BaseResult updateCommodity(HttpServletRequest request, CommodityInput commodityInput,Long supplierId) throws Exception {
+    public BaseResult updateCommodity(CommodityInput commodityInput,Long supplierId) throws Exception {
         BaseResult result=new BaseResult();
-        //校验供应商ID
-        supplierId = CheckUtil.supplierIdCheck(request,supplierId);
         //验证品牌是否存在，不存在则新增
         CommBrand brand = commBrandDao.findByName(commodityInput.getBrand());
         if (null == brand) {
@@ -579,7 +576,6 @@ public class CommodityServiceImpl implements CommodityService {
         List<CommodityInput>  commodityInputs=new ArrayList<CommodityInput>();
         int code=so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE;
         String  message="";
-        Long supplierId1 = supplierId;
         //判断文件是否选择文件
         if (null == multipartFile) {
 
@@ -729,8 +725,16 @@ public class CommodityServiceImpl implements CommodityService {
                             }else {
                                 imgs[0] = value;
                             }
+                            List<String> imglist = new ArrayList<>();
+                            for (String img : imgs)
+                            {
+                                if (img != null || "".equals(img))
+                                {
+                                    imglist.add(img);
+                                }
+                            }
                             // 上传图片
-                            List<Result> results = fileutil.UploadFiles(filezspath + ffname, imgs, storageConfig);
+                            List<Result> results = fileutil.UploadFiles(filezspath + ffname, imglist, storageConfig);
                             for (Result result : results)
                             {
                                 if (result.getCode()==so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SUCCESS)
@@ -814,8 +818,6 @@ public class CommodityServiceImpl implements CommodityService {
         }
         //导入数据库
         Iterator it=commodityInputs.iterator();
-        //校验供应商ID
-        supplierId = CheckUtil.supplierIdCheck(request,supplierId);
         while(it.hasNext()){
             CommodityInput commodityInput= (CommodityInput) it.next();
             for (int g = 0; g < commodityInput.getCommodityList().size(); g++) {
@@ -837,7 +839,7 @@ public class CommodityServiceImpl implements CommodityService {
         }
 
         for(int n=0;n<commodityInputs.size();n++){
-            BaseResult baseResult1=  saveCommodity(request,commodityInputs.get(n),supplierId1);
+            BaseResult baseResult1=  saveCommodity(commodityInputs.get(n),supplierId);
             String code69 = commodityInputs.get(n).getCommodityList().get(0).getCode69() == null ? "" : commodityInputs.get(n).getCommodityList().get(0).getCode69();
             String sjcode = commodityInputs.get(n).getCommodityList().get(0).getCode() == null ? "" : commodityInputs.get(n).getCommodityList().get(0).getCode();
             String brand = commodityInputs.get(n).getBrand() == null ? "" : commodityInputs.get(n).getBrand();

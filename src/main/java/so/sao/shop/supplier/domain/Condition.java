@@ -14,15 +14,13 @@ public class Condition {
     /**
      * 开始时间
      */
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
 	@JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
-    private Date beginDate;
+    private String beginDate;
     /**
      * 截止时间
      */
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
 	@JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
-    private Date endDate;
+    private String endDate;
 
     /**
      * 供应商名称
@@ -31,15 +29,13 @@ public class Condition {
     /**
      * 合同截止日期
      */
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
     @JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
-    private Date contractEndDate;
+    private String contractEndDate;
     /**
      * 合同创建日期
       */
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
     @JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
-    private Date contractCreateDate;
+    private String contractCreateDate;
     /**
      * 法人代表（合同）
      */
@@ -82,9 +78,6 @@ public class Condition {
         this.uploadMode = uploadMode;
     }
 
-    public Date getBeginDate() {
-        return beginDate;
-    }
 
     public String getProviderName() {
         return providerName;
@@ -94,21 +87,6 @@ public class Condition {
         this.providerName = providerName!=null?providerName.replaceAll(" ","").trim():null;
     }
 
-    public Date getContractEndDate() {
-        return contractEndDate;
-    }
-
-    public void setContractEndDate(Date contractEndDate) {
-        this.contractEndDate = contractEndDate;
-    }
-
-    public Date getContractCreateDate() {
-        return contractCreateDate;
-    }
-
-    public void setContractCreateDate(Date contractCreateDate) {
-        this.contractCreateDate = contractCreateDate;
-    }
 
     public String getContractResponsible() {
         return contractResponsible;
@@ -126,17 +104,6 @@ public class Condition {
         this.contractResponsiblePhone = contractResponsiblePhone;
     }
 
-    public void setBeginDate(Date beginDate) {
-        this.beginDate = beginDate;
-    }
-
-    public void setEndDate(Date endDate) {
-        this.endDate = endDate;
-    }
-
-    public Date getEndDate() {
-        return endDate;
-    }
 
     public Integer getPageNum() {
         return pageNum;
@@ -177,4 +144,36 @@ public class Condition {
 	public void setContractRegisterAddressDistrict(String contractRegisterAddressDistrict) {
 		this.contractRegisterAddressDistrict = contractRegisterAddressDistrict;
 	}
+
+    public String getBeginDate() {
+        return beginDate;
+    }
+
+    public void setBeginDate(String beginDate) {
+        this.beginDate = beginDate;
+    }
+
+    public String getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(String endDate) {
+        this.endDate = endDate;
+    }
+
+    public String getContractEndDate() {
+        return contractEndDate;
+    }
+
+    public void setContractEndDate(String contractEndDate) {
+        this.contractEndDate = contractEndDate;
+    }
+
+    public String getContractCreateDate() {
+        return contractCreateDate;
+    }
+
+    public void setContractCreateDate(String contractCreateDate) {
+        this.contractCreateDate = contractCreateDate;
+    }
 }

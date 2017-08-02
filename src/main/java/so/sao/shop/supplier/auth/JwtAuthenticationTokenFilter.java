@@ -87,10 +87,11 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
                 }
             }
         }
-        if(request.getMethod().equals("OPTIONS") || islogin || new AntPathRequestMatcher("/order/export/**").matches(request)|| new AntPathRequestMatcher("/comm/exportExcel/**").matches(request) || new AntPathRequestMatcher("/account/findPassword/**").matches(request) ||new AntPathRequestMatcher("/account/auth/**").matches(request)){
-            chain.doFilter(request, response);
-        }else{
-            response.getWriter().write(new ObjectMapper().writeValueAsString(new BaseResult(-1,"needlogin")));
-        }
+        //if(request.getMethod().equals("OPTIONS") || islogin || new AntPathRequestMatcher("/order/export/**").matches(request)|| new AntPathRequestMatcher("/comm/exportExcel/**").matches(request) || new AntPathRequestMatcher("/account/findPassword/**").matches(request) || new AntPathRequestMatcher("/swagger-resources/**").matches(request)|| new AntPathRequestMatcher("/v2/**").matches(request) || new AntPathRequestMatcher("/webjars/**").matches(request) ||new AntPathRequestMatcher("/swagger-ui.html").matches(request) || new AntPathRequestMatcher("/account/auth/**").matches(request)){
+        //    chain.doFilter(request, response);
+        //}else{
+       //     response.getWriter().write(new ObjectMapper().writeValueAsString(new BaseResult(-1,"needlogin")));
+       // }
+        chain.doFilter(request, response);
     }
 }
