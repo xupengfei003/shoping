@@ -287,7 +287,7 @@ public class AccountController {
     public PageInfo search(Condition condition, HttpServletRequest request) throws Exception {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         if(user==null || !user.getIsAdmin().equals(Constant.IS_ADMIN)){
-            throw new Exception();
+            throw new RuntimeException();
         }
         return accountService.searchAccount(condition);
     }

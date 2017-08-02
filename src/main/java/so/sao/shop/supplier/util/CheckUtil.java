@@ -11,7 +11,7 @@ public class CheckUtil {
             supplierId = user.getAccountId();
         }else{
             if (!(Constant.IS_ADMIN.equals(user.getIsAdmin()))){
-                throw  new Exception("非管理员无权进行操作");
+                throw  new RuntimeException("非管理员无权进行操作");
             }
         }
         return supplierId;
