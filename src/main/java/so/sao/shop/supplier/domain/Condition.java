@@ -101,7 +101,7 @@ public class Condition {
     }
 
     public void setContractResponsiblePhone(String contractResponsiblePhone) {
-        this.contractResponsiblePhone = contractResponsiblePhone;
+        this.contractResponsiblePhone = contractResponsiblePhone!=null?contractResponsiblePhone.replaceAll(" ","").trim():null;
     }
 
 
