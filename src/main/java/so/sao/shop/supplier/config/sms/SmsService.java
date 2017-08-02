@@ -22,10 +22,12 @@ public class SmsService {
     /**
      * 短信发送调用接口
      * @param phoneNumbers 要发送的手机号码
-     * @param code    验证码
+     * @param keys    占位名
+     * @param values    填充值
+     * @param smsTemplateCode    短信模板
      * @return 返回请求结果
      */
-    public TopicMessage sendSms(List<String> phoneNumbers, String code) {
+    public TopicMessage sendSms(List<String> phoneNumbers, List<String>keys, List<String> values, String smsTemplateCode) {
         /*
           Step 1. 获取主题引用
          */
@@ -47,10 +49,12 @@ public class SmsService {
         // 3.1 设置发送短信的签名（SMSSignName）
         batchSmsAttributes.setFreeSignName(properties.getSignName());
         // 3.2 设置发送短信使用的模板（SMSTempateCode）
-        batchSmsAttributes.setTemplateCode(properties.getSmsTemplateCode());
+        batchSmsAttributes.setTemplateCode(smsTemplateCode);
         // 3.3 设置发送短信所使用的模板中参数对应的值（在短信模板中定义的，没有可以不用设置）
         BatchSmsAttributes.SmsReceiverParams smsReceiverParams = new BatchSmsAttributes.SmsReceiverParams();
-        smsReceiverParams.setParam("code", code);
+        for(int i=0;i<keys.size();i++){
+            smsReceiverParams.setParam(keys.get(i), values.get(i));
+        }
         smsReceiverParams.setParam("product", "透云平台");
         // 3.4 增加接收短信的号码
         for (String phone : phoneNumbers) {

@@ -3,6 +3,7 @@ package so.sao.shop.supplier.service.impl;
 import com.aliyun.mns.model.TopicMessage;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -43,6 +44,17 @@ public class AuthServiceImpl implements AuthService {
     private JwtTokenUtil jwtTokenUtil;
     private SmsService smsService;
 
+    /**
+     * 验证码
+     */
+    @Value("${shop.aliyun.sms.sms-template-code1}")
+    String smsTemplateCode1;
+
+    /**
+     * 找回密码
+     */
+    @Value("${shop.aliyun.sms.sms-template-code3}")
+    String smsTemplateCode3;
 
     @Autowired
     public AuthServiceImpl(
@@ -123,7 +135,7 @@ public class AuthServiceImpl implements AuthService {
             String password = smsService.getVerCode();
             //密码加密保存,忘记密码只能手机验证发送新密码
             userDao.updatePassword(u.getId(),new BCryptPasswordEncoder().encode(password), new Date());
-            smsService.sendSms(Collections.singletonList(phone), password);
+            smsService.sendSms(Collections.singletonList(phone), Collections.singletonList("password"), Collections.singletonList(password), smsTemplateCode3);
             return new BaseResult(1, "发送成功");
         }else{
             return new BaseResult(0, "当前号码无效!");
@@ -140,7 +152,7 @@ public class AuthServiceImpl implements AuthService {
     public BaseResult sendCode(String phone) throws IOException {
         String code = smsService.getVerCode();
         userDao.saveSmsCode(phone, code);
-        TopicMessage topicMessage = smsService.sendSms(Collections.singletonList(phone), code);
+        TopicMessage topicMessage = smsService.sendSms(Collections.singletonList(phone),Collections.singletonList("code"), Collections.singletonList(code), smsTemplateCode1);
         if(topicMessage != null) {
             return new BaseResult(1,"发送成功");
         } else {

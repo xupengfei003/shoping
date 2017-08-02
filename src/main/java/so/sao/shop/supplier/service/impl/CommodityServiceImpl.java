@@ -56,7 +56,7 @@ public class CommodityServiceImpl implements CommodityService {
     public BaseResult saveCommodity(HttpServletRequest request,@Valid CommodityInput commodityInput,Long supplierId) throws Exception {
         BaseResult result=new BaseResult();
         //校验供应商ID
-        supplierId = CheckUtil.supplierIdCheck(request,supplierId);
+       supplierId = CheckUtil.supplierIdCheck(request,supplierId);
         //验证品牌是否存在，不存在则新增
         CommBrand brand = commBrandDao.findByName(commodityInput.getBrand());
         if (null==brand){
@@ -813,6 +813,8 @@ public class CommodityServiceImpl implements CommodityService {
         }
         //导入数据库
         Iterator it=commodityInputs.iterator();
+        //校验供应商ID
+        supplierId = CheckUtil.supplierIdCheck(request,supplierId);
         while(it.hasNext()){
             CommodityInput commodityInput= (CommodityInput) it.next();
             for (int g = 0; g < commodityInput.getCommodityList().size(); g++) {
@@ -823,8 +825,6 @@ public class CommodityServiceImpl implements CommodityService {
                         errorList.add(rowNum);
                         it.remove();
                     }else {
-                        //校验供应商ID
-                        supplierId = CheckUtil.supplierIdCheck(request,supplierId);
                         SupplierCommodity suppliercommodity = supplierCommodityDao.findSupplierCommodityInfo(code69,supplierId);
                         if (null != suppliercommodity) {
                             errorList.add(rowNum);

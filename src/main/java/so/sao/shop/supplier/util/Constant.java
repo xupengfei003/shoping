@@ -109,6 +109,14 @@ public class Constant {
     public static final int THUMBNAIL_DEFAULT_HEIGHT = 150;
 
     /**
+     * 图片压缩默认宽度
+     */
+    public static final int THUMB_DEFAULT_WIDTH = 320;
+    /**
+     * 图片压缩默认高度
+     */
+    public static final int THUMB_DEFAULT_HEIGHT = 320;
+    /**
      * 管理员标识 1
      */
     public static final String IS_ADMIN = "1";

@@ -19,9 +19,19 @@ public class AliyunSmsProperties {
     private String signName;
 
     /**
-     * 短信模板
+     * 短信模板(验证码)
      */
-    private String smsTemplateCode;
+    private String smsTemplateCode1;
+
+    /**
+     * 短信模板(第一次发送密码)
+     */
+    private String smsTemplateCode2;
+
+    /**
+     * 短信模板(找回密码)
+     */
+    private String smsTemplateCode3;
 
     public String getAccessKeyId() {
         return accessKeyId;
@@ -63,11 +73,27 @@ public class AliyunSmsProperties {
         this.signName = signName;
     }
 
-    public String getSmsTemplateCode() {
-        return smsTemplateCode;
+    public String getSmsTemplateCode1() {
+        return smsTemplateCode1;
     }
 
-    public void setSmsTemplateCode(String smsTemplateCode) {
-        this.smsTemplateCode = smsTemplateCode;
+    public void setSmsTemplateCode1(String smsTemplateCode1) {
+        this.smsTemplateCode1 = smsTemplateCode1;
+    }
+
+    public String getSmsTemplateCode2() {
+        return smsTemplateCode2;
+    }
+
+    public void setSmsTemplateCode2(String smsTemplateCode2) {
+        this.smsTemplateCode2 = smsTemplateCode2;
+    }
+
+    public String getSmsTemplateCode3() {
+        return smsTemplateCode3;
+    }
+
+    public void setSmsTemplateCode3(String smsTemplateCode3) {
+        this.smsTemplateCode3 = smsTemplateCode3;
     }
 }

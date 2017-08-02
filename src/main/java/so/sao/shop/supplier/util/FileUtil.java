@@ -2,6 +2,7 @@ package so.sao.shop.supplier.util;
 
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
+import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.lang3.StringUtils;
 import so.sao.shop.supplier.config.StorageConfig;
 import so.sao.shop.supplier.pojo.BaseResult;
@@ -315,8 +316,20 @@ public class FileUtil {
 			if (files.length !=0) {
 				//获取或创建container
 				CloudBlobContainer blobContainer = BlobHelper.getBlobContainer(Constant.AZURE_CONTAINER.toLowerCase(), storageConfig);
+				File dir =new File(realzippath+"/img");
+				if  (!dir .exists()  && !dir .isDirectory())
+				{
+
+					dir .mkdir();
+				}
+
+
 				for (int i = 0; i < files.length; i++) {
-					File file = new File(realzippath+"/"+files[i].trim());
+					//图片尺寸不变，压缩图片文件大小outputQuality实现,参数1为最高质量
+					Thumbnails.of(realzippath+"/"+files[i].trim())
+							.scale(1f).outputQuality(0.25f)
+							.toFile(realzippath+"/img/"+files[i].trim());
+					File file = new File(realzippath+"/img/"+files[i].trim());
 					String fileName = file.getName();
 					if (file.exists()) {
 						try {

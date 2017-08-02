@@ -717,13 +717,13 @@
                 <if test="contractResponsiblePhone != null and contractResponsiblePhone != ''">
                     AND  contract_responsible_phone  LIKE "%${contractResponsiblePhone}%"
                 </if>
-                <if test="contractRegisterAddressProvince != null ">
+                <if test="contractRegisterAddressProvince != null and contractRegisterAddressProvince!=''">
                   AND  contract_register_address_province = #{contractRegisterAddressProvince}
                 </if>
-                <if test="contractRegisterAddressCity != null ">
+                <if test="contractRegisterAddressCity != null  and contractRegisterAddressProvince!=''">
                   AND  contract_register_address_city = #{contractRegisterAddressCity}
                 </if>
-                <if test="contractRegisterAddressDistrict != null ">
+                <if test="contractRegisterAddressDistrict != null  and contractRegisterAddressProvince!=''">
                   AND  contract_register_address_district = #{contractRegisterAddressDistrict}
                 </if>
     </where>

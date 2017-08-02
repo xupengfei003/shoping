@@ -4,6 +4,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,6 +51,12 @@ public class AccountServiceImpl implements AccountService {
 
     @Autowired
     private SmsService smsService;
+
+    /**
+     * 第一次发送密码
+     */
+    @Value("${shop.aliyun.sms.sms-template-code2}")
+    String smsTemplateCode2;
 
     /**
      * 初始化银行信息
@@ -326,7 +333,8 @@ public class AccountServiceImpl implements AccountService {
             account.setAccountStatus(1);
             account.setUserId(user.getId());
             accountDao.insert(account);
-            smsService.sendSms(Collections.singletonList(account.getContractResponsiblePhone()), password);
+
+            smsService.sendSms(Collections.singletonList(account.getContractResponsiblePhone()),Arrays.asList("phone","password"), Arrays.asList(account.getContractResponsiblePhone(),password), smsTemplateCode2);
             baseResult.setMessage("用户和供应商添加成功！");
             baseResult.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SUCCESS);
             return baseResult;
