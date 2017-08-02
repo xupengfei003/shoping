@@ -87,7 +87,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
                 }
             }
         }
-        if(request.getMethod().equals("OPTIONS") || islogin || new AntPathRequestMatcher("/account/auth/**").matches(request)){
+        if(request.getMethod().equals("OPTIONS") || islogin || new AntPathRequestMatcher("/order/export/**").matches(request)|| new AntPathRequestMatcher("/comm/exportExcel/**").matches(request) ||new AntPathRequestMatcher("/account/auth/**").matches(request)){
             chain.doFilter(request, response);
         }else{
             response.getWriter().write(new ObjectMapper().writeValueAsString(new BaseResult(-1,"needlogin")));

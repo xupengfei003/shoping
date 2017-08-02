@@ -217,11 +217,13 @@ public class PurchaseController {
         baseResult.setMessage(Constant.MessageConfig.MSG_SUCCESS);
         try {
             if (orderId != null && orderStatus != null) {
+                //验证订单状态是否合法
                 if(verifyOrderStatus(orderId,orderStatus) == 0){
                     baseResult.setCode(Constant.CodeConfig.CODE_FAILURE);
                     baseResult.setMessage(Constant.MessageConfig.ORDER_STATUS_EERO);
                     return baseResult;
                 }
+                //更改订单状态操作
                 boolean flag = purchaseService.updateOrder(orderId, orderStatus, receiveMethod, name, number);
                 if (!flag) {
                     baseResult.setCode(Constant.CodeConfig.CODE_FAILURE);
@@ -354,8 +356,6 @@ public class PurchaseController {
             flag = DateUtil.isDate(purchaseSelectInput.getOrderPaymentDate());
         }
         return flag;
-
     }
-
 }
 
