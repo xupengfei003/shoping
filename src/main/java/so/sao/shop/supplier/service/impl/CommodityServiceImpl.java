@@ -579,6 +579,7 @@ public class CommodityServiceImpl implements CommodityService {
         List<CommodityInput>  commodityInputs=new ArrayList<CommodityInput>();
         int code=so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE;
         String  message="";
+        Long supplierId1 = supplierId;
         //判断文件是否选择文件
         if (null == multipartFile) {
 
@@ -836,7 +837,7 @@ public class CommodityServiceImpl implements CommodityService {
         }
 
         for(int n=0;n<commodityInputs.size();n++){
-            BaseResult baseResult1=  saveCommodity(request,commodityInputs.get(n),supplierId);
+            BaseResult baseResult1=  saveCommodity(request,commodityInputs.get(n),supplierId1);
             String code69 = commodityInputs.get(n).getCommodityList().get(0).getCode69() == null ? "" : commodityInputs.get(n).getCommodityList().get(0).getCode69();
             String sjcode = commodityInputs.get(n).getCommodityList().get(0).getCode() == null ? "" : commodityInputs.get(n).getCommodityList().get(0).getCode();
             String brand = commodityInputs.get(n).getBrand() == null ? "" : commodityInputs.get(n).getBrand();
