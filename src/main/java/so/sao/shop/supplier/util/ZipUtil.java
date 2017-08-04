@@ -40,7 +40,7 @@ public class ZipUtil {
 	   if (zipEntry.isDirectory()) {
 	    // mkdir directory
 	    String dirName = zipEntry.getName();
-	    // System.out.println("=dirName is:=" + dirName + "=end=");
+
 	    dirName = dirName.substring(0, dirName.length() - 1);
 	    File f = new File(outFile.getPath() + File.separator + dirName);
 	    f.mkdirs();

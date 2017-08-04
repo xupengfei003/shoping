@@ -43,7 +43,8 @@ public class PurchasesVo {
     /**
      * 支付时间
      */
-    private Long orderPaymentTime;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date orderPaymentTime;
 
     /**
      * 支付方式
@@ -101,11 +102,11 @@ public class PurchasesVo {
         this.orderStatus = orderStatus;
     }
 
-    public Long getOrderPaymentTime() {
+    public Date getOrderPaymentTime() {
         return orderPaymentTime;
     }
 
-    public void setOrderPaymentTime(Long orderPaymentTime) {
+    public void setOrderPaymentTime(Date orderPaymentTime) {
         this.orderPaymentTime = orderPaymentTime;
     }
 

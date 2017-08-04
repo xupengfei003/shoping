@@ -57,7 +57,7 @@ public class FileUtil {
 			myDelFile.delete();
 
 		} catch (Exception e) {
-			System.out.println("删除文件操作出错");
+
 			e.printStackTrace();
 
 		}
@@ -73,7 +73,7 @@ public class FileUtil {
 		File file = new File(filePath);
 		long fileSize = file.length();
 		if (fileSize > Integer.MAX_VALUE) {
-			System.out.println("file too big...");
+
 			return null;
 		}
 		FileInputStream fi = new FileInputStream(file);
@@ -149,8 +149,7 @@ public class FileUtil {
 			channel = fs.getChannel();
 			ByteBuffer byteBuffer = ByteBuffer.allocate((int) channel.size());
 			while ((channel.read(byteBuffer)) > 0) {
-				// do nothing
-				// System.out.println("reading");
+
 			}
 			return byteBuffer.array();
 		} catch (IOException e) {
@@ -233,11 +232,11 @@ public class FileUtil {
 		for (int i = 0; i < tlist.length; i++) {
 			if(tlist[i].isDirectory()){//如果是文件夹，则修改文件夹名称
 				File srcDir = new File(sPath+"/"+tlist[i].getName());
-				System.out.println(sPath+"/"+tlist[i].getName());
+
 			    boolean isOk = srcDir.renameTo(new File(sPath+"/"+fjjname)); 
-			    System.out.println("==============="+sPath+"/"+fjjname);
+
 			    getreNameFile(sPath+"/"+fjjname, fjjname);
-			    System.out.println(isOk);
+
 			}
 		}
     }
@@ -257,10 +256,10 @@ public class FileUtil {
 			fc = rf.getChannel();
 			MappedByteBuffer byteBuffer = fc.map(MapMode.READ_ONLY, 0,
 					fc.size()).load();
-			//System.out.println(byteBuffer.isLoaded());
+
 			byte[] result = new byte[(int) fc.size()];
 			if (byteBuffer.remaining() > 0) {
-				// System.out.println("remain");
+
 				byteBuffer.get(result, 0, byteBuffer.remaining());
 			}
 			return result;
@@ -297,9 +296,7 @@ public class FileUtil {
 		 File file = new File(path); 
 		 File[] array = file.listFiles();
 		 for(int i=0;i<array.length;i++){ 
-			 if(array[i].isFile()){ 
-				 System.out.println("^^^^^" + array[i].getName());   
-			 }else if(array[i].isDirectory()){   
+			 if(array[i].isDirectory()){
 	                getFile(array[i].getPath());   
 	         }  
 		 }

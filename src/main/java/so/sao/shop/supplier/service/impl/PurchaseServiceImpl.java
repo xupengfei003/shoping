@@ -250,7 +250,8 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Override
     public boolean deletePurchase(String orderIds) {
         String[] orderIdArr = orderIds.split(",");
-        return purchaseDao.deleteByOrderId(orderIdArr);
+        Date updateDate = new Date();
+        return purchaseDao.deleteByOrderId(orderIdArr,updateDate);
     }
 
     /**

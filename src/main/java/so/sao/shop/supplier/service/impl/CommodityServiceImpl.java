@@ -55,7 +55,8 @@ public class CommodityServiceImpl implements CommodityService {
     @Transactional
     public BaseResult saveCommodity(@Valid CommodityInput commodityInput,Long supplierId) throws Exception {
         BaseResult result=new BaseResult();
-
+        //用于存放商品69码
+        Set<String> sets = new TreeSet<>();
         //验证品牌是否存在，不存在则新增
         CommBrand brand = commBrandDao.findByName(commodityInput.getBrand());
         if (null==brand){
@@ -73,6 +74,17 @@ public class CommodityServiceImpl implements CommodityService {
         }
         //校验所有插入规格的69码是否已存在
          for (SupplierCommodityVo commodityVo:commodityInput.getCommodityList()) {
+             sets.add(commodityVo.getCode69());
+         }
+
+        //校验是否有重复69码
+        if (sets.size() < commodityInput.getCommodityList().size()) {
+            result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
+            result.setMessage("存在重复的商品编码，请修改后重新添加！");
+            return result;
+        }
+
+         for (SupplierCommodityVo commodityVo:commodityInput.getCommodityList()) {
              if (StringUtil.isNull(commodityVo.getCode69()))
              {
                  result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
@@ -86,6 +98,7 @@ public class CommodityServiceImpl implements CommodityService {
                 return result;
             }
         }
+
         //建立供应商和商品关系
         if(null!=commodityInput.getCommodityList()){
             for (SupplierCommodityVo commodityVo:commodityInput.getCommodityList()) {
@@ -784,8 +797,6 @@ public class CommodityServiceImpl implements CommodityService {
                         commodityInput.setRemark(value);
                     }else if("商品介绍".equals(key)){
                         commodityInput.setDescription(value);
-                    }else if("总库存数量".equals(key)){
-                        // commodityInput.setRemark(value);
                     }else if("商品规格".equals(key)){
                         supplierCommodityVo.setRuleName(value);
                     }else if("商品规格值".equals(key)){
@@ -801,7 +812,7 @@ public class CommodityServiceImpl implements CommodityService {
                     }else if("库存".equals(key)){
                         if(!"".equals(value)) {
                             supplierCommodityVo.setInventory(Double.parseDouble(value));
-                            //  commRuleVo.setInventory(Double.parseDouble(value));
+
                         }
                     }else if("计量单位".equals(key)){
                         supplierCommodityVo.setUnit(value);

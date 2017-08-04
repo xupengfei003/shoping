@@ -137,17 +137,17 @@
         FROM purchase
         <where>
             order_status != -1
-            <if test="orderId != null" >
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderId)" >
                 AND order_id LIKE "${orderId}%"
             </if>
-            <if test="orderReceiverName!=null">
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderReceiverName)">
                 AND order_receiver_name LIKE "${orderReceiverName}%"
             </if>
 
-            <if test="beginDate!=null">
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(beginDate)">
                 AND order_create_time >= TRIM(STR_TO_DATE(#{beginDate},'%Y-%m-%d'))
             </if>
-            <if test="endDate != null">
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(endDate)">
                AND order_create_time &lt;= TRIM(DATE_ADD(STR_TO_DATE(#{endDate},'%Y-%m-%d'),INTERVAL 1 DAY))
             </if>
 
@@ -157,18 +157,18 @@
             <if test="endMoney != null">
                 <![CDATA[AND order_price <= TRIM(#{endMoney})]]>
             </if>
-            <if test="orderReceiverMobile!=null">
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderReceiverMobile)">
                 AND order_receiver_mobile LIKE "${orderReceiverMobile}%"
             </if>
 
-            <if test="orderPaymentDate!=null">
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderPaymentDate)">
                 AND order_payment_time &lt;= TRIM(DATE_ADD(STR_TO_DATE(#{orderPaymentDate},'%Y-%m-%d'),INTERVAL 1 DAY))
             </if>
 
             <if test="orderPaymentMethod!=null">
                 AND order_payment_method = TRIM(#{orderPaymentMethod})
             </if>
-            <if test="orderPaymentNum!=null">
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderPaymentNum)">
                 AND order_payment_num LIKE "${orderPaymentNum}%"
             </if>
             <if test="orderStatus!=null">
@@ -216,9 +216,10 @@
     <update id="deleteByOrderId" parameterType="so.sao.shop.supplier.pojo.vo.PurchasesVo">
         UPDATE purchase
         SET
-        order_status = -1
+        order_status = -1,
+        updated_at = #{updateDate}
         WHERE order_id IN
-        <foreach collection="array" open="(" close=")" separator="," item="orderId" index="i">
+        <foreach collection="orderIdArr" open="(" close=")" separator="," item="orderId" index="i">
             #{orderId}
         </foreach>
 

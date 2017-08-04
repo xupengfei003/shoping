@@ -73,7 +73,7 @@ public interface PurchaseDao {
      * @param orderIdArr
      * @return
      */
-    boolean deleteByOrderId(String[] orderIdArr);
+    boolean deleteByOrderId(@Param("orderIdArr") String[] orderIdArr, @Param("updateDate") Date updateDate);
 
     /**
      * 批量获取订单列表

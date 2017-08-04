@@ -55,7 +55,6 @@ public class AccountController {
      *
      * @param account 供应商信息
      * @return 返回添加结果
-     * @throws IOException
      */
     @ApiOperation("添加供应商信息")
     @PostMapping("/save")
@@ -267,7 +266,6 @@ public class AccountController {
      *
      * @param tel
      * @return
-     * @throws AuthenticationException
      * @throws IOException
      */
     @ApiOperation("忘记密码")
@@ -284,10 +282,10 @@ public class AccountController {
      */
     @GetMapping(value = "/account")
     @ApiOperation(value = "查询供应商列表")
-    public PageInfo search(Condition condition, HttpServletRequest request) throws Exception {
+    public PageInfo search(Condition condition, HttpServletRequest request)  {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         if(user==null || !user.getIsAdmin().equals(Constant.IS_ADMIN)){
-            throw new RuntimeException();
+            throw new RuntimeException("unauthorized access");
         }
         return accountService.searchAccount(condition);
     }
@@ -301,7 +299,7 @@ public class AccountController {
 
     @GetMapping("/search")
     @ApiOperation(value = "根据id查询供应商(省市区汉字)")
-    public Account get(@RequestParam(required = false) Long id, HttpServletRequest request) throws Exception {
+    public Account get(@RequestParam(required = false) Long id, HttpServletRequest request){
         id = getAccountId(id, request);
         return accountService.selectById(id);
     }
@@ -314,7 +312,7 @@ public class AccountController {
      */
     @GetMapping("/search0")
     @ApiOperation(value = "根据id查询供应商(省市区编码)")
-    public Account get0(@RequestParam(required = false) Long id, HttpServletRequest request) throws Exception {
+    public Account get0(@RequestParam(required = false) Long id, HttpServletRequest request) {
         id = getAccountId(id, request);
         return accountService.selectById0(id);
     }
@@ -324,14 +322,13 @@ public class AccountController {
      * @param id
      * @param request
      * @return
-     * @throws Exception
      */
-    private Long getAccountId(Long id, HttpServletRequest request) throws Exception {
+    private Long getAccountId(Long id, HttpServletRequest request){
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         if(user==null){
-            throw new Exception();
+            throw new RuntimeException("unauthorized access");
         }else if(user.getIsAdmin().equals(Constant.IS_ADMIN )&&(id == null || id == 0)){
-            throw new Exception();
+            throw new RuntimeException("unauthorized access");
         }else if(!user.getIsAdmin().equals(Constant.IS_ADMIN )){
             id = user.getAccountId();
         }
@@ -422,10 +419,10 @@ public class AccountController {
      */
     @ApiOperation("供应商信息上传")
     @PostMapping("/upload")
-    public String excelUpload(HttpServletRequest request, HttpServletResponse response, MultipartFile file) throws Exception {
+    public String excelUpload(HttpServletRequest request, HttpServletResponse response, MultipartFile file) {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         if(user==null || !user.getIsAdmin().equals(Constant.IS_ADMIN)){
-            throw new Exception();
+            throw new RuntimeException("unauthorized access");
         }
         //判断文件是否为空
         if (file == null) {

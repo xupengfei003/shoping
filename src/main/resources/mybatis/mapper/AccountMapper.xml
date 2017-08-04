@@ -726,9 +726,11 @@
                   AND  contract_register_address_city = #{contractRegisterAddressCity}
                 </if>
                 <if test="contractRegisterAddressDistrict != null  and contractRegisterAddressProvince!=''">
-                  AND  contract_register_address_district = #{contractRegisterAddressDistrict}
+                  AND  contract_register_address_district = #{contractRegisterAddressDistrict} 
                 </if>
+
     </where>
+             ORDER  BY  a.create_date DESC 
   </select>
 
     <select id="findOne" resultMap="BaseResultMap" parameterType="long">

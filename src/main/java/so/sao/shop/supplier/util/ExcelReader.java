@@ -107,7 +107,7 @@ public class ExcelReader {
             if (row == null)
             {
                 maperror.put(i+1,content);
-                //errorlist.add(i+1);
+
                 continue;
             }
 
@@ -235,25 +235,5 @@ public class ExcelReader {
 
     }
 
-    /* public static void main(String[] args) {
-        String file = "C://Users//acer//Desktop//Commodity.xls";
-      //  List<Map<String, String>> list = ExcelReader.readExcelContent(file,2);
-        Map<String, String> map = null;
-        String [][] strings2=ExcelReader.readExcel(file,2);
-       for (int i = 0; i < list.size(); i++) {
-            map = list.get(i);
-            Entry<String, String> entry = null;
-            for (Iterator<Entry<String, String>> it = map.entrySet().iterator(); it.hasNext(); ) {
-                entry = it.next();
-                System.out.println(entry.getKey() + "-->" + entry.getValue());
-            }
-            System.out.println("............");
-        }
-        for(int m=0;m<strings2.length;m++){
-            for(int n=0;n<strings2[m].length;n++){
-                System.out.print(strings2[m][n]);
-            }
 
-        }
-    }*/
 }
