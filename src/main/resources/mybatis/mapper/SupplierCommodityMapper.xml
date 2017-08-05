@@ -214,7 +214,7 @@
         <if test="typeId != null">
             AND sc.category_one_id = #{typeId}
         </if>
-        ORDER BY sc.created_at DESC
+        ORDER BY sc.updated_at DESC
     </select>
 
     <!--统计查询总记录数-->
@@ -295,7 +295,7 @@
         <if test="typeId != null">
             AND sc.category_one_id = #{typeId}
         </if>
-        ORDER BY sc.created_at DESC
+        ORDER BY sc.updated_at DESC
     </select>
 
     <!--统计查询总记录数-->
