@@ -4,6 +4,7 @@ import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.format.annotation.DateTimeFormat.ISO;
 
 /**
  * 查询条件
@@ -14,13 +15,13 @@ public class Condition {
     /**
      * 开始时间
      */
-	@JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
-    private String beginDate;
+	@DateTimeFormat(pattern = "yyyy-MM-dd",iso=ISO.DATE)
+    private Date beginDate;
     /**
      * 截止时间
      */
-	@JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
-    private String endDate;
+	@DateTimeFormat(pattern = "yyyy-MM-dd",iso=ISO.DATE)
+    private Date endDate;
 
     /**
      * 供应商名称
@@ -29,13 +30,13 @@ public class Condition {
     /**
      * 合同截止日期
      */
-    @JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
-    private String contractEndDate;
+    @DateTimeFormat(pattern = "yyyy-MM-dd",iso=ISO.DATE)
+    private Date contractEndDate;
     /**
      * 合同创建日期
       */
-    @JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
-    private String contractCreateDate;
+    @DateTimeFormat(pattern = "yyyy-MM-dd",iso=ISO.DATE)
+    private Date contractCreateDate;
     /**
      * 法人代表（合同）
      */
@@ -145,35 +146,35 @@ public class Condition {
 		this.contractRegisterAddressDistrict = contractRegisterAddressDistrict;
 	}
 
-    public String getBeginDate() {
+    public Date getBeginDate() {
         return beginDate;
     }
 
-    public void setBeginDate(String beginDate) {
-        this.beginDate = beginDate;
+    public void setBeginDate(Date beginDate) {
+        this.beginDate = beginDate ;
     }
 
-    public String getEndDate() {
+    public Date getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(String endDate) {
+    public void setEndDate(Date endDate) {
         this.endDate = endDate;
     }
 
-    public String getContractEndDate() {
+    public Date getContractEndDate() {
         return contractEndDate;
     }
 
-    public void setContractEndDate(String contractEndDate) {
+    public void setContractEndDate(Date contractEndDate) {
         this.contractEndDate = contractEndDate;
     }
 
-    public String getContractCreateDate() {
+    public Date getContractCreateDate() {
         return contractCreateDate;
     }
 
-    public void setContractCreateDate(String contractCreateDate) {
+    public void setContractCreateDate(Date contractCreateDate) {
         this.contractCreateDate = contractCreateDate;
     }
 }
