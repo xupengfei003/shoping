@@ -96,9 +96,9 @@ public class CommodityExcelView extends ExcelView{
         }else if(commodityExportOutput.getInventory() == null){
             commodityExportOutput.setInventory(0.0);
         }else if(commodityExportOutput.getCreatedAt() == null){
-            commodityExportOutput.setCreatedAt(new Date());
+            commodityExportOutput.setCreatedAt("");
         }else if(commodityExportOutput.getUpdatedAt() == null){
-            commodityExportOutput.setUpdatedAt(new Date());
+            commodityExportOutput.setUpdatedAt("");
         }
         return commodityExportOutput;
 

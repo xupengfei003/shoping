@@ -35,10 +35,10 @@ public class Constant {
 
 
     public static String getStatus(int status){
-        String st="未上架";
+        String st="待上架";
         switch (status){
             case Constant.COMM_ST_XZ:
-                st="未上架";
+                st="待上架";
                 break;
 /*            case Constant.COMM_ST_FC:
                 st="已废除";

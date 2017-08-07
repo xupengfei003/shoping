@@ -62,13 +62,11 @@ public class CommodityExportOutput extends BaseResult{
     /**
      *  创建时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
-    private Date createdAt;
+    private String createdAt;
     /**
      *  更新时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
-    private Date updatedAt;
+    private String updatedAt;
 
     public Long getCommId() {
         return commId;
@@ -158,19 +156,19 @@ public class CommodityExportOutput extends BaseResult{
         this.inventory = inventory;
     }
 
-    public Date getCreatedAt() {
+    public String getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Date createdAt) {
+    public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Date getUpdatedAt() {
+    public String getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(Date updatedAt) {
+    public void setUpdatedAt(String updatedAt) {
         this.updatedAt = updatedAt;
     }
 
