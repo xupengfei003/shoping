@@ -23,7 +23,7 @@ public class CommodityInput {
     /**
      * 品牌
      */
-    @Length(max = 20,message = "品牌长度不能大于20")
+    @Length(max = 256,message = "品牌长度不能大于256")
     private String brand;
     /**
      * 一级类型Id
@@ -40,7 +40,7 @@ public class CommodityInput {
     /**
      * 商品名称
      */
-    @Length(max = 200,message = "商品名称长度不能大于200")
+    @Length(max = 256,message = "商品名称长度不能大于256")
     private String name;
     /**
      * 商品描述

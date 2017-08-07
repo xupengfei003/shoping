@@ -20,7 +20,7 @@ public class SupplierCommodityVo {
      * 商家编码
      */
     @NotBlank(message = "商家编码不能为空")
-    @Length(max = 50,message = "商家编码长度不能大于50")
+    @Length(max = 256,message = "商家编码长度不能大于256")
     private String code;
     /**
      * 商品编码
@@ -32,18 +32,18 @@ public class SupplierCommodityVo {
      * 规格名称
      */
     @NotBlank(message = "规格名称不能为空")
-    @Length(max = 50,message = "规格名称长度不能大于50")
+    @Length(max = 256,message = "规格名称长度不能大于256")
     private String ruleName;
     /**
      * 规格值
      */
     @NotBlank(message = "规格值不能为空")
-    @Length(max = 50,message = "规格值长度不能大于50")
+    @Length(max = 256,message = "规格值长度不能大于256")
     private String ruleVal;
     /**
      * 计量单位
      */
-    @Length(max = 50,message = "计量单位长度不能大于50")
+    @Length(max = 256,message = "计量单位长度不能大于256")
     private String unit;
     /**
      * 库存
