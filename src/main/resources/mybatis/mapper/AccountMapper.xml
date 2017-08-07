@@ -702,7 +702,7 @@
                     AND create_date <![CDATA[>=]]> TRIM(STR_TO_DATE(#{beginDate},'%Y-%m-%d'))
                 </if>
                 <if test="endDate != null ">
-                    AND create_date <![CDATA[<=]]> TRIM(DATE_ADD(STR_TO_DATE(#{endDate},'%Y-%m-%d'),INTERVAL 1 DAY))
+                    AND create_date <![CDATA[<=]]> TRIM(STR_TO_DATE(#{endDate},'%Y-%m-%d'))
                 </if>
                 <if test="providerName != null and providerName != ''">
                     AND provider_name LIKE "%${providerName}%"
