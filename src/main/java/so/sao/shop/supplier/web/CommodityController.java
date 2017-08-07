@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.*;
+import java.math.BigDecimal;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
@@ -51,8 +52,8 @@ public class CommodityController {
     @GetMapping(value="/search")
     public PageInfo search(HttpServletRequest request,@RequestParam(required = false)  Long supplierId,@RequestParam(required = false) String commCode69,@RequestParam(required = false) Long commId,
                            @RequestParam(required = false) String suppCommCode,@RequestParam(required = false) String commName,
-                           @RequestParam(required = false) Integer status,@RequestParam(required = false) Long typeId,@RequestParam(required = false) Double minPrice,
-                           @RequestParam(required = false) Double maxPrice,@RequestParam(required = false) Integer pageNum, @RequestParam(required = false) Integer pageSize) throws Exception {
+                           @RequestParam(required = false) Integer status,@RequestParam(required = false) Long typeId,@RequestParam(required = false) BigDecimal minPrice,
+                           @RequestParam(required = false) BigDecimal maxPrice,@RequestParam(required = false) Integer pageNum, @RequestParam(required = false) Integer pageSize) throws Exception {
 
         //供应商ID校验
         supplierId = CheckUtil.supplierIdCheck(request,supplierId);
@@ -62,8 +63,8 @@ public class CommodityController {
     @ApiOperation(value="查询所有商品信息集合", notes="根据参数返回符合条件的商品信息集合")
     @GetMapping(value="/searchAll")
     public PageInfo searchAll(@RequestParam(required = false) Long id, @RequestParam(required = false) String commName, @RequestParam(required = false) String code69,
-                              @RequestParam(required = false) String suppCommCode, @RequestParam(required = false) Long typeId, @RequestParam(required = false) Double minPrice,
-                              @RequestParam(required = false) Double maxPrice, @RequestParam(required = false) Integer pageNum, @RequestParam(required = false) Integer pageSize){
+                              @RequestParam(required = false) String suppCommCode, @RequestParam(required = false) Long typeId, @RequestParam(required = false) BigDecimal minPrice,
+                              @RequestParam(required = false) BigDecimal maxPrice, @RequestParam(required = false) Integer pageNum, @RequestParam(required = false) Integer pageSize){
 
         return commodityService.searchAllCommodities(id, commName, code69, suppCommCode,typeId, minPrice, maxPrice, pageNum, pageSize);
     }

@@ -3,6 +3,7 @@ package so.sao.shop.supplier.pojo.output;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import so.sao.shop.supplier.pojo.vo.CommImgeVo;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -88,11 +89,11 @@ public class CommodityOutput {
     /**
      * 市场价
      */
-    private Double price;
+    private BigDecimal price;
     /**
      * 售价
      */
-    private Double unitPrice;
+    private BigDecimal unitPrice;
     /**
      * 商品状态
      */
@@ -233,19 +234,19 @@ public class CommodityOutput {
         this.minImg = minImg;
     }
 
-    public Double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(Double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 
-    public Double getUnitPrice() {
+    public BigDecimal getUnitPrice() {
         return unitPrice;
     }
 
-    public void setUnitPrice(Double unitPrice) {
+    public void setUnitPrice(BigDecimal unitPrice) {
         this.unitPrice = unitPrice;
     }
 

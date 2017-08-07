@@ -699,19 +699,19 @@
               AND contract_register_address_city = cc.sr_id
               AND contract_register_address_district = cd.sr_id
                 <if test="beginDate != null ">
-                    AND create_date <![CDATA[>=]]> TRIM(STR_TO_DATE(#{beginDate},'%Y-%m-%d'))
+                    AND STR_TO_DATE(DATE_FORMAT(a.create_date,'%Y-%c-%d'),'%Y-%m-%d') <![CDATA[>=]]> STR_TO_DATE(#{beginDate},'%Y-%m-%d')
                 </if>
                 <if test="endDate != null ">
-                    AND create_date <![CDATA[<=]]> TRIM(STR_TO_DATE(#{endDate},'%Y-%m-%d'))
+                    AND STR_TO_DATE(DATE_FORMAT(a.create_date,'%Y-%c-%d'),'%Y-%m-%d') <![CDATA[<=]]> STR_TO_DATE(#{endDate},'%Y-%m-%d')
                 </if>
                 <if test="providerName != null and providerName != ''">
                     AND provider_name LIKE "%${providerName}%"
                 </if>
 				<if test="contractCreateDate != null ">
-                    AND contract_end_date <![CDATA[>=]]> TRIM(STR_TO_DATE(#{contractCreateDate},'%Y-%m-%d'))
+                    AND STR_TO_DATE(DATE_FORMAT(a.contract_end_date,'%Y-%c-%d'),'%Y-%m-%d') <![CDATA[>=]]> TRIM(STR_TO_DATE(#{contractCreateDate},'%Y-%m-%d'))
                 </if>
                 <if test="contractEndDate != null ">
-                    AND contract_end_date <![CDATA[<=]]> TRIM(STR_TO_DATE(#{contractEndDate},'%Y-%m-%d'))
+                    AND STR_TO_DATE(DATE_FORMAT(a.contract_end_date,'%Y-%c-%d'),'%Y-%m-%d') <![CDATA[<=]]> TRIM(STR_TO_DATE(#{contractEndDate},'%Y-%m-%d'))
                 </if>
                 <if test="contractResponsible != null and contractResponsible != ''">
                     AND contract_responsible LIKE "%${contractResponsible}%"

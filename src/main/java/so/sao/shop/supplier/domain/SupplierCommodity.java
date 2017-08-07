@@ -1,5 +1,6 @@
 package so.sao.shop.supplier.domain;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -94,11 +95,11 @@ public class SupplierCommodity {
     /**
      * 市场价
      */
-    private Double price;
+    private BigDecimal price;
     /**
      * 售价
      */
-    private Double unitPrice;
+    private BigDecimal unitPrice;
     /**
      * 删除标记
      */
@@ -137,14 +138,6 @@ public class SupplierCommodity {
 
     public void setSupplierId(Long supplierId) {
         this.supplierId = supplierId;
-    }
-
-    public Double getUnitPrice() {
-        return unitPrice;
-    }
-
-    public void setUnitPrice(Double unitPrice) {
-        this.unitPrice = unitPrice;
     }
 
     public Double getInventory() {
@@ -315,14 +308,6 @@ public class SupplierCommodity {
         this.minImg = minImg;
     }
 
-    public Double getPrice() {
-        return price;
-    }
-
-    public void setPrice(Double price) {
-        this.price = price;
-    }
-
     public String getSku() {
         return sku;
     }
@@ -337,5 +322,21 @@ public class SupplierCommodity {
 
     public void setBrand(String brand) {
         this.brand = brand;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+
+    public BigDecimal getUnitPrice() {
+        return unitPrice;
+    }
+
+    public void setUnitPrice(BigDecimal unitPrice) {
+        this.unitPrice = unitPrice;
     }
 }

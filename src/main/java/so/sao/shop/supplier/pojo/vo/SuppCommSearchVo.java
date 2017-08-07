@@ -2,6 +2,7 @@ package so.sao.shop.supplier.pojo.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -66,11 +67,11 @@ public class SuppCommSearchVo {
     /**
      * 市场价
      */
-    private Double price;
+    private BigDecimal price;
     /**
      * 售价
      */
-    private Double unitPrice;
+    private BigDecimal unitPrice;
 
     /**
      *  创建时间
@@ -203,19 +204,19 @@ public class SuppCommSearchVo {
         this.updatedAt = updatedAt;
     }
 
-    public Double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(Double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 
-    public Double getUnitPrice() {
+    public BigDecimal getUnitPrice() {
         return unitPrice;
     }
 
-    public void setUnitPrice(Double unitPrice) {
+    public void setUnitPrice(BigDecimal unitPrice) {
         this.unitPrice = unitPrice;
     }
 }

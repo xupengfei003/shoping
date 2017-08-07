@@ -4,6 +4,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import so.sao.shop.supplier.domain.SupplierCommodity;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -50,10 +51,10 @@ public interface SupplierCommodityDao {
      * @param maxPrice 价格（高）
      * @return 查询结果结合
      */
-    List<SupplierCommodity> find(@Param("supplierId")Long supplierId,@Param("commCode69")String commCode69,
+    List<SupplierCommodity> find(@Param("supplierId")Long supplierId, @Param("commCode69")String commCode69,
                                  @Param("commId") Long commId, @Param("suppCommCode") String suppCommCode,
-                                 @Param("commName") String commName, @Param("status")Integer status,@Param("typeId") Long typeId,
-                                 @Param("minPrice") Double minPrice,@Param("maxPrice") Double maxPrice);
+                                 @Param("commName") String commName, @Param("status")Integer status, @Param("typeId") Long typeId,
+                                 @Param("minPrice") BigDecimal minPrice, @Param("maxPrice") BigDecimal maxPrice);
 
 
     /**
@@ -72,7 +73,7 @@ public interface SupplierCommodityDao {
     Long countTotal(@Param("supplierId")Long supplierId,@Param("commCode69")String commCode69,
                          @Param("commId") Long commId, @Param("suppCommCode") String suppCommCode,
                          @Param("commName") String commName, @Param("status")Integer status,@Param("typeId") Long typeId,
-                         @Param("minPrice") Double minPrice,@Param("maxPrice") Double maxPrice);
+                         @Param("minPrice") BigDecimal minPrice,@Param("maxPrice") BigDecimal maxPrice);
 
     /**
      * 更新商品状态
@@ -123,7 +124,7 @@ public interface SupplierCommodityDao {
      */
     List<SupplierCommodity> findAll(@Param("id")Long id, @Param("commName") String commName, @Param("code69") String code69,
                                     @Param("suppCommCode") String suppCommCode, @Param("typeId") Long typeId,
-                                    @Param("minPrice") Double minPrice,@Param("maxPrice") Double maxPrice);
+                                    @Param("minPrice") BigDecimal minPrice,@Param("maxPrice") BigDecimal maxPrice);
 
     /**
      * 统计查询总记录数
@@ -138,5 +139,5 @@ public interface SupplierCommodityDao {
      */
     Long countAllTotal(@Param("id")Long id,@Param("commName") String commName, @Param("code69") String code69,
                        @Param("suppCommCode") String suppCommCode,@Param("typeId") Long typeId,
-                       @Param("minPrice") Double minPrice,@Param("maxPrice") Double maxPrice);
+                       @Param("minPrice") BigDecimal minPrice,@Param("maxPrice") BigDecimal maxPrice);
 }

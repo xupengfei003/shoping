@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -347,7 +348,7 @@ public class CommodityServiceImpl implements CommodityService {
      */
     @Override
     public PageInfo searchCommodities(Long supplierId, String commCode69, Long commId, String suppCommCode, String commName, Integer status, Long typeId,
-                                      Double minPrice, Double maxPrice, Integer pageNum, Integer pageSize) {
+                                      BigDecimal minPrice, BigDecimal maxPrice, Integer pageNum, Integer pageSize) {
         Page page = new Page(pageNum, pageSize);
         //入参校验
         commCode69 = stringParamCheck(commCode69);
@@ -395,11 +396,14 @@ public class CommodityServiceImpl implements CommodityService {
      * @param minPrice
      * @param maxPrice
      */
-    private void priceCheck(Double minPrice, Double maxPrice)
+    private void priceCheck(BigDecimal minPrice, BigDecimal maxPrice)
     {
         if (null != minPrice && null !=maxPrice)
         {
-            if (minPrice < 0 || maxPrice < 0 || minPrice > maxPrice)
+            int minCompare = minPrice.compareTo(BigDecimal.ZERO);   //当minCompare == -1，说明minPrice<0;
+            int maxCompare = maxPrice.compareTo(BigDecimal.ZERO);   //当maxCompare == -1，说明maxPrice<0;
+            int minMax = minPrice.compareTo(maxPrice);   //当minPrice > maxPrice,minMax==1
+            if (minCompare == -1 || maxCompare == -1 || minMax == 1)
             {
                 throw new RuntimeException("param is unavailable");
             }
@@ -803,11 +807,11 @@ public class CommodityServiceImpl implements CommodityService {
                         supplierCommodityVo.setRuleVal(value);
                     }else if("成本价".equals(key)){
                         if(!"".equals(value)) {
-                            supplierCommodityVo.setUnitPrice(Double.parseDouble(value));
+                            supplierCommodityVo.setUnitPrice(new BigDecimal(value));
                         }
                     }else if("市场价".equals(key)){
                         if(!"".equals(value)) {
-                            supplierCommodityVo.setPrice(Double.parseDouble(value));
+                            supplierCommodityVo.setPrice(new BigDecimal(value));
                         }
                     }else if("库存".equals(key)){
                         if(!"".equals(value)) {
@@ -907,7 +911,7 @@ public class CommodityServiceImpl implements CommodityService {
      * @return PageInfo pageInfo对象
      */
     @Override
-    public PageInfo searchAllCommodities(Long id, String commName, String code69, String suppCommCode, Long typeId, Double minPrice, Double maxPrice, Integer pageNum, Integer pageSize) {
+    public PageInfo searchAllCommodities(Long id, String commName, String code69, String suppCommCode, Long typeId, BigDecimal minPrice, BigDecimal maxPrice, Integer pageNum, Integer pageSize) {
         Page page = new Page(pageNum, pageSize);
         //入参校验
         commName = stringParamCheck(commName);

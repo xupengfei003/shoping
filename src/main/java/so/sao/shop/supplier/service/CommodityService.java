@@ -1,7 +1,6 @@
 package so.sao.shop.supplier.service;
 
 import com.github.pagehelper.PageInfo;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import so.sao.shop.supplier.config.StorageConfig;
 import so.sao.shop.supplier.domain.Account;
@@ -9,10 +8,10 @@ import so.sao.shop.supplier.pojo.BaseResult;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.CommodityInput;
 import so.sao.shop.supplier.pojo.output.CommodityExportOutput;
-import so.sao.shop.supplier.pojo.output.CommodityImportOutput;
 import so.sao.shop.supplier.pojo.output.CommodityOutput;
 
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -79,7 +78,7 @@ public interface CommodityService {
      * @return PageInfo pageInfo对象
      */
     PageInfo searchCommodities(Long supplierId, String commCode69, Long commId, String suppCommCode, String commName, Integer status, Long typeId,
-                               Double minPrice, Double maxPrice, Integer pageNum, Integer pageSize);
+                               BigDecimal minPrice, BigDecimal maxPrice, Integer pageNum, Integer pageSize);
 
 
     /**
@@ -95,7 +94,7 @@ public interface CommodityService {
      * @param pageSize 页面大小
      * @return PageInfo pageInfo对象
      */
-    PageInfo searchAllCommodities(Long id, String commName, String code69, String suppCommCode,  Long typeId, Double minPrice,Double maxPrice, Integer pageNum, Integer pageSize);
+    PageInfo searchAllCommodities(Long id, String commName, String code69, String suppCommCode,  Long typeId, BigDecimal minPrice,BigDecimal maxPrice, Integer pageNum, Integer pageSize);
 
     /**
      * 删除商品

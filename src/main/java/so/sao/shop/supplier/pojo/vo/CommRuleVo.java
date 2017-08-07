@@ -1,5 +1,7 @@
 package so.sao.shop.supplier.pojo.vo;
 
+import java.math.BigDecimal;
+
 /**
  * Created by QuJunLong on 2017/7/20.
  */
@@ -32,11 +34,11 @@ public class CommRuleVo {
     /**
      * 市场价
      */
-    private Double price;
+    private BigDecimal price;
     /**
      * 售价
      */
-    private Double unitPrice;
+    private BigDecimal unitPrice;
     /**
      * 删除标记
      */
@@ -74,14 +76,6 @@ public class CommRuleVo {
         this.minImg = minImg;
     }
 
-    public Double getPrice() {
-        return price;
-    }
-
-    public void setPrice(Double price) {
-        this.price = price;
-    }
-
     public Long getId() {
         return id;
     }
@@ -98,19 +92,27 @@ public class CommRuleVo {
         this.scId = scId;
     }
 
-    public Double getUnitPrice() {
-        return unitPrice;
-    }
-
-    public void setUnitPrice(Double unitPrice) {
-        this.unitPrice = unitPrice;
-    }
-
     public int getDeleted() {
         return deleted;
     }
 
     public void setDeleted(int deleted) {
         this.deleted = deleted;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+
+    public BigDecimal getUnitPrice() {
+        return unitPrice;
+    }
+
+    public void setUnitPrice(BigDecimal unitPrice) {
+        this.unitPrice = unitPrice;
     }
 }

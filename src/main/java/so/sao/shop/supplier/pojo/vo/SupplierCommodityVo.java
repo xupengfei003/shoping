@@ -4,6 +4,7 @@ import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.Min;
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -57,12 +58,12 @@ public class SupplierCommodityVo {
      * 市场价
      */
     @Min(value=0)
-    private Double price;
+    private BigDecimal price;
     /**
      * 售价
      */
     @Min(value=0)
-    private Double unitPrice;
+    private BigDecimal unitPrice;
 
     /**
      * 图片集合
@@ -83,14 +84,6 @@ public class SupplierCommodityVo {
 
     public void setImgeList(List<CommImgeVo> imgeList) {
         this.imgeList = imgeList;
-    }
-
-    public Double getUnitPrice() {
-        return unitPrice;
-    }
-
-    public void setUnitPrice(Double unitPrice) {
-        this.unitPrice = unitPrice;
     }
 
     public Double getInventory() {
@@ -149,11 +142,19 @@ public class SupplierCommodityVo {
         this.minImg = minImg;
     }
 
-    public Double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(Double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
+    }
+
+    public BigDecimal getUnitPrice() {
+        return unitPrice;
+    }
+
+    public void setUnitPrice(BigDecimal unitPrice) {
+        this.unitPrice = unitPrice;
     }
 }

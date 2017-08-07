@@ -5,6 +5,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import so.sao.shop.supplier.pojo.output.CommodityExportOutput;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -61,8 +62,8 @@ public class CommodityExcelView extends ExcelView{
             commodityRow.createCell(5).setCellValue(commodity.getUnit());//单位
             commodityRow.createCell(6).setCellValue(commodity.getRuleName());//规格名称
             commodityRow.createCell(7).setCellValue(commodity.getRuleValue());//规格值
-            commodityRow.createCell(8).setCellValue(commodity.getPrice());//成本价
-            commodityRow.createCell(9).setCellValue(commodity.getUnitPrice());//市场价
+            commodityRow.createCell(8).setCellValue(commodity.getPrice().toString());//成本价
+            commodityRow.createCell(9).setCellValue(commodity.getUnitPrice().toString());//市场价
             commodityRow.createCell(10).setCellValue(commodity.getInventory());//库存量
             commodityRow.createCell(11).setCellValue(commodity.getCreatedAt());//创建时间
             commodityRow.createCell(12).setCellValue(commodity.getUpdatedAt());//更新时间
@@ -89,9 +90,9 @@ public class CommodityExcelView extends ExcelView{
         }else if(commodityExportOutput.getRuleValue() == null){
             commodityExportOutput.setRuleValue("");
         }else if(commodityExportOutput.getPrice() == null){
-            commodityExportOutput.setPrice(0.0);
+            commodityExportOutput.setPrice(new BigDecimal(0.0));
         }else if(commodityExportOutput.getUnitPrice() == null){
-            commodityExportOutput.setUnitPrice(0.0);
+            commodityExportOutput.setUnitPrice(new BigDecimal(0.0));
         }else if(commodityExportOutput.getInventory() == null){
             commodityExportOutput.setInventory(0.0);
         }else if(commodityExportOutput.getCreatedAt() == null){
