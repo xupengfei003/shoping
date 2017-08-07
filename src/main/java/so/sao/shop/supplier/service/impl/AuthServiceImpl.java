@@ -1,28 +1,33 @@
 package so.sao.shop.supplier.service.impl;
 
-import com.aliyuncs.dysmsapi.model.v20170525.SendSmsResponse;
-import com.aliyuncs.exceptions.ClientException;
+import com.aliyun.mns.model.TopicMessage;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import so.sao.shop.supplier.config.sms.SmsService;
 import so.sao.shop.supplier.dao.UserDao;
 import so.sao.shop.supplier.domain.User;
 import so.sao.shop.supplier.pojo.BaseResult;
+import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.service.AuthService;
 import so.sao.shop.supplier.util.Constant;
 import so.sao.shop.supplier.util.JwtTokenUtil;
-import so.sao.shop.supplier.util.SmsUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 权限service
@@ -37,16 +42,30 @@ public class AuthServiceImpl implements AuthService {
     private UserDetailsService userDetailsService;
     private UserDao userDao;
     private JwtTokenUtil jwtTokenUtil;
+    private SmsService smsService;
+
+    /**
+     * 验证码
+     */
+    @Value("${shop.aliyun.sms.sms-template-code1}")
+    String smsTemplateCode1;
+
+    /**
+     * 找回密码
+     */
+    @Value("${shop.aliyun.sms.sms-template-code3}")
+    String smsTemplateCode3;
 
     @Autowired
     public AuthServiceImpl(
             AuthenticationManager authenticationManager,
             UserDetailsService userDetailsService,
-            UserDao userDao,JwtTokenUtil jwtTokenUtil) {
+            UserDao userDao,JwtTokenUtil jwtTokenUtil,SmsService smsService) {
         this.authenticationManager = authenticationManager;
         this.userDetailsService = userDetailsService;
         this.userDao = userDao;
         this.jwtTokenUtil=jwtTokenUtil;
+        this.smsService=smsService;
     }
 
     /**
@@ -57,12 +76,34 @@ public class AuthServiceImpl implements AuthService {
      * @return
      * @throws IOException
      */
-    public String login(String username, String password) throws IOException {
-        UsernamePasswordAuthenticationToken upToken = new UsernamePasswordAuthenticationToken(username, password);
-        final Authentication authentication = authenticationManager.authenticate(upToken);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-        return jwtTokenUtil.generateToken(userDetails);
+    public Result login(String username, String password) throws IOException {
+        UserDetails userDetails = null;
+        try {
+            userDetails = userDetailsService.loadUserByUsername(username);
+        }catch (UsernameNotFoundException e){
+            return new Result(0,"当前号码无效!","");
+        }
+        try{
+            UsernamePasswordAuthenticationToken upToken = new UsernamePasswordAuthenticationToken(username, password);
+            final Authentication authentication = authenticationManager.authenticate(upToken);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        }catch (Exception e){
+            return new Result(0,"用户名或密码错误!","");
+        }
+        Map result = new HashMap();
+        result.put("token", jwtTokenUtil.generateToken(userDetails));
+        result.put("user",userDetails);
+        return new Result<Map>(1, "", result);
+    }
+
+    /**
+     * 登出
+     * @param userId
+     * @return
+     */
+    public Result logout(Long userId){
+        userDao.updateLogoutTime(userId, new Date());
+        return new Result(1,"登出成功",null);
     }
 
     /**
@@ -74,7 +115,7 @@ public class AuthServiceImpl implements AuthService {
     public String refresh(HttpServletRequest request) throws IOException {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         final String token = jwtTokenUtil.getTokenFromRequest(request);
-        if (jwtTokenUtil.canTokenBeRefreshed(token, new Date(user.getLastPasswordResetDate()))){
+        if (jwtTokenUtil.canTokenBeRefreshed(token, user.getLastPasswordResetDate(), user.getLogoutTime())){
             return jwtTokenUtil.refreshToken(token);
         }
         return null;
@@ -82,42 +123,41 @@ public class AuthServiceImpl implements AuthService {
 
     /**
      * 忘记密码
-     * @param tel
+     * @param phone
      * @return
      * @throws IOException
-     * @throws ClientException
      */
     @Override
-    public BaseResult getPassword(String tel) throws IOException, ClientException {
-        User u = userDao.findByUsername(tel);
+    public BaseResult getPassword(String phone) throws IOException {
+        User u = userDao.findByUsername(phone);
         //判断当前登录人和接收密码手机是否一直
         if(u!=null&& StringUtils.isNotBlank(u.getUsername())){
-            String password = SmsUtil.getVerCode();
+            String password = smsService.getVerCode();
             //密码加密保存,忘记密码只能手机验证发送新密码
-            userDao.updatePassword(u.getId(),password, new Date().getTime());
-            SendSmsResponse sendSmsResponse = SmsUtil.sendSms(tel, password);
+            userDao.updatePassword(u.getId(),new BCryptPasswordEncoder().encode(password), new Date());
+            smsService.sendSms(Collections.singletonList(phone), Collections.singletonList("password"), Collections.singletonList(password), smsTemplateCode3);
             return new BaseResult(1, "发送成功");
         }else{
-            return new BaseResult(0, "发送失败");
+            return new BaseResult(0, "当前号码无效!");
         }
     }
 
     /**
      * 发送验证码
-     * @param tel
+     * @param phone
      * @return
      * @throws IOException
-     * @throws ClientException
      */
     @Override
-    public BaseResult sendCode(String tel) throws IOException, ClientException {
-        String code = SmsUtil.getVerCode();
-        userDao.saveSmsCode(tel, code);
-        SendSmsResponse sendSmsResponse = SmsUtil.sendSms(tel, code);
-        if(sendSmsResponse.getCode() != null && sendSmsResponse.getCode().equals("OK")) {
+    public BaseResult sendCode(String phone) throws IOException {
+        String code = smsService.getVerCode();
+        userDao.saveSmsCode(phone, code);
+        TopicMessage topicMessage = smsService.sendSms(Collections.singletonList(phone),Collections.singletonList("code"), Collections.singletonList(code), smsTemplateCode1);
+        if(topicMessage != null) {
             return new BaseResult(1,"发送成功");
+        } else {
+            return new BaseResult(0,"发送失败");
         }
-        return new BaseResult(0,"发送失败");
     }
 
     /**
@@ -147,10 +187,9 @@ public class AuthServiceImpl implements AuthService {
 
         User user = userDao.findOne(userId);
         if(user!=null&& StringUtils.isNotBlank(user.getPassword())){
-            BCryptPasswordEncoder encode = new BCryptPasswordEncoder();
-            userDao.updatePassword(user.getId(),encode.encode(encodedPassword), new Date().getTime());
+            userDao.updatePassword(user.getId(),new BCryptPasswordEncoder().encode(encodedPassword), new Date());
             return new BaseResult(1,"密码修改成功");
-        }//user1.setLastPasswordResetDate(new Date().getTime());
-        return new BaseResult(0,"旧密码不正确");
+        }
+        return new BaseResult(0,"当前号码无效!");
     }
 }

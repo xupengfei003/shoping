@@ -94,8 +94,8 @@ public class ImportExcelImpl implements ImportExcel {
         //总列数
         int totalCells = 0;
         //得到Excel的列数(前提是有行数)，从第二行算起
-        if(totalRows>=3 && sheet.getRow(2) != null){
-            totalCells=sheet.getRow(2).getPhysicalNumberOfCells();
+        if(totalRows>=3 && sheet.getRow(3) != null){
+            totalCells=sheet.getRow(3).getPhysicalNumberOfCells();
         }
         List<Account> userKnowledgeBaseList=new ArrayList<Account>();
         Account tempUserKB;
@@ -106,7 +106,6 @@ public class ImportExcelImpl implements ImportExcel {
             Row row = sheet.getRow(r);
             tempUserKB = new Account();
             try{
-                User user = new User();
                 //循环Excel的列
                 for(int c = 0; c <totalCells; c++){
                     Cell cell = row.getCell(c);
@@ -122,12 +121,12 @@ public class ImportExcelImpl implements ImportExcel {
                             tempUserKB.setLicense(cell.getStringCellValue());
                         else if(c==4){
                             if(cell.getStringCellValue()!=null){
-                                tempUserKB.setLicenseTimeCreate(sdf.parse(cell.getStringCellValue()).getTime());
+                                tempUserKB.setLicenseTimeCreate(sdf.parse(cell.getStringCellValue()));
                             }
                         }
                         else if(c==5){
                             if(cell.getStringCellValue()!=null){
-                                tempUserKB.setLicenseTimeEnd(sdf.parse(cell.getStringCellValue()).getTime());
+                                tempUserKB.setLicenseTimeEnd(sdf.parse(cell.getStringCellValue()));
                             }
                         }
                         else if(c==6)
@@ -144,12 +143,12 @@ public class ImportExcelImpl implements ImportExcel {
                             tempUserKB.setContractLicense(cell.getStringCellValue());
                         else if(c==12) {
                             if (cell.getStringCellValue() != null) {
-                                tempUserKB.setContractLicenseCreate(sdf.parse(cell.getStringCellValue()).getTime());
+                                tempUserKB.setContractLicenseCreate(sdf.parse(cell.getStringCellValue()));
                             }
                         }
                         else if(c==13) {
                             if (cell.getStringCellValue() != null) {
-                                tempUserKB.setContractLicenseEnd(sdf.parse(cell.getStringCellValue()).getTime());
+                                tempUserKB.setContractLicenseEnd(sdf.parse(cell.getStringCellValue()));
                             }
                         }
                         else if(c==14)
@@ -158,12 +157,12 @@ public class ImportExcelImpl implements ImportExcel {
                             tempUserKB.setContractRegisterAddressDetail(cell.getStringCellValue());
                         else if(c==16) {
                             if(cell.getStringCellValue()!=null){
-                                tempUserKB.setContractCreateDate(sdf.parse(cell.getStringCellValue()).getTime());
+                                tempUserKB.setContractCreateDate(sdf.parse(cell.getStringCellValue()));
                             }
                         }
                         else if(c==17) {
                             if(cell.getStringCellValue()!=null){
-                                tempUserKB.setContractEndDate(sdf.parse(cell.getStringCellValue()).getTime());
+                                tempUserKB.setContractEndDate(sdf.parse(cell.getStringCellValue()));
                             }
                         }
                         else if(c==18)
@@ -175,22 +174,21 @@ public class ImportExcelImpl implements ImportExcel {
                         else if(c==21)
                             tempUserKB.setRemittanced(cell.getStringCellValue());
                     }
-                    /**
-                     * 此处增加用户信息，根据tempUserKB.getResponsiblePhone插入用户信息
-                     * 查询用户id增加进tempUserKB
-                     */
-                    Long id = accountService.saveUser(tempUserKB.getContractResponsiblePhone());
-                    if(id!=0l){
-                        tempUserKB.setUserId(id);
-                    }else{
-                        return "插入用户信息失败!";
-                    }
                 }
+                /**
+                 * 此处增加用户信息，根据tempUserKB.getResponsiblePhone插入用户信息
+                 * 查询用户id增加进tempUserKB
+                 */
+               // Long id = accountService.saveUser(tempUserKB.getContractResponsiblePhone());
                 tempUserKB.setUploadMode("2");
-                tempUserKB.setCreateDate(new Date().getTime());
+                tempUserKB.setCreateDate(new Date());
                 userKnowledgeBaseList.add(tempUserKB);
             }catch(Exception e){
                 log.error("excel数据解析异常"+e);
+                if(tempFile.exists()){
+                    tempFile.delete();
+                }
+                return "excel数据解析异常";
             }
         }
         //删除上传的临时文件

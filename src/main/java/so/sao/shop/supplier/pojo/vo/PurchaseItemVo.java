@@ -1,5 +1,8 @@
 package so.sao.shop.supplier.pojo.vo;
 
+import org.hibernate.validator.constraints.NotBlank;
+
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
 /**
@@ -14,14 +17,17 @@ public class PurchaseItemVo {
     /**
      * 商品属性
      */
+    @NotNull(message="商品属性不能为空")
     private String goodsAttribute;
     /**
      * 商品编号
      */
+    @NotNull(message="商品编号不能为空")
     private Long goodsId;
     /**
      * 商品数量
      */
+    @NotNull(message="商品数量不能为空")
     private Integer goodsNumber;
     /**
      * 商品总价

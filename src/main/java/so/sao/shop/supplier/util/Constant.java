@@ -23,7 +23,7 @@ public class Constant {
     /**
      * 删除
      */
-    public static final int COMM_ST_FC = 1;
+/*    public static final int COMM_ST_FC = 1;*/
     /**
      * 上架
      */
@@ -35,14 +35,14 @@ public class Constant {
 
 
     public static String getStatus(int status){
-        String st="未上架";
+        String st="待上架";
         switch (status){
             case Constant.COMM_ST_XZ:
-                st="未上架";
+                st="待上架";
                 break;
-            case Constant.COMM_ST_FC:
+/*            case Constant.COMM_ST_FC:
                 st="已废除";
-                break;
+                break;*/
             case Constant.COMM_ST_SJ:
                 st="上架";
                 break;
@@ -92,5 +92,37 @@ public class Constant {
      * 图片格式常量GIF格式
      */
     public static final String IMG_FILE_GIF = ".gif";
+
+
+     /*Azure微软云上传相关常量*/
+    /**
+     * 容器名称
+     */
+    public static final String AZURE_CONTAINER = "shop-supplier";
+    /**
+     * 缩略图默认宽度
+     */
+    public static final int THUMBNAIL_DEFAULT_WIDTH = 150;
+    /**
+     * 缩略图默认高度
+     */
+    public static final int THUMBNAIL_DEFAULT_HEIGHT = 150;
+
+    /**
+     * 图片压缩默认宽度
+     */
+    public static final int THUMB_DEFAULT_WIDTH = 320;
+    /**
+     * 图片压缩默认高度
+     */
+    public static final int THUMB_DEFAULT_HEIGHT = 320;
+    /**
+     * 管理员标识 1
+     */
+    public static final String IS_ADMIN = "1";
+    /**
+     * 非管理员标识 0
+     */
+    public static final String IS_NOT_ADMIN = "0";
 
 }

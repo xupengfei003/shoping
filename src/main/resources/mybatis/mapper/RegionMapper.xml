@@ -4,17 +4,17 @@
 
 
   <select id="selectShen" resultType="java.lang.String" >
-    select name from t_sys_region where level = 0
+    select name from sys_region where level = 0
   </select>
 
   <select id="selectShiByShen" resultType="java.lang.String" parameterType="java.lang.String" >
-    select name from t_sys_region
-    where parent_id=(select sr_id from t_sys_region where name=#{name})
+    select name from sys_region
+    where parent_id=(select sr_id from sys_region where name=#{name})
   </select>
 
   <select id="selectQuByShi" resultType="java.lang.String" parameterType="java.lang.String" >
-    select name from t_sys_region
-    where parent_id=(select sr_id from t_sys_region where name=#{name})
+    select name from sys_region
+    where parent_id=(select sr_id from sys_region where name=#{name})
   </select>
 
 
@@ -45,7 +45,7 @@
     level,
     sort_no
     FROM
-    t_sys_region
+    sys_region
     <where>
       <if test="parentId != null">
         parent_id = #{parentId}

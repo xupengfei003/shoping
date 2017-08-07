@@ -1,5 +1,9 @@
 package so.sao.shop.supplier.pojo.output;
 
+import java.math.BigDecimal;
+import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 import so.sao.shop.supplier.pojo.BaseResult;
 
 /**
@@ -41,11 +45,11 @@ public class CommodityExportOutput extends BaseResult{
     /**
      * 市场价
      */
-    private Double price;
+    private BigDecimal price;
     /**
      * 售价
      */
-    private Double unitPrice;
+    private BigDecimal unitPrice;
     /**
      * 库存
      */
@@ -58,11 +62,11 @@ public class CommodityExportOutput extends BaseResult{
     /**
      *  创建时间
      */
-    private Long createdAt;
+    private String createdAt;
     /**
      *  更新时间
      */
-    private Long updatedAt;
+    private String updatedAt;
 
     public Long getCommId() {
         return commId;
@@ -128,19 +132,19 @@ public class CommodityExportOutput extends BaseResult{
         this.ruleValue = ruleValue;
     }
 
-    public Double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(Double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 
-    public Double getUnitPrice() {
+    public BigDecimal getUnitPrice() {
         return unitPrice;
     }
 
-    public void setUnitPrice(Double unitPrice) {
+    public void setUnitPrice(BigDecimal unitPrice) {
         this.unitPrice = unitPrice;
     }
 
@@ -152,19 +156,19 @@ public class CommodityExportOutput extends BaseResult{
         this.inventory = inventory;
     }
 
-    public Long getCreatedAt() {
+    public String getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Long createdAt) {
+    public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Long getUpdatedAt() {
+    public String getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(Long updatedAt) {
+    public void setUpdatedAt(String updatedAt) {
         this.updatedAt = updatedAt;
     }
 

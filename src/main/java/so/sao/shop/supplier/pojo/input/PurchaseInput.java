@@ -1,9 +1,12 @@
 package so.sao.shop.supplier.pojo.input;
 
 import org.hibernate.validator.constraints.NotBlank;
+import org.hibernate.validator.constraints.NotEmpty;
 import so.sao.shop.supplier.pojo.vo.PurchaseItemVo;
 
+import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -18,34 +21,32 @@ public class PurchaseInput {
     /**
      * 买家ID
      */
-    @NotBlank
-    @Min(value=0)
+    @NotNull(message="买家ID不能为空")
     private Long userId;
     /**
      * 收货人姓名
      */
-    @NotBlank
+    @NotEmpty(message="收货人姓名不能为空")
     private String orderReceiverName;
     /**
      * 收货人电话
      */
-    @NotBlank
+    @NotEmpty(message="收货人电话不能为空")
     private String orderReceiverMobile;
     /**
      * 收货人地址
      */
-    @NotBlank
+    @NotEmpty(message="收货人地址不能为空")
     private String orderAddress;
     /**
      * 支付方式
      */
-    @NotBlank
-    @Min(value=0)
+    @NotNull(message="支付方式不能为空")
     private Integer orderPaymentMethod;
     /**
      * 订单详情信息
      */
-    @NotBlank
+    @NotNull(message="商品列表属性不能为空")
     private List<PurchaseItemVo> listPurchaseItem;
 
 

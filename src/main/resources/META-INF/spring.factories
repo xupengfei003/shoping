@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+so.sao.shop.supplier.config.azure.AzureBlobConfiguration,\
+so.sao.shop.supplier.config.sms.SmsConfiguration

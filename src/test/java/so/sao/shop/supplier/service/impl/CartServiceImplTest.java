@@ -69,7 +69,7 @@ public class CartServiceImplTest {
         id = cartItem.getId();
 
         CartItemInput cartItemInput =  new CartItemInput();
-        cartItemInput.setId(id);
+        cartItemInput.setUserId(id);
         Random random = new Random();
         int count = random.nextInt();
         count = Math.abs(count);

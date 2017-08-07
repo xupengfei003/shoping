@@ -2,17 +2,17 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="so.sao.shop.supplier.dao.OrderMoneyRecordDao">
   <resultMap id="BaseResultMap" type="so.sao.shop.supplier.domain.OrderMoneyRecord">
-    <id column="record_id" jdbcType="BIGINT" property="recordId" />
-    <result column="user_id" jdbcType="BIGINT" property="userId" />
-    <result column="bank_name" jdbcType="VARCHAR" property="bankName" />
-    <result column="bank_name_branch" jdbcType="VARCHAR" property="bankNameBranch" />
-    <result column="  bank_account" jdbcType="VARCHAR" property="  bankAccount" />
-    <result column="total_money" jdbcType="DECIMAL" property="totalMoney" />
-    <result column="state" jdbcType="VARCHAR" property="state" />
-    <result column="created_at" jdbcType="BIGINT" property="createdAt" />
-    <result column="updated_at" jdbcType="BIGINT" property="updatedAt" />
-    <result column="serial_number" jdbcType="VARCHAR" property="serialNumber" />
-    <result column="order_id" jdbcType="VARCHAR" property="orderId" />
+    <id column="record_id" property="recordId" />
+    <result column="user_id" property="userId" />
+    <result column="bank_name" property="bankName" />
+    <result column="bank_name_branch" property="bankNameBranch" />
+    <result column="bank_account" property="bankAccount" />
+    <result column="total_money" property="totalMoney" />
+    <result column="state" property="state" />
+    <result column="created_at"  property="createdAt" />
+    <result column="updated_at" property="updatedAt" />
+    <result column="serial_number" property="serialNumber" />
+    <result column="order_id" property="orderId" />
   </resultMap>
   <sql id="Base_Column_List">
     record_id, user_id, bank_name, bank_name_branch, bank_account, total_money, state, created_at, updated_at, serial_number, order_id
@@ -34,11 +34,11 @@
     FROM order_money_record
     WHERE state = '0'
       <if test="input != null">
-        <if test="input.startTime != null and input.startTime != '' ">
-          AND created_at &gt;= #{input.startTime}
+        <if test="input.startDate != null and input.startDate != '' ">
+          AND created_at &gt;= #{input.startDate}
         </if>
-        <if test="input.endTime != null and input.endTime != '' ">
-          AND created_at &lt;= #{input.endTime}
+        <if test="input.endDate != null and input.endDate != '' ">
+          AND created_at &lt;= #{input.endDate}
         </if>
         <if test="input.startMoney != null and input.startMoney != '' ">
           AND total_money &gt;= #{input.startMoney}
@@ -62,13 +62,13 @@
     UPDATE order_money_record
     <set>
       <if test="state != null">
-        state = #{state,jdbcType=VARCHAR},
+        state = #{state},
       </if>
       <if test="updatedAt != null">
-        updated_at = #{updatedAt,jdbcType=BIGINT},
+        updated_at = #{updatedAt},
       </if>
     </set>
-    WHERE record_id = #{recordId,jdbcType=BIGINT}
+    WHERE record_id = #{recordId}
   </update>
 
   <!--根据UserId查询该账户名下所有的提现记录-->
@@ -87,19 +87,19 @@
     WHERE user_id=#{userId}
     <if test="put !=null">
       <if test="put.startTime !=null and put.startTime !=''">
-        And created_at &gt;= #{put.startTime,jdbcType=BIGINT}
+        And created_at &gt;= #{put.startTime}
       </if>
       <if test="put.endTime !=null and put.endTime !=''">
-        And created_at &lt;= #{put.endTime,jdbcType=BIGINT}
+        And created_at &lt;= #{put.endTime}
       </if>
       <if test="put.startMoney !=null and put.startMoney !=''">
-        And total_money &gt;= #{put.startMoney,jdbcType=DECIMAL}
+        And total_money &gt;= #{put.startMoney}
       </if>
       <if test="put.endMoney !=null and put.endMoney !=''">
-        And total_money &lt;= #{put.endMoney,jdbcType=DECIMAL}
+        And total_money &lt;= #{put.endMoney}
       </if>
       <if test="put.state !=null and put.state !=''">
-        And state = #{put.state,jdbcType=VARCHAR}
+        And state = #{put.state}
       </if>
     </if>
     ORDER BY created_at DESC

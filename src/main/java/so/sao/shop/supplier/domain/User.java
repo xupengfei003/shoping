@@ -5,6 +5,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.Date;
 
 /**
  * 用户实体
@@ -13,14 +14,27 @@ import java.util.Collection;
  * @create 2017-07-08 21:33
  **/
 public class User implements UserDetails {
+	
     private Long id;
     private String username;
     private String password;
 
+    private Long accountId;
+
     /**
      * 最后一次修改密码时间
      */
-    private Long lastPasswordResetDate;
+    private Date lastPasswordResetDate;
+
+    /**
+     * 登出时间
+     */
+    private Date logoutTime;
+
+    /**
+     * 1管理员，0供应商(一期暂时)
+     */
+    private String isAdmin;
 
     /**
      * 拥有的权限,SecurityUserDetailsService中初始化
@@ -30,12 +44,13 @@ public class User implements UserDetails {
     public User() {
     }
 
-    public User(Long id, String username, String password, Collection<? extends GrantedAuthority> authorities, Long lastPasswordResetDate) {
+    public User(Long id, String username, String password, Collection<? extends GrantedAuthority> authorities, Date lastPasswordResetDate, Date logoutTime) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.authorities = authorities;
         this.lastPasswordResetDate=lastPasswordResetDate;
+        this.logoutTime = logoutTime;
     }
 
     public Long getId() {
@@ -52,6 +67,14 @@ public class User implements UserDetails {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getIsAdmin() {
+        return isAdmin;
+    }
+
+    public void setIsAdmin(String isAdmin) {
+        this.isAdmin = isAdmin;
     }
 
     @JsonIgnore
@@ -99,12 +122,27 @@ public class User implements UserDetails {
         return true;
     }
 
-    @JsonIgnore
-    public Long getLastPasswordResetDate() {
+    public Date getLastPasswordResetDate() {
         return lastPasswordResetDate;
     }
 
-    public void setLastPasswordResetDate(Long lastPasswordResetDate) {
+    public void setLastPasswordResetDate(Date lastPasswordResetDate) {
         this.lastPasswordResetDate = lastPasswordResetDate;
+    }
+
+    public Date getLogoutTime() {
+        return logoutTime;
+    }
+
+    public void setLogoutTime(Date logoutTime) {
+        this.logoutTime = logoutTime;
+    }
+
+    public Long getAccountId() {
+        return accountId;
+    }
+
+    public void setAccountId(Long accountId) {
+        this.accountId = accountId;
     }
 }

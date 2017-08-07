@@ -54,8 +54,8 @@ public class CommCategoryServiceImpl implements CommCategoryService {
                 commCate.setLevel(level+1);
             }
             commCate.setDeleted(0);
-            commCate.setCreatedAt(new Date().getTime());
-            commCate.setUpdatedAt(new Date().getTime());
+            commCate.setCreatedAt(new Date());
+            commCate.setUpdatedAt(new Date());
             boolean flag = commCategoryDao.save(commCate);
             return BaseResultUtil.transTo(flag,"添加商品类型成功","添加商品类型失败");
         }else {
@@ -87,7 +87,7 @@ public class CommCategoryServiceImpl implements CommCategoryService {
             commCategory.setName(commCategoryUpdateInput.getName());
             commCategory.setRemark(commCategoryUpdateInput.getRemark());
             commCategory.setSort(commCategoryUpdateInput.getSort());
-            commCategory.setUpdatedAt(new Date().getTime());
+            commCategory.setUpdatedAt(new Date());
             boolean flag = commCategoryDao.update(commCategory);
             return BaseResultUtil.transTo(flag,"更新商品类型成功","更新商品类型失败");
         }else {

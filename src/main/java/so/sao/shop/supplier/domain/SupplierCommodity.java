@@ -1,5 +1,10 @@
 package so.sao.shop.supplier.domain;
 
+import java.math.BigDecimal;
+import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 /**
  * 供应商商品关系表
  * Created by QuJunLong on 2017/7/18.
@@ -90,11 +95,11 @@ public class SupplierCommodity {
     /**
      * 市场价
      */
-    private Double price;
+    private BigDecimal price;
     /**
      * 售价
      */
-    private Double unitPrice;
+    private BigDecimal unitPrice;
     /**
      * 删除标记
      */
@@ -106,7 +111,8 @@ public class SupplierCommodity {
     /**
      *  创建时间
      */
-    private Long createdAt;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date createdAt;
     /**
      * 更新人
      */
@@ -114,7 +120,8 @@ public class SupplierCommodity {
     /**
      *  更新时间
      */
-    private Long updatedAt;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date updatedAt;
 
 
     public Long getId() {
@@ -131,14 +138,6 @@ public class SupplierCommodity {
 
     public void setSupplierId(Long supplierId) {
         this.supplierId = supplierId;
-    }
-
-    public Double getUnitPrice() {
-        return unitPrice;
-    }
-
-    public void setUnitPrice(Double unitPrice) {
-        this.unitPrice = unitPrice;
     }
 
     public Double getInventory() {
@@ -165,11 +164,11 @@ public class SupplierCommodity {
         this.createdBy = createdBy;
     }
 
-    public Long getCreatedAt() {
+    public Date getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Long createdAt) {
+    public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
     }
 
@@ -181,11 +180,11 @@ public class SupplierCommodity {
         this.updatedBy = updatedBy;
     }
 
-    public Long getUpdatedAt() {
+    public Date getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(Long updatedAt) {
+    public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
     }
 
@@ -309,14 +308,6 @@ public class SupplierCommodity {
         this.minImg = minImg;
     }
 
-    public Double getPrice() {
-        return price;
-    }
-
-    public void setPrice(Double price) {
-        this.price = price;
-    }
-
     public String getSku() {
         return sku;
     }
@@ -331,5 +322,21 @@ public class SupplierCommodity {
 
     public void setBrand(String brand) {
         this.brand = brand;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+
+    public BigDecimal getUnitPrice() {
+        return unitPrice;
+    }
+
+    public void setUnitPrice(BigDecimal unitPrice) {
+        this.unitPrice = unitPrice;
     }
 }

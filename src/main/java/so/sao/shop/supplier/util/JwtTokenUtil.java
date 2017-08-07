@@ -108,7 +108,7 @@ public class JwtTokenUtil implements Serializable {
      * @throws IOException
      */
     private Boolean isTokenExpired(String token) throws IOException {
-       Date expiration = new Date((Long)getClaimsFromToken(token).get(CLAIM_KEY_EXPIRATION));
+        Date expiration = new Date((Long)getClaimsFromToken(token).get(CLAIM_KEY_EXPIRATION));
         return expiration.before(new Date());
     }
 
@@ -119,7 +119,17 @@ public class JwtTokenUtil implements Serializable {
      * @return
      */
     private Boolean isCreatedBeforeLastPasswordReset(Date created, Date lastPasswordReset) {
-        return (lastPasswordReset != null && created.before(lastPasswordReset));
+        return created.before(lastPasswordReset);
+    }
+
+    /**
+     * token创建时间和登出时间对比
+     * @param created
+     * @param logoutTime
+     * @return
+     */
+    private Boolean isLogout(Date created, Date logoutTime) {
+        return created.before(logoutTime);
     }
 
 
@@ -137,7 +147,7 @@ public class JwtTokenUtil implements Serializable {
         Date created = new Date(Long.valueOf(claims.get(CLAIM_KEY_CREATED).toString()));
         return (
                 username.equals(user.getUsername())
-                        && !isTokenExpired(token) && !isCreatedBeforeLastPasswordReset(created, new Date(user.getLastPasswordResetDate())));
+                        && !isTokenExpired(token) && (user.getLastPasswordResetDate()==null || !isCreatedBeforeLastPasswordReset(created, user.getLastPasswordResetDate())) && (user.getLogoutTime()==null || !isLogout(created,user.getLogoutTime())));
     }
 
     /**
@@ -169,21 +179,22 @@ public class JwtTokenUtil implements Serializable {
      * @param token
      */
     public void verifySignature(String token){
-       JwtHelper.decode(token).verifySignature(new RsaVerifier(publicKey));
+        JwtHelper.decode(token).verifySignature(new RsaVerifier(publicKey));
     }
 
     /**
-     * 判断是否可以刷新token
+     * 判断是否可以刷新token(token是否过期/token创建时间在修改密码之前/是否登出)
+     *
      * @param token
      * @param lastPasswordReset
      * @return
      * @throws IOException
      */
-    public Boolean canTokenBeRefreshed(String token, Date lastPasswordReset) throws IOException  {
-            Map claims = getClaimsFromToken(token);
+    public Boolean canTokenBeRefreshed(String token, Date lastPasswordReset, Date logoutTime) throws IOException  {
+        Map claims = getClaimsFromToken(token);
         Date created = new Date(Long.valueOf(claims.get(CLAIM_KEY_CREATED).toString()));
-        return !isCreatedBeforeLastPasswordReset(created, lastPasswordReset)
-                   && !isTokenExpired(token);
+        return !isTokenExpired(token) && (lastPasswordReset==null || !isCreatedBeforeLastPasswordReset(created, lastPasswordReset))
+                && (logoutTime==null || !isLogout(created, logoutTime));
     }
 
 }

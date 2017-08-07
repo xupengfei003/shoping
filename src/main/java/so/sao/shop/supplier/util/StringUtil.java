@@ -25,4 +25,12 @@ public final class StringUtil {
     SimpleDateFormat sdf = new SimpleDateFormat(formate);
     return sdf.format(date);
   }
+
+  public static boolean isNull(String string){
+    if(string == null || string == ""){
+      return true;
+    }else{
+      return false;
+    }
+  }
 }

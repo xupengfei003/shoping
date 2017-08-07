@@ -8,18 +8,18 @@
         <result column="per_desc" jdbcType="VARCHAR" property="description"/>
     </resultMap>
 
-    <select id="findAll"  resultType="so.sao.shop.supplier.domain.Permission">
+    <select id="findAll"  resultMap="PermissionResultMap">
         SELECT per_id, per_name, per_desc, per_url
-          FROM t_permission
+          FROM permission
     </select>
 
     <select id="findByUserId" parameterType="Long" resultMap="PermissionResultMap">
         SELECT p.per_id, p.per_name, p.per_url, p.per_desc
-          FROM t_user u,
-               t_user_roles ur ,
-               t_role r,
-               t_role_permission rp  ,
-               t_permission p
+          FROM user u,
+               user_roles ur ,
+               role r,
+               role_permission rp  ,
+               permission p
          WHERE u.user_id= ur.user_id
            AND ur.role_id=r.role_id
            AND rp.role_id=r.role_id

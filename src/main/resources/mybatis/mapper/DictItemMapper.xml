@@ -6,14 +6,22 @@
     <result column="dict_type" property="dictType" jdbcType="VARCHAR" />
     <result column="name" property="name" jdbcType="VARCHAR" />
     <result column="code" property="code" jdbcType="VARCHAR" />
-    <result column="create_time" property="createTime" jdbcType="BIGINT" />
+    <result column="create_time" property="createTime" />
   </resultMap>
 
   <select id="selectBank" resultType="java.lang.String" >
-    select name from t_dict_item where dict_type = 1
+    select name from dict_item where dict_type = 1
   </select>
 
   <select id="selectHangYe" resultType="java.lang.String" >
-    select name from t_dict_item where dict_type = 3
+    select name from dict_item where dict_type = 3
+  </select>
+
+  <select id="selectHangYeDict" resultMap="BaseResultMap" >
+    select name, code from dict_item where dict_type = 3
+  </select>
+
+  <select id="selectExpress" resultMap="BaseResultMap" >
+    select name, code from dict_item where dict_type = 4
   </select>
 </mapper>

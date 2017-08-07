@@ -12,29 +12,41 @@ import java.math.BigDecimal;
  */
 public interface Constant {
     /**
+     * 判断是否是管理员 1是
+     */
+    public static final String ADMIN_STATUS = "1";
+    /**
      * code定义
      */
     interface CodeConfig{
         /**
          * 失败
          */
-        public final Integer CODE_FAILURE = 0;
+        public static final Integer CODE_FAILURE = 0;
         /**
          * 成功
          */
-        public final Integer CODE_SUCCESS = 1;
+        public static final Integer CODE_SUCCESS = 1;
         /**
          * 不允许为空
          */
-        public final Integer CODE_NOT_EMPTY = 2;
+        public static final Integer CODE_NOT_EMPTY = 2;
         /**
          * 系统异常
          */
-        public final Integer CODE_SYSTEM_EXCEPTION = 3;
+        public static final Integer CODE_SYSTEM_EXCEPTION = 3;
         /**
          * 未查找到结果
          */
-        public final Integer CODE_NOT_FOUND_RESULT = 4;
+        public static final Integer CODE_NOT_FOUND_RESULT = 4;
+        /**
+         * 入参时间格式不正确
+         */
+        public static final Integer CODE_DATE_INPUT_FORMAT_ERROR = 5;
+        /**
+         * 未登录
+         */
+        public static final Integer CODE_USER_NOT_LOGIN = 6;
     }
     /**
      * Message定义
@@ -59,38 +71,58 @@ public interface Constant {
         /**
          * 未查找到结果
          */
-        public static final String MSG_NOT_FOUND_RESULT = "未查找到结果";
+        public static final String MSG_NOT_FOUND_RESULT = "暂无订单数据";
+
+        /**
+         * 入参时间格式不正确
+         */
+        public static final String MSG_DATE_INPUT_FORMAT_ERROR = "时间格式不正确";
+        /**
+         * 未登录
+         */
+        public static final String MSG_USER_NOT_LOGIN = "请先登录";
+        /**
+         *  验证登陆用户是否是管理员
+         */
+        public static final String ADMIN_AUTHORITY_EERO = "该登陆用户不是管理员";
+
+        /**
+         * 订单状态不合法
+         */
+        public static final String ORDER_STATUS_EERO = "订单状态不合法";
+
+
     }
 
     interface OrderStatusConfig{
         /**
          * 待付款
          */
-        public final Integer PAYMENT = 1;
+        public static final Integer PAYMENT = 1;
         /**
          * 待发货
          */
-        public final Integer PENDING_SHIP = 2;
+        public static final Integer PENDING_SHIP = 2;
         /**
          * 已发货
          */
-        public final Integer ISSUE_SHIP = 3;
+        public static final Integer ISSUE_SHIP = 3;
         /**
          * 已收货
          */
-        public final Integer RECEIVED = 4;
+        public static final Integer RECEIVED = 4;
         /**
          * 已拒收
          */
-        public final Integer REJECT = 5;
+        public static final Integer REJECT = 5;
         /**
          * 已退款
          */
-        public final Integer REFUNDED = 6;
+        public static final Integer REFUNDED = 6;
         /**
          * 已完成
          */
-        public final Integer COMPLETE = 7;
+        public static final Integer COMPLETE = 7;
     }
 
 
@@ -227,53 +259,53 @@ public interface Constant {
         /**
          * 1
          */
-        public final String PAYMENT = "待付款";
+        public static final String PAYMENT = "待付款";
         /**
          * 2
          */
-        public final String PENDING_SHIP = "待发货";
+        public static final String PENDING_SHIP = "待发货";
         /**
          * 3
          */
-        public final String ISSUE_SHIP = "已发货";
+        public static final String ISSUE_SHIP = "已发货";
         /**
          * 4
          */
-        public final String RECEIVED = "已收货";
+        public static final String RECEIVED = "已收货";
         /**
          * 5
          */
-        public final String REJECT = "已拒收";
+        public static final String REJECT = "已拒收";
         /**
          * 6
          */
-        public final String REFUNDED = "已退款";
+        public static final String REFUNDED = "已退款";
         /**
          * 7
          */
-        public final String COMPLETE = "已完成";
+        public static final String COMPLETE = "已完成";
     }
 
     interface PaymentStatusConfig{
         /**
          * 支付宝
          */
-        public final Integer ALIPAY = 1;
+        public static final Integer ALIPAY = 1;
         /**
          * 微信
          */
-        public final Integer WECHAT = 2;
+        public static final Integer WECHAT = 2;
     }
 
     interface PaymentMsgConfig{
         /**
          * 支付宝
          */
-        public final String ALIPAY = "支付宝";
+        public static final String ALIPAY = "支付宝";
         /**
          * 微信
          */
-        public final String WECHAT = "微信";
+        public static final String WECHAT = "微信";
     }
 
     /**
@@ -283,22 +315,22 @@ public interface Constant {
         /**
          * 不存在该订单
          */
-        public final String NOORDER = "此订单不存在";
+        public static final String NOORDER = "此订单不存在";
         /**
          *不存在该商家
          */
-        public final String NOSTORE = "此商家不存在";
+        public static final String NOSTORE = "此商家不存在";
     }
 
     interface NoExistCodeConfig {
         /**
          * 不存在该订单
          */
-        public final int NOORDER = 101;
+        public static final int NOORDER = 101;
         /**
          *不存在该商家
          */
-        public final int NOSTORE = 102;
+        public static final int NOSTORE = 102;
     }
 
 }

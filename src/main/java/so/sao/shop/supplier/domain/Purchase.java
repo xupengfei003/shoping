@@ -1,7 +1,10 @@
 package so.sao.shop.supplier.domain;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 /**
  * <p>
@@ -51,7 +54,8 @@ public class Purchase {
     /**
      * 下单时间
      */
-    private Long orderCreateTime;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date orderCreateTime;
     /**
      * 支付方式
      */
@@ -59,7 +63,8 @@ public class Purchase {
     /**
      * 订单支付时间
      */
-    private Long orderPaymentTime;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date orderPaymentTime;
     /**
      * 买家申请退货理由
      */
@@ -67,7 +72,8 @@ public class Purchase {
     /**
      * 卖家申请退货时间
      */
-    private Long orderRefundTime;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date orderRefundTime;
     /**
      * 卖家拒绝理由
      */
@@ -75,7 +81,8 @@ public class Purchase {
     /**
      * 卖家拒绝时间
      */
-    private Long orderRefuseTime;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date orderRefuseTime;
     /**
      * 买家取消订单原因
      */
@@ -105,7 +112,8 @@ public class Purchase {
     /**
      * 退款时间
      */
-    private Long drawbackTime;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date drawbackTime;
 
     /**
      * 配送人姓名
@@ -121,6 +129,12 @@ public class Purchase {
      * 物流公司
      */
     private String logisticsCompany;
+
+    /**
+     * 更新时间
+     */
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date updatedAt;
 
     public String getAccountStatus() {
         return accountStatus;
@@ -202,11 +216,11 @@ public class Purchase {
         this.orderPaymentNum = orderPaymentNum;
     }
 
-    public Long getOrderCreateTime() {
+    public Date getOrderCreateTime() {
         return orderCreateTime;
     }
 
-    public void setOrderCreateTime(Long orderCreateTime) {
+    public void setOrderCreateTime(Date orderCreateTime) {
         this.orderCreateTime = orderCreateTime;
     }
 
@@ -218,11 +232,11 @@ public class Purchase {
         this.orderPaymentMethod = orderPaymentMethod;
     }
 
-    public Long getOrderPaymentTime() {
+    public Date getOrderPaymentTime() {
         return orderPaymentTime;
     }
 
-    public void setOrderPaymentTime(Long orderPaymentTime) {
+    public void setOrderPaymentTime(Date orderPaymentTime) {
         this.orderPaymentTime = orderPaymentTime;
     }
 
@@ -234,11 +248,11 @@ public class Purchase {
         this.orderRefundReason = orderRefundReason;
     }
 
-    public Long getOrderRefundTime() {
+    public Date getOrderRefundTime() {
         return orderRefundTime;
     }
 
-    public void setOrderRefundTime(Long orderRefundTime) {
+    public void setOrderRefundTime(Date orderRefundTime) {
         this.orderRefundTime = orderRefundTime;
     }
 
@@ -250,11 +264,11 @@ public class Purchase {
         this.orderRefuseReason = orderRefuseReason;
     }
 
-    public Long getOrderRefuseTime() {
+    public Date getOrderRefuseTime() {
         return orderRefuseTime;
     }
 
-    public void setOrderRefuseTime(Long orderRefuseTime) {
+    public void setOrderRefuseTime(Date orderRefuseTime) {
         this.orderRefuseTime = orderRefuseTime;
     }
 
@@ -290,11 +304,11 @@ public class Purchase {
         this.orderStatus = orderStatus;
     }
 
-    public Long getDrawbackTime() {
+    public Date getDrawbackTime() {
         return drawbackTime;
     }
 
-    public void setDrawbackTime(Long drawbackTime) {
+    public void setDrawbackTime(Date drawbackTime) {
         this.drawbackTime = drawbackTime;
     }
 
@@ -328,5 +342,13 @@ public class Purchase {
 
     public void setPurchaseItemList(List<PurchaseItem> purchaseItemList) {
         this.purchaseItemList = purchaseItemList;
+    }
+
+    public Date getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

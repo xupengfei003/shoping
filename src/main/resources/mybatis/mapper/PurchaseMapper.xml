@@ -24,6 +24,8 @@
     <result column="order_shipment_number" property="orderShipmentNumber" />
     <result column="order_invoice" property="orderInvoice" />
     <result column="order_status" property="orderStatus" />
+    <result column="account_status" property="accountStatus" />
+    <result column="updated_at" property="updatedAt" />
   </resultMap>
 
   <!-- 通用查询结果列 -->
@@ -55,11 +57,11 @@
   </sql>
 
   <!-- 根据ID查询订单信息 -->
-  <select id="findById" parameterType="java.lang.Long" resultType="so.sao.shop.supplier.domain.Purchase">
+  <select id="findById" parameterType="java.lang.String" resultType="so.sao.shop.supplier.domain.Purchase">
       select
       <include refid="Base_Column_List" />
       from purchase
-      where order_id = #{orderId,jdbcType=BIGINT}
+      where order_id = #{orderId,jdbcType=VARCHAR}
   </select>
   <!-- 批量查询订单列表 -->
     <select id="getOrderListByIds" resultMap="BaseResultMap">
@@ -74,13 +76,8 @@
         order_payment_num
         FROM
         purchase
-        <if test="orderIdList != null and orderIdList.size() > 0">
-            WHERE order_id IN
-            <foreach item="orderId" index="index" collection="orderIdList"
-                     open="(" separator="," close=")">
-                #{orderId}
-            </foreach>
-        </if>
+        WHERE store_id = #{accountId}
+        ORDER BY updated_at DESC
     </select>
   <!-- 添加订单信息 -->
     <insert id="savePurchase" parameterType="java.util.List">
@@ -95,7 +92,8 @@
                 order_address,
                 order_create_time,
                 order_payment_method,
-                order_status
+                order_status,
+                updated_at
             )
         VALUES
         <foreach collection ="list" item="item" index= "index" separator =",">
@@ -109,7 +107,8 @@
                 #{item.orderAddress},
                 #{item.orderCreateTime},
                 #{item.orderPaymentMethod},
-                #{item.orderStatus}
+                #{item.orderStatus},
+                #{item.updatedAt}
             )
         </foreach>
     </insert>
@@ -127,9 +126,10 @@
         <result column="order_payment_time" property="orderPaymentTime"/>
         <result column="order_payment_method" property="orderPaymentMethod"/>
         <result column="order_payment_num" property="orderPaymentNum"/>
+        <result column="updated_at" property="updateTime"/>
     </resultMap>
     <sql id="Order_Column_List">
-        order_id, order_receiver_name, order_receiver_mobile, order_create_time, order_price, order_status,order_payment_time, order_payment_method, order_payment_num
+        order_id, order_receiver_name, order_receiver_mobile, order_create_time, order_price, order_status,order_payment_time, order_payment_method, order_payment_num,updated_at
     </sql>
     <select id="findPage" resultMap="OrderAllList" parameterType="so.sao.shop.supplier.pojo.input.PurchaseSelectInput" >
         SELECT
@@ -137,48 +137,42 @@
         FROM purchase
         <where>
             order_status != -1
-            <if test="orderId != null" >
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderId)" >
                 AND order_id LIKE "${orderId}%"
             </if>
-            <if test="orderReceiverName!=null">
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderReceiverName)">
                 AND order_receiver_name LIKE "${orderReceiverName}%"
             </if>
 
-            <if test="beginDate!=null">
-                AND order_create_time >= #{beginDate}
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(beginDate)">
+                AND order_create_time >= TRIM(STR_TO_DATE(#{beginDate},'%Y-%m-%d'))
             </if>
-            <if test="endDate != null">
-                AND #{endDate} >= order_create_time
-            </if>
-
-            <if test="beginMoney!=null and endMoney == null">
-                AND order_price >= #{beginMoney}
-            </if>
-            <if test="beginMoney ==null and endMoney != null">
-                AND #{endMoney} >= order_price
-            </if>
-            <if test="beginMoney !=null and endMoney != null">
-                AND order_price BETWEEN #{beginMoney} AND #{endMoney}
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(endDate)">
+               AND order_create_time &lt;= TRIM(DATE_ADD(STR_TO_DATE(#{endDate},'%Y-%m-%d'),INTERVAL 1 DAY))
             </if>
 
-            <if test="orderReceiverMobile!=null">
+            <if test="beginMoney!=null">
+                AND order_price >= TRIM(#{beginMoney})
+            </if>
+            <if test="endMoney != null">
+                <![CDATA[AND order_price <= TRIM(#{endMoney})]]>
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderReceiverMobile)">
                 AND order_receiver_mobile LIKE "${orderReceiverMobile}%"
             </if>
 
-            <if test="orderPaymentDate!=null">
-                AND #{orderPaymentDate} >= order_payment_time
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderPaymentDate)">
+                AND order_payment_time &lt;= TRIM(DATE_ADD(STR_TO_DATE(#{orderPaymentDate},'%Y-%m-%d'),INTERVAL 1 DAY))
             </if>
 
             <if test="orderPaymentMethod!=null">
-                AND order_payment_method = #{orderPaymentMethod}
+                AND order_payment_method = TRIM(#{orderPaymentMethod})
             </if>
-            <if test="orderPaymentNum!=null">
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderPaymentNum)">
                 AND order_payment_num LIKE "${orderPaymentNum}%"
             </if>
-
-            --      根据状态查询
             <if test="orderStatus!=null">
-                AND order_status = #{orderStatus}
+                AND order_status = TRIM(#{orderStatus})
             </if>
 
             <if test="userId!=null">
@@ -189,7 +183,7 @@
                 AND store_id LIKE "${storeId}%"
             </if>
         </where>
-        ORDER BY order_create_time DESC
+        ORDER BY updated_at DESC
     </select>
 
     <!--更改订单状态-->
@@ -197,7 +191,8 @@
     <update id="updateOrder">
         UPDATE purchase
         SET
-        order_status = #{orderStatus}
+        order_status = #{orderStatus},
+        updated_at = #{updateDate}
         WHERE order_id = #{orderId}
     </update>
 
@@ -221,27 +216,28 @@
     <update id="deleteByOrderId" parameterType="so.sao.shop.supplier.pojo.vo.PurchasesVo">
         UPDATE purchase
         SET
-        order_status = -1
+        order_status = -1,
+        updated_at = #{updateDate}
         WHERE order_id IN
-        <foreach collection="array" open="(" close=")" separator="," item="orderId" index="i">
+        <foreach collection="orderIdArr" open="(" close=")" separator="," item="orderId" index="i">
             #{orderId}
         </foreach>
 
     </update>
 
-    <resultMap id="accountUserMap" type="so.sao.shop.supplier.domain.AccountUser">
-        <id column="user_id" property="userId" />
+    <resultMap id="accountUserMap" type="so.sao.shop.supplier.domain.Account">
+        <id column="account_id" property="accountId" />
         <result column="provider_name" property="providerName"/>
     </resultMap>
     <!-- 根据商品ID查询供应商信息 -->
     <select id="findAccountById" resultMap="accountUserMap">
         SELECT
-            user_id,
+            account_id,
             provider_name
         FROM
-          t_account
+          account
         WHERE
-        user_id = (
+        account_id = (
             SELECT
               supplier_id
             FROM
@@ -253,7 +249,7 @@
 
     <!--修改订单账户状态为 已提现-->
     <update id="updateAccountStatus" parameterType="java.lang.Long">
-        UPDATE supplier
+        UPDATE purchase
         SET account_status = 2
         WHERE store_id = #{userId} and order_status = 4 and account_status = 1
     </update>
@@ -277,6 +273,13 @@
         SELECT GROUP_CONCAT(order_id)
         FROM purchase
         WHERE order_status = 4 AND account_status = 1 AND store_id = #{storeId}
+    </select>
+
+    <!-- 查询订单状态计算已完成订单总金额 -->
+    <select id="findOrderStatus" resultType="java.lang.Double" parameterType="java.lang.Long">
+        SELECT SUM(ORDER_PRICE)
+        FROM PURCHASE
+        WHERE STORE_ID= #{storeId} and order_status = 4
     </select>
 
     <!-- 根据提现申请记录查询该记录所对应的订单列表 -->
@@ -332,26 +335,11 @@
         FROM purchase
         WHERE store_id = #{storeId,jdbcType=BIGINT}
     </select>
-    <!--有条件检索条数-->
-    <select id="countByStoreIdAndInput" resultType="java.lang.Integer">
-        SELECT COUNT(store_id)
+
+    <!-- 查询订单状态 -->
+    <select id="getOrderStatus" resultType="java.lang.Integer" parameterType="java.lang.String">
+        SELECT order_status
         FROM purchase
-        WHERE store_id = #{storeId,jdbcType=BIGINT}
-        AND ORDER_STATUS=4
-        AND ACCOUNT_STATUS='1'
-        <if test="input!=null">
-            <if test="input.beginDate != null">
-                AND ORDER_CREATE_TIME &gt;= #{input.beginDate}
-            </if>
-            <if test="input.endDate != null">
-                AND ORDER_CREATE_TIME &lt;= #{input.endDate}
-            </if>
-            <if test="input.beginMoney != null">
-                AND ORDER_PRICE &gt;= #{input.beginMoney}
-            </if>
-            <if test="input.endMoney != null">
-                AND ORDER_PRICE &lt;= #{input.endMoney}
-            </if>
-        </if>
+        WHERE order_id= #{orderId}
     </select>
 </mapper>

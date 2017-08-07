@@ -1,7 +1,10 @@
 package so.sao.shop.supplier.pojo.input;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Date;
 
 /**
  * Created by acer on 2017/7/20.
@@ -10,28 +13,24 @@ public class PurchaseSelectInput {
     /**
      * 订单编号
      */
-    private BigInteger orderId;
+    private String orderId;
 
     /**
      * 收货人姓名
      */
     private String orderReceiverName;
 
-
-//    private Date beginTime;
-
-
-//    private Date endTime;
-
     /**
      * 开始时间
      */
-    private Long beginDate;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private String beginDate;
 
     /**
      * 截至时间
      */
-    private Long endDate;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private String endDate;
 
     /**
      * 起始金额
@@ -48,13 +47,11 @@ public class PurchaseSelectInput {
      */
     private String orderReceiverMobile;
 
-
-//    private Date orderPaymentTime;
-
     /**
      * 付款时间
      */
-    private Long orderPaymentDate;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private String orderPaymentDate;
 
     /**
      * 支付方式
@@ -81,11 +78,11 @@ public class PurchaseSelectInput {
      */
     private BigInteger storeId;
 
-    public BigInteger getOrderId() {
+    public String getOrderId() {
         return orderId;
     }
 
-    public void setOrderId(BigInteger orderId) {
+    public void setOrderId(String orderId) {
         this.orderId = orderId;
     }
 
@@ -97,19 +94,19 @@ public class PurchaseSelectInput {
         this.orderReceiverName = orderReceiverName;
     }
 
-    public Long getBeginDate() {
+    public String getBeginDate() {
         return beginDate;
     }
 
-    public void setBeginDate(Long beginDate) {
+    public void setBeginDate(String beginDate) {
         this.beginDate = beginDate;
     }
 
-    public Long getEndDate() {
+    public String getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(Long endDate) {
+    public void setEndDate(String endDate) {
         this.endDate = endDate;
     }
 
@@ -137,11 +134,11 @@ public class PurchaseSelectInput {
         this.orderReceiverMobile = orderReceiverMobile;
     }
 
-    public Long getOrderPaymentDate() {
+    public String getOrderPaymentDate() {
         return orderPaymentDate;
     }
 
-    public void setOrderPaymentDate(Long orderPaymentDate) {
+    public void setOrderPaymentDate(String orderPaymentDate) {
         this.orderPaymentDate = orderPaymentDate;
     }
 

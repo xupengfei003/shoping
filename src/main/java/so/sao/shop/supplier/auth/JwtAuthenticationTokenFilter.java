@@ -1,13 +1,16 @@
 package so.sao.shop.supplier.auth;
 
+import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 import so.sao.shop.supplier.domain.User;
+import so.sao.shop.supplier.pojo.BaseResult;
 import so.sao.shop.supplier.util.Constant;
 import so.sao.shop.supplier.util.JwtTokenUtil;
 
@@ -54,10 +57,11 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             FilterChain chain) throws ServletException, IOException {
 
         response.setHeader("Access-Control-Allow-Origin","*");
-		response.setHeader("Access-Control-Allow-Methods","GET,POST,OPTIONS,DELETE,PUT");
+        response.setHeader("Access-Control-Allow-Methods","GET,POST,OPTIONS,DELETE,PUT");
         response.setHeader("Access-Control-Allow-Credentials","true");
-        response.setHeader("Access-Control-Allow-Headers", "x-requested-with,Authorization");
+        response.setHeader("Access-Control-Allow-Headers", "x-requested-with,Authorization,Content-Type");
 
+        boolean islogin = false;
         String authHeader = request.getHeader(this.tokenHeader);
         if (authHeader != null && authHeader.startsWith(tokenHead)) {
             final String authToken = authHeader.substring(tokenHead.length());
@@ -79,9 +83,15 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                     request.setAttribute(Constant.REQUEST_USER,userDetails);
                     response.setHeader(tokenHeader,jwtTokenUtil.getTokenFromRequest(request));
+                    islogin = true;
                 }
             }
         }
+        //if(request.getMethod().equals("OPTIONS") || islogin || new AntPathRequestMatcher("/order/export/**").matches(request)|| new AntPathRequestMatcher("/comm/exportExcel/**").matches(request) || new AntPathRequestMatcher("/account/findPassword/**").matches(request) || new AntPathRequestMatcher("/swagger-resources/**").matches(request)|| new AntPathRequestMatcher("/v2/**").matches(request) || new AntPathRequestMatcher("/webjars/**").matches(request) ||new AntPathRequestMatcher("/swagger-ui.html").matches(request) || new AntPathRequestMatcher("/account/auth/**").matches(request)){
+        //    chain.doFilter(request, response);
+        //}else{
+       //     response.getWriter().write(new ObjectMapper().writeValueAsString(new BaseResult(-1,"needlogin")));
+       // }
         chain.doFilter(request, response);
     }
 }

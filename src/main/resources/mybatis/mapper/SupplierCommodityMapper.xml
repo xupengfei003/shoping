@@ -45,6 +45,8 @@
         rule_val AS ruleVal,
         inventory AS inventory,
         status AS status,
+        price AS price,
+        unit_price AS unitPrice,
         created_at AS createdAt,
         updated_at AS updatedAt
     </sql>
@@ -124,7 +126,8 @@
             description = #{description},
             status = #{status},
             updated_at=#{updatedAt},
-            updated_by=#{updatedBy}
+            updated_by=#{updatedBy},
+            remark = #{remark}
         WHERE id = #{id}
     </update>
     <delete id="deleteById">
@@ -150,7 +153,7 @@
         min_img AS minImg,
         price,
         unit_price AS unitPrice
-        FROM supplier_commodity WHERE code69 = #{code69}
+        FROM supplier_commodity sc WHERE code69 = #{code69} AND sc.supplier_id = #{supplierId}
     </select>
     <!--获取商品详情-->
     <select id="findOne" resultType="so.sao.shop.supplier.domain.SupplierCommodity">
@@ -171,7 +174,11 @@
         inventory,
         min_img AS minImg,
         price,
-        unit_price AS unitPrice
+        unit_price AS unitPrice,
+        created_at AS createdAt,
+        updated_at AS updatedAt,
+        supplier_id AS supplierId,
+        status
         FROM supplier_commodity WHERE id = #{id}
     </select>
     <select id="find" resultType="so.sao.shop.supplier.domain.SupplierCommodity">
@@ -180,34 +187,70 @@
         FROM supplier_commodity sc
         WHERE sc.deleted = 0
         AND sc.supplier_id = #{supplierId}
-        <if test="commCode69 != null and commCode69 != ''">
+        <if test="commCode69 != null">
             AND sc.code69 = #{commCode69}
         </if>
-        <if test="commId != null and commId != ''">
-            AND sc.commodity_id = #{commId}
+        <if test="commId != null">
+            AND sc.id = #{commId}
         </if>
-        <if test="suppCommCode != null and suppCommCode != ''">
+        <if test="suppCommCode != null">
             AND sc.code = #{suppCommCode}
         </if>
-        <if test="commName != null and commName != '' ">
+        <if test="commName != null">
             AND sc.name LIKE CONCAT ('%',#{commName},'%')
         </if>
-        <if test="status != null and status != ''">
+        <if test="status != null">
             AND sc.`status` = #{status}
         </if>
         <if test="minPrice != null and maxPrice == null">
-            AND sc.unit_price<![CDATA[ >= #{minPrice}]]>
+            AND sc.price<![CDATA[ >= #{minPrice}]]>
         </if>
         <if test="minPrice == null and maxPrice != null">
-            AND  sc.unit_price<![CDATA[<= #{maxPrice}]]>
+            AND  sc.price<![CDATA[<= #{maxPrice}]]>
         </if>
         <if test="minPrice != null and maxPrice != null">
-            AND sc.unit_price BETWEEN #{minPrice} AND #{maxPrice}
+            AND sc.price BETWEEN #{minPrice} AND #{maxPrice}
         </if>
-        <if test="typeId != null and typeId != ''">
+        <if test="typeId != null">
             AND sc.category_one_id = #{typeId}
         </if>
-        ORDER BY sc.created_at
+        ORDER BY sc.updated_at DESC
+    </select>
+
+    <!--统计查询总记录数-->
+    <select id="countTotal" resultType="java.lang.Long">
+        SELECT
+        count(1)
+        FROM supplier_commodity sc
+        WHERE sc.deleted = 0
+        AND sc.supplier_id = #{supplierId}
+        <if test="commCode69 != null">
+            AND sc.code69 = #{commCode69}
+        </if>
+        <if test="commId != null">
+            AND sc.id = #{commId}
+        </if>
+        <if test="suppCommCode != null">
+            AND sc.code = #{suppCommCode}
+        </if>
+        <if test="commName != null">
+            AND sc.name LIKE CONCAT ('%',#{commName},'%')
+        </if>
+        <if test="status != null">
+            AND sc.`status` = #{status}
+        </if>
+        <if test="minPrice != null and maxPrice == null">
+            AND sc.price<![CDATA[ >= #{minPrice}]]>
+        </if>
+        <if test="minPrice == null and maxPrice != null">
+            AND  sc.price<![CDATA[<= #{maxPrice}]]>
+        </if>
+        <if test="minPrice != null and maxPrice != null">
+            AND sc.price BETWEEN #{minPrice} AND #{maxPrice}
+        </if>
+        <if test="typeId != null">
+            AND sc.category_one_id = #{typeId}
+        </if>
     </select>
     <!--获取商品状态-->
     <select id="findStatus" resultType="int">
@@ -222,4 +265,68 @@
         SET updated_at = #{updatedAt},status = #{status}
         WHERE id = #{id}
     </update>
+
+    <select id="findAll" resultType="so.sao.shop.supplier.domain.SupplierCommodity">
+        SELECT
+        <include refid="searchColumns"/>
+        FROM supplier_commodity sc
+        WHERE sc.deleted = 0
+        <if test="id != null">
+            AND sc.id = #{id}
+        </if>
+        <if test="commName != null">
+            AND sc.name LIKE CONCAT ('%',#{commName},'%')
+        </if>
+        <if test="code69 != null">
+            AND sc.code69 = #{code69}
+        </if>
+        <if test="suppCommCode != null">
+            AND sc.code = #{suppCommCode}
+        </if>
+        <if test="minPrice != null and maxPrice == null">
+            AND sc.price<![CDATA[ >= #{minPrice}]]>
+        </if>
+        <if test="minPrice == null and maxPrice != null">
+            AND  sc.price<![CDATA[<= #{maxPrice}]]>
+        </if>
+        <if test="minPrice != null and maxPrice != null">
+            AND sc.price BETWEEN #{minPrice} AND #{maxPrice}
+        </if>
+        <if test="typeId != null">
+            AND sc.category_one_id = #{typeId}
+        </if>
+        ORDER BY sc.updated_at DESC
+    </select>
+
+    <!--统计查询总记录数-->
+    <select id="countAllTotal" resultType="java.lang.Long">
+        SELECT
+        count(1)
+        FROM supplier_commodity sc
+        WHERE sc.deleted = 0
+        <if test="id != null">
+            AND sc.id = #{id}
+        </if>
+        <if test="commName != null">
+            AND sc.name LIKE CONCAT ('%',#{commName},'%')
+        </if>
+        <if test="code69 != null">
+            AND sc.code69 = #{code69}
+        </if>
+        <if test="suppCommCode != null">
+            AND sc.code = #{suppCommCode}
+        </if>
+        <if test="minPrice != null and maxPrice == null">
+            AND sc.price<![CDATA[ >= #{minPrice}]]>
+        </if>
+        <if test="minPrice == null and maxPrice != null">
+            AND  sc.price<![CDATA[<= #{maxPrice}]]>
+        </if>
+        <if test="minPrice != null and maxPrice != null">
+            AND sc.price BETWEEN #{minPrice} AND #{maxPrice}
+        </if>
+        <if test="typeId != null">
+            AND sc.category_one_id = #{typeId}
+        </if>
+    </select>
 </mapper>

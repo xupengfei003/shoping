@@ -1,7 +1,11 @@
 package so.sao.shop.supplier.pojo.input;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import javax.validation.constraints.Min;
 import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * <p>
@@ -16,13 +20,24 @@ public class AccountPurchaseInput {
     /**
      * 开始时间,用于比较
      */
-    private Long beginDate;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
+    private Date beginDate;
 
     /**
      * 截至时间,用于比较
      */
-    private Long endDate;
-
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
+    private Date endDate;
+    /**
+     * 开始时间  用于判断时间格式
+     */
+    private String beginTime;
+    /**
+     * 结束时间  用于判断时间格式
+     */
+    private String endTime;
     /**
      * 起始金额
      */
@@ -47,20 +62,19 @@ public class AccountPurchaseInput {
         return endMoney;
     }
 
-    public Long getBeginDate() {
+    public Date getBeginDate() {
         return beginDate;
     }
 
-    public void setBeginDate(Long beginDate) {
+    public void setBeginDate(Date beginDate) {
         this.beginDate = beginDate;
-
     }
 
-    public Long getEndDate() {
+    public Date getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(Long endDate) {
+    public void setEndDate(Date endDate) {
         this.endDate = endDate;
     }
 
@@ -68,11 +82,30 @@ public class AccountPurchaseInput {
         this.endMoney = endMoney;
     }
 
+    public String getBeginTime() {
+        return beginTime;
+    }
+
+    public void setBeginTime(String beginTime) {
+        this.beginTime = beginTime;
+    }
+
+    public String getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(String endTime) {
+        this.endTime = endTime;
+    }
+
     @Override
     public String toString() {
         return "AccountPurchaseInput{" +
+                "beginDate=" + beginDate +
+                ", endDate=" + endDate +
+                ", beginTime='" + beginTime + '\'' +
+                ", endTime='" + endTime + '\'' +
                 ", beginMoney=" + beginMoney +
-                ", endMoney=" + endMoney +
                 ", endMoney=" + endMoney +
                 '}';
     }

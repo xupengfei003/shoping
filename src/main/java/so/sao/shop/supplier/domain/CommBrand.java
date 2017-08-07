@@ -1,5 +1,9 @@
 package so.sao.shop.supplier.domain;
 
+import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 /**
  * 品牌
  * Created by QuJunLong on 2017/7/18.
@@ -24,7 +28,8 @@ public class CommBrand {
     /**
      *  创建时间
      */
-    private Long createdAt;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date createdAt;
     /**
      * 更新人
      */
@@ -32,7 +37,8 @@ public class CommBrand {
     /**
      *  更新时间
      */
-    private Long updatedAt;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date updatedAt;
 
     public Long getId() {
         return id;
@@ -66,11 +72,11 @@ public class CommBrand {
         this.createdBy = createdBy;
     }
 
-    public Long getCreatedAt() {
+    public Date getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Long createdAt) {
+    public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
     }
 
@@ -82,11 +88,11 @@ public class CommBrand {
         this.updatedBy = updatedBy;
     }
 
-    public Long getUpdatedAt() {
+    public Date getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(Long updatedAt) {
+    public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
     }
 }

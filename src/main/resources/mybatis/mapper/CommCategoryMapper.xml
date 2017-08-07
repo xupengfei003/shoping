@@ -38,6 +38,11 @@
         <include refid="baseColumns"/>
         FROM comm_category WHERE id = #{id}
     </select>
+    <select id="findNameById" resultType="String">
+        SELECT
+        name
+        FROM comm_category WHERE id = #{id}
+    </select>
     <select id="findOneByName" resultType="so.sao.shop.supplier.domain.CommCategory">
         SELECT
         <include refid="baseColumns"/>

@@ -4,6 +4,8 @@ import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.Min;
+import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * 供应商商品关系表
@@ -18,7 +20,7 @@ public class SupplierCommodityVo {
      * 商家编码
      */
     @NotBlank(message = "商家编码不能为空")
-    @Length(max = 20,message = "商家编码长度不能大于20")
+    @Length(max = 256,message = "商家编码长度不能大于256")
     private String code;
     /**
      * 商品编码
@@ -30,17 +32,18 @@ public class SupplierCommodityVo {
      * 规格名称
      */
     @NotBlank(message = "规格名称不能为空")
-    @Length(max = 20,message = "规格名称长度不能大于20")
+    @Length(max = 256,message = "规格名称长度不能大于256")
     private String ruleName;
     /**
      * 规格值
      */
     @NotBlank(message = "规格值不能为空")
-    @Length(max = 20,message = "规格值长度不能大于20")
+    @Length(max = 256,message = "规格值长度不能大于256")
     private String ruleVal;
     /**
      * 计量单位
      */
+    @Length(max = 256,message = "计量单位长度不能大于256")
     private String unit;
     /**
      * 库存
@@ -55,12 +58,17 @@ public class SupplierCommodityVo {
      * 市场价
      */
     @Min(value=0)
-    private Double price;
+    private BigDecimal price;
     /**
      * 售价
      */
     @Min(value=0)
-    private Double unitPrice;
+    private BigDecimal unitPrice;
+
+    /**
+     * 图片集合
+     */
+    private List<CommImgeVo> imgeList;
 
     public Long getId() {
         return id;
@@ -70,13 +78,12 @@ public class SupplierCommodityVo {
         this.id = id;
     }
 
-
-    public Double getUnitPrice() {
-        return unitPrice;
+    public List<CommImgeVo> getImgeList() {
+        return imgeList;
     }
 
-    public void setUnitPrice(Double unitPrice) {
-        this.unitPrice = unitPrice;
+    public void setImgeList(List<CommImgeVo> imgeList) {
+        this.imgeList = imgeList;
     }
 
     public Double getInventory() {
@@ -135,11 +142,19 @@ public class SupplierCommodityVo {
         this.minImg = minImg;
     }
 
-    public Double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(Double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
+    }
+
+    public BigDecimal getUnitPrice() {
+        return unitPrice;
+    }
+
+    public void setUnitPrice(BigDecimal unitPrice) {
+        this.unitPrice = unitPrice;
     }
 }

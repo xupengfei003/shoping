@@ -38,7 +38,16 @@
     <update id="update">
         UPDATE comm_imge SET name=#{name},url = #{url},type = #{type},size = #{size} WHERE id = #{id}
     </update>
+
     <delete id="deleteById">
         DELETE FROM comm_imge WHERE id=#{id}
+    </delete>
+
+    <delete id="deleteByIds">
+        DELETE FROM comm_imge
+        WHERE id IN
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
     </delete>
 </mapper>

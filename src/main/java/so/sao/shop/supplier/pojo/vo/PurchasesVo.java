@@ -1,6 +1,9 @@
 package so.sao.shop.supplier.pojo.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * Created by bzh on 2017/7/20.
@@ -9,7 +12,7 @@ public class PurchasesVo {
     /**
      * 订单ID
      */
-    private Long orderId;
+    private String orderId;
 
     /**
      * 收货人姓名
@@ -34,12 +37,14 @@ public class PurchasesVo {
     /**
      * 下单时间
      */
-    private Long orderCreateTime;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date orderCreateTime;
 
     /**
      * 支付时间
      */
-    private Long orderPaymentTime;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date orderPaymentTime;
 
     /**
      * 支付方式
@@ -51,11 +56,17 @@ public class PurchasesVo {
      */
     private String orderPaymentNum;
 
-    public Long getOrderId() {
+    /**
+     * 更新时间
+     */
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date updateTime;
+
+    public String getOrderId() {
         return orderId;
     }
 
-    public void setOrderId(Long orderId) {
+    public void setOrderId(String orderId) {
         this.orderId = orderId;
     }
 
@@ -91,19 +102,11 @@ public class PurchasesVo {
         this.orderStatus = orderStatus;
     }
 
-    public Long getOrderCreateTime() {
-        return orderCreateTime;
-    }
-
-    public void setOrderCreateTime(Long orderCreateTime) {
-        this.orderCreateTime = orderCreateTime;
-    }
-
-    public Long getOrderPaymentTime() {
+    public Date getOrderPaymentTime() {
         return orderPaymentTime;
     }
 
-    public void setOrderPaymentTime(Long orderPaymentTime) {
+    public void setOrderPaymentTime(Date orderPaymentTime) {
         this.orderPaymentTime = orderPaymentTime;
     }
 
@@ -123,4 +126,19 @@ public class PurchasesVo {
         this.orderPaymentNum = orderPaymentNum;
     }
 
+    public Date getOrderCreateTime() {
+        return orderCreateTime;
+    }
+
+    public void setOrderCreateTime(Date orderCreateTime) {
+        this.orderCreateTime = orderCreateTime;
+    }
+
+    public Date getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
+    }
 }

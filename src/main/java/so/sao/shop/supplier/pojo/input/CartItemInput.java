@@ -1,17 +1,16 @@
 package so.sao.shop.supplier.pojo.input;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.util.Date;
 
 public class CartItemInput {
 
-    /**
-     * 记录ID
-     */
 
-    private Long id;
     /**
      * 用户ID
      */
@@ -49,15 +48,6 @@ public class CartItemInput {
      * 商品属性
      */
     private String commodityProperties;
-
-    /**
-     * 创建时间
-     */
-    private Long createdAt;
-    /**
-     * 更新时间
-     */
-    private Long updatedAt;
     /**
      * 数量
      */
@@ -73,15 +63,6 @@ public class CartItemInput {
         this.commodityProperties = commodityProperties;
     }
 
-
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public Long getUserId() {
         return userId;
@@ -137,22 +118,6 @@ public class CartItemInput {
 
     public void setCommodityPic(String commodityPic) {
         this.commodityPic = commodityPic == null ? null : commodityPic.trim();
-    }
-
-    public Long getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Long createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Long getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Long updatedAt) {
-        this.updatedAt = updatedAt;
     }
 
     public Integer getCount() {

@@ -71,4 +71,10 @@ public class CommCategoryController {
         return commCategoryService.deleteCommCategory(id);
     }
 
+    @ApiOperation(value="查询商品一级类型集合", notes="根据参数返回符合条件的商品品类集合")
+    @GetMapping(value="/searchCategory")
+    public List<CommCategorySelectOutput> searchType0(){
+        return commCategoryService.searchCommCategory(0L);
+    }
+
 }

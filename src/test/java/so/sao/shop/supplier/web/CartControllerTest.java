@@ -14,6 +14,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+
+import so.sao.shop.supplier.pojo.BaseResult;
 import so.sao.shop.supplier.pojo.input.CartItemInput;
 
 import java.math.BigDecimal;
@@ -37,7 +39,7 @@ public class CartControllerTest {
         cartItemInput.setCommodityPrice(new BigDecimal(1));
         cartItemInput.setCount(0);
         System.out.println(" 插入的数据是 "+cartItemInput);
-        boolean flag = cartController.createCartItems(cartItemInput);
+        BaseResult flag = cartController.createCartItems(cartItemInput);
         System.out.println("插入结果 "+flag);
 
     }

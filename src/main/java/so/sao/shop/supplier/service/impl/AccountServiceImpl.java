@@ -1,22 +1,24 @@
 package so.sao.shop.supplier.service.impl;
 
-import com.aliyuncs.exceptions.ClientException;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import so.sao.shop.supplier.config.Constant;
+import so.sao.shop.supplier.config.sms.SmsService;
 import so.sao.shop.supplier.dao.*;
 import so.sao.shop.supplier.domain.Account;
 import so.sao.shop.supplier.domain.Condition;
+import so.sao.shop.supplier.domain.DictItem;
 import so.sao.shop.supplier.domain.User;
+import so.sao.shop.supplier.pojo.BaseResult;
 import so.sao.shop.supplier.pojo.output.AccountBalanceOutput;
 import so.sao.shop.supplier.service.AccountService;
-import so.sao.shop.supplier.util.SmsUtil;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -46,6 +48,15 @@ public class AccountServiceImpl implements AccountService {
 
     @Autowired
     private DictItemMapper dictItemDao;
+
+    @Autowired
+    private SmsService smsService;
+
+    /**
+     * 第一次发送密码
+     */
+    @Value("${shop.aliyun.sms.sms-template-code2}")
+    String smsTemplateCode2;
 
     /**
      * 初始化银行信息
@@ -79,13 +90,24 @@ public class AccountServiceImpl implements AccountService {
     }
 
     /**
+     * 初始化银行信息
+     *
+     * @return 返回银行列表
+     */
+    @Override
+    public List<DictItem> selectHangYeDict() {
+        return dictItemDao.selectHangYeDict();
+    }
+
+
+    /**
      * 增加用户信息
      *
      * @param user 用户对象
      * @return 变更条数
      */
     @Override
-    public Long add(User user) {
+    public int add(User user) {
         return userDao.add(user);
     }
 
@@ -93,11 +115,12 @@ public class AccountServiceImpl implements AccountService {
      * 根据id更新用户信息
      *
      * @param id
+     * @param tel
      * @return 返回更新行数
      */
     @Override
-    public int updateUser(Long id) {
-        return userDao.update(id);
+    public int updateUser(Long id, String tel) {
+        return userDao.update(id, tel);
     }
 
     /**
@@ -109,9 +132,8 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public int insert(Account account) {
         // 创建日期
-        Date date = new Date();
-        account.setCreateDate(date.getTime());
-        return accountDao.insert(account);
+        account.setCreateDate(new Date());
+        return accountDao.insertSelective(account);
     }
 
     /**
@@ -122,6 +144,7 @@ public class AccountServiceImpl implements AccountService {
      */
     @Override
     public int update(Account account) {
+        account.setUpdateDate(new Date());
         return accountDao.updateByPrimaryKeySelective(account);
     }
 
@@ -137,7 +160,7 @@ public class AccountServiceImpl implements AccountService {
     /**
      * 根据id查询供应商信息
      *
-     * @param accountId 供应商id
+     * @param accountId 供应商id(省市区汉字)
      * @return 返回供应商信息
      */
     @Override
@@ -145,7 +168,7 @@ public class AccountServiceImpl implements AccountService {
         Account account = accountDao.selectByPrimaryKey(accountId);
         if (account != null) {
             String[] accStr = account.getRegistAddress().split("-");
-            String[] ConStr = account.getContractRegisterAddress().split("-");
+            String[] conStr = account.getContractRegisterAddress().split("-");
             List<Map> list = new ArrayList<Map>();
 
             Map<String, Object> accMap = new HashMap<String, Object>();
@@ -153,15 +176,17 @@ public class AccountServiceImpl implements AccountService {
             /**
              * 用来存放分割后的Account的注册地址
              */
-            accMap.put("province", accStr[0]);
-            accMap.put("city", accStr[1]);
-            accMap.put("area", accStr[2]);
+            int accStrLength = accStr.length;
+            accMap.put("province", accStrLength>0?accStr[0]:"");
+            accMap.put("city", accStrLength>1?accStr[1]:"");
+            accMap.put("area", accStrLength>1?accStr[2]:"");
             /**
              * 用来存放分割后的合同上的注册地址
              */
-            conMap.put("province", ConStr[0]);
-            conMap.put("city", ConStr[1]);
-            conMap.put("area", ConStr[2]);
+            int conStrLength = conStr.length;
+            conMap.put("province", conStrLength>0?conStr[0]:"");
+            conMap.put("city", conStrLength>1?conStr[1]:"");
+            conMap.put("area", conStrLength>2?conStr[2]:"");
 
             list.add(accMap);
             list.add(conMap);
@@ -171,6 +196,16 @@ public class AccountServiceImpl implements AccountService {
         return new Account();
     }
 
+    /**
+     * 根据id查询供应商信息(省市区编码)
+     *
+     * @param accountId 供应商id
+     * @return 返回供应商信息
+     */
+    @Override
+    public Account selectById0(Long accountId) {
+        return accountDao.selectById(accountId);
+    }
 
     /**
      * 1.根据用户ID获取用户的可用余额；
@@ -178,10 +213,10 @@ public class AccountServiceImpl implements AccountService {
      * 账户状态（account_status）为未统计的订单金额（order_price）之和
      * ②、判断统计金额是否为空，非空则将订单表（purchase）中账户状态列（account_status）
      * 中的未统计（状态码：0）改为已统计（状态码：1）
-     * ③、根据账户表（t_account）中的用户（user_id）字段查询账户表（t_account）中用户的余额；
+     * ③、根据账户表（account）中的用户（user_id）字段查询账户表（account）中用户的余额；
      * ④、第①步中统计的金额与第③步查询的余额相加，得到用户的总余额；
-     * ⑤、根据账户表（t_account）中的user_id（用户id）字段，
-     * 将得到的总余额同步到账户表中（t_account）的余额（balance）；
+     * ⑤、根据账户表（account）中的user_id（用户id）字段，
+     * 将得到的总余额同步到账户表中（account）的余额（balance）；
      * ⑥、将得到的用户总余额添加到规范规定的返回对象之中。
      * ⑦、捕获可能出现的异常
      *
@@ -215,7 +250,7 @@ public class AccountServiceImpl implements AccountService {
             }
 
             /**
-             * ③、根据账户表（t_account）中的用户（user_id）字段查询账户表（t_account）中用户的余额；
+             * ③、根据账户表（account）中的用户（user_id）字段查询账户表（account）中用户的余额；
              */
             BigDecimal oldBalance = accountDao.findUserBalance(userId);//通过Dao层的方法，根据用户ID查询用户余额
             if (oldBalance == null || oldBalance.compareTo(BigDecimal.ZERO) == 0) {//判断查询出的金额是否为空，或是否为0
@@ -229,8 +264,8 @@ public class AccountServiceImpl implements AccountService {
             newBalance = newBalance.setScale(2, BigDecimal.ROUND_HALF_UP);//给结果保留两位小数
 
             /**
-             * ⑤、根据账户表（t_account）中的user_id（用户id）字段，
-             *    将得到的总余额同步到账户表中（t_account）的余额（balance）；
+             * ⑤、根据账户表（account）中的user_id（用户id）字段，
+             *    将得到的总余额同步到账户表中（account）的余额（balance）；
              */
             Account account = new Account();//新建一个账户类的对象
             account.setUserId(userId);//将用户的ID Set进账户类对象
@@ -263,12 +298,6 @@ public class AccountServiceImpl implements AccountService {
      */
     @Override
     public PageInfo searchAccount(Condition condition) {
-        if (condition.getBeginTime() != null) {
-            condition.setBeginDate(condition.getBeginTime().getTime());
-        }
-        if (condition.getContractCreateTime() != null) {
-            condition.setContractCreateDate(condition.getContractCreateTime().getTime());
-        }
         if (condition.getPageNum() == null) {
             condition.setPageNum(1);
         }
@@ -281,31 +310,38 @@ public class AccountServiceImpl implements AccountService {
     }
 
     /**
-     * 根据手机号码插入用户信息
+     * 插入用户和供应商信息
      *
-     * @param phone
      * @return 返回用户id
      */
     @Override
-    public Long saveUser(String phone) {
-        User user1 = userDao.findByUsername(phone);
+    @Transactional
+    public synchronized BaseResult saveUserAndAccount(Account account) {
+        BaseResult baseResult = new BaseResult();
+        User user1 = userDao.findByUsername(account.getContractResponsiblePhone());
         if (user1 == null) {
-            try {
-                User user = new User();
-                user.setUsername(phone);
-                String password = SmsUtil.getVerCode();
-                user.setPassword(password);
-                user1.setLastPasswordResetDate(new Date().getTime());
-                userDao.add(user);
-                SmsUtil.sendSms(phone, password);
-                return user.getId();
-            } catch (ClientException e) {
-                return 0l;
-            } catch (IOException e) {
-                return 0l;
-            }
+            User user = new User();
+            user.setUsername(account.getContractResponsiblePhone());
+            String password = smsService.getVerCode();
+            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+            user.setPassword(encoder.encode(password));
+            user.setLastPasswordResetDate(new Date());
+            user.setIsAdmin("0");
+            userDao.add(user);
+            account.setCreateDate(new Date());
+            account.setUpdateDate(new Date());
+            account.setAccountStatus(1);
+            account.setUserId(user.getId());
+            accountDao.insert(account);
+
+            smsService.sendSms(Collections.singletonList(account.getContractResponsiblePhone()),Arrays.asList("phone","password"), Arrays.asList(account.getContractResponsiblePhone(),password), smsTemplateCode2);
+            baseResult.setMessage("用户和供应商添加成功！");
+            baseResult.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SUCCESS);
+            return baseResult;
         } else {
-            return user1.getId();
+            baseResult.setMessage("此供应商已经存在！");
+            baseResult.setCode(Constant.CodeConfig.CODE_FAILURE);
+            return baseResult;
         }
     }
 }

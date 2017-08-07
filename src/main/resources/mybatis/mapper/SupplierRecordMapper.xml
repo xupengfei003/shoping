@@ -2,18 +2,26 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="so.sao.shop.supplier.dao.SupplierRecordDao">
     <resultMap id="accountMap" type="so.sao.shop.supplier.domain.SupplierRecord">
-        <id column="createDate" jdbcType="VARCHAR" property="createDate"/>
+        <id column="createDate" property="createDate"/>
         <id column="provider_name" jdbcType="VARCHAR" property="providerName"/>
         <id column="responsible" jdbcType="VARCHAR" property="responsible"/>
         <id column="upload_mode" jdbcType="VARCHAR" property="uploadMode"/>
     </resultMap>
 
     <select id="findPage" resultMap="accountMap" parameterType="so.sao.shop.supplier.domain.Condition">
-        SELECT FROM_UNIXTIME(create_date/1000,'%Y-%m-%d %H:%i:%s') AS createDate,provider_name,responsible,upload_mode
-        FROM t_account
-        WHERE upload_mode = #{uploadMode}
-        AND create_date
-        BETWEEN #{beginDate}
-        AND #{endDate}
+        SELECT create_date AS createDate,provider_name,responsible,upload_mode
+        FROM account
+        <where>
+            1=1
+            <if test="uploadMode != null">
+                upload_mode = #{uploadMode}
+            </if>
+            <if test="beginDate != null">
+                create_date &gt;= #{beginDate}
+            </if>
+            <if test="endDate != null">
+                create_date &lt;= #{endDate}
+            </if>
+        </where>
     </select>
 </mapper>

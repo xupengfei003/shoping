@@ -1,7 +1,10 @@
 package so.sao.shop.supplier.pojo.output;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import so.sao.shop.supplier.pojo.vo.CommImgeVo;
 
+import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -24,13 +27,25 @@ public class CommodityOutput {
      */
     private Long categoryOneId;
     /**
+     * 一级类型Name
+     */
+    private String categoryOneName;
+    /**
      * 二级类型Id
      */
     private Long categoryTwoId;
     /**
+     * 二级类型Name
+     */
+    private String categoryTwoName;
+    /**
      * 三级类型Id
      */
     private Long categoryThreeId;
+    /**
+     * 三级类型Name
+     */
+    private String categoryThreeName;
     /**
      * 商品名称
      */
@@ -74,11 +89,26 @@ public class CommodityOutput {
     /**
      * 市场价
      */
-    private Double price;
+    private BigDecimal price;
     /**
      * 售价
      */
-    private Double unitPrice;
+    private BigDecimal unitPrice;
+    /**
+     * 商品状态
+     */
+    private int status;
+    /**
+     * 创建时间
+     */
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date createdAt;
+    /**
+     * 更新时间
+     */
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date updatedAt;
+
     /**
      * 图片集合
      */
@@ -204,20 +234,68 @@ public class CommodityOutput {
         this.minImg = minImg;
     }
 
-    public Double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(Double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 
-    public Double getUnitPrice() {
+    public BigDecimal getUnitPrice() {
         return unitPrice;
     }
 
-    public void setUnitPrice(Double unitPrice) {
+    public void setUnitPrice(BigDecimal unitPrice) {
         this.unitPrice = unitPrice;
+    }
+
+    public String getCategoryOneName() {
+        return categoryOneName;
+    }
+
+    public void setCategoryOneName(String categoryOneName) {
+        this.categoryOneName = categoryOneName;
+    }
+
+    public String getCategoryTwoName() {
+        return categoryTwoName;
+    }
+
+    public void setCategoryTwoName(String categoryTwoName) {
+        this.categoryTwoName = categoryTwoName;
+    }
+
+    public String getCategoryThreeName() {
+        return categoryThreeName;
+    }
+
+    public void setCategoryThreeName(String categoryThreeName) {
+        this.categoryThreeName = categoryThreeName;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Date getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public List<CommImgeVo> getImgeList() {

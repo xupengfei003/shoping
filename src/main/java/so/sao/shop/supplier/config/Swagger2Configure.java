@@ -29,7 +29,7 @@ public class Swagger2Configure {
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-            .title("supplier")
+            .title("supplier项目")
             .description("接口列表")
             .version("1.0")
             .build();

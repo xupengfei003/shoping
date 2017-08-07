@@ -1,5 +1,10 @@
 package so.sao.shop.supplier.pojo.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.math.BigDecimal;
+import java.util.Date;
+
 /**
  * Created by liugang on 2017/7/20.
  * 商品查询响应体
@@ -55,13 +60,29 @@ public class SuppCommSearchVo {
      */
     private String status;
     /**
+     * 商品状态数值
+     */
+    private int statusNum;
+
+    /**
+     * 市场价
+     */
+    private BigDecimal price;
+    /**
+     * 售价
+     */
+    private BigDecimal unitPrice;
+
+    /**
      *  创建时间
      */
-    private Long createdAt;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date createdAt;
     /**
      *  更新时间
      */
-    private Long updatedAt;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date updatedAt;
 
     public Long getId() {
         return id;
@@ -159,19 +180,43 @@ public class SuppCommSearchVo {
         this.status = status;
     }
 
-    public Long getCreatedAt() {
+    public int getStatusNum() {
+        return statusNum;
+    }
+
+    public void setStatusNum(int statusNum) {
+        this.statusNum = statusNum;
+    }
+
+    public Date getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Long createdAt) {
+    public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Long getUpdatedAt() {
+    public Date getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(Long updatedAt) {
+    public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+
+    public BigDecimal getUnitPrice() {
+        return unitPrice;
+    }
+
+    public void setUnitPrice(BigDecimal unitPrice) {
+        this.unitPrice = unitPrice;
     }
 }

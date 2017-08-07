@@ -21,20 +21,13 @@ public interface PurchaseItemDao {
      */
     public int savePurchaseItem(List<PurchaseItem> listItem) throws Exception;
 
-    List<PurchaseItemVo> getOrderDetailByOId(Long orderId);
+    List<PurchaseItemVo> getOrderDetailByOId(String orderId);
 
     /**
      * 根据订单编号查找所有相关订单详情
      * @param orderId 订单编号
      * @return 查询到的相关记录
      */
-    List<PurchaseItem> findPage(Long orderId);
-
-    /**
-     * 根据订单编号查询条数
-     * @param orderId 订单编号
-     * @return 查询到的条数
-     */
-    int countByOrderId(Long orderId);
+    List<PurchaseItem> findPage(String orderId);
 
 }

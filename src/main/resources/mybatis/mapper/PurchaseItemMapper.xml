@@ -14,6 +14,7 @@
         <result column="goods_image" property="goodsImage"/>
         <result column="goods_name" property="goodsName"/>
         <result column="order_id" property="orderId"/>
+        <result column="brand_name" property="brandName"/>
     </resultMap>
 
     <resultMap id="PurchaseItemList" type="so.sao.shop.supplier.pojo.vo.PurchaseItemVo">
@@ -23,6 +24,7 @@
         <result column="goods_tatol_price" property="goodsTatolPrice"/>
         <result column="goods_image" property="goodsImage"/>
         <result column="goods_name" property="goodsName"/>
+        <result column="brand_name" property="brandName"/>
     </resultMap>
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
@@ -30,18 +32,19 @@
   </sql>
 
     <!-- 根据订单ID查询订单明细 -->
-    <select id="getOrderDetailByOId" resultMap="PurchaseItemList" parameterType="java.lang.Long">
+    <select id="getOrderDetailByOId" resultMap="PurchaseItemList" parameterType="java.lang.String">
         SELECT
         pi.goods_image,
         pi.goods_name,
         pi.goods_attribute,
         pi.goods_id,
         pi.goods_number,
-        pi.goods_unit_price
+        pi.goods_tatol_price,
+        pi.brand_name
         FROM
         purchase_item pi
         JOIN purchase p ON p.order_id = pi.order_id
-        and p.order_id = #{orderId,jdbcType=BIGINT}
+        and p.order_id = #{orderId,jdbcType=VARCHAR}
     </select>
     <!-- 批量添加订单详情 -->
     <insert id="savePurchaseItem" parameterType="java.util.List">
@@ -55,7 +58,8 @@
                 goods_favourable,
                 goods_image,
                 goods_name,
-                order_id
+                order_id,
+                brand_name
             )
         VALUES
         <foreach collection ="list" item="item" index= "index" separator =",">
@@ -68,24 +72,17 @@
                 #{item.goodsFavourable},
                 #{item.goodsImage},
                 #{item.goodsName},
-                #{item.orderId}
+                #{item.orderId},
+                #{item.brandName}
             )
         </foreach>
     </insert>
 
     <!-- 分页条件检索-->
-    <select id="findPage" resultMap="BaseResultMap" parameterType="java.lang.Long">
+    <select id="findPage" resultMap="BaseResultMap" parameterType="java.lang.String">
         SELECT
         GOODS_ID,GOODS_NAME,GOODS_NUMBER,GOODS_UNIT_PRICE
         FROM PURCHASE_ITEM
         WHERE ORDER_ID = #{orderId,jdbcType=BIGINT}
     </select>
-
-    <!--条件查询数量-->
-    <select id="countByOrderId"  resultType="java.lang.Integer" parameterType="java.lang.Long">
-        SELECT COUNT(ORDER_ID)
-        FROM PURCHASE_ITEM
-        WHERE ORDER_ID = #{orderId,jdbcType=BIGINT}
-    </select>
-
 </mapper>

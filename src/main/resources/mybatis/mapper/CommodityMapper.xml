@@ -31,7 +31,7 @@
     </update>
     <select id="findByIds" parameterType="Long[]" resultType="so.sao.shop.supplier.pojo.output.CommodityExportOutput">
         SELECT
-        sc.commodity_id AS commId,
+        sc.id AS commId,
         sc.code69 AS code69,
         sc.brand AS brandName,
         sc.name AS commName,

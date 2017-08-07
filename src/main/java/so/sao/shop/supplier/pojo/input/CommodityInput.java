@@ -1,8 +1,10 @@
 package so.sao.shop.supplier.pojo.input;
 
+import org.hibernate.validator.constraints.Length;
 import so.sao.shop.supplier.pojo.vo.CommImgeVo;
 import so.sao.shop.supplier.pojo.vo.SupplierCommodityVo;
 
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -11,10 +13,17 @@ import java.util.List;
  * Created by QuJunLong on 2017/7/19.
  */
 public class CommodityInput {
+    /**
+     *
+     * Excel 行号
+     */
+
+    private  int rowNum;
 
     /**
      * 品牌
      */
+    @Length(max = 256,message = "品牌长度不能大于256")
     private String brand;
     /**
      * 一级类型Id
@@ -31,6 +40,7 @@ public class CommodityInput {
     /**
      * 商品名称
      */
+    @Length(max = 256,message = "商品名称长度不能大于256")
     private String name;
     /**
      * 商品描述
@@ -41,13 +51,18 @@ public class CommodityInput {
      */
     private String description;
     /**
-     * 图片集合
-     */
-    private List<CommImgeVo> imgeList;
-    /**
      * 商品集合
      */
+    @Valid
     private List<SupplierCommodityVo> commodityList;
+
+    public int getRowNum() {
+        return rowNum;
+    }
+
+    public void setRowNum(int rowNum) {
+        this.rowNum = rowNum;
+    }
 
     public String getBrand() {
         return brand;
@@ -63,14 +78,6 @@ public class CommodityInput {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public List<CommImgeVo> getImgeList() {
-        return imgeList;
-    }
-
-    public void setImgeList(List<CommImgeVo> imgeList) {
-        this.imgeList = imgeList;
     }
 
     public List<SupplierCommodityVo> getCommodityList() {

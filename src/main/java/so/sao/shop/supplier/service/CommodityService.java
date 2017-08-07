@@ -2,14 +2,18 @@ package so.sao.shop.supplier.service;
 
 import com.github.pagehelper.PageInfo;
 import org.springframework.web.multipart.MultipartFile;
+import so.sao.shop.supplier.config.StorageConfig;
 import so.sao.shop.supplier.domain.Account;
 import so.sao.shop.supplier.pojo.BaseResult;
+import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.CommodityInput;
 import so.sao.shop.supplier.pojo.output.CommodityExportOutput;
 import so.sao.shop.supplier.pojo.output.CommodityOutput;
 
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by QuJunLong on 2017/7/17.
@@ -21,14 +25,14 @@ public interface CommodityService {
      * @param commodityInput 商品信息对象
      * @return 保存结果
      */
-    public BaseResult saveCommodity(HttpServletRequest request,CommodityInput commodityInput);
+    BaseResult saveCommodity(CommodityInput commodityInput,Long supplierId) throws Exception;
 
     /**
      * 修改商品
      * @param commodityInput 商品信息对象
      * @return 修改结果
      */
-    public BaseResult updateCommodity(HttpServletRequest request, CommodityInput commodityInput);
+    BaseResult updateCommodity(CommodityInput commodityInput,Long supplierId) throws Exception;
 
     /**
      * 根据供应商商品ID获取商品详细信息
@@ -74,35 +78,51 @@ public interface CommodityService {
      * @return PageInfo pageInfo对象
      */
     PageInfo searchCommodities(Long supplierId, String commCode69, Long commId, String suppCommCode, String commName, Integer status, Long typeId,
-                               Double minPrice, Double maxPrice, int pageNum, int pageSize);
+                               BigDecimal minPrice, BigDecimal maxPrice, Integer pageNum, Integer pageSize);
+
+
+    /**
+     * 根据查询条件查询商品详情
+     * @param id  scID
+     * @param commName 商品名称
+     * @param code69  商品编码
+     * @param suppCommCode 商家商品编码
+     * @param typeId 类型ID
+     * @param minPrice 价格（低）
+     * @param maxPrice 价格（高）
+     * @param pageNum 当前页号
+     * @param pageSize 页面大小
+     * @return PageInfo pageInfo对象
+     */
+    PageInfo searchAllCommodities(Long id, String commName, String code69, String suppCommCode,  Long typeId, BigDecimal minPrice,BigDecimal maxPrice, Integer pageNum, Integer pageSize);
 
     /**
      * 删除商品
      * @param id
      * @return true or false
      */
-    BaseResult deleteCommodity(Long id);
+    Result deleteCommodity(Long id);
 
     /**
      * 批量删除商品
      * @param ids
      * @return 结果集
      */
-    BaseResult deleteCommodities(Long[] ids);
+    Result deleteCommodities(Long[] ids);
 
     /**
      * 上架商品
      * @param id
      * @return
      */
-    BaseResult updateStatusSj(Long id);
+    Result updateStatusSj(Long id);
 
     /**
      * 下架商品
      * @param id
      * @return
      */
-    BaseResult updateStatusXj(Long id);
+    Result updateStatusXj(Long id);
 
     /**
      * 批量上架商品
@@ -126,5 +146,5 @@ public interface CommodityService {
      * @return 导入结果
      */
 
-    public BaseResult importExcel(MultipartFile multipartFile , HttpServletRequest request);
+    Map<String ,List> importExcel(MultipartFile multipartFile , HttpServletRequest request, StorageConfig storageConfig, Long supplierId) throws Exception;
 }

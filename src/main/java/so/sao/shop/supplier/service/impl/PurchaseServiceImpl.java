@@ -10,7 +10,7 @@ import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.dao.AccountDao;
 import so.sao.shop.supplier.dao.PurchaseDao;
 import so.sao.shop.supplier.dao.PurchaseItemDao;
-import so.sao.shop.supplier.domain.AccountUser;
+import so.sao.shop.supplier.domain.Account;
 import so.sao.shop.supplier.domain.Purchase;
 import so.sao.shop.supplier.domain.PurchaseItem;
 import so.sao.shop.supplier.pojo.input.AccountPurchaseInput;
@@ -18,6 +18,7 @@ import so.sao.shop.supplier.pojo.input.PurchaseInput;
 import so.sao.shop.supplier.pojo.input.PurchaseSelectInput;
 import so.sao.shop.supplier.pojo.output.*;
 import so.sao.shop.supplier.pojo.vo.AccountPurchaseVo;
+import so.sao.shop.supplier.pojo.vo.PurchaseInfoVo;
 import so.sao.shop.supplier.pojo.vo.PurchaseItemVo;
 import so.sao.shop.supplier.pojo.vo.PurchasesVo;
 import so.sao.shop.supplier.service.CommodityService;
@@ -31,8 +32,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
-import java.math.BigInteger;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -62,6 +65,7 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Transactional
     public Map<String,Object> savePurchase(PurchaseInput purchase) throws Exception{
         Map<String,Object> output = new HashMap<>();
+        output.put("status", Constant.CodeConfig.CODE_FAILURE);
         /*
             1.根据商户进行拆单
                 a.根据商品查出所有商户信息。
@@ -70,41 +74,51 @@ public class PurchaseServiceImpl implements PurchaseService {
             3.生成订单数据
          */
         List<PurchaseItemVo> listPurchaseItem = purchase.getListPurchaseItem();//订单详情
-        //生成订单编号
-        String orderId = NumberGenerate.generateUuid();
         Set<Long> set = new HashSet<>();
         for (PurchaseItemVo purchaseItem : listPurchaseItem) {
             //a.根据商品查出所有商户信息。
             Long goodsId = purchaseItem.getGoodsId();//商品ID
-            AccountUser accountUser = purchaseDao.findAccountById(goodsId);
-            set.add(accountUser.getUserId());
+            if(null != goodsId){
+                Account accountUser = purchaseDao.findAccountById(goodsId);
+                if(null != accountUser){
+                    set.add(accountUser.getAccountId());
+                }
+            }
         }
+        boolean flag = false;
+        int counter = 1;
         //b.循环商户ID生成订单
-        List<Purchase> listPurchase = new ArrayList<>();
-        for (Long struId : set){
+        for (Long sId : set){
+            List<Purchase> listPurchase = new ArrayList<>();
+            //生成订单编号
+            String orderId = NumberGenerate.generateUuid();
             List<PurchaseItem> listItem = new ArrayList<>();
             BigDecimal totalMoney = new BigDecimal(0);//订单总价计算
             for (PurchaseItemVo purchaseItem : listPurchaseItem) {
                 //根据商品ID查询商户ID
                 Long goodsId = purchaseItem.getGoodsId();//商品ID
-                BigDecimal goodsNumber = new BigDecimal(purchaseItem.getGoodsNumber());//商品数量
-                String goodsAttribute = purchaseItem.getGoodsAttribute();//商品属性
-                //查询商品信息
-                CommodityOutput commOutput = commodityService.getCommodity(goodsId);
-                //2.生成批量插入订单详情数据
-                PurchaseItem item = new PurchaseItem();
-                item.setGoodsAttribute(goodsAttribute);//商品属性
-                item.setGoodsId(goodsId);//商品ID
-                item.setGoodsNumber(goodsNumber.intValue());//商品数量
-                Double unitPrice = commOutput.getUnitPrice();//商品售价
-                item.setGoodsUnitPrice(new BigDecimal(unitPrice));
-                totalMoney = totalMoney.add(goodsNumber.multiply(new BigDecimal(unitPrice)));//订单总价计算
-                item.setGoodsTatolPrice(goodsNumber.multiply(new BigDecimal(unitPrice)));//单个商品总价
-                item.setGoodsImage(commOutput.getMinImg());//商品图片
-                item.setGoodsName(commOutput.getName());//商品名称
-                item.setBrandName(commOutput.getBrand());//品牌
-                item.setOrderId(orderId);//订单ID
-                listItem.add(item);
+                Account accountUser = purchaseDao.findAccountById(goodsId);
+                //判断当前商品是否属于该商户
+                if(null != accountUser && sId.equals(accountUser.getAccountId())){
+                    BigDecimal goodsNumber = new BigDecimal(purchaseItem.getGoodsNumber());//商品数量
+                    String goodsAttribute = purchaseItem.getGoodsAttribute();//商品属性
+                    //查询商品信息
+                    CommodityOutput commOutput = commodityService.getCommodity(goodsId);
+                    //2.生成批量插入订单详情数据
+                    PurchaseItem item = new PurchaseItem();
+                    item.setGoodsAttribute(goodsAttribute);//商品属性
+                    item.setGoodsId(goodsId);//商品ID
+                    item.setGoodsNumber(goodsNumber.intValue());//商品数量
+                    BigDecimal unitPrice = commOutput.getPrice();//商品售价
+                    item.setGoodsUnitPrice(unitPrice);
+                    totalMoney = totalMoney.add(goodsNumber.multiply(unitPrice));//订单总价计算
+                    item.setGoodsTatolPrice(goodsNumber.multiply(unitPrice));//单个商品总价
+                    item.setGoodsImage(commOutput.getMinImg());//商品图片
+                    item.setGoodsName(commOutput.getName());//商品名称
+                    item.setBrandName(commOutput.getBrand());//品牌
+                    item.setOrderId(orderId);//订单ID
+                    listItem.add(item);
+                }
             }
             //3.生成订单数据
             Long userId = purchase.getUserId();//买家ID
@@ -114,15 +128,16 @@ public class PurchaseServiceImpl implements PurchaseService {
             Integer orderPaymentMethod = purchase.getOrderPaymentMethod();//支付方式
             Purchase purchaseDate = new Purchase();
             purchaseDate.setOrderId(orderId);//订单ID
-            purchaseDate.setStoreId(struId);//商户ID
+            purchaseDate.setStoreId(sId);//商户ID
             purchaseDate.setUserId(userId);//买家ID
             purchaseDate.setOrderReceiverName(orderReceiverName);//收货人姓名
             purchaseDate.setOrderReceiverMobile(orderReceiverMobile);//收货人电话
             purchaseDate.setOrderAddress(orderAddress);//收货人地址
             purchaseDate.setOrderPaymentMethod(orderPaymentMethod);//支付方式
             purchaseDate.setOrderPrice(totalMoney);//订单总金额
-            purchaseDate.setOrderCreateTime(System.currentTimeMillis());//下单时间
-            purchaseDate.setOrderStatus(Constant.OrderStatusConfig.RECEIVED);//订单状态 1待付款2代发货3已发货4已收货5已拒收6已退款
+            purchaseDate.setOrderCreateTime(new Date());//下单时间
+            purchaseDate.setOrderStatus(Constant.OrderStatusConfig.PAYMENT);//订单状态 1待付款2代发货3已发货4已收货5已拒收6已退款
+            purchaseDate.setUpdatedAt(new Date());//更新时间
             listPurchase.add(purchaseDate);
              /*
             1.将订单信息保存至订单表
@@ -131,8 +146,14 @@ public class PurchaseServiceImpl implements PurchaseService {
          */
             int result = purchaseDao.savePurchase(listPurchase);
             int resultSum = purchaseItemDao.savePurchaseItem(listItem);
+            if(result > 0 && resultSum > 0 && counter == set.size()){
+                flag = true;
+            }
+            counter ++;
         }
-        output.put("status", Constant.CodeConfig.CODE_SUCCESS);
+        if (flag) {
+            output.put("status", Constant.CodeConfig.CODE_SUCCESS);
+        }
         return output;
     }
 
@@ -143,33 +164,37 @@ public class PurchaseServiceImpl implements PurchaseService {
      * @throws Exception
      */
     @Override
-    public PurchaseInfoOutput findById(BigInteger orderId) throws Exception {
+    public PurchaseInfoOutput findById(String orderId) throws Exception {
         PurchaseInfoOutput purchaseInfoOutput = new PurchaseInfoOutput();
-        Purchase purchase = purchaseDao.findById(Long.parseLong(orderId.toString()));
+        PurchaseInfoVo purchaseInfoVo = new PurchaseInfoVo();
+        Purchase purchase = purchaseDao.findById(orderId);
         if(purchase != null) {
             //PurchaseInfoOutput 添加订单信息
-            purchaseInfoOutput.setOrderId(Long.parseLong(purchase.getOrderId()));
-            purchaseInfoOutput.setOrderReceiverName(purchase.getOrderReceiverName());
-            purchaseInfoOutput.setOrderReceiverMobile(purchase.getOrderReceiverMobile());
-            purchaseInfoOutput.setOrderCreateTime(purchase.getOrderCreateTime());
-            purchaseInfoOutput.setOrderPaymentMethod(purchase.getOrderPaymentMethod());
-            purchaseInfoOutput.setOrderPaymentNum(purchase.getOrderPaymentNum());
-            purchaseInfoOutput.setOrderPaymentTime(purchase.getOrderPaymentTime());
-            purchaseInfoOutput.setOrderPrice(purchase.getOrderPrice());
-            purchaseInfoOutput.setOrderStatus(purchase.getOrderStatus().shortValue());
-            purchaseInfoOutput.setOrderShipMethod(purchase.getOrderShipMethod());
-            purchaseInfoOutput.setOrderShipmentNumber(purchase.getOrderShipmentNumber());
-            purchaseInfoOutput.setLogisticsCompany(purchase.getLogisticsCompany());
-            purchaseInfoOutput.setDistributorName(purchase.getDistributorName());
-            purchaseInfoOutput.setDistributorMobile(purchase.getDistributorMobile());
-            purchaseInfoOutput.setDrawbackTime(purchase.getDrawbackTime());
-
+            purchaseInfoVo.setOrderId(purchase.getOrderId());
+            purchaseInfoVo.setOrderReceiverName(purchase.getOrderReceiverName());
+            purchaseInfoVo.setOrderReceiverMobile(purchase.getOrderReceiverMobile());
+            purchaseInfoVo.setOrderCreateTime(purchase.getOrderCreateTime());
+            purchaseInfoVo.setOrderPaymentMethod(purchase.getOrderPaymentMethod());
+            purchaseInfoVo.setOrderPaymentNum(purchase.getOrderPaymentNum());
+            purchaseInfoVo.setOrderPaymentTime(purchase.getOrderPaymentTime());
+            purchaseInfoVo.setOrderPrice(purchase.getOrderPrice());
+            purchaseInfoVo.setOrderStatus(purchase.getOrderStatus().shortValue());
+            purchaseInfoVo.setOrderShipMethod(purchase.getOrderShipMethod());
+            purchaseInfoVo.setOrderShipmentNumber(purchase.getOrderShipmentNumber());
+            purchaseInfoVo.setLogisticsCompany(purchase.getLogisticsCompany());
+            purchaseInfoVo.setDistributorName(purchase.getDistributorName());
+            purchaseInfoVo.setDistributorMobile(purchase.getDistributorMobile());
+            purchaseInfoVo.setDrawbackTime(purchase.getDrawbackTime());
 
             //PurchaseInfoOutput 添加订单明细列表
-            List<PurchaseItemVo> purchaseItemVoList = purchaseItemDao.getOrderDetailByOId(Long.parseLong(purchase.getOrderId().toString()));
+            List<PurchaseItemVo> purchaseItemVoList = purchaseItemDao.getOrderDetailByOId(purchase.getOrderId());
+
             if(purchaseItemVoList != null && purchaseItemVoList.size() > 0) {
-                purchaseInfoOutput.setPurchaseItemVoList(purchaseItemVoList);
+                purchaseInfoVo.setPurchaseItemVoList(purchaseItemVoList);
+            } else {
+                purchaseInfoVo.setPurchaseItemVoList(new ArrayList<>());
             }
+            purchaseInfoOutput.setPurchaseInfoVo(purchaseInfoVo);
         }
         return purchaseInfoOutput;
     }
@@ -182,33 +207,8 @@ public class PurchaseServiceImpl implements PurchaseService {
      * @return List<Order>
      */
     @Override
-    public PurchaseSelectOutput searchOrders(Integer pageNum, Integer rows, PurchaseSelectInput purchaseSelectInput) {
+    public PurchaseSelectOutput searchOrders(Integer pageNum, Integer rows, PurchaseSelectInput purchaseSelectInput) throws Exception{
         PageHelper.startPage(pageNum, rows);
-
-       /* //1.转换起始时间格式，数据库下单时间比较
-        Date beginTime = purchaseSelectInput.getBeginTime();
-        if (beginTime != null) {
-            Long beginDate = beginTime.getTime();
-            purchaseSelectInput.setBeginDate(beginDate);
-        }
-        purchaseSelectInput.setBeginDate(null);
-
-        //2.转换截至时间格式，数据库下单时间比较
-        Date endTime = purchaseSelectInput.getEndTime();
-        if (endTime != null) {
-            Long endDate = endTime.getTime();
-            purchaseSelectInput.setEndDate(endDate);
-        }
-        purchaseSelectInput.setEndDate(null);
-
-        //3.转换时间格式，数据库支付时间比较
-        Date orderPaymentTime = purchaseSelectInput.getOrderPaymentTime();
-        if (orderPaymentTime != null) {
-            Long orderPaymentDate = orderPaymentTime.getTime();
-            purchaseSelectInput.setOrderPaymentDate(orderPaymentDate);
-        }
-        purchaseSelectInput.setOrderPaymentDate(null);*/
-
         List<PurchasesVo> orderList = purchaseDao.findPage(purchaseSelectInput);
         if (orderList.size() > 0) {
             PurchaseSelectOutput purchaseSelectOutput = new PurchaseSelectOutput();
@@ -229,15 +229,16 @@ public class PurchaseServiceImpl implements PurchaseService {
      * @return boolean
      */
     @Override
-    public boolean updateOrder(BigInteger orderId, Integer orderStatus,Integer receiveMethod,String name,String number) {
+    @Transactional
+    public boolean updateOrder(String orderId, Integer orderStatus,Integer receiveMethod,String name,String number) {
         if(orderStatus==Constant.OrderStatusConfig.REFUNDED){
-            Date drawbackTime = new Date();
-            Long drawbackDate = drawbackTime.getTime();
-            boolean flag = purchaseDao.updateOrderAtr(orderId,drawbackDate ,null,null,null);
+            Date drawbackDate = new Date();
+            purchaseDao.updateOrderAtr(orderId,drawbackDate ,null,null,null);
         }else if(orderStatus==Constant.OrderStatusConfig.ISSUE_SHIP){
             purchaseDao.updateOrderAtr(orderId,null,receiveMethod,name,number);
         }
-        return purchaseDao.updateOrder(orderId, orderStatus);
+        Date updateDate = new Date();
+        return purchaseDao.updateOrder(orderId, orderStatus,updateDate);
     }
 
     /**
@@ -249,19 +250,20 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Override
     public boolean deletePurchase(String orderIds) {
         String[] orderIdArr = orderIds.split(",");
-        return purchaseDao.deleteByOrderId(orderIdArr);
+        Date updateDate = new Date();
+        return purchaseDao.deleteByOrderId(orderIdArr,updateDate);
     }
 
     /**
-     * POI批量导出订单列表
+     * POI导出(当前页/所选页/全部)订单列表
      * @param request request
      * @param response response
-     * @param orderIds orderIds
      * @param pageNum pageNum
+     * @param accountId accountId
      * @param pageSize pageSize
      */
     @Override
-    public void exportExcel(HttpServletRequest request, HttpServletResponse response,String orderIds, Integer pageNum, Integer pageSize) throws Exception{
+    public void exportExcel(HttpServletRequest request, HttpServletResponse response, String pageNum, Integer pageSize, Long accountId) throws Exception{
 
         //创建HSSFWorkbook对象(excel的文档对象)
         HSSFWorkbook wb = new HSSFWorkbook();
@@ -312,19 +314,34 @@ public class PurchaseServiceImpl implements PurchaseService {
         cell.setCellValue("支付流水号");
         cell.setCellStyle(style);
 
-        //判断是否是批量导出
-        List<String> orderIdList = null;
-        if(orderIds != null && orderIds.length() > 0){
-            orderIdList = Arrays.asList(orderIds.split(","));
-        } else if(pageNum != null && pageSize != null){ //判断是否是分页查询列表
-            PageHelper.startPage(pageNum, pageSize);
+        List<Purchase> purchaseList = new ArrayList<>();
+        List<Purchase> orderList;
+        List<Integer> pageNumList;
+
+        if(pageNum != null && pageNum.length() > 0 && pageSize != null){ //获取区间页列表
+            //java8新特性 逗号分隔字符串转List<Integer>
+            pageNumList = Arrays.asList(pageNum.split(",")).stream().map(s -> Integer.parseInt(s.trim())).collect(Collectors.toList());
+            if(pageNumList.size() > 1){
+                Collections.sort(pageNumList);
+                for(int i = pageNumList.get(0); i<=pageNumList.get(1); i++){
+                    PageHelper.startPage(i, pageSize);
+                    orderList = purchaseDao.getOrderListByIds(accountId);
+                    purchaseList.addAll(orderList);
+                }
+            } else { //获取当前页列表
+                PageHelper.startPage(pageNumList.get(0), pageSize);
+                purchaseList = purchaseDao.getOrderListByIds(accountId);
+            }
+
+        } else { //查询全部列表
+            purchaseList = purchaseDao.getOrderListByIds(accountId);
         }
-        List<Purchase> orderList = purchaseDao.getOrderListByIds(orderIdList);
+
 
         //向单元格里填充数据
         HSSFCell cellTemp = null;
-        for (int i = 0; i < orderList.size(); i++) {
-            Purchase purchase = orderList.get(i);
+        for (int i = 0; i < purchaseList.size(); i++) {
+            Purchase purchase = purchaseList.get(i);
             sheet.setColumnWidth(0, 20 * 256);
             row = sheet.createRow(i + 1);
             cellTemp = row.createCell(0);
@@ -435,26 +452,24 @@ public class PurchaseServiceImpl implements PurchaseService {
     }
 
     /**
-     * 根据商家编号查找所有相关订单记录(分页)
+     * 根据商家编号及查询条件（起始-结束时间；起始-结束金额范围）查找所有相关订单记录(分页)
      * @param pageNum 当前页码
      * @param pageSize 每页显示条数
+     * @param input 查询条件封装类
      * @param storeId 商家编号
-     * @return 相关记录的集合
+     * @return output出参
      */
     @Override
-    public RecordToPurchaseOutput searchPurchases(Integer pageNum, Integer pageSize, AccountPurchaseInput input, Long storeId) {
+    public RecordToPurchaseOutput searchPurchases(Integer pageNum, Integer pageSize, AccountPurchaseInput input, Long storeId) throws ParseException {
         /**
-         * 1.判断参数是否为空，是否合法
-         *   ①.判断当前页码和每页显示条数是否为空，为空赋予默认值，否则继续执行
-         *   ②.判断商户编号storeId 是否存在，存在继续执行，否则结束业务，返回错误代码
-         * 2.访问持久化层，获取数据集合
-         *   ①.使用分页插件设置分页
-         *   ②.访问持久化层方法获取数据
-         * 3.将获取到的数据集合中的泛型转化成vo层的类对象
-         *   ①.将获取到的数据集合使用循环方法依次放入另一个集合中
-         * 4.将转化后的数据集合封装到PageInfo对象中
-         *   ①.封装PageInfo时要封装：当前页码，每页显示条数，总页码,数据集合
-         * 5.将PageInfo对象封装到output出参类中返回
+         * 1、判断参数是否为空
+         *     1.1、判断 pageNum当前页码、pageSize是否为空，若为空给默认值
+         * 2、设置分页，访问持久化层#findfindPageByStoreId方法查询
+         * 3、判断返回结果及是否为空：
+         *     3.1、不为空时出参中封装分页信息（当前页码，总页码，总条数，结果集）、“成功”的code码和message
+         *          3.1.1、将结果集中的泛型（domain类）转化成vo类
+         *     3.2、为空时在出参对象中封装“未查询到结果集”的code码和message
+         *
          */
         RecordToPurchaseOutput output = new RecordToPurchaseOutput();//返回对象
         //1.1、判断当前页码和每页显示条数是否为空
@@ -465,19 +480,31 @@ public class PurchaseServiceImpl implements PurchaseService {
             pageSize = 10;
         }
 
-        //2 分页
+        //2.1、分页
         PageHelper.startPage(pageNum,pageSize);
+        //判断input是否为空。不为空将字符串的时间转化成Date
+        if (null !=input){
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            if (null !=input.getBeginTime()){
+                input.setBeginDate(sdf.parse(input.getBeginTime()));
+            }
+            if (null != input.getEndTime()){
+                input.setEndDate(sdf.parse(input.getEndTime()));
+            }
+        }
 
-        //访问持久化层，获取数据
+        //2.2、访问持久化层，获取数据
         List<Purchase> purchaseList = purchaseDao.findPageByStoreId(input,storeId);
 
+        //3、判断返回结果及是否为空：
+        //不为空时
         if(null != purchaseList && !purchaseList.isEmpty()){
             PageInfo<Purchase> pageInfo = new PageInfo<>(purchaseList);
 
-            //3.将获得的list集合中的对象全部转化成vo层的对象
+            //3.1.1、将结果集中的泛型（domain类）转化成vo类
             List<AccountPurchaseVo> purchaseVos = this.inversion(purchaseList);
 
-            //构造返回的PageInfo信息
+            //3.1.2、出参中封装分页信息（当前页码，总页码，总条数，结果集）、“成功”的code码和message
             PageInfo<AccountPurchaseVo> pageInfoVo = new PageInfo<>();
             pageInfoVo.setPageNum(pageNum);
             pageInfoVo.setPageSize(pageSize);
@@ -486,18 +513,17 @@ public class PurchaseServiceImpl implements PurchaseService {
             pageInfoVo.setSize(pageInfo.getSize());
             pageInfoVo.setList(purchaseVos);
 
-            //4.将转化后的数据集合封装到PageInfo对象中,封装成功信息和code
             output.setCode(Constant.CodeConfig.CODE_SUCCESS);
             output.setMessage(Constant.MessageConfig.MSG_SUCCESS);
             output.setPageInfo(pageInfoVo);
-        } else {
+        } else {//为空时
+            // 3.2、在出参对象中封装“未查询到结果集”的code码和message
             output.setCode(Constant.CodeConfig.CODE_NOT_FOUND_RESULT);
             output.setMessage(Constant.MessageConfig.MSG_NOT_FOUND_RESULT);
             output.setPageInfo(null);
         }
         return output;
     }
-
 
     /**
      * 转化集合中的泛型
@@ -519,6 +545,11 @@ public class PurchaseServiceImpl implements PurchaseService {
             purchaseVos.add(purchaseVo);//将转化后的数据添加到集合中
         }
         return purchaseVos;
+    }
+
+    @Override
+    public Integer findOrderStatus(String orderId) {
+        return purchaseDao.getOrderStatus(orderId);
     }
 
 }

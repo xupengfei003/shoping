@@ -1,18 +1,19 @@
 package so.sao.shop.supplier.domain;
 
-import org.springframework.format.annotation.DateTimeFormat;
+import java.util.Date;
 
-import java.text.SimpleDateFormat;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 /**
  * Created by acer on 2017/7/21.
  */
 public class SupplierRecord {
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+	
     /**
      * 上传日期
      */
-    private String createDate;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date createDate;
     /**
      * 供应商名称
      */
@@ -25,12 +26,12 @@ public class SupplierRecord {
      * 上传方式
      */
     private String uploadMode;
-    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
-    public String getCreateDate() {
+    
+    public Date getCreateDate() {
         return createDate;
     }
 
-    public void setCreateDate(String createDate) {
+    public void setCreateDate(Date createDate) {
         this.createDate = createDate;
     }
 
