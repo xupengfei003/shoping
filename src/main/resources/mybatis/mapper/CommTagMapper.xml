@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="so.sao.shop.supplier.dao.CommTagDao">
+
+    <resultMap id="resultMap" type="so.sao.shop.supplier.domain.CommTag">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="supplier_id" property="supplierId"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <sql id="baseColumns">
+        id AS id,
+        name AS name,
+        supplier_id AS supplier_id,
+        created_at AS created_at,
+        updated_at AS updated_at
+    </sql>
+
+    <!--新增商品标签-->
+    <insert id="save" parameterType="so.sao.shop.supplier.domain.CommTag">
+        insert into comm_tag
+        (name, supplier_id, created_at, updated_at)
+        values
+        (#{name}, #{supplierId}, #{createdAt}, #{updatedAt})
+    </insert>
+
+    <!--删除商品标签-->
+    <delete id="deleteById" parameterType="java.lang.Long">
+        delete from comm_tag where id = #{id}
+    </delete>
+
+    <!--修改商品标签-->
+    <update id="update" parameterType="so.sao.shop.supplier.domain.CommTag">
+        update comm_tag set name = #{name}, updated_at=#{updatedAt} where id=#{id}
+    </update>
+
+    <!--根据id查询产品标签-->
+    <select id="findOne" parameterType="java.lang.Long" resultMap="resultMap">
+        select
+        <include refid="baseColumns"/>
+        from comm_tag where id=#{id}
+    </select>
+
+    <!--根据标签名称和supplierId查询商品标签-->
+    <select id="findByNameAndSupplierId" resultMap="resultMap">
+        select
+        <include refid="baseColumns"/>
+        from comm_tag where name=#{name} and (supplier_id=0 or supplier_id= #{supplierId})
+    </select>
+
+    <!--查询商品标签集合-->
+    <select id="find" parameterType="java.lang.Long" resultMap="resultMap">
+        select
+        <include refid="baseColumns"/>
+        from comm_tag where supplier_id = #{1} or supplier_id = 0 order by updated_at DESC
+    </select>
+
+</mapper>

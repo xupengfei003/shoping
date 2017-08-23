@@ -19,9 +19,9 @@ public class SuppCommSearchVo {
      */
     private String minImg;
     /**
-     * 商品ID
+     * SKU(商品ID)
      */
-    private Long commId;
+    private String sku;
     /**
      * 商品编码
      */
@@ -39,13 +39,13 @@ public class SuppCommSearchVo {
      */
     private String commName;
     /**
-     * 商品单位
+     * 商品单位名称
      */
-    private String unit;
+    private String unitName;
     /**
-     * 规格名称
+     * 计量规格名称
      */
-    private String ruleName;
+    private String measureSpecName;
     /**
      * 规格值
      */
@@ -100,12 +100,12 @@ public class SuppCommSearchVo {
         this.minImg = minImg;
     }
 
-    public Long getCommId() {
-        return commId;
+    public String getSku() {
+        return sku;
     }
 
-    public void setCommId(Long commId) {
-        this.commId = commId;
+    public void setSku(String sku) {
+        this.sku = sku;
     }
 
     public String getCode69() {
@@ -140,20 +140,20 @@ public class SuppCommSearchVo {
         this.commName = commName;
     }
 
-    public String getUnit() {
-        return unit;
+    public String getUnitName() {
+        return unitName;
     }
 
-    public void setUnit(String unit) {
-        this.unit = unit;
+    public void setUnitName(String unitName) {
+        this.unitName = unitName;
     }
 
-    public String getRuleName() {
-        return ruleName;
+    public String getMeasureSpecName() {
+        return measureSpecName;
     }
 
-    public void setRuleName(String ruleName) {
-        this.ruleName = ruleName;
+    public void setMeasureSpecName(String measureSpecName) {
+        this.measureSpecName = measureSpecName;
     }
 
     public String getRuleVal() {

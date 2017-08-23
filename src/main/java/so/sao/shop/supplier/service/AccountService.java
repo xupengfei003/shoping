@@ -6,9 +6,10 @@ import so.sao.shop.supplier.domain.Condition;
 import so.sao.shop.supplier.domain.DictItem;
 import so.sao.shop.supplier.domain.User;
 import so.sao.shop.supplier.pojo.BaseResult;
-import so.sao.shop.supplier.pojo.output.AccountBalanceOutput;
-
+import so.sao.shop.supplier.pojo.Result;
+import java.util.Date;
 import java.util.List;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * Created by xujc on 2017/7/18.
@@ -93,11 +94,11 @@ public interface AccountService {
 
 
     /**
-     * 1.根据用户ID获取用户的可用余额（余额分为上次提现剩余金额和订单增量余额）
-     * @param userId
+     * 根据账户ID获取用户的可用余额
+     * @param accountId
      * @return
      */
-    AccountBalanceOutput getAccountBalance(Long userId);
+    Result getAccountBalance(Long accountId) throws Exception;
 
     /**
      * 分页查询供应商
@@ -113,5 +114,26 @@ public interface AccountService {
      * @return 返回用id
      */
     BaseResult saveUserAndAccount(Account account);
+
+    /**
+     * 统计已入驻供应商总数
+     * @return 已入驻供应商数量
+     */
+    int selectAccountNumber();
+
+    /**
+     * 供应商合同原件上传
+     * @param multipartFile 上传文件
+     * @return 返回云链接地址
+     */
+    Result uploadContract(MultipartFile multipartFile,String blobName);
+
+    /**
+     * 查询出当天要结算的供应商信息列表
+     * @param days  当前日期为这个月的第几天
+     * @param currentDate 当前时间
+     * @return
+     */
+    List<Account> findAccountList(Integer days, Date currentDate);
 
 }

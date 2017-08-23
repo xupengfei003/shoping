@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="so.sao.shop.supplier.dao.TyCommImagDao" >
+  <resultMap id="BaseResultMap" type="so.sao.shop.supplier.domain.TyCommImge" >
+    <id column="id" property="id" />
+    <result column="code69" property="code69"/>
+    <result column="name" property="name"/>
+    <result column="thumbnail_url" property="thumbnailUrl" />
+    <result column="url" property="url"/>
+    <result column="type" property="type" />
+    <result column="size" property="size"/>
+    <result column="created_at" property="createdAt"/>
+    <result column="updated_at" property="updatedAt"/>
+  </resultMap>
+  <select id="findByCode69" resultMap="BaseResultMap" parameterType="java.lang.String" >
+   SELECT
+     id,name,code69,thumbnail_url,url,type,size,created_at,updated_at
+     FROM
+     ty_comm_imge
+     WHERE
+     code69 = #{code69}
+  </select>
+  <!--新增图片-->
+  <insert id="save">
+       insert ty_comm_imge (
+            code69,
+            name,
+            thumbnail_url,
+            url,
+            type,
+            size,
+            created_at,
+            updated_at
+        )VALUES (
+            #{code69},
+            #{name},
+            #{thumbnailUrl},
+            #{url},
+            #{type},
+            #{size},
+            #{createdAt},
+            #{updatedAt}
+        )
+  </insert>
+</mapper>
+
+
+

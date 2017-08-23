@@ -19,9 +19,14 @@ public class CommodityOutput {
      */
     private Long id;
     /**
+     * 供应商ID
+
+     */
+    private Long supplierId;
+    /**
      * 品牌
      */
-    private String brand;
+    private String brandName;
     /**
      * 一级类型Id
      */
@@ -51,6 +56,27 @@ public class CommodityOutput {
      */
     private String name;
     /**
+     * 标签ID
+     */
+    private Long tagId;
+    /**
+     * 标签名称
+     */
+    private String tagName;
+    /**
+     * 商品产地
+     */
+    private String originPlace;
+    /**
+     * 企业名称
+     */
+    private String companyName;
+    /**
+     * 上市时间
+     */
+    @JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
+    private Date marketTime;
+    /**
      * 商品描述
      */
     private String remark;
@@ -67,17 +93,25 @@ public class CommodityOutput {
      */
     private String code69;
     /**
-     * 规格名称
+     * 计量规格ID
      */
-    private String ruleName;
+    private Long measureSpecId;
+    /**
+     * 计量规格名称
+     */
+    private String measureSpecName;
     /**
      * 规格值
      */
     private String ruleVal;
     /**
-     * 计量单位
+     * 计量单位ID
      */
-    private String unit;
+    private Long unitId;
+    /**
+     * 计量单位名称
+     */
+    private String unitName;
     /**
      * 库存
      */
@@ -122,14 +156,13 @@ public class CommodityOutput {
         this.id = id;
     }
 
-    public String getBrand() {
-        return brand;
+    public Long getSupplierId() {
+        return supplierId;
     }
 
-    public void setBrand(String brand) {
-        this.brand = brand;
+    public void setSupplierId(Long supplierId) {
+        this.supplierId = supplierId;
     }
-
     public Long getCategoryOneId() {
         return categoryOneId;
     }
@@ -194,14 +227,6 @@ public class CommodityOutput {
         this.code69 = code69;
     }
 
-    public String getRuleName() {
-        return ruleName;
-    }
-
-    public void setRuleName(String ruleName) {
-        this.ruleName = ruleName;
-    }
-
     public String getRuleVal() {
         return ruleVal;
     }
@@ -210,12 +235,12 @@ public class CommodityOutput {
         this.ruleVal = ruleVal;
     }
 
-    public String getUnit() {
-        return unit;
+    public String getUnitName() {
+        return unitName;
     }
 
-    public void setUnit(String unit) {
-        this.unit = unit;
+    public void setUnitName(String unitName) {
+        this.unitName = unitName;
     }
 
     public Double getInventory() {
@@ -304,5 +329,77 @@ public class CommodityOutput {
 
     public void setImgeList(List<CommImgeVo> imgeList) {
         this.imgeList = imgeList;
+    }
+
+    public String getBrandName() {
+        return brandName;
+    }
+
+    public void setBrandName(String brandName) {
+        this.brandName = brandName;
+    }
+
+    public String getMeasureSpecName() {
+        return measureSpecName;
+    }
+
+    public void setMeasureSpecName(String measureSpecName) {
+        this.measureSpecName = measureSpecName;
+    }
+
+    public Long getTagId() {
+        return tagId;
+    }
+
+    public void setTagId(Long tagId) {
+        this.tagId = tagId;
+    }
+
+    public String getTagName() {
+        return tagName;
+    }
+
+    public void setTagName(String tagName) {
+        this.tagName = tagName;
+    }
+
+    public String getOriginPlace() {
+        return originPlace;
+    }
+
+    public void setOriginPlace(String originPlace) {
+        this.originPlace = originPlace;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
+
+    public Date getMarketTime() {
+        return marketTime;
+    }
+
+    public void setMarketTime(Date marketTime) {
+        this.marketTime = marketTime;
+    }
+
+    public Long getMeasureSpecId() {
+        return measureSpecId;
+    }
+
+    public void setMeasureSpecId(Long measureSpecId) {
+        this.measureSpecId = measureSpecId;
+    }
+
+    public Long getUnitId() {
+        return unitId;
+    }
+
+    public void setUnitId(Long unitId) {
+        this.unitId = unitId;
     }
 }

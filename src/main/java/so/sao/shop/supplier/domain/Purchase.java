@@ -15,90 +15,109 @@ import com.fasterxml.jackson.annotation.JsonFormat;
  * @since 2017-07-19
  */
 public class Purchase {
+
     /**
      * 订单编号
      */
     private String orderId;
+
+    /**
+     * 合并支付单号
+     */
+    private String payId;
+
     /**
      * 商户ID
      */
     private Long storeId;
+
     /**
-     * 买家ID
+     * 店铺ID
      */
     private Long userId;
+
     /**
-     * 订单总金额
+     * 订单实付金额
      */
     private BigDecimal orderPrice;
+
+    /**
+     * 订单结算金额
+     */
+    private BigDecimal orderSettlemePrice;
     /**
      * 收货人姓名
      */
     private String orderReceiverName;
+
     /**
      * 收货人电话
      */
     private String orderReceiverMobile;
+
     /**
      * 收货人地址
      */
     private String orderAddress;
+
     /**
      * 配送方式
      */
     private Integer orderShipMethod;
+
     /**
      * 支付流水号
      */
     private String orderPaymentNum;
+
     /**
      * 下单时间
      */
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date orderCreateTime;
+
     /**
      * 支付方式
      */
     private Integer orderPaymentMethod;
+
     /**
      * 订单支付时间
      */
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date orderPaymentTime;
-    /**
-     * 买家申请退货理由
-     */
-    private String orderRefundReason;
-    /**
-     * 卖家申请退货时间
-     */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
-    private Date orderRefundTime;
+
     /**
      * 卖家拒绝理由
      */
     private String orderRefuseReason;
+
     /**
      * 卖家拒绝时间
      */
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date orderRefuseTime;
+
     /**
      * 买家取消订单原因
      */
     private Integer orderCancelReason;
+
     /**
      * 物流单号
      */
     private String orderShipmentNumber;
+
     /**
      * 发票状态:0有1没有
      */
     private Integer orderInvoice;
+
     /**
      * 订单状态 1待付款2代发货3已发货4已收货5已拒收6已退款7已完成
      */
     private Integer orderStatus;
+
     /**
      * 订单详情信息
      */
@@ -135,6 +154,27 @@ public class Purchase {
      */
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date updatedAt;
+
+    /**
+     * 收货时间
+     */
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date orderReceiveTime;
+
+    /**
+     * 拒收信息图片1
+     */
+    private String orderRefuseImgA;
+
+    /**
+     * 拒收信息图片2
+     */
+    private String orderRefuseImgB;
+
+    /**
+     * 拒收信息图片3
+     */
+    private String orderRefuseImgC;
 
     public String getAccountStatus() {
         return accountStatus;
@@ -240,22 +280,6 @@ public class Purchase {
         this.orderPaymentTime = orderPaymentTime;
     }
 
-    public String getOrderRefundReason() {
-        return orderRefundReason;
-    }
-
-    public void setOrderRefundReason(String orderRefundReason) {
-        this.orderRefundReason = orderRefundReason;
-    }
-
-    public Date getOrderRefundTime() {
-        return orderRefundTime;
-    }
-
-    public void setOrderRefundTime(Date orderRefundTime) {
-        this.orderRefundTime = orderRefundTime;
-    }
-
     public String getOrderRefuseReason() {
         return orderRefuseReason;
     }
@@ -350,5 +374,53 @@ public class Purchase {
 
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public BigDecimal getOrderSettlemePrice() {
+        return orderSettlemePrice;
+    }
+
+    public void setOrderSettlemePrice(BigDecimal orderSettlemePrice) {
+        this.orderSettlemePrice = orderSettlemePrice;
+    }
+
+    public String getPayId() {
+        return payId;
+    }
+
+    public void setPayId(String payId) {
+        this.payId = payId;
+    }
+
+    public String getOrderRefuseImgA() {
+        return orderRefuseImgA;
+    }
+
+    public void setOrderRefuseImgA(String orderRefuseImgA) {
+        this.orderRefuseImgA = orderRefuseImgA;
+    }
+
+    public String getOrderRefuseImgB() {
+        return orderRefuseImgB;
+    }
+
+    public void setOrderRefuseImgB(String orderRefuseImgB) {
+        this.orderRefuseImgB = orderRefuseImgB;
+    }
+
+    public String getOrderRefuseImgC() {
+        return orderRefuseImgC;
+    }
+
+    public void setOrderRefuseImgC(String orderRefuseImgC) {
+        this.orderRefuseImgC = orderRefuseImgC;
+    }
+
+    public Date getOrderReceiveTime() {
+        return orderReceiveTime;
+    }
+
+    public void setOrderReceiveTime(Date orderReceiveTime) {
+        this.orderReceiveTime = orderReceiveTime;
     }
 }

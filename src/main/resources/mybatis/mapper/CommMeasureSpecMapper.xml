@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="so.sao.shop.supplier.dao.CommMeasureSpecDao">
+
+    <resultMap id="BaseMap" type="so.sao.shop.supplier.domain.CommMeasureSpec">
+        <id property="id" column="id" />
+        <result property="name" column="name"/>
+        <result property="supplierId" column="supplier_id"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+<!-- find  查询所有计量规格 -->
+    <select id="find" parameterType="long" resultMap="BaseMap">
+        SELECT id, NAME, supplier_id, created_at, updated_at
+        FROM comm_measure_spec
+        WHERE supplier_id = 0  OR  supplier_id = #{supplierId}
+        ORDER BY updated_at DESC
+    </select>
+
+<!--  findByName 根据计量规格名称查询  -->
+    <select id="findByName"  resultMap="BaseMap">
+        SELECT id, NAME, supplier_id, created_at, updated_at
+        FROM comm_measure_spec
+        WHERE  name = #{name} AND ( supplier_id = 0  OR  supplier_id = #{supplierId} )
+    </select>
+
+<!-- save新添加计量规格  -->
+    <insert id="save" parameterType="so.sao.shop.supplier.domain.CommMeasureSpec">
+        INSERT INTO comm_measure_spec(
+        name,
+        supplier_id,
+        created_at,
+        updated_at
+        )VALUES(
+        #{name},
+        #{supplierId},
+        #{createdAt},
+        #{updatedAt})
+    </insert>
+
+<!--findOne 通过规格id 查comm_measure_spec -->
+    <select id="findOne"  resultMap="BaseMap">
+        SELECT id, NAME, supplier_id, created_at, updated_at
+        FROM comm_measure_spec
+        WHERE id = #{id}
+    </select>
+
+<!--  deleteOneById 通过规格id 删除对应的计量规格  -->
+    <delete id="deleteOneById" parameterType="long">
+        DELETE FROM comm_measure_spec
+        where id = #{id}
+    </delete>
+
+ <!-- 计量规格： updateCommMeasureSpec 通过规格id 删除对应的计量规格  -->
+    <update id="update" parameterType="so.sao.shop.supplier.domain.CommMeasureSpec">
+       UPDATE  comm_measure_spec
+       SET NAME=#{name}, updated_at=#{updatedAt}
+       WHERE id = #{id}
+    </update>
+
+
+</mapper>

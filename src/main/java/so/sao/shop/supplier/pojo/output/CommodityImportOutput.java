@@ -2,6 +2,8 @@ package so.sao.shop.supplier.pojo.output;
 
 import so.sao.shop.supplier.pojo.BaseResult;
 
+import java.util.Date;
+
 /**
  * Created by acer on 2017/7/25.
  */
@@ -29,7 +31,7 @@ public class CommodityImportOutput extends BaseResult {
     /**
      * 规格名称
      */
-    private String ruleName;
+    private String measureSpecName;
     /**
      * 规格值
      */
@@ -43,6 +45,22 @@ public class CommodityImportOutput extends BaseResult {
      * 库存
      */
     private Double inventory;
+    /**
+     * 商品标签名称
+     */
+    private String tagName;
+    /**
+     * 企业名称
+     */
+    private String companyName;
+    /**
+     * 上市时间
+     */
+    private Date marketTime;
+    /**
+     * 商品产地
+     */
+    private String originPlace;
 
     public int getRowNum() {
         return rowNum;
@@ -62,10 +80,6 @@ public class CommodityImportOutput extends BaseResult {
 
     public String getName() {
         return name;
-    }
-
-    public String getRuleName() {
-        return ruleName;
     }
 
     public String getRuleVal() {
@@ -96,8 +110,12 @@ public class CommodityImportOutput extends BaseResult {
         this.name = name;
     }
 
-    public void setRuleName(String ruleName) {
-        this.ruleName = ruleName;
+    public String getMeasureSpecName() {
+        return measureSpecName;
+    }
+
+    public void setMeasureSpecName(String measureSpecName) {
+        this.measureSpecName = measureSpecName;
     }
 
     public void setRuleVal(String ruleVal) {
@@ -115,4 +133,20 @@ public class CommodityImportOutput extends BaseResult {
     public void setCode69(String code69) {
         this.code69 = code69;
     }
+
+    public String getTagName() {return tagName;}
+
+    public void setTagName(String tagName) {this.tagName = tagName;}
+
+    public String getCompanyName() {return companyName;}
+
+    public void setCompanyName(String companyName) {this.companyName = companyName;}
+
+    public Date getMarketTime() {return marketTime;}
+
+    public void setMarketTime(Date marketTime) {this.marketTime = marketTime;}
+
+    public String getOriginPlace() {return originPlace;}
+
+    public void setOriginPlace(String originPlace) {this.originPlace = originPlace;}
 }

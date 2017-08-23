@@ -7,10 +7,6 @@ package so.sao.shop.supplier.util;
  * @create 2017-07-15 17:38
  **/
 public class Constant {
-    /**
-     * request中存user的key
-     */
-    public static final String REQUEST_USER = "user";
 
     /**
      * 未上架

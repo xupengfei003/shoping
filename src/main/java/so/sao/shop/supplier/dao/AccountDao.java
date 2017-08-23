@@ -5,6 +5,7 @@ import so.sao.shop.supplier.domain.Account;
 import so.sao.shop.supplier.domain.Condition;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 
@@ -85,18 +86,11 @@ public interface AccountDao {
     int updateAccountByUserId(Account account);
 
     /**
-     * 1.根据账户表（account）中的用户（user_id）字段查询该表中用户的余额（balance）,返回账户中余额；
-     * @param userId
-     * @return
-     */
-    BigDecimal findUserBalance(@Param("userId") Long userId);
-
-    /**
-     * 根据账户表（account）中的user_id（用户id）字段修改该表中用户的余额（balance），返回受影响的行数；
+     * 根据账户表账户id，修改该表中用户的余额，返回受影响的行数；
      * @param account
      * @return
      */
-    int updateUserBalance(@Param("account") Account account);
+    int updateUserBalance(Account account) throws Exception;
 
     
     /**
@@ -112,4 +106,47 @@ public interface AccountDao {
      * @param storeId 商户id
      */
     void updateUserPrice(@Param("account") BigDecimal account, @Param("storeId") Long storeId);
+    
+    /**
+     * 根据用户id查询供应商id
+     * @param userId 用户id
+     * @return 返回供应商id
+     */
+    Long findAccountIdByUserId(Long userId); 
+
+   /**
+     * 统计出当前供应商数量
+     * @return 供应商数量
+     */
+    int findAccountNumber();
+
+    /**
+     * 查询出当天要结算的供应商信息列表
+     * @param days  当前日期为这个月的第几天
+     * @param currentDate 当前时间
+     * @return
+     */
+    List<Account> findAccountList(@Param("days") Integer days, @Param("currentDate") Date currentDate);
+
+    /**
+     * 批量更新上一次的结算日期
+     * @param list
+     * @return
+     */
+    int updateAccountLastSettlementDate(List<Account> list);
+
+    /**
+     * 根据用户id，查找该用户的账户信息
+     * @param userId
+     * @return
+     */
+    Account findAccountByUserId(@Param("userId") Long userId);
+
+    /**
+     * 根据账户ID查找是否存在该账户
+     * @param accountId 账户ID
+     * @return
+     */
+    int countByAccountId(Long accountId);
+
 }

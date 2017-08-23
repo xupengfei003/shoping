@@ -1,6 +1,7 @@
 package so.sao.shop.supplier.domain;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -9,7 +10,7 @@ public class OrderMoneyRecord {
     /**
      * 申请提现记录id
      */
-    private Long recordId;
+    private String recordId;
 
     /**
      * 申请人
@@ -32,12 +33,12 @@ public class OrderMoneyRecord {
     private String bankAccount;
 
     /**
-     * 提现金额
+     * 待结算金额
      */
     private BigDecimal totalMoney;
 
     /**
-     * 状态 0 提现申请中 1 已通过 2 已完成
+     * 结算状态 0 待结算 1 已结算
      */
     private String state;
 
@@ -59,15 +60,35 @@ public class OrderMoneyRecord {
     private String serialNumber;
 
     /**
-     * 申请提现金额所对应的订单id,多个以逗号分隔
+     * 供应商名称
      */
-    private String orderId;
+    private String providerName;
 
-    public Long getRecordId() {
+    /**
+     * 已结算金额
+     */
+    private BigDecimal settledAmount;
+
+    /**
+     * 开户人姓名
+     */
+    private String bankUserName;
+
+    /**
+     * 结账时间
+     */
+    private Date checkoutAt;
+
+    /**
+     * 结算时间
+     */
+    private Date settledAt;
+
+    public String getRecordId() {
         return recordId;
     }
 
-    public void setRecordId(Long recordId) {
+    public void setRecordId(String recordId) {
         this.recordId = recordId;
     }
 
@@ -143,11 +164,70 @@ public class OrderMoneyRecord {
         this.serialNumber = serialNumber == null ? null : serialNumber.trim();
     }
 
-    public String getOrderId() {
-        return orderId;
+    public String getProviderName() {
+        return providerName;
     }
 
-    public void setOrderId(String orderId) {
-        this.orderId = orderId;
+    public void setProviderName(String providerName) {
+        this.providerName = providerName;
+    }
+
+    public BigDecimal getSettledAmount() {
+        return settledAmount;
+    }
+
+    public void setSettledAmount(BigDecimal settledAmount) {
+        this.settledAmount = settledAmount;
+    }
+
+    public String getBankUserName() {
+        return bankUserName;
+    }
+
+    public void setBankUserName(String bankUserName) {
+        this.bankUserName = bankUserName;
+    }
+
+    public Date getCheckoutAt() {
+        return checkoutAt;
+    }
+
+    public void setCheckoutAt(Date checkoutAt) {
+        this.checkoutAt = checkoutAt;
+    }
+
+    public Date getSettledAt() {
+        return settledAt;
+    }
+
+    public void setSettledAt(Date settledAt) {
+        this.settledAt = settledAt;
+    }
+
+    public static Object[] converData(OrderMoneyRecord orderMoneyRecord){
+        Object[] data = new Object[7];
+
+        if (null != orderMoneyRecord) {
+            data[0] = orderMoneyRecord.getProviderName();//供应商名称
+            if(orderMoneyRecord.getCheckoutAt() != null){//结账时间
+               data[1] = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss").format(orderMoneyRecord.getCheckoutAt());
+            }
+            data[2] = orderMoneyRecord.getTotalMoney();//待结算金额（¥）
+            data[3] = orderMoneyRecord.getSettledAmount();//已结算金额（¥）
+            data[4] = orderMoneyRecord.getSettledAt();//结算时间
+            switch (orderMoneyRecord.getState()){
+                case "0":
+                    data[5] = "未结算";//结算状态
+                    break;
+                case "1":
+                    data[5] = "已结算";//结算状态
+                    break;
+
+            }
+            data[6] = orderMoneyRecord.getBankAccount();//供应商账户
+        }
+
+
+        return data;
     }
 }

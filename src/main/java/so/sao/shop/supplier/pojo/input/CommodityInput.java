@@ -1,10 +1,10 @@
 package so.sao.shop.supplier.pojo.input;
 
 import org.hibernate.validator.constraints.Length;
-import so.sao.shop.supplier.pojo.vo.CommImgeVo;
 import so.sao.shop.supplier.pojo.vo.SupplierCommodityVo;
 
 import javax.validation.Valid;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -47,9 +47,21 @@ public class CommodityInput {
      */
     private String remark;
     /**
-     * 商品介绍
+     * 商品标签Id
      */
-    private String description;
+    private Long tagId;
+    /**
+     * 企业名称
+     */
+    private String companyName;
+    /**
+     * 上市时间
+     */
+    private Date marketTime;
+    /**
+     * 商品产地
+     */
+    private String originPlace;
     /**
      * 商品集合
      */
@@ -70,22 +82,6 @@ public class CommodityInput {
 
     public void setBrand(String brand) {
         this.brand = brand;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public List<SupplierCommodityVo> getCommodityList() {
-        return commodityList;
-    }
-
-    public void setCommodityList(List<SupplierCommodityVo> commodityList) {
-        this.commodityList = commodityList;
     }
 
     public Long getCategoryOneId() {
@@ -112,6 +108,14 @@ public class CommodityInput {
         this.categoryThreeId = categoryThreeId;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public String getRemark() {
         return remark;
     }
@@ -120,11 +124,43 @@ public class CommodityInput {
         this.remark = remark;
     }
 
-    public String getDescription() {
-        return description;
+    public Long getTagId() {
+        return tagId;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setTagId(Long tagId) {
+        this.tagId = tagId;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
+
+    public Date getMarketTime() {
+        return marketTime;
+    }
+
+    public void setMarketTime(Date marketTime) {
+        this.marketTime = marketTime;
+    }
+
+    public String getOriginPlace() {
+        return originPlace;
+    }
+
+    public void setOriginPlace(String originPlace) {
+        this.originPlace = originPlace;
+    }
+
+    public List<SupplierCommodityVo> getCommodityList() {
+        return commodityList;
+    }
+
+    public void setCommodityList(List<SupplierCommodityVo> commodityList) {
+        this.commodityList = commodityList;
     }
 }

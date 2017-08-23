@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="so.sao.shop.supplier.dao.NotificationDao">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="so.sao.shop.supplier.domain.Notification">
+        <id column="notifi_id" jdbcType="INTEGER" property="notifiId"/>
+        <result column="account_id" jdbcType="BIGINT" property="accountId"/>
+        <result column="notifi_type" jdbcType="INTEGER" property="notifiType"/>
+        <result column="order_id" jdbcType="VARCHAR" property="orderId"/>
+        <result column="notifi_detail" jdbcType="VARCHAR" property="notifiDetail"/>
+        <result column="comment" jdbcType="VARCHAR" property="comment"/>
+        <result column="created_at" jdbcType="TIMESTAMP" property="createdAt"/>
+        <result column="sigin" jdbcType="VARCHAR" property="sigin"/>
+        <result column="notifi_status" jdbcType="INTEGER" property="notifiStatus"/>
+    </resultMap>
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+    notifi_id, account_id, notifi_type, order_id, notifi_detail,
+    comment, created_at, sigin, notifi_status
+    </sql>
+    <!-- 根据主键查单条数据详情 -->
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM notification
+        WHERE notifi_id = #{notifiId,jdbcType=INTEGER}
+    </select>
+    <!-- 查询所有消息通知 -->
+    <select id="search" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM
+        notification
+        <where>
+            1=1
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotNull(notifiType)">
+                AND notifi_type = #{notifiType,jdbcType=INTEGER}
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotNull(accountId)">
+                AND account_id = #{accountId,jdbcType=BIGINT}
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNull(accountId)">
+                GROUP BY sigin
+            </if>
+        </where>
+        ORDER BY notifi_status ASC,created_at DESC
+    </select>
+    <!-- 查询未读消息列表 -->
+    <select id="searchUnread" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM
+        notification
+        WHERE notifi_type = #{notifiType,jdbcType=INTEGER}
+        AND account_id = #{accountId,jdbcType=BIGINT}
+        ORDER BY created_at DESC
+        LIMIT #{count,jdbcType=INTEGER}
+    </select>
+
+    <!-- 消息跑马灯显示 -->
+    <select id="marqueeShow" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM
+        notification
+        GROUP BY sigin
+        ORDER BY created_at DESC LIMIT 1
+    </select>
+    <!-- 根据主键删除消息 -->
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    DELETE FROM notification
+    WHERE notifi_id = #{notifiId,jdbcType=INTEGER}
+    </delete>
+    <!-- 根据消息标识删除某条系统消息 -->
+    <delete id="deleteBySigin" parameterType="java.lang.String">
+    DELETE FROM notification
+    WHERE sigin = #{sigin,jdbcType=VARCHAR}
+    </delete>
+    <!-- 插入单条数据 -->
+    <insert id="insert" parameterType="so.sao.shop.supplier.domain.Notification">
+    INSERT INTO notification (notifi_id, account_id, notifi_type, order_id,
+      notifi_detail, comment, created_at, sigin,
+      notifi_status)
+    VALUES (#{notifiId,jdbcType=INTEGER}, #{accountId,jdbcType=BIGINT}, #{notifiType,jdbcType=INTEGER},
+      #{orderId,jdbcType=VARCHAR},#{notifiDetail,jdbcType=VARCHAR}, #{comment,jdbcType=VARCHAR},
+      #{createdAt,jdbcType=TIMESTAMP},#{sigin,jdbcType=VARCHAR}, #{notifiStatus,jdbcType=INTEGER})
+    </insert>
+    <!-- 批量插入 -->
+    <insert id="saveNotifications" parameterType="java.util.List">
+        INSERT INTO notification (notifi_id, account_id, notifi_type, order_id,
+        notifi_detail, comment, created_at, sigin, notifi_status)
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.notifiId},
+            #{item.accountId},
+            #{item.notifiType},
+            #{item.orderId},
+            #{item.notifiDetail},
+            #{item.comment},
+            #{item.createdAt},
+            #{item.sigin},
+            #{item.notifiStatus}
+            )
+        </foreach>
+    </insert>
+    <!-- 查询未读消息总数 -->
+    <select id="getTotal" parameterType="java.lang.Long" resultType="java.lang.Integer">
+        SELECT
+          COUNT(1)
+        FROM notification
+        WHERE account_id = #{accountId,jdbcType=BIGINT}
+        AND notifi_status = 0
+    </select>
+    <!-- 根据主键更改状态 -->
+    <update id="updateByPrimaryKey" parameterType="java.lang.Integer">
+        UPDATE notification
+        SET notifi_status = 1
+        WHERE notifi_id = #{notifiId,jdbcType=INTEGER}
+    </update>
+    <!-- 获取供应商Id集合 -->
+    <select id="getAccountIds" resultType="java.lang.Long">
+        SELECT a.account_id FROM account a JOIN user u ON a.user_id = u.user_id AND u.is_admin != 1
+    </select>
+</mapper>

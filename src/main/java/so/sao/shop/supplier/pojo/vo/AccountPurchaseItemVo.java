@@ -1,5 +1,7 @@
 package so.sao.shop.supplier.pojo.vo;
 
+import org.springframework.format.annotation.NumberFormat;
+
 import java.math.BigDecimal;
 
 /**
@@ -11,30 +13,50 @@ import java.math.BigDecimal;
  * @since 2017年7月20日
  */
 public class AccountPurchaseItemVo {
-    /**
-     * 商品编号
-     */
-    private Long goodsId;
-    /**
-     * 商品数量
-     */
-    private Integer goodsNumber;
-    /**
-     * 商品单价
-     */
-    private BigDecimal goodsUnitPrice;
 
     /**
      * 商品名称
      */
     private String goodsName;
 
-    public Long getGoodsId() {
-        return goodsId;
+    /**
+     * 商品数量
+     */
+    private Integer goodsNumber;
+
+    /**
+     * 商品商家编号
+     */
+    private String code;
+
+    /**
+     * 商品条码
+     */
+    private String code69;
+
+    /**
+     * 商品属性
+     */
+    private String goodsAttribute;
+
+    /**
+     * 商品单价(科学计数法)
+     */
+    @NumberFormat(pattern = "\"###,##0.00\"")
+    private String goodsUnitPrice;
+
+    /**
+     * 商品总价(科学记数法)
+     */
+    @NumberFormat(pattern = "\"###,##0.00\"")
+    private String goodsTatolPrice;
+
+    public String getGoodsName() {
+        return goodsName;
     }
 
-    public void setGoodsId(Long goodsId) {
-        this.goodsId = goodsId;
+    public void setGoodsName(String goodsName) {
+        this.goodsName = goodsName;
     }
 
     public Integer getGoodsNumber() {
@@ -45,29 +67,58 @@ public class AccountPurchaseItemVo {
         this.goodsNumber = goodsNumber;
     }
 
-    public BigDecimal getGoodsUnitPrice() {
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public String getCode69() {
+        return code69;
+    }
+
+    public void setCode69(String code69) {
+        this.code69 = code69;
+    }
+
+    public String getGoodsAttribute() {
+        return goodsAttribute;
+    }
+
+    public void setGoodsAttribute(String goodsAttribute) {
+        this.goodsAttribute = goodsAttribute;
+    }
+
+    public String getGoodsUnitPrice() {
         return goodsUnitPrice;
     }
 
-    public void setGoodsUnitPrice(BigDecimal goodsUnitPrice) {
+    public void setGoodsUnitPrice(String goodsUnitPrice) {
         this.goodsUnitPrice = goodsUnitPrice;
     }
 
-    public String getGoodsName() {
-        return goodsName;
+    public String getGoodsTatolPrice() {
+        return goodsTatolPrice;
     }
 
-    public void setGoodsName(String goodsName) {
-        this.goodsName = goodsName;
+    public void setGoodsTatolPrice(String goodsTatolPrice) {
+        this.goodsTatolPrice = goodsTatolPrice;
     }
 
     @Override
     public String toString() {
-        return "PurchaseItemVo{" +
-                "goodsId=" + goodsId +
+        return "AccountPurchaseItemVo{" +
+                "goodsName='" + goodsName + '\'' +
                 ", goodsNumber=" + goodsNumber +
-                ", goodsUnitPrice=" + goodsUnitPrice +
-                ", goodsName='" + goodsName + '\'' +
+                ", code='" + code + '\'' +
+                ", code69='" + code69 + '\'' +
+                ", goodsAttribute='" + goodsAttribute + '\'' +
+                ", goodsUnitPrice='" + goodsUnitPrice + '\'' +
+                ", goodsTatolPrice='" + goodsTatolPrice + '\'' +
                 '}';
     }
+
+
 }

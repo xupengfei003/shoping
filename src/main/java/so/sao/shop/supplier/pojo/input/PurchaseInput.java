@@ -19,10 +19,15 @@ import java.util.List;
  */
 public class PurchaseInput {
     /**
-     * 买家ID
+     * 门店ID
      */
-    @NotNull(message="买家ID不能为空")
+    @NotNull(message="门店ID不能为空")
     private Long userId;
+    /**
+     * 门店名称
+     */
+    @NotEmpty(message="门店名称不能为空")
+    private String userName;
     /**
      * 收货人姓名
      */
@@ -93,4 +98,12 @@ public class PurchaseInput {
     public List<PurchaseItemVo> getListPurchaseItem() { return listPurchaseItem; }
 
     public void setListPurchaseItem(List<PurchaseItemVo> listPurchaseItem) { this.listPurchaseItem = listPurchaseItem; }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
 }

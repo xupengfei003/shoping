@@ -4,9 +4,12 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import so.sao.shop.supplier.pojo.BaseResult;
+import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.CommCategoryInput;
 import so.sao.shop.supplier.pojo.input.CommCategoryUpdateInput;
 import so.sao.shop.supplier.pojo.output.CommCategorySelectOutput;
@@ -28,24 +31,6 @@ public class CommCategoryController {
     private CommCategoryService commCategoryService;
 
 
-/*    @ApiOperation(value="查询商品品类", notes="根据ID返回相应的商品品类")
-    @GetMapping(value="/get/{id}")
-    public CommCategory get(@PathVariable Long id){
-        return null;
-    }*/
-
-//    @ApiOperation(value="查询商品品类集合", notes="根据参数返回符合条件的商品品类集合")
-//    @GetMapping(value="/search")
-//    public PageInfo search(){
-//        return null;
-//    }
-
-/*    @ApiOperation(value="查询商品品类集合树", notes="返回商品品类树")
-    @GetMapping(value="/tree")
-    public List<CommCategory> Tree(){
-        return null;
-    }*/
-
     @ApiOperation(value="查询商品品类集合", notes="根据参数返回符合条件的商品品类集合")
     @ApiImplicitParam(name = "pid",value = "pid",required=false,paramType = "query", dataType = "Long")
     @GetMapping(value="/searchCommCategory")
@@ -58,10 +43,20 @@ public class CommCategoryController {
     public BaseResult create(@Validated @RequestBody CommCategoryInput category){
         return commCategoryService.saveCommCategory(category);
     }
- 
-    @ApiOperation(value="修改商品品类", notes="修改商品类型基本信息") 
+
+    @ApiOperation(value="修改商品品类", notes="修改商品类型基本信息")
     @PutMapping(value="/update")
-    public BaseResult update(@Valid @RequestBody CommCategoryUpdateInput commCategoryUpdateInput){
+    public BaseResult update(@Valid @RequestBody CommCategoryUpdateInput commCategoryUpdateInput , BindingResult bindingResult){
+        //校验商品品类修改对象的
+        if (bindingResult.hasErrors()) {
+            BaseResult result = new BaseResult();
+            List<ObjectError> list = bindingResult.getAllErrors();
+            for (ObjectError error : list) {
+                result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
+                result.setMessage(error.getDefaultMessage());
+            }
+            return result;
+        }
         return commCategoryService.updateCommCategory(commCategoryUpdateInput);
     }
 
