@@ -2,8 +2,11 @@ package so.sao.shop.supplier.pojo.vo;
 
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotBlank;
+import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -12,66 +15,85 @@ import java.util.List;
  * Created by QuJunLong on 2017/7/18.
  */
 public class SupplierCommodityVo {
+
     /**
      * ID
      */
     private Long id;
+
     /**
      * 商家编码
      */
     @NotBlank(message = "商家编码不能为空")
-    @Length(max = 256,message = "商家编码长度不能大于256")
+    @Length(max = 50,message = "商家编码长度不能大于50")
     private String code;
+
     /**
-     * 商品编码
+     * 商品条码
      */
-    @Length(max = 20,message = "商品编码长度不能大于20")
+    @Length(max = 20,message = "商品条码长度不能大于20")
     private String code69;
+
     /**
      * 计量规格ID
      */
+    @NotNull(message = "计量规格不能为空")
     private Long measureSpecId;
+
     /**
      * 计量规格
      */
     private String measureSpecName;
+
     /**
      * 规格值
      */
     @NotBlank(message = "规格值不能为空")
     @Length(max = 256,message = "规格值长度不能大于256")
     private String ruleVal;
+
     /**
      * 计量单位ID
      */
+    @NotNull(message = "计量单位不能为空")
     private Long unitId;
+
     /**
      * 计量单位
      */
     private String unitName;
+
     /**
      * 库存
      */
+    @NotNull(message = "库存不能为空")
     @Min(value=0)
     private Double inventory;
+
     /**
      * 缩略图
      */
+    @NotBlank(message = "缩略图不能为空")
     private String minImg;
+
     /**
      * 市场价
      */
+    @NotNull(message = "市场价不能为空")
     @Min(value=0)
     private BigDecimal price;
+
     /**
      * 售价
      */
+    @NotNull(message = "售价不能为空")
     @Min(value=0)
     private BigDecimal unitPrice;
 
     /**
      * 图片集合
      */
+    @Valid
     private List<CommImgeVo> imgeList;
 
     public Long getId() {

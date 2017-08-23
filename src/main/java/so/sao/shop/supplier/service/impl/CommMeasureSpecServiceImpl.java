@@ -134,7 +134,7 @@ public class CommMeasureSpecServiceImpl implements CommMeasureSpecService {
             }else {
                 if( supplierId.longValue() != commMeasureSpec.getSupplierId().longValue() ){
                     result.setCode(Constant.CodeConfig.CODE_FAILURE);
-                    result.setMessage("你无权操作！");
+                    result.setMessage("您无权删除此计量规格！");
                     result.setData(commMeasureSpec);
                 }else {
                     Boolean flag = commMeasureSpecDao.deleteOneById(id);

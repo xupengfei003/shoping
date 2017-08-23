@@ -13,55 +13,67 @@ import java.util.List;
  * Created by QuJunLong on 2017/7/19.
  */
 public class CommodityInput {
+
     /**
      *
      * Excel 行号
      */
-
     private  int rowNum;
 
     /**
      * 品牌
      */
-    @Length(max = 256,message = "品牌长度不能大于256")
+    @Length(max = 256,message = "商品品牌长度不能大于256")
     private String brand;
+
     /**
      * 一级类型Id
      */
     private Long categoryOneId;
+
     /**
      * 二级类型Id
      */
     private Long categoryTwoId;
+
     /**
      * 三级类型Id
      */
     private Long categoryThreeId;
+
     /**
      * 商品名称
      */
     @Length(max = 256,message = "商品名称长度不能大于256")
     private String name;
+
     /**
      * 商品描述
      */
     private String remark;
+
     /**
      * 商品标签Id
      */
     private Long tagId;
+
     /**
      * 企业名称
      */
+    @Length(max = 256,message = "企业名称长度不能大于256")
     private String companyName;
+
     /**
      * 上市时间
      */
     private Date marketTime;
+
     /**
      * 商品产地
      */
+    @Length(max = 256,message = "商品产地长度不能大于256")
     private String originPlace;
+
     /**
      * 商品集合
      */

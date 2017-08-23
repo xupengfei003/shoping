@@ -75,6 +75,12 @@ public class CommodityServiceImpl implements CommodityService {
     public Result saveCommodity(@Valid CommodityInput commodityInput,Long supplierId){
         //返回的结果集
         Result result = new Result();
+        //商品品牌为空校验
+        if(StringUtil.isNull(commodityInput.getBrand())){
+            result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
+            result.setMessage("商品品牌不能为空！");
+            return result;
+        }
         //用于存放商品69码
         Set<String> code69Sets = new TreeSet<>();
         //拼装69码集合
@@ -169,18 +175,22 @@ public class CommodityServiceImpl implements CommodityService {
         if(null != commodityInput.getCommodityList()){
             for (SupplierCommodityVo commodityVo : commodityInput.getCommodityList()) {
                 //验证计量单位是否存在
-                CommUnit commUnit = commUnitDao.findOne(commodityVo.getUnitId());
-                if(null == commUnit){
-                    result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-                    result.setMessage("计量单位不存在！商品条码：" + commodityVo.getCode69());
-                    return result;
+                if(null != commodityVo.getUnitId()){
+                    CommUnit commUnit = commUnitDao.findOne(commodityVo.getUnitId());
+                    if(null == commUnit){
+                        result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
+                        result.setMessage("计量单位不存在！商品条码：" + commodityVo.getCode69());
+                        return result;
+                    }
                 }
                 //验证计量规格是否存在
-                CommMeasureSpec commMeasureSpec = commMeasureSpecDao.findOne(commodityVo.getMeasureSpecId());
-                if(null == commMeasureSpec){
-                    result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-                    result.setMessage("计量规格不存在！商品条码：" + commodityVo.getCode69());
-                    return result;
+                if(null != commodityVo.getMeasureSpecId()){
+                    CommMeasureSpec commMeasureSpec = commMeasureSpecDao.findOne(commodityVo.getMeasureSpecId());
+                    if(null == commMeasureSpec){
+                        result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
+                        result.setMessage("计量规格不存在！商品条码：" + commodityVo.getCode69());
+                        return result;
+                    }
                 }
                 String code69 = commodityVo.getCode69();
                 //验证商品是否存在,不存在则新增商品
@@ -375,18 +385,22 @@ public class CommodityServiceImpl implements CommodityService {
             }
             for (SupplierCommodityVo commodityVo : commodityInput.getCommodityList()) {
                 //验证计量单位是否存在
-                CommUnit commUnit = commUnitDao.findOne(commodityVo.getUnitId());
-                if(null == commUnit){
-                    result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-                    result.setMessage("计量单位不存在！");
-                    return result;
+                if(null != commodityVo.getUnitId()){
+                    CommUnit commUnit = commUnitDao.findOne(commodityVo.getUnitId());
+                    if(null == commUnit){
+                        result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
+                        result.setMessage("计量单位不存在！");
+                        return result;
+                    }
                 }
                 //验证计量规格是否存在
-                CommMeasureSpec commMeasureSpec = commMeasureSpecDao.findOne(commodityVo.getMeasureSpecId());
-                if(null == commMeasureSpec){
-                    result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-                    result.setMessage("计量规格不存在！");
-                    return result;
+                if(null != commodityVo.getMeasureSpecId()){
+                    CommMeasureSpec commMeasureSpec = commMeasureSpecDao.findOne(commodityVo.getMeasureSpecId());
+                    if(null == commMeasureSpec){
+                        result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
+                        result.setMessage("计量规格不存在！");
+                        return result;
+                    }
                 }
                 //修改商品规格
                 SupplierCommodity sc = new SupplierCommodity();
@@ -533,6 +547,9 @@ public class CommodityServiceImpl implements CommodityService {
             int statusNum = Integer.parseInt(suppCommSearchVo.getStatus());
             suppCommSearchVo.setStatusNum(statusNum);
             suppCommSearchVo.setStatus(Constant.getStatus(statusNum));
+            //转换金额为千分位
+            suppCommSearchVo.setUnitPrice("￥"+NumberUtil.number2Thousand(new BigDecimal(suppCommSearchVo.getUnitPrice())));
+            suppCommSearchVo.setPrice("￥"+NumberUtil.number2Thousand(new BigDecimal(suppCommSearchVo.getPrice())));
         }
         PageInfo<SuppCommSearchVo> pageInfo = new PageInfo<SuppCommSearchVo>(respList);
         pageInfo.setTotal(countTotal);
@@ -588,6 +605,9 @@ public class CommodityServiceImpl implements CommodityService {
             int statusNum = Integer.parseInt(suppCommSearchVo.getStatus());
             suppCommSearchVo.setStatusNum(statusNum);
             suppCommSearchVo.setStatus(Constant.getStatus(statusNum));
+            //转换金额为千分位
+            suppCommSearchVo.setPrice("￥"+NumberUtil.number2Thousand(new BigDecimal(suppCommSearchVo.getPrice())));
+            suppCommSearchVo.setUnitPrice("￥"+NumberUtil.number2Thousand(new BigDecimal(suppCommSearchVo.getUnitPrice())));
         }
 		
         PageInfo<SuppCommSearchVo> pageInfo = new PageInfo<SuppCommSearchVo>(respList);
@@ -956,6 +976,8 @@ public class CommodityServiceImpl implements CommodityService {
                 List<SupplierCommodityVo> commodityList=new ArrayList<SupplierCommodityVo>();
                 SupplierCommodityVo supplierCommodityVo=new SupplierCommodityVo();
                 CommRuleVo commRuleVo=new CommRuleVo();
+               long    pid=0;
+
                 for (Iterator< Map.Entry<String, String>> it = map.entrySet().iterator(); it.hasNext(); ) {
                     entry = it.next();
                     String key = entry.getKey() == null ? "" : entry.getKey();
@@ -1017,24 +1039,27 @@ public class CommodityServiceImpl implements CommodityService {
                             break;
                         case "商品分类一级":
                             if (!"".equals(value)) {
-                                CommCategory commCategoryone = commCategoryDao.findCommCategoryByName(value);
+                                CommCategory commCategoryone = commCategoryDao.findCommCategoryByNameAndPid(value,pid);
                                 if (null != commCategoryone) {
+                                    pid=commCategoryone.getId();
                                     commodityInput.setCategoryOneId(commCategoryone.getId());
                                 }
                             }
                             break;
                         case "商品分类二级":
                             if (!"".equals(value)) {
-                                CommCategory commCategorytwo = commCategoryDao.findCommCategoryByName(value);
+                                CommCategory commCategorytwo = commCategoryDao.findCommCategoryByNameAndPid(value,pid);
                                 if (null != commCategorytwo) {
+                                    pid=commCategorytwo.getId();
                                     commodityInput.setCategoryTwoId(commCategorytwo.getId());
                                 }
                             }
                             break;
                         case "商品分类三级":
                             if (!"".equals(value)) {
-                                CommCategory commCategorythree = commCategoryDao.findCommCategoryByName(value);
+                                CommCategory commCategorythree = commCategoryDao.findCommCategoryByNameAndPid(value,pid);
                                 if (null != commCategorythree) {
+
                                     commodityInput.setCategoryThreeId(commCategorythree.getId());
                                 }
                             }

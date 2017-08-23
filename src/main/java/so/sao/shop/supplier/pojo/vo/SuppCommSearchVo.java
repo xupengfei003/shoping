@@ -67,11 +67,11 @@ public class SuppCommSearchVo {
     /**
      * 市场价
      */
-    private BigDecimal price;
+    private String price;
     /**
      * 售价
      */
-    private BigDecimal unitPrice;
+    private String unitPrice;
 
     /**
      *  创建时间
@@ -204,19 +204,19 @@ public class SuppCommSearchVo {
         this.updatedAt = updatedAt;
     }
 
-    public BigDecimal getPrice() {
+    public String getPrice() {
         return price;
     }
 
-    public void setPrice(BigDecimal price) {
+    public void setPrice(String price) {
         this.price = price;
     }
 
-    public BigDecimal getUnitPrice() {
+    public String getUnitPrice() {
         return unitPrice;
     }
 
-    public void setUnitPrice(BigDecimal unitPrice) {
+    public void setUnitPrice(String unitPrice) {
         this.unitPrice = unitPrice;
     }
 }

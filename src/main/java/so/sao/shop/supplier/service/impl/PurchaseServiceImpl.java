@@ -530,7 +530,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         PageHelper.startPage(pageNum, pageSize);
         //判断input是否为空。不为空将字符串的时间转化成Date
 
-        if (!Ognl.isNotEmpty(input)) {
+        if (Ognl.isNotEmpty(input)) {
             //比较开始时间和结束时间，开始金额和结束金额是否输入正常 若输入不正常返回提示信息
             if (DataCompare.compareDate(input.getCreateBeginTime(),input.getCreateEndTime())){
                 result = this.getOutPut(Constant.CodeConfig.DateNOTLate,result,null);
@@ -610,8 +610,8 @@ public class PurchaseServiceImpl implements PurchaseService {
         PageHelper.startPage(pageNum, pageSize);
 
         //判断input是否为空。不为空将字符串的时间转化成Date
-        if (!Ognl.isNotEmpty(input)) {
-            //比较开始时间和结束时间，开始金额和结束金额是否输入正常 若输入不正常返回提示信息
+        if (Ognl.isNotEmpty(input)) {
+            //比较开始时间和结束时间是否输入正常 若输入不正常返回提示信息
             if (DataCompare.compareDate(input.getCreateBeginTime(),input.getCreateEndTime())){
                 result = this.getOutPut(Constant.CodeConfig.DateNOTLate,result,null);
                 return result;

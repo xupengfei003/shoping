@@ -216,7 +216,7 @@ public class NotificationController {
      */
     @GetMapping("/getNotificationById/{notifiId}")
     @ApiOperation(value = "获取某条记录详细信息", notes = "获取某条记录详细信息")
-    public Result getNotificationById(HttpServletRequest request, @PathVariable Integer notifiId) { //
+    public Result getNotificationById(HttpServletRequest request, @PathVariable Integer notifiId) {
         Result result = new Result();
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //判断是否登陆

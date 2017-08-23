@@ -81,11 +81,21 @@
         <where>
             order_status != -1
 
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.orderReceiverName) and
+            @so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.orderReceiverMobile) and purchaseSelectInput.orderReceiverName == purchaseSelectInput.orderReceiverMobile" >
+                AND (order_receiver_name LIKE "${purchaseSelectInput.orderReceiverName}%"
+                OR order_receiver_mobile LIKE "${purchaseSelectInput.orderReceiverMobile}%")
+            </if>
+            <if test="purchaseSelectInput.orderReceiverName != purchaseSelectInput.orderReceiverMobile">
+                <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.orderReceiverName)">
+                    AND order_receiver_name LIKE "${purchaseSelectInput.orderReceiverName}%"
+                </if>
+                <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.orderReceiverMobile)">
+                    AND order_receiver_mobile LIKE "${purchaseSelectInput.orderReceiverMobile}%"
+                </if>
+            </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.orderId)" >
                 AND order_id LIKE "${purchaseSelectInput.orderId}%"
-            </if>
-            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.orderReceiverName)">
-                AND order_receiver_name LIKE "${purchaseSelectInput.orderReceiverName}%"
             </if>
 
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.beginDate)">
@@ -100,9 +110,6 @@
             </if>
             <if test="purchaseSelectInput.endMoney != null">
                 <![CDATA[AND order_price <= TRIM(#{purchaseSelectInput.endMoney})]]>
-            </if>
-            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.orderReceiverMobile)">
-                AND order_receiver_mobile LIKE "${purchaseSelectInput.orderReceiverMobile}%"
             </if>
 
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.orderPaymentBeginTime)">
@@ -201,11 +208,21 @@
         FROM purchase
         <where>
             order_status != -1
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderReceiverName) and
+            @so.sao.shop.supplier.util.Ognl@isNotEmpty(orderReceiverMobile) and orderReceiverName == orderReceiverMobile" >
+                AND (order_receiver_name LIKE "${orderReceiverName}%"
+                OR order_receiver_mobile LIKE "${orderReceiverMobile}%")
+            </if>
+            <if test="orderReceiverName != orderReceiverMobile">
+                <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderReceiverName)">
+                    AND order_receiver_name LIKE "${orderReceiverName}%"
+                </if>
+                <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderReceiverMobile)">
+                    AND order_receiver_mobile LIKE "${orderReceiverMobile}%"
+                </if>
+            </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderId)" >
                 AND order_id LIKE "${orderId}%"
-            </if>
-            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderReceiverName)">
-                AND order_receiver_name LIKE "${orderReceiverName}%"
             </if>
 
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(beginDate)">
@@ -221,10 +238,6 @@
             <if test="endMoney != null">
                 <![CDATA[AND order_price <= TRIM(#{endMoney})]]>
             </if>
-            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderReceiverMobile)">
-                AND order_receiver_mobile LIKE "${orderReceiverMobile}%"
-            </if>
-
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderPaymentBeginTime)">
                 AND order_payment_time >= TRIM(STR_TO_DATE(#{orderPaymentBeginTime},'%Y-%m-%d'))
             </if>
@@ -382,7 +395,7 @@
             </if>
             <!--收货人名称-->
             <if test="input.orderReceiverName != null">
-                AND ORDER_RECEIVER_NAME LIKE concat(TRIM(#{input.orderReceiverName}),'%')
+                AND ORDER_RECEIVER_NAME = TRIM(#{input.orderReceiverName})
             </if>
             <!--收货人联系方式-->
             <if test="input.orderReceiverMobile != null">
@@ -402,7 +415,7 @@
         ORDER_ID,ORDER_RECEIVER_NAME,ORDER_RECEIVER_MOBILE,ORDER_STATUS,ORDER_PRICE,ORDER_SETTLEME_PRICE,ORDER_CREATE_TIME,ORDER_PAYMENT_TIME,ORDER_PAYMENT_METHOD,ORDER_PAYMENT_NUM
         FROM PURCHASE
         WHERE STORE_ID = #{storeId,jdbcType=BIGINT}
-        AND ORDER_STATUS=4
+        AND ORDER_STATUS = 4
         <!--按条件检索数据-->
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(input)">
             <!--订单产生时间-->
@@ -415,9 +428,9 @@
             <!--查询条件-->
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(input.condition)">
                 AND(
-                    ORDER_ID = TRIM(#{input.condition})
+                    ORDER_ID LIKE concat(TRIM(#{input.condition}),'%')
                     OR ORDER_RECEIVER_NAME LIKE concat(TRIM(#{input.condition}),'%')
-                    OR ORDER_PAYMENT_NUM = TRIM(#{input.condition})
+                    OR ORDER_PAYMENT_NUM LIKE concat(TRIM(#{input.condition}),'%')
                 )
             </if>
         </if>

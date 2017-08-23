@@ -62,7 +62,7 @@ public class NotificationServiceImpl implements NotificationService {
      * @param pageSize   pageSize
      * @param accountId  供应商ID
      * @param notifiType 消息类型
-     * @return List<NotificationOutput>
+     * @return List<Notification>
      * @throws Exception Exception
      */
     @Override
@@ -148,7 +148,7 @@ public class NotificationServiceImpl implements NotificationService {
      * @param accountId  供应商ID
      * @param notifiType 消息类型
      * @param count      返回多少条
-     * @return List<NotificationOutput>
+     * @return List<Notification>
      * @throws Exception Exception
      */
     @Override
@@ -157,9 +157,8 @@ public class NotificationServiceImpl implements NotificationService {
         return dataList;
     }
 
-    //获取List<NotificationOutput>
+    //获取List<Notification>
     private List<Notification> getNotificationOutputs(Long accountId, Integer notifiType, Integer count, int flag) {
-//        List<NotificationOutput> dataList = new ArrayList<>();
         List<Notification> notificationList = new ArrayList<>();
         //flag 标识 执行那种逻辑
         if (flag == 1) { //查询全量数据

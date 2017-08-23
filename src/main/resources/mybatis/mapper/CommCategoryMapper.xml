@@ -85,7 +85,14 @@
         SELECT  id,pid,name, remark,level,sort,deleted,created_at, updated_at
         FROM  comm_category commC
         WHERE  commC.name =#{commCategoryName}
-    </select> 
+    </select>
+    <!-- 根据商品 名称查询， 返回商品输出对象 -->
+    <select id="findCommCategoryByNameAndPid" resultMap="baseCommCategory" >
+        SELECT  id,pid,name, remark,level,sort,deleted,created_at, updated_at
+        FROM  comm_category commC
+        WHERE  commC.name =#{commCategoryName} and commC.pid = #{pid}
+    </select>
+
 
     <!-- 根据新增的类型PID 查询商品类型ID = PID 的商品类型的等级level -->
     <select id="findCommCategoryLevelByPid" parameterType="long" resultType="_int">

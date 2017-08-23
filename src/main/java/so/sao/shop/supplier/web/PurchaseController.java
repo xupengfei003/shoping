@@ -323,12 +323,12 @@ public class PurchaseController {
         result.setCode(Constant.CodeConfig.CODE_DATE_INPUT_FORMAT_ERROR);
         result.setMessage(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
 
-//        //判断入参是否为空
-//        if (null == storeId){
-//            result.setCode(Constant.CodeConfig.CODE_NOT_EMPTY);
-//            result.setMessage(Constant.MessageConfig.MSG_NOT_EMPTY);
-//            return result;
-//        }
+/*        //判断入参是否为空
+        if (null == storeId){
+            result.setCode(Constant.CodeConfig.CODE_NOT_EMPTY);
+            result.setMessage(Constant.MessageConfig.MSG_NOT_EMPTY);
+            return result;
+        }*/
         //取出当前登录用户
         User user = (User)request.getAttribute(Constant.REQUEST_USER);
         if (null == user) {   //验证用户是否登陆
@@ -392,12 +392,12 @@ public class PurchaseController {
         result.setCode(Constant.CodeConfig.CODE_DATE_INPUT_FORMAT_ERROR);
         result.setMessage(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
 
-//        //判断入参是否为空
-//        if (null == storeId){
-//            result.setCode(Constant.CodeConfig.CODE_NOT_EMPTY);
-//            result.setMessage(Constant.MessageConfig.MSG_NOT_EMPTY);
-//            return result;
-//        }
+/*        //判断入参是否为空
+        if (null == storeId){
+            result.setCode(Constant.CodeConfig.CODE_NOT_EMPTY);
+            result.setMessage(Constant.MessageConfig.MSG_NOT_EMPTY);
+            return result;
+        }*/
         //取出当前登录用户
         User user = (User)request.getAttribute(Constant.REQUEST_USER);
         if (null == user) {   //验证用户是否登陆

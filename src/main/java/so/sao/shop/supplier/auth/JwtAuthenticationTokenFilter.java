@@ -70,7 +70,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             Map claims = jwtTokenUtil.getClaimsFromToken(authToken);
             String username = claims.get(JwtTokenUtil.CLAIM_KEY_USERNAME).toString();
 
-            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            if (username != null /*&& SecurityContextHolder.getContext().getAuthentication() == null*/) {
                 //redis中用户信息,包含权限信息,结构{user:{username:abc...},authentication:authentication}
                 Object result = redisTemplate.opsForHash().entries(Constant.REDIS_LOGIN_KEY_PREFIX+username);
                 if(result != null){

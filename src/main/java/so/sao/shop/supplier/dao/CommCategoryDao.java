@@ -51,6 +51,15 @@ public interface CommCategoryDao {
      */
     CommCategory findCommCategoryByName(@Param("commCategoryName") String commCategoryName);
 
+
+    /**
+     * 根据类型名称 查询商品类型
+     * @param commCategoryName 商品类型名称
+     * @param pid 商品类型父id
+     * @return 查询结果结合
+     */
+    CommCategory findCommCategoryByNameAndPid(@Param("commCategoryName") String commCategoryName,@Param("pid") Long pid);
+
     /**
      *  根据新增的类型PID 查询商品类型ID = PID 的商品类型的等级level
      * @param pid

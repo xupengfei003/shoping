@@ -23,7 +23,7 @@ public interface NotificationService {
      * @param pageSize pageSize
      * @param accountId 供应商ID
      * @param notifiType 消息类型
-     * @return List<NotificationOutput>
+     * @return List<Notification>
      * @throws Exception Exception
      */
     List<Notification> search(Integer pageNum, Integer pageSize, Long accountId, Integer notifiType) throws Exception;
@@ -70,7 +70,7 @@ public interface NotificationService {
      * @param accountId 供应商ID
      * @param notifiType 消息类型
      * @param count 返回多少条
-     * @return List<NotificationOutput>
+     * @return List<Notification>
      * @throws Exception Exception
      */
     List<Notification> searchUnread(Long accountId, Integer notifiType, Integer count) throws Exception;
