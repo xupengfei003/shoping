@@ -11,19 +11,75 @@
         <include refid="baseColumns"/>
         FROM commodity WHERE id=#{id}
     </select>
-    <select id="findByName" resultType="so.sao.shop.supplier.domain.Commodity">
-        SELECT
-        <include refid="baseColumns"/>
-        FROM commodity WHERE name LIKE #{name}
-    </select>
 
+    <select id="findByCode69" resultType="so.sao.shop.supplier.pojo.output.CommodityInfoOutput">
+        SELECT
+        comm.id AS id,
+        comm.code69 AS code69,
+        b.name AS brandName,
+        comm.name AS name,
+        comm.category_one_id AS categoryOneId,
+        comm.category_two_id AS categoryTwoId,
+        comm.category_three_id AS categoryThreeId,
+        comm.company_name AS companyName,
+        comm.origin_place AS originPlace,
+        comm.market_time AS marketTime,
+        comm.created_at AS createdAt,
+        comm.created_by AS createdBy,
+        comm.updated_at AS updatedAt,
+        comm.updated_by AS updatedBy
+        FROM commodity comm
+        LEFT JOIN comm_brand b on comm.brand_id=b.id
+        WHERE code69 = #{code69}
+    </select>
+    <!--根据code69查询商品信息-->
+    <select id="findCommInfoByCode69" resultType="so.sao.shop.supplier.domain.Commodity">
+        SELECT
+        id,
+        code69,
+        name,
+        category_one_id AS categoryOneId,
+        category_two_id AS categoryTwoId,
+        category_three_id AS categoryThreeId,
+        company_name AS companyName,
+        origin_place AS originPlace,
+        market_time AS marketTime,
+        created_at AS createdAt,
+        created_by AS createdBy,
+        updated_at AS updatedAt,
+        updated_by AS updatedBy
+        FROM commodity
+        WHERE code69 = #{code69}
+    </select>
     <insert id="save" useGeneratedKeys="true" keyProperty="id">
         insert commodity (
             brand_id,
-            name
+            name,
+            code69,
+            category_one_id,
+            category_two_id,
+            category_three_id,
+            company_name,
+            origin_place,
+            market_time,
+            created_by,
+            created_at,
+            updated_by,
+            updated_at
         )VALUES (
             #{brandId},
-            #{name}
+            #{name},
+            #{code69},
+            #{categoryOneId},
+            #{categoryTwoId},
+            #{categoryThreeId},
+            #{companyName},
+            #{originPlace},
+            #{marketTime},
+            #{createdBy},
+            #{createdAt},
+            #{updatedBy},
+            #{updatedAt}
         )
     </insert>
     <update id="update">
@@ -31,21 +87,27 @@
     </update>
     <select id="findByIds" parameterType="Long[]" resultType="so.sao.shop.supplier.pojo.output.CommodityExportOutput">
         SELECT
-        sc.id AS commId,
+        sc.sku AS sku,
         sc.code69 AS code69,
-        sc.brand AS brandName,
-        sc.name AS commName,
+        cb.name AS brandName,
+        ct.name AS tagName,
+        cc.name AS commName,
         sc.code AS supplierCode,
-        sc.unit AS unit,
-        sc.rule_name ruleName,
+        cu.name AS unitName,
+        cms.name AS measureSpecName,
         sc.rule_val AS ruleValue,
         sc.price AS price,
         sc.unit_price AS unitPrice,
         sc.inventory AS inventory,
         sc.status AS status,
         sc.created_at AS createdAt,
-        sc.updated_at AS updatedAt
-        FROM supplier_commodity sc
+        sc.updated_at AS updatedAt,
+        cc.company_name AS companyName,
+        cc.origin_place AS originPlace,
+        cc.market_time AS marketTime
+
+        FROM supplier_commodity sc INNER JOIN (commodity c LEFT JOIN comm_brand cb on c.brand_id = cb.id) on sc.code69 = c.code69
+        LEFT JOIN comm_measure_spec cms on sc.measure_spec_id = cms.id LEFT JOIN comm_unit cu on sc.unit_id = cu.id  LEFT JOIN comm_tag ct on sc.tag_id = ct.id  LEFT JOIN commodity cc on sc.code69 = cc.code69
         WHERE sc.id IN
         <foreach collection="array" item="scId" index="index" open="(" close=")" separator=",">
             #{scId}

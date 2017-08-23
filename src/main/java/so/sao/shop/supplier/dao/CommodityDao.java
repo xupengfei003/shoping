@@ -4,6 +4,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import so.sao.shop.supplier.domain.Commodity;
 import so.sao.shop.supplier.pojo.output.CommodityExportOutput;
+import so.sao.shop.supplier.pojo.output.CommodityInfoOutput;
 
 import java.util.List;
 
@@ -36,12 +37,19 @@ public interface CommodityDao {
      * @return  商品信息对象
      */
     Commodity findOne(@Param("id")long id);
+
     /**
      * 查询商品
-     * @param name 商品名称
+     * @param code69 商品编码
      * @return  商品信息对象
      */
-    Commodity findByName(@Param("name")String name);
+    CommodityInfoOutput findByCode69(@Param("code69")String code69);
+    /**
+     * 查询商品
+     * @param code69 商品编码
+     * @return  商品信息对象
+     */
+    Commodity findCommInfoByCode69(@Param("code69")String code69);
 
     /**
      * 查询商品信息集合

@@ -25,15 +25,16 @@ public class SupplierCommodityVo {
     /**
      * 商品编码
      */
-    @NotBlank(message = "商品编码不能为空")
     @Length(max = 20,message = "商品编码长度不能大于20")
     private String code69;
     /**
-     * 规格名称
+     * 计量规格ID
      */
-    @NotBlank(message = "规格名称不能为空")
-    @Length(max = 256,message = "规格名称长度不能大于256")
-    private String ruleName;
+    private Long measureSpecId;
+    /**
+     * 计量规格
+     */
+    private String measureSpecName;
     /**
      * 规格值
      */
@@ -41,10 +42,13 @@ public class SupplierCommodityVo {
     @Length(max = 256,message = "规格值长度不能大于256")
     private String ruleVal;
     /**
+     * 计量单位ID
+     */
+    private Long unitId;
+    /**
      * 计量单位
      */
-    @Length(max = 256,message = "计量单位长度不能大于256")
-    private String unit;
+    private String unitName;
     /**
      * 库存
      */
@@ -78,22 +82,6 @@ public class SupplierCommodityVo {
         this.id = id;
     }
 
-    public List<CommImgeVo> getImgeList() {
-        return imgeList;
-    }
-
-    public void setImgeList(List<CommImgeVo> imgeList) {
-        this.imgeList = imgeList;
-    }
-
-    public Double getInventory() {
-        return inventory;
-    }
-
-    public void setInventory(Double inventory) {
-        this.inventory = inventory;
-    }
-
     public String getCode() {
         return code;
     }
@@ -110,12 +98,12 @@ public class SupplierCommodityVo {
         this.code69 = code69;
     }
 
-    public String getRuleName() {
-        return ruleName;
+    public Long getMeasureSpecId() {
+        return measureSpecId;
     }
 
-    public void setRuleName(String ruleName) {
-        this.ruleName = ruleName;
+    public void setMeasureSpecId(Long measureSpecId) {
+        this.measureSpecId = measureSpecId;
     }
 
     public String getRuleVal() {
@@ -126,12 +114,20 @@ public class SupplierCommodityVo {
         this.ruleVal = ruleVal;
     }
 
-    public String getUnit() {
-        return unit;
+    public Long getUnitId() {
+        return unitId;
     }
 
-    public void setUnit(String unit) {
-        this.unit = unit;
+    public void setUnitId(Long unitId) {
+        this.unitId = unitId;
+    }
+
+    public Double getInventory() {
+        return inventory;
+    }
+
+    public void setInventory(Double inventory) {
+        this.inventory = inventory;
     }
 
     public String getMinImg() {
@@ -156,5 +152,29 @@ public class SupplierCommodityVo {
 
     public void setUnitPrice(BigDecimal unitPrice) {
         this.unitPrice = unitPrice;
+    }
+
+    public List<CommImgeVo> getImgeList() {
+        return imgeList;
+    }
+
+    public void setImgeList(List<CommImgeVo> imgeList) {
+        this.imgeList = imgeList;
+    }
+
+    public String getMeasureSpecName() {
+        return measureSpecName;
+    }
+
+    public void setMeasureSpecName(String measureSpecName) {
+        this.measureSpecName = measureSpecName;
+    }
+
+    public String getUnitName() {
+        return unitName;
+    }
+
+    public void setUnitName(String unitName) {
+        this.unitName = unitName;
     }
 }

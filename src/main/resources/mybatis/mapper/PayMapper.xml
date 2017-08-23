@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="so.sao.shop.supplier.dao.PayDao">
+    <update id="save" parameterType="java.util.Map">
+        UPDATE purchase
+        SET
+        order_price = #{payInput.orderPrice},
+        order_payment_num = #{payInput.orderPaymentNum},
+        order_payment_method = #{payInput.orderPaymentMethod},
+        order_payment_time = #{payInput.orderPaymentTime},
+        updated_at = #{payInput.updatedAt},
+        order_status = #{payInput.orderStatus}
+        WHERE pay_id = #{payInput.orderId}
+    </update>
+</mapper>

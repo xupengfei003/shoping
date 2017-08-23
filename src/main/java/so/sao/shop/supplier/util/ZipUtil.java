@@ -121,8 +121,8 @@ public class ZipUtil {
 	   FileHeader fh = a.nextFileHeader();
 	   while (fh != null) {
 	    if (!fh.isDirectory()) {
-	     // 1 根据不同的操作系统拿到相应的 destDirName 和 destFileName
-	     String compressFileName = fh.getFileNameString().trim();
+	     // 1 根据不同的操作系统拿到相应的 destDirName 和 destFileName  //防止文件名中文乱码问题的处理
+	     String compressFileName =fh.getFileNameW().isEmpty()?fh.getFileNameString().trim():fh.getFileNameW().trim();
 	     String destFileName = "";
 	     String destDirName = "";
 	     // 非windows系统

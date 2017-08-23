@@ -20,55 +20,68 @@ public class CommodityExcelView extends ExcelView{
 
         // create header row
         Row header = sheet.createRow(0);
-        header.createCell(0).setCellValue("商品编码");
+        header.createCell(0).setCellValue("商品ID");
         header.getCell(0).setCellStyle(super.cellStyle);
         header.createCell(1).setCellValue("商品品牌");
         header.getCell(1).setCellStyle(super.cellStyle);
         header.createCell(2).setCellValue("商品名称");
         header.getCell(2).setCellStyle(super.cellStyle);
-        header.createCell(3).setCellValue("商家编码");
+        header.createCell(3).setCellValue("商品编码");
         header.getCell(3).setCellStyle(super.cellStyle);
-        header.createCell(4).setCellValue("商品ID");
+        header.createCell(4).setCellValue("商家编码");
         header.getCell(4).setCellStyle(super.cellStyle);
-        header.createCell(5).setCellValue("单位");
+        header.createCell(5).setCellValue("商品标签");
         header.getCell(5).setCellStyle(super.cellStyle);
-        header.createCell(6).setCellValue("规格");
+        header.createCell(6).setCellValue("商品产地");
         header.getCell(6).setCellStyle(super.cellStyle);
-        header.createCell(7).setCellValue("规格值");
+        header.createCell(7).setCellValue("企业名称");
         header.getCell(7).setCellStyle(super.cellStyle);
-        header.createCell(8).setCellValue("成本价");
+        header.createCell(8).setCellValue("上市时间");
         header.getCell(8).setCellStyle(super.cellStyle);
-        header.createCell(9).setCellValue("市场价");
+
+        header.createCell(9).setCellValue("单位");
         header.getCell(9).setCellStyle(super.cellStyle);
-        header.createCell(10).setCellValue("库存量");
+        header.createCell(10).setCellValue("规格");
         header.getCell(10).setCellStyle(super.cellStyle);
-        header.createCell(11).setCellValue("创建时间");
+        header.createCell(11).setCellValue("规格值");
         header.getCell(11).setCellStyle(super.cellStyle);
-        header.createCell(12).setCellValue("更新时间");
+        header.createCell(12).setCellValue("成本价");
         header.getCell(12).setCellStyle(super.cellStyle);
-        header.createCell(13).setCellValue("商品状态");
+        header.createCell(13).setCellValue("市场价");
         header.getCell(13).setCellStyle(super.cellStyle);
+        header.createCell(14).setCellValue("库存量");
+        header.getCell(14).setCellStyle(super.cellStyle);
+        header.createCell(15).setCellValue("创建时间");
+        header.getCell(15).setCellStyle(super.cellStyle);
+        header.createCell(16).setCellValue("更新时间");
+        header.getCell(16).setCellStyle(super.cellStyle);
+        header.createCell(17).setCellValue("商品状态");
+        header.getCell(17).setCellStyle(super.cellStyle);
 
         List<CommodityExportOutput> list = (List<CommodityExportOutput>) map.get("members");
         int rowCount = 1;
         for (CommodityExportOutput commoditys : list) {
             CommodityExportOutput commodity = check(commoditys);
             Row commodityRow = sheet.createRow(rowCount++);
-            commodityRow.createCell(0).setCellValue(commodity.getCode69());//商品编码
+            commodityRow.createCell(0).setCellValue(commodity.getSku());//商品ID
             commodityRow.createCell(1).setCellValue(commodity.getBrandName());//商品品牌
             commodityRow.createCell(2).setCellValue(commodity.getCommName());//商品名称
-            commodityRow.createCell(3).setCellValue(commodity.getSupplierCode());//商家编码
-            commodityRow.createCell(4).setCellValue(commodity.getCommId());//商品ID
-            commodityRow.createCell(5).setCellValue(commodity.getUnit());//单位
-            commodityRow.createCell(6).setCellValue(commodity.getRuleName());//规格名称
-            commodityRow.createCell(7).setCellValue(commodity.getRuleValue());//规格值
-            commodityRow.createCell(8).setCellValue(commodity.getPrice().toString());//成本价
-            commodityRow.createCell(9).setCellValue(commodity.getUnitPrice().toString());//市场价
-            commodityRow.createCell(10).setCellValue(commodity.getInventory());//库存量
-            commodityRow.createCell(11).setCellValue(commodity.getCreatedAt());//创建时间
-            commodityRow.createCell(12).setCellValue(commodity.getUpdatedAt());//更新时间
+            commodityRow.createCell(3).setCellValue(commodity.getCode69());//商品编码
+            commodityRow.createCell(4).setCellValue(commodity.getSupplierCode());//商家编码
+            commodityRow.createCell(5).setCellValue(commodity.getTagName());//商品标签
+            commodityRow.createCell(6).setCellValue(commodity.getOriginPlace());//商品产地
+            commodityRow.createCell(7).setCellValue(commodity.getCompanyName());//企业名称
+            commodityRow.createCell(8).setCellValue(commodity.getMarketTime());//上市时间
+            commodityRow.createCell(9).setCellValue(commodity.getUnitName());//单位
+            commodityRow.createCell(10).setCellValue(commodity.getMeasureSpecName());//规格名称
+            commodityRow.createCell(11).setCellValue(commodity.getRuleValue());//规格值
+            commodityRow.createCell(12).setCellValue(commodity.getPrice().toString());//成本价
+            commodityRow.createCell(13).setCellValue(commodity.getUnitPrice().toString());//市场价
+            commodityRow.createCell(14).setCellValue(commodity.getInventory());//库存量
+            commodityRow.createCell(15).setCellValue(commodity.getCreatedAt());//创建时间
+            commodityRow.createCell(16).setCellValue(commodity.getUpdatedAt());//更新时间
             int status = commodity.getStatus();
-            commodityRow.createCell(13).setCellValue(Constant.getStatus(status));//商品状态
+            commodityRow.createCell(17).setCellValue(Constant.getStatus(status));//商品状态
         }
     }
 
@@ -81,12 +94,20 @@ public class CommodityExcelView extends ExcelView{
             commodityExportOutput.setCommName("");
         }else if(commodityExportOutput.getSupplierCode() == null){
             commodityExportOutput.setSupplierCode("");
-        }else if(commodityExportOutput.getCommId() == null){
-            commodityExportOutput.setCommId(0l);
-        }else if(commodityExportOutput.getUnit() == null){
-            commodityExportOutput.setUnit("");
-        }else if(commodityExportOutput.getRuleName() == null){
-            commodityExportOutput.setRuleName("");
+        }else if(commodityExportOutput.getSku() == null){
+            commodityExportOutput.setSku("");
+        }else if(commodityExportOutput.getUnitName() == null){
+            commodityExportOutput.setUnitName("");
+        }else if(commodityExportOutput.getMeasureSpecName() == null){
+            commodityExportOutput.setMeasureSpecName("");
+        }else if(commodityExportOutput.getTagName() == null){
+            commodityExportOutput.setTagName("");
+        }else if(commodityExportOutput.getOriginPlace() == null){
+            commodityExportOutput.setOriginPlace("");
+        }else if(commodityExportOutput.getCompanyName() == null){
+            commodityExportOutput.setCompanyName("");
+        }else if(commodityExportOutput.getMarketTime() == null){
+            commodityExportOutput.setMarketTime("");
         }else if(commodityExportOutput.getRuleValue() == null){
             commodityExportOutput.setRuleValue("");
         }else if(commodityExportOutput.getPrice() == null){

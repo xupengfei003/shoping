@@ -31,6 +31,7 @@
         FROM comm_category cy
         WHERE
         cy.pid=#{pid}
+        ORDER BY cy.sort
     </select>
 
     <select id="findOne" resultType="so.sao.shop.supplier.domain.CommCategory">
@@ -41,6 +42,12 @@
     <select id="findNameById" resultType="String">
         SELECT
         name
+        FROM comm_category WHERE id = #{id}
+    </select>
+    <!-- 根据商品类型id获取code -->
+    <select id="findCodeById" resultType="String">
+        SELECT
+        code
         FROM comm_category WHERE id = #{id}
     </select>
     <select id="findOneByName" resultType="so.sao.shop.supplier.domain.CommCategory">

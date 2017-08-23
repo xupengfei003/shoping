@@ -16,6 +16,7 @@ public class DateUtil {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         boolean dateFlag = true;
         try {
+            sdf.setLenient(false);
             sdf.parse(datetime);
         } catch (Exception e) {
             dateFlag = false;

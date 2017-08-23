@@ -3,30 +3,41 @@ package so.sao.shop.supplier.service.impl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+
+import org.springframework.data.redis.core.RedisTemplate;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
 import so.sao.shop.supplier.config.Constant;
+import so.sao.shop.supplier.config.azure.AzureBlobService;
+import so.sao.shop.supplier.config.azure.BlobUpload;
 import so.sao.shop.supplier.config.sms.SmsService;
 import so.sao.shop.supplier.dao.*;
-import so.sao.shop.supplier.domain.Account;
-import so.sao.shop.supplier.domain.Condition;
-import so.sao.shop.supplier.domain.DictItem;
-import so.sao.shop.supplier.domain.User;
+import so.sao.shop.supplier.domain.*;
 import so.sao.shop.supplier.pojo.BaseResult;
-import so.sao.shop.supplier.pojo.output.AccountBalanceOutput;
+import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.service.AccountService;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by xujc on 2017/7/18.
  */
 @Service
 public class AccountServiceImpl implements AccountService {
+	/**
+	 * 创建发送短信线程
+	 */
+	ExecutorService tpe = Executors.newFixedThreadPool(1);
 
     @Autowired
     private UserDao userDao;
@@ -51,6 +62,18 @@ public class AccountServiceImpl implements AccountService {
 
     @Autowired
     private SmsService smsService;
+
+    /**
+     * redisTemplate
+     */
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
+
+    /**
+     *
+     */
+    @Autowired
+    private AzureBlobService azureBlobService;
 
     /**
      * 第一次发送密码
@@ -208,86 +231,66 @@ public class AccountServiceImpl implements AccountService {
     }
 
     /**
-     * 1.根据用户ID获取用户的可用余额；
-     * ①、统计订单表（purchase）中该用户名下订单状态（order_status）为已完成，
-     * 账户状态（account_status）为未统计的订单金额（order_price）之和
-     * ②、判断统计金额是否为空，非空则将订单表（purchase）中账户状态列（account_status）
-     * 中的未统计（状态码：0）改为已统计（状态码：1）
-     * ③、根据账户表（account）中的用户（user_id）字段查询账户表（account）中用户的余额；
-     * ④、第①步中统计的金额与第③步查询的余额相加，得到用户的总余额；
-     * ⑤、根据账户表（account）中的user_id（用户id）字段，
-     * 将得到的总余额同步到账户表中（account）的余额（balance）；
-     * ⑥、将得到的用户总余额添加到规范规定的返回对象之中。
-     * ⑦、捕获可能出现的异常
+     * 根据账户ID获取用户的可用余额；
      *
-     * @param userId
+     * @param accountId
      * @return
      */
     @Override
-    @Transactional
-    public AccountBalanceOutput getAccountBalance(Long userId) {
-
-        //定义用户余额的返回对象，包含用户余额、状态码、消息
-        AccountBalanceOutput accountBalanceOutput = null;
-        //若整个事务出现异常，进行捕获
-        try {
-            //创建output对象，包含用户余额、状态码、消息
-            accountBalanceOutput = new AccountBalanceOutput();
-
-            /**
-             * ①、订单状态为已完成，账户状态为未统计的订单金额之和
-             */
-            BigDecimal uncountedMoney = purchaseDao.findUncountedMoney(userId);//通过Dao层的方法，统计已完成未统计的订单金额之和
-
-            /**
-             * ②、统计后将订单表（purchase）中账户状态列（account_status）
-             *    中的未统计（状态码：0）改为已统计（状态码：1）
-             */
-            if (uncountedMoney != null && uncountedMoney.compareTo(BigDecimal.ZERO) == 1) {//判断统计出的金额是否为空，同时其要大于0
-                purchaseDao.updatePurchaseAccountStatus(userId);//将订单表中账户状态列的未统计改为已统计
-            } else {
-                uncountedMoney = new BigDecimal("0.00");//若统计出的金额为空或为负，给其赋初始值为0.00
+    @Transactional(rollbackFor = Exception.class)
+    public Result getAccountBalance(Long accountId) throws Exception{
+        //返回对象
+        Result result = new Result<>();
+        //初始化为查询失败，余额为0.00
+        result.setCode(Constant.CodeConfig.CODE_FAILURE);
+        result.setMessage(Constant.MessageConfig.MSG_FAILURE);
+        Map map = new HashMap();
+        map.put("balance","0.00");
+        result.setData(map);
+        //余额输出格式（千分位且保留两位小数）
+        DecimalFormat dFormat=new DecimalFormat(",###,##0.00");
+        /*
+            1、判断账户是否存在,若账户存在，统计账户下订单产生的增额
+               a.统计订单状态为已完成，账户状态为未结算的订单金额之和
+               b.若统计金额为空或小于等于0，赋值0.00
+               c.将所得余额同步到账户表中
+            2、若账户不存在，返回账户不存在
+        */
+        // 1.判断账户是否存在,若账户存在，统计账户下订单产生的增额
+        int accountNum = accountDao.countByAccountId(accountId);
+        if(1 == accountNum){
+            // a.统计订单状态为已完成，账户状态为未结算的订单金额之和
+            BigDecimal uncountedMoney = purchaseDao.findUncountedMoney(accountId);
+            // b.若统计金额为空或小于等于0，赋值0.00
+            if (null == uncountedMoney || (BigDecimal.ZERO).compareTo(uncountedMoney) == 1){
+                uncountedMoney = new BigDecimal("0.00");
             }
-
-            /**
-             * ③、根据账户表（account）中的用户（user_id）字段查询账户表（account）中用户的余额；
-             */
-            BigDecimal oldBalance = accountDao.findUserBalance(userId);//通过Dao层的方法，根据用户ID查询用户余额
-            if (oldBalance == null || oldBalance.compareTo(BigDecimal.ZERO) == 0) {//判断查询出的金额是否为空，或是否为0
-                oldBalance = new BigDecimal("0.00");//若查出金额为null或0，给其赋值为0.00
+            // c.将所得余额同步到账户表中
+            Account account = new Account();
+            Date date = new Date(); //系统时间
+            account.setAccountId(accountId); //账户
+            account.setBalance(uncountedMoney); //用户余额
+            account.setUpdateDate(date); //系统时间
+            int resultInt = accountDao.updateUserBalance(account);
+            // 判断更新是否成功
+            if(resultInt == 1){
+               result.setCode(Constant.CodeConfig.CODE_SUCCESS);
+               result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
+               String balance = dFormat.format(uncountedMoney);// 余额格式化
+               map.put("balance",balance);
+               result.setData(map);
             }
-
-            /**
-             * ④、第①步中统计的金额与第③步查询的余额相加，得到用户的总余额；
-             */
-            BigDecimal newBalance = uncountedMoney.add(oldBalance);//查询余额与统计余额相加
-            newBalance = newBalance.setScale(2, BigDecimal.ROUND_HALF_UP);//给结果保留两位小数
-
-            /**
-             * ⑤、根据账户表（account）中的user_id（用户id）字段，
-             *    将得到的总余额同步到账户表中（account）的余额（balance）；
-             */
-            Account account = new Account();//新建一个账户类的对象
-            account.setUserId(userId);//将用户的ID Set进账户类对象
-            account.setBalance(newBalance);//将得到的总金额 Set进账户类对象
-            accountDao.updateUserBalance(account);//执行账户表Dao层方法，将余额同步到账户表中
-
-            /**
-             * ⑥、将得到的用户总余额添加到规范规定的返回对象之中。
-             */
-            accountBalanceOutput.setCode(Constant.CodeConfig.CODE_SUCCESS);//将成功状态码 Set到返回对象之中
-            accountBalanceOutput.setMessage(Constant.MessageConfig.MSG_SUCCESS);//将成功message Set到返回对象之中
-            accountBalanceOutput.setBlance(newBalance);//将得到的总金额 Set进返回对象之中
-            /**
-             * ⑦、捕获可能出现的异常
-             */
-        } catch (Exception e) {//若事务出现异常，则对异常进行捕获
-            accountBalanceOutput = new AccountBalanceOutput();//创建output对象，包含用户余额、状态码、消息
-            accountBalanceOutput.setCode(Constant.CodeConfig.CODE_SYSTEM_EXCEPTION);//将系统异常状态码 Set到返回对象之中
-            accountBalanceOutput.setMessage(Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);//将系统异常message Set到返回对象之中
+        } else if (0 == accountNum){
+            //为0则账户不存在
+            result.setCode(Constant.AccountCodeConfig.CODE_NOT_EXIST_ACCOUNT);
+            result.setMessage(Constant.AccountMessageConfig.MESSAGE_NOT_EXIST_ACCOUNT);
+        } else {
+            //其余则表中数据有误，即系统异常
+            result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SYSTEM_EXCEPTION);
+            result.setMessage(so.sao.shop.supplier.config.Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
         }
-
-        return accountBalanceOutput;//返回对象
+        //返回对象
+        return result;
     }
 
     /**
@@ -315,33 +318,115 @@ public class AccountServiceImpl implements AccountService {
      * @return 返回用户id
      */
     @Override
-    @Transactional
-    public synchronized BaseResult saveUserAndAccount(Account account) {
-        BaseResult baseResult = new BaseResult();
-        User user1 = userDao.findByUsername(account.getContractResponsiblePhone());
-        if (user1 == null) {
-            User user = new User();
-            user.setUsername(account.getContractResponsiblePhone());
-            String password = smsService.getVerCode();
-            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-            user.setPassword(encoder.encode(password));
-            user.setLastPasswordResetDate(new Date());
-            user.setIsAdmin("0");
-            userDao.add(user);
-            account.setCreateDate(new Date());
-            account.setUpdateDate(new Date());
-            account.setAccountStatus(1);
-            account.setUserId(user.getId());
-            accountDao.insert(account);
+    @Transactional(rollbackFor = Exception.class)
+    public  BaseResult saveUserAndAccount(Account account) {
 
-            smsService.sendSms(Collections.singletonList(account.getContractResponsiblePhone()),Arrays.asList("phone","password"), Arrays.asList(account.getContractResponsiblePhone(),password), smsTemplateCode2);
-            baseResult.setMessage("用户和供应商添加成功！");
-            baseResult.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SUCCESS);
-            return baseResult;
-        } else {
+        BaseResult baseResult = new BaseResult();
+        Boolean lock = redisTemplate.opsForValue().setIfAbsent(account.getContractResponsiblePhone(),"1");
+        try {
+            if(lock!=null&&lock) {
+                //需要加锁的代码
+                User user1 = userDao.findByUsername(account.getContractResponsiblePhone());
+                if (user1 == null) {
+                    User user = new User();
+                    user.setUsername(account.getContractResponsiblePhone());
+                    String password = smsService.getVerCode();
+                    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+                    user.setPassword(encoder.encode(password));
+                    user.setLastPasswordResetDate(new Date());
+                    user.setIsAdmin("0");
+                    userDao.add(user);
+                    account.setCreateDate(new Date());
+                    account.setUpdateDate(new Date());
+                    account.setAccountStatus(1);
+                    account.setUserId(user.getId());
+                    account.setLastSettlementDate(new Date());
+                    accountDao.insert(account);
+                    tpe.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            smsService.sendSms(Collections.singletonList(account.getContractResponsiblePhone()),Arrays.asList("phone","password"), Arrays.asList(account.getContractResponsiblePhone(),password), smsTemplateCode2);
+                        }
+                    });
+                    //smsService.sendSms(Collections.singletonList(account.getContractResponsiblePhone()),Arrays.asList("phone","password"), Arrays.asList(account.getContractResponsiblePhone(),password), smsTemplateCode2);
+                    baseResult.setMessage("用户和供应商添加成功！");
+                    baseResult.setCode(Constant.CodeConfig.CODE_SUCCESS);
+                    return baseResult;
+                }
+            }
             baseResult.setMessage("此供应商已经存在！");
             baseResult.setCode(Constant.CodeConfig.CODE_FAILURE);
             return baseResult;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally {
+            redisTemplate.delete(account.getContractResponsiblePhone());
         }
+        baseResult.setMessage("此供应商已经存在！");
+        baseResult.setCode(Constant.CodeConfig.CODE_FAILURE);
+        return baseResult;
+    }
+
+    /**
+     * 统计已入驻供应商总数
+     * @return 供应商总数
+     */
+    @Override
+    public int selectAccountNumber(){
+        return accountDao.findAccountNumber();
+    }
+
+    /**
+     * 供应商合同原件上传
+     * @param multipartFile 上传文件
+     * @return 返回云链接地址
+     */
+    public Result uploadContract(MultipartFile multipartFile,String blobName) {
+    	Result result = new Result();
+    	//判断文件是否为空
+        if (multipartFile == null) {
+        	result.setCode(Constant.CodeConfig.CODE_FAILURE);
+        	result.setMessage("上传文件为空");
+            return result;
+        }
+    	//文件名称不为空，先删除云端文件
+    	if(!"".equals(blobName) && blobName != null) {
+    		azureBlobService.deleteFile(so.sao.shop.supplier.util.Constant.AZURE_CONTAINER.toLowerCase(), blobName);
+    	}
+        //获取文件名称
+        String fileName = multipartFile.getOriginalFilename();
+        //获取文件大小
+        long fileSize = multipartFile.getSize();
+        //获取文件后缀名
+        String prefix=fileName.substring(fileName.lastIndexOf(".")+1);
+        //判断文件类型
+        if(!("doc".equals(prefix) || "docx".equals(prefix)||"ppt".equals(prefix)||"pptx".equals(prefix)||"wps".equals(prefix)||"pdf".equals(prefix)||"txt".equals(prefix))) {
+        	result.setCode(Constant.CodeConfig.CODE_FAILURE);
+        	result.setMessage("不符合文件类型");
+            return result;
+        }
+        //判断文件大小
+        if(fileSize/1024/1024>20) {
+        	result.setCode(Constant.CodeConfig.CODE_FAILURE);
+        	result.setMessage("上传文件大于20M");
+            return result;
+        }
+      //上传成功封装为result返回页面
+        List<BlobUpload> blobUploadList =azureBlobService.uploadFiles(new MultipartFile[] {multipartFile}, so.sao.shop.supplier.util.Constant.AZURE_CONTAINER.toLowerCase());
+        	result.setCode(Constant.CodeConfig.CODE_SUCCESS);
+            result.setMessage("文件上传成功");
+            result.setData(blobUploadList.get(0));
+        return result;
+    }
+
+    /**
+     * 查询出当天要结算的供应商信息列表
+     * @param days  当前日期为这个月的第几天
+     * @param currentDate 当前时间
+     * @return
+     */
+    @Override
+    public List<Account> findAccountList(Integer days, Date currentDate) {
+        return accountDao.findAccountList(days, currentDate);
     }
 }

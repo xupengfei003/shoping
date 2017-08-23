@@ -32,7 +32,7 @@ public class PurchasesVo {
     /**
      * 订单金额
      */
-    private BigDecimal orderPrice;
+    private String orderPrice;
 
     /**
      * 下单时间
@@ -70,14 +70,6 @@ public class PurchasesVo {
         this.orderId = orderId;
     }
 
-    public BigDecimal getOrderPrice() {
-        return orderPrice;
-    }
-
-    public void setOrderPrice(BigDecimal orderPrice) {
-        this.orderPrice = orderPrice;
-    }
-
     public String getOrderReceiverName() {
         return orderReceiverName;
     }
@@ -102,6 +94,22 @@ public class PurchasesVo {
         this.orderStatus = orderStatus;
     }
 
+    public String getOrderPrice() {
+        return orderPrice;
+    }
+
+    public void setOrderPrice(String orderPrice) {
+        this.orderPrice = orderPrice;
+    }
+
+    public Date getOrderCreateTime() {
+        return orderCreateTime;
+    }
+
+    public void setOrderCreateTime(Date orderCreateTime) {
+        this.orderCreateTime = orderCreateTime;
+    }
+
     public Date getOrderPaymentTime() {
         return orderPaymentTime;
     }
@@ -124,14 +132,6 @@ public class PurchasesVo {
 
     public void setOrderPaymentNum(String orderPaymentNum) {
         this.orderPaymentNum = orderPaymentNum;
-    }
-
-    public Date getOrderCreateTime() {
-        return orderCreateTime;
-    }
-
-    public void setOrderCreateTime(Date orderCreateTime) {
-        this.orderCreateTime = orderCreateTime;
     }
 
     public Date getUpdateTime() {

@@ -215,6 +215,22 @@ public class Account {
 	 * 供应商地址和供应商合同地址
 	 */
 	private List areaList;
+	
+	/**
+	 * 合同云端名称
+	 */
+	@NotEmpty(message = "合同云端名称")
+	private String contractOriginalName;
+	/**
+	 * 合同云端地址
+	 */
+	@NotEmpty(message = "合同云端地址")
+	private String contractOriginal;
+
+	/**
+	 * 上次结算时间
+	 */
+	private Date lastSettlementDate;
 
 	public Long getAccountId() {
 		return accountId;
@@ -544,4 +560,29 @@ public class Account {
     public void setContractRegisterAddressDistrict(String contractRegisterAddressDistrict) {
         this.contractRegisterAddressDistrict = contractRegisterAddressDistrict;
     }
+
+	public String getContractOriginal() {
+		return contractOriginal;
+	}
+
+	public void setContractOriginal(String contractOriginal) {
+		this.contractOriginal = contractOriginal;
+	}
+
+	public String getContractOriginalName() {
+		return contractOriginalName;
+	}
+
+	public void setContractOriginalName(String contractOriginalName) {
+		this.contractOriginalName = contractOriginalName;
+	}
+
+	public Date getLastSettlementDate() {
+		return lastSettlementDate;
+	}
+
+	public void setLastSettlementDate(Date lastSettlementDate) {
+		this.lastSettlementDate = lastSettlementDate;
+	}
+    
 }

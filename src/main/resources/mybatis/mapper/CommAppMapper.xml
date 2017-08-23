@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="so.sao.shop.supplier.dao.CommAppDao">
+    <sql id="searchColumns">
+        sc.id AS id,
+        sc.min_img AS minImg,
+        sc.sku AS sku,
+        c.code69 AS code69,
+        sc.code AS code,
+        c.origin_place AS originPlace,
+        cb.name AS brandName,
+        c.name AS commName,
+        cu.name AS unitName,
+        cms.name AS measureSpecName,
+        sc.rule_val AS ruleVal,
+        sc.inventory AS inventory,
+        sc.created_at AS createdAt,
+        sc.updated_at AS updatedAt
+    </sql>
+
+<!--查询所有商户商品信息-->
+    <select id="findAll" resultType="so.sao.shop.supplier.pojo.output.CommAppSeachOutput">
+        SELECT
+        <include refid="searchColumns"/>
+        FROM
+        supplier_commodity sc
+        LEFT JOIN comm_measure_spec cms ON sc.measure_spec_id = cms.id
+        LEFT JOIN comm_unit cu ON sc.unit_id=cu.id
+        ,commodity c
+        LEFT JOIN comm_brand cb ON c.brand_id=cb.id
+        LEFT JOIN comm_category cc1 ON c.category_one_id=cc1.id
+        LEFT JOIN comm_category cc2 ON c.category_two_id=cc2.id
+        LEFT JOIN comm_category cc3 ON c.category_three_id=cc3.id
+        WHERE
+        sc.code69 = c.code69
+        AND sc.deleted = 0
+        AND sc.`status` = 2
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierId)">
+            AND sc.supplier_id = #{supplierId}
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(sku)">
+            AND sc.sku = #{sku}
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(code69)">
+            AND sc.code69 = #{code69}
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(suppCommCode)">
+            AND sc.code = #{suppCommCode}
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(minPrice) and @so.sao.shop.supplier.util.Ognl@isEmpty(maxPrice)">
+            AND sc.price<![CDATA[ >= #{minPrice}]]>
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(maxPrice) and @so.sao.shop.supplier.util.Ognl@isEmpty(minPrice)">
+            AND  sc.price<![CDATA[<= #{maxPrice}]]>
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(minPrice) and @so.sao.shop.supplier.util.Ognl@isNotEmpty(maxPrice)">
+            AND sc.price BETWEEN #{minPrice} AND #{maxPrice}
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(inputValue)">
+            AND
+            ((cc1.name like CONCAT('%',#{inputValue},'%')
+            OR cc2.name like CONCAT('%',#{inputValue},'%')
+            OR cc3.name like CONCAT('%',#{inputValue},'%'))
+            OR c.name = #{inputValue})
+        </if>
+        ORDER BY sc.updated_at DESC
+    </select>
+
+    <!--统计查询总记录数-->
+    <select id="countAllTotal" resultType="java.lang.Long">
+        SELECT
+        count(1)
+        FROM
+        supplier_commodity sc
+        LEFT JOIN comm_measure_spec cms ON sc.measure_spec_id = cms.id
+        LEFT JOIN comm_unit cu ON sc.unit_id=cu.id
+        ,commodity c
+        LEFT JOIN comm_brand cb ON c.brand_id=cb.id
+        LEFT JOIN comm_category cc1 ON c.category_one_id=cc1.id
+        LEFT JOIN comm_category cc2 ON c.category_two_id=cc2.id
+        LEFT JOIN comm_category cc3 ON c.category_three_id=cc3.id
+        WHERE
+        sc.code69 = c.code69
+        AND sc.deleted = 0
+        AND sc.`status` = 2
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierId)">
+            AND sc.supplier_id = #{supplierId}
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(sku)">
+            AND sc.sku = #{sku}
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(code69)">
+            AND sc.code69 = #{code69}
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(suppCommCode)">
+            AND sc.code = #{suppCommCode}
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(minPrice) and @so.sao.shop.supplier.util.Ognl@isEmpty(maxPrice)">
+            AND sc.price<![CDATA[ >= #{minPrice}]]>
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(maxPrice) and @so.sao.shop.supplier.util.Ognl@isEmpty(minPrice)">
+            AND  sc.price<![CDATA[<= #{maxPrice}]]>
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(minPrice) and @so.sao.shop.supplier.util.Ognl@isNotEmpty(maxPrice)">
+            AND sc.price BETWEEN #{minPrice} AND #{maxPrice}
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(inputValue)">
+            AND
+            ((cc1.name like CONCAT('%',#{inputValue},'%')
+            OR cc2.name like CONCAT('%',#{inputValue},'%')
+            OR cc3.name like CONCAT('%',#{inputValue},'%'))
+            OR c.name = #{inputValue})
+        </if>
+    </select>
+
+    <!--通过商品条码查询供应商列表-->
+    <select id="searchSuppliersByCode69" parameterType="java.lang.String" resultType="java.lang.Long">
+        SELECT sc.supplier_Id
+        FROM supplier_commodity sc
+        WHERE
+        sc.code69 = #{code69}
+        AND sc.deleted = 0
+        AND sc.`status` = 2
+    </select>
+
+    <select id="searchCategories" resultType="so.sao.shop.supplier.pojo.output.CategoryOutput">
+        SELECT
+         cc.id,cc.name,cc.level
+        FROM comm_category cc
+        WHERE cc.deleted = 0
+    </select>
+</mapper>

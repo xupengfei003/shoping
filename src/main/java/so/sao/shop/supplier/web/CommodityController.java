@@ -4,6 +4,7 @@ import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
@@ -30,6 +31,7 @@ import javax.validation.Valid;
 import java.io.*;
 import java.math.BigDecimal;
 import java.net.URL;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,44 +50,55 @@ public class CommodityController {
     @Autowired
     private CommodityService commodityService;
 
-    @ApiOperation(value="查询供应商商品信息集合", notes="根据参数返回符合条件的商品信息集合")
+    @ApiOperation(value="查询供应商商品信息集合（高级搜索）", notes="根据参数返回符合条件的商品信息集合（高级搜索）")
     @GetMapping(value="/search")
-    public PageInfo search(HttpServletRequest request,@RequestParam(required = false)  Long supplierId,@RequestParam(required = false) String commCode69,@RequestParam(required = false) Long commId,
-                           @RequestParam(required = false) String suppCommCode,@RequestParam(required = false) String commName,
-                           @RequestParam(required = false) Integer status,@RequestParam(required = false) Long typeId,@RequestParam(required = false) BigDecimal minPrice,
-                           @RequestParam(required = false) BigDecimal maxPrice,@RequestParam(required = false) Integer pageNum, @RequestParam(required = false) Integer pageSize) throws Exception {
+    public Result search(HttpServletRequest request, @RequestParam(required = false)  Long supplierId, @RequestParam(required = false) String commCode69, @RequestParam(required = false) String sku,
+                         @RequestParam(required = false) String suppCommCode, @RequestParam(required = false) String commName, @RequestParam(required = false) Integer status,
+                         @RequestParam(required = false) Long typeId, @RequestParam(required = false) BigDecimal minPrice, @RequestParam(required = false) BigDecimal maxPrice,
+                         @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd",iso= DateTimeFormat.ISO.DATE) Date beginCreateAt,
+                         @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd",iso= DateTimeFormat.ISO.DATE) Date endCreateAt,
+                         @RequestParam(required = false) Integer pageNum, @RequestParam(required = false) Integer pageSize) throws Exception {
 
         //供应商ID校验
         supplierId = CheckUtil.supplierIdCheck(request,supplierId);
-        return commodityService.searchCommodities(supplierId, commCode69, commId, suppCommCode, commName, status, typeId, minPrice, maxPrice, pageNum, pageSize);
+        return commodityService.searchCommodities(supplierId, commCode69, sku, suppCommCode, commName, status, typeId, minPrice, maxPrice, beginCreateAt, endCreateAt, pageNum, pageSize);
     }
 
-    @ApiOperation(value="查询所有商品信息集合", notes="根据参数返回符合条件的商品信息集合")
-    @GetMapping(value="/searchAll")
-    public PageInfo searchAll(@RequestParam(required = false) Long id, @RequestParam(required = false) String commName, @RequestParam(required = false) String code69,
-                              @RequestParam(required = false) String suppCommCode, @RequestParam(required = false) Long typeId, @RequestParam(required = false) BigDecimal minPrice,
-                              @RequestParam(required = false) BigDecimal maxPrice, @RequestParam(required = false) Integer pageNum, @RequestParam(required = false) Integer pageSize){
+    @ApiOperation(value="查询供应商商品信息集合（简单查询）", notes="根据参数返回符合条件的商品信息集合（简单查询）")
+    @GetMapping(value="/simplesearch")
+    public Result simpleSearch(HttpServletRequest request,@RequestParam(required = false)  Long supplierId,@RequestParam(required = false)  String inputvalue,
+                         @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd",iso= DateTimeFormat.ISO.DATE) Date beginCreateAt,
+                         @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd",iso= DateTimeFormat.ISO.DATE) Date endCreateAt,
+                         @RequestParam(required = false) Integer pageNum, @RequestParam(required = false) Integer pageSize) throws Exception {
 
-        return commodityService.searchAllCommodities(id, commName, code69, suppCommCode,typeId, minPrice, maxPrice, pageNum, pageSize);
+        //供应商ID校验
+        supplierId = CheckUtil.supplierIdCheck(request,supplierId);
+        return commodityService.simpleSearchCommodities(supplierId, inputvalue, beginCreateAt, endCreateAt, pageNum, pageSize);
     }
 
     @ApiOperation(value="查询商品详情信息", notes="根据ID返回相应的商品信息")
     @GetMapping(value="/get/{id}")
-    public CommodityOutput get(@PathVariable Long id){
+    public Result get(@PathVariable Long id){
         return commodityService.getCommodity(id);
+    }
+
+    @ApiOperation(value="查询商品详情信息", notes="根据code69返回相应的商品信息")
+    @GetMapping(value="/findByCode69/{code69}")
+    public Result find(@PathVariable String code69){
+        return commodityService.findCommodity(code69);
     }
 
     @ApiOperation(value="新增商品信息", notes="")
     @PostMapping(value="/save")
-    public BaseResult save(HttpServletRequest request,@Valid @RequestBody CommodityInput commodityInput,@RequestParam(required = false) Long supplierId, BindingResult result) throws Exception {
-        if (result.hasErrors()) {
-            BaseResult baseResult = new BaseResult();
-            List<ObjectError> list = result.getAllErrors();
+    public Result save(HttpServletRequest request,@Valid @RequestBody CommodityInput commodityInput,@RequestParam(required = false) Long supplierId, BindingResult bindingResult) throws Exception {
+        if (bindingResult.hasErrors()) {
+            Result result = new Result();
+            List<ObjectError> list = bindingResult.getAllErrors();
             for (ObjectError error : list) {
-                baseResult.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_NOT_EMPTY);
-                baseResult.setMessage(error.getDefaultMessage());
+                result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_NOT_EMPTY);
+                result.setMessage(error.getDefaultMessage());
             }
-            return baseResult;
+            return result;
         }else{
             //校验供应商ID
             supplierId = CheckUtil.supplierIdCheck(request,supplierId);
@@ -95,19 +108,19 @@ public class CommodityController {
 
     @ApiOperation(value="修改商品信息", notes="")
     @PutMapping(value="/update")
-    public BaseResult update(HttpServletRequest request,@Valid @RequestBody CommodityInput commodityInput,@RequestParam(required = false) Long supplierId, BindingResult result) throws Exception {
-        if (result.hasErrors()) {
-            BaseResult baseResult = new BaseResult();
-            List<ObjectError> list = result.getAllErrors();
+    public Result update(HttpServletRequest request,@Valid @RequestBody CommodityInput commodityInput,@RequestParam(required = false) Long supplierId, BindingResult bindingResult) throws Exception {
+        if (bindingResult.hasErrors()) {
+            Result result = new Result();
+            List<ObjectError> list = bindingResult.getAllErrors();
             for (ObjectError error : list) {
-                baseResult.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_NOT_EMPTY);
-                baseResult.setMessage(error.getDefaultMessage());
+                result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_NOT_EMPTY);
+                result.setMessage(error.getDefaultMessage());
             }
-            return baseResult;
+            return result;
         }else{
             //校验供应商ID
             supplierId = CheckUtil.supplierIdCheck(request,supplierId);
-            return commodityService.updateCommodity(commodityInput,supplierId);
+            return commodityService.updateCommodity(commodityInput, supplierId);
         }
     }
 
@@ -156,9 +169,9 @@ public class CommodityController {
 
     @ApiOperation(value="批量导入商品", notes="通过Excel模板批量导入商品信息")
     @PostMapping(value="/importExcel")
-    public  Map<String ,List> importExcel(@RequestParam(value = "excelFile") MultipartFile excelFile, HttpServletRequest request,@RequestParam(required = false) Long supplierId ) throws Exception {
+    public  Result importExcel(@RequestParam(value = "excelFile") MultipartFile excelFile, HttpServletRequest request,@RequestParam(required = false) Long supplierId ) throws Exception {
         //校验供应商ID
-        supplierId = CheckUtil.supplierIdCheck(request,supplierId);
+       supplierId = CheckUtil.supplierIdCheck(request,supplierId);
         return   commodityService.importExcel(excelFile,request,storageConfig,supplierId);
     }
 
@@ -176,47 +189,4 @@ public class CommodityController {
         return new ModelAndView(excelView, map);
     }
 
-    /**
-     * 供应商信息模板下载
-     *
-     * @param request
-     * @param response
-     * @throws IOException
-     */
-    @ApiOperation("商品信息模板下载")
-    @GetMapping("/down")
-    public void downLoadExcel(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        URL save = Thread.currentThread().getContextClassLoader().getResource("");
-        String str = save.toString()+"file/Commodity.xls";//Excel模板所在的路径。
-        str = str.replaceAll("%20", " ");
-        str = str.replaceAll("file:/", "");
-        File f = new File(str);
-        // 设置response参数，可以打开下载页面
-        response.reset();
-        response.setContentType("application/vnd.ms-excel;charset=utf-8");
-        String filename = "商品信息.xls";
-        filename = new String(filename.getBytes("Utf-8"), "iso-8859-1");
-        response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
-        response.setCharacterEncoding("UTF-8");
-        response.setHeader("Content-Type", "application/octet-stream");
-        ServletOutputStream out = response.getOutputStream();
-        BufferedInputStream bis = null;
-        BufferedOutputStream bos = null;
-        try {
-            bis = new BufferedInputStream(new FileInputStream(f));
-            bos = new BufferedOutputStream(out);
-            byte[] buff = new byte[2048];
-            int bytesRead;
-            while (-1 != (bytesRead = bis.read(buff, 0, buff.length))) {
-                bos.write(buff, 0, bytesRead);
-            }
-        } catch (final IOException e) {
-            throw e;
-        } finally {
-            if (bis != null)
-                bis.close();
-            if (bos != null)
-                bos.close();
-        }
-    }
 }

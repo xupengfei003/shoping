@@ -7,12 +7,15 @@ import org.springframework.context.annotation.Configuration;
  * Created by acer on 2017/7/25.
  */
 @Configuration
-@ConfigurationProperties(prefix = "azureblob")
+@ConfigurationProperties(prefix = "shop.azure.blob")
 public class StorageConfig {
-    private String defaultEndpointsProtocol;
-    private String accountName;
-    private String accountKey;
-    private String endpointSuffix;
+	private String accountName;
+
+	private String accountKey;
+
+	private String defaultEndpointsProtocol;
+
+	private String endpointSuffix;;
     public String getDefaultEndpointsProtocol() {
         return defaultEndpointsProtocol;
     }

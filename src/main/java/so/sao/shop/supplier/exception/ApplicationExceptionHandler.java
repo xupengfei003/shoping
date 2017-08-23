@@ -1,10 +1,10 @@
 package so.sao.shop.supplier.exception;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.pojo.Result;
 
@@ -19,11 +19,17 @@ import java.io.IOException;
  **/
 @ControllerAdvice
 public class ApplicationExceptionHandler {
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    @ExceptionHandler(RuntimeException.class)
-    public void operateExp(Exception ex, HttpServletResponse response) throws IOException {
-        logger.error(ex.getMessage(), ex);
-        response.setCharacterEncoding("utf-8");
-        response.getWriter().write(new ObjectMapper().writeValueAsString(new Result(Constant.CodeConfig.CODE_FAILURE,Constant.MessageConfig.MSG_FAILURE, ex)));
+
+    @ExceptionHandler(Exception.class)
+    public @ResponseBody Result<Object> operateExp(Exception e, HttpServletResponse response) throws IOException {
+        logger.error(e.getMessage(),e);
+
+        Result<Object> result = new Result<Object>();
+        result.setCode(Constant.CodeConfig.CODE_FAILURE);
+        result.setMessage(e.getMessage() == null ? "NullPointerException" : e.getMessage());
+
+        return result;
     }
 }

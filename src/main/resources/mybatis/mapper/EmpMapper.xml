@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="so.sao.shop.supplier.dao.EmpDao">
+	<resultMap id="BaseResult" type="so.sao.shop.supplier.domain.Emp">
+		<id column="id" property="id"></id>
+		<result column="user_id" property="userId" jdbcType="INTEGER"></result>
+		<result column="account_id" property="accountId" jdbcType="BIGINT"></result>
+		<result column="emp_name" property="empName" jdbcType="VARCHAR"></result>
+		<result column="emp_sex" property="empSex" jdbcType="VARCHAR"></result>
+		<result column="emp_tel" property="empTel" jdbcType="VARCHAR"></result>
+		<result column="create_at" property="createAt"></result>
+		<result column="update_at" property="updateAt"></result>
+		<result column="emp_status" property="empStatus"></result>
+	</resultMap>
+	<!-- 插入员工信息 -->
+	<insert id="save">
+		INSERT INTO emp(
+			        user_id,
+			        account_id,
+			        emp_name,
+			        emp_sex,
+			        emp_tel,
+			        create_at,
+			        update_at,
+			        emp_status
+			   )VALUES(
+					#{userId},
+					#{accountId},
+					#{empName},
+					#{empSex},
+					#{empTel},
+					#{createAt},
+					#{updateAt},
+					#{empStatus}
+			   )
+	</insert>
+
+	<!--供应商根据员工状态、电话、姓名查询员工列表-->
+	<select id="findPage" resultMap="BaseResult">
+		SELECT  id,user_id,account_id,emp_name,emp_sex,emp_tel,emp_status
+		  FROM emp
+		  <where>
+			  account_id = #{accountId}
+			  <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(status)">
+				  AND emp_status = #{status}
+			  </if>
+			  <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(empNameOrTel)">
+				  AND (emp_name LIKE "%${empNameOrTel}%" OR emp_tel LIKE "%${empNameOrTel}%")
+			  </if>
+		  </where>
+		     ORDER BY create_at DESC
+	</select>
+
+	<!--根据员工id更新员工状态-->
+	<update id="updateEmpStatusById" parameterType="so.sao.shop.supplier.pojo.input.EmpUpdateInput">
+		UPDATE emp
+		   SET emp_status = #{status},update_at = #{updateAt}
+		 WHERE id = #{empId}
+	</update>
+</mapper>

@@ -1,6 +1,9 @@
 package so.sao.shop.supplier.dao;
 
 import so.sao.shop.supplier.domain.PurchaseItem;
+import so.sao.shop.supplier.pojo.vo.AccountPurchaseItemVo;
+import so.sao.shop.supplier.pojo.vo.PurchaseItemPrintVo;
+import so.sao.shop.supplier.pojo.vo.AccountPurchaseItemVo;
 import so.sao.shop.supplier.pojo.vo.PurchaseItemVo;
 
 import java.util.List;
@@ -28,6 +31,12 @@ public interface PurchaseItemDao {
      * @param orderId 订单编号
      * @return 查询到的相关记录
      */
-    List<PurchaseItem> findPage(String orderId);
+    List<AccountPurchaseItemVo> findPage(String orderId);
 
+    /**
+     * 根据订单编号查询订单对应的所有商品条目
+     * @param orderId 订单编号
+     * @return 商品条目封装的vo类的集合
+     */
+    List<PurchaseItemPrintVo> findPrintItems(String orderId);
 }

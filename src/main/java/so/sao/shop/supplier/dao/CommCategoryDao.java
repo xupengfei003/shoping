@@ -71,4 +71,11 @@ public interface CommCategoryDao {
      * @return CommCategory
      */
     String findNameById(@Param("id")Long id);
+
+    /**
+     * 查询商品类型ID获取商品类型编码
+     * @param id
+     * @return CommCategory
+     */
+    String findCodeById(@Param("id")Long id);
 }
