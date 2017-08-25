@@ -76,7 +76,7 @@ public class CommodityServiceImpl implements CommodityService {
         //返回的结果集
         Result result = new Result();
         //商品品牌为空校验
-        if(StringUtil.isNull(commodityInput.getBrand())){
+        if(StringUtil.isNull(commodityInput.getBrandName())){
             result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
             result.setMessage("商品品牌不能为空！");
             return result;
@@ -105,17 +105,17 @@ public class CommodityServiceImpl implements CommodityService {
         //验证是否选择商品分类
         if(null == categoryOneId && null == categoryTwoId && null == categoryThreeId){
             result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage("未选择商品分类！");
+            result.setMessage("未选择商品科属！");
             return result;
         }
         if(null == categoryOneId){
             result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage("未选择商品一级分类！");
+            result.setMessage("未选择商品科属一级分类！");
             return result;
         }
         if(null != categoryOneId && null == categoryTwoId && null != categoryThreeId){
             result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage("未选择商品二级分类！");
+            result.setMessage("未选择商品科属二级分类！");
             return result;
         }
         //验证商品一级分类是否存在
@@ -123,7 +123,7 @@ public class CommodityServiceImpl implements CommodityService {
             CommCategory commCategoryOne = commCategoryDao.findOne(categoryOneId);
             if(null == commCategoryOne){
                 result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-                result.setMessage("商品一级分类不存在！");
+                result.setMessage("商品科属一级分类不存在！");
                 return result;
             }
         }
@@ -132,7 +132,7 @@ public class CommodityServiceImpl implements CommodityService {
             CommCategory commCategoryTwo = commCategoryDao.findOne(categoryTwoId);
             if(null == commCategoryTwo){
                 result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-                result.setMessage("商品二级分类不存在！");
+                result.setMessage("商品科属二级分类不存在！");
                 return result;
             }
         }
@@ -141,14 +141,14 @@ public class CommodityServiceImpl implements CommodityService {
             CommCategory commCategoryThree = commCategoryDao.findOne(categoryThreeId);
             if(null == commCategoryThree){
                 result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-                result.setMessage("商品三级分类不存在！");
+                result.setMessage("商品科属三级分类不存在！");
                 return result;
             }
         }
         //验证三级分类之间的关联是否正确
         if(!verifyAssociation(categoryOneId, categoryTwoId, categoryThreeId)){
             result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage("商品分类之间的关联不正确！");
+            result.setMessage("商品科属之间的关联不正确！");
             return result;
         }
         if(null != commodityInput.getTagId()){
@@ -161,14 +161,14 @@ public class CommodityServiceImpl implements CommodityService {
             }
         }
         //验证品牌是否存在，不存在则新增
-        CommBrand brand = commBrandDao.findByName(commodityInput.getBrand());
+        CommBrand brand = commBrandDao.findByName(commodityInput.getBrandName());
         if (null == brand){
             brand = new CommBrand();
             brand.setCreatedAt(new Date());
             brand.setCreatedBy(supplierId);
             brand.setUpdatedAt(new Date());
             brand.setUpdatedBy(supplierId);
-            brand.setName(commodityInput.getBrand());
+            brand.setName(commodityInput.getBrandName());
             commBrandDao.save(brand);
         }
         //建立供应商和商品关系
@@ -179,7 +179,7 @@ public class CommodityServiceImpl implements CommodityService {
                     CommUnit commUnit = commUnitDao.findOne(commodityVo.getUnitId());
                     if(null == commUnit){
                         result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-                        result.setMessage("计量单位不存在！商品条码：" + commodityVo.getCode69());
+                        result.setMessage("包装单位不存在！商品条码：" + commodityVo.getCode69());
                         return result;
                     }
                 }
@@ -389,7 +389,7 @@ public class CommodityServiceImpl implements CommodityService {
                     CommUnit commUnit = commUnitDao.findOne(commodityVo.getUnitId());
                     if(null == commUnit){
                         result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-                        result.setMessage("计量单位不存在！");
+                        result.setMessage("包装单位不存在！");
                         return result;
                     }
                 }
@@ -727,7 +727,7 @@ public class CommodityServiceImpl implements CommodityService {
         }
         if(null != idNotList && idNotList.size() > 0){
             result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage("商品需下架才可删除,商品id:"+idNotList);
+            result.setMessage("商品需下架才可删除");
             result.setData(map);
             return result;
         }
@@ -987,7 +987,7 @@ public class CommodityServiceImpl implements CommodityService {
                             supplierCommodityVo.setCode69(value);
                             break;
                         case "商品品牌":
-                            commodityInput.setBrand(value);
+                            commodityInput.setBrandName(value);
                             break;
                         case "图片":
                             if (!"".equals(value)) {
@@ -1175,7 +1175,7 @@ public class CommodityServiceImpl implements CommodityService {
             Result baseResult1=  saveCommodity(commodityInputs.get(n),supplierId);
             String code69 = commodityInputs.get(n).getCommodityList().get(0).getCode69() == null ? "" : commodityInputs.get(n).getCommodityList().get(0).getCode69();
             String sjcode = commodityInputs.get(n).getCommodityList().get(0).getCode() == null ? "" : commodityInputs.get(n).getCommodityList().get(0).getCode();
-            String brand = commodityInputs.get(n).getBrand() == null ? "" : commodityInputs.get(n).getBrand();
+            String brand = commodityInputs.get(n).getBrandName() == null ? "" : commodityInputs.get(n).getBrandName();
             String name = commodityInputs.get(n).getName()== null ? "" : commodityInputs.get(n).getName();
             String originPlace = commodityInputs.get(n).getOriginPlace()== null ? "" : commodityInputs.get(n).getOriginPlace();
             Long  tagId = commodityInputs.get(n).getTagId()== null ? 0 : commodityInputs.get(n).getTagId();

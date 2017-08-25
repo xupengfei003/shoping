@@ -5,7 +5,8 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 
 import org.springframework.data.redis.core.RedisTemplate;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -34,6 +35,12 @@ import java.util.concurrent.Executors;
  */
 @Service
 public class AccountServiceImpl implements AccountService {
+	
+	/**
+	 * 初始化日志
+	 */
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	
 	/**
 	 * 创建发送短信线程
 	 */
@@ -168,6 +175,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public int update(Account account) {
         account.setUpdateDate(new Date());
+        account.setCreateDate(null);
         return accountDao.updateByPrimaryKeySelective(account);
     }
 
@@ -322,7 +330,7 @@ public class AccountServiceImpl implements AccountService {
     public  BaseResult saveUserAndAccount(Account account) {
 
         BaseResult baseResult = new BaseResult();
-        Boolean lock = redisTemplate.opsForValue().setIfAbsent(account.getContractResponsiblePhone(),"1");
+        Boolean lock = redisTemplate.opsForValue().setIfAbsent(Constant.REDIS_KEY_PREFIX+account.getContractResponsiblePhone(),"1");
         try {
             if(lock!=null&&lock) {
                 //需要加锁的代码
@@ -356,14 +364,11 @@ public class AccountServiceImpl implements AccountService {
             }
             baseResult.setMessage("此供应商已经存在！");
             baseResult.setCode(Constant.CodeConfig.CODE_FAILURE);
-            return baseResult;
         } catch (Exception e) {
-            e.printStackTrace();
+        	logger.error("增加供应商异常"+e.getMessage(),e);
         }finally {
-            redisTemplate.delete(account.getContractResponsiblePhone());
+            redisTemplate.delete(Constant.REDIS_KEY_PREFIX+account.getContractResponsiblePhone());
         }
-        baseResult.setMessage("此供应商已经存在！");
-        baseResult.setCode(Constant.CodeConfig.CODE_FAILURE);
         return baseResult;
     }
 

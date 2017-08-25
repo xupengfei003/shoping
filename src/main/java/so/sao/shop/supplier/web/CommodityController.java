@@ -169,7 +169,7 @@ public class CommodityController {
 
     @ApiOperation(value="批量导入商品", notes="通过Excel模板批量导入商品信息")
     @PostMapping(value="/importExcel")
-    public  Result importExcel(@RequestParam(value = "excelFile") MultipartFile excelFile, HttpServletRequest request,@RequestParam(required = false) Long supplierId ) throws Exception {
+    public  Result importExcel(@RequestPart(value = "excelFile") MultipartFile excelFile, HttpServletRequest request,@RequestParam(required = false) Long supplierId ) throws Exception {
         //校验供应商ID
        supplierId = CheckUtil.supplierIdCheck(request,supplierId);
         return   commodityService.importExcel(excelFile,request,storageConfig,supplierId);

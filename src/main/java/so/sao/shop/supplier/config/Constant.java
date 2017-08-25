@@ -166,6 +166,11 @@ public interface Constant {
          * 已退款
          */
         public static final Integer REFUNDED = 6;
+        /**
+         * 已取消
+         */
+        public static final Integer CANCEL_ORDER = 7;
+
     }
 
     interface OrderMessageConfig{
@@ -193,6 +198,10 @@ public interface Constant {
          * 6
          */
         public static final String REFUNDED = "已退款";
+        /**
+         * 7
+         */
+        public static final String CANCEL_ORDER = "已取消";
     }
 
     interface PaymentStatusConfig{
@@ -270,6 +279,11 @@ public interface Constant {
          * 6
          */
         public static final String REFUNDED_NOTIFI = "您好:您有一笔已退款的订单通知,订单编号:";
+
+        /**
+         * 7
+         */
+        public static final String CANCEL_ORDER = "您好:您有一笔已取消的订单通知,订单编号:";
     }
 
     interface AccountCodeConfig{

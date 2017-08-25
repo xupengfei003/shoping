@@ -75,8 +75,8 @@ public class PurchaseController {
                     output.setCode(Constant.CodeConfig.CODE_SUCCESS);
                     output.setMessage(Constant.MessageConfig.MSG_SUCCESS);
                     Map<String, Object> resultMap = new HashMap<>();
-                    resultMap.get("orderId");
-                    resultMap.get("totalMoney");
+                    resultMap.put("orderId",resMap.get("orderId"));
+                    resultMap.put("totalMoney",resMap.get("totalMoney"));
                     output.setData(resultMap);
                 } else {
                     output.setCode(Constant.CodeConfig.CODE_FAILURE);
@@ -248,12 +248,12 @@ public class PurchaseController {
         baseResult.setMessage(Constant.MessageConfig.MSG_SUCCESS);
         try {
             if (orderId != null && orderStatus != null) {
-                //验证订单状态是否合法
-                if(verifyOrderStatus(orderId,orderStatus) == 0){
+                //验证订单状态是否合法，本期不考虑
+                /*if(verifyOrderStatus(orderId,orderStatus) == 0){
                     baseResult.setCode(Constant.CodeConfig.CODE_FAILURE);
                     baseResult.setMessage(Constant.MessageConfig.ORDER_STATUS_EERO);
                     return baseResult;
-                }
+                }*/
                 //更改订单状态操作
                 boolean flag = purchaseService.updateOrder(orderId, orderStatus, receiveMethod, name, number);
                 if (!flag) {
@@ -311,24 +311,17 @@ public class PurchaseController {
      *
      * @param pageNum  当前页码
      * @param pageSize 每页显示条数
-     * @param storeId 商户编号
      * @param input    查询条件封装类
      * @return 出参
      */
     @ApiOperation(value = "收入明细查询(高级查询)", notes = " 根据商户id及查询条件（起始创建订单-结束创建订单时间/起始下单时间-结束下单时间/起始-结束金额范围;订单编号/收货人名称/收货人联系方式）分页显示订单")
     @GetMapping(value = "/account/PurchasesHigh")
-    public Result<PageInfo> searchHigh(Integer pageNum, Integer pageSize,@Validated AccountPurchaseInput input,BindingResult bindingResult,HttpServletRequest request,Long storeId) {
+    public Result<PageInfo> searchHigh(Integer pageNum, Integer pageSize,@Validated AccountPurchaseInput input,BindingResult bindingResult,HttpServletRequest request) {
         //设置初始化返回参数提示信息
         Result<PageInfo> result = new Result<>();
         result.setCode(Constant.CodeConfig.CODE_DATE_INPUT_FORMAT_ERROR);
         result.setMessage(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
 
-/*        //判断入参是否为空
-        if (null == storeId){
-            result.setCode(Constant.CodeConfig.CODE_NOT_EMPTY);
-            result.setMessage(Constant.MessageConfig.MSG_NOT_EMPTY);
-            return result;
-        }*/
         //取出当前登录用户
         User user = (User)request.getAttribute(Constant.REQUEST_USER);
         if (null == user) {   //验证用户是否登陆
@@ -347,7 +340,7 @@ public class PurchaseController {
         //判断条件类是否为空？ 不为判断是否有时间条件，
         //若有时间条件，判断时间格式是否正确
         try {
-            if (!Ognl.isNotEmpty(input) ) {
+            if (Ognl.isNotEmpty(input) ) {
                 if (!StringUtils.isEmpty(input.getPayBeginTime()) && !DateUtil.isDate(input.getPayBeginTime())) {//开始时间（支付时间）
                     return result;
                 }
@@ -359,6 +352,9 @@ public class PurchaseController {
                 }
                 if (!StringUtils.isEmpty(input.getCreateEndTime()) && !DateUtil.isDate(input.getCreateEndTime())) {//结束时间（创建时间）
                     return result;
+                }
+                if (!StringUtils.isEmpty(input.getOrderPaymentMethod()) && 0 == input.getOrderPaymentMethod()) {//结束时间（创建时间）
+                    input.setOrderPaymentMethod(null);
                 }
             }
 
@@ -380,24 +376,17 @@ public class PurchaseController {
      *      3.访问业务层，获取数据
      * @param pageNum  当前页码
      * @param pageSize 每页显示条数
-     * @param storeId 商户编号
      * @param input    查询条件封装类
      * @return 出参
      */
     @ApiOperation(value = "收入明细查询(普通查询)", notes = " 根据商户id及查询条件（起始创建订单-结束创建订单时间/支付流水号/订单编号/收货人名称）分页显示订单")
     @GetMapping(value = "/account/PurchasesLow")
-    public Result<PageInfo> searchLow(Integer pageNum, Integer pageSize, AccountPurchaseLowInput input, HttpServletRequest request , Long storeId) {
+    public Result<PageInfo> searchLow(Integer pageNum, Integer pageSize, AccountPurchaseLowInput input, HttpServletRequest request) {
         //初始化出参提示信息
         Result<PageInfo> result = new Result<>();
         result.setCode(Constant.CodeConfig.CODE_DATE_INPUT_FORMAT_ERROR);
         result.setMessage(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
 
-/*        //判断入参是否为空
-        if (null == storeId){
-            result.setCode(Constant.CodeConfig.CODE_NOT_EMPTY);
-            result.setMessage(Constant.MessageConfig.MSG_NOT_EMPTY);
-            return result;
-        }*/
         //取出当前登录用户
         User user = (User)request.getAttribute(Constant.REQUEST_USER);
         if (null == user) {   //验证用户是否登陆
@@ -409,7 +398,7 @@ public class PurchaseController {
         //判断条件类是否为空？ 不为判断是否有时间条件，
         //若有时间条件，判断时间格式是否正确
         try {
-            if (!Ognl.isNotEmpty(input)) {
+            if (Ognl.isNotEmpty(input)) {
                 if (!StringUtils.isEmpty(input.getCreateBeginTime()) && !DateUtil.isDate(input.getCreateBeginTime())) {//开始时间（创建时间）
                     return result;
                 }
@@ -457,8 +446,8 @@ public class PurchaseController {
             return result;
     }
 
-    //验证订单状态
-    private Integer verifyOrderStatus(String orderId,Integer orderStatus) {
+    //验证订单状态，本期不考虑
+    /*private Integer verifyOrderStatus(String orderId,Integer orderStatus) {
         Integer getOrderStatus = purchaseService.findOrderStatus(orderId);
         if (getOrderStatus == Constant.OrderStatusConfig.PAYMENT && orderStatus == Constant.OrderStatusConfig.PENDING_SHIP){
             getOrderStatus = Constant.OrderStatusConfig.PENDING_SHIP;
@@ -476,7 +465,7 @@ public class PurchaseController {
             getOrderStatus = 0;
         }
         return getOrderStatus;
-    }
+    }*/
 
     //验证时间格式
     private boolean verifyDate(PurchaseSelectInput purchaseSelectInput) {
@@ -484,23 +473,41 @@ public class PurchaseController {
         //订单创建时间
         if (!StringUtils.isEmpty(purchaseSelectInput.getBeginDate())) {
             flag = DateUtil.isDate(purchaseSelectInput.getBeginDate());
+            if(!flag){
+                return flag;
+            }
         }
         if (!StringUtils.isEmpty(purchaseSelectInput.getEndDate())) {
             flag = DateUtil.isDate(purchaseSelectInput.getEndDate());
+            if(!flag){
+                return flag;
+            }
         }
         //订单付款时间
         if (!StringUtils.isEmpty(purchaseSelectInput.getOrderPaymentBeginTime())) {
             flag = DateUtil.isDate(purchaseSelectInput.getOrderPaymentBeginTime());
+            if(!flag){
+                return flag;
+            }
         }
         if (!StringUtils.isEmpty(purchaseSelectInput.getOrderPaymentEndTime())) {
             flag = DateUtil.isDate(purchaseSelectInput.getOrderPaymentEndTime());
+            if(!flag){
+                return flag;
+            }
         }
         //收货时间
         if (!StringUtils.isEmpty(purchaseSelectInput.getOrderReceiveBeginTime())) {
             flag = DateUtil.isDate(purchaseSelectInput.getOrderReceiveBeginTime());
+            if(!flag){
+                return flag;
+            }
         }
         if (!StringUtils.isEmpty(purchaseSelectInput.getOrderReceiveEndTime())) {
             flag = DateUtil.isDate(purchaseSelectInput.getOrderReceiveEndTime());
+            if(!flag){
+                return flag;
+            }
         }
         return flag;
     }
@@ -640,10 +647,11 @@ public class PurchaseController {
             result.setMessage(Constant.MessageConfig.MSG_NOT_EMPTY);
             return result;
         }
-        if (verifyOrderStatus(orderId, Constant.OrderStatusConfig.RECEIVED) == 0){
+        //暂不考虑
+        /*if (verifyOrderStatus(orderId, Constant.OrderStatusConfig.RECEIVED) == 0){
             result.setMessage(Constant.MessageConfig.ORDER_STATUS_EERO);
             return result;
-        }
+        }*/
 
         try {
             // 扫描收货二维码
@@ -723,6 +731,69 @@ public class PurchaseController {
                     result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
                     result.setData(map);
                     return result;
+                }
+            } catch (Exception e) {
+                logger.error("系统异常",e);
+                result.setCode(Constant.CodeConfig.CODE_SYSTEM_EXCEPTION);
+                result.setMessage(Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
+            }
+        }else {
+            result.setCode(Constant.CodeConfig.CODE_FAILURE);
+            result.setMessage("订单编号不能为空");
+        }
+        return result;
+    }
+
+    @ApiOperation("新增取消订单原因接口")
+    @PostMapping("/insertCancelReason")
+    public Result insertCancelReason(@Valid CancelReasonInput cancelReasonInput,BindingResult bindingResult){
+        Result result = new Result();// 返回对象
+        result.setCode(Constant.CodeConfig.CODE_FAILURE);
+        result.setMessage(Constant.MessageConfig.MSG_FAILURE);
+        //判断验证是否通过。true 未通过  false通过
+        if (bindingResult.hasErrors()) {
+            List<ObjectError> list = bindingResult.getAllErrors();
+            for (ObjectError error : list) {
+                result.setCode(Constant.CodeConfig.CODE_NOT_EMPTY);
+                result.setMessage(error.getDefaultMessage());
+            }
+        } else {
+            try {
+                Map<String,Object> map = purchaseService.cancelOrder(cancelReasonInput);
+                boolean flag = (boolean)map.get("flag");
+                if(flag){
+                    result.setCode(Constant.CodeConfig.CODE_SUCCESS);
+                    result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
+                }else {
+                    result.setData(map.get("message"));
+                }
+            } catch (Exception e) {
+                logger.error("系统异常",e);
+                result.setCode(Constant.CodeConfig.CODE_SYSTEM_EXCEPTION);
+                result.setMessage(Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
+            }
+        }
+        return result;
+    }
+
+    @ApiOperation("查看取消订单原因接口")
+    @GetMapping("/scanCancelReason/{orderId}")
+    public Result scanCancelReason(@PathVariable("orderId") String orderId){
+        Result result = new Result();// 返回对象
+        //默认result为失败
+        result.setCode(Constant.CodeConfig.CODE_FAILURE);
+        result.setMessage(Constant.MessageConfig.MSG_FAILURE);
+        if(!StringUtils.isEmpty(orderId)){
+            try {
+                String cancelReason = purchaseService.searchCancelReasonByOrderId(orderId);
+                if(!StringUtils.isEmpty(cancelReason)){
+                    result.setCode(Constant.CodeConfig.CODE_SUCCESS);
+                    result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
+                    result.setData(cancelReason);
+                }else{
+                    result.setCode(Constant.CodeConfig.CODE_SUCCESS);
+                    result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
+                    result.setData(Constant.MessageConfig.MSG_NO_DATA);
                 }
             } catch (Exception e) {
                 logger.error("系统异常",e);

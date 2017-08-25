@@ -1,15 +1,6 @@
 package so.sao.shop.supplier.pojo.input;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import org.hibernate.validator.constraints.Length;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.util.StringUtils;
-
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
-import java.math.BigDecimal;
-import java.util.Date;
+import javax.validation.constraints.*;
 
 /**
  * <p>
@@ -42,16 +33,11 @@ public class AccountPurchaseInput {
     private String createEndTime;
 
     /**
-     * 起始金额
+     * 支付方式(0.全部；1、支付宝；2、微信)
      */
-    @Min(value = 0,message = "金额不能为负数")
-    private BigDecimal beginMoney;
-
-    /**
-     * 截至金额
-     */
-    @Min(value = 0,message = "金额不能为负数")
-    private BigDecimal endMoney;
+    @Min(value = 0,message = "支付方式错误")
+    @Max(value = 2,message = "支付方式错误")
+    private Integer orderPaymentMethod;
 
     /**
      * 收货人姓名
@@ -67,7 +53,7 @@ public class AccountPurchaseInput {
     /**
      * 订单编号
      */
-    @Length(min = 30,max = 30,message = "订单编号为30位")
+    @Pattern(regexp = "^.{0}$|^.{30}$",message = "订单编号为30位")
     private String orderId;
 
     public String getPayBeginTime() {
@@ -84,22 +70,6 @@ public class AccountPurchaseInput {
 
     public void setPayEndTime(String payEndTime) {
         this.payEndTime = payEndTime;
-    }
-
-    public BigDecimal getBeginMoney() {
-        return beginMoney;
-    }
-
-    public void setBeginMoney(BigDecimal beginMoney) {
-        this.beginMoney = beginMoney;
-    }
-
-    public BigDecimal getEndMoney() {
-        return endMoney;
-    }
-
-    public void setEndMoney(BigDecimal endMoney) {
-        this.endMoney = endMoney;
     }
 
     public String getOrderReceiverName() {
@@ -142,6 +112,14 @@ public class AccountPurchaseInput {
         this.createEndTime = createEndTime;
     }
 
+    public Integer getOrderPaymentMethod() {
+        return orderPaymentMethod;
+    }
+
+    public void setOrderPaymentMethod(Integer orderPaymentMethod) {
+        this.orderPaymentMethod = orderPaymentMethod;
+    }
+
     @Override
     public String toString() {
         return "AccountPurchaseInput{" +
@@ -149,8 +127,7 @@ public class AccountPurchaseInput {
                 ", payEndTime='" + payEndTime + '\'' +
                 ", createBeginTime='" + createBeginTime + '\'' +
                 ", createEndTime='" + createEndTime + '\'' +
-                ", beginMoney=" + beginMoney +
-                ", endMoney=" + endMoney +
+                ", orderPaymentMethod=" + orderPaymentMethod +
                 ", orderReceiverName='" + orderReceiverName + '\'' +
                 ", orderReceiverMobile='" + orderReceiverMobile + '\'' +
                 ", orderId='" + orderId + '\'' +

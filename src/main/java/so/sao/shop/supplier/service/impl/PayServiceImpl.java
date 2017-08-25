@@ -41,6 +41,7 @@ public class PayServiceImpl implements PayService {
             map.put("orderPrice",payInput.getOrderPrice());//订单金额
             map.put("orderPaymentNum",payInput.getOrderPaymentNum());//支付流水号
             map.put("orderPaymentMethod",payInput.getOrderPaymentMethod());//支付方式
+            map.put("payStatus",1);//支付状态  0.未支付状态  1.已支付状态
             flagDao = payDao.save(map);
         }
         return flagDao;

@@ -30,25 +30,9 @@ public class NotificationOutput {
     private Date createdAt;
 
     /**
-     * 操作标记作-为管理员删除系统消息时使用
-     */
-    private String sigin;
-
-    /**
      * 消息状态 1已读,0未读
      */
     private Integer notifiStatus;
-
-    /**
-     * notifiDetail(逗号前的内容)
-     */
-    private String title;
-
-    /**
-     * /**
-     * notifiDetail(逗号后的内容)
-     */
-    private String content;
 
     public Integer getNotifiId() {
         return notifiId;
@@ -74,14 +58,6 @@ public class NotificationOutput {
         this.createdAt = createdAt;
     }
 
-    public String getSigin() {
-        return sigin;
-    }
-
-    public void setSigin(String sigin) {
-        this.sigin = sigin;
-    }
-
     public String getComment() {
         return comment;
     }
@@ -98,19 +74,4 @@ public class NotificationOutput {
         this.notifiStatus = notifiStatus;
     }
 
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
 }

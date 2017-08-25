@@ -37,6 +37,11 @@ public class Purchase {
     private Long userId;
 
     /**
+     * 店铺名称
+     */
+    private String userName;
+
+    /**
      * 订单实付金额
      */
     private BigDecimal orderPrice;
@@ -101,7 +106,7 @@ public class Purchase {
     /**
      * 买家取消订单原因
      */
-    private Integer orderCancelReason;
+    private String orderCancelReason;
 
     /**
      * 物流单号
@@ -175,6 +180,11 @@ public class Purchase {
      * 拒收信息图片3
      */
     private String orderRefuseImgC;
+
+    /**
+     * 支付状态
+     */
+    private Integer payStatus;
 
     public String getAccountStatus() {
         return accountStatus;
@@ -296,11 +306,11 @@ public class Purchase {
         this.orderRefuseTime = orderRefuseTime;
     }
 
-    public Integer getOrderCancelReason() {
+    public String getOrderCancelReason() {
         return orderCancelReason;
     }
 
-    public void setOrderCancelReason(Integer orderCancelReason) {
+    public void setOrderCancelReason(String orderCancelReason) {
         this.orderCancelReason = orderCancelReason;
     }
 
@@ -422,5 +432,21 @@ public class Purchase {
 
     public void setOrderReceiveTime(Date orderReceiveTime) {
         this.orderReceiveTime = orderReceiveTime;
+    }
+
+    public Integer getPayStatus() {
+        return payStatus;
+    }
+
+    public void setPayStatus(Integer payStatus) {
+        this.payStatus = payStatus;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 }

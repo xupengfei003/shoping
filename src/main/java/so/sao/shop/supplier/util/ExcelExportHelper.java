@@ -30,24 +30,23 @@ public class ExcelExportHelper {
      * @return
      * @throws IOException
      */
-    public static File exportExcel(List<Object[]> data,String[] titles) throws IOException {
+    public static XSSFWorkbook exportExcel(List<Object[]> data,String[] titles) {
         /**
          * 1、声明excel位置
          * 2、创建excel文件
          * 3、创建excel标题
          * 4、写入单元格内容
-         * 5、持久化excel
-         * 6、返回生成的文件路径
+         * 5、返回生成的文件
          */
 
         //声明excel位置
-        Resource resource = new ClassPathResource("file/");
-        String filePath = resource.getFile().getCanonicalPath()+File.separator+System.currentTimeMillis()+".xlsx";
-        File file = new File(filePath);
+//        Resource resource = new ClassPathResource("file/");
+//        String filePath = resource.getFile().getCanonicalPath()+File.separator+System.currentTimeMillis()+".xlsx";
+//        File file = new File(filePath);
         XSSFWorkbook workbook = null;
         CellStyle defaulCellStyle = null;
         CellStyle defaulTitleCellStyle = null;
-        try {
+
             //创建excel文件
             workbook = new XSSFWorkbook();// 创建一个Excel文件
             defaulTitleCellStyle = getDefaultTitleCellStyle(workbook);
@@ -75,15 +74,7 @@ public class ExcelExportHelper {
                     cell.setCellStyle(defaulCellStyle);
                 }
             }
-            //写入本地文件
-            workbook.write(new FileOutputStream(file));
-        }catch (IOException e){
-            throw e;
-        }finally {
-            if(workbook != null)
-                workbook.close();
-        }
-        return file;
+        return workbook;
     }
 
     /**
@@ -149,11 +140,9 @@ public class ExcelExportHelper {
         }
         String[] titles = new String[]{"a","b","c"};
 
-        try {
+
             ExcelExportHelper.exportExcel(data,titles);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
     }
 
 }

@@ -2,6 +2,8 @@ package so.sao.shop.supplier.service.impl;
 
 import com.aliyun.mns.model.TopicMessage;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -39,6 +41,7 @@ import java.util.Map;
 @Service
 public class AuthServiceImpl implements AuthService {
 
+    private Logger logger = LoggerFactory.getLogger(getClass());
     private AuthenticationManager authenticationManager;
     private UserDetailsService userDetailsService;
     private UserDao userDao;
@@ -93,6 +96,7 @@ public class AuthServiceImpl implements AuthService {
             redisTemplate.opsForHash().put(Constant.REDIS_LOGIN_KEY_PREFIX+userDetails.getUsername(),"authentication", authentication);
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }catch (Exception e){
+            logger.debug("登陆异常:"+e.getMessage());
             return new Result(Constant.CodeConfig.CODE_FAILURE,"用户名或密码错误!","");
         }
         //登陆后放入缓存,后续从redis取,登出时del

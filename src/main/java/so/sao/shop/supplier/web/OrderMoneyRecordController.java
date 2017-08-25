@@ -171,16 +171,16 @@ public class OrderMoneyRecordController {
 
     /**
      * 根据根据申请人账户查询满足结算时间条件的已结算/待结算明细，并根据pageNum和pageSize进行分页
-     *
-     * @param userId
      * @param pageNum
      * @param pageSize
+     * @param request
+     * @param put
+     * @param bindingResult
      * @return
      */
     @ApiOperation(value = "根据账户ID查询已结算/待结算明细", notes = "根据账户ID查询已结算/待结算明细并分页")
-    @GetMapping(value = "/orderMoneyRecords/{userId}")
-    //接口文档已递交，故URL中及方法入参的用户ID保留，但在整个业务中不再使用,如后期增加管理员登陆查看，则继续使用。
-    public Result searchOrderMoneyRecords(Integer pageNum, Integer pageSize, @PathVariable("userId") Long userId,HttpServletRequest request,@Valid OrderMoneyRecordInput put, BindingResult bindingResult) {
+    @GetMapping(value = "/orderMoneyRecords")
+    public Result searchOrderMoneyRecords(Integer pageNum, Integer pageSize,HttpServletRequest request,@Valid OrderMoneyRecordInput put, BindingResult bindingResult) {
         //初始化
         Result result = new Result<>();
         result.setCode(Constant.CodeConfig.CODE_DATE_INPUT_FORMAT_ERROR);

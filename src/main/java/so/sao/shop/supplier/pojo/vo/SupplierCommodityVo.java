@@ -2,9 +2,9 @@ package so.sao.shop.supplier.pojo.vo;
 
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotBlank;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
@@ -24,8 +24,8 @@ public class SupplierCommodityVo {
     /**
      * 商家编码
      */
-    @NotBlank(message = "商家编码不能为空")
-    @Length(max = 50,message = "商家编码长度不能大于50")
+    @NotBlank(message = "商品商家编码不能为空")
+    @Length(max = 50,message = "商品商家编码长度不能大于50")
     private String code;
 
     /**
@@ -53,9 +53,9 @@ public class SupplierCommodityVo {
     private String ruleVal;
 
     /**
-     * 计量单位ID
+     * 包装单位ID
      */
-    @NotNull(message = "计量单位不能为空")
+    @NotNull(message = "包装单位不能为空")
     private Long unitId;
 
     /**
@@ -68,6 +68,7 @@ public class SupplierCommodityVo {
      */
     @NotNull(message = "库存不能为空")
     @Min(value=0)
+    @Max(value = 999999999)
     private Double inventory;
 
     /**
@@ -81,13 +82,15 @@ public class SupplierCommodityVo {
      */
     @NotNull(message = "市场价不能为空")
     @Min(value=0)
+    @Max(value = 99999999)
     private BigDecimal price;
 
     /**
-     * 售价
+     * 成本价
      */
-    @NotNull(message = "售价不能为空")
+    @NotNull(message = "成本价不能为空")
     @Min(value=0)
+    @Max(value = 99999999)
     private BigDecimal unitPrice;
 
     /**

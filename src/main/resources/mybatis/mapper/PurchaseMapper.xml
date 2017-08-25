@@ -7,6 +7,7 @@
     <id column="order_id" property="orderId" />
     <result column="store_id" property="storeId" />
     <result column="user_id" property="userId" />
+    <result column="user_name" property="userName" />
     <result column="order_price" property="orderPrice" />
     <result column="order_settleme_price" property="orderSettlemePrice" />
     <result column="order_receiver_name" property="orderReceiverName" />
@@ -29,6 +30,7 @@
     <result column="order_refuse_imgB" property="orderRefuseImgB" />
     <result column="order_refuse_imgC" property="orderRefuseImgC" />
     <result column="order_receive_time" property="orderReceiveTime" />
+    <result column="pay_status" property="payStatus" />
   </resultMap>
 
   <!-- 通用查询结果列 -->
@@ -55,7 +57,8 @@
 	drawback_time AS drawbackTime,
 	distributor_name AS distributorName,
 	distributor_mobile AS distributorMobile,
-	logistics_company AS logisticsCompany
+	logistics_company AS logisticsCompany,
+	pay_status AS payStatus
   </sql>
 
   <!-- 根据ID查询订单信息 -->
@@ -81,6 +84,15 @@
         <where>
             order_status != -1
 
+            <if test="@so.sao.shop.supplier.util.Ognl@isEmpty(purchaseSelectInput.orderStatus)">
+                AND (order_status != 7 || pay_status != 0)
+            </if>
+            <if test="purchaseSelectInput.orderStatus == 7">
+                AND pay_status != 0
+            </if>
+            <if test="purchaseSelectInput.orderStatus!=null">
+                AND order_status = TRIM(#{purchaseSelectInput.orderStatus})
+            </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.orderReceiverName) and
             @so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.orderReceiverMobile) and purchaseSelectInput.orderReceiverName == purchaseSelectInput.orderReceiverMobile" >
                 AND (order_receiver_name LIKE "${purchaseSelectInput.orderReceiverName}%"
@@ -134,9 +146,6 @@
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.orderPaymentNum)">
                 AND order_payment_num LIKE "${purchaseSelectInput.orderPaymentNum}%"
             </if>
-            <if test="purchaseSelectInput.orderStatus!=null">
-                AND order_status = TRIM(#{purchaseSelectInput.orderStatus})
-            </if>
 
             <if test="purchaseSelectInput.userId!=null">
                 AND user_id LIKE "${purchaseSelectInput.userId}%"
@@ -154,6 +163,7 @@
         pay_id,
         store_id,
         user_id,
+        user_name,
         order_price,
         order_settleme_price,
         order_receiver_name,
@@ -171,6 +181,7 @@
             #{item.payId},
             #{item.storeId},
             #{item.userId},
+            #{item.userName},
             #{item.orderPrice},
             #{item.orderSettlemePrice},
             #{item.orderReceiverName},
@@ -208,6 +219,16 @@
         FROM purchase
         <where>
             order_status != -1
+
+            <if test="@so.sao.shop.supplier.util.Ognl@isEmpty(orderStatus)">
+                AND (order_status != 7 || pay_status != 0)
+            </if>
+            <if test="orderStatus == 7">
+                AND pay_status != 0
+            </if>
+            <if test="orderStatus!=null">
+                AND order_status = TRIM(#{orderStatus})
+            </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderReceiverName) and
             @so.sao.shop.supplier.util.Ognl@isNotEmpty(orderReceiverMobile) and orderReceiverName == orderReceiverMobile" >
                 AND (order_receiver_name LIKE "${orderReceiverName}%"
@@ -260,9 +281,7 @@
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderPaymentNum)">
                 AND order_payment_num LIKE "${orderPaymentNum}%"
             </if>
-            <if test="orderStatus!=null">
-                AND order_status = TRIM(#{orderStatus})
-            </if>
+
 
             <if test="userId!=null">
                 AND user_id LIKE "${userId}%"
@@ -289,6 +308,9 @@
     <update id="updateOrderAtr">
         UPDATE purchase
         <choose>
+            <when test="orderReceiveTime!=null">
+                SET order_receive_time = #{orderReceiveTime}
+            </when>
             <when test="drawbackTime!=null">
                 SET drawback_time = #{drawbackTime}
             </when>
@@ -386,23 +408,20 @@
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(input.payEndTime)">
                 AND ORDER_PAYMENT_TIME &lt; TRIM(DATE_ADD(STR_TO_DATE(#{input.payEndTime},'%Y-%m-%d'),INTERVAL 1 DAY))
             </if>
-            <!--订单金额-->
-            <if test="input.beginMoney != null">
-                AND ORDER_PRICE &gt;= TRIM(#{input.beginMoney})
-            </if>
-            <if test="input.endMoney != null">
-                AND ORDER_PRICE &lt;= TRIM(#{input.endMoney})
+            <!--支付方式(1、支付宝；2、微信)-->
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(input.orderPaymentMethod)">
+                AND ORDER_PAYMENT_METHOD = #{input.orderPaymentMethod}
             </if>
             <!--收货人名称-->
-            <if test="input.orderReceiverName != null">
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(input.orderReceiverName)">
                 AND ORDER_RECEIVER_NAME = TRIM(#{input.orderReceiverName})
             </if>
             <!--收货人联系方式-->
-            <if test="input.orderReceiverMobile != null">
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(input.orderReceiverMobile)">
                 AND ORDER_RECEIVER_MOBILE = TRIM(#{input.orderReceiverMobile})
             </if>
             <!--订单编号-->
-            <if test="input.orderId != null">
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(input.orderId)">
                 AND ORDER_ID = TRIM(#{input.orderId})
             </if>
         </if>
@@ -528,6 +547,24 @@
       AND order_payment_time >= DATE_FORMAT(#{lastSettlementDate}, '%Y-%m-%d')
       AND order_payment_time &lt; date_add(DATE_FORMAT(#{lastSettlementDate},'%Y-%m-%d'), INTERVAL #{remittanced} DAY)
       AND store_id = #{storeId};
+    </select>
+
+    <!--根据订单编号添加该订单取消理由相关信息-->
+    <update id="insertCancelMessage" parameterType="java.util.Map">
+        UPDATE purchase
+        SET
+        order_cancel_reason = #{cancelMap.cancelReason},
+        updated_at = #{cancelMap.updatedAt}
+        WHERE order_id = #{cancelMap.orderId}
+    </update>
+
+    <!--根据订单编号查询取消原因-->
+    <select id="findCancelReason" resultType="java.lang.String" parameterType="java.lang.String" >
+        SELECT
+          order_cancel_reason
+        FROM
+          purchase
+        WHERE order_id = #{orderId}
     </select>
 
 </mapper>

@@ -95,6 +95,10 @@ public class PurchaseSelectInput {
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private String orderPaymentEndTime;
 
+    /**
+     * 订单支付状态  0.未支付 1.已支付
+     */
+    private Integer payStatus;
 
     public String getOrderId() {
         return orderId;
@@ -222,5 +226,13 @@ public class PurchaseSelectInput {
 
     public void setOrderPaymentEndTime(String orderPaymentEndTime) {
         this.orderPaymentEndTime = orderPaymentEndTime;
+    }
+
+    public Integer getPayStatus() {
+        return payStatus;
+    }
+
+    public void setPayStatus(Integer payStatus) {
+        this.payStatus = payStatus;
     }
 }

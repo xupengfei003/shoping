@@ -3,6 +3,7 @@ package so.sao.shop.supplier.service.impl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -643,10 +644,11 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
         BufferedInputStream bis = null;
         BufferedOutputStream bos = null;
         FileInputStream fileInputStream = null;
-        File excelFile = null;
+        XSSFWorkbook workbook = null;
+//        File excelFile = null;
         try {
             int startPage,endPage;
-            String pageNum = request.getParameter("pageNum");
+            String pageNum = request.getParameter("pageNo");
             String pageSize = request.getParameter("pageSize");
             String startTime = request.getParameter("startTime");
             String endTime = request.getParameter("endTime");
@@ -720,18 +722,17 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
                 data.add(o);
             }
             //生成excel文件
-            excelFile = ExcelExportHelper.exportExcel(data,titles);
-            logger.debug("【excel 文件路径】 ： "+excelFile.getCanonicalFile());
-//            输出excel
-            fileInputStream = new FileInputStream(excelFile);
-            bis = new BufferedInputStream(fileInputStream);
+            logger.debug("【excel 输出中。。】 ： ");
+            workbook = ExcelExportHelper.exportExcel(data,titles);
+//          输出excel
+            workbook.write(out);
             bos = new BufferedOutputStream(out);
             byte[] buff = new byte[2048];
             int bytesRead;
             while (-1 != (bytesRead = bis.read(buff, 0, buff.length))) {
                 bos.write(buff, 0, bytesRead);
             }
-
+            logger.debug("【excel 输出中完毕】 ： ");
         } catch (Exception e) {
             throw e;
         } finally {
@@ -742,8 +743,11 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
                     bis.close();
                 if (bos != null)
                     bos.close();
-                if (excelFile != null && excelFile.exists())
-                    excelFile.delete();
+                if (workbook != null){
+                    workbook.close();
+                }
+//                if (excelFile != null && excelFile.exists())
+//                    excelFile.delete();
             } catch (IOException e) {
                 throw e;
             }

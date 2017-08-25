@@ -22,7 +22,7 @@ public interface EmpDao {
 	 * @param emp 员工对象
 	 * @return
 	 */
-	boolean save(Emp emp);
+	int save(Emp emp);
 
 	/**
      * 根据条件查询出员工列表

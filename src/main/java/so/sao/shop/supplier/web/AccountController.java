@@ -201,7 +201,7 @@ public class AccountController {
     @ApiOperation("登陆")
     @PostMapping(value = "${jwt.route.authentication.path}")
     public Result<String> createAuthenticationToken(
-            User authenticationRequest, HttpServletResponse response) throws AuthenticationException, IOException {
+            @RequestBody User authenticationRequest, HttpServletResponse response) throws AuthenticationException, IOException {
 
         return authService.login(authenticationRequest.getUsername(), authenticationRequest.getPassword());
     }
@@ -250,13 +250,12 @@ public class AccountController {
     /**
      * 根据用户ID查询用户的实时余额并更新用户余额
      *
-     * @param userId
+     * @param request
      * @return
      */
     @ApiOperation(value = "根据用户的账户查询用户余额", notes = "根据用户的账户ID,查询未结算金额")
-    @GetMapping(value = "/selectAccountBalance/{userId}")
-    //接口文档已递交，故URL中及方法入参的用户ID保留，但在整个业务中不再使用,如后期增加管理员登陆查看，则继续使用。
-    public Result getBalance(@PathVariable("userId") Long userId,HttpServletRequest request) {
+    @GetMapping(value = "/selectAccountBalance")
+    public Result getBalance(HttpServletRequest request) {
         Result result = new Result<>();
         Map map = new HashMap();
         map.put("balance","0.00");

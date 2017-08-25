@@ -68,7 +68,7 @@ public interface PurchaseDao {
      * @param number
      * @return boolean
      */
-    boolean updateOrderAtr(@Param("orderId") String orderId, @Param("drawbackTime") Date drawbackTime,
+    boolean updateOrderAtr(@Param("orderId") String orderId, @Param("drawbackTime") Date drawbackTime, @Param("orderReceiveTime") Date orderReceiveTime,
                            @Param("receiveMethod") Integer receiveMethod, @Param("name") String name, @Param("number") String number);
 
     /**
@@ -184,4 +184,20 @@ public interface PurchaseDao {
      */
     List<Purchase> findPurchaseFixedTime(@Param("storeId") Long storeId, @Param("lastSettlementDate") Date lastSettlementDate,  @Param("remittanced") String remittanced);
 
+    /**
+     * 添加取消订单信息
+     *
+     * @param cancelMap 封装了所有取消订单相关的信息
+     * @return boolean 返回true则为成功，false为失败
+     * @throws Exception
+     */
+    boolean insertCancelMessage(@Param("cancelMap") Map<String,Object> cancelMap) throws Exception;
+
+    /**
+     * 根据订单编号查询取消订单原因
+     *
+     * @param orderId 订单编号
+     * @return
+     */
+    String findCancelReason(@Param("orderId") String orderId);
 }

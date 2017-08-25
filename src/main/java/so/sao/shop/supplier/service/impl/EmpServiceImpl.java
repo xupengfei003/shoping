@@ -101,11 +101,11 @@ public class EmpServiceImpl implements EmpService {
             return baseResult;
         }
 		//利用redis的setnx，获取锁成功返回true
-		Boolean lock = redisTemplate.opsForValue().setIfAbsent(emp.getEmpTel(),"1");
+		Boolean lock = redisTemplate.opsForValue().setIfAbsent(Constant.REDIS_KEY_PREFIX+emp.getEmpTel(),"1");
         try {
         	 //返回值为1，根据员工电话号码增加用户和员工信息
 			if(lock!=null&&lock) {
-				User user1 = userDao.findByUsername(emp.getEmpTel());
+				User user1 = userDao.findByLoginName(emp.getEmpTel());
 				if (user1 == null) {
 					User user = new User();
                     user.setUsername(emp.getEmpTel());
@@ -134,15 +134,12 @@ public class EmpServiceImpl implements EmpService {
 				}
 			}
 			baseResult.setMessage("此员工信息已经存在！");
-            baseResult.setCode(Constant.CodeConfig.CODE_FAILURE);
-            return baseResult;
+	        baseResult.setCode(Constant.CodeConfig.CODE_FAILURE);
 		} catch (Exception e) {
-			logger.error("插入员工信息异常！"+e);
-		}finally {
-			redisTemplate.delete(emp.getEmpTel());
+			logger.error("插入员工信息异常！"+e.getMessage(), e);
+		} finally {
+			redisTemplate.delete(Constant.REDIS_KEY_PREFIX+emp.getEmpTel());
 		}
-        baseResult.setMessage("此员工信息已经存在！");
-        baseResult.setCode(Constant.CodeConfig.CODE_FAILURE);
         return baseResult;
 	}
 
@@ -158,6 +155,7 @@ public class EmpServiceImpl implements EmpService {
         if(accountId == null) {
         	result.setMessage("此登录账户不是供应商，无查询权限");
         	result.setCode(Constant.CodeConfig.CODE_FAILURE);
+        	return result;
         }
         //判断当前页码和每页显示的条数是否为空
         if (null == empInput.getPageNum()){
@@ -189,6 +187,7 @@ public class EmpServiceImpl implements EmpService {
             if(accountId == null) {
             	result.setMessage("此登录账户不是供应商，无更新权限");
             	result.setCode(Constant.CodeConfig.CODE_FAILURE);
+            	return result;
             }
 			empUpdateInput.setUpdateAt(new Date());
             int updateNumber = empDao.updateEmpStatusById(empUpdateInput);

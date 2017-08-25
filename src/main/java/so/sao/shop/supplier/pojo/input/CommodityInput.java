@@ -1,5 +1,6 @@
 package so.sao.shop.supplier.pojo.input;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import org.hibernate.validator.constraints.Length;
 import so.sao.shop.supplier.pojo.vo.SupplierCommodityVo;
 
@@ -24,7 +25,7 @@ public class CommodityInput {
      * 品牌
      */
     @Length(max = 256,message = "商品品牌长度不能大于256")
-    private String brand;
+    private String brandName;
 
     /**
      * 一级类型Id
@@ -66,6 +67,7 @@ public class CommodityInput {
     /**
      * 上市时间
      */
+    @JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
     private Date marketTime;
 
     /**
@@ -88,12 +90,12 @@ public class CommodityInput {
         this.rowNum = rowNum;
     }
 
-    public String getBrand() {
-        return brand;
+    public String getBrandName() {
+        return brandName;
     }
 
-    public void setBrand(String brand) {
-        this.brand = brand;
+    public void setBrandName(String brandName) {
+        this.brandName = brandName;
     }
 
     public Long getCategoryOneId() {

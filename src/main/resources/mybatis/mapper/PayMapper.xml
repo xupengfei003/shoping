@@ -9,7 +9,8 @@
         order_payment_method = #{payInput.orderPaymentMethod},
         order_payment_time = #{payInput.orderPaymentTime},
         updated_at = #{payInput.updatedAt},
-        order_status = #{payInput.orderStatus}
+        order_status = #{payInput.orderStatus},
+        pay_status = #{payInput.payStatus}
         WHERE pay_id = #{payInput.orderId}
     </update>
 </mapper>

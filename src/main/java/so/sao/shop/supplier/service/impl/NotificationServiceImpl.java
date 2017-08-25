@@ -37,7 +37,7 @@ public class NotificationServiceImpl implements NotificationService {
         //获取供应商Id集合
         List<Long> accountIds = notificationDao.getAccountIds();
         //标记
-        String sigin = NumberGenerate.generateUuid();
+        String sigin = NumberGenerate.generateId();
         if (null != accountIds && accountIds.size() > 0) {
             accountIds.forEach(accountId -> {
                 Notification notification = new Notification();
@@ -68,7 +68,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public List<Notification> search(Integer pageNum, Integer pageSize, Long accountId, Integer notifiType) throws Exception {
         PageHelper.startPage(null == pageNum || pageNum <= 0 ? 1 : pageNum, null == pageSize || pageSize <= 0 ? 10 : pageSize);
-        List<Notification> dataList = getNotificationOutputs(accountId, notifiType, 0, 1);
+        List<Notification> dataList = getNotifications(accountId, notifiType, 0, 1);
         return dataList;
     }
 
@@ -100,6 +100,7 @@ public class NotificationServiceImpl implements NotificationService {
             notificationOutput.setNotifiDetail(notification.getNotifiDetail());
             notificationOutput.setComment(notification.getComment());
             notificationOutput.setCreatedAt(notification.getCreatedAt());
+            notificationOutput.setNotifiStatus(notification.getNotifiStatus());
         }
         return notificationOutput;
     }
@@ -153,13 +154,13 @@ public class NotificationServiceImpl implements NotificationService {
      */
     @Override
     public List<Notification> searchUnread(Long accountId, Integer notifiType, Integer count) throws Exception {
-        List<Notification> dataList = getNotificationOutputs(accountId, notifiType, count, 0);
+        List<Notification> dataList = getNotifications(accountId, notifiType, count, 0);
         return dataList;
     }
 
     //获取List<Notification>
-    private List<Notification> getNotificationOutputs(Long accountId, Integer notifiType, Integer count, int flag) {
-        List<Notification> notificationList = new ArrayList<>();
+    private List<Notification> getNotifications(Long accountId, Integer notifiType, Integer count, int flag) {
+        List<Notification> notificationList;
         //flag 标识 执行那种逻辑
         if (flag == 1) { //查询全量数据
             notificationList = notificationDao.search(accountId, notifiType);

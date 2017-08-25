@@ -77,7 +77,6 @@ public class User implements UserDetails {
         this.isAdmin = isAdmin;
     }
 
-    @JsonIgnore
     public String getPassword() {
         return password;
     }

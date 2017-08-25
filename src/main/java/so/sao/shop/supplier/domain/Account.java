@@ -231,6 +231,18 @@ public class Account {
 	 * 上次结算时间
 	 */
 	private Date lastSettlementDate;
+	/**
+	 * 客服电话
+	 */
+	private String servicePhone;
+
+	public String getServicePhone() {
+		return servicePhone;
+	}
+
+	public void setServicePhone(String servicePhone) {
+		this.servicePhone = servicePhone;
+	}
 
 	public Long getAccountId() {
 		return accountId;

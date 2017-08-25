@@ -165,9 +165,9 @@ public interface PurchaseService {
      * 根据订单ID获取该订单的拒收原因
      *
      * @param orderId 订单ID
-     * @return OrderRefuseReasonOutput 封装了所有订单拒收原因信息
+     * @return map 封装了所有订单拒收原因信息
      */
-    Map<String,Object> searchRefuseReasonByOrderId(@Param("orderId") String orderId) throws Exception;
+    Map<String,Object> searchRefuseReasonByOrderId(String orderId) throws Exception;
 
     /**
      * 根据商家编号及查询条件（起始创建订单-结束创建订单时间/支付流水号/订单编号/收货人名称）查找所有相关订单记录(分页)
@@ -178,4 +178,21 @@ public interface PurchaseService {
      * @return 出参
      */
     Result<PageInfo> searchPurchasesLow(Integer pageNum, Integer pageSize, AccountPurchaseLowInput input, Long storeId) throws ParseException;
+
+    /**
+     * 添加取消订单信息
+     *
+     * @param cancelReasonInput 封装了订单编号，取消理由
+     * @return Map 封装结果 键flag的值为true表示成功，false表示失败，message的值表示文字描述
+     * @throws Exception
+     */
+    Map cancelOrder(CancelReasonInput cancelReasonInput)  throws Exception;
+
+    /**
+     * 根据订单编号查询取消订单原因
+     * @param orderId 订单编号
+     * @return 取消订单原因
+     * @throws Exception
+     */
+    String searchCancelReasonByOrderId(String orderId) throws Exception;
 }
