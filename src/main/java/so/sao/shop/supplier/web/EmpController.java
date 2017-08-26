@@ -7,6 +7,9 @@ import javax.validation.Valid;
 
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.ApiOperation;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
@@ -36,6 +39,11 @@ import so.sao.shop.supplier.service.EmpService;
 @Api(description = "员工接口")
 public class EmpController {
 	/**
+	 * 初始化日志
+	 */
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	
+	/**
 	 * 注入员工业务层
 	 */
 	@Autowired
@@ -48,7 +56,7 @@ public class EmpController {
 	 */
 	@ApiOperation(value="新增员工信息", notes="")
 	@PutMapping("/create")
-	public Result create(HttpServletRequest request,@Valid @RequestBody Emp emp,BindingResult result) {
+	public Result create(HttpServletRequest request,@Valid @RequestBody Emp emp,BindingResult result) throws Exception{
 		Result baseResult = new Result();
 		User user = (User) request.getAttribute(Constant.REQUEST_USER);
 		if(user == null) {
@@ -68,7 +76,7 @@ public class EmpController {
         	 * 插入员工信息
         	 */
         	emp.setUserId(user.getId());
-        	baseResult = empService.saveEmp(emp);
+			baseResult = empService.saveEmp(emp);
         }
 		return baseResult;
 	}

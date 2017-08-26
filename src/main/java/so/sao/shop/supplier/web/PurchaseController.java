@@ -424,8 +424,8 @@ public class PurchaseController {
      * @return
      */
     @ApiOperation(value = "获取商户总金额")
-    @GetMapping(value = "/findincome/{storeId}")
-    public Result<String> findOrderStatus(@PathVariable("storeId") String storeId,HttpServletRequest request) {
+    @GetMapping(value = "/findincome")
+    public Result<String> findOrderStatus(HttpServletRequest request) {
         Result<String> result = new Result<>();  //返回类型
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         if (null == user){

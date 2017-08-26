@@ -4,6 +4,7 @@ import java.util.Date;
 
 import javax.validation.constraints.Pattern;
 
+import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import io.swagger.annotations.ApiModelProperty;
@@ -34,6 +35,7 @@ public class Emp {
 	 * 员工姓名
 	 */
 	@NotEmpty(message = "请输入员工姓名")
+	@Length(max = 50,message = "员工姓名长度不能超过50")
 	@ApiModelProperty(value = "员工姓名")
 	private String empName;
 	/**

@@ -113,7 +113,7 @@ public interface AccountService {
      * @param account
      * @return 返回用id
      */
-    BaseResult saveUserAndAccount(Account account);
+    Result saveUserAndAccount(Account account) throws Exception;
 
     /**
      * 统计已入驻供应商总数

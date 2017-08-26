@@ -19,7 +19,7 @@ public interface EmpService {
 	 * @param emp 员工对象
 	 * @return 返回插入结果
 	 */
-	Result saveEmp(Emp emp);
+	Result saveEmp(Emp emp) throws Exception;
 
 	/**
      * 根据条件查询员工列表

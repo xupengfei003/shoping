@@ -44,7 +44,7 @@ public class CommUnitServiceImp implements CommUnitService {
         commUnit.setCreatedAt(new Date());
         commUnit.setUpdatedAt(new Date());
         //3.校验输入name是否为空
-        if(Ognl.isEmpty(name.trim())){
+        if( null == name || Ognl.isEmpty(name.trim())){
             result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
             result.setMessage("商品单位不能为空！");
             return result;

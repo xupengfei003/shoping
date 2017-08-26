@@ -7,7 +7,8 @@
         name,
         url,
         type,
-        size
+        size,
+        thumbnail_url AS thumbnailUrl
     </sql>
 
     <select id="find" resultType="so.sao.shop.supplier.domain.CommImge">
@@ -26,13 +27,15 @@
         name,
         url,
         type,
-        size
+        size,
+        thumbnail_url
         )VALUES (
         #{scId},
         #{name},
         #{url},
         #{type},
-        #{size}
+        #{size},
+        #{thumbnailUrl}
         )
     </insert>
     <update id="update">

@@ -4,6 +4,8 @@ import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.BindingResult;
@@ -32,6 +34,10 @@ import java.util.Map;
 @RequestMapping("/account")
 @Api(description = "供应商管理-所有接口")
 public class AccountController {
+	/**
+	 * 初始化日志
+	 */
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private AccountService accountService;
@@ -56,8 +62,8 @@ public class AccountController {
      */
     @ApiOperation("添加供应商信息")
     @PostMapping("/save")
-    public BaseResult save(HttpServletRequest request, @Valid @RequestBody Account account,BindingResult result) {
-        BaseResult baseResult = new BaseResult();
+    public Result save(HttpServletRequest request, @Valid @RequestBody Account account,BindingResult result) throws Exception{
+        Result baseResult = new Result();
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         if(user==null || !user.getIsAdmin().equals(Constant.ADMIN_STATUS)){
             baseResult.setCode(0);
@@ -75,7 +81,7 @@ public class AccountController {
             /**
              * 插入用户和供应商信息
              */
-            return accountService.saveUserAndAccount(account);
+			return accountService.saveUserAndAccount(account);
         }
         return baseResult;
     }

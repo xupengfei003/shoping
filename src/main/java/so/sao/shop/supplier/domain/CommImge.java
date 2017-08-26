@@ -29,6 +29,10 @@ public class CommImge{
      * 图片尺寸
      */
     private String size;
+    /**
+     * 缩略图url
+     */
+    private String thumbnailUrl;
 
     public String getName() {
         return name;
@@ -76,5 +80,13 @@ public class CommImge{
 
     public void setScId(Long scId) {
         this.scId = scId;
+    }
+
+    public String getThumbnailUrl() {
+        return thumbnailUrl;
+    }
+
+    public void setThumbnailUrl(String thumbnailUrl) {
+        this.thumbnailUrl = thumbnailUrl;
     }
 }

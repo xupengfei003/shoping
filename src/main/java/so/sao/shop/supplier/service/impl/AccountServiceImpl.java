@@ -327,9 +327,9 @@ public class AccountServiceImpl implements AccountService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public  BaseResult saveUserAndAccount(Account account) {
+    public  Result saveUserAndAccount(Account account) throws Exception{
 
-        BaseResult baseResult = new BaseResult();
+        Result baseResult = new Result();
         Boolean lock = redisTemplate.opsForValue().setIfAbsent(Constant.REDIS_KEY_PREFIX+account.getContractResponsiblePhone(),"1");
         try {
             if(lock!=null&&lock) {
@@ -365,7 +365,8 @@ public class AccountServiceImpl implements AccountService {
             baseResult.setMessage("此供应商已经存在！");
             baseResult.setCode(Constant.CodeConfig.CODE_FAILURE);
         } catch (Exception e) {
-        	logger.error("增加供应商异常"+e.getMessage(),e);
+        	logger.error("增加供应商异常",e);
+        	throw new Exception(e.getMessage());
         }finally {
             redisTemplate.delete(Constant.REDIS_KEY_PREFIX+account.getContractResponsiblePhone());
         }

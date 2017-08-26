@@ -2,6 +2,8 @@ package so.sao.shop.supplier.pojo.input;
 
 import org.hibernate.validator.constraints.NotBlank;
 
+import javax.validation.constraints.Size;
+
 /**
  * 接收的-商品品类实体类
  * Created by XuPengFei on 2017/7/20.
@@ -18,7 +20,8 @@ public class CommCategoryInput {
     /**
      *  类型名称
      */
-    @NotBlank
+    @NotBlank(message = "类型名称不能为空")
+    @Size(min = 1,max = 50,message = "商品类型名称长度不能超过50")
     private String name;
     /**
      *  备注

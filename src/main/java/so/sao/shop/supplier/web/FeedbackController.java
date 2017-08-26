@@ -42,12 +42,12 @@ public class FeedbackController {
         //验证供应商是否登陆并取出accountId
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         if (null == user) {   //验证用户是否登陆
-            result.setCode(Constant.CodeConfig.CODE_USER_NOT_LOGIN);
+            result.setCode(Constant.CodeConfig.CODE_FAILURE);
             result.setMessage(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
             return result;
         }
         if (null == suggest || "".equals(suggest)) {
-            result.setCode(Constant.CodeConfig.CODE_NOT_EMPTY);
+            result.setCode(Constant.CodeConfig.CODE_FAILURE);
             result.setMessage(Constant.MessageConfig.MSG_NOT_EMPTY);
             return result;
         }

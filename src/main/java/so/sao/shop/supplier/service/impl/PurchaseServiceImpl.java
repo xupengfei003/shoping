@@ -475,15 +475,7 @@ public class PurchaseServiceImpl implements PurchaseService {
      */
     @Override
     public Result<String> findOrderStatus(Long storeId) {
-        Result<String> result = new Result<>();
-        //查询此商户ID有没有在数据库中，count=0则没有
-        int count = accountDao.countByAccountId(storeId);
-        if (count == 0) {
-            result.setCode(Constant.NoExistCodeConfig.NOSTORE);
-            result.setMessage(Constant.NoExistMessageConfig.NOSTORE);
-            result.setData("0.00");
-            return result;
-        }
+        Result<String> result = new Result<>();//返回类型
         //商户ID存在，将计算的总金额赋值给历史总金额字段
         BigDecimal income = purchaseDao.findOrderStatus(storeId);
         String price = NumberUtil.number2Thousand(income);//将金额转换为千分位

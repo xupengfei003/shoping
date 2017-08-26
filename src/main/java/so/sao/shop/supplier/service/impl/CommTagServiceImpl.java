@@ -47,7 +47,7 @@ public class CommTagServiceImpl implements CommTagService {
         commTag.setCreatedAt(new Date());
         commTag.setUpdatedAt(new Date());
         //判断标签名为null或空
-        if (Ognl.isEmpty(name.trim())) {
+        if (null == name || Ognl.isEmpty(name.trim())) {
             result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
             result.setMessage("请输入商品标签名称！");
             return result;

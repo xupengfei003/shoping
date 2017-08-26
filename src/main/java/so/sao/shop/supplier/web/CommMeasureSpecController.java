@@ -38,10 +38,7 @@ public class CommMeasureSpecController {
         // 1. 先从请求对象中拿到供应商(用户)的ID
         User user = (User)request.getAttribute(Constant.REQUEST_USER);
         if (null == user) {   //验证用户是否登陆
-            Result result = new Result();
-            result.setCode(Constant.CodeConfig.CODE_USER_NOT_LOGIN);
-            result.setMessage(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
-            return result;
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
         long supplierId = user.getAccountId();
         if(Constant.ADMIN_STATUS.equals(user.getIsAdmin())){
@@ -59,15 +56,11 @@ public class CommMeasureSpecController {
      */
     @PostMapping("/save")
     @ApiOperation(value = "新添加计量规格", notes ="新添加一个计量规格名称" )
-    public Result create(HttpServletRequest request, String name){
-
-        // 1. 先从请求对象中拿到供应商(用户)的ID
+    public Result create(HttpServletRequest request,String name){
+       // 1. 先从请求对象中拿到供应商(用户)的ID
         User user = (User)request.getAttribute(Constant.REQUEST_USER);
         if (null == user) {   //验证用户是否登陆
-            Result result = new Result();
-            result.setCode(Constant.CodeConfig.CODE_USER_NOT_LOGIN);
-            result.setMessage(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
-            return result;
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
         long supplierId = user.getAccountId();
         if(Constant.ADMIN_STATUS.equals(user.getIsAdmin())){
@@ -85,13 +78,10 @@ public class CommMeasureSpecController {
      */
     @DeleteMapping("/delete")
     @ApiOperation(value = "删除计量规格", notes = "根据计量规格的ID - 删除计量规格")
-    public Result delete(HttpServletRequest request, Long id){
+    public Result delete(HttpServletRequest request,@RequestParam Long id){
         User user = (User)request.getAttribute(Constant.REQUEST_USER);
         if (null == user) {   //验证用户是否登陆
-            Result result = new Result();
-            result.setCode(Constant.CodeConfig.CODE_USER_NOT_LOGIN);
-            result.setMessage(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
-            return result;
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
         long supplierId = user.getAccountId();
         if(Constant.ADMIN_STATUS.equals(user.getIsAdmin())){
@@ -112,20 +102,14 @@ public class CommMeasureSpecController {
         User user = (User)request.getAttribute(Constant.REQUEST_USER);
         //验证用户是否登陆
         if (null == user) {
-            Result result = new Result();
-            result.setCode(Constant.CodeConfig.CODE_USER_NOT_LOGIN);
-            result.setMessage(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
-            return result;
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
         //校验商品计量规格修改对象属性
         if(bindingResult.hasErrors()){
-            Result result = new Result();
             List<ObjectError> objectErrors = bindingResult.getAllErrors();
             for (ObjectError error: objectErrors) {
-                result.setCode(Constant.CodeConfig.CODE_FAILURE);
-                result.setMessage(error.getDefaultMessage());
+                return Result.fail(error.getDefaultMessage());
             }
-            return result;
         }
         long supplierId = user.getAccountId();
         if(Constant.ADMIN_STATUS.equals(user.getIsAdmin())){

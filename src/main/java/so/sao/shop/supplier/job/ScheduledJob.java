@@ -1,5 +1,7 @@
 package so.sao.shop.supplier.job;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -19,6 +21,8 @@ import java.util.List;
  */
 @Component
 public class ScheduledJob {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private AccountService accountService;
@@ -51,7 +55,7 @@ public class ScheduledJob {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("系统异常", e);
         } finally {
             redisTemplate.delete(Constant.REDIS_KEY_PREFIX + "COUNT_BILLING_DETAILS");
         }

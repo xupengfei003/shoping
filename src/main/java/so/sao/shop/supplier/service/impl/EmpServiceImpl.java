@@ -90,7 +90,7 @@ public class EmpServiceImpl implements EmpService {
 	 * @return 返回插入结果
 	 */
     @Transactional(rollbackFor = Exception.class)
-	public Result saveEmp(Emp emp) {
+	public Result saveEmp(Emp emp) throws Exception{
 		//定义返回值
 		Result baseResult = new Result();
 		//判断登录用户是否为员工
@@ -136,7 +136,8 @@ public class EmpServiceImpl implements EmpService {
 			baseResult.setMessage("此员工信息已经存在！");
 	        baseResult.setCode(Constant.CodeConfig.CODE_FAILURE);
 		} catch (Exception e) {
-			logger.error("插入员工信息异常！"+e.getMessage(), e);
+			logger.error("插入员工信息异常！",e);
+			throw new Exception(e.getMessage());
 		} finally {
 			redisTemplate.delete(Constant.REDIS_KEY_PREFIX+emp.getEmpTel());
 		}

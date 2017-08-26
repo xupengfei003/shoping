@@ -265,6 +265,7 @@ public class CommodityServiceImpl implements CommodityService {
                         imge.setSize(imgeVo.getSize());
                         imge.setUrl(imgeVo.getUrl());
                         imge.setType(imgeVo.getType());
+                        imge.setThumbnailUrl(imgeVo.getThumbnailUrl());
                         commImgeDao.save(imge);
                     }
                 }
@@ -485,6 +486,7 @@ public class CommodityServiceImpl implements CommodityService {
             commImgeVo.setType(commImge.getType());
             commImgeVo.setSize(commImge.getSize());
             commImgeVo.setName(commImge.getName());
+            commImgeVo.setThumbnailUrl(commImge.getThumbnailUrl());
             commImgeVoList.add(commImgeVo);
         }
         commodityOutput.setImgeList(commImgeVoList);
