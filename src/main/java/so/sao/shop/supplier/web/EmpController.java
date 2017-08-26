@@ -57,28 +57,22 @@ public class EmpController {
 	@ApiOperation(value="新增员工信息", notes="")
 	@PutMapping("/create")
 	public Result create(HttpServletRequest request,@Valid @RequestBody Emp emp,BindingResult result) throws Exception{
-		Result baseResult = new Result();
 		User user = (User) request.getAttribute(Constant.REQUEST_USER);
 		if(user == null) {
-			baseResult.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_USER_NOT_LOGIN);
-			baseResult.setMessage("请登录后再操作");
-            return baseResult;
+            return Result.fail("请登录后再操作");
 		}
 		//判断验证是否通过。true 未通过  false通过
         if(result.hasErrors()) {
             List<ObjectError> list = result.getAllErrors();
             for (ObjectError error : list) {
-                baseResult.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-                baseResult.setMessage(error.getDefaultMessage());
+                return Result.fail(error.getDefaultMessage());
             }
-        }else {
-        	/**
-        	 * 插入员工信息
-        	 */
-        	emp.setUserId(user.getId());
-			baseResult = empService.saveEmp(emp);
         }
-		return baseResult;
+    	/**
+    	 * 插入员工信息
+    	 */
+        emp.setUserId(user.getId());
+		return empService.saveEmp(emp);
 	}
 
     /**
@@ -90,13 +84,10 @@ public class EmpController {
     @GetMapping("/findemp")
     @ApiOperation(value = "查找员工列表")
     public Result<PageInfo> search(EmpInput empInput, HttpServletRequest request) {
-        Result result = new Result();
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //验证是否登录
         if (user == null) {
-        	result.setCode(Constant.CodeConfig.CODE_USER_NOT_LOGIN);
-        	result.setMessage("请登录后再操作");
-            return result;
+            return Result.fail("请登录后再操作");
         }        
         empInput.setUserId(user.getId());
         return empService.serachEmp(empInput);
@@ -111,26 +102,20 @@ public class EmpController {
     @PutMapping("/updateStatus")
     @ApiOperation(value = "修改员工状态")
     public Result updateStatus(@Valid @RequestBody EmpUpdateInput empUpdateInput, HttpServletRequest request,BindingResult bndresult) {
-        Result result = new Result();
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
       //验证是否登录
         if (user == null) {
-        	result.setCode(Constant.CodeConfig.CODE_USER_NOT_LOGIN);
-        	result.setMessage("请登录后再操作");
-            return result;
+            return Result.fail("请登录后再操作");
         }
         
       //判断验证是否通过。true 未通过  false通过
         if(bndresult.hasErrors()) {
             List<ObjectError> list = bndresult.getAllErrors();
             for (ObjectError error : list) {
-            	result.setCode(Constant.CodeConfig.CODE_FAILURE);
-            	result.setMessage(error.getDefaultMessage());
+            	return Result.fail(error.getDefaultMessage());
             }
-        }else {
-        	empUpdateInput.setUserId(user.getId());
-        	result = empService.updateEmpStatus(empUpdateInput);
         }
-        return result;
+        empUpdateInput.setUserId(user.getId());
+        return empService.updateEmpStatus(empUpdateInput);
     }
 }

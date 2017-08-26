@@ -509,7 +509,7 @@ public class AccountController {
     @GetMapping(value = "/AccountNumber")
     public Result getAccountNumber(){
          int num=accountService.selectAccountNumber();
-         return new Result(Constant.CodeConfig.CODE_SUCCESS,"查询成功",num);
+         return Result.success("查询成功",num);
     }
     
     /**
@@ -523,7 +523,8 @@ public class AccountController {
     public Result uploadContract(HttpServletRequest request,@RequestPart("file") MultipartFile multipartFile,String blobName) {
     	User user = (User) request.getAttribute(Constant.REQUEST_USER);
         if(user==null || !user.getIsAdmin().equals(Constant.ADMIN_STATUS)){
-           return new Result(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE, so.sao.shop.supplier.config.Constant.MessageConfig.ADMIN_AUTHORITY_EERO, "");
+        	Result.fail(so.sao.shop.supplier.config.Constant.MessageConfig.ADMIN_AUTHORITY_EERO);
+        	return Result.fail(so.sao.shop.supplier.config.Constant.MessageConfig.ADMIN_AUTHORITY_EERO);
         }
     	return accountService.uploadContract(multipartFile,blobName);
     }

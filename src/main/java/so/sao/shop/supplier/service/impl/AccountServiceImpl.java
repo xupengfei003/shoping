@@ -388,12 +388,9 @@ public class AccountServiceImpl implements AccountService {
      * @return 返回云链接地址
      */
     public Result uploadContract(MultipartFile multipartFile,String blobName) {
-    	Result result = new Result();
     	//判断文件是否为空
         if (multipartFile == null) {
-        	result.setCode(Constant.CodeConfig.CODE_FAILURE);
-        	result.setMessage("上传文件为空");
-            return result;
+            return Result.fail("上传文件为空");
         }
     	//文件名称不为空，先删除云端文件
     	if(!"".equals(blobName) && blobName != null) {
@@ -407,22 +404,15 @@ public class AccountServiceImpl implements AccountService {
         String prefix=fileName.substring(fileName.lastIndexOf(".")+1);
         //判断文件类型
         if(!("doc".equals(prefix) || "docx".equals(prefix)||"ppt".equals(prefix)||"pptx".equals(prefix)||"wps".equals(prefix)||"pdf".equals(prefix)||"txt".equals(prefix))) {
-        	result.setCode(Constant.CodeConfig.CODE_FAILURE);
-        	result.setMessage("不符合文件类型");
-            return result;
+            return Result.fail("不符合文件类型");
         }
         //判断文件大小
         if(fileSize/1024/1024>20) {
-        	result.setCode(Constant.CodeConfig.CODE_FAILURE);
-        	result.setMessage("上传文件大于20M");
-            return result;
+        	return Result.fail("上传文件大于20M");
         }
       //上传成功封装为result返回页面
         List<BlobUpload> blobUploadList =azureBlobService.uploadFiles(new MultipartFile[] {multipartFile}, so.sao.shop.supplier.util.Constant.AZURE_CONTAINER.toLowerCase());
-        	result.setCode(Constant.CodeConfig.CODE_SUCCESS);
-            result.setMessage("文件上传成功");
-            result.setData(blobUploadList.get(0));
-        return result;
+        return Result.success("文件上传成功", blobUploadList.get(0));
     }
 
     /**

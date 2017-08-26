@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import so.sao.shop.supplier.config.Constant;
@@ -37,7 +38,7 @@ public class FeedbackController {
      */
     @PostMapping("/createFeedback")
     @ApiOperation(value = "提交反馈", notes = "提交反馈")
-    public Result createFeedback(HttpServletRequest request, String suggest) {
+    public Result createFeedback(HttpServletRequest request, @RequestBody String suggest) {
         Result result = new Result();
         //验证供应商是否登陆并取出accountId
         User user = (User) request.getAttribute(Constant.REQUEST_USER);

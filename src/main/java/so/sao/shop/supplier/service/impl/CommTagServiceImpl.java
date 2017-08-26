@@ -41,17 +41,17 @@ public class CommTagServiceImpl implements CommTagService {
     public Result saveCommTag(Long supplierId, String name) {
         //方法返回对象
         Result result = new Result();
-        CommTag commTag = new CommTag();
-        commTag.setName(name.trim());
-        commTag.setSupplierId(supplierId);
-        commTag.setCreatedAt(new Date());
-        commTag.setUpdatedAt(new Date());
         //判断标签名为null或空
         if (null == name || Ognl.isEmpty(name.trim())) {
             result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
             result.setMessage("请输入商品标签名称！");
             return result;
         }
+        CommTag commTag = new CommTag();
+        commTag.setName(name.trim());
+        commTag.setSupplierId(supplierId);
+        commTag.setCreatedAt(new Date());
+        commTag.setUpdatedAt(new Date());
         //校验商品标签名称长度
         if (name.trim().length() > Constant.CheckMaxLength.MAX_TAG_NAME_LENGTH) {
             result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);

@@ -151,12 +151,9 @@ public class EmpServiceImpl implements EmpService {
 	 */
 	 @Override
     public Result< PageInfo> serachEmp(EmpInput empInput) {
-        Result result = new Result();
         Long accountId = accountDao.findAccountIdByUserId(empInput.getUserId());
         if(accountId == null) {
-        	result.setMessage("此登录账户不是供应商，无查询权限");
-        	result.setCode(Constant.CodeConfig.CODE_FAILURE);
-        	return result;
+        	return Result.fail("此登录账户不是供应商，无查询权限");
         }
         //判断当前页码和每页显示的条数是否为空
         if (null == empInput.getPageNum()){
@@ -169,10 +166,7 @@ public class EmpServiceImpl implements EmpService {
         PageHelper.startPage(empInput.getPageNum(), empInput.getPageSize());
         empInput.setAccountId(accountId);
         PageInfo pageInfo = new PageInfo(empDao.findPage(empInput));
-        result.setData(pageInfo);
-        result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SUCCESS);
-        result.setMessage("查询成功");
-        return result;
+        return Result.success("查询成功", pageInfo);
     }
 
 	/**
@@ -183,23 +177,16 @@ public class EmpServiceImpl implements EmpService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result updateEmpStatus(EmpUpdateInput empUpdateInput) {
-            Result result = new Result();
             Long accountId = accountDao.findAccountIdByUserId(empUpdateInput.getUserId());
             if(accountId == null) {
-            	result.setMessage("此登录账户不是供应商，无更新权限");
-            	result.setCode(Constant.CodeConfig.CODE_FAILURE);
-            	return result;
+            	return Result.fail("此登录账户不是供应商，无更新权限");
             }
 			empUpdateInput.setUpdateAt(new Date());
             int updateNumber = empDao.updateEmpStatusById(empUpdateInput);
             //判断受影响的行数
             if (updateNumber > 0){
-                result.setCode(Constant.CodeConfig.CODE_SUCCESS);
-                result.setMessage("修改成功！");
-                return result;
+                return Result.success("修改成功！");
             }
-            result.setCode(Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage("修改失败！");
-            return result;
+            return Result.fail("修改失败！");
     }
 }

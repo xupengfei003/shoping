@@ -37,12 +37,6 @@ public class CommUnitServiceImp implements CommUnitService {
     public Result saveCommUnit(Long supplierId, String  name){
         //1.方法返回对象
         Result result = new Result();
-        //2.封装需要添加的对象数据
-        CommUnit commUnit = new CommUnit();
-        commUnit.setName(name.trim());
-        commUnit.setSupplierId(supplierId);
-        commUnit.setCreatedAt(new Date());
-        commUnit.setUpdatedAt(new Date());
         //3.校验输入name是否为空
         if( null == name || Ognl.isEmpty(name.trim())){
             result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
@@ -56,8 +50,14 @@ public class CommUnitServiceImp implements CommUnitService {
                 return result;
             }
         }
+        //2.封装需要添加的对象数据
+        CommUnit commUnit = new CommUnit();
+        commUnit.setName(name);
+        commUnit.setSupplierId(supplierId);
+        commUnit.setCreatedAt(new Date());
+        commUnit.setUpdatedAt(new Date());
         //4.判断新增商品单位是否重复,不重复时进行新增，重复时返回重复信息
-       List<CommUnit> unitList= commUnitDao.findNameAndSupplierId(supplierId,name.trim());
+       List<CommUnit> unitList= commUnitDao.findNameAndSupplierId(supplierId,name);
         if (null==unitList || unitList.size()==0) {
             //5.判断新增成功或失败
             if (commUnitDao.save(commUnit)) {
