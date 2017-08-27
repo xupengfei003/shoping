@@ -18,16 +18,16 @@ public class Tools {
     }
 
     /**
-     * Æ´½Ó order by ºóÃæµÄ×Ö·û´®
-     * ½«´«½øµÄÅÅÐò¹æÔò×Ö·û´®°´ÕÕÒªÅÅÐòµÄ±í×Ö¶Î×ª»¯³ÉsqlÓï¾äÖÐµÄÅÅÐò×Ö·û´®
-     *  ×¢£º´«½øµÄÅÅÐò¹æÔò×Ö·û´®ÖÐ ÅÅÐò×Ö¶ÎÎªÊý×Ö£¬¸ÃÊý×Ö½«×÷ÎªÊý×éÏÂ±ê½øÐÐ×ª»¯
-     *                          ÅÅÐò¹æÔò(ÉýÐò½µÐò)£ºÉýÐò£º0£¬½µÐò£º1
-     *      Èô·µ»Ønull±íÊ¾¸ÃÅÅÐò¹æÔò×Ö·û´®ÓÐÒì³££¨²»·ûºÏÅÅÐò¹æÔò£©
-     *      ½¨ÒéÏÈÅÐ¶ÏÅÅÐò¹æÔò×Ö·û´®ÊÇ·ñÎª¿Õ£¬²»Îª¿Õµ÷ÓÃ¸Ã·½·¨
-     * @param orderByStr ÅÅÐò×Ö·û´®¸ñÊ½£ºfieldsÏÂ±ê,[ÉýÐò0»ò½µÐò1],...
+     * æ‹¼æŽ¥ order by åŽé¢çš„å­—ç¬¦ä¸²
+     * å°†ä¼ è¿›çš„æŽ’åºè§„åˆ™å­—ç¬¦ä¸²æŒ‰ç…§è¦æŽ’åºçš„è¡¨å­—æ®µè½¬åŒ–æˆsqlè¯­å¥ä¸­çš„æŽ’åºå­—ç¬¦ä¸²
+     *  æ³¨ï¼šä¼ è¿›çš„æŽ’åºè§„åˆ™å­—ç¬¦ä¸²ä¸­ æŽ’åºå­—æ®µä¸ºæ•°å­—ï¼Œè¯¥æ•°å­—å°†ä½œä¸ºæ•°ç»„ä¸‹æ ‡è¿›è¡Œè½¬åŒ–
+     *                          æŽ’åºè§„åˆ™(å‡åºé™åº)ï¼šå‡åºï¼š0ï¼Œé™åºï¼š1
+     *      è‹¥è¿”å›žnullè¡¨ç¤ºè¯¥æŽ’åºè§„åˆ™å­—ç¬¦ä¸²æœ‰å¼‚å¸¸ï¼ˆä¸ç¬¦åˆæŽ’åºè§„åˆ™ï¼‰
+     *      å»ºè®®å…ˆåˆ¤æ–­æŽ’åºè§„åˆ™å­—ç¬¦ä¸²æ˜¯å¦ä¸ºç©ºï¼Œä¸ä¸ºç©ºè°ƒç”¨è¯¥æ–¹æ³•
+     * @param orderByStr æŽ’åºå­—ç¬¦ä¸²æ ¼å¼ï¼šfieldsä¸‹æ ‡,[å‡åº0æˆ–é™åº1],...
      *                   ag:(0,1,1,1,2,0)
-     * @param fields ÒªÅÅÐòµÄ×Ö¶Î([id,name,age])
-     * @return sqlÓï¾äÖÐµÄÅÅÐò×Ö·û´®   ag:(id DESC,name DESC,age ASC)
+     * @param fields è¦æŽ’åºçš„å­—æ®µ([id,name,age])
+     * @return sqlè¯­å¥ä¸­çš„æŽ’åºå­—ç¬¦ä¸²   ag:(id DESC,name DESC,age ASC)
      */
     public static String concatOrderByStr(String orderByStr, String[] fields) {// 0,0,1,0
         if (Ognl.isEmpty(orderByStr)) {
@@ -51,7 +51,7 @@ public class Tools {
         try {
             for (int i = 0; i < len; i++) {
                 String index = temp[i];
-                if (i % 2 == 0) { // Å¼Êý
+                if (i % 2 == 0) { // å¶æ•°
                     sb.append(fields[Integer.parseInt(index)]);
                     sb.append(" ");
                 } else {

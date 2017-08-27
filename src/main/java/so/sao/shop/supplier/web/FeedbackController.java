@@ -57,7 +57,7 @@ public class FeedbackController {
             result.setCode(Constant.CodeConfig.CODE_SUCCESS);
             result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
         } catch (Exception e) {
-            logger.error("系统异常", e.getMessage());
+            logger.error("系统异常", e);
             result.setCode(Constant.CodeConfig.CODE_FAILURE);
             result.setMessage(Constant.MessageConfig.MSG_FAILURE);
             return result;

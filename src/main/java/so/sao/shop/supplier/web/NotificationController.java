@@ -72,7 +72,7 @@ public class NotificationController {
                 result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
                 result.setCode(Constant.CodeConfig.CODE_SUCCESS);
             } catch (Exception e) {
-                logger.error(e.getMessage());
+                logger.error("系统异常", e);
                 result.setCode(Constant.CodeConfig.CODE_FAILURE);
                 result.setMessage(Constant.MessageConfig.MSG_FAILURE);
                 return result;
@@ -116,7 +116,7 @@ public class NotificationController {
                 result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
                 result.setData(new PageInfo<>(dataList));
             } catch (Exception e) {
-                logger.error(e.getMessage());
+                logger.error("系统异常", e);
                 result.setCode(Constant.CodeConfig.CODE_FAILURE);
                 result.setMessage(Constant.MessageConfig.MSG_FAILURE);
                 return result;
@@ -128,7 +128,7 @@ public class NotificationController {
                 result.setCode(Constant.CodeConfig.CODE_SUCCESS);
                 result.setData(new PageInfo<>(dataList));
             } catch (Exception e) {
-                logger.error(e.getMessage());
+                logger.error("系统异常", e);
                 result.setMessage(Constant.MessageConfig.MSG_FAILURE);
                 result.setCode(Constant.CodeConfig.CODE_FAILURE);
                 return result;
@@ -160,7 +160,7 @@ public class NotificationController {
             result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
             result.setData(total);
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error("系统异常", e);
             result.setCode(Constant.CodeConfig.CODE_FAILURE);
             result.setMessage(Constant.MessageConfig.MSG_FAILURE);
             return result;
@@ -200,7 +200,7 @@ public class NotificationController {
             result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
             result.setData(dataList);
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error("系统异常", e);
             result.setCode(Constant.CodeConfig.CODE_FAILURE);
             result.setMessage(Constant.MessageConfig.MSG_FAILURE);
             return result;
@@ -231,7 +231,7 @@ public class NotificationController {
             result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
             result.setData(notificationOutput);
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error("系统异常", e);
             result.setCode(Constant.CodeConfig.CODE_FAILURE);
             result.setMessage(Constant.MessageConfig.MSG_FAILURE);
             return result;
@@ -274,7 +274,7 @@ public class NotificationController {
             result.setCode(Constant.CodeConfig.CODE_SUCCESS);
             result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error("系统异常", e);
             result.setCode(Constant.CodeConfig.CODE_FAILURE);
             result.setMessage(Constant.MessageConfig.MSG_FAILURE);
             return result;
@@ -297,7 +297,7 @@ public class NotificationController {
             result.setCode(Constant.CodeConfig.CODE_SUCCESS);
             result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error("系统异常", e);
             result.setCode(Constant.CodeConfig.CODE_FAILURE);
             result.setMessage(Constant.MessageConfig.MSG_FAILURE);
             return result;
@@ -320,7 +320,7 @@ public class NotificationController {
             result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
             result.setData(show);
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error("系统异常", e);
             result.setCode(Constant.CodeConfig.CODE_FAILURE);
             result.setMessage(Constant.MessageConfig.MSG_FAILURE);
             return result;

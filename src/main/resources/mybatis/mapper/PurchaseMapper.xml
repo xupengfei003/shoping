@@ -425,7 +425,7 @@
                 AND ORDER_ID = TRIM(#{input.orderId})
             </if>
         </if>
-        ORDER BY ORDER_PAYMENT_TIME ASC
+        ORDER BY ORDER_PAYMENT_TIME DESC
     </select>
 
     <!-- 分页条件检索账户管理下的订单明细 （普通查询）-->

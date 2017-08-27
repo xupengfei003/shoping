@@ -123,7 +123,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                     BigDecimal unitPrice = commOutput.getPrice();//市场价
                     item.setGoodsUnitPrice(price);
                     totalMoney = totalMoney.add(goodsNumber.multiply(price));//订单实付金额
-                    orderSettlemePrice = orderSettlemePrice.add(goodsNumber.multiply(orderSettlemePrice));//订单结算金额
+                    orderSettlemePrice = orderSettlemePrice.add(goodsNumber.multiply(unitPrice));//订单结算金额
                     item.setGoodsTatolPrice(goodsNumber.multiply(price));//单个商品总价
                     item.setGoodsImage(commOutput.getMinImg());//商品图片
                     item.setGoodsName(commOutput.getName());//商品名称

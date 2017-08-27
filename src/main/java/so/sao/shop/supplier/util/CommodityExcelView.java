@@ -28,7 +28,7 @@ public class CommodityExcelView extends ExcelView{
         header.getCell(2).setCellStyle(super.cellStyle);
         header.createCell(3).setCellValue("商品编码");
         header.getCell(3).setCellStyle(super.cellStyle);
-        header.createCell(4).setCellValue("商家编码");
+        header.createCell(4).setCellValue("商品商家编码");
         header.getCell(4).setCellStyle(super.cellStyle);
         header.createCell(5).setCellValue("商品标签");
         header.getCell(5).setCellStyle(super.cellStyle);
@@ -39,9 +39,9 @@ public class CommodityExcelView extends ExcelView{
         header.createCell(8).setCellValue("上市时间");
         header.getCell(8).setCellStyle(super.cellStyle);
 
-        header.createCell(9).setCellValue("单位");
+        header.createCell(9).setCellValue("包装单位");
         header.getCell(9).setCellStyle(super.cellStyle);
-        header.createCell(10).setCellValue("规格");
+        header.createCell(10).setCellValue("计量规格");
         header.getCell(10).setCellStyle(super.cellStyle);
         header.createCell(11).setCellValue("规格值");
         header.getCell(11).setCellStyle(super.cellStyle);

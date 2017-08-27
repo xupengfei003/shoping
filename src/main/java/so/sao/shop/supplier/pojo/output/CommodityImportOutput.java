@@ -1,5 +1,6 @@
 package so.sao.shop.supplier.pojo.output;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import so.sao.shop.supplier.pojo.BaseResult;
 
 import java.util.Date;
@@ -56,6 +57,7 @@ public class CommodityImportOutput extends BaseResult {
     /**
      * 上市时间
      */
+    @JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
     private Date marketTime;
     /**
      * 商品产地

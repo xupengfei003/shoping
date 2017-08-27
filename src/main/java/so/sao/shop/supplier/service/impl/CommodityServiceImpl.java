@@ -1072,7 +1072,7 @@ public class CommodityServiceImpl implements CommodityService {
                         case "商品介绍":
                             commodityInput.setRemark(value);
                             break;
-                        case "商品规格":
+                        case "计量规格":
                             if (!"".equals(value)) {
                                 supplierCommodityVo.setMeasureSpecName(value);
                                 List<CommMeasureSpec> commMeasureSpeclist=   commMeasureSpecDao.findByName(supplierId,value);
@@ -1101,7 +1101,7 @@ public class CommodityServiceImpl implements CommodityService {
                             }
 
                             break;
-                        case "计量单位":
+                        case "包装单位":
                             Long unitId = null;
                             if (!"".equals(value)) {
                                 supplierCommodityVo.setUnitName(value);
@@ -1157,8 +1157,12 @@ public class CommodityServiceImpl implements CommodityService {
             CommodityInput commodityInput= (CommodityInput) it.next();
             for (int g = 0; g < commodityInput.getCommodityList().size(); g++) {
                 String code69 = commodityInput.getCommodityList().get(g).getCode69() == null ? "" : commodityInput.getCommodityList().get(g).getCode69();
+                List<CommImgeVo> imgeList = commodityInput.getCommodityList().get(g).getImgeList();
                 int rowNum = commodityInput.getRowNum() ;
-                if (!"".equals(code69)) {
+                if (null == imgeList || imgeList.isEmpty()){
+                    errorList.add(rowNum);
+                    it.remove();
+                }else if (!"".equals(code69)) {
                     if(!Tools.isNumeric(code69)){
                         errorList.add(rowNum);
                         it.remove();
