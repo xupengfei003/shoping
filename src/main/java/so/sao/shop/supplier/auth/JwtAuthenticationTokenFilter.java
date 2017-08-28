@@ -1,5 +1,6 @@
 package so.sao.shop.supplier.auth;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -7,7 +8,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.util.JwtTokenUtil;
@@ -63,6 +63,8 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
         response.setHeader("Access-Control-Allow-Headers", "x-requested-with,Authorization,Content-Type");
 
         String authHeader = request.getHeader(this.tokenHeader);
+        //header取不到从url中取
+        authHeader = StringUtils.isBlank(authHeader)?request.getParameter("token"):authHeader;
         if (authHeader != null && authHeader.startsWith(tokenHead)) {
             final String authToken = authHeader.substring(tokenHead.length());
             //验证token 不正确时抛异常(TODO 异常处理)

@@ -130,7 +130,8 @@
         min_img AS minImg,
         price,
         unit_price AS unitPrice
-        FROM supplier_commodity sc WHERE code69 = #{code69} AND sc.supplier_id = #{supplierId}
+        FROM supplier_commodity sc
+        WHERE sc.deleted = 0 AND code69 = #{code69} AND sc.supplier_id = #{supplierId}
     </select>
     <!--获取商品详情-->
     <select id="findDetail" resultType="so.sao.shop.supplier.pojo.output.CommodityOutput">

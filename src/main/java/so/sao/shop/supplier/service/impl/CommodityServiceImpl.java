@@ -229,11 +229,9 @@ public class CommodityServiceImpl implements CommodityService {
                 }
                 //校验sku是否重复
                 String sku = getSku(categoryOneId, categoryTwoId, categoryThreeId, commodity.getId(), supplierId);
-                SupplierCommodity supplierCommodity = supplierCommodityDao.findBySku(sku);
+                SupplierCommodity supplierCommodity = supplierCommodityDao.findSupplierCommodityInfo(code69,supplierId);
                 if(null != supplierCommodity){
-                    result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-                    result.setMessage("商品已存在！商品ID:" + sku);
-                    return result;
+                    return Result.fail("商品已存在！");
                 }
                 //新增商品规格
                 SupplierCommodity sc = new SupplierCommodity();
@@ -440,6 +438,7 @@ public class CommodityServiceImpl implements CommodityService {
                         imge.setName(imgeVo.getName());
                         imge.setSize(imgeVo.getSize());
                         imge.setType(imgeVo.getType());
+                        imge.setThumbnailUrl(imgeVo.getThumbnailUrl());
                         commImgeDao.save(imge);
                     }
                 }
@@ -985,7 +984,7 @@ public class CommodityServiceImpl implements CommodityService {
                     String key = entry.getKey() == null ? "" : entry.getKey();
                     String value = entry.getValue() == null ? "" : entry.getValue();
                     switch (key) {
-                        case "商品编码":
+                        case "商品条码":
                             supplierCommodityVo.setCode69(value);
                             break;
                         case "商品品牌":
@@ -1167,6 +1166,7 @@ public class CommodityServiceImpl implements CommodityService {
                         errorList.add(rowNum);
                         it.remove();
                     }else {
+                        //通过code69,supplierId,deleted=0判断商品是否存在
                         SupplierCommodity suppliercommodity = supplierCommodityDao.findSupplierCommodityInfo(code69,supplierId);
                         if (null != suppliercommodity) {
                             errorList.add(rowNum);

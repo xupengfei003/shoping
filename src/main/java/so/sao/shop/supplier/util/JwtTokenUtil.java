@@ -1,5 +1,6 @@
 package so.sao.shop.supplier.util;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -161,6 +162,7 @@ public class JwtTokenUtil implements Serializable {
      */
     public Map getClaimsFromRequest(HttpServletRequest request) throws IOException {
         String authHeader = request.getHeader(tokenHeader);
+        authHeader = StringUtils.isBlank(authHeader)?request.getParameter("token"):authHeader;
         String authToken = authHeader.substring(tokenHead.length());
         return new ObjectMapper().readValue(JwtHelper.decode(authToken).getClaims(), Map.class);
     }
@@ -173,6 +175,7 @@ public class JwtTokenUtil implements Serializable {
      */
     public String getTokenFromRequest(HttpServletRequest request) throws IOException {
         String authHeader = request.getHeader(tokenHeader);
+        authHeader = StringUtils.isBlank(authHeader)?request.getParameter("token"):authHeader;
         String authToken = authHeader.substring(tokenHead.length());
         return authToken;
     }

@@ -81,8 +81,29 @@
    	
    	<!-- 根据登录名称查询用户是否存在 -->
    	<select id="findByLoginName" resultMap="BaseResultMap">
-   		SELECT user_id, login_name, login_password
-          FROM user
-         WHERE login_name = #{loginName}
+   		 SELECT 
+		  u.user_id,
+		  u.login_name,
+		  u.login_password,
+		  u.last_password_reset_date,
+		  u.logout_time,
+		  u.is_admin,
+		  CASE
+		    WHEN a.account_id IS NULL 
+		    THEN e.account_id 
+		    ELSE a.account_id 
+		  END account_id 
+		FROM
+		  USER u 
+		  LEFT JOIN account a 
+		    ON u.user_id = a.user_id 
+		  LEFT JOIN emp e 
+		    ON u.user_id = e.user_id 
+		WHERE u.login_name = #{username}
+		  AND (
+		    a.account_status = 1
+		    OR e.emp_status = 1
+		    OR e.emp_status = 0
+		  )
    	</select>
 </mapper>

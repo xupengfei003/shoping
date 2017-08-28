@@ -120,7 +120,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                     item.setGoodsId(goodsId);//商品ID
                     item.setGoodsNumber(goodsNumber.intValue());//商品数量
                     BigDecimal price = commOutput.getPrice();//市场价
-                    BigDecimal unitPrice = commOutput.getPrice();//市场价
+                    BigDecimal unitPrice = commOutput.getUnitPrice();//成本价
                     item.setGoodsUnitPrice(price);
                     totalMoney = totalMoney.add(goodsNumber.multiply(price));//订单实付金额
                     orderSettlemePrice = orderSettlemePrice.add(goodsNumber.multiply(unitPrice));//订单结算金额
@@ -220,6 +220,11 @@ public class PurchaseServiceImpl implements PurchaseService {
             //PurchaseInfoOutput 添加订单明细列表
             List<PurchaseItemVo> purchaseItemVoList = purchaseItemDao.getOrderDetailByOId(purchase.getOrderId());
 
+            //转换金额为千分位
+            for(PurchaseItemVo purchaseItemVo : purchaseItemVoList){
+                purchaseItemVo.setGoodsTatolPrice(NumberUtil.number2Thousand(new BigDecimal(purchaseItemVo.getGoodsTatolPrice())));
+                purchaseItemVo.setGoodsUnitPrice(NumberUtil.number2Thousand(new BigDecimal(purchaseItemVo.getGoodsUnitPrice())));
+            }
             if (purchaseItemVoList != null && purchaseItemVoList.size() > 0) {
                 purchaseInfoVo.setPurchaseItemVoList(purchaseItemVoList);
             } else {
@@ -699,6 +704,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         Iterator iterator = purchaseItemPrintVos.iterator();
         while (iterator.hasNext()) {
             PurchaseItemPrintVo purchaseItemPrintVo = (PurchaseItemPrintVo) iterator.next();
+
             purchaseItemPrintVo.setGoodsTatolPriceFormat(
                     NumberUtil.number2Thousand(purchaseItemPrintVo.getGoodsTatolPrice())
             );
@@ -815,8 +821,9 @@ public class PurchaseServiceImpl implements PurchaseService {
     /**
      * 扫描收货二维码
      *
-     * 1.将订单状态改为已收货
-     * 2.将二维码状态改为失效，并记录失效时间
+     * 1.验证是否可以扫码收货
+     * 2.将订单状态改为已收货
+     * 3.将二维码状态改为失效，并记录失效时间
      *
      * @param orderId 订单编号
      * @return  map 封装结果 键flag的值为true表示成功，false表示失败，message的值表示文字描述
@@ -826,7 +833,21 @@ public class PurchaseServiceImpl implements PurchaseService {
     public Map sweepReceiving(String orderId) {
         Map map = new HashMap<>(); // 返回结果
 
-        // 1.将订单状态改为已收货，成功返回true，失败返回false
+        // 1.验证是否可以扫码收货
+        PurchasePrintVo purchasePrintVo = purchaseDao.findPrintOrderInfo(orderId);
+        if (null == purchasePrintVo) {
+            map.put("flag", false);
+            map.put("message", "订单不存在");
+            return map;
+        }
+        Integer status = purchasePrintVo.getQrcodeStatus();
+        if (null == status || status == 1) {
+            map.put("flag", false);
+            map.put("message", "二维码已经失效");
+            return map;
+        }
+
+        // 2.将订单状态改为已收货，成功返回true，失败返回false
         boolean flag = this.updateOrder(orderId, Constant.OrderStatusConfig.RECEIVED, null, null, null);
 
         // 订单状态修改失败，返回false
@@ -837,7 +858,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             return map;
         }
 
-        // 2.将二维码状态改为失效，并记录失效时间
+        // 3.将二维码状态改为失效，并记录失效时间
         Date date = new Date();
         boolean b = qrcodeDao.updateStatus(orderId, 1, date, date);
         if (!b) { // 更改失败
@@ -861,6 +882,7 @@ public class PurchaseServiceImpl implements PurchaseService {
      * @return Map 封装结果 键flag的值为true表示成功，false表示失败，message的值表示文字描述
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Map refuseOrder(RefuseOrderInput refuseOrderInput) throws Exception {
         Map<String,Object> map = new HashMap<>();
         map.put("orderId",refuseOrderInput.getOrderId());//订单编号
@@ -871,6 +893,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         map.put("orderRefuseTime",new Date());//拒收时间
         map.put("updatedAt", new Date());//更新时间
         boolean flag = purchaseDao.insertRefuseMessage(map);
+        updateOrder(refuseOrderInput.getOrderId(), Constant.OrderStatusConfig.REJECT, null,null,null);
         map.clear();
         if(!flag){
             map.put("flag",flag);
@@ -1004,12 +1027,14 @@ public class PurchaseServiceImpl implements PurchaseService {
      * @throws Exception
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Map cancelOrder(CancelReasonInput cancelReasonInput) throws Exception {
         Map<String,Object> map = new HashMap<>();
         map.put("orderId",cancelReasonInput.getOrderId());//订单编号
         map.put("cancelReason",cancelReasonInput.getCancelReason());//取消订单理由
         map.put("updatedAt", new Date());//更新时间
         boolean flag = purchaseDao.insertCancelMessage(map);
+        updateOrder(cancelReasonInput.getOrderId(), Constant.OrderStatusConfig.CANCEL_ORDER, null,null,null);
         map.clear();
         if(!flag){
             map.put("flag",flag);

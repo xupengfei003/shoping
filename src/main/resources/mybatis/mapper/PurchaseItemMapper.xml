@@ -25,6 +25,7 @@
         <result column="goods_image" property="goodsImage"/>
         <result column="goods_name" property="goodsName"/>
         <result column="brand_name" property="brandName"/>
+        <result column="goods_unit_price" property="goodsUnitPrice"/>
     </resultMap>
 
     <!--收入明细中的订单明细映射结果-->
@@ -52,7 +53,8 @@
         pi.goods_id,
         pi.goods_number,
         pi.goods_tatol_price,
-        pi.brand_name
+        pi.brand_name,
+        pi.goods_unit_price
         FROM
         purchase_item pi
         JOIN purchase p ON p.order_id = pi.order_id

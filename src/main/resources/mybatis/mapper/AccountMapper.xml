@@ -746,7 +746,7 @@
                   AND  contract_register_address_district = #{contractRegisterAddressDistrict} 
                 </if>
                 <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(vague)">
-                   AND  (contract_responsible_phone LIKE "%${vague}%" or provider_name LIKE "%${vague}%")
+                   AND  (contract_responsible LIKE "%${vague}%" or provider_name LIKE "%${vague}%")
                  </if>
     </where>
              ORDER  BY  a.create_date DESC 

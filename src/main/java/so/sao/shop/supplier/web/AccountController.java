@@ -16,6 +16,7 @@ import so.sao.shop.supplier.domain.*;
 import so.sao.shop.supplier.pojo.BaseResult;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.service.*;
+import so.sao.shop.supplier.util.DownloadAzureFile;
 import so.sao.shop.supplier.util.ExcelImportUtils;
 import so.sao.shop.supplier.config.Constant;
 import javax.servlet.http.HttpServletRequest;
@@ -437,7 +438,7 @@ public class AccountController {
     public Result updatePassword(HttpServletRequest request, @PathVariable String encodedPassword) throws IOException {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         if(null==user){
-            return new Result(Constant.CodeConfig.CODE_FAILURE, "登录验证不通过",null);
+            return Result.fail("登录验证不通过");
         }
         return authService.updatePassword(user.getId(), encodedPassword);
     }
@@ -523,9 +524,26 @@ public class AccountController {
     public Result uploadContract(HttpServletRequest request,@RequestPart("file") MultipartFile multipartFile,String blobName) {
     	User user = (User) request.getAttribute(Constant.REQUEST_USER);
         if(user==null || !user.getIsAdmin().equals(Constant.ADMIN_STATUS)){
-        	Result.fail(so.sao.shop.supplier.config.Constant.MessageConfig.ADMIN_AUTHORITY_EERO);
         	return Result.fail(so.sao.shop.supplier.config.Constant.MessageConfig.ADMIN_AUTHORITY_EERO);
         }
     	return accountService.uploadContract(multipartFile,blobName);
+    }
+    
+    /**
+     * 云端合同下载文件转换
+     * @param downloadUrl 文件云端地址
+     * @param realFileName 文件云端名称
+     * @param request
+     * @param response
+     * @return
+     */
+    @ApiOperation("供应商合同下载")
+    @GetMapping(value = "/downloadContract")
+    public Result download(@RequestParam String downloadUrl, @RequestParam String realFileName, HttpServletRequest request, HttpServletResponse response) throws Exception{
+    	User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        if(user==null){
+        	return Result.fail("请登录后再操作");
+        }
+        return DownloadAzureFile.downloadFile(downloadUrl, realFileName, request, response);
     }
 }

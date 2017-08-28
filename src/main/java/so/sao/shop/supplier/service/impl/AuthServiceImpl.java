@@ -201,19 +201,23 @@ public class AuthServiceImpl implements AuthService {
 
         User user = userDao.findOne(userId);
         if(user!=null&& StringUtils.isNotBlank(user.getPassword())){
+            if(new BCryptPasswordEncoder().matches(encodedPassword,user.getPassword())){
+                return Result.fail("新密码不能和旧密码相同");
+            }
             userDao.updatePassword(user.getId(),new BCryptPasswordEncoder().encode(encodedPassword), new Date());
             UserDetails userDetails = null;
             try {
                 userDetails = userDetailsService.loadUserByUsername(user.getUsername());
             }catch (UsernameNotFoundException e){
-                return new Result(Constant.CodeConfig.CODE_FAILURE,"当前号码无效!","");
+                logger.error("当前号码无效",e.getMessage());
+                return Result.fail("当前号码无效");
             }
             redisTemplate.opsForHash().put(Constant.REDIS_LOGIN_KEY_PREFIX+userDetails.getUsername(),"user", userDetails);
             Map result = new HashMap();
             result.put("token", jwtTokenUtil.generateToken(userDetails));
             result.put("user",userDetails);
-            return new Result<Map>(Constant.CodeConfig.CODE_SUCCESS, "密码修改成功", result);
+            return Result.success("密码修改成功", result);
         }
-        return new Result(Constant.CodeConfig.CODE_FAILURE,"当前号码无效!",null);
+        return Result.fail("当前号码无效");
     }
 }

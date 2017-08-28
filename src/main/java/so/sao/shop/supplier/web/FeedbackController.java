@@ -14,6 +14,7 @@ import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.service.FeedbackService;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 /**
  * 供应商反馈管理
@@ -33,12 +34,12 @@ public class FeedbackController {
     /**
      * 提交反馈
      *
-     * @param suggest
+     * @param map
      * @return baseResult
      */
     @PostMapping("/createFeedback")
     @ApiOperation(value = "提交反馈", notes = "提交反馈")
-    public Result createFeedback(HttpServletRequest request, @RequestBody String suggest) {
+    public Result createFeedback(HttpServletRequest request, @RequestBody Map map) {
         Result result = new Result();
         //验证供应商是否登陆并取出accountId
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
@@ -47,6 +48,7 @@ public class FeedbackController {
             result.setMessage(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
             return result;
         }
+        String suggest = (String) map.get("suggest");
         if (null == suggest || "".equals(suggest)) {
             result.setCode(Constant.CodeConfig.CODE_FAILURE);
             result.setMessage(Constant.MessageConfig.MSG_NOT_EMPTY);

@@ -143,8 +143,9 @@ public interface PurchaseService {
     /**
      * 扫描收货二维码
      *
-     * 1.将订单状态改为已收货
-     * 2.将二维码状态改为失效，并记录失效时间
+     * 1.验证是否可以扫码收货
+     * 2.将订单状态改为已收货
+     * 3.将二维码状态改为失效，并记录失效时间
      *
      * @param orderId 订单编号
      * @return  map 封装结果 键flag的值为true表示成功，false表示失败，message的值表示文字描述

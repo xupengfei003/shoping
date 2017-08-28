@@ -32,7 +32,7 @@ public class PurchaseItemVo {
     /**
      * 商品总价
      */
-    private BigDecimal goodsTatolPrice;
+    private String goodsTatolPrice;
     /**
      * 商品图片
      */
@@ -45,6 +45,10 @@ public class PurchaseItemVo {
      * 品牌名称
      */
     private String brandName;
+    /**
+     * 商品单价
+     */
+    private String goodsUnitPrice;
 
     public String getGoodsAttribute() {
         return goodsAttribute;
@@ -71,11 +75,11 @@ public class PurchaseItemVo {
     }
 
 
-    public BigDecimal getGoodsTatolPrice() {
+    public String getGoodsTatolPrice() {
         return goodsTatolPrice;
     }
 
-    public void setGoodsTatolPrice(BigDecimal goodsTatolPrice) {
+    public void setGoodsTatolPrice(String goodsTatolPrice) {
         this.goodsTatolPrice = goodsTatolPrice;
     }
 
@@ -102,5 +106,13 @@ public class PurchaseItemVo {
 
     public void setBrandName(String brandName) {
         this.brandName = brandName;
+    }
+
+    public String getGoodsUnitPrice() {
+        return goodsUnitPrice;
+    }
+
+    public void setGoodsUnitPrice(String goodsUnitPrice) {
+        this.goodsUnitPrice = goodsUnitPrice;
     }
 }

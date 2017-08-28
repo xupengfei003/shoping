@@ -26,7 +26,7 @@ public class CommodityExcelView extends ExcelView{
         header.getCell(1).setCellStyle(super.cellStyle);
         header.createCell(2).setCellValue("商品名称");
         header.getCell(2).setCellStyle(super.cellStyle);
-        header.createCell(3).setCellValue("商品编码");
+        header.createCell(3).setCellValue("商品条码");
         header.getCell(3).setCellStyle(super.cellStyle);
         header.createCell(4).setCellValue("商品商家编码");
         header.getCell(4).setCellStyle(super.cellStyle);
@@ -66,14 +66,14 @@ public class CommodityExcelView extends ExcelView{
             commodityRow.createCell(0).setCellValue(commodity.getSku());//商品ID
             commodityRow.createCell(1).setCellValue(commodity.getBrandName());//商品品牌
             commodityRow.createCell(2).setCellValue(commodity.getCommName());//商品名称
-            commodityRow.createCell(3).setCellValue(commodity.getCode69());//商品编码
+            commodityRow.createCell(3).setCellValue(commodity.getCode69());//商品条码
             commodityRow.createCell(4).setCellValue(commodity.getSupplierCode());//商家编码
             commodityRow.createCell(5).setCellValue(commodity.getTagName());//商品标签
             commodityRow.createCell(6).setCellValue(commodity.getOriginPlace());//商品产地
             commodityRow.createCell(7).setCellValue(commodity.getCompanyName());//企业名称
-            commodityRow.createCell(8).setCellValue(commodity.getMarketTime());//上市时间
-            commodityRow.createCell(9).setCellValue(commodity.getUnitName());//单位
-            commodityRow.createCell(10).setCellValue(commodity.getMeasureSpecName());//规格名称
+            commodityRow.createCell(8).setCellValue(commodity.getMarketTime().equals("")?"":commodity.getMarketTime().substring(0,10));//上市时间
+            commodityRow.createCell(9).setCellValue(commodity.getUnitName());//包装单位
+            commodityRow.createCell(10).setCellValue(commodity.getMeasureSpecName());//计量规格
             commodityRow.createCell(11).setCellValue(commodity.getRuleValue());//规格值
             commodityRow.createCell(12).setCellValue(commodity.getPrice().toString());//成本价
             commodityRow.createCell(13).setCellValue(commodity.getUnitPrice().toString());//市场价

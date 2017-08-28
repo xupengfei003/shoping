@@ -54,7 +54,12 @@ public interface SupplierCommodityDao {
      * @return 商品信息对象
      */
     SupplierCommodity findBySku(@Param("sku")String sku);
-	
+    /**
+     *
+     * @param code69
+     * @return
+     */
+    SupplierCommodity findSupplierCommodityInfo(@Param("code69")String code69,@Param("supplierId") Long supplierId);
     /**
      * 查询商品信息集合
      * @param supplierId 供应商ID
@@ -121,13 +126,6 @@ public interface SupplierCommodityDao {
      * @param supplierCommodity
      */
     boolean updateStatusSXj(SupplierCommodity supplierCommodity);
-
-    /**
-     *
-     * @param code69
-     * @return
-     */
-    SupplierCommodity findSupplierCommodityInfo(@Param("code69")String code69,@Param("supplierId") Long supplierId);
 
 	/**
      * 查询商品信息集合

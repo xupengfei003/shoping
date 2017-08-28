@@ -522,8 +522,8 @@
           purchase
         WHERE
           order_status = 4 AND account_status = '0'
-        AND order_payment_time >= date_sub(DATE_FORMAT(#{currentDate},'%Y-%m-%d'), INTERVAL 1 MONTH)
-        AND order_payment_time &lt; DATE_FORMAT(#{currentDate},'%Y-%m-%d')
+        AND order_receive_time >= date_sub(DATE_FORMAT(#{currentDate},'%Y-%m-%d'), INTERVAL 1 MONTH)
+        AND order_receive_time &lt; DATE_FORMAT(#{currentDate},'%Y-%m-%d')
         AND store_id = #{storeId};
     </select>
 
@@ -544,8 +544,8 @@
         purchase
       WHERE
         order_status = 4 AND account_status = '0'
-      AND order_payment_time >= DATE_FORMAT(#{lastSettlementDate}, '%Y-%m-%d')
-      AND order_payment_time &lt; date_add(DATE_FORMAT(#{lastSettlementDate},'%Y-%m-%d'), INTERVAL #{remittanced} DAY)
+      AND order_receive_time >= DATE_FORMAT(#{lastSettlementDate}, '%Y-%m-%d')
+      AND order_receive_time &lt; date_add(DATE_FORMAT(#{lastSettlementDate},'%Y-%m-%d'), INTERVAL #{remittanced} DAY)
       AND store_id = #{storeId};
     </select>
 
