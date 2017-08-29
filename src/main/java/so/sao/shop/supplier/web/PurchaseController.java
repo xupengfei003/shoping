@@ -307,7 +307,7 @@ public class PurchaseController {
      */
     @ApiOperation(value = "收入明细查询(高级查询)", notes = " 根据商户id及查询条件（起始创建订单-结束创建订单时间/起始下单时间-结束下单时间/起始-结束金额范围;订单编号/收货人名称/收货人联系方式）分页显示订单")
     @GetMapping(value = "/account/PurchasesHigh")
-    public Result<PageInfo> searchHigh(Integer pageNum, Integer pageSize,@Validated AccountPurchaseInput input,BindingResult bindingResult,HttpServletRequest request) {
+    public Result<PageInfo> searchHigh(Integer pageNum, Integer pageSize,@Validated AccountPurchaseInput input,HttpServletRequest request) {
         //设置初始化返回参数提示信息
         Result<PageInfo> result = new Result<>();
         result.setCode(Constant.CodeConfig.CODE_DATE_INPUT_FORMAT_ERROR);
@@ -318,13 +318,6 @@ public class PurchaseController {
         if (null == user) {   //验证用户是否登陆
             result.setCode(Constant.CodeConfig.CODE_USER_NOT_LOGIN);
             result.setMessage(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
-            return result;
-        }
-
-        //条件类校验失败
-        if (bindingResult.hasErrors()){
-            result.setCode(Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage(bindingResult.getFieldError().getDefaultMessage());
             return result;
         }
 
