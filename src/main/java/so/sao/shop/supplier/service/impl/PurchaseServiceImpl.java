@@ -208,7 +208,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             purchaseInfoVo.setOrderPaymentMethod(purchase.getOrderPaymentMethod());
             purchaseInfoVo.setOrderPaymentNum(purchase.getOrderPaymentNum());
             purchaseInfoVo.setOrderPaymentTime(purchase.getOrderPaymentTime());
-            purchaseInfoVo.setOrderPrice(purchase.getOrderPrice());
+            purchaseInfoVo.setOrderPrice(NumberUtil.number2Thousand(purchase.getOrderPrice()));
             purchaseInfoVo.setOrderStatus(purchase.getOrderStatus().shortValue());
             purchaseInfoVo.setOrderShipMethod(purchase.getOrderShipMethod());
             purchaseInfoVo.setOrderShipmentNumber(purchase.getOrderShipmentNumber());
