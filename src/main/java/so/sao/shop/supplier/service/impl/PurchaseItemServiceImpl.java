@@ -15,6 +15,8 @@ import so.sao.shop.supplier.pojo.vo.PurchaseInListVo;
 import so.sao.shop.supplier.service.PurchaseItemService;
 import so.sao.shop.supplier.util.NumberUtil;
 
+import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.util.List;
 
 /**
@@ -77,6 +79,10 @@ public class PurchaseItemServiceImpl implements PurchaseItemService {
         List<AccountPurchaseItemVo> purchaseItemList = purchaseItemDao.findPage(orderId);
 
         if(null != purchaseItemList && !purchaseItemList.isEmpty()){
+            for (AccountPurchaseItemVo account:purchaseItemList) {//将价格转化成科学记数法
+                account.setGoodsUnitPrice(NumberUtil.number2Thousand(new BigDecimal(account.getGoodsUnitPrice())));
+                account.setGoodsTatolPrice(NumberUtil.number2Thousand(new BigDecimal(account.getGoodsTatolPrice())));
+            }
             PageInfo<AccountPurchaseItemVo> pageInfo = new PageInfo<>(purchaseItemList);
 
             //4.将转化后的数据集合封装到PageInfo对象中,封装成功信息和code

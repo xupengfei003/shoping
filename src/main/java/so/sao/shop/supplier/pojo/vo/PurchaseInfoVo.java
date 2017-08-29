@@ -33,7 +33,7 @@ public class PurchaseInfoVo {
     /**
      * 订单金额
      */
-    private BigDecimal orderPrice;
+    private String orderPrice;
 
     /**
      * 下单时间
@@ -125,11 +125,11 @@ public class PurchaseInfoVo {
         this.orderStatus = orderStatus;
     }
 
-    public BigDecimal getOrderPrice() {
+    public String getOrderPrice() {
         return orderPrice;
     }
 
-    public void setOrderPrice(BigDecimal orderPrice) {
+    public void setOrderPrice(String orderPrice) {
         this.orderPrice = orderPrice;
     }
 
