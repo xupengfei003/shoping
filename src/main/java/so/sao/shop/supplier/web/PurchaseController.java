@@ -58,35 +58,26 @@ public class PurchaseController {
      */
     @RequestMapping(value = "/createPurchase", method = RequestMethod.POST)
     @ApiOperation(value = "生成订单")
-    public Result createPurchase(@Valid PurchaseInput purchase, BindingResult result) {
+    public Result createPurchase(@Valid PurchaseInput purchase) {
         Result output = new Result();
-        //判断验证是否通过。true 未通过  false通过
-        if (result.hasErrors()) {
-            List<ObjectError> list = result.getAllErrors();
-            for (ObjectError error : list) {
-                output.setCode(Constant.CodeConfig.CODE_NOT_EMPTY);
-                output.setMessage(error.getDefaultMessage());
+        try {
+            Map<String, Object> resMap = purchaseService.savePurchase(purchase);
+            Integer status = Integer.parseInt(String.valueOf(resMap.get("status")));
+            if (status == 1) {
+                output.setCode(Constant.CodeConfig.CODE_SUCCESS);
+                output.setMessage(Constant.MessageConfig.MSG_SUCCESS);
+                Map<String, Object> resultMap = new HashMap<>();
+                resultMap.put("orderId",resMap.get("orderId"));
+                resultMap.put("totalMoney",resMap.get("totalMoney"));
+                output.setData(resultMap);
+            } else {
+                output.setCode(Constant.CodeConfig.CODE_FAILURE);
+                output.setMessage(Constant.MessageConfig.MSG_FAILURE);
             }
-        } else {
-            try {
-                Map<String, Object> resMap = purchaseService.savePurchase(purchase);
-                Integer status = Integer.parseInt(String.valueOf(resMap.get("status")));
-                if (status == 1) {
-                    output.setCode(Constant.CodeConfig.CODE_SUCCESS);
-                    output.setMessage(Constant.MessageConfig.MSG_SUCCESS);
-                    Map<String, Object> resultMap = new HashMap<>();
-                    resultMap.put("orderId",resMap.get("orderId"));
-                    resultMap.put("totalMoney",resMap.get("totalMoney"));
-                    output.setData(resultMap);
-                } else {
-                    output.setCode(Constant.CodeConfig.CODE_FAILURE);
-                    output.setMessage(Constant.MessageConfig.MSG_FAILURE);
-                }
-            } catch (Exception e) {
-                logger.error("系统异常",e);
-                output.setCode(Constant.CodeConfig.CODE_SYSTEM_EXCEPTION);
-                output.setMessage(Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
-            }
+        } catch (Exception e) {
+            logger.error("系统异常",e);
+            output.setCode(Constant.CodeConfig.CODE_SYSTEM_EXCEPTION);
+            output.setMessage(Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
         }
         return output;
     }

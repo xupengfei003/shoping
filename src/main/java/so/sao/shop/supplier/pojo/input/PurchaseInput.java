@@ -4,6 +4,7 @@ import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
 import so.sao.shop.supplier.pojo.vo.PurchaseItemVo;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -52,6 +53,7 @@ public class PurchaseInput {
      * 订单详情信息
      */
     @NotNull(message="商品列表属性不能为空")
+    @Valid
     private List<PurchaseItemVo> listPurchaseItem;
 
 
