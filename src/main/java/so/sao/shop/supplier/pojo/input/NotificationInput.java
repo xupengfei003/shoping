@@ -20,7 +20,6 @@ public class NotificationInput {
      * 消息富文本
      */
     @NotBlank(message = "消息富文本不能为空")
-    @Size(max = 255, min = 1, message = "消息富文本字数不能超过255")
     private String comment;
 
     public String getNotifiDetail() {
