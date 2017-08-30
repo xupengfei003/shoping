@@ -4,7 +4,7 @@ package so.sao.shop.supplier.pojo.vo;
  * Created by acer on 2017/7/25.
  * 定义上传成功后，返回的结果类，包含文件名称，上传到azure storage后文件的链接，缩略图链接
  */
-public class BlobUpload {
+public class CommBlobUpload {
     /**
      * 文件名称
      */

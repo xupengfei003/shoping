@@ -26,6 +26,11 @@ public interface Constant {
     public static final String REDIS_LOGIN_KEY_PREFIX = "supplier_platform_login_";
 
     /**
+     * 供货平台在redis中短信验证码key前缀
+     */
+    public static final String REDIS_SMSCODE_KEY_PREFIX = "supplier_platform_smscode_";
+
+    /**
      * 判断是否是管理员 1是
      */
     public static final String ADMIN_STATUS = "1";

@@ -57,6 +57,10 @@ public class CommodityInput {
      * 商品标签Id
      */
     private Long tagId;
+    /**
+     * 商品标签Name
+     */
+    private String tagName;
 
     /**
      * 企业名称
@@ -176,5 +180,13 @@ public class CommodityInput {
 
     public void setCommodityList(List<SupplierCommodityVo> commodityList) {
         this.commodityList = commodityList;
+    }
+
+    public String getTagName() {
+        return tagName;
+    }
+
+    public void setTagName(String tagName) {
+        this.tagName = tagName;
     }
 }

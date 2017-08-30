@@ -3,9 +3,11 @@ package so.sao.shop.supplier.util;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import so.sao.shop.supplier.config.CommConstant;
 import so.sao.shop.supplier.pojo.output.CommodityExportOutput;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -71,7 +73,11 @@ public class CommodityExcelView extends ExcelView{
             commodityRow.createCell(5).setCellValue(commodity.getTagName());//商品标签
             commodityRow.createCell(6).setCellValue(commodity.getOriginPlace());//商品产地
             commodityRow.createCell(7).setCellValue(commodity.getCompanyName());//企业名称
-            commodityRow.createCell(8).setCellValue(commodity.getMarketTime().equals("")?"":commodity.getMarketTime().substring(0,10));//上市时间
+            if(commodity.getMarketTime() == null || "".equals(commodity.getMarketTime().trim()) || commodity.getMarketTime().trim().length() < 10){
+                commodityRow.createCell(8).setCellValue("");
+            }else{
+                commodityRow.createCell(8).setCellValue(commodity.getMarketTime().substring(0,10));//上市时间
+            }
             commodityRow.createCell(9).setCellValue(commodity.getUnitName());//包装单位
             commodityRow.createCell(10).setCellValue(commodity.getMeasureSpecName());//计量规格
             commodityRow.createCell(11).setCellValue(commodity.getRuleValue());//规格值
@@ -81,44 +87,60 @@ public class CommodityExcelView extends ExcelView{
             commodityRow.createCell(15).setCellValue(commodity.getCreatedAt());//创建时间
             commodityRow.createCell(16).setCellValue(commodity.getUpdatedAt());//更新时间
             int status = commodity.getStatus();
-            commodityRow.createCell(17).setCellValue(Constant.getStatus(status));//商品状态
+            commodityRow.createCell(17).setCellValue(CommConstant.getStatus(status));//商品状态
         }
     }
 
     protected CommodityExportOutput check(CommodityExportOutput commodityExportOutput){
         if(commodityExportOutput.getCode69() == null){
             commodityExportOutput.setCode69("");
-        }else if(commodityExportOutput.getBrandName() == null){
+        }
+        if(commodityExportOutput.getBrandName() == null){
             commodityExportOutput.setBrandName("");
-        }else if(commodityExportOutput.getCommName() == null){
+        }
+        if(commodityExportOutput.getCommName() == null){
             commodityExportOutput.setCommName("");
-        }else if(commodityExportOutput.getSupplierCode() == null){
+        }
+        if(commodityExportOutput.getSupplierCode() == null){
             commodityExportOutput.setSupplierCode("");
-        }else if(commodityExportOutput.getSku() == null){
+        }
+        if(commodityExportOutput.getSku() == null){
             commodityExportOutput.setSku("");
-        }else if(commodityExportOutput.getUnitName() == null){
+        }
+        if(commodityExportOutput.getUnitName() == null){
             commodityExportOutput.setUnitName("");
-        }else if(commodityExportOutput.getMeasureSpecName() == null){
+        }
+        if(commodityExportOutput.getMeasureSpecName() == null){
             commodityExportOutput.setMeasureSpecName("");
-        }else if(commodityExportOutput.getTagName() == null){
+        }
+        if(commodityExportOutput.getTagName() == null){
             commodityExportOutput.setTagName("");
-        }else if(commodityExportOutput.getOriginPlace() == null){
+        }
+        if(commodityExportOutput.getOriginPlace() == null){
             commodityExportOutput.setOriginPlace("");
-        }else if(commodityExportOutput.getCompanyName() == null){
+        }
+        if(commodityExportOutput.getCompanyName() == null){
             commodityExportOutput.setCompanyName("");
-        }else if(commodityExportOutput.getMarketTime() == null){
+        }
+        if(commodityExportOutput.getMarketTime() == null){
             commodityExportOutput.setMarketTime("");
-        }else if(commodityExportOutput.getRuleValue() == null){
+        }
+        if(commodityExportOutput.getRuleValue() == null){
             commodityExportOutput.setRuleValue("");
-        }else if(commodityExportOutput.getPrice() == null){
+        }
+        if(commodityExportOutput.getPrice() == null){
             commodityExportOutput.setPrice(new BigDecimal(0.0));
-        }else if(commodityExportOutput.getUnitPrice() == null){
+        }
+        if(commodityExportOutput.getUnitPrice() == null){
             commodityExportOutput.setUnitPrice(new BigDecimal(0.0));
-        }else if(commodityExportOutput.getInventory() == null){
+        }
+        if(commodityExportOutput.getInventory() == null){
             commodityExportOutput.setInventory(0.0);
-        }else if(commodityExportOutput.getCreatedAt() == null){
+        }
+        if(commodityExportOutput.getCreatedAt() == null){
             commodityExportOutput.setCreatedAt("");
-        }else if(commodityExportOutput.getUpdatedAt() == null){
+        }
+        if(commodityExportOutput.getUpdatedAt() == null){
             commodityExportOutput.setUpdatedAt("");
         }
         return commodityExportOutput;

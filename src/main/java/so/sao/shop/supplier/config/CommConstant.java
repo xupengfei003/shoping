@@ -1,4 +1,4 @@
-package so.sao.shop.supplier.util;
+package so.sao.shop.supplier.config;
 
 /**
  * 常量
@@ -6,7 +6,7 @@ package so.sao.shop.supplier.util;
  * @author
  * @create 2017-07-15 17:38
  **/
-public class Constant {
+public class CommConstant {
 
     /**
      * 未上架
@@ -33,16 +33,16 @@ public class Constant {
     public static String getStatus(int status){
         String st="待上架";
         switch (status){
-            case Constant.COMM_ST_XZ:
+            case CommConstant.COMM_ST_XZ:
                 st="待上架";
                 break;
 /*            case Constant.COMM_ST_FC:
                 st="已废除";
                 break;*/
-            case Constant.COMM_ST_SJ:
+            case CommConstant.COMM_ST_SJ:
                 st="上架";
                 break;
-            case Constant.COMM_ST_XJ:
+            case CommConstant.COMM_ST_XJ:
                 st="下架";
                 break;
         }
@@ -121,4 +121,10 @@ public class Constant {
      */
     public static final String IS_NOT_ADMIN = "0";
 
+    /**
+     * 上传图片格式
+     */
+    public static final String[] IMAGE_TYPE = {"image/jpg","image/jpeg","image/png","image/gif"};
+    public static final String IMAGE_JPEG = "image/jpeg";
+    public static final String IMAGE_JPG = "jpg";
 }

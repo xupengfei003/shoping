@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.config.StorageConfig;
+import so.sao.shop.supplier.config.azure.BlobUpload;
 import so.sao.shop.supplier.dao.*;
 import so.sao.shop.supplier.domain.*;
 import so.sao.shop.supplier.pojo.Result;
@@ -700,15 +701,6 @@ public class PurchaseServiceImpl implements PurchaseService {
 
         // 订单的商品条目
         output.setPurchaseItemPrintVos(purchaseItemPrintVos);
-        // 商品条目总金额转换成千分位
-        Iterator iterator = purchaseItemPrintVos.iterator();
-        while (iterator.hasNext()) {
-            PurchaseItemPrintVo purchaseItemPrintVo = (PurchaseItemPrintVo) iterator.next();
-
-            purchaseItemPrintVo.setGoodsTatolPriceFormat(
-                    NumberUtil.number2Thousand(purchaseItemPrintVo.getGoodsTatolPrice())
-            );
-        }
 
         return output;
     }
@@ -779,7 +771,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             map.put("message", "将二维码图片上传到云端失败");
             return map;
         }
-        BlobUpload blobUpload = (BlobUpload) result.getData();
+        CommBlobUpload blobUpload = (CommBlobUpload) result.getData();
         if (null == blobUpload) {
             map.put("flag", false);
             map.put("message", "将二维码图片上传到云端未返回结果");

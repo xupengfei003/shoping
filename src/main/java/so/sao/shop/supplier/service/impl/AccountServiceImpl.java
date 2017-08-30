@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import so.sao.shop.supplier.config.CommConstant;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.config.azure.AzureBlobService;
 import so.sao.shop.supplier.config.azure.BlobUpload;
@@ -394,7 +395,7 @@ public class AccountServiceImpl implements AccountService {
         }
     	//文件名称不为空，先删除云端文件
     	if(!"".equals(blobName) && blobName != null) {
-    		azureBlobService.deleteFile(so.sao.shop.supplier.util.Constant.AZURE_CONTAINER.toLowerCase(), blobName);
+    		azureBlobService.deleteFile(CommConstant.AZURE_CONTAINER.toLowerCase(), blobName);
     	}
         //获取文件名称
         String fileName = multipartFile.getOriginalFilename();
@@ -411,7 +412,7 @@ public class AccountServiceImpl implements AccountService {
         	return Result.fail("上传文件大于20M");
         }
       //上传成功封装为result返回页面
-        List<BlobUpload> blobUploadList =azureBlobService.uploadFiles(new MultipartFile[] {multipartFile}, so.sao.shop.supplier.util.Constant.AZURE_CONTAINER.toLowerCase());
+        List<BlobUpload> blobUploadList =azureBlobService.uploadFiles(new MultipartFile[] {multipartFile}, CommConstant.AZURE_CONTAINER.toLowerCase());
         return Result.success("文件上传成功", blobUploadList.get(0));
     }
 

@@ -1,6 +1,5 @@
 package so.sao.shop.supplier.web;
 
-import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,26 +10,19 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import so.sao.shop.supplier.config.StorageConfig;
-import so.sao.shop.supplier.domain.User;
 import so.sao.shop.supplier.pojo.BaseResult;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.CommodityInput;
+import so.sao.shop.supplier.pojo.input.CommodityUpdateInput;
 import so.sao.shop.supplier.pojo.output.CommodityExportOutput;
-import so.sao.shop.supplier.pojo.output.CommodityImportOutput;
-import so.sao.shop.supplier.pojo.output.CommodityOutput;
 import so.sao.shop.supplier.service.CommodityService;
 import so.sao.shop.supplier.util.CheckUtil;
 import so.sao.shop.supplier.util.CommodityExcelView;
-import so.sao.shop.supplier.util.Constant;
 import so.sao.shop.supplier.util.ExcelView;
 
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.io.*;
 import java.math.BigDecimal;
-import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -106,9 +98,9 @@ public class CommodityController {
         }
     }
 
-    @ApiOperation(value="修改商品信息", notes="")
+    @ApiOperation(value="修改商品信息", notes="责任人：武凯江")
     @PutMapping(value="/update")
-    public Result update(HttpServletRequest request,@Valid @RequestBody CommodityInput commodityInput,@RequestParam(required = false) Long supplierId, BindingResult bindingResult) throws Exception {
+    public Result update(HttpServletRequest request, @Valid @RequestBody CommodityUpdateInput commodityUpdateInput, @RequestParam(required = false) Long supplierId, BindingResult bindingResult) throws Exception {
         if (bindingResult.hasErrors()) {
             Result result = new Result();
             List<ObjectError> list = bindingResult.getAllErrors();
@@ -120,7 +112,7 @@ public class CommodityController {
         }else{
             //校验供应商ID
             supplierId = CheckUtil.supplierIdCheck(request,supplierId);
-            return commodityService.updateCommodity(commodityInput, supplierId);
+            return commodityService.updateCommodity(commodityUpdateInput, supplierId);
         }
     }
 
@@ -172,7 +164,11 @@ public class CommodityController {
     public  Result importExcel(@RequestPart(value = "excelFile") MultipartFile excelFile, HttpServletRequest request,@RequestParam(required = false) Long supplierId ) throws Exception {
         //校验供应商ID
        supplierId = CheckUtil.supplierIdCheck(request,supplierId);
-        return   commodityService.importExcel(excelFile,request,storageConfig,supplierId);
+       //判断文件是否选择文件
+       if (null == excelFile || excelFile.isEmpty()) {
+           return Result.fail("文件为空,请选择文件");
+       }
+       return commodityService.importExcel(excelFile, request, supplierId);
     }
 
     @ApiOperation(value="导出商品信息", notes="导出商品信息到Excel")
