@@ -1,5 +1,7 @@
 package so.sao.shop.supplier.pojo.vo;
 
+import so.sao.shop.supplier.util.NumberUtil;
+
 import java.math.BigDecimal;
 
 /**
@@ -82,8 +84,8 @@ public class PurchaseItemPrintVo {
         this.goodsAttribute = goodsAttribute;
     }
 
-    public BigDecimal getGoodsUnitPrice() {
-        return goodsUnitPrice;
+    public String getGoodsUnitPrice() {
+        return NumberUtil.number2Thousand(goodsUnitPrice);
     }
 
     public void setGoodsUnitPrice(BigDecimal goodsUnitPrice) {
@@ -107,7 +109,7 @@ public class PurchaseItemPrintVo {
     }
 
     public String getGoodsTatolPriceFormat() {
-        return goodsTatolPriceFormat;
+        return NumberUtil.number2Thousand(this.goodsTatolPrice);
     }
 
     public void setGoodsTatolPriceFormat(String goodsTatolPriceFormat) {
