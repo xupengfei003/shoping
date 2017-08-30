@@ -50,4 +50,11 @@ public interface CommImgeDao {
      * @return 删除结果
      */
     boolean deleteByIds(@Param("ids") List<Long> ids);
+
+    /**
+     * 根据scId获取id集合
+     * @param scId 供应商商品Id
+     * @return 查询结果结合
+     */
+    List<Long> findIdsByScId(@Param("scId") Long scId);
 }

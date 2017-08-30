@@ -48,6 +48,13 @@ public interface CommTagDao {
     CommTag findOne(Long id);
 
     /**
+     * 根据id查询count
+     * @param id
+     * @return
+     */
+    int findCountById(@Param("id") Long id);
+
+    /**
      * 根据商品标签名称和supplierId查找商品标签
      *
      * @param name  商品标签名
