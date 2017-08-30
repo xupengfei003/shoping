@@ -31,6 +31,7 @@ public class CartServiceImplTest {
 
     @Test
     public void saveCartItem() throws Exception {
+
         CartItemInput cartItemInput = new CartItemInput();
         cartItemInput.setUserId(new Long(1));
         cartItemInput.setCommodityId(new Long(1));
