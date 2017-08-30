@@ -153,5 +153,5 @@ public interface CommodityService {
      * @return 导入结果
      */
 
-    Result importExcel(MultipartFile multipartFile , HttpServletRequest request, StorageConfig storageConfig, Long supplierId) throws Exception;
+    Result importExcel(MultipartFile multipartFile , HttpServletRequest request, Long supplierId) throws Exception;
 }

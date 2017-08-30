@@ -183,20 +183,20 @@ public class ZipUtil {
 	  */
 	 public static void deCompress(String sourceFile, String destDir ,Boolean isDelete)
 	   throws Exception {
-	  // 保证文件夹路径最后是"/"或者"\"
-	  char lastChar = destDir.charAt(destDir.length() - 1);
-	  if (lastChar != '/' && lastChar != '\\') {
-	   destDir += File.separator;
-	  }
-	  // 根据类型，进行相应的解压缩
-	  String type = sourceFile.substring(sourceFile.lastIndexOf(".") + 1);
-	  if (type.equals("zip")) {
-	   ZipUtil.unzip(sourceFile, destDir);
-	  } else if (type.equals("rar")) {
-	   ZipUtil.unrar(sourceFile, destDir,isDelete);
-	  } else {
-	   throw new Exception("只支持zip和rar格式的压缩包！");
-	  }
+	  	// 保证文件夹路径最后是"/"或者"\"
+	  	char lastChar = destDir.charAt(destDir.length() - 1);
+	  	if (lastChar != '/' && lastChar != '\\') {
+	   		destDir += File.separator;
+	  	}
+	  	// 根据类型，进行相应的解压缩
+	  	String type = sourceFile.substring(sourceFile.lastIndexOf(".") + 1);
+	  	if (type.equals("zip")) {
+	   		ZipUtil.unzip(sourceFile, destDir);
+	  	} else if (type.equals("rar")) {
+	   		ZipUtil.unrar(sourceFile, destDir,isDelete);
+	  	} else {
+	   		throw new Exception("只支持zip和rar格式的压缩包！");
+	  	}
 	  if (isDelete) {  
           new File(sourceFile).delete();  
       }

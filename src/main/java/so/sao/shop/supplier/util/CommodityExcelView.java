@@ -3,6 +3,7 @@ package so.sao.shop.supplier.util;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import so.sao.shop.supplier.config.CommConstant;
 import so.sao.shop.supplier.pojo.output.CommodityExportOutput;
 
 import java.math.BigDecimal;
@@ -86,7 +87,7 @@ public class CommodityExcelView extends ExcelView{
             commodityRow.createCell(15).setCellValue(commodity.getCreatedAt());//创建时间
             commodityRow.createCell(16).setCellValue(commodity.getUpdatedAt());//更新时间
             int status = commodity.getStatus();
-            commodityRow.createCell(17).setCellValue(Constant.getStatus(status));//商品状态
+            commodityRow.createCell(17).setCellValue(CommConstant.getStatus(status));//商品状态
         }
     }
 

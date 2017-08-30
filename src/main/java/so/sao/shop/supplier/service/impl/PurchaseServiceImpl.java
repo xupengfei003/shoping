@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.config.StorageConfig;
+import so.sao.shop.supplier.config.azure.BlobUpload;
 import so.sao.shop.supplier.dao.*;
 import so.sao.shop.supplier.domain.*;
 import so.sao.shop.supplier.pojo.Result;
@@ -770,7 +771,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             map.put("message", "将二维码图片上传到云端失败");
             return map;
         }
-        BlobUpload blobUpload = (BlobUpload) result.getData();
+        CommBlobUpload blobUpload = (CommBlobUpload) result.getData();
         if (null == blobUpload) {
             map.put("flag", false);
             map.put("message", "将二维码图片上传到云端未返回结果");
