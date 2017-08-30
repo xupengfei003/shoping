@@ -87,17 +87,6 @@ public class AccountController {
         return baseResult;
     }
 
-   /* *//**
-     * 根据id查询供应商详细信息
-     * @param id
-     * @return
-     *//*
-    @ApiOperation("根据ID查询供应商信息")
-    @GetMapping("/selectById/{id}")
-    public Account selectById(@PathVariable Long id){
-        return accountService.selectById(id);
-    }*/
-
     /**
      * 跟新供应商信息
      *
@@ -359,20 +348,6 @@ public class AccountController {
         }
         return id;
     }
-
-    /**
-     * 查询当前登陆供应商
-     * @param id
-     * @param request
-     * @return
-     */
-    @GetMapping("/searchSelf")
-    @ApiOperation(value = "查询当前登陆供应商")
-    public Account getSelf(@RequestParam Long id, HttpServletRequest request) {
-        User user = (User) request.getAttribute(Constant.REQUEST_USER);
-        return accountService.selectById(accountService.selectByUserId(user.getId()).getAccountId());
-    }
-
 
     /**
      * 查询当前登录用户登录手机号码
