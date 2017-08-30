@@ -18,6 +18,13 @@
         ORDER BY updated_at DESC
     </select>
 
+    <!--根据id查询个数-->
+    <select id="findCountById" resultType="int">
+        select
+        count(*)
+        from comm_measure_spec where id = #{id}
+    </select>
+
 <!--  findByName 根据计量规格名称查询  -->
     <select id="findByName"  resultMap="BaseMap">
         SELECT id, NAME, supplier_id, created_at, updated_at

@@ -52,4 +52,11 @@ public interface CommUnitDao {
      * @return  商品单位对象
      */
      CommUnit findOne(Long id);
+
+    /**
+     * 根据id查询count
+     * @param id
+     * @return
+     */
+    int findCountById(@Param("id") Long id);
 }

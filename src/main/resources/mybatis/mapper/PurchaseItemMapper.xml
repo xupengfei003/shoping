@@ -105,14 +105,15 @@
     <!-- 根据订单查询订单对应的所有商品条目 -->
     <select id="findPrintItems" resultType="so.sao.shop.supplier.pojo.vo.PurchaseItemPrintVo">
         SELECT
-            goods_name AS goodsName,
-            goods_id AS goodsId,
-            brand_name AS brandName,
-            goods_attribute AS goodsAttribute,
-            goods_unit_price AS goodsUnitPrice,
-            goods_number AS goodsNumber,
-            goods_tatol_price AS goodsTatolPrice
-        FROM PURCHASE_ITEM
+            g.goods_name AS goodsName,
+            c.code69 AS goodsId,
+            g.brand_name AS brandName,
+            g.goods_attribute AS goodsAttribute,
+            g.goods_unit_price AS goodsUnitPrice,
+            g.goods_number AS goodsNumber,
+            g.goods_tatol_price AS goodsTatolPrice
+        FROM PURCHASE_ITEM g
+        LEFT JOIN SUPPLIER_COMMODITY c ON g.goods_id = c.id
         WHERE  ORDER_ID = #{orderId,jdbcType=BIGINT}
     </select>
 </mapper>

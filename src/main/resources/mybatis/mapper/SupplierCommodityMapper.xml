@@ -192,30 +192,6 @@
         FROM supplier_commodity WHERE id = #{id}
     </select>
 
-    <!--根据sku获取商品信息-->
-    <select id="findBySku" resultType="so.sao.shop.supplier.domain.SupplierCommodity">
-        SELECT
-        id,
-        sku,
-        code69,
-        tag_id AS tagId,
-        measure_spec_id AS measureSpecId,
-        unit_id AS unitId,
-        remark,
-        description,
-        code,
-        rule_val AS ruleVal,
-        inventory,
-        min_img AS minImg,
-        price,
-        unit_price AS unitPrice,
-        created_at AS createdAt,
-        updated_at AS updatedAt,
-        supplier_id AS supplierId,
-        status
-        FROM supplier_commodity WHERE sku = #{sku}
-    </select>
-
     <!--查询商品列表（高级搜索）-->
     <select id="find" resultType="so.sao.shop.supplier.pojo.vo.SuppCommSearchVo">
         SELECT
@@ -262,6 +238,13 @@
             AND Date(sc.created_at) BETWEEN #{beginCreateAt} AND #{endCreateAt}
         </if>
         ORDER BY sc.updated_at DESC
+    </select>
+
+    <!--根据id查询个数-->
+    <select id="findCountById" resultType="int">
+        select
+        count(*)
+        from supplier_commodity where id = #{id}
     </select>
 
     <!--统计查询总记录数-->

@@ -7,6 +7,7 @@ import so.sao.shop.supplier.domain.Account;
 import so.sao.shop.supplier.pojo.BaseResult;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.CommodityInput;
+import so.sao.shop.supplier.pojo.input.CommodityUpdateInput;
 import so.sao.shop.supplier.pojo.output.CommodityExportOutput;
 import so.sao.shop.supplier.pojo.output.CommodityOutput;
 
@@ -30,10 +31,10 @@ public interface CommodityService {
 
     /**
      * 修改商品
-     * @param commodityInput 商品信息对象
+     * @param commodityUpdateInput 商品信息对象
      * @return 修改结果
      */
-    Result updateCommodity(CommodityInput commodityInput,Long supplierId);
+    Result updateCommodity(CommodityUpdateInput commodityUpdateInput, Long supplierId);
 
     /**
      * 根据供应商商品ID获取商品详细信息
