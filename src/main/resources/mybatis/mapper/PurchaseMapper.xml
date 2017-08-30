@@ -522,8 +522,8 @@
           purchase
         WHERE
           order_status = 4 AND account_status = '0'
-        AND order_receive_time >= date_sub(DATE_FORMAT(#{currentDate},'%Y-%m-%d'), INTERVAL 1 MONTH)
-        AND order_receive_time &lt; DATE_FORMAT(#{currentDate},'%Y-%m-%d')
+        AND order_receive_time >= date_sub(concat(DATE_FORMAT(#{currentDate},'%Y-%m-'),'01'), INTERVAL 1 MONTH)
+        AND order_receive_time &lt; concat(DATE_FORMAT(#{currentDate},'%Y-%m-'),'01')
         AND store_id = #{storeId};
     </select>
 
