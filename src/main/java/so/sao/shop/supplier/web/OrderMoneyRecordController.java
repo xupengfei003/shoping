@@ -175,12 +175,11 @@ public class OrderMoneyRecordController {
      * @param pageSize
      * @param request
      * @param put
-     * @param bindingResult
      * @return
      */
     @ApiOperation(value = "根据账户ID查询已结算/待结算明细", notes = "根据账户ID查询已结算/待结算明细并分页")
     @GetMapping(value = "/orderMoneyRecords")
-    public Result searchOrderMoneyRecords(Integer pageNum, Integer pageSize,HttpServletRequest request,@Valid OrderMoneyRecordInput put, BindingResult bindingResult) {
+    public Result searchOrderMoneyRecords(Integer pageNum, Integer pageSize, HttpServletRequest request, @Valid OrderMoneyRecordInput put) {
         //初始化
         Result result = new Result<>();
         result.setCode(Constant.CodeConfig.CODE_DATE_INPUT_FORMAT_ERROR);
@@ -189,39 +188,30 @@ public class OrderMoneyRecordController {
         //获取用户
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //判断是否登陆
-        if (null == user){
+        if (null == user) {
             result.setCode(Constant.CodeConfig.CODE_USER_NOT_LOGIN);
             result.setMessage(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
             return result;
         }
-        //判断入参状态码是否通过
-        if (bindingResult.hasErrors()) {
-            List<ObjectError> list = bindingResult.getAllErrors();
-            for (ObjectError error : list) {
-                result.setCode(Constant.CodeConfig.CODE_FAILURE);
-                result.setMessage(error.getDefaultMessage());
+        try {
+            // 校验时间参数
+            if (!StringUtils.isEmpty(put.getStartTime()) && !DateUtil.isDate(put.getStartTime())) {
+                return result;
             }
-        } else {
-            try {
-                 // 校验时间参数
-                 if (!StringUtils.isEmpty(put.getStartTime()) && !DateUtil.isDate(put.getStartTime())) {
-                     return result;
-                    }
-                 if (!StringUtils.isEmpty(put.getEndTime()) && !DateUtil.isDate(put.getEndTime())) {
-                     return result;
-                    }
-                 if(DataCompare.compareDate(put.getStartTime(),put.getEndTime())){
-                     result.setCode(Constant.CodeConfig.DateNOTLate);
-                     result.setMessage(Constant.MessageConfig.DateNOTLate);
-                     return result;
-                 }
-                // 查询数据
-                result = orderMoneyRecordService.searchRecords(user.getAccountId(), put, pageNum, pageSize);
-            } catch (Exception e) {
-                logger.error("系统异常", e);
-                result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SYSTEM_EXCEPTION);
-                result.setMessage(so.sao.shop.supplier.config.Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
+            if (!StringUtils.isEmpty(put.getEndTime()) && !DateUtil.isDate(put.getEndTime())) {
+                return result;
             }
+            if (DataCompare.compareDate(put.getStartTime(), put.getEndTime())) {
+                result.setCode(Constant.CodeConfig.DateNOTLate);
+                result.setMessage(Constant.MessageConfig.DateNOTLate);
+                return result;
+            }
+            // 查询数据
+            result = orderMoneyRecordService.searchRecords(user.getAccountId(), put, pageNum, pageSize);
+        } catch (Exception e) {
+            logger.error("系统异常", e);
+            result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SYSTEM_EXCEPTION);
+            result.setMessage(so.sao.shop.supplier.config.Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
         }
         return result;
     }

@@ -1,5 +1,7 @@
 package so.sao.shop.supplier.pojo.input;
 
+import org.hibernate.validator.constraints.NotEmpty;
+
 import javax.validation.constraints.NotNull;
 
 /**
@@ -9,27 +11,24 @@ public class RefuseOrderInput {
     /**
      * 订单编号
      */
-    @NotNull(message = "订单编号不能为空")
+    @NotEmpty(message = "订单编号不能为空")
     private String orderId;
     /**
      * 拒收理由
      */
-    @NotNull(message = "拒收理由不能为空")
+    @NotEmpty(message = "拒收理由不能为空")
     private String refuseReason;
     /**
      * 拒收图片1
      */
-    @NotNull(message = "拒收图片不能为空")
     private String refuseImgUrlA;
     /**
      * 拒收图片2
      */
-    @NotNull(message = "拒收图片不能为空")
     private String refuseImgUrlB;
     /**
      * 拒收图片3
      */
-    @NotNull(message = "拒收图片不能为空")
     private String refuseImgUrlC;
 
     public String getOrderId() {
