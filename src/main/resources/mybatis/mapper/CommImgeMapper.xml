@@ -16,6 +16,14 @@
         <include refid="baseColumns"/>
         FROM comm_imge WHERE sc_id = #{scId}
     </select>
+
+    <!--根据scId查询图片id集合-->
+    <select id="findIdsByScId" resultType="Long">
+        SELECT
+        id
+        FROM comm_imge WHERE sc_id = #{scId}
+    </select>
+
     <select id="findOne" resultType="so.sao.shop.supplier.domain.CommImge">
         SELECT
         <include refid="baseColumns"/>
