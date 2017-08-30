@@ -1,5 +1,6 @@
 package so.sao.shop.supplier.util;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -33,5 +34,38 @@ public class DateUtil {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String dateString = formatter.format(currentTime);
         return dateString;
+    }
+
+    /**
+     * 获取现在时间
+     *
+     * @return返回字符串格式 yyyyMMddHHmmssSSS
+     */
+    public static String getStringDateTime() {
+        Date currentTime = new Date();
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+        String dateString = formatter.format(currentTime);
+        return dateString;
+    }
+
+    /**
+     * 获取现在时间
+     *
+     * @return返回字符串格式 yyyyMMddHHmmssSSS
+     */
+    public static Date stringToDate(String value) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date date = null;
+        try {
+            if(value == null || "".equals(value)){
+                date = new Date();
+            }else{
+                date = sdf.parse(value.trim());
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+            date = new Date();
+        }
+        return date;
     }
 }

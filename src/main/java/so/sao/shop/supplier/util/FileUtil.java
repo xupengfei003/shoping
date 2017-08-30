@@ -2,14 +2,13 @@ package so.sao.shop.supplier.util;
 
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
-import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.lang3.StringUtils;
+import so.sao.shop.supplier.config.CommConstant;
 import so.sao.shop.supplier.config.StorageConfig;
 import so.sao.shop.supplier.pojo.Result;
-import so.sao.shop.supplier.pojo.vo.BlobUpload;
+import so.sao.shop.supplier.pojo.vo.CommBlobUpload;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -17,7 +16,6 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 import java.util.*;
-import java.util.List;
 
 
 public class FileUtil {
@@ -172,7 +170,7 @@ public class FileUtil {
      * @param   sPath    被删除文件的文件名
      * @return 单个文件删除成功返回true，否则返回false
      */
-    public boolean deleteFile(String sPath) {
+    public static boolean deleteFile(String sPath) {
         boolean flag = false;
         File file = new File(sPath);
         // 路径为文件且不为空则进行删除
@@ -188,7 +186,7 @@ public class FileUtil {
      * @param   sPath 被删除目录的文件路径
      * @return  目录删除成功返回true，否则返回false
      */
-    public boolean deleteDirectory(String sPath) {
+    public static boolean deleteDirectory(String sPath) {
         //如果sPath不以文件分隔符结尾，自动添加文件分隔符
         if (!sPath.endsWith(File.separator)) {
             sPath = sPath + File.separator;
@@ -302,115 +300,6 @@ public class FileUtil {
 	}
 
 	/**
-	 * 上传文件
-	 */
-	public  List<Result> UploadFiles(String  realzippath ,List<String> files, StorageConfig storageConfig) {
-		List<BlobUpload> blobUploadEntities = new ArrayList<BlobUpload>();
-		Map<String,String> map = new HashMap<>();
-		List<Result> results = new ArrayList<>();
-		try {
-			if (files.size() !=0) {
-				//获取或创建container
-				CloudBlobContainer blobContainer = BlobHelper.getBlobContainer(Constant.AZURE_CONTAINER.toLowerCase(), storageConfig);
-				File dir =new File(realzippath+"/img");
-				if  (!dir .exists()  && !dir .isDirectory())
-				{
-					dir .mkdir();
-				}
-
-
-				for (int i = 0; i < files.size(); i++) {
-					//图片尺寸不变，压缩图片文件大小outputQuality实现,参数1为最高质量
-					Thumbnails.of(realzippath+"/"+files.get(i).trim())
-							.scale(1f).outputQuality(0.25f)
-							.toFile(realzippath+"/img/"+files.get(i).trim());
-					File file = new File(realzippath+"/img/"+files.get(i).trim());
-					String fileName = file.getName();
-					if (file.exists()) {
-						try {
-							//获取上传文件的名称及文件类型
-							BlobUpload blobUploadEntity = new BlobUpload();
-
-							String extensionName = StringUtils.substringAfter(fileName, ".");
-
-							//过滤非jpg,png,jpeg,gif格式的文件
-							if (!(fileName.endsWith(".jpg")
-									|| fileName.endsWith(".jpeg")
-									|| fileName.endsWith(".png")
-									|| fileName.endsWith(".gif"))) {
-								map.put("fileName",fileName);
-								Result resultMsg = new Result(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE, "上传的文件中包含非jpg/png/jpeg/gif格式",map);
-								results.add(resultMsg);
-								continue;
-							}
-
-							//拼装blob的名称(新的图片文件名 =UUID+"."图片扩展名)
-							String newFileName = UUID.randomUUID() + "." + extensionName;
-							String preName = getBlobPreName(extensionName, false).toLowerCase();
-							String blobName = preName + newFileName;
-
-							//设置文件类型，并且上传到azure blob
-							CloudBlockBlob blob = blobContainer.getBlockBlobReference(blobName);
-							blob.getProperties().setContentType(fileName.substring(fileName.lastIndexOf("."),fileName.length()));
-							blob.upload(new FileInputStream(file), file.length());
-
-							//生成缩略图，并上传至AzureStorage
-							BufferedImage img = new BufferedImage(Constant.THUMBNAIL_DEFAULT_WIDTH, Constant.THUMBNAIL_DEFAULT_HEIGHT, BufferedImage.TYPE_INT_RGB);
-							img.createGraphics().drawImage(ImageIO.read(new FileInputStream(file)).getScaledInstance(Constant.THUMBNAIL_DEFAULT_WIDTH, Constant.THUMBNAIL_DEFAULT_HEIGHT, Image.SCALE_SMOOTH), 0, 0, null);
-							ByteArrayOutputStream thumbnailStream = new ByteArrayOutputStream();
-							ImageIO.write(img, "jpg", thumbnailStream);
-							InputStream inputStream = new ByteArrayInputStream(thumbnailStream.toByteArray());
-
-							String thumbnailPreName = getBlobPreName(extensionName, true).toLowerCase();
-							String newThumbnailName = UUID.randomUUID().toString();
-							String blobThumbnail = thumbnailPreName + newThumbnailName + ".jpg";
-							CloudBlockBlob thumbnailBlob = blobContainer.getBlockBlobReference(blobThumbnail);
-							thumbnailBlob.getProperties().setContentType("image/jpeg");
-							thumbnailBlob.upload(inputStream, thumbnailStream.toByteArray().length);
-
-							//将上传后的图片URL返
-							blobUploadEntity.setFileName(fileName);
-							blobUploadEntity.setUrl(blob.getUri().toString());
-							blobUploadEntity.setMinImgUrl(thumbnailBlob.getUri().toString());
-							blobUploadEntity.setType(extensionName);
-							try {
-								BufferedImage sourceImg = ImageIO.read(new FileInputStream(file));
-								blobUploadEntity.setSize(sourceImg.getWidth() + "*" + sourceImg.getHeight());
-							} catch (IOException e) {
-								e.printStackTrace();
-							}
-							blobUploadEntities.add(blobUploadEntity);
-						} catch (Exception e) {
-							map.put("fileName:",fileName);
-							Result resultMsg = new Result(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE, "文件上传异常",map);
-							results.add(resultMsg);
-							continue;
-						}
-					}else {
-						map.put("fileName",fileName);
-						Result resultMsg = new Result(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE, "上传文件为空",map);
-						results.add(resultMsg);
-						continue;
-					}
-				}
-				Result result = new Result(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SUCCESS, "文件上传成功", blobUploadEntities);
-				results.add(result);
-			}else{
-				map.put("错误原因：","未选择上传的文件");
-				Result resultMsg = new Result(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE, "请选择需要上传的文件",map);
-				results.add(resultMsg);
-			}
-		} catch (Exception e) {
-			map.put("错误原因：","文件上传异常");
-			Result resultMsg = new Result(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE, "文件上传异常",map);
-			results.add(resultMsg);
-		}
-		return results;
-
-
-	}
-
-	/**
 	 * 将二维码图片上传至云端
 	 *
 	 * @param path 图片路径
@@ -427,10 +316,10 @@ public class FileUtil {
             return resultMsg;
         }
 
-        BlobUpload blobUploadEntity = null;
+        CommBlobUpload blobUploadEntity = null;
         try {
             //获取或创建container
-            CloudBlobContainer blobContainer = BlobHelper.getBlobContainer(Constant.AZURE_CONTAINER.toLowerCase(), storageConfig);
+            CloudBlobContainer blobContainer = BlobHelper.getBlobContainer(CommConstant.AZURE_CONTAINER.toLowerCase(), storageConfig);
             File file = new File(path + "/" + qrcodeName.trim());
             String fileName = file.getName();
 
@@ -442,7 +331,7 @@ public class FileUtil {
 
             try {
                 //获取上传文件的名称及文件类型
-                blobUploadEntity = new BlobUpload();
+                blobUploadEntity = new CommBlobUpload();
 
                 String extensionName = StringUtils.substringAfter(fileName, ".");
 

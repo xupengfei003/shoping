@@ -34,6 +34,15 @@ public class Result<T>{
     }
 
     /**
+     * 失败时返回结构
+     * @param msg
+     * @return
+     */
+    public static Result fail(String msg, Object data){
+        return new Result(Constant.CodeConfig.CODE_FAILURE, msg, data);
+    }
+
+    /**
      * 成功时返回结构
      * @param msg
      * @return

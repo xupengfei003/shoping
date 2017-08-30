@@ -3,16 +3,25 @@ package so.sao.shop.supplier.config.azure;
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.*;
+import net.coobird.thumbnailator.Thumbnails;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
+import so.sao.shop.supplier.config.CommConstant;
+import so.sao.shop.supplier.pojo.Result;
+import so.sao.shop.supplier.pojo.vo.CommBlobUpload;
 import so.sao.shop.supplier.util.UUIDGenerator;
+import so.sao.shop.supplier.web.UploadController;
 
-import java.io.IOException;
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.*;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
 
 /**
@@ -114,6 +123,164 @@ public class AzureBlobService {
             LOGGER.info("上传到Blob异常： \n"+e.getMessage());
         }
         return null;
+    }
+
+    /**
+     * 多文件上传（商品图片）
+     * @param multipartFile  文件内容
+     * @return List<BlobUpload>
+     */
+    public Result uploadFilesComm(MultipartFile[] multipartFile, List<CommBlobUpload> blobUploadList) {
+        try {
+            CloudBlobContainer container = getBlobContainer(CommConstant.AZURE_CONTAINER.toLowerCase());
+            Map<String,String> map = new HashMap<>();
+            for (MultipartFile file: multipartFile) {
+                if (!file.isEmpty()) {
+                    //获取上传文件的名称及文件类型
+                    CommBlobUpload commBlobUpload = new CommBlobUpload();
+                    String fileName = file.getOriginalFilename();
+                    String extensionName = StringUtils.substringAfter(fileName, ".");
+
+                    //过滤非jpg,png,jpeg,gif格式的文件
+                    if(!(Arrays.binarySearch(CommConstant.IMAGE_TYPE, file.getContentType().toLowerCase()) >= 0)){
+                        map.put("fileName",fileName);
+                        return Result.fail("上传的文件中包含非jpg/png/jpeg/gif格式", map);
+                    }
+
+                    //拼装blob的名称(新的图片文件名 =UUID+"."图片扩展名)
+                    String newFileName = UUIDGenerator.getUUID() + "." + extensionName;
+                    String preName = UploadController.getBlobPreName(extensionName, false).toLowerCase();//大图路径
+                    String blobName = preName + newFileName;
+
+                    //设置文件类型，并且上传到azure blob
+                    CloudBlockBlob blob = container.getBlockBlobReference(blobName);
+                    blob.getProperties().setContentType(file.getContentType());
+                    blob.upload(file.getInputStream(), file.getSize());
+
+                    //生成缩略图，并上传至AzureStorage
+                    BufferedImage img = new BufferedImage(CommConstant.THUMBNAIL_DEFAULT_WIDTH, CommConstant.THUMBNAIL_DEFAULT_HEIGHT, BufferedImage.TYPE_INT_RGB);
+                    img.createGraphics().drawImage(ImageIO.read(file.getInputStream()).getScaledInstance(CommConstant.THUMBNAIL_DEFAULT_WIDTH, CommConstant.THUMBNAIL_DEFAULT_HEIGHT, Image.SCALE_SMOOTH), 0, 0, null);
+                    ByteArrayOutputStream thumbnailStream = new ByteArrayOutputStream();
+                    ImageIO.write(img, CommConstant.IMAGE_JPG, thumbnailStream);
+                    String thumbnailPreName = UploadController.getBlobPreName(extensionName, true).toLowerCase();
+                    String blobThumbnail = thumbnailPreName + UUIDGenerator.getUUID() + CommConstant.IMG_FILE_JPG;
+                    CloudBlockBlob thumbnailBlob = container.getBlockBlobReference(blobThumbnail);
+                    thumbnailBlob.getProperties().setContentType(CommConstant.IMAGE_JPEG);
+                    InputStream inputStream = new ByteArrayInputStream(thumbnailStream.toByteArray());
+                    thumbnailBlob.upload(inputStream, thumbnailStream.toByteArray().length);
+
+                    //将上传后的图片URL返
+                    commBlobUpload.setFileName(fileName);
+                    commBlobUpload.setUrl(blob.getUri().toString());
+                    commBlobUpload.setMinImgUrl(thumbnailBlob.getUri().toString());
+                    commBlobUpload.setType(extensionName);
+                    BufferedImage sourceImg = ImageIO.read(file.getInputStream());
+                    commBlobUpload.setSize(sourceImg.getWidth() + "*" + sourceImg.getHeight());
+
+                    blobUploadList.add(commBlobUpload);
+                }else {
+                    return Result.fail("上传文件为空");
+                }
+            }
+        } catch (URISyntaxException | StorageException | IOException e) {
+            LOGGER.info("文件上传异常", e);
+            return Result.fail("文件上传异常");
+        }
+        return Result.fail("文件上传异常");
+    }
+
+
+    /**
+     * 解压后上传文件
+     */
+    public List<Result> uploadFilesComm(String realzippath ,List<String> files) {
+        List<CommBlobUpload> blobUploadEntities = new ArrayList<CommBlobUpload>();
+        Map<String,String> map = new HashMap<>();
+        List<Result> results = new ArrayList<>();
+        try {
+            if (files.size() != 0) {
+                CloudBlobContainer container = getBlobContainer(CommConstant.AZURE_CONTAINER.toLowerCase());
+                File dir = new File(realzippath+"/img");
+                if  (!dir .exists()  && !dir .isDirectory()) {
+                    dir .mkdir();
+                }
+
+                for (String fileStr : files) {
+                    //图片尺寸不变，压缩图片文件大小outputQuality实现,参数1为最高质量
+                    Thumbnails.of(realzippath+"/"+ fileStr.trim())
+                            .scale(1f).outputQuality(0.25f)
+                            .toFile(realzippath+"/img/"+ fileStr.trim());
+                    File file = new File(realzippath+"/img/"+ fileStr.trim());
+                    String fileName = file.getName();
+                    if (file.exists()) {
+                        try {
+                            //获取上传文件的名称及文件类型
+                            CommBlobUpload blobUploadEntity = new CommBlobUpload();
+                            String extensionName = StringUtils.substringAfter(fileName, ".");
+
+                            //过滤非jpg,png,jpeg,gif格式的文件
+                            if (!(fileName.endsWith(CommConstant.IMG_FILE_JPG)
+                                    || fileName.endsWith(CommConstant.IMG_FILE_JPEG)
+                                    || fileName.endsWith(CommConstant.IMG_FILE_PNG)
+                                    || fileName.endsWith(CommConstant.IMG_FILE_GIF))) {
+                                map.put("fileName",fileName);
+                                results.add(Result.fail("上传的文件中包含非jpg/png/jpeg/gif格式",map));
+                                continue;
+                            }
+
+                            //拼装blob的名称(新的图片文件名 =UUID+"."图片扩展名)
+                            String newFileName = UUIDGenerator.getUUID() + "." + extensionName;
+                            String preName = UploadController.getBlobPreName(extensionName, false).toLowerCase();
+                            String blobName = preName + newFileName;
+
+                            //设置文件类型，并且上传到azure blob
+                            CloudBlockBlob blob = container.getBlockBlobReference(blobName);
+                            blob.getProperties().setContentType(fileName.substring(fileName.lastIndexOf("."),fileName.length()));
+                            blob.upload(new FileInputStream(file), file.length());
+
+                            //生成缩略图，并上传至AzureStorage
+                            BufferedImage img = new BufferedImage(CommConstant.THUMBNAIL_DEFAULT_WIDTH, CommConstant.THUMBNAIL_DEFAULT_HEIGHT, BufferedImage.TYPE_INT_RGB);
+                            img.createGraphics().drawImage(ImageIO.read(new FileInputStream(file)).getScaledInstance(CommConstant.THUMBNAIL_DEFAULT_WIDTH, CommConstant.THUMBNAIL_DEFAULT_HEIGHT, Image.SCALE_SMOOTH), 0, 0, null);
+                            ByteArrayOutputStream thumbnailStream = new ByteArrayOutputStream();
+                            ImageIO.write(img, CommConstant.IMAGE_JPG, thumbnailStream);
+                            InputStream inputStream = new ByteArrayInputStream(thumbnailStream.toByteArray());
+
+                            String thumbnailPreName = UploadController.getBlobPreName(extensionName, true).toLowerCase();
+                            String newThumbnailName = UUID.randomUUID().toString();
+                            String blobThumbnail = thumbnailPreName + newThumbnailName + CommConstant.IMG_FILE_JPG;;
+                            CloudBlockBlob thumbnailBlob = container.getBlockBlobReference(blobThumbnail);
+                            thumbnailBlob.getProperties().setContentType(CommConstant.IMAGE_JPEG);
+                            thumbnailBlob.upload(inputStream, thumbnailStream.toByteArray().length);
+
+                            //将上传后的图片URL返
+                            blobUploadEntity.setFileName(fileName);
+                            blobUploadEntity.setUrl(blob.getUri().toString());
+                            blobUploadEntity.setMinImgUrl(thumbnailBlob.getUri().toString());
+                            blobUploadEntity.setType(extensionName);
+                            BufferedImage sourceImg = ImageIO.read(new FileInputStream(file));
+                            blobUploadEntity.setSize(sourceImg.getWidth() + "*" + sourceImg.getHeight());
+
+                            blobUploadEntities.add(blobUploadEntity);
+                        } catch (Exception e) {
+                            map.put("fileName:",fileName);
+                            results.add(Result.fail("文件上传异常", map));
+                            continue;
+                        }
+                    }else {
+                        map.put("fileName",fileName);
+                        results.add(Result.fail("上传文件为空", map));
+                        continue;
+                    }
+                }
+                results.add(Result.success("文件上传成功", blobUploadEntities));
+            }else{
+                map.put("错误原因：","未选择上传的文件");
+                results.add(Result.fail("未选择上传的文件", map));
+            }
+        } catch (Exception e) {
+            results.add(Result.fail("文件上传异常", map));
+        }
+        return results;
     }
 
     /**
