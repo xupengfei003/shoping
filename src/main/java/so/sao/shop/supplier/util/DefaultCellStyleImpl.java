@@ -15,11 +15,13 @@ public class DefaultCellStyleImpl implements DefaultCellStyle {
         // create style for header cells
         CellStyle cellStyle = workbook.createCellStyle();
         Font font = workbook.createFont();
-        font.setFontName("Arial");
-        cellStyle.setFillForegroundColor(HSSFColor.BLUE.index);
-        cellStyle.setFillPattern((short) 1);
+        //font.setFontName("Arial");
+        //cellStyle.setFillForegroundColor(HSSFColor.BLUE.index);
+        //cellStyle.setFillPattern((short) 1);
         font.setBold(true);
-        font.setColor(HSSFColor.WHITE.index);
+        //font.setColor(HSSFColor.WHITE.index);
+        font.setFontHeightInPoints((short)11);
+        cellStyle.setAlignment(CellStyle.ALIGN_CENTER);
         cellStyle.setFont(font);
         return cellStyle;
     }
