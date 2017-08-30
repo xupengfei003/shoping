@@ -42,13 +42,11 @@ public class AccountPurchaseItemVo {
     /**
      * 商品单价(科学计数法)
      */
-    @NumberFormat(pattern = "\"###,##0.00\"")
     private String goodsUnitPrice;
 
     /**
      * 商品总价(科学记数法)
      */
-    @NumberFormat(pattern = "\"###,##0.00\"")
     private String goodsTatolPrice;
 
     public String getGoodsName() {
