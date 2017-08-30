@@ -21,17 +21,14 @@ public class RefuseOrderInput {
     /**
      * 拒收图片1
      */
-    @NotEmpty(message = "拒收图片不能为空")
     private String refuseImgUrlA;
     /**
      * 拒收图片2
      */
-    @NotEmpty(message = "拒收图片不能为空")
     private String refuseImgUrlB;
     /**
      * 拒收图片3
      */
-    @NotEmpty(message = "拒收图片不能为空")
     private String refuseImgUrlC;
 
     public String getOrderId() {
