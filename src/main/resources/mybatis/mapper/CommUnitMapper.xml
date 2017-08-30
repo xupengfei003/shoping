@@ -40,6 +40,13 @@
         WHERE id = #{id}
     </select>
 
+    <!--根据id查询个数-->
+    <select id="findCountById" resultType="int">
+        select
+        count(*)
+        from comm_unit where id = #{id}
+    </select>
+
     <!--删除商品单位-->
     <delete id="delete" parameterType="so.sao.shop.supplier.domain.CommUnit">
         DELETE FROM comm_unit

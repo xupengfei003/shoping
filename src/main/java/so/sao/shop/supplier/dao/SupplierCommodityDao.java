@@ -49,12 +49,6 @@ public interface SupplierCommodityDao {
     CommodityOutput findDetail(@Param("id")long id);
 
     /**
-     * 根据sku查询商品
-     * @param sku
-     * @return 商品信息对象
-     */
-    SupplierCommodity findBySku(@Param("sku")String sku);
-    /**
      *
      * @param code69
      * @return
@@ -80,6 +74,12 @@ public interface SupplierCommodityDao {
                                 @Param("typeId") Long typeId, @Param("minPrice") BigDecimal minPrice, @Param("maxPrice") BigDecimal maxPrice,
                                 @Param("beginCreateAt") Date beginCreateAt, @Param("endCreateAt") Date endCreateAt);
 
+    /**
+     * 根据id查询count
+     * @param id
+     * @return
+     */
+    int findCountById(@Param("id") Long id);
 
     /**
      * 统计查询总记录数

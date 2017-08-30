@@ -32,6 +32,13 @@ public class ApplicationExceptionHandler {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    /**
+     * TODO 二期临时拦截
+     * @param e
+     * @param response
+     * @return
+     * @throws IOException
+     */
     @ExceptionHandler(Exception.class)
     public  Result<Object> operateExp(Exception e, HttpServletResponse response) throws IOException {
         logger.error(e.getMessage(),e);
@@ -42,7 +49,7 @@ public class ApplicationExceptionHandler {
     }
 
     /**
-     * 入参校验
+     * 入参校验(TODO 二期临时)
      * @param exception
      * @return
      */
@@ -55,6 +62,7 @@ public class ApplicationExceptionHandler {
         return new ResponseEntity<>(errorResult, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    //TODO 三期需要前端配合改进入参校验不通过提示结构
     /*@ExceptionHandler(BindException.class)
     public ResponseEntity<ErrorResult<ModelValidateDetail>> handleBindException(BindException exception) {
         ModelValidateDetail detail = ModelValidateDetailBuilder.from(exception);
@@ -110,6 +118,7 @@ public class ApplicationExceptionHandler {
         return new ResponseEntity<>(errorResult, HttpStatus.BAD_REQUEST);
     }
 
+    //TODO 三期替换掉上面的Exception拦截方法
     /*@ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResult> handleException(Exception exception) {
         String message = exception.getMessage();

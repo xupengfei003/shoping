@@ -15,6 +15,7 @@ import so.sao.shop.supplier.domain.User;
 import so.sao.shop.supplier.pojo.BaseResult;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.CommodityInput;
+import so.sao.shop.supplier.pojo.input.CommodityUpdateInput;
 import so.sao.shop.supplier.pojo.output.CommodityExportOutput;
 import so.sao.shop.supplier.pojo.output.CommodityImportOutput;
 import so.sao.shop.supplier.pojo.output.CommodityOutput;
@@ -106,9 +107,9 @@ public class CommodityController {
         }
     }
 
-    @ApiOperation(value="修改商品信息", notes="")
+    @ApiOperation(value="修改商品信息", notes="责任人：武凯江")
     @PutMapping(value="/update")
-    public Result update(HttpServletRequest request,@Valid @RequestBody CommodityInput commodityInput,@RequestParam(required = false) Long supplierId, BindingResult bindingResult) throws Exception {
+    public Result update(HttpServletRequest request, @Valid @RequestBody CommodityUpdateInput commodityUpdateInput, @RequestParam(required = false) Long supplierId, BindingResult bindingResult) throws Exception {
         if (bindingResult.hasErrors()) {
             Result result = new Result();
             List<ObjectError> list = bindingResult.getAllErrors();
@@ -120,7 +121,7 @@ public class CommodityController {
         }else{
             //校验供应商ID
             supplierId = CheckUtil.supplierIdCheck(request,supplierId);
-            return commodityService.updateCommodity(commodityInput, supplierId);
+            return commodityService.updateCommodity(commodityUpdateInput, supplierId);
         }
     }
 

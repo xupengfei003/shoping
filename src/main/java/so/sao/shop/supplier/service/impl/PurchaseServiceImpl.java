@@ -700,15 +700,6 @@ public class PurchaseServiceImpl implements PurchaseService {
 
         // 订单的商品条目
         output.setPurchaseItemPrintVos(purchaseItemPrintVos);
-        // 商品条目总金额转换成千分位
-        Iterator iterator = purchaseItemPrintVos.iterator();
-        while (iterator.hasNext()) {
-            PurchaseItemPrintVo purchaseItemPrintVo = (PurchaseItemPrintVo) iterator.next();
-
-            purchaseItemPrintVo.setGoodsTatolPriceFormat(
-                    NumberUtil.number2Thousand(purchaseItemPrintVo.getGoodsTatolPrice())
-            );
-        }
 
         return output;
     }
