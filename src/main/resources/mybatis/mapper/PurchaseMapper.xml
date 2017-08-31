@@ -295,31 +295,26 @@
     </select>
 
     <!--更改订单状态-->
-
     <update id="updateOrder">
         UPDATE purchase
         SET
         order_status = #{orderStatus},
-        updated_at = #{updateDate}
+        updated_at = #{updateDate},
+        order_receive_time = #{updateDate}
         WHERE order_id = #{orderId}
     </update>
 
-    <!--更改状态辅助操作-->
-    <update id="updateOrderAtr">
+    <!--发货接口-->
+    <update id="deliverGoods">
         UPDATE purchase
-        <choose>
-            <when test="orderReceiveTime!=null">
-                SET order_receive_time = #{orderReceiveTime}
-            </when>
-            <when test="drawbackTime!=null">
-                SET drawback_time = #{drawbackTime}
-            </when>
-            <otherwise>
-                <if test="receiveMethod == 1">SET distributor_name = #{name},distributor_mobile = #{number},order_ship_method=1</if>
-                <if test="receiveMethod == 2">SET logistics_company = #{name} ,order_shipment_number = #{number},order_ship_method=2</if>
-            </otherwise>
-        </choose>
-        WHERE order_id = #{orderId}
+            SET
+            order_status = #{orderStatus},
+            updated_at = #{updateDate},
+            distributor_name = #{name},
+            distributor_mobile = #{number},
+            order_ship_method= 3
+        WHERE
+          order_id = #{orderId}
     </update>
 
     <!--删除订单-->
@@ -490,6 +485,7 @@
         order_refuse_imgA = #{map.refuseImgUrlA},
         order_refuse_imgB = #{map.refuseImgUrlB},
         order_refuse_imgC = #{map.refuseImgUrlC},
+        order_status = #{map.orderStatus},
         updated_at = #{map.updatedAt}
         WHERE order_id = #{map.orderId}
     </update>
@@ -554,6 +550,7 @@
         UPDATE purchase
         SET
         order_cancel_reason = #{cancelMap.cancelReason},
+        order_status = #{cancelMap.orderStatus},
         updated_at = #{cancelMap.updatedAt}
         WHERE order_id = #{cancelMap.orderId}
     </update>

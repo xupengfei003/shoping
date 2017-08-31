@@ -60,15 +60,15 @@ public interface PurchaseDao {
     boolean updateOrder(@Param("orderId") String orderId, @Param("orderStatus") Integer orderStatus,@Param("updateDate") Date updateDate);
 
     /**
-     * 更改状态辅助操作（更改退款时间、插入物流配送方式）
+     * 发货接口
      *
-     * @param drawbackTime
+     * @param orderStatus
      * @param receiveMethod
      * @param name
      * @param number
      * @return boolean
      */
-    boolean updateOrderAtr(@Param("orderId") String orderId, @Param("drawbackTime") Date drawbackTime, @Param("orderReceiveTime") Date orderReceiveTime,
+    boolean deliverGoods(@Param("orderId") String orderId,@Param("orderStatus") Integer orderStatus,@Param("updateDate") Date date,
                            @Param("receiveMethod") Integer receiveMethod, @Param("name") String name, @Param("number") String number);
 
     /**
