@@ -244,45 +244,26 @@ public class PurchaseServiceImpl implements PurchaseService {
      * @return List<Order>
      */
     @Override
-    public PurchaseSelectOutput searchOrders(Integer pageNum, Integer rows, PurchaseSelectInput purchaseSelectInput) throws Exception {
+    public PageInfo<PurchasesVo> searchOrders(Integer pageNum, Integer rows, PurchaseSelectInput purchaseSelectInput) throws Exception {
         PageHelper.startPage(pageNum, rows);
         List<PurchasesVo> orderList = purchaseDao.findPage(purchaseSelectInput);
         //转换金额为千分位
         for(PurchasesVo purchasesVo : orderList){
             purchasesVo.setOrderPrice(NumberUtil.number2Thousand(new BigDecimal(purchasesVo.getOrderPrice())));
         }
-        if (orderList.size() > 0) {
-            PurchaseSelectOutput purchaseSelectOutput = new PurchaseSelectOutput();
-            purchaseSelectOutput.setPageInfo(new PageInfo<>(orderList));
-            return purchaseSelectOutput;
-        } else {
-            PurchaseSelectOutput purchaseSelectOutput = new PurchaseSelectOutput();
-            purchaseSelectOutput.setPageInfo(new PageInfo<>());
-            return purchaseSelectOutput;
-        }
+        return  new PageInfo<>(orderList);
     }
 
     /**
-     * 更改订单状态
+     * 发货接口
      *
      * @param orderId
-     * @param orderStatus
      * @return boolean
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean updateOrder(String orderId, Integer orderStatus, Integer receiveMethod, String name, String number) {
-        if (orderStatus == Constant.OrderStatusConfig.REFUNDED) {
-            Date drawbackDate = new Date();
-            purchaseDao.updateOrderAtr(orderId, drawbackDate, null,null, null, null);
-        } else if (orderStatus == Constant.OrderStatusConfig.ISSUE_SHIP) {
-            purchaseDao.updateOrderAtr(orderId, null,null, receiveMethod, name, number);
-        } else if (orderStatus == Constant.OrderStatusConfig.RECEIVED){
-            Date orderReceiveTime = new Date();
-            purchaseDao.updateOrderAtr(orderId, null,orderReceiveTime, null, null, null);
-        }
-        Date updateDate = new Date();
-        boolean flag = purchaseDao.updateOrder(orderId, orderStatus, updateDate);
+    public boolean deliverGoods(String orderId, Integer receiveMethod, String name, String number) throws Exception {
+        boolean flag = purchaseDao.deliverGoods(orderId, Constant.OrderStatusConfig.ISSUE_SHIP, new Date(), receiveMethod, name, number);
         if (flag) {
             //TODO 更改订单状态成功后向该供应商推送一条消息
             Long accountId;
@@ -290,7 +271,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             if (null != purchase) {
                 accountId = purchase.getStoreId();
                 if(purchase.getPayStatus() != 0){ //支付状态是1 推送消息通知
-                    Notification notification = createNotification(accountId, orderId, orderStatus);
+                    Notification notification = createNotification(accountId, orderId, Constant.OrderStatusConfig.ISSUE_SHIP);
                     if (null != notification) {
                         notificationDao.insert(notification);
                     }
@@ -840,7 +821,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         }
 
         // 2.将订单状态改为已收货，成功返回true，失败返回false
-        boolean flag = this.updateOrder(orderId, Constant.OrderStatusConfig.RECEIVED, null, null, null);
+        boolean flag = purchaseDao.updateOrder(orderId, Constant.OrderStatusConfig.RECEIVED, new Date());
 
         // 订单状态修改失败，返回false
         if (!flag) {
@@ -874,8 +855,7 @@ public class PurchaseServiceImpl implements PurchaseService {
      * @return Map 封装结果 键flag的值为true表示成功，false表示失败，message的值表示文字描述
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
-    public Map refuseOrder(RefuseOrderInput refuseOrderInput) throws Exception {
+    public boolean refuseOrder(RefuseOrderInput refuseOrderInput) throws Exception {
         Map<String,Object> map = new HashMap<>();
         map.put("orderId",refuseOrderInput.getOrderId());//订单编号
         map.put("refuseReason",refuseOrderInput.getRefuseReason());//拒收理由
@@ -884,16 +864,9 @@ public class PurchaseServiceImpl implements PurchaseService {
         map.put("refuseImgUrlC",refuseOrderInput.getRefuseImgUrlC());//拒收图片URL C
         map.put("orderRefuseTime",new Date());//拒收时间
         map.put("updatedAt", new Date());//更新时间
+        map.put("orderStatus", Constant.OrderStatusConfig.REJECT);//订单状态 5 拒收
         boolean flag = purchaseDao.insertRefuseMessage(map);
-        updateOrder(refuseOrderInput.getOrderId(), Constant.OrderStatusConfig.REJECT, null,null,null);
-        map.clear();
-        if(!flag){
-            map.put("flag",flag);
-            map.put("message","ERROR");
-            return map;
-        }
-        map.put("flag",flag);
-        return map;
+        return flag;
     }
 
     /**
@@ -1020,21 +993,14 @@ public class PurchaseServiceImpl implements PurchaseService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Map cancelOrder(CancelReasonInput cancelReasonInput) throws Exception {
+    public boolean cancelOrder(CancelReasonInput cancelReasonInput) throws Exception {
         Map<String,Object> map = new HashMap<>();
         map.put("orderId",cancelReasonInput.getOrderId());//订单编号
         map.put("cancelReason",cancelReasonInput.getCancelReason());//取消订单理由
         map.put("updatedAt", new Date());//更新时间
+        map.put("orderStatus", Constant.OrderStatusConfig.CANCEL_ORDER);//订单状态 7 取消
         boolean flag = purchaseDao.insertCancelMessage(map);
-        updateOrder(cancelReasonInput.getOrderId(), Constant.OrderStatusConfig.CANCEL_ORDER, null,null,null);
-        map.clear();
-        if(!flag){
-            map.put("flag",flag);
-            map.put("message","ERROR");
-            return map;
-        }
-        map.put("flag",flag);
-        return map;
+        return flag;
     }
 
     /**

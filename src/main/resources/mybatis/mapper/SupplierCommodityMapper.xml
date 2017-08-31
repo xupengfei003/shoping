@@ -308,12 +308,10 @@
         WHERE id = #{id}
     </update>
 
-    <!--根据商品标签ID查询是否有正在使用-->
-    <select id="findSupplierCommodityByTagId" parameterType="java.lang.Long" resultType="so.sao.shop.supplier.domain.SupplierCommodity">
+    <!--根据商品标签ID查询是否有正在使用（存在性校验使用）-->
+    <select id="countSupplierCommodityByTagId" parameterType="java.lang.Long" resultType="int">
         select
-        id as id,
-        sku as sku,
-        tag_id as tagId
+        COUNT(id) as num
         from supplier_commodity sc
         WHERE sc.deleted = 0 and sc.tag_id=#{tagId}
     </select>

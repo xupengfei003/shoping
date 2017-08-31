@@ -17,7 +17,7 @@
         comm.id AS id,
         comm.code69 AS code69,
         b.name AS brandName,
-        comm.name AS name,
+        comm.name AS NAME,
         comm.category_one_id AS categoryOneId,
         comm.category_two_id AS categoryTwoId,
         comm.category_three_id AS categoryThreeId,
@@ -27,9 +27,12 @@
         comm.created_at AS createdAt,
         comm.created_by AS createdBy,
         comm.updated_at AS updatedAt,
-        comm.updated_by AS updatedBy
+        comm.updated_by AS updatedBy,
+        (SELECT NAME FROM comm_category WHERE id = comm.category_one_id) AS categoryOneName,
+        (SELECT NAME FROM comm_category WHERE id = comm.category_two_id) AS categoryTwoName,
+        (SELECT NAME FROM comm_category WHERE id = comm.category_three_id) AS categoryThreeName
         FROM commodity comm
-        LEFT JOIN comm_brand b on comm.brand_id=b.id
+        LEFT JOIN comm_brand b ON comm.brand_id=b.id
         WHERE code69 = #{code69}
     </select>
     <!--根据code69查询商品信息-->

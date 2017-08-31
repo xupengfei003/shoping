@@ -152,9 +152,9 @@ public interface SupplierCommodityDao {
     /**
      * 根据商品标签ID查询未删除状态的供应商商品
      * @param tagId 商品标签ID
-     * @return List<SupplierCommodity>供应商商品集合
+     * @return int 在使用标签的商品数量
      */
-    List<SupplierCommodity> findSupplierCommodityByTagId(@Param("tagId")Long tagId);
+    int countSupplierCommodityByTagId(@Param("tagId")Long tagId);
 
     /**
      * 根据计量规格主键commMeasureSpecId 查所有引用到的未删除状态的SupplierCommodity

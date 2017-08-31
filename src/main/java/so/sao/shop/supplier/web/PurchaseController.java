@@ -6,7 +6,6 @@ import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import so.sao.shop.supplier.config.Constant;
@@ -16,7 +15,7 @@ import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.*;
 import so.sao.shop.supplier.pojo.output.PurchaseInfoOutput;
 import so.sao.shop.supplier.pojo.output.PurchaseItemPrintOutput;
-import so.sao.shop.supplier.pojo.output.PurchaseSelectOutput;
+import so.sao.shop.supplier.pojo.vo.PurchasesVo;
 import so.sao.shop.supplier.service.PurchaseService;
 import so.sao.shop.supplier.util.DataCompare;
 import so.sao.shop.supplier.util.DateUtil;
@@ -56,26 +55,20 @@ public class PurchaseController {
      */
     @RequestMapping(value = "/createPurchase", method = RequestMethod.POST)
     @ApiOperation(value = "生成订单")
-    public Result createPurchase(@Valid PurchaseInput purchase) {
+    public Result createPurchase(@Valid PurchaseInput purchase) throws Exception{
         Result output = new Result();
-        try {
-            Map<String, Object> resMap = purchaseService.savePurchase(purchase);
-            Integer status = Integer.parseInt(String.valueOf(resMap.get("status")));
-            if (status == 1) {
-                output.setCode(Constant.CodeConfig.CODE_SUCCESS);
-                output.setMessage(Constant.MessageConfig.MSG_SUCCESS);
-                Map<String, Object> resultMap = new HashMap<>();
-                resultMap.put("orderId", resMap.get("orderId"));
-                resultMap.put("totalMoney", resMap.get("totalMoney"));
-                output.setData(resultMap);
-            } else {
-                output.setCode(Constant.CodeConfig.CODE_FAILURE);
-                output.setMessage(Constant.MessageConfig.MSG_FAILURE);
-            }
-        } catch (Exception e) {
-            logger.error("系统异常", e);
-            output.setCode(Constant.CodeConfig.CODE_SYSTEM_EXCEPTION);
-            output.setMessage(Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
+        Map<String, Object> resMap = purchaseService.savePurchase(purchase);
+        Integer status = Integer.parseInt(String.valueOf(resMap.get("status")));
+        if (status == 1) {
+            output.setCode(Constant.CodeConfig.CODE_SUCCESS);
+            output.setMessage(Constant.MessageConfig.MSG_SUCCESS);
+            Map<String, Object> resultMap = new HashMap<>();
+            resultMap.put("orderId", resMap.get("orderId"));
+            resultMap.put("totalMoney", resMap.get("totalMoney"));
+            output.setData(resultMap);
+        } else {
+            output.setCode(Constant.CodeConfig.CODE_FAILURE);
+            output.setMessage(Constant.MessageConfig.MSG_FAILURE);
         }
         return output;
     }
@@ -88,18 +81,11 @@ public class PurchaseController {
      */
     @RequestMapping(value = "/purchase/{orderId}", method = RequestMethod.GET)
     @ApiOperation(value = "获取订单详情", notes = "获取订单详情")
-    public PurchaseInfoOutput findById(@PathVariable String orderId) {
+    public PurchaseInfoOutput findById(@PathVariable String orderId) throws Exception{
         PurchaseInfoOutput output = new PurchaseInfoOutput();
-        try {
-            output = purchaseService.findById(orderId);
-            output.setCode(Constant.CodeConfig.CODE_SUCCESS);
-            output.setMessage(Constant.MessageConfig.MSG_SUCCESS);
-        } catch (Exception e) {
-            logger.error("系统异常", e);
-            output.setCode(Constant.CodeConfig.CODE_SYSTEM_EXCEPTION);
-            output.setMessage(Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
-            return output;
-        }
+        output = purchaseService.findById(orderId);
+        output.setCode(Constant.CodeConfig.CODE_SUCCESS);
+        output.setMessage(Constant.MessageConfig.MSG_SUCCESS);
         return output;
     }
 
@@ -114,26 +100,11 @@ public class PurchaseController {
     @RequestMapping(value = "/export", method = RequestMethod.GET)
     @ApiOperation(value = "POI批量导出订单列表", notes = "POI批量导出订单列表")
     @ResponseBody
-    public BaseResult exportExcel(HttpServletRequest request, HttpServletResponse response, String pageNum, Integer pageSize, @RequestParam(required = false) Long accountId, PurchaseSelectInput purchaseSelectInput) {
+    public BaseResult exportExcel(HttpServletRequest request, HttpServletResponse response, String pageNum, Integer pageSize,
+                                  @RequestParam(required = false) Long accountId, PurchaseSelectInput purchaseSelectInput) throws Exception{
         BaseResult result = new BaseResult();
         result.setCode(Constant.CodeConfig.CODE_DATE_INPUT_FORMAT_ERROR);
         result.setMessage(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
-        //TODO 前端下载暂时未作token传递
-        /*User user = (User) request.getAttribute(so.sao.shop.supplier.util.Constant.REQUEST_USER);
-        if (null == user) {   //验证用户是否登陆
-            result.setCode(Constant.CodeConfig.CODE_USER_NOT_LOGIN);
-            result.setMessage(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
-            return result;
-        } else {
-            if (user.getIsAdmin().equals(Constant.ADMIN_STATUS)) {  //验证用户是否是管理员
-                if (accountId == null) {
-                    result.setCode(Constant.CodeConfig.CODE_FAILURE);
-                    result.setMessage(Constant.MessageConfig.ADMIN_AUTHORITY_EERO);
-                    return result;
-                }
-            } else {
-                accountId = user.getAccountId();
-            }*/
         //判断时间格式
         if (!verifyDate(purchaseSelectInput)) {
             return result;
@@ -142,17 +113,10 @@ public class PurchaseController {
         if (restrictDate(purchaseSelectInput)) {
             return result;
         }
-        try {
-            purchaseService.exportExcel(request, response, pageNum, pageSize, accountId, purchaseSelectInput);
-            result.setCode(Constant.CodeConfig.CODE_SUCCESS);
-            result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
-        } catch (Exception e) {
-            logger.error("系统异常", e);
-            result.setCode(Constant.CodeConfig.CODE_SYSTEM_EXCEPTION);
-            result.setMessage(Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
-        }
+        purchaseService.exportExcel(request, response, pageNum, pageSize, accountId, purchaseSelectInput);
+        result.setCode(Constant.CodeConfig.CODE_SUCCESS);
+        result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
         return result;
-        // }
     }
 
     /**
@@ -166,97 +130,72 @@ public class PurchaseController {
      */
     @GetMapping(value = "/search")
     @ApiOperation(value = "查询订单列表", notes = "*")
-    public PurchaseSelectOutput search(HttpServletRequest request, Integer pageNum, Integer rows, PurchaseSelectInput purchaseSelectInput) {
-        PurchaseSelectOutput purchaseSelectOutputList = new PurchaseSelectOutput();
-        purchaseSelectOutputList.setCode(Constant.CodeConfig.CODE_DATE_INPUT_FORMAT_ERROR);
-        purchaseSelectOutputList.setMessage(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
+    public Result search(HttpServletRequest request, Integer pageNum, Integer rows, PurchaseSelectInput purchaseSelectInput) throws Exception {
+        Result result = new Result();
+        result.setCode(Constant.CodeConfig.CODE_DATE_INPUT_FORMAT_ERROR);
+        result.setMessage(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //判断是否登陆
         if (null == user) {
-            purchaseSelectOutputList.setCode(Constant.CodeConfig.CODE_USER_NOT_LOGIN);
-            purchaseSelectOutputList.setMessage(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
+            result.setCode(Constant.CodeConfig.CODE_USER_NOT_LOGIN);
+            result.setMessage(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         } else {
             //判断是否为管理员
             if (Constant.ADMIN_STATUS.equals(user.getIsAdmin())) {
                 if (null == purchaseSelectInput.getStoreId()) {
-                    purchaseSelectOutputList.setCode(Constant.CodeConfig.CODE_FAILURE);
-                    purchaseSelectOutputList.setMessage(Constant.MessageConfig.STORE_ID_NOT_NULL);
-                    return purchaseSelectOutputList;
+                    result.setCode(Constant.CodeConfig.CODE_FAILURE);
+                    result.setMessage(Constant.MessageConfig.STORE_ID_NOT_NULL);
+                    return result;
                 }
             } else {
                 purchaseSelectInput.setStoreId(BigInteger.valueOf(user.getAccountId()));
             }
             //判断时间格式
             if (!verifyDate(purchaseSelectInput)) {
-                return purchaseSelectOutputList;
+                return result;
             }
             //对比开始时间和结束时间
             if (restrictDate(purchaseSelectInput)) {
-                return purchaseSelectOutputList;
+                return result;
             }
             //查询订单
-            try {
-                if (rows == null || rows <= 0) {
-                    rows = 10;
-                }
-                if (pageNum == null || pageNum <= 0) {
-                    pageNum = 1;
-                }
-                purchaseSelectOutputList = purchaseService.searchOrders(pageNum, rows, purchaseSelectInput);
-                if (purchaseSelectOutputList.getPageInfo().getSize() > 0) {
-                    purchaseSelectOutputList.setCode(Constant.CodeConfig.CODE_SUCCESS);
-                    purchaseSelectOutputList.setMessage(Constant.MessageConfig.MSG_SUCCESS);
-                } else {
-                    purchaseSelectOutputList.setCode(Constant.CodeConfig.CODE_NOT_FOUND_RESULT);
-                    purchaseSelectOutputList.setMessage(Constant.MessageConfig.MSG_NOT_FOUND_RESULT);
-                }
-            } catch (Exception e) {
-                logger.error("系统异常", e);
-                purchaseSelectOutputList.setCode(Constant.CodeConfig.CODE_FAILURE);
-                purchaseSelectOutputList.setMessage(Constant.MessageConfig.MSG_FAILURE);
+            if (rows == null || rows <= 0) {
+                rows = 10;
             }
+            if (pageNum == null || pageNum <= 0) {
+                pageNum = 1;
+            }
+            PageInfo<PurchasesVo> pageInfo = purchaseService.searchOrders(pageNum, rows, purchaseSelectInput);
+            result.setData(pageInfo);
         }
-        return purchaseSelectOutputList;
+        return result;
     }
 
     /**
-     * 更改订单状态
+     * 发货接口
      *
-     * @param orderId
-     * @param orderStatus
-     * @param receiveMethod
-     * @param name
-     * @param number
+     * @param orderId       订单号
+     * @param receiveMethod 配送方式 1自配送 2物流公司
+     * @param name          配送公司/配送人
+     * @param number        物流单号/电话号码
      * @return BaseResult
      */
-    @RequestMapping(value = "/update/{orderId}/orderStatus", method = RequestMethod.POST)
-    @ApiOperation(value = "更改订单状态", notes = "")
-    public BaseResult update(@PathVariable("orderId") String orderId, Integer orderStatus, Integer receiveMethod, String name, String number) {
+    @RequestMapping(value = "/deliverGoods", method = RequestMethod.POST)
+    @ApiOperation(value = "发货接口", notes = "")
+    public BaseResult deliverGoods(@PathVariable("orderId") String orderId, Integer receiveMethod, String name, String number) throws Exception {
         BaseResult baseResult = new BaseResult();
         baseResult.setCode(Constant.CodeConfig.CODE_SUCCESS);
         baseResult.setMessage(Constant.MessageConfig.MSG_SUCCESS);
-        try {
-            if (orderId != null && orderStatus != null) {
-                //验证订单状态是否合法，本期不考虑
-                /*if(verifyOrderStatus(orderId,orderStatus) == 0){
-                    baseResult.setCode(Constant.CodeConfig.CODE_FAILURE);
-                    baseResult.setMessage(Constant.MessageConfig.ORDER_STATUS_EERO);
-                    return baseResult;
-                }*/
-                //更改订单状态操作
-                boolean flag = purchaseService.updateOrder(orderId, orderStatus, receiveMethod, name, number);
-                if (!flag) {
-                    baseResult.setCode(Constant.CodeConfig.CODE_FAILURE);
-                    baseResult.setMessage(Constant.MessageConfig.MSG_FAILURE);
-                }
-            } else {
-                baseResult.setCode(Constant.CodeConfig.CODE_NOT_EMPTY);
-                baseResult.setMessage(Constant.MessageConfig.MSG_NOT_EMPTY);
+        if (orderId != null) {
+            //更改订单状态操作
+            boolean flag = purchaseService.deliverGoods(orderId, receiveMethod, name, number);
+            if (!flag) {
+                baseResult.setCode(Constant.CodeConfig.CODE_FAILURE);
+                baseResult.setMessage(Constant.MessageConfig.MSG_FAILURE);
             }
-        } catch (Exception e) {
-            logger.error("系统异常", e);
-            baseResult.setCode(Constant.CodeConfig.CODE_SYSTEM_EXCEPTION);
-            baseResult.setMessage(Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
+        } else {
+            baseResult.setCode(Constant.CodeConfig.CODE_NOT_EMPTY);
+            baseResult.setMessage(Constant.MessageConfig.MSG_NOT_EMPTY);
         }
         return baseResult;
     }
@@ -305,7 +244,7 @@ public class PurchaseController {
      */
     @ApiOperation(value = "收入明细查询(高级查询)", notes = " 根据商户id及查询条件（起始创建订单-结束创建订单时间/起始下单时间-结束下单时间/起始-结束金额范围;订单编号/收货人名称/收货人联系方式）分页显示订单")
     @GetMapping(value = "/account/PurchasesHigh")
-    public Result<PageInfo> searchHigh(Integer pageNum, Integer pageSize,@Validated AccountPurchaseInput input,HttpServletRequest request) {
+    public Result<PageInfo> searchHigh(Integer pageNum, Integer pageSize, @Validated AccountPurchaseInput input, HttpServletRequest request) {
         //设置初始化返回参数提示信息
         Result<PageInfo> result = new Result<>();
         result.setCode(Constant.CodeConfig.CODE_DATE_INPUT_FORMAT_ERROR);
@@ -663,26 +602,12 @@ public class PurchaseController {
      */
     @ApiOperation("拒收货接口")
     @PostMapping("/refuseOrder")
-    public Result refuseOrder(@RequestBody @Valid RefuseOrderInput refuseOrderInput) {
-        Result result = new Result();// 返回对象
-        //默认result为失败
-        result.setCode(Constant.CodeConfig.CODE_FAILURE);
-        result.setMessage(Constant.MessageConfig.MSG_FAILURE);
-        try {
-            Map<String, Object> map = purchaseService.refuseOrder(refuseOrderInput);
-            boolean flag = (boolean) map.get("flag");
-            if (flag) {
-                result.setCode(Constant.CodeConfig.CODE_SUCCESS);
-                result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
-            } else {
-                result.setData(map.get("message"));
-            }
-        } catch (Exception e) {
-            logger.error("系统异常", e);
-            result.setCode(Constant.CodeConfig.CODE_SYSTEM_EXCEPTION);
-            result.setMessage(Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
+    public Result refuseOrder(@RequestBody @Valid RefuseOrderInput refuseOrderInput) throws Exception {
+        boolean flag = purchaseService.refuseOrder(refuseOrderInput);
+        if (flag) {
+            return Result.success(Constant.MessageConfig.MSG_SUCCESS);
         }
-        return result;
+        return Result.success(Constant.MessageConfig.MSG_FAILURE);
     }
 
     /**
@@ -721,50 +646,31 @@ public class PurchaseController {
 
     @ApiOperation("新增取消订单原因接口")
     @PostMapping("/insertCancelReason")
-    public Result insertCancelReason(@RequestBody @Valid CancelReasonInput cancelReasonInput) {
-        Result result = new Result();// 返回对象
-        result.setCode(Constant.CodeConfig.CODE_FAILURE);
-        result.setMessage(Constant.MessageConfig.MSG_FAILURE);
-        try {
-            Map<String, Object> map = purchaseService.cancelOrder(cancelReasonInput);
-            boolean flag = (boolean) map.get("flag");
-            if (flag) {
-                result.setCode(Constant.CodeConfig.CODE_SUCCESS);
-                result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
-            } else {
-                result.setData(map.get("message"));
-            }
-        } catch (Exception e) {
-            logger.error("系统异常", e);
-            result.setCode(Constant.CodeConfig.CODE_SYSTEM_EXCEPTION);
-            result.setMessage(Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
+    public Result insertCancelReason(@RequestBody @Valid CancelReasonInput cancelReasonInput) throws Exception {
+        boolean flag = purchaseService.cancelOrder(cancelReasonInput);
+        if (flag) {
+            return Result.success(Constant.MessageConfig.MSG_SUCCESS);
         }
-        return result;
+        return Result.success(Constant.MessageConfig.MSG_FAILURE);
     }
 
     @ApiOperation("查看取消订单原因接口")
     @GetMapping("/scanCancelReason/{orderId}")
-    public Result scanCancelReason(@PathVariable("orderId") String orderId) {
+    public Result scanCancelReason(@PathVariable("orderId") String orderId) throws Exception {
         Result result = new Result();// 返回对象
         //默认result为失败
         result.setCode(Constant.CodeConfig.CODE_FAILURE);
         result.setMessage(Constant.MessageConfig.MSG_FAILURE);
         if (!StringUtils.isEmpty(orderId)) {
-            try {
-                String cancelReason = purchaseService.searchCancelReasonByOrderId(orderId);
-                if (!StringUtils.isEmpty(cancelReason)) {
-                    result.setCode(Constant.CodeConfig.CODE_SUCCESS);
-                    result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
-                    result.setData(cancelReason);
-                } else {
-                    result.setCode(Constant.CodeConfig.CODE_SUCCESS);
-                    result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
-                    result.setData(Constant.MessageConfig.MSG_NO_DATA);
-                }
-            } catch (Exception e) {
-                logger.error("系统异常", e);
-                result.setCode(Constant.CodeConfig.CODE_SYSTEM_EXCEPTION);
-                result.setMessage(Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
+            String cancelReason = purchaseService.searchCancelReasonByOrderId(orderId);
+            if (!StringUtils.isEmpty(cancelReason)) {
+                result.setCode(Constant.CodeConfig.CODE_SUCCESS);
+                result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
+                result.setData(cancelReason);
+            } else {
+                result.setCode(Constant.CodeConfig.CODE_SUCCESS);
+                result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
+                result.setData(Constant.MessageConfig.MSG_NO_DATA);
             }
         } else {
             result.setCode(Constant.CodeConfig.CODE_FAILURE);
