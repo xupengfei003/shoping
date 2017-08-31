@@ -295,31 +295,26 @@
     </select>
 
     <!--更改订单状态-->
-
     <update id="updateOrder">
         UPDATE purchase
         SET
         order_status = #{orderStatus},
-        updated_at = #{updateDate}
+        updated_at = #{updateDate},
+        order_receive_time = #{updateDate}
         WHERE order_id = #{orderId}
     </update>
 
-    <!--更改状态辅助操作-->
-    <update id="updateOrderAtr">
+    <!--发货接口-->
+    <update id="deliverGoods">
         UPDATE purchase
-        <choose>
-            <when test="orderReceiveTime!=null">
-                SET order_receive_time = #{orderReceiveTime}
-            </when>
-            <when test="drawbackTime!=null">
-                SET drawback_time = #{drawbackTime}
-            </when>
-            <otherwise>
-                <if test="receiveMethod == 1">SET distributor_name = #{name},distributor_mobile = #{number},order_ship_method=1</if>
-                <if test="receiveMethod == 2">SET logistics_company = #{name} ,order_shipment_number = #{number},order_ship_method=2</if>
-            </otherwise>
-        </choose>
-        WHERE order_id = #{orderId}
+        SET
+        order_status = #{orderStatus},
+        updated_at = #{updateDate},
+        distributor_name = #{name},
+        distributor_mobile = #{number},
+        order_ship_method= #{receiveMethod}
+        WHERE
+        order_id = #{orderId}
     </update>
 
     <!--删除订单-->
@@ -567,4 +562,21 @@
         WHERE order_id = #{orderId}
     </select>
 
+    <!-- 根据支付ID获取该订单 -->
+    <select id="findByPayId" resultType="so.sao.shop.supplier.domain.Purchase" parameterType="java.lang.String">
+        select
+        <include refid="Base_Column_List" />
+        from purchase
+        where pay_id = #{payId,jdbcType=VARCHAR}
+    </select>
+
+    <!-- 根据订单编号修改订单编号，退款时间 -->
+    <update id="refundByOrderId" parameterType="java.util.Map">
+        UPDATE purchase
+        SET
+        order_status = #{refundMap.orderStatus},
+        drawback_time = #{refundMap.drawbackTime},
+        updated_at = #{refundMap.updatedAt}
+        WHERE order_id = #{refundMap.orderId}
+    </update>
 </mapper>
