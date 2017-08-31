@@ -80,40 +80,20 @@ public class CommodityController {
         return commodityService.findCommodity(code69);
     }
 
-    @ApiOperation(value="新增商品信息", notes="")
+    @ApiOperation(value="新增商品信息", notes="责任人：武凯江")
     @PostMapping(value="/save")
-    public Result save(HttpServletRequest request,@Valid @RequestBody CommodityInput commodityInput,@RequestParam(required = false) Long supplierId, BindingResult bindingResult) throws Exception {
-        if (bindingResult.hasErrors()) {
-            Result result = new Result();
-            List<ObjectError> list = bindingResult.getAllErrors();
-            for (ObjectError error : list) {
-                result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_NOT_EMPTY);
-                result.setMessage(error.getDefaultMessage());
-            }
-            return result;
-        }else{
-            //校验供应商ID
-            supplierId = CheckUtil.supplierIdCheck(request,supplierId);
-            return commodityService.saveCommodity(commodityInput, supplierId);
-        }
+    public Result save(HttpServletRequest request,@Valid @RequestBody CommodityInput commodityInput,@RequestParam(required = false) Long supplierId) throws Exception {
+        //校验供应商ID
+        supplierId = CheckUtil.supplierIdCheck(request,supplierId);
+        return commodityService.saveCommodity(commodityInput, supplierId);
     }
 
     @ApiOperation(value="修改商品信息", notes="责任人：武凯江")
     @PutMapping(value="/update")
-    public Result update(HttpServletRequest request, @Valid @RequestBody CommodityUpdateInput commodityUpdateInput, @RequestParam(required = false) Long supplierId, BindingResult bindingResult) throws Exception {
-        if (bindingResult.hasErrors()) {
-            Result result = new Result();
-            List<ObjectError> list = bindingResult.getAllErrors();
-            for (ObjectError error : list) {
-                result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_NOT_EMPTY);
-                result.setMessage(error.getDefaultMessage());
-            }
-            return result;
-        }else{
-            //校验供应商ID
-            supplierId = CheckUtil.supplierIdCheck(request,supplierId);
-            return commodityService.updateCommodity(commodityUpdateInput, supplierId);
-        }
+    public Result update(HttpServletRequest request, @Valid @RequestBody CommodityUpdateInput commodityUpdateInput, @RequestParam(required = false) Long supplierId) throws Exception {
+        //校验供应商ID
+        supplierId = CheckUtil.supplierIdCheck(request,supplierId);
+        return commodityService.updateCommodity(commodityUpdateInput, supplierId);
     }
 
     @ApiOperation(value="上架商品", notes="")
@@ -141,13 +121,13 @@ public class CommodityController {
     }
 
 
-    @ApiOperation(value="删除商品信息", notes="根据ID删除相应的商品")
+    @ApiOperation(value="删除商品信息", notes="根据ID删除相应的商品【责任人：武凯江】")
     @DeleteMapping(value="/delete/{id}")
     public Result delete(@PathVariable Long id){
         return commodityService.deleteCommodity(id);
     }
 
-    @ApiOperation(value="批量删除商品信息", notes="根据ID批量删除相应的商品")
+    @ApiOperation(value="批量删除商品信息", notes="根据ID批量删除相应的商品【责任人：武凯江】")
     @DeleteMapping(value="/delete/bulk")
     public Result delete(@RequestParam Long[] id){
         return commodityService.deleteCommodities(id);

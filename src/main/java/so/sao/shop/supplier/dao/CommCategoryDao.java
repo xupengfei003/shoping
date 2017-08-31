@@ -45,6 +45,15 @@ public interface CommCategoryDao {
     List<CommCategory> find(CommCategory commCategory);
 
     /**
+     * 查询商品类型集合
+     * @param commCategoryOneId
+     * @param commCategoryTwoId
+     * @param commCategoryThreeId
+     * @return
+     */
+    List<CommCategory> findByIds(@Param("commCategoryOneId")String commCategoryOneId, @Param("commCategoryTwoId")String commCategoryTwoId, @Param("commCategoryThreeId")String commCategoryThreeId);
+
+    /**
      * 根据类型名称 查询商品类型
      * @param commCategory 商品类型对象
      * @return 查询结果结合

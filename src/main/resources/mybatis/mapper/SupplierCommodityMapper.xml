@@ -112,6 +112,17 @@
         UPDATE supplier_commodity SET deleted=#{deleted},updated_at=#{updatedAt} WHERE id=#{id}
     </delete>
 
+    <update id="deleteByIds" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index" open="" close="" separator=";" >
+            UPDATE supplier_commodity
+            <set>
+                deleted = #{item.deleted},
+                updated_at = #{item.updatedAt}
+            </set>
+            WHERE id = #{item.id}
+        </foreach>
+    </update>
+
     <select id="searchSuppliersByCode69" parameterType="java.lang.String" resultType="java.lang.Long">
         SELECT sc.supplier_Id
         FROM supplier_commodity sc WHERE sc.code69 = #{code69}
@@ -241,7 +252,15 @@
     </select>
 
     <!--根据id查询个数-->
-    <select id="findCountById" resultType="int">
+    <select id="countByCode69" resultType="int">
+        select
+        count(*)
+        from supplier_commodity
+        WHERE deleted = 0 AND code69 = #{code69} AND supplier_id = #{supplierId}
+    </select>
+
+    <!--根据id查询个数-->
+    <select id="countById" resultType="int">
         select
         count(*)
         from supplier_commodity where id = #{id}
