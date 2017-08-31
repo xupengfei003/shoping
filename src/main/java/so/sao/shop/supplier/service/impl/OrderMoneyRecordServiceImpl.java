@@ -78,9 +78,9 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
          *   f).查询该商户下已完成的且在指定结算方式内的订单
          *   g).循环订单id,设置结算明细与订单关联关系的值，并添加到结算明细与订单关联的recordPurchaseList
          *   h).设置该商户下结算明细的值，并添加到结算明细的orderMoneyRecordList
-		 * 2、批量保存结算明细记录
-		 * 3、批量保存结算明细与订单关联关系
-		 * 4、批量更新Account表中的上一次结算时间字段
+         * 2、批量更新Account表中的上一次结算时间字段
+		 * 3、批量保存结算明细记录
+		 * 4、批量保存结算明细与订单关联关系
 		 */
 
         //1、判断accountList，不为空的话则循环列表
@@ -179,18 +179,20 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
 
             }
 
-            if (orderMoneyRecordList.isEmpty() || recordPurchaseList.isEmpty() || accountUpdateList.isEmpty()) {
+            if (!accountUpdateList.isEmpty()) {
+                //2、批量更新Account表中的上一次结算时间字段
+                accountDao.updateAccountLastSettlementDate(accountUpdateList);
+            }
+
+            if (orderMoneyRecordList.isEmpty() || recordPurchaseList.isEmpty()) {
                 return;
             }
 
-            //2、批量保存结算明细记录
+            //3、批量保存结算明细记录
             orderMoneyRecordDao.saveOrderMoneyRecords(orderMoneyRecordList);
 
-            //3、批量保存结算明细与订单关联关系
+            //4、批量保存结算明细与订单关联关系
             recordPurchaseDao.saveRecordPurchases(recordPurchaseList);
-
-            //4、批量更新Account表中的上一次结算时间字段
-            accountDao.updateAccountLastSettlementDate(accountUpdateList);
 
         }
     }
