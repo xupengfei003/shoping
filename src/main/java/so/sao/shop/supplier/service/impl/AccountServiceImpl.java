@@ -395,7 +395,7 @@ public class AccountServiceImpl implements AccountService {
         }
     	//文件名称不为空，先删除云端文件
     	if(!"".equals(blobName) && blobName != null) {
-    		azureBlobService.deleteFile(CommConstant.AZURE_CONTAINER.toLowerCase(), blobName);
+    		azureBlobService.deleteFile(CommConstant.AZURE_CONTAINER.toLowerCase(), blobName.split("-_-")[1]);
     	}
         //获取文件名称
         String fileName = multipartFile.getOriginalFilename();
@@ -413,7 +413,10 @@ public class AccountServiceImpl implements AccountService {
         }
       //上传成功封装为result返回页面
         List<BlobUpload> blobUploadList =azureBlobService.uploadFiles(new MultipartFile[] {multipartFile}, CommConstant.AZURE_CONTAINER.toLowerCase());
-        return Result.success("文件上传成功", blobUploadList.get(0));
+        BlobUpload blobUpload = blobUploadList.get(0);
+        blobUpload.setFileName(fileName+"-_-"+blobUpload.getFileName());
+        return Result.success("文件上传成功",blobUpload);
+
     }
 
     /**
