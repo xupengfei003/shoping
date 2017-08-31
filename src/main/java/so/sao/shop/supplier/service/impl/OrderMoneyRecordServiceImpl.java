@@ -74,10 +74,10 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
          *   b).结算明细与订单关联关系list
          *   c).更新的accountList
          *   d).获取计算明细中的值
-		 *   d).查询该商户下已完成的且在指定结算方式内的订单
-		 *   e).循环订单id,设置结算明细与订单关联关系的值，并添加到结算明细与订单关联的recordPurchaseList
-		 *   f).设置该商户下结算明细的值，并添加到结算明细的orderMoneyRecordList
-		 *   g).设置Account表中需要更新账户表中的字段
+         *   e).设置Account表中需要更新账户表中的字段
+         *   f).查询该商户下已完成的且在指定结算方式内的订单
+         *   g).循环订单id,设置结算明细与订单关联关系的值，并添加到结算明细与订单关联的recordPurchaseList
+         *   h).设置该商户下结算明细的值，并添加到结算明细的orderMoneyRecordList
 		 * 2、批量保存结算明细记录
 		 * 3、批量保存结算明细与订单关联关系
 		 * 4、批量更新Account表中的上一次结算时间字段
@@ -97,7 +97,7 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
             for (Account account : accountList) {
                 String remittanceType = account.getRemittanceType();//结算方式
 
-                //d.获取结算明细中的值
+                //d).获取结算明细中的值
                 String recordId = NumberGenerate.generateId();
                 Long accountId = account.getAccountId();
                 String bankName = account.getBankName();
@@ -109,7 +109,13 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
 
                 Date currentDate = new Date();
 
-                //d.查询该商户下已完成的且在指定结算方式内的订单
+                //e).设置Account表中需要更新账户表中的字段
+                Account updateAccount = new Account();
+                updateAccount.setAccountId(accountId);
+                updateAccount.setLastSettlementDate(currentDate);//上一次结帐日期
+                accountUpdateList.add(updateAccount);
+
+                //f).查询该商户下已完成的且在指定结算方式内的订单
                 List<Purchase> purchaseList = null;
                 if (!StringUtils.isEmpty(remittanceType) && "1".equals(remittanceType)) {
                     //按自然月结算
@@ -137,7 +143,7 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
                     continue;
                 }
 
-                //e.循环订单id,设置结算明细与订单关联关系的值，并添加到结算明细与订单关联的recordPurchaseList
+                //g).循环订单id,设置结算明细与订单关联关系的值，并添加到结算明细与订单关联的recordPurchaseList
                 BigDecimal tmpOrderSettlemePrice = new BigDecimal("0.00");
 
                 for (Purchase purchase : purchaseList) {
@@ -153,8 +159,7 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
                     tmpOrderSettlemePrice = tmpOrderSettlemePrice.add(orderSettlemePrice);
                 }
 
-
-                //f).设置该商户下结算明细的值，并添加到结算明细的orderMoneyRecordList
+                //h).设置该商户下结算明细的值，并添加到结算明细的orderMoneyRecordList
                 OrderMoneyRecord omr = new OrderMoneyRecord();
                 omr.setRecordId(recordId);
                 omr.setUserId(accountId);// 账户id
@@ -171,12 +176,6 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
                 omr.setBankUserName(bankUserName);//开户人姓名
                 omr.setCheckoutAt(currentDate);//结账时间
                 orderMoneyRecordList.add(omr);
-
-                //g).设置Account表中需要更新账户表中的字段
-                Account updateAccount = new Account();
-                updateAccount.setAccountId(accountId);
-                updateAccount.setLastSettlementDate(currentDate);//上一次结帐日期
-                accountUpdateList.add(updateAccount);
 
             }
 
