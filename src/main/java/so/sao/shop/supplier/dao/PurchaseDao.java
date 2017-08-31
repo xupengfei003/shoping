@@ -200,4 +200,11 @@ public interface PurchaseDao {
      * @return
      */
     String findCancelReason(@Param("orderId") String orderId);
+
+    /**
+     * 根据支付ID获取订单
+     * @param payId 支付ID
+     * @return List<Purchase>
+     */
+    List<Purchase> findByPayId(String payId);
 }
