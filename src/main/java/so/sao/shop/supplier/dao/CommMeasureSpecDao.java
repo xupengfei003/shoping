@@ -46,7 +46,7 @@ public interface CommMeasureSpecDao {
      * @param id
      * @return
      */
-    int findCountById(@Param("id") Long id);
+    int countById(@Param("id") Long id);
 
     /**
      *根据计量规格主键id 删除对应的计量规格

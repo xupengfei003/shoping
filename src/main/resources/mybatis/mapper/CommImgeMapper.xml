@@ -46,6 +46,29 @@
         #{thumbnailUrl}
         )
     </insert>
+
+    <!--批量新增图片-->
+    <insert id="batchSave" parameterType="java.util.List">
+        insert comm_imge (
+        sc_id,
+        name,
+        thumbnail_url,
+        url,
+        type,
+        size
+        )VALUES
+        <foreach collection ="list" item="data" index= "index" separator =",">
+            (
+            #{data.scId},
+            #{data.name},
+            #{data.thumbnailUrl},
+            #{data.url},
+            #{data.type},
+            #{data.size}
+            )
+        </foreach>
+    </insert>
+
     <update id="update">
         UPDATE comm_imge SET name=#{name},url = #{url},type = #{type},size = #{size} WHERE id = #{id}
     </update>
