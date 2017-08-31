@@ -42,7 +42,7 @@ public class Notification {
     /**
      * 创建时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createdAt;
 
     /**
@@ -60,11 +60,21 @@ public class Notification {
     private String title;
 
     /**
-     * /**
      * notifiDetail(逗号后的内容)
      */
     private String content;
 
+    public Notification() {
+    }
+
+    public Notification(Long accountId, Integer notifiType, String orderId, String notifiDetail, Date createdAt, Integer notifiStatus) {
+        this.accountId = accountId;
+        this.notifiType = notifiType;
+        this.orderId = orderId;
+        this.notifiDetail = notifiDetail;
+        this.createdAt = createdAt;
+        this.notifiStatus = notifiStatus;
+    }
 
     public Integer getNotifiId() {
         return notifiId;

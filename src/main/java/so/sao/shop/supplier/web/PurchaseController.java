@@ -569,16 +569,16 @@ public class PurchaseController {
      * 1.验证参数合法性
      * 2.生成二维码图片并保存到数据库
      *
-     * @param orderId 订单编号
+     * @param m 订单编号
      * @return
      */
     @ApiOperation("生成收货二维码接口")
     @PostMapping("createReceivingQrcode")
-    public Result createReceivingQrcode(String orderId) {
+    public Result createReceivingQrcode(@RequestBody Map m) {
         Result result = new Result(); // 返回对象
         result.setCode(Constant.CodeConfig.CODE_FAILURE);
         result.setMessage(Constant.MessageConfig.MSG_FAILURE);
-
+        String orderId = (String) m.get("orderId");
         // 1.验证参数合法性
         if (Ognl.isEmpty(orderId)) { // 参数为空
             result.setCode(Constant.CodeConfig.CODE_NOT_EMPTY);
@@ -615,16 +615,16 @@ public class PurchaseController {
      * 2.1.将订单状态改为已收货
      * 2.2.将二维码状态改为失效，并记录失效时间
      *
-     * @param orderId 订单编号
+     * @param m 订单编号
      * @return
      */
     @ApiOperation("扫码收货接口")
     @PostMapping("/sweepReceiving")
-    public Result sweepReceiving(String orderId) {
+    public Result sweepReceiving(@RequestBody Map m) {
         Result result = new Result(); // 返回对象
         result.setCode(Constant.CodeConfig.CODE_FAILURE); // 默认失败
         result.setMessage(Constant.MessageConfig.MSG_FAILURE);
-
+        String orderId = (String) m.get("orderId");
         // 验证失败，验证参数的合法性
         if (Ognl.isEmpty(orderId)) {  // 参数为空
             result.setCode(Constant.CodeConfig.CODE_NOT_EMPTY);
@@ -663,7 +663,7 @@ public class PurchaseController {
      */
     @ApiOperation("拒收货接口")
     @PostMapping("/refuseOrder")
-    public Result refuseOrder(@Valid RefuseOrderInput refuseOrderInput) {
+    public Result refuseOrder(@RequestBody @Valid RefuseOrderInput refuseOrderInput) {
         Result result = new Result();// 返回对象
         //默认result为失败
         result.setCode(Constant.CodeConfig.CODE_FAILURE);
@@ -721,7 +721,7 @@ public class PurchaseController {
 
     @ApiOperation("新增取消订单原因接口")
     @PostMapping("/insertCancelReason")
-    public Result insertCancelReason(@Valid CancelReasonInput cancelReasonInput) {
+    public Result insertCancelReason(@RequestBody @Valid CancelReasonInput cancelReasonInput) {
         Result result = new Result();// 返回对象
         result.setCode(Constant.CodeConfig.CODE_FAILURE);
         result.setMessage(Constant.MessageConfig.MSG_FAILURE);
