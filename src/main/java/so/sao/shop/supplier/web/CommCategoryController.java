@@ -60,9 +60,9 @@ public class CommCategoryController {
         return commCategoryService.updateCommCategory(commCategoryUpdateInput);
     }
 
-    @ApiOperation(value="删除商品品类", notes="根据ID删除相应的商品品类")
+    @ApiOperation(value="删除商品科属", notes="根据ID删除相应的商品科属【责任人：陈沙】")
     @DeleteMapping(value="/delete/{id}")
-    public BaseResult delete(@PathVariable Long id){
+    public Result delete(@PathVariable Long id){
         return commCategoryService.deleteCommCategory(id);
     }
 

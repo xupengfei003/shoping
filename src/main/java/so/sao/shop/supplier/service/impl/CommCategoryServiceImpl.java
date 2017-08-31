@@ -7,6 +7,7 @@ import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.dao.CommCategoryDao;
 import so.sao.shop.supplier.domain.CommCategory;
 import so.sao.shop.supplier.pojo.BaseResult;
+import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.CommCategoryInput;
 import so.sao.shop.supplier.pojo.input.CommCategoryUpdateInput;
 import so.sao.shop.supplier.pojo.output.CommCategorySelectOutput;
@@ -66,11 +67,16 @@ public class CommCategoryServiceImpl implements CommCategoryService {
             return result;
         }
     }
+    /**
+     * 删除商品科属
+     * @param id 商品科属表ID
+     * @return
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public BaseResult deleteCommCategory(Long id) {
-        boolean flag = commCategoryDao.deleteById(id);
-        return BaseResultUtil.transTo(flag,"删除商品类型成功","删除商品类型失败");
+    public Result deleteCommCategory(Long id) {
+         commCategoryDao.deleteById(id);
+         return Result.success("删除商品科属成功！");
     }
 
     /**

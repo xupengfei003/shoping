@@ -74,9 +74,9 @@ public class CommodityController {
         return commodityService.getCommodity(id);
     }
 
-    @ApiOperation(value="查询商品详情信息", notes="根据code69返回相应的商品信息")
-    @GetMapping(value="/findByCode69/{code69}")
-    public Result find(@PathVariable String code69){
+    @ApiOperation(value = "查询商品详情信息", notes = "根据code69返回商品信息【责任人：陈沙】")
+    @GetMapping(value = "/findByCode69/{code69}")
+    public Result find(@PathVariable String code69) {
         return commodityService.findCommodity(code69);
     }
 
