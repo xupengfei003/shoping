@@ -159,8 +159,7 @@ public class CommTagServiceImpl implements CommTagService {
         int count = commTagDao.countByNameAndSupplierId(name.trim(), supplierId);
         if (count > 0) {
             return  Result.fail("商品标签已存在！");
-        } else {
-            return null;
         }
+        return null;
     }
 }
