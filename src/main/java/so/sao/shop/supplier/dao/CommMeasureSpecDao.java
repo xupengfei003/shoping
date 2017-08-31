@@ -25,14 +25,14 @@ public interface CommMeasureSpecDao {
      * @param name　计量规格名称
      * @return List<CommMeasureSpec> 集合
      */
-    List<CommMeasureSpec>  findByName(@Param("supplierId") long supplierId, @Param("name") String name);
+    int  countByNameAndSupplierId(@Param("supplierId") long supplierId, @Param("name") String name);
 
     /**
      * 新增加计量规格
      * @param commMeasureSpec 计量规格对象
      * @return boolean
      */
-    boolean save(CommMeasureSpec commMeasureSpec);
+    void save(CommMeasureSpec commMeasureSpec);
 
     /**
      * 根据计量规格主键id 查对应的计量规格
@@ -53,13 +53,21 @@ public interface CommMeasureSpecDao {
      * @param id 计量规格主键id
      * @return  Boolean
      */
-    public Boolean deleteOneById(long id);
+    public void deleteOneById(long id);
 
     /**
      *根据计量规格的CommMeasureSpec更新计量规格
      * @param commMeasureSpec 计量规格对象
      * @return Boolean
      */
-    public Boolean update(CommMeasureSpec commMeasureSpec);
+    public void update(CommMeasureSpec commMeasureSpec);
+
+    /**
+     * 根据计量规格名称 查询计量规格
+     * @param supplierId 供应商ID
+     * @param name　计量规格名称
+     * @return List<CommMeasureSpec> 集合
+     */
+    List<CommMeasureSpec>  findByName(@Param("supplierId") long supplierId, @Param("name") String name);
 
 }

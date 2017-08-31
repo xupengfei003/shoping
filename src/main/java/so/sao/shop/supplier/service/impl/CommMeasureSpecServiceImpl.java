@@ -1,5 +1,7 @@
 package so.sao.shop.supplier.service.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -7,11 +9,10 @@ import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.dao.CommMeasureSpecDao;
 import so.sao.shop.supplier.dao.SupplierCommodityDao;
 import so.sao.shop.supplier.domain.CommMeasureSpec;
-import so.sao.shop.supplier.domain.SupplierCommodity;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.CommMeasureSpecUpdateInput;
 import so.sao.shop.supplier.service.CommMeasureSpecService;
-import so.sao.shop.supplier.util.Ognl;
+import so.sao.shop.supplier.util.BeanMapper;
 
 import java.util.Date;
 import java.util.List;
@@ -21,6 +22,8 @@ import java.util.List;
  */
 @Service
 public class CommMeasureSpecServiceImpl implements CommMeasureSpecService {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private CommMeasureSpecDao commMeasureSpecDao;
@@ -37,11 +40,7 @@ public class CommMeasureSpecServiceImpl implements CommMeasureSpecService {
     public Result getCommMeasureSpe(long supplierId) {
         // 根据用户ID(supplierId),查询到自己和管理员添加的所有的计量规格
         List<CommMeasureSpec> commMeasureSpecs = commMeasureSpecDao.find(supplierId);;
-        if( null != commMeasureSpecs && commMeasureSpecs.size()>0 ){
            return Result.success("获取计量单位成功！",commMeasureSpecs);
-        }else {
-            return Result.fail("目前您没有计量单位，请先添加计量单位！");
-        }
     }
 
     /**
@@ -51,33 +50,20 @@ public class CommMeasureSpecServiceImpl implements CommMeasureSpecService {
      * @return Result 结果对象
      */
     @Transactional(rollbackFor = Exception.class)
-    public Result saveCommMeasureSpec(long supplierId, String  name){
-        //  效验输入的name = null ,"" 就抛出异常
-        if( null == name || Ognl.isEmpty(name.trim()) ){
-            return Result.fail("请输入计量规格！");
-        }else {
-            name = name.trim();
-           if(name.length() > Constant.CheckMaxLength.MAX_MEASURESPEC_NAME_LENGTH){
-               return Result.fail("计量规格不能超过"+ Constant.CheckMaxLength.MAX_MEASURESPEC_NAME_LENGTH+"位!");
-           }
+    public Result saveCommMeasureSpec(long supplierId, String name){
+        //  判断新的名称是否重复： 通过name 查询comm_measure_spec表,name不重复时，执行新增操作
+        Result result = checkIfExistcommMeasureSpecName(supplierId,name);
+        if(null == result){
+            // 封装需要新加的对象数据
+            CommMeasureSpec commMeasureSp = new CommMeasureSpec();
+            commMeasureSp.setName(name);
+            commMeasureSp.setSupplierId(supplierId);
+            commMeasureSp.setCreatedAt(new Date());
+            commMeasureSp.setUpdatedAt(new Date());
+            commMeasureSpecDao.save(commMeasureSp);
+            return  Result.success("添加计量规格成功",commMeasureSp);
         }
-        // 封装需要新加的对象数据
-        CommMeasureSpec commMeasureSp = new CommMeasureSpec();
-        commMeasureSp.setName(name);
-        commMeasureSp.setSupplierId(supplierId);
-        commMeasureSp.setCreatedAt(new Date());
-        commMeasureSp.setUpdatedAt(new Date());
-        // 4. 判断新的名称是否重复： 通过name 查询comm_measure_spec表,name不重复时，执行新增操作
-        List<CommMeasureSpec> commMeasureSpecList = commMeasureSpecDao.findByName(supplierId,name);
-        if( null == commMeasureSpecList || commMeasureSpecList.size()<=0 ){
-            if( commMeasureSpecDao.save(commMeasureSp) ){
-                return  Result.success("添加计量规格成功",commMeasureSp);
-            }else {
-                return Result.success("添加计量规格异常，请稍后操作！",commMeasureSp);
-            }
-        }else{
-            return Result.fail("计量规格名称已经存在，请重新定义！");
-        }
+        return  result;
     }
 
     /**
@@ -88,30 +74,18 @@ public class CommMeasureSpecServiceImpl implements CommMeasureSpecService {
      */
     @Transactional(rollbackFor = Exception.class)
     public Result deleteOneById(Long supplierId, Long id){
-        //  效验id = null
-        if(null == id){
-            return  Result.fail("请选择需要删除的规格！");
-        }
-        //  查出id +delete=0 对应的规格在 supplier_commodity表是否正在使用： delete=1 标识已经被删除，delete=0 使用中
-        List<SupplierCommodity> supplierCommodityList = supplierCommodityDao.findAllSupplierCommodityById(id);
-        if( null != supplierCommodityList && supplierCommodityList.size()>0 ) {
+        // 判断计量规格是不是正在被使用
+        int count = supplierCommodityDao.countSupplierCommodityById(id);
+        if( count >0 ) {
             return  Result.fail("计量规格正在被使用！");
-        } else{
-            //   查出id 对应的comm_measure_spec: supplierId 是否 =0. =0是管理员添加的
-            CommMeasureSpec commMeasureSpec = commMeasureSpecDao.findOne(id);
-            if( null == commMeasureSpec){
-                return  Result.fail("没有此规格！");
-            }else {
-                if( ! supplierId.equals(commMeasureSpec.getSupplierId()) ){
-                    return  Result.fail("您无权删除此计量规格！");
-                }else {
-                    if(commMeasureSpecDao.deleteOneById(id)){
-                        return Result.success("删除计量规格成功!",commMeasureSpec);
-                    }
-                    return  Result.fail("删除此计量规格异常，请重试！");
-                }
-            }
         }
+        //判断计量规格是否存在 和  是否自己添加的(只能删除自己的)
+        Result result = checkIfInsertByAdminOrExist(supplierId, id);
+        if( null == result ){
+            commMeasureSpecDao.deleteOneById(id);
+            return Result.success("删除计量规格成功!");
+        }
+        return result;
     }
 
     /**
@@ -121,35 +95,56 @@ public class CommMeasureSpecServiceImpl implements CommMeasureSpecService {
      * @return Result 结果对象
      */
     @Transactional(rollbackFor = Exception.class)
-    public Result update(Long supplierId, CommMeasureSpecUpdateInput commMeasureSpecUpdateInput ){
-        // 封装需要更新的对象参数CommMeasureSpec
-        CommMeasureSpec commMeasureSpec= new CommMeasureSpec();
-        commMeasureSpec.setId(commMeasureSpecUpdateInput.getId());
-        if(Ognl.isEmpty(commMeasureSpecUpdateInput.getName().trim())){
-            return Result.fail("请输入计量规格！");
-        }
-        commMeasureSpec.setName(commMeasureSpecUpdateInput.getName().trim());
-        commMeasureSpec.setUpdatedAt(new Date());
-        commMeasureSpec.setSupplierId(supplierId);
-        //  查出id 对应的comm_measure_spec: supplierId 是否 =0. =0是管理员添加的
-        CommMeasureSpec getCommMeasureSpec = commMeasureSpecDao.findOne(commMeasureSpecUpdateInput.getId());
-        if(null != getCommMeasureSpec){
-            if(  ! supplierId.equals(getCommMeasureSpec.getSupplierId()) ){
-                return Result.fail("你无权操作！");
-            }else {
-                //  校验: 新的name 是否重复
-                List<CommMeasureSpec> commMeasureSpecList = commMeasureSpecDao.findByName( supplierId,commMeasureSpecUpdateInput.getName().trim());
-                if( null != commMeasureSpecList && commMeasureSpecList.size()>0 ){
-                    return Result.fail("规格名称已存在,请重新输入！");
-                }else {
-                    if(commMeasureSpecDao.update(commMeasureSpec)){
-                        return Result.success("更新计量规格成功！",commMeasureSpec);
-                    }
-                    return Result.fail("更新计量规格异常，请重试！");
-                }
+    public Result update(Long supplierId, CommMeasureSpecUpdateInput commMeasureSpecUpdateInput ) {
+        //判断计量规格是否存在  和  是否自己添加的(只能删除自己的)
+        Result result = checkIfInsertByAdminOrExist(supplierId, commMeasureSpecUpdateInput.getId());
+        if (null == result) {
+            //  校验新的name 是否重复
+            Result resultName = checkIfExistcommMeasureSpecName(supplierId, commMeasureSpecUpdateInput.getName());
+            if (null == resultName) {
+                // 封装需要更新的对象参数CommMeasureSpec
+                CommMeasureSpec commMeasureSpec = BeanMapper.map(commMeasureSpecUpdateInput, CommMeasureSpec.class);
+                commMeasureSpec.setUpdatedAt(new Date());
+                commMeasureSpec.setSupplierId(supplierId);
+                commMeasureSpecDao.update(commMeasureSpec);
+                return Result.success("更新计量规格成功！", commMeasureSpec);
             }
+            return  resultName;
+        }
+        return  result;
+    }
+
+    /**
+     * 判断新的名称是否重复： 通过name 查询comm_measure_spec表,name不重复时，执行新增操作
+     * @param supplierId
+     * @param name
+     * @return
+     */
+    private  Result checkIfExistcommMeasureSpecName(Long supplierId, String name){
+        int count = commMeasureSpecDao.countByNameAndSupplierId(supplierId,name);
+        if( count >0 ) {
+            return Result.fail("计量规格名称已经存在，请重新定义！");
         }else {
-            return Result.fail("计量规格不存在，请重新选择！");
+            return  null;
+        }
+    }
+
+    /**
+     * 判断计量规格是否存在和 查出id 对应的comm_measure_spec: supplierId 是否 =0. =0是管理员添加的
+     * @param supplierId
+     * @param id
+     * @return
+     */
+    private  Result checkIfInsertByAdminOrExist(Long supplierId, Long id) {
+        CommMeasureSpec commMeasureSpec = commMeasureSpecDao.findOne(id);
+        if (null == commMeasureSpec) {
+            return Result.fail("此计量规格不存在！");
+        } else {
+            if (!supplierId.equals(commMeasureSpec.getSupplierId())) {
+                return Result.fail("预置计量规格无权操作！");
+            }else {
+                return null;
+            }
         }
     }
 
