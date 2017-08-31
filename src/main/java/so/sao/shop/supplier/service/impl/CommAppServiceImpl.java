@@ -97,18 +97,8 @@ public class CommAppServiceImpl implements CommAppService {
      */
     @Override
     public Result searchSuppliers(String code69) {
-        Result result = new Result();
         List<Long> list = commAppDao.searchSuppliersByCode69(code69);
-        if (list.size()!=0){
-            result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SUCCESS);
-            result.setMessage("成功");
-            result.setData(list);
-            return result;
-        } else {
-            result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SUCCESS);
-            result.setMessage("查询的信息不存在");
-            return result;
-        }
+            return Result.success("成功",list);
     }
 
     /**

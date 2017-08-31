@@ -346,23 +346,14 @@ public class CommodityServiceImpl implements CommodityService {
      * @return 商品信息
      */
     @Override
-    public Result findCommodity(String code69) {
-        Result result = new Result();
+    public Result findCommodity(String code69){
         CommodityInfoOutput commodityInfoOutput = commodityDao.findByCode69(code69);
         if(null == commodityInfoOutput){
-            result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage("商品不存在");
-            return result;
+            return Result.fail("商品不存在");
         } else {
             List<TyCommImge> imgeList = tyCommImagDao.findByCode69(code69);    //获取图片集合
             commodityInfoOutput.setImgeList(imgeList);
-            commodityInfoOutput.setCategoryOneName(commCategoryDao.findNameById(commodityInfoOutput.getCategoryOneId()));
-            commodityInfoOutput.setCategoryTwoName(commCategoryDao.findNameById(commodityInfoOutput.getCategoryTwoId()));
-            commodityInfoOutput.setCategoryThreeName(commCategoryDao.findNameById(commodityInfoOutput.getCategoryThreeId()));
-            result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SUCCESS);
-            result.setMessage("成功");
-            result.setData(commodityInfoOutput);
-            return result;
+            return Result.success("成功！",commodityInfoOutput);
         }
     }
 
