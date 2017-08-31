@@ -1,5 +1,6 @@
 package so.sao.shop.supplier.pojo.input;
 
+import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
 import so.sao.shop.supplier.pojo.vo.SupplierCommodityUpdateVo;
@@ -13,6 +14,7 @@ public class CommodityUpdateInput {
      * 商品说明
      */
     @NotBlank(message = "商品说明不能为空")
+    @Length(max = 65535,message = "商品名称长度不能大于65535")
     private String remark;
 
     /**

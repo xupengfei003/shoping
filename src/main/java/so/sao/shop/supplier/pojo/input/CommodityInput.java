@@ -2,9 +2,12 @@ package so.sao.shop.supplier.pojo.input;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.NotBlank;
+import org.hibernate.validator.constraints.NotEmpty;
 import so.sao.shop.supplier.pojo.vo.SupplierCommodityVo;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.List;
 
@@ -24,12 +27,14 @@ public class CommodityInput {
     /**
      * 品牌
      */
+    @NotBlank(message = "商品品牌不能为空")
     @Length(max = 256,message = "商品品牌长度不能大于256")
     private String brandName;
 
     /**
      * 一级类型Id
      */
+    @NotNull(message = "商品科属一级类型不能为空")
     private Long categoryOneId;
 
     /**
@@ -45,12 +50,15 @@ public class CommodityInput {
     /**
      * 商品名称
      */
+    @NotBlank(message = "商品名称不能为空")
     @Length(max = 256,message = "商品名称长度不能大于256")
     private String name;
 
     /**
      * 商品描述
      */
+    @NotBlank(message = "商品说明不能为空")
+    @Length(max = 65535,message = "商品名称长度不能大于65535")
     private String remark;
 
     /**
@@ -83,6 +91,7 @@ public class CommodityInput {
     /**
      * 商品集合
      */
+    @NotEmpty(message = "商品规格不能为空")
     @Valid
     private List<SupplierCommodityVo> commodityList;
 
