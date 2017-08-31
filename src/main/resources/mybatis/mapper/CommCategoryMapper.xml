@@ -21,7 +21,8 @@
         level AS level,
         remark AS remark,
         sort AS sort,
-        deleted AS deleted
+        deleted AS deleted,
+        code
     </sql>
 
     <!--查询商品品类列表-->
@@ -32,6 +33,15 @@
         WHERE
         cy.pid=#{pid}
         ORDER BY cy.sort
+    </select>
+
+    <!--查询商品品类列表-->
+    <select id="findByIds" resultType="so.sao.shop.supplier.domain.CommCategory">
+        SELECT
+        <include refid="baseColumns"/>
+        FROM comm_category
+        WHERE
+        id in (#{commCategoryOneId},#{commCategoryTwoId},#{commCategoryThreeId})
     </select>
 
     <select id="findOne" resultType="so.sao.shop.supplier.domain.CommCategory">

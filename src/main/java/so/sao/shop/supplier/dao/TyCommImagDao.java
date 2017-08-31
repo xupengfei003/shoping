@@ -19,4 +19,10 @@ public interface TyCommImagDao {
      * @param tyCommImge
      */
     void save(TyCommImge tyCommImge);
+
+    /**
+     * 批量新增
+     * @param tyCommImges
+     */
+    void batchSave(List<TyCommImge> tyCommImges);
 }

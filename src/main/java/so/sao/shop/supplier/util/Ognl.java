@@ -18,7 +18,7 @@ public class Ognl {
             return true;
         }
         if (o instanceof String) {
-            return StringUtils.isEmpty(o.toString());
+            return StringUtils.isEmpty(o.toString().trim());
         }
         return false;
     }

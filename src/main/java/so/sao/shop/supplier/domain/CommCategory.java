@@ -47,6 +47,11 @@ public class CommCategory{
      */
     private int deleted;
 
+    /**
+     * 商品类型编码
+     */
+    private String code;
+
     public Date getCreatedAt() {
         return createdAt;
     }
@@ -117,5 +122,13 @@ public class CommCategory{
 
     public void setDeleted(int deleted) {
         this.deleted = deleted;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 }

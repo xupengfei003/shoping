@@ -58,5 +58,5 @@ public interface CommUnitDao {
      * @param id
      * @return
      */
-    int findCountById(@Param("id") Long id);
+    int countById(@Param("id") Long id);
 }
