@@ -226,7 +226,7 @@ public class AccountController {
     public Result getUserName(HttpServletRequest request){
         Map result = new HashMap();
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
-        Account account = accountService.selectByUserId(user.getId());
+        Account account = accountService.selectById(user.getAccountId());
         result.put("username",account!=null?account.getProviderName():"");
         return new Result(1,"",result);
     }
