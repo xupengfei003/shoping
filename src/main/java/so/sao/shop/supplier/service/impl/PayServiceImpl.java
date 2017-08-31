@@ -10,6 +10,7 @@ import so.sao.shop.supplier.domain.Notification;
 import so.sao.shop.supplier.domain.Purchase;
 import so.sao.shop.supplier.pojo.input.PayInput;
 import so.sao.shop.supplier.service.PayService;
+import so.sao.shop.supplier.service.PurchaseService;
 import so.sao.shop.supplier.util.MD5Util;
 
 import javax.annotation.Resource;
@@ -26,6 +27,8 @@ public class PayServiceImpl implements PayService {
     private NotificationDao notificationDao;
     @Resource
     private PurchaseDao purchaseDao;
+    @Resource
+    private PurchaseService purchaseService;
 
     /**
      * 保存支付信息
@@ -64,6 +67,9 @@ public class PayServiceImpl implements PayService {
                     notificationDao.saveNotifications(notificationList);
                 }
             }
+            // 生成二维码
+            Map result = purchaseService.createReceivingQrcode(payInput.getOrderId());
+            flagDao = (boolean) result.get("flag");
         }
         return flagDao;
     }
