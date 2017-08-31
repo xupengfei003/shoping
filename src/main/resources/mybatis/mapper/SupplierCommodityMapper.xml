@@ -362,16 +362,6 @@
         </if>
     </select>
 
-
-    <!--计量规格： findAllSupplierCommodityById 通过规格id 查SupplierCommodity  deleted = 0正在使用-->
-    <select id="findAllSupplierCommodityById" parameterType="long" resultMap="BaseResultMap">
-        SELECT id, sku, supplier_id, code69, tag_id, CODE,measure_spec_id,
-        rule_val, inventory, unit_id, price, unit_price, min_img,
-        created_at, updated_at, created_by, updated_by, deleted, STATUS, description, remark
-        FROM supplier_commodity
-        WHERE deleted = 0 AND measure_spec_id = #{commMeasureSpecId}
-    </select>
-
     <!-- findSupplierCommodityByUnitId 通过商品单位id 查SupplierCommodity  deleted = 0正在使用-->
     <select id="findSupplierCommodityByUnitId" parameterType="long" resultType="so.sao.shop.supplier.domain.SupplierCommodity">
         SELECT id, sku, supplier_id, code69, tag_id, CODE,measure_spec_id,
@@ -387,8 +377,6 @@
         FROM supplier_commodity
         WHERE deleted = 0 AND measure_spec_id = #{commMeasureSpecId}
     </select>
-
-
-
+    
 
 </mapper>
