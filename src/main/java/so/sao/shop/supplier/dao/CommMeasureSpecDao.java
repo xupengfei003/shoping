@@ -53,7 +53,7 @@ public interface CommMeasureSpecDao {
      * @param id 计量规格主键id
      * @return  Boolean
      */
-    public void deleteOneById(long id);
+    public void deleteById(long id);
 
     /**
      *根据计量规格的CommMeasureSpec更新计量规格

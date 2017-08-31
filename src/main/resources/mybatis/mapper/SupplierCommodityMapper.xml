@@ -391,7 +391,7 @@
     </select>
 
     <!--计量规格： findAllSupplierCommodityById 通过规格id 查SupplierCommodity  deleted = 0正在使用-->
-    <select id="countSupplierCommodityById" parameterType="long" resultType="_int">
+    <select id="countSupplierCommodityById" parameterType="long" >
         SELECT count(*)
         FROM supplier_commodity
         WHERE deleted = 0 AND measure_spec_id = #{commMeasureSpecId}
