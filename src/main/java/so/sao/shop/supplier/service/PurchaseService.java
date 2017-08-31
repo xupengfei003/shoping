@@ -196,4 +196,13 @@ public interface PurchaseService {
      * @throws Exception
      */
     String searchCancelReasonByOrderId(String orderId) throws Exception;
+
+    /**
+     * 根据订单编号调用退款接口退款并修改订单状态
+     *
+     * @param orderId 订单编号
+     * @return 返回Map：flag：true|false,message:信息
+     * @throws Exception 异常
+     */
+    Map refundByOrderId(String orderId) throws Exception;
 }
