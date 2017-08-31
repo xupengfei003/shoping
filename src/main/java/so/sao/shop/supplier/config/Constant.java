@@ -274,7 +274,7 @@ public interface Constant {
         /**
          * 5
          */
-        public static final String REJECT_NOTIFI = "您好:您有一笔拒收的订单通知,订单编号:";
+        public static final String REJECT_NOTIFI = "您好:您有一笔拒收待审核的订单通知,订单编号:";
         /**
          * 6
          */
@@ -283,7 +283,7 @@ public interface Constant {
         /**
          * 7
          */
-        public static final String CANCEL_ORDER = "您好:您有一笔已取消的订单通知,订单编号:";
+        public static final String CANCEL_ORDER = "您好:您有一笔已取消待审核的订单通知,订单编号:";
     }
 
     interface AccountCodeConfig{
