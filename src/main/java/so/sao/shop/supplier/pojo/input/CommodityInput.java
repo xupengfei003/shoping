@@ -55,10 +55,10 @@ public class CommodityInput {
     private String name;
 
     /**
-     * 商品描述
+     * 商品说明
      */
     @NotBlank(message = "商品说明不能为空")
-    @Length(max = 65535,message = "商品名称长度不能大于65535")
+    @Length(max = 65535,message = "商品说明长度不能大于65535")
     private String remark;
 
     /**
