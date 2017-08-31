@@ -569,14 +569,4 @@
         from purchase
         where pay_id = #{payId,jdbcType=VARCHAR}
     </select>
-
-    <!-- 根据订单编号修改订单编号，退款时间 -->
-    <update id="refundByOrderId" parameterType="java.util.Map">
-        UPDATE purchase
-        SET
-        order_status = #{refundMap.orderStatus},
-        drawback_time = #{refundMap.drawbackTime},
-        updated_at = #{refundMap.updatedAt}
-        WHERE order_id = #{refundMap.orderId}
-    </update>
 </mapper>

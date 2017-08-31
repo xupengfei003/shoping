@@ -656,21 +656,4 @@ public class PurchaseController {
         }
         return Result.success(Constant.MessageConfig.MSG_SUCCESS, Constant.MessageConfig.MSG_NO_DATA);
     }
-
-    @ApiOperation(value = "退款", notes = "根据订单编号调用退款接口退款并修改订单状态【负责人：杨恒乐】")
-    @GetMapping("/refund/{orderId}")
-    public Result refund(@PathVariable("orderId") String orderId) throws Exception{
-        // 订单编号为空，返回
-        if (Ognl.isEmpty(orderId)) {
-            return Result.fail(Constant.MessageConfig.MSG_NOT_EMPTY); // 不允许为空
-        }
-
-        Map map = purchaseService.refundByOrderId(orderId);
-        boolean flag = (boolean) map.get("flag");
-        if (flag) { // 退款成功
-            return Result.success(Constant.MessageConfig.MSG_SUCCESS);
-        } else { // 退款失败，返回失败原因
-            return Result.fail((String) map.get("message"));
-        }
-    }
 }
