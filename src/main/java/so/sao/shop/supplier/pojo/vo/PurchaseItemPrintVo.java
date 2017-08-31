@@ -20,7 +20,7 @@ public class PurchaseItemPrintVo {
     /**
      * 商品编号（商品编码）
      */
-    private Long goodsId;
+    private String goodsId;
 
     /**
      * 品牌名称（商品品牌）
@@ -60,11 +60,11 @@ public class PurchaseItemPrintVo {
         this.goodsName = goodsName;
     }
 
-    public Long getGoodsId() {
+    public String getGoodsId() {
         return goodsId;
     }
 
-    public void setGoodsId(Long goodsId) {
+    public void setGoodsId(String goodsId) {
         this.goodsId = goodsId;
     }
 
