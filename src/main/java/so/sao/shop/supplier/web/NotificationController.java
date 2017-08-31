@@ -5,8 +5,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.domain.Notification;
@@ -25,7 +23,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/notification")
-@Api(description = "消息管理-所有接口")
+@Api(description = "消息管理-所有接口【负责人：郭兴业】")
 public class NotificationController {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -38,47 +36,23 @@ public class NotificationController {
      *
      * @param request           request
      * @param notificationInput notificationInput
-     * @param br                BindingResult
      * @return Result
      */
     @PostMapping("/createNotifi")
     @ApiOperation(value = "消息发送", notes = "消息发送")
-    public Result createNotifi(HttpServletRequest request, @Valid NotificationInput notificationInput, BindingResult br) {
-        Result result = new Result();
+    public Result createNotifi(HttpServletRequest request, @Valid NotificationInput notificationInput) throws Exception {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //判断是否登陆
         if (null == user) {
-            result.setCode(Constant.CodeConfig.CODE_USER_NOT_LOGIN);
-            result.setMessage(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
-            return result;
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
         //判断是否为管理员
         if (!Constant.ADMIN_STATUS.equals(user.getIsAdmin())) {
-            result.setCode(Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage(Constant.MessageConfig.ADMIN_AUTHORITY_EERO);
-            return result;
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
-        if (br.hasErrors()) {
-            List<ObjectError> list = br.getAllErrors();
-            for (ObjectError error : list) {
-                result.setCode(Constant.CodeConfig.CODE_NOT_EMPTY);
-                result.setMessage(error.getDefaultMessage());
-                return result;
-            }
-        } else {
-            try {
-                //管理员给每个供应商添加消息通知
-                notificationService.createNotifi(notificationInput);
-                result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
-                result.setCode(Constant.CodeConfig.CODE_SUCCESS);
-            } catch (Exception e) {
-                logger.error("系统异常", e);
-                result.setCode(Constant.CodeConfig.CODE_FAILURE);
-                result.setMessage(Constant.MessageConfig.MSG_FAILURE);
-                return result;
-            }
-        }
-        return result;
+        //管理员给每个供应商添加消息通知
+        notificationService.createNotifi(notificationInput);
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS);
     }
 
     /**
@@ -92,49 +66,24 @@ public class NotificationController {
      */
     @GetMapping("/getPage")
     @ApiOperation(value = "分页查询消息通知", notes = "分页查询消息通知")
-    public Result search(HttpServletRequest request, Integer pageNum, Integer pageSize, Integer notifiType) {
-        Result result = new Result();
+    public Result search(HttpServletRequest request, Integer pageNum, Integer pageSize, Integer notifiType) throws Exception {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //判断是否登陆
         if (null == user) {
-            result.setCode(Constant.CodeConfig.CODE_USER_NOT_LOGIN);
-            result.setMessage(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
-            return result;
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
         //判断消息类型是否有值
         if (null == notifiType) {
-            result.setCode(Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage(Constant.MessageConfig.MSG_NOT_EMPTY);
-            return result;
+            return Result.fail(Constant.MessageConfig.MSG_NOT_EMPTY);
         }
         List<Notification> dataList;
         //判断是否为管理员
         if (!Constant.ADMIN_STATUS.equals(user.getIsAdmin())) { //非管理员 accountId 必须传
-            try {
-                dataList = notificationService.search(pageNum, pageSize, user.getAccountId(), notifiType);
-                result.setCode(Constant.CodeConfig.CODE_SUCCESS);
-                result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
-                result.setData(new PageInfo<>(dataList));
-            } catch (Exception e) {
-                logger.error("系统异常", e);
-                result.setCode(Constant.CodeConfig.CODE_FAILURE);
-                result.setMessage(Constant.MessageConfig.MSG_FAILURE);
-                return result;
-            }
+            dataList = notificationService.search(pageNum, pageSize, user.getAccountId(), notifiType);
         } else { //管理员 accountId-传null,notifiType-传1 系统消息
-            try {
-                dataList = notificationService.search(pageNum, pageSize, null, 1);
-                result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
-                result.setCode(Constant.CodeConfig.CODE_SUCCESS);
-                result.setData(new PageInfo<>(dataList));
-            } catch (Exception e) {
-                logger.error("系统异常", e);
-                result.setMessage(Constant.MessageConfig.MSG_FAILURE);
-                result.setCode(Constant.CodeConfig.CODE_FAILURE);
-                return result;
-            }
+            dataList = notificationService.search(pageNum, pageSize, null, 1);
         }
-        return result;
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS, new PageInfo<>(dataList));
     }
 
     /**
@@ -145,27 +94,14 @@ public class NotificationController {
      */
     @GetMapping("/getTotal")
     @ApiOperation(value = "获取未读消息总数", notes = "获取未读消息总数")
-    public Result getTotal(HttpServletRequest request) {
-        Result result = new Result();
+    public Result getTotal(HttpServletRequest request) throws Exception {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //判断是否登陆
         if (null == user) {
-            result.setCode(Constant.CodeConfig.CODE_USER_NOT_LOGIN);
-            result.setMessage(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
-            return result;
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
-        try {
-            int total = notificationService.getTotal(user.getAccountId());
-            result.setCode(Constant.CodeConfig.CODE_SUCCESS);
-            result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
-            result.setData(total);
-        } catch (Exception e) {
-            logger.error("系统异常", e);
-            result.setCode(Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage(Constant.MessageConfig.MSG_FAILURE);
-            return result;
-        }
-        return result;
+        int total = notificationService.getTotal(user.getAccountId());
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS, total);
     }
 
     /**
@@ -179,33 +115,18 @@ public class NotificationController {
      */
     @GetMapping("/searchUnread")
     @ApiOperation(value = "查询未读消息列表(供应商操作)", notes = "查询未读消息列表(供应商操作)")
-    public Result searchUnread(HttpServletRequest request, Integer notifiType, Integer count) {
-        Result result = new Result();
+    public Result searchUnread(HttpServletRequest request, Integer notifiType, Integer count) throws Exception {
         //判断是否登陆
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         if (null == user) {
-            result.setCode(Constant.CodeConfig.CODE_USER_NOT_LOGIN);
-            result.setMessage(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
-            return result;
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
         //判断消息类型是否有值
         if (null == notifiType) {
-            result.setCode(Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage(Constant.MessageConfig.MSG_NOT_EMPTY);
-            return result;
+            return Result.fail(Constant.MessageConfig.MSG_NOT_EMPTY);
         }
-        try {
-            List<Notification> dataList = notificationService.searchUnread(user.getAccountId(), notifiType, count);
-            result.setCode(Constant.CodeConfig.CODE_SUCCESS);
-            result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
-            result.setData(dataList);
-        } catch (Exception e) {
-            logger.error("系统异常", e);
-            result.setCode(Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage(Constant.MessageConfig.MSG_FAILURE);
-            return result;
-        }
-        return result;
+        List<Notification> dataList = notificationService.searchUnread(user.getAccountId(), notifiType, count);
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS, dataList);
     }
 
     /**
@@ -216,27 +137,14 @@ public class NotificationController {
      */
     @GetMapping("/getNotificationById/{notifiId}")
     @ApiOperation(value = "获取某条记录详细信息", notes = "获取某条记录详细信息")
-    public Result getNotificationById(HttpServletRequest request, @PathVariable Integer notifiId) {
-        Result result = new Result();
+    public Result getNotificationById(HttpServletRequest request, @PathVariable Integer notifiId) throws Exception {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //判断是否登陆
         if (null == user) {
-            result.setCode(Constant.CodeConfig.CODE_USER_NOT_LOGIN);
-            result.setMessage(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
-            return result;
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
-        try {
-            NotificationOutput notificationOutput = notificationService.getNotificationById(notifiId);
-            result.setCode(Constant.CodeConfig.CODE_SUCCESS);
-            result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
-            result.setData(notificationOutput);
-        } catch (Exception e) {
-            logger.error("系统异常", e);
-            result.setCode(Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage(Constant.MessageConfig.MSG_FAILURE);
-            return result;
-        }
-        return result;
+        NotificationOutput notificationOutput = notificationService.getNotificationById(notifiId);
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS, notificationOutput);
     }
 
     /**
@@ -248,38 +156,22 @@ public class NotificationController {
      */
     @PostMapping("/deleteBySigin")
     @ApiOperation(value = "系统消息删除接口", notes = "系统消息删除接口(管理员操作)")
-    public Result deleteBySigin(HttpServletRequest request, String sigin) {
-        Result result = new Result();
+    public Result deleteBySigin(HttpServletRequest request, String sigin) throws Exception {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //判断是否登陆
         if (null == user) {
-            result.setCode(Constant.CodeConfig.CODE_USER_NOT_LOGIN);
-            result.setMessage(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
-            return result;
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
         //判断消息类型是否有值
         if (null == sigin || "".equals(sigin)) {
-            result.setCode(Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage(Constant.MessageConfig.MSG_NOT_EMPTY);
-            return result;
+            return Result.fail(Constant.MessageConfig.MSG_NOT_EMPTY);
         }
         //判断是否为管理员
         if (!Constant.ADMIN_STATUS.equals(user.getIsAdmin())) {
-            result.setCode(Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage(Constant.MessageConfig.ADMIN_AUTHORITY_EERO);
-            return result;
+            return Result.fail(Constant.MessageConfig.ADMIN_AUTHORITY_EERO);
         }
-        try {
-            notificationService.deleteBySigin(sigin);
-            result.setCode(Constant.CodeConfig.CODE_SUCCESS);
-            result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
-        } catch (Exception e) {
-            logger.error("系统异常", e);
-            result.setCode(Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage(Constant.MessageConfig.MSG_FAILURE);
-            return result;
-        }
-        return result;
+        notificationService.deleteBySigin(sigin);
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS);
     }
 
     /**
@@ -290,19 +182,9 @@ public class NotificationController {
      */
     @PostMapping("/updateStatus/{notifiId}")
     @ApiOperation(value = "供应商更改消息状态", notes = "供应商更改消息状态")
-    public Result updateStatus(@PathVariable Integer notifiId) {
-        Result result = new Result();
-        try {
-            notificationService.updateStatus(notifiId);
-            result.setCode(Constant.CodeConfig.CODE_SUCCESS);
-            result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
-        } catch (Exception e) {
-            logger.error("系统异常", e);
-            result.setCode(Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage(Constant.MessageConfig.MSG_FAILURE);
-            return result;
-        }
-        return result;
+    public Result updateStatus(@PathVariable Integer notifiId) throws Exception {
+        notificationService.updateStatus(notifiId);
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS);
     }
 
     /**
@@ -312,19 +194,8 @@ public class NotificationController {
      */
     @GetMapping("/marqueeShow")
     @ApiOperation(value = "消息跑马灯显示", notes = "消息跑马灯显示")
-    public Result marqueeShow() {
-        Result result = new Result();
-        try {
-            String show = notificationService.marqueeShow();
-            result.setCode(Constant.CodeConfig.CODE_SUCCESS);
-            result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
-            result.setData(show);
-        } catch (Exception e) {
-            logger.error("系统异常", e);
-            result.setCode(Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage(Constant.MessageConfig.MSG_FAILURE);
-            return result;
-        }
-        return result;
+    public Result marqueeShow() throws Exception {
+        String show = notificationService.marqueeShow();
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS, show);
     }
 }
