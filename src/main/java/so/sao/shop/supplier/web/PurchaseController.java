@@ -204,19 +204,18 @@ public class PurchaseController {
     /**
      * 发货接口
      *
-     * @param orderId 订单号
-     *                //     * @param receiveMethod 配送方式 1自配送 2物流公司
-     *                //     * @param name          配送公司/配送人
-     *                //     * @param number        物流单号/电话号码
-     * @return BaseResult
+     * @param orderId 订单ID
+     * @param map map
+     * @return Result
+     * @throws Exception Exception
      */
-    @RequestMapping(value = "/deliverGoods/{orderId}", method = RequestMethod.POST)
-    @ApiOperation(value = "发货接口", notes = "")
+    @PostMapping(value = "/deliverGoods/{orderId}")
+    @ApiOperation(value = "发货接口", notes = "发货接口")
     public Result deliverGoods(@RequestBody @PathVariable("orderId") String orderId, @RequestBody Map map) throws Exception {
         if (!StringUtils.isEmpty(map.get("name")) && !StringUtils.isEmpty(map.get("number"))) {
             //更改订单状态操作
             purchaseService.deliverGoods(orderId, (Integer) map.get("receiveMethod"), (String) map.get("name"), (String) map.get("number"));
-            return Result.fail(Constant.MessageConfig.MSG_SUCCESS);
+            return Result.success(Constant.MessageConfig.MSG_SUCCESS);
         }
         return Result.fail(Constant.MessageConfig.MSG_NOT_EMPTY);
     }
@@ -658,7 +657,7 @@ public class PurchaseController {
     }
 
     @ApiOperation(value = "退款", notes = "根据订单编号调用退款接口退款并修改订单状态【负责人：杨恒乐】")
-    @GetMapping("/refund/{orderId}")
+    @PostMapping("/refund/{orderId}")
     public Result refund(@PathVariable("orderId") String orderId) throws Exception {
         // 订单编号为空，返回
         if (Ognl.isEmpty(orderId)) {
