@@ -104,7 +104,7 @@ public class CommTagServiceImpl implements CommTagService {
         //根据修改的name和supplierId判断是否重复
         Result checkNameResult = checkCommTagName(supplierId, commTagUpdateInput.getName().trim());
         if (null != checkNameResult) {
-            return result;
+            return checkNameResult;
         }
         CommTag commTag = BeanMapper.map(commTagUpdateInput, CommTag.class);
         commTag.setSupplierId(supplierId);
