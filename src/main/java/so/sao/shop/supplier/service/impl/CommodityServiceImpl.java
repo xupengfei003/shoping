@@ -416,8 +416,8 @@ public class CommodityServiceImpl implements CommodityService {
             suppCommSearchVo.setStatusNum(statusNum);
             suppCommSearchVo.setStatus(CommConstant.getStatus(statusNum));
             //转换金额为千分位
-            suppCommSearchVo.setUnitPrice(NumberUtil.number2ThousandFormat(new BigDecimal(suppCommSearchVo.getUnitPrice())));
-            suppCommSearchVo.setPrice(NumberUtil.number2ThousandFormat(new BigDecimal(suppCommSearchVo.getPrice())));
+            suppCommSearchVo.setUnitPrice(NumberUtil.number2ThousandFormat(suppCommSearchVo.getUnitPrice()));
+            suppCommSearchVo.setPrice(NumberUtil.number2ThousandFormat(suppCommSearchVo.getPrice()));
         });
         PageInfo<SuppCommSearchVo> pageInfo = new PageInfo<SuppCommSearchVo>(respList);
         return Result.success("查询完成", pageInfo);
@@ -447,8 +447,8 @@ public class CommodityServiceImpl implements CommodityService {
             suppCommSearchVo.setStatusNum(statusNum);
             suppCommSearchVo.setStatus(CommConstant.getStatus(statusNum));
             //转换金额为千分位
-            suppCommSearchVo.setPrice(NumberUtil.number2ThousandFormat(new BigDecimal(suppCommSearchVo.getPrice())));
-            suppCommSearchVo.setUnitPrice(NumberUtil.number2ThousandFormat(new BigDecimal(suppCommSearchVo.getUnitPrice())));
+            suppCommSearchVo.setPrice(NumberUtil.number2ThousandFormat(suppCommSearchVo.getPrice()));
+            suppCommSearchVo.setUnitPrice(NumberUtil.number2ThousandFormat(suppCommSearchVo.getUnitPrice()));
         });
 
         PageInfo<SuppCommSearchVo> pageInfo = new PageInfo<SuppCommSearchVo>(respList);

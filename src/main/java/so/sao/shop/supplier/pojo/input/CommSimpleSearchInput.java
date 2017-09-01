@@ -1,5 +1,7 @@
 package so.sao.shop.supplier.pojo.input;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.util.Date;
 
 public class CommSimpleSearchInput {
@@ -18,11 +20,13 @@ public class CommSimpleSearchInput {
     /**
      * 创建开始时间
      */
+    @JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
     private Date beginCreateAt;
 
     /**
      * 创建结束时间
      */
+    @JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
     private Date endCreateAt;
 
     /**
