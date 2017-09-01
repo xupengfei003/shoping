@@ -16,11 +16,6 @@ public class SysRegionServiceImpl implements SysRegionService {
     @Autowired
     private SysRegionDao sysRegionDao;
 
-    /**
-     * �����ϼ�id��ѯ�¼�
-     * @param pid �ϼ�id
-     * @return �¼��б�
-     */
     @Override
     public List<SysRegion> findByPid(Integer pid) {
         return sysRegionDao.findByPid(pid);

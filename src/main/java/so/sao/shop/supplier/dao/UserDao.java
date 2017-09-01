@@ -28,11 +28,7 @@ public interface UserDao {
     int add(User user);
     int update(@Param("id")Long id, @Param("tel")String tel);
     int updateLogoutTime(@Param("userId")Long userId,@Param("logoutTime")Date logoutTime);
-    /**
-     * 根据登录名称查询用户
-     * @param loginName 登录名称
-     * @return 用户对象
-     */
+
     User findByLoginName(String loginName);
    
 }
