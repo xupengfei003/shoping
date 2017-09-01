@@ -54,23 +54,17 @@ public class PurchaseController {
      * @return
      */
     @RequestMapping(value = "/createPurchase", method = RequestMethod.POST)
-    @ApiOperation(value = "生成订单")
-    public Result createPurchase(@Valid PurchaseInput purchase) throws Exception {
-        Result output = new Result();
+    @ApiOperation(value = "生成订单", notes = "生成订单")
+    public Result createPurchase(@RequestBody @Valid PurchaseInput purchase) throws Exception {
         Map<String, Object> resMap = purchaseService.savePurchase(purchase);
         Integer status = Integer.parseInt(String.valueOf(resMap.get("status")));
         if (status == 1) {
-            output.setCode(Constant.CodeConfig.CODE_SUCCESS);
-            output.setMessage(Constant.MessageConfig.MSG_SUCCESS);
             Map<String, Object> resultMap = new HashMap<>();
             resultMap.put("orderId", resMap.get("orderId"));
             resultMap.put("totalMoney", resMap.get("totalMoney"));
-            output.setData(resultMap);
-        } else {
-            output.setCode(Constant.CodeConfig.CODE_FAILURE);
-            output.setMessage(Constant.MessageConfig.MSG_FAILURE);
+            return Result.success(Constant.MessageConfig.MSG_SUCCESS, resultMap);
         }
-        return output;
+        return Result.fail(Constant.MessageConfig.MSG_FAILURE);
     }
 
     /**
@@ -81,12 +75,9 @@ public class PurchaseController {
      */
     @RequestMapping(value = "/purchase/{orderId}", method = RequestMethod.GET)
     @ApiOperation(value = "获取订单详情", notes = "获取订单详情")
-    public PurchaseInfoOutput findById(@PathVariable String orderId) throws Exception {
-        PurchaseInfoOutput output = new PurchaseInfoOutput();
-        output = purchaseService.findById(orderId);
-        output.setCode(Constant.CodeConfig.CODE_SUCCESS);
-        output.setMessage(Constant.MessageConfig.MSG_SUCCESS);
-        return output;
+    public Result findById(@PathVariable String orderId) throws Exception {
+        PurchaseInfoOutput output = purchaseService.findById(orderId);
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS, output);
     }
 
     /**
@@ -100,36 +91,30 @@ public class PurchaseController {
     @RequestMapping(value = "/export", method = RequestMethod.GET)
     @ApiOperation(value = "POI批量导出订单列表", notes = "POI批量导出订单列表")
     @ResponseBody
-    public BaseResult exportExcel(HttpServletRequest request, HttpServletResponse response, String pageNum, Integer pageSize,
+    public Result exportExcel(HttpServletRequest request, HttpServletResponse response, String pageNum, Integer pageSize,
                                   @RequestParam(required = false) Long accountId, PurchaseSelectInput purchaseSelectInput) throws Exception {
-        BaseResult result = new BaseResult();
-        result.setCode(Constant.CodeConfig.CODE_DATE_INPUT_FORMAT_ERROR);
-        result.setMessage(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
         //判断时间格式
         if (!verifyDate(purchaseSelectInput)) {
-            return result;
+            return Result.fail(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
         }
-        //对比开始时间和结束时间
         if (restrictDate(purchaseSelectInput)) {
-            return result;
+            return Result.fail(Constant.MessageConfig.DateNOTLate);
         }
         purchaseService.exportExcel(request, response, pageNum, pageSize, accountId, purchaseSelectInput);
-        result.setCode(Constant.CodeConfig.CODE_SUCCESS);
-        result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
-        return result;
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS);
     }
 
     /**
      * 查询全部订单列表
      *
-     * @param request
-     * @param pageNum
-     * @param rows
-     * @param purchaseSelectInput
+     * @param request             request
+     * @param pageNum             pageNum
+     * @param rows                rows
+     * @param purchaseSelectInput purchaseSelectInput
      * @return PurchaseSelectOutput
      */
     @GetMapping(value = "/search")
-    @ApiOperation(value = "查询订单列表", notes = "*")
+    @ApiOperation(value = "查询订单列表", notes = "查询订单列表")
     public Result search(HttpServletRequest request, Integer pageNum, Integer rows, PurchaseSelectInput purchaseSelectInput) throws Exception {
         Result result = new Result();
         result.setCode(Constant.CodeConfig.CODE_DATE_INPUT_FORMAT_ERROR);
@@ -181,7 +166,7 @@ public class PurchaseController {
      * @return BaseResult
      */
     @RequestMapping(value = "/deliverGoods", method = RequestMethod.POST)
-    @ApiOperation(value = "发货接口", notes = "")
+    @ApiOperation(value = "发货接口", notes = "发货接口")
     public BaseResult deliverGoods(@PathVariable("orderId") String orderId, Integer receiveMethod, String name, String number) throws Exception {
         BaseResult baseResult = new BaseResult();
         baseResult.setCode(Constant.CodeConfig.CODE_SUCCESS);
@@ -207,26 +192,20 @@ public class PurchaseController {
      * @return BaseResult
      */
     @RequestMapping(value = "/delete/purchases", method = RequestMethod.POST)
-    @ApiOperation(value = "删除订单", notes = "")
-    public BaseResult delete(String orderIds) {
+    @ApiOperation(value = "删除订单", notes = "删除订单")
+    public BaseResult delete(String orderIds) throws Exception {
         BaseResult baseResult = new BaseResult();
         baseResult.setCode(Constant.CodeConfig.CODE_SUCCESS);
         baseResult.setMessage(Constant.MessageConfig.MSG_SUCCESS);
-        try {
-            if (orderIds != null) {
-                boolean flag = purchaseService.deletePurchase(orderIds);
-                if (!flag) {
-                    baseResult.setCode(Constant.CodeConfig.CODE_FAILURE);
-                    baseResult.setMessage(Constant.MessageConfig.MSG_FAILURE);
-                }
-            } else {
-                baseResult.setCode(Constant.CodeConfig.CODE_NOT_EMPTY);
-                baseResult.setMessage(Constant.MessageConfig.MSG_NOT_EMPTY);
+        if (orderIds != null) {
+            boolean flag = purchaseService.deletePurchase(orderIds);
+            if (!flag) {
+                baseResult.setCode(Constant.CodeConfig.CODE_FAILURE);
+                baseResult.setMessage(Constant.MessageConfig.MSG_FAILURE);
             }
-        } catch (Exception e) {
-            logger.error("系统异常", e);
-            baseResult.setCode(Constant.CodeConfig.CODE_FAILURE);
-            baseResult.setMessage(Constant.MessageConfig.MSG_FAILURE);
+        } else {
+            baseResult.setCode(Constant.CodeConfig.CODE_NOT_EMPTY);
+            baseResult.setMessage(Constant.MessageConfig.MSG_NOT_EMPTY);
         }
         return baseResult;
     }
@@ -250,7 +229,6 @@ public class PurchaseController {
         if (null == user || Ognl.isEmpty(user.getAccountId())) {   //验证用户是否登陆
             return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
-
         //2.校验入参中的条件检索类
         if (Ognl.isNotEmpty(input)) {
             if (Ognl.isNotEmpty(input.getPayBeginTime()) && !DateUtil.isDate(input.getPayBeginTime())) {//开始时间（支付时间）
@@ -269,7 +247,6 @@ public class PurchaseController {
                 input.setOrderPaymentMethod(null);
             }
         }
-
         //3.访问业务层,获取数据
         return purchaseService.searchPurchasesHigh(pageNum, pageSize, input, user.getAccountId());
     }
@@ -293,7 +270,6 @@ public class PurchaseController {
         if (null == user || Ognl.isEmpty(user.getAccountId())) {   //验证用户是否登陆
             return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
-
         //2.校验入参中的条件检索类
         if (Ognl.isNotEmpty(input)) {
             if (Ognl.isNotEmpty(input.getCreateBeginTime()) && !DateUtil.isDate(input.getCreateBeginTime())) {//开始时间（创建时间）
@@ -303,7 +279,6 @@ public class PurchaseController {
                 return Result.fail(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
             }
         }
-
         //3.访问业务层。获取数据
         return purchaseService.searchPurchasesLow(pageNum, pageSize, input, user.getAccountId());
     }
@@ -313,30 +288,20 @@ public class PurchaseController {
      *
      * @return
      */
-    @ApiOperation(value = "获取商户总金额")
+    @ApiOperation(value = "获取商户总金额", notes = "商户的历史总金额【负责人：巨江坤】")
     @GetMapping(value = "/findincome")
-    public Result<String> findOrderStatus(HttpServletRequest request) {
-        Result<String> result = new Result<>();  //返回类型
+    public Result findOrderStatus(HttpServletRequest request) throws Exception {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         if (null == user) {
-            result.setCode(Constant.CodeConfig.CODE_USER_NOT_LOGIN);
-            result.setMessage(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
-            result.setData("0.00");
-            return result;
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
-        try {
-            //获取业务层数据-历史总金额
-            result = purchaseService.findOrderStatus(user.getAccountId());
-        } catch (Exception e) {  //出现异常
-            logger.error("系统异常", e);
-            result.setCode(Constant.CodeConfig.CODE_SYSTEM_EXCEPTION);
-            result.setMessage(Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
-            result.setData("0.00");
-        }
-        return result;
+        //获取业务层数据-历史总金额
+        String income = purchaseService.findOrderStatus(user.getAccountId());
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS, income);
+
     }
 
-    //验证订单状态，本期不考虑
+    // TODO 验证订单状态，本期不考虑
     /*private Integer verifyOrderStatus(String orderId,Integer orderStatus) {
         Integer getOrderStatus = purchaseService.findOrderStatus(orderId);
         if (getOrderStatus == Constant.OrderStatusConfig.PAYMENT && orderStatus == Constant.OrderStatusConfig.PENDING_SHIP){
@@ -357,69 +322,32 @@ public class PurchaseController {
         return getOrderStatus;
     }*/
 
-    //验证时间格式
-    private boolean verifyDate(PurchaseSelectInput purchaseSelectInput) {
-        boolean flag = true;
-        //订单创建时间
-        if (!StringUtils.isEmpty(purchaseSelectInput.getBeginDate())) {
-            flag = DateUtil.isDate(purchaseSelectInput.getBeginDate());
-            if (!flag) {
-                return flag;
-            }
+    /**
+     * 生成收货二维码接口
+     * <p>
+     * 根据订单编号生成二维码图片，并将二维码信息保存到数据库
+     * 1.验证参数合法性
+     * 2.生成二维码图片并保存到数据库
+     *
+     * @param m 订单编号
+     * @return
+     */
+    @PostMapping("createReceivingQrcode")
+    @ApiOperation(value = "生成收货二维码接口", notes = "生成收货二维码接口")
+    public Result createReceivingQrcode(@RequestBody Map m) throws Exception {
+        String orderId = (String) m.get("orderId");
+        // 1.验证参数合法性
+        if (Ognl.isEmpty(orderId)) { // 参数为空
+            return Result.fail(Constant.MessageConfig.MSG_NOT_EMPTY);
         }
-        if (!StringUtils.isEmpty(purchaseSelectInput.getEndDate())) {
-            flag = DateUtil.isDate(purchaseSelectInput.getEndDate());
-            if (!flag) {
-                return flag;
-            }
+        // 2.生成二维码图片并保存到数据库
+        Map map = purchaseService.createReceivingQrcode(orderId);
+        boolean flag = (boolean) map.get("flag");
+        // 成功
+        if (flag) {
+            return Result.success(Constant.MessageConfig.MSG_SUCCESS);
         }
-        //订单付款时间
-        if (!StringUtils.isEmpty(purchaseSelectInput.getOrderPaymentBeginTime())) {
-            flag = DateUtil.isDate(purchaseSelectInput.getOrderPaymentBeginTime());
-            if (!flag) {
-                return flag;
-            }
-        }
-        if (!StringUtils.isEmpty(purchaseSelectInput.getOrderPaymentEndTime())) {
-            flag = DateUtil.isDate(purchaseSelectInput.getOrderPaymentEndTime());
-            if (!flag) {
-                return flag;
-            }
-        }
-        //收货时间
-        if (!StringUtils.isEmpty(purchaseSelectInput.getOrderReceiveBeginTime())) {
-            flag = DateUtil.isDate(purchaseSelectInput.getOrderReceiveBeginTime());
-            if (!flag) {
-                return flag;
-            }
-        }
-        if (!StringUtils.isEmpty(purchaseSelectInput.getOrderReceiveEndTime())) {
-            flag = DateUtil.isDate(purchaseSelectInput.getOrderReceiveEndTime());
-            if (!flag) {
-                return flag;
-            }
-        }
-        return flag;
-    }
-
-    //限制开始时间小于结束时间
-    private boolean restrictDate(PurchaseSelectInput purchaseSelectInput) {
-        boolean flag = false;
-        try {
-            if (!StringUtils.isEmpty(purchaseSelectInput.getBeginDate()) && !StringUtils.isEmpty(purchaseSelectInput.getEndDate())) {
-                flag = DataCompare.compareDate(purchaseSelectInput.getBeginDate(), purchaseSelectInput.getEndDate());
-            }
-            if (!StringUtils.isEmpty(purchaseSelectInput.getOrderPaymentBeginTime()) && !StringUtils.isEmpty(purchaseSelectInput.getOrderPaymentEndTime())) {
-                flag = DataCompare.compareDate(purchaseSelectInput.getOrderPaymentBeginTime(), purchaseSelectInput.getOrderPaymentEndTime());
-            }
-            if (!StringUtils.isEmpty(purchaseSelectInput.getOrderReceiveBeginTime()) && !StringUtils.isEmpty(purchaseSelectInput.getOrderReceiveEndTime())) {
-                flag = DataCompare.compareDate(purchaseSelectInput.getOrderReceiveBeginTime(), purchaseSelectInput.getOrderReceiveEndTime());
-            }
-        } catch (ParseException e) {
-            logger.error("系统异常", e);
-            e.printStackTrace();
-        }
-        return flag;
+        return Result.fail(Constant.MessageConfig.MSG_FAILURE);
     }
 
     /**
@@ -434,82 +362,13 @@ public class PurchaseController {
      */
     @ApiOperation("查询打印商品条目接口")
     @GetMapping("/searchPrintItems")
-    public Result searchPrintItems(String orderId) {
-        Result result = new Result<>(); // 返回对象
-        result.setCode(Constant.CodeConfig.CODE_FAILURE); // 默认失败
-        result.setMessage(Constant.MessageConfig.MSG_FAILURE);
-
+    public Result searchPrintItems(String orderId) throws Exception {
         // 请求参数未传入orderId返回失败
         if (Ognl.isEmpty(orderId)) { // 参数为空
-            result.setCode(Constant.CodeConfig.CODE_NOT_EMPTY);
-            result.setMessage(Constant.MessageConfig.MSG_NOT_EMPTY);
-            return result;
+            return Result.fail(Constant.MessageConfig.MSG_NOT_EMPTY);
         }
-
-        try {
-            PurchaseItemPrintOutput output = purchaseService.getPrintItems(orderId); // 打印页面信息封装的对象
-            result.setData(output);
-
-            // 未查询到数据
-            if (null == output) {
-                result.setCode(Constant.CodeConfig.CODE_NOT_FOUND_RESULT);
-                result.setMessage(Constant.MessageConfig.MSG_NOT_FOUND_RESULT);
-                return result;
-            }
-
-            // 成功
-            result.setCode(Constant.CodeConfig.CODE_SUCCESS);
-            result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
-        } catch (Exception e) {
-            logger.error("系统异常", e);
-            result.setCode(Constant.CodeConfig.CODE_SYSTEM_EXCEPTION); // 异常
-            result.setMessage(Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
-        }
-
-        return result;
-    }
-
-    /**
-     * 生成收货二维码接口
-     * <p>
-     * 根据订单编号生成二维码图片，并将二维码信息保存到数据库
-     * 1.验证参数合法性
-     * 2.生成二维码图片并保存到数据库
-     *
-     * @param m 订单编号
-     * @return
-     */
-    @ApiOperation("生成收货二维码接口")
-    @PostMapping("createReceivingQrcode")
-    public Result createReceivingQrcode(@RequestBody Map m) {
-        Result result = new Result(); // 返回对象
-        result.setCode(Constant.CodeConfig.CODE_FAILURE);
-        result.setMessage(Constant.MessageConfig.MSG_FAILURE);
-        String orderId = (String) m.get("orderId");
-        // 1.验证参数合法性
-        if (Ognl.isEmpty(orderId)) { // 参数为空
-            result.setCode(Constant.CodeConfig.CODE_NOT_EMPTY);
-            result.setMessage(Constant.MessageConfig.MSG_NOT_EMPTY);
-            return result;
-        }
-
-        try {
-            // 2.生成二维码图片并保存到数据库
-            Map map = purchaseService.createReceivingQrcode(orderId);
-            boolean flag = (boolean) map.get("flag");
-            // 成功
-            if (flag) {
-                result.setCode(Constant.CodeConfig.CODE_SUCCESS);
-                result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
-                return result;
-            }
-        } catch (Exception e) {
-            logger.error("系统异常", e);
-            result.setCode(Constant.CodeConfig.CODE_SYSTEM_EXCEPTION);
-            result.setMessage(Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
-        }
-
-        return result;
+        PurchaseItemPrintOutput output = purchaseService.getPrintItems(orderId); // 打印页面信息封装的对象
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS, output);
     }
 
     /**
@@ -527,39 +386,19 @@ public class PurchaseController {
      */
     @ApiOperation("扫码收货接口")
     @PostMapping("/sweepReceiving")
-    public Result sweepReceiving(@RequestBody Map m) {
-        Result result = new Result(); // 返回对象
-        result.setCode(Constant.CodeConfig.CODE_FAILURE); // 默认失败
-        result.setMessage(Constant.MessageConfig.MSG_FAILURE);
+    public Result sweepReceiving(@RequestBody Map m) throws Exception {
         String orderId = (String) m.get("orderId");
         // 验证失败，验证参数的合法性
         if (Ognl.isEmpty(orderId)) {  // 参数为空
-            result.setCode(Constant.CodeConfig.CODE_NOT_EMPTY);
-            result.setMessage(Constant.MessageConfig.MSG_NOT_EMPTY);
-            return result;
+            return Result.fail(Constant.MessageConfig.MSG_NOT_EMPTY);
         }
-        //暂不考虑
-        /*if (verifyOrderStatus(orderId, Constant.OrderStatusConfig.RECEIVED) == 0){
-            result.setMessage(Constant.MessageConfig.ORDER_STATUS_EERO);
-            return result;
-        }*/
-
-        try {
-            // 扫描收货二维码
-            Map map = purchaseService.sweepReceiving(orderId);
-            boolean flag = (boolean) map.get("flag");
-
-            if (flag) { // 成功
-                result.setCode(Constant.CodeConfig.CODE_SUCCESS);
-                result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
-            }
-        } catch (Exception e) {
-            logger.error("系统异常", e);
-            result.setCode(Constant.CodeConfig.CODE_SYSTEM_EXCEPTION);
-            result.setMessage(Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
+        // 扫描收货二维码
+        Map map = purchaseService.sweepReceiving(orderId);
+        boolean flag = (boolean) map.get("flag");
+        if (flag) { // 成功
+            return Result.success(Constant.MessageConfig.MSG_SUCCESS);
         }
-
-        return result;
+        return Result.fail(Constant.MessageConfig.MSG_FAILURE);
     }
 
     /**
@@ -586,7 +425,7 @@ public class PurchaseController {
      */
     @ApiOperation("查看拒收理由接口")
     @GetMapping("/scanRefuseOrderReason/{orderId}")
-    public Result scanRefuseOrderReason(@PathVariable("orderId") String orderId) {
+    public Result scanRefuseOrderReason(@PathVariable("orderId") String orderId) throws Exception {
         Result result = new Result();// 返回对象
         //默认result为失败
         result.setCode(Constant.CodeConfig.CODE_FAILURE);
@@ -645,5 +484,65 @@ public class PurchaseController {
             result.setMessage("订单编号不能为空");
         }
         return result;
+    }
+
+    //验证时间格式
+    private boolean verifyDate(PurchaseSelectInput purchaseSelectInput) {
+        boolean flag = true;
+        //订单创建时间
+        if (!StringUtils.isEmpty(purchaseSelectInput.getBeginDate())) {
+            flag = DateUtil.isDate(purchaseSelectInput.getBeginDate());
+            if (!flag) {
+                return flag;
+            }
+        }
+        if (!StringUtils.isEmpty(purchaseSelectInput.getEndDate())) {
+            flag = DateUtil.isDate(purchaseSelectInput.getEndDate());
+            if (!flag) {
+                return flag;
+            }
+        }
+        //订单付款时间
+        if (!StringUtils.isEmpty(purchaseSelectInput.getOrderPaymentBeginTime())) {
+            flag = DateUtil.isDate(purchaseSelectInput.getOrderPaymentBeginTime());
+            if (!flag) {
+                return flag;
+            }
+        }
+        if (!StringUtils.isEmpty(purchaseSelectInput.getOrderPaymentEndTime())) {
+            flag = DateUtil.isDate(purchaseSelectInput.getOrderPaymentEndTime());
+            if (!flag) {
+                return flag;
+            }
+        }
+        //收货时间
+        if (!StringUtils.isEmpty(purchaseSelectInput.getOrderReceiveBeginTime())) {
+            flag = DateUtil.isDate(purchaseSelectInput.getOrderReceiveBeginTime());
+            if (!flag) {
+                return flag;
+            }
+        }
+        if (!StringUtils.isEmpty(purchaseSelectInput.getOrderReceiveEndTime())) {
+            flag = DateUtil.isDate(purchaseSelectInput.getOrderReceiveEndTime());
+            if (!flag) {
+                return flag;
+            }
+        }
+        return flag;
+    }
+
+    //限制开始时间小于结束时间
+    private boolean restrictDate(PurchaseSelectInput purchaseSelectInput) throws Exception {
+        boolean flag = false;
+        if (!StringUtils.isEmpty(purchaseSelectInput.getBeginDate()) && !StringUtils.isEmpty(purchaseSelectInput.getEndDate())) {
+            flag = DataCompare.compareDate(purchaseSelectInput.getBeginDate(), purchaseSelectInput.getEndDate());
+        }
+        if (!StringUtils.isEmpty(purchaseSelectInput.getOrderPaymentBeginTime()) && !StringUtils.isEmpty(purchaseSelectInput.getOrderPaymentEndTime())) {
+            flag = DataCompare.compareDate(purchaseSelectInput.getOrderPaymentBeginTime(), purchaseSelectInput.getOrderPaymentEndTime());
+        }
+        if (!StringUtils.isEmpty(purchaseSelectInput.getOrderReceiveBeginTime()) && !StringUtils.isEmpty(purchaseSelectInput.getOrderReceiveEndTime())) {
+            flag = DataCompare.compareDate(purchaseSelectInput.getOrderReceiveBeginTime(), purchaseSelectInput.getOrderReceiveEndTime());
+        }
+        return flag;
     }
 }

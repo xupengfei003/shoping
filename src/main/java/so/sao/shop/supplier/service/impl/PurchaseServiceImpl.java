@@ -461,16 +461,11 @@ public class PurchaseServiceImpl implements PurchaseService {
      * @return
      */
     @Override
-    public Result<String> findOrderStatus(Long storeId) {
-        Result<String> result = new Result<>();//返回类型
+    public String findOrderStatus(Long storeId) {
         //商户ID存在，将计算的总金额赋值给历史总金额字段
         BigDecimal income = purchaseDao.findOrderStatus(storeId);
-        String price = NumberUtil.number2Thousand(income);//将金额转换为千分位
         accountDao.updateUserPrice(income, storeId);//将查询到的总金额赋值给account表中的income(历史总收入)；
-        result.setCode(Constant.CodeConfig.CODE_SUCCESS);
-        result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
-        result.setData(price);
-        return result;
+        return NumberUtil.number2Thousand(income);
     }
 
     /**

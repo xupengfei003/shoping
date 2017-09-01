@@ -93,7 +93,7 @@ public interface PurchaseService {
      * @param storeId
      * @return
      */
-    Result<String> findOrderStatus(Long storeId);
+    String findOrderStatus(Long storeId);
 
     /**
      * 根据订单ID获取订单状态
