@@ -131,7 +131,7 @@ public class CommodityController {
       return commodityService.deleteCommImge(id);
     }
 
-    @ApiOperation(value="批量导入商品", notes="通过Excel模板批量导入商品信息")
+    @ApiOperation(value="批量导入商品", notes="通过Excel模板批量导入商品信息【负责人：潘帅帅】")
     @PostMapping(value="/importExcel")
     public  Result importExcel(@RequestPart(value = "excelFile") MultipartFile excelFile, HttpServletRequest request,@RequestParam(required = false) Long supplierId ) throws Exception {
         //校验供应商ID

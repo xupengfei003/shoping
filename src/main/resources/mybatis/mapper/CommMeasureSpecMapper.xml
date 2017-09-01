@@ -26,7 +26,7 @@
     </select>
 
 <!--  findByName 根据计量规格名称查询  -->
-    <select id="countByNameAndSupplierId">
+    <select id="countByNameAndSupplierId" resultType="int">
         SELECT count(1)
         FROM comm_measure_spec
         WHERE  name = #{name} AND ( supplier_id = 0  OR  supplier_id = #{supplierId} )
