@@ -54,4 +54,13 @@ public interface QrcodeDao {
      * @return 返回二维码对象集合
      */
     public List<Qrcode> findQrcodeByOrderId(String orderId);
+
+    /**
+     * 根据支付id查询对应订单的二维码，返回二维码数量
+     *
+     * @param payId 支付id
+     * @return 二维码数量 大于0表示订单存在二维码
+     * @throws Exception
+     */
+    public int getQrcodesByPayId(String payId) throws Exception;
 }

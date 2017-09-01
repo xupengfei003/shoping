@@ -111,4 +111,16 @@
         WHERE foreign_key = #{orderId}
         ORDER BY created_at DESC
     </select>
+
+    <!--根据支付id查询对应订单的二维码，返回二维码数量-->
+    <select id="getQrcodesByPayId" resultType="java.lang.Integer" parameterType="java.lang.String">
+        SELECT COUNT(order_id)
+        from purchase p
+        where pay_id = #{payId}
+        AND EXISTS (
+            SELECT qrcode_id
+            from qrcode q
+            where p.order_id=q.foreign_key
+        )
+    </select>
 </mapper>
