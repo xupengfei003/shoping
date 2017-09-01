@@ -310,15 +310,13 @@
         SET
         order_status = #{orderStatus},
         updated_at = #{updateDate},
-        distributor_name = #{name},
-        distributor_mobile = #{number},
-        order_ship_method= #{receiveMethod}
+        <if test="receiveMethod == 1">distributor_name = #{name},distributor_mobile = #{number},order_ship_method=1</if>
+        <if test="receiveMethod == 2">logistics_company = #{name} ,order_shipment_number = #{number},order_ship_method=2</if>
         WHERE
         order_id = #{orderId}
     </update>
 
     <!--删除订单-->
-
     <update id="deleteByOrderId" parameterType="so.sao.shop.supplier.pojo.vo.PurchasesVo">
         UPDATE purchase
         SET
@@ -485,6 +483,7 @@
         order_refuse_imgA = #{map.refuseImgUrlA},
         order_refuse_imgB = #{map.refuseImgUrlB},
         order_refuse_imgC = #{map.refuseImgUrlC},
+        order_status = #{map.orderStatus},
         updated_at = #{map.updatedAt}
         WHERE order_id = #{map.orderId}
     </update>
@@ -549,6 +548,7 @@
         UPDATE purchase
         SET
         order_cancel_reason = #{cancelMap.cancelReason},
+        order_status = #{cancelMap.orderStatus},
         updated_at = #{cancelMap.updatedAt}
         WHERE order_id = #{cancelMap.orderId}
     </update>
@@ -569,4 +569,14 @@
         from purchase
         where pay_id = #{payId,jdbcType=VARCHAR}
     </select>
+
+    <!-- 根据订单编号修改订单编号，退款时间 -->
+    <update id="refundByOrderId" parameterType="java.util.Map">
+        UPDATE purchase
+        SET
+        order_status = #{refundMap.orderStatus},
+        drawback_time = #{refundMap.drawbackTime},
+        updated_at = #{refundMap.updatedAt}
+        WHERE order_id = #{refundMap.orderId}
+    </update>
 </mapper>

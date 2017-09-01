@@ -219,7 +219,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             purchaseInfoVo.setDistributorName(purchase.getDistributorName());
             purchaseInfoVo.setDistributorMobile(purchase.getDistributorMobile());
             purchaseInfoVo.setDrawbackTime(purchase.getDrawbackTime());
-
+            purchaseInfoVo.setOrderAddress(purchase.getOrderAddress());
             //PurchaseInfoOutput 添加订单明细列表
             List<PurchaseItemVo> purchaseItemVoList = purchaseItemDao.getOrderDetailByOId(purchase.getOrderId());
 
@@ -784,6 +784,73 @@ public class PurchaseServiceImpl implements PurchaseService {
     }
 
     /**
+     * 根据支付id，批量生成订单的二维码
+     *
+     * @param payId 支付id
+     * @throws Exception 异常
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void createReceivingQrcodeByPayId(String payId) throws Exception {
+        List<Purchase> purchaseList = purchaseDao.findByPayId(payId); // 根据支付id查询订单列表
+
+        List<String> qrcodePics = new ArrayList<>(); // 存储二维码图片
+        List<Qrcode> qrcodeList = new ArrayList<>(); // 存储二维码实体
+        String path = "/qrcode"; // 生成二维码的本地路径
+        Boolean flag = true; // 批量生成二维码-成功
+        if (null != purchaseList && purchaseList.size() > 0) {
+
+            for (int i = 0; i < purchaseList.size(); i++) {
+                String orderId = purchaseList.get(i).getOrderId(); // 订单编号
+                String qrcodeId = NumberGenerate.generateId(); // 二维码id
+                String content = receiveUrl + "?orderId=" + orderId; // 二维码内容
+                String name = System.currentTimeMillis() + ".png"; // 二维码临时名称
+                boolean b = FileUtil.createDir(path); // 二维码临时路径
+                String img = path + "/" + name; // 二维码相对地址
+
+                // 生成二维码图片
+                flag = qrcodeService.createQrCode(new FileOutputStream(new File(img)), content, 230, "png");
+                if (!flag) { // 失败
+                    throw new Exception("生成二维码失败");
+                }
+
+                qrcodePics.add(name);
+
+                Qrcode qrcode = new Qrcode();
+                qrcode.setQrcodeId(qrcodeId); // 二维码id
+                qrcode.setForeignKey(orderId); // 二维码关联的外键
+                qrcode.setContent(content); // 二维码内容
+                qrcode.setStatus(0); // 二维码状态：0-未失效 1-失效
+                qrcode.setCreatedAt(new Date()); // 创建时间
+//                qrcode.setUrl(url); // 二维码图片地址 // 上传到云端后返回图片url
+                qrcode.setWidth(230d); // 二维码宽度
+                qrcode.setHeight(230d); // 二维码高度
+
+                qrcodeList.add(qrcode);
+            }
+        }
+
+
+        // 批量上传到云端
+        FileUtil fileUtil = new FileUtil();
+        List<Result> uploadResult = fileUtil.UploadFiles(path, qrcodePics, storageConfig);
+
+        for (int i = 0; i < uploadResult.size(); i++) {
+            Result result = uploadResult.get(i);
+            flag = Constant.CodeConfig.CODE_SUCCESS.equals(result.getCode());
+            if (!flag) { // 上传失败
+                throw new Exception("上传失败");
+            }
+            List<BlobUpload> blobUploadEntities = (List<BlobUpload>)result.getData();
+            BlobUpload blobUpload = blobUploadEntities.get(0);
+
+            qrcodeList.get(i).setUrl(blobUpload.getUrl()); // 云端的二维码地址
+        }
+
+        // 批量插入数据库
+        qrcodeDao.saveQrcodes(qrcodeList);
+    }
+
+    /**
      * 扫描收货二维码
      * <p>
      * 1.验证是否可以扫码收货
@@ -1021,5 +1088,46 @@ public class PurchaseServiceImpl implements PurchaseService {
     public String searchCancelReasonByOrderId(String orderId) throws Exception {
         String cancelReason = purchaseDao.findCancelReason(orderId);
         return cancelReason;
+    }
+
+    /**
+     * 根据订单编号调用退款接口退款并修改订单状态
+     *
+     * @param orderId 订单编号
+     * @return 返回Map：flag：true|false,message:信息
+     * @throws Exception 异常
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public Map refundByOrderId(String orderId) throws Exception {
+        // TODO: 2017/8/31 调用退款接口实现真正的退款,退款失败返回失败信息
+        System.out.println("调用退款接口实现真正的退款----------------------成功");
+        // 根据订单状态验证是否可以退款
+        // 仅已取消和已拒收状态的订单可以退款，其他状态不可以退款
+        Integer orderStatus = purchaseDao.getOrderStatus(orderId); // 订单状态
+        // 是否可以退款
+        boolean canRefund = Constant.OrderStatusConfig.CANCEL_ORDER.equals(orderStatus)
+                || Constant.OrderStatusConfig.REJECT.equals(orderStatus);
+        Map result = new HashMap();
+        if (!canRefund) { // 已取消或已拒收
+            result.put("flag", false);
+            result.put("message", "仅已取消和已拒收状态的订单可以退款，其他状态不可以退款");
+            return result;
+        }
+        // 修改订单状态为退款，修改退款时间为当前时间
+        Map params = new HashMap();
+        params.put("orderId", orderId);
+        params.put("orderStatus", Constant.OrderStatusConfig.REFUNDED); // 已退款
+        Date now = new Date();
+        params.put("drawbackTime", now); // 退款时间
+        params.put("updatedAt", now); // 更新时间
+        int count = purchaseDao.refundByOrderId(params);
+        if (count == 0) {
+            result.put("flag", false);
+            result.put("message", "退款失败");
+            return result;
+        }
+        result.put("flag", true);
+        result.put("message", "退款成功");
+        return result;
     }
 }
