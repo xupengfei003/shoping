@@ -839,16 +839,19 @@ public class PurchaseServiceImpl implements PurchaseService {
         FileUtil fileUtil = new FileUtil();
         List<Result> uploadResult = fileUtil.UploadFiles(path, qrcodePics, storageConfig);
 
-        for (int i = 0; i < uploadResult.size(); i++) {
-            Result result = uploadResult.get(i);
+        if (uploadResult.size() == 1) {
+            Result result = uploadResult.get(0);
             flag = Constant.CodeConfig.CODE_SUCCESS.equals(result.getCode());
             if (!flag) { // 上传失败
                 throw new Exception("上传失败");
             }
             List<BlobUpload> blobUploadEntities = (List<BlobUpload>)result.getData();
-            BlobUpload blobUpload = blobUploadEntities.get(0);
-
-            qrcodeList.get(i).setUrl(blobUpload.getUrl()); // 云端的二维码地址
+            if (blobUploadEntities.size() == qrcodeList.size()) {
+                for (int i = 0; i < qrcodeList.size(); i++) {
+                    BlobUpload blobUpload = blobUploadEntities.get(i);
+                    qrcodeList.get(i).setUrl(blobUpload.getUrl()); // 云端的二维码地址
+                }
+            }
         }
 
         // 批量插入数据库
