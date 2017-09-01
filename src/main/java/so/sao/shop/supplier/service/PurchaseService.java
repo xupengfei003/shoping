@@ -57,7 +57,7 @@ public interface PurchaseService {
      * @param orderId
      * @return
      */
-    boolean deliverGoods(String orderId, Integer receiveMethod,String name,String number) throws Exception;
+    void deliverGoods(String orderId, Integer receiveMethod,String name,String number) throws Exception;
 
     /**
      *
@@ -65,7 +65,7 @@ public interface PurchaseService {
      * @param orderIds
      * @return boolean
      */
-    boolean deletePurchase(String orderIds);
+    void deletePurchase(String orderIds);
 
     /**
      * POI导出(当前页/所选页/全部)订单列表
@@ -156,7 +156,7 @@ public interface PurchaseService {
      * @param refuseOrderInput 封装了订单编号，拒收理由，拒收图片
      * @return Map 封装结果 键flag的值为true表示成功，false表示失败，message的值表示文字描述
      */
-    boolean refuseOrder(RefuseOrderInput refuseOrderInput)  throws Exception;
+    void refuseOrder(RefuseOrderInput refuseOrderInput)  throws Exception;
 
     /**
      * 根据订单ID获取该订单的拒收原因
@@ -183,7 +183,7 @@ public interface PurchaseService {
      * @return Map 封装结果 键flag的值为true表示成功，false表示失败，message的值表示文字描述
      * @throws Exception
      */
-    boolean cancelOrder(CancelReasonInput cancelReasonInput)  throws Exception;
+    void cancelOrder(CancelReasonInput cancelReasonInput)  throws Exception;
 
     /**
      * 根据订单编号查询取消订单原因
