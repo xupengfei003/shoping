@@ -1,13 +1,9 @@
 package so.sao.shop.supplier.pojo.input;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import org.hibernate.validator.constraints.Length;
-
-import javax.validation.constraints.*;
-
+import org.hibernate.validator.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
-import java.math.BigDecimal;
-import java.util.Date;
+
 /**
  * Created by niewenchao on 2017/7/24.
  * 提现申请入参封装类
@@ -30,7 +26,7 @@ public class OrderMoneyRecordInput {
      * 结算状态 0 待结算 1 已结算
      */
     @Pattern(regexp="^[0-1]*$", message="结算状态错误")
-    @NotNull(message = "状态不能为空")
+    @NotEmpty(message = "状态不能为空")
     private String state;
 
     public String getStartTime() {

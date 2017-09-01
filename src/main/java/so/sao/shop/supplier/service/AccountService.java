@@ -9,6 +9,8 @@ import so.sao.shop.supplier.pojo.BaseResult;
 import so.sao.shop.supplier.pojo.Result;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -98,7 +100,7 @@ public interface AccountService {
      * @param accountId
      * @return
      */
-    Result getAccountBalance(Long accountId) throws Exception;
+    Map<String,String> getAccountBalance(Long accountId) throws Exception;
 
     /**
      * 分页查询供应商
