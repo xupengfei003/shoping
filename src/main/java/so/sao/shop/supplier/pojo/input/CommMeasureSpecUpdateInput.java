@@ -17,7 +17,7 @@ public class CommMeasureSpecUpdateInput {
     /**
      * 商品计量规格名称
      */
-    @NotEmpty(message = "商品计量规格名不能为空")
+    @NotEmpty(message = "计量规格名不能为空")
     @Size(min = 1,max = Constant.CheckMaxLength.MAX_MEASURESPEC_NAME_LENGTH,message = "名称至少一位，不能超过"+ Constant.CheckMaxLength.MAX_MEASURESPEC_NAME_LENGTH +"位")
     private String name;
 

@@ -38,9 +38,9 @@ public class CommMeasureSpecServiceImpl implements CommMeasureSpecService {
         // 根据用户ID(supplierId),查询到自己和管理员添加的所有的计量规格
         List<CommMeasureSpec> commMeasureSpecs = commMeasureSpecDao.find(supplierId);;
         if( null != commMeasureSpecs && commMeasureSpecs.size()>0 ){
-           return Result.success("获取计量单位成功！",commMeasureSpecs);
+           return Result.success("查询计量规格成功！",commMeasureSpecs);
         }else {
-            return Result.fail("目前您没有计量单位，请先添加计量单位！");
+            return Result.fail("暂无数据，请先添加！");
         }
     }
 
@@ -54,7 +54,7 @@ public class CommMeasureSpecServiceImpl implements CommMeasureSpecService {
     public Result saveCommMeasureSpec(long supplierId, String  name){
         //  效验输入的name = null ,"" 就抛出异常
         if( null == name || Ognl.isEmpty(name.trim()) ){
-            return Result.fail("请输入计量规格！");
+            return Result.fail("计量规格不能为空！");
         }else {
             name = name.trim();
            if(name.length() > Constant.CheckMaxLength.MAX_MEASURESPEC_NAME_LENGTH){
@@ -73,10 +73,10 @@ public class CommMeasureSpecServiceImpl implements CommMeasureSpecService {
             if( commMeasureSpecDao.save(commMeasureSp) ){
                 return  Result.success("添加计量规格成功",commMeasureSp);
             }else {
-                return Result.success("添加计量规格异常，请稍后操作！",commMeasureSp);
+                return Result.success("添加计量规格失败！",commMeasureSp);
             }
         }else{
-            return Result.fail("计量规格名称已经存在，请重新定义！");
+            return Result.fail("计量规格已存在！");
         }
     }
 
@@ -90,25 +90,25 @@ public class CommMeasureSpecServiceImpl implements CommMeasureSpecService {
     public Result deleteOneById(Long supplierId, Long id){
         //  效验id = null
         if(null == id){
-            return  Result.fail("请选择需要删除的规格！");
+            return  Result.fail("请选择需要删除的计量规格！");
         }
         //  查出id +delete=0 对应的规格在 supplier_commodity表是否正在使用： delete=1 标识已经被删除，delete=0 使用中
         List<SupplierCommodity> supplierCommodityList = supplierCommodityDao.findAllSupplierCommodityById(id);
         if( null != supplierCommodityList && supplierCommodityList.size()>0 ) {
-            return  Result.fail("计量规格正在被使用！");
+            return  Result.fail("计量规格正在使用，暂时无法删除此计量规格！");
         } else{
             //   查出id 对应的comm_measure_spec: supplierId 是否 =0. =0是管理员添加的
             CommMeasureSpec commMeasureSpec = commMeasureSpecDao.findOne(id);
             if( null == commMeasureSpec){
-                return  Result.fail("没有此规格！");
+                return  Result.fail("计量规格不存在！");
             }else {
                 if( ! supplierId.equals(commMeasureSpec.getSupplierId()) ){
-                    return  Result.fail("您无权删除此计量规格！");
+                    return  Result.fail("公共计量规格，不能删除！");
                 }else {
                     if(commMeasureSpecDao.deleteOneById(id)){
                         return Result.success("删除计量规格成功!",commMeasureSpec);
                     }
-                    return  Result.fail("删除此计量规格异常，请重试！");
+                    return  Result.fail("删除此计量规格失败！");
                 }
             }
         }
@@ -126,7 +126,7 @@ public class CommMeasureSpecServiceImpl implements CommMeasureSpecService {
         CommMeasureSpec commMeasureSpec= new CommMeasureSpec();
         commMeasureSpec.setId(commMeasureSpecUpdateInput.getId());
         if(Ognl.isEmpty(commMeasureSpecUpdateInput.getName().trim())){
-            return Result.fail("请输入计量规格！");
+            return Result.fail("计量规格不能为空！");
         }
         commMeasureSpec.setName(commMeasureSpecUpdateInput.getName().trim());
         commMeasureSpec.setUpdatedAt(new Date());
@@ -135,21 +135,21 @@ public class CommMeasureSpecServiceImpl implements CommMeasureSpecService {
         CommMeasureSpec getCommMeasureSpec = commMeasureSpecDao.findOne(commMeasureSpecUpdateInput.getId());
         if(null != getCommMeasureSpec){
             if(  ! supplierId.equals(getCommMeasureSpec.getSupplierId()) ){
-                return Result.fail("你无权操作！");
+                return Result.fail("公共计量规格，不能修改！");
             }else {
                 //  校验: 新的name 是否重复
                 List<CommMeasureSpec> commMeasureSpecList = commMeasureSpecDao.findByName( supplierId,commMeasureSpecUpdateInput.getName().trim());
                 if( null != commMeasureSpecList && commMeasureSpecList.size()>0 ){
-                    return Result.fail("规格名称已存在,请重新输入！");
+                    return Result.fail("计量规格已存在！");
                 }else {
                     if(commMeasureSpecDao.update(commMeasureSpec)){
                         return Result.success("更新计量规格成功！",commMeasureSpec);
                     }
-                    return Result.fail("更新计量规格异常，请重试！");
+                    return Result.fail("更新计量规格失败！");
                 }
             }
         }else {
-            return Result.fail("计量规格不存在，请重新选择！");
+            return Result.fail("计量规格不存在！");
         }
     }
 
