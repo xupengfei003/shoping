@@ -3,6 +3,7 @@ package so.sao.shop.supplier.dao;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import so.sao.shop.supplier.domain.SupplierCommodity;
+import so.sao.shop.supplier.pojo.input.CommSearchInput;
 import so.sao.shop.supplier.pojo.output.CommodityOutput;
 import so.sao.shop.supplier.pojo.vo.SuppCommSearchVo;
 
@@ -73,23 +74,10 @@ public interface SupplierCommodityDao {
 
     /**
      * 查询商品信息集合
-     * @param supplierId 供应商ID
-     * @param commCode69 商品编码
-     * @param sku  SKU(商品ID)
-     * @param suppCommCode 商家商品编码
-     * @param commName 商品名称
-     * @param status 状态
-     * @param typeId 类型ID
-     * @param minPrice 价格（低）
-     * @param maxPrice 价格（高）
-     * @param beginCreateAt 创建时间（前）
-     * @param endCreateAt 创建时间（后）
+     * @param commSearchInput 高级搜索查询请求
      * @return 查询结果结合
      */
-    List<SuppCommSearchVo> find(@Param("supplierId")Long supplierId, @Param("commCode69")String commCode69, @Param("sku") String sku,
-                                @Param("suppCommCode") String suppCommCode, @Param("commName") String commName, @Param("status")Integer status,
-                                @Param("typeId") Long typeId, @Param("minPrice") BigDecimal minPrice, @Param("maxPrice") BigDecimal maxPrice,
-                                @Param("beginCreateAt") Date beginCreateAt, @Param("endCreateAt") Date endCreateAt);
+    List<SuppCommSearchVo> find(CommSearchInput commSearchInput);
 
     /**
      * 根据id查询count

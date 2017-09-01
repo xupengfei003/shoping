@@ -12,6 +12,8 @@ import org.springframework.web.servlet.ModelAndView;
 import so.sao.shop.supplier.config.StorageConfig;
 import so.sao.shop.supplier.pojo.BaseResult;
 import so.sao.shop.supplier.pojo.Result;
+import so.sao.shop.supplier.pojo.input.CommSearchInput;
+import so.sao.shop.supplier.pojo.input.CommSimpleSearchInput;
 import so.sao.shop.supplier.pojo.input.CommodityInput;
 import so.sao.shop.supplier.pojo.input.CommodityUpdateInput;
 import so.sao.shop.supplier.pojo.output.CommodityExportOutput;
@@ -42,28 +44,20 @@ public class CommodityController {
 
     @ApiOperation(value="查询供应商商品信息集合（高级搜索）", notes="根据参数返回符合条件的商品信息集合（高级搜索）【责任人：刘刚】")
     @GetMapping(value="/search")
-    public Result search(HttpServletRequest request, @RequestParam(required = false)  Long supplierId, @RequestParam(required = false) String commCode69, @RequestParam(required = false) String sku,
-                         @RequestParam(required = false) String suppCommCode, @RequestParam(required = false) String commName, @RequestParam(required = false) Integer status,
-                         @RequestParam(required = false) Long typeId, @RequestParam(required = false) BigDecimal minPrice, @RequestParam(required = false) BigDecimal maxPrice,
-                         @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd",iso= DateTimeFormat.ISO.DATE) Date beginCreateAt,
-                         @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd",iso= DateTimeFormat.ISO.DATE) Date endCreateAt,
-                         @RequestParam(required = false) Integer pageNum, @RequestParam(required = false) Integer pageSize) throws Exception {
+    public Result search(HttpServletRequest request, CommSearchInput commSearchInput) throws Exception {
 
         //供应商ID校验
-        supplierId = CheckUtil.supplierIdCheck(request,supplierId);
-        return commodityService.searchCommodities(supplierId, commCode69, sku, suppCommCode, commName, status, typeId, minPrice, maxPrice, beginCreateAt, endCreateAt, pageNum, pageSize);
+        CheckUtil.supplierIdCheck(request,commSearchInput.getSupplierId());
+        return commodityService.searchCommodities(commSearchInput);
     }
 
     @ApiOperation(value="查询供应商商品信息集合（简单查询）", notes="根据参数返回符合条件的商品信息集合（简单查询）【责任人：刘刚】")
     @GetMapping(value="/simplesearch")
-    public Result simpleSearch(HttpServletRequest request,@RequestParam(required = false)  Long supplierId,@RequestParam(required = false)  String inputvalue,
-                         @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd",iso= DateTimeFormat.ISO.DATE) Date beginCreateAt,
-                         @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd",iso= DateTimeFormat.ISO.DATE) Date endCreateAt,
-                         @RequestParam(required = false) Integer pageNum, @RequestParam(required = false) Integer pageSize) throws Exception {
+    public Result simpleSearch(HttpServletRequest request, CommSimpleSearchInput commSimpleSearchInput) throws Exception {
 
         //供应商ID校验
-        supplierId = CheckUtil.supplierIdCheck(request,supplierId);
-        return commodityService.simpleSearchCommodities(supplierId, inputvalue, beginCreateAt, endCreateAt, pageNum, pageSize);
+        CheckUtil.supplierIdCheck(request,commSimpleSearchInput.getSupplierId());
+        return commodityService.simpleSearchCommodities(commSimpleSearchInput);
     }
 
     @ApiOperation(value="查询商品详情信息", notes="根据ID返回相应的商品信息【责任人：刘刚】")

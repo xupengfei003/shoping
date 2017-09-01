@@ -51,7 +51,7 @@ public interface CommCategoryDao {
      * @param commCategoryThreeId
      * @return
      */
-    List<CommCategory> findByIds(@Param("commCategoryOneId")String commCategoryOneId, @Param("commCategoryTwoId")String commCategoryTwoId, @Param("commCategoryThreeId")String commCategoryThreeId);
+    List<CommCategory> findByIds(@Param("commCategoryOneId")Long commCategoryOneId, @Param("commCategoryTwoId")Long commCategoryTwoId, @Param("commCategoryThreeId")Long commCategoryThreeId);
 
     /**
      * 根据类型名称 查询商品类型

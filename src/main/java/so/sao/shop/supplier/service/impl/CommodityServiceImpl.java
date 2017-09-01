@@ -19,6 +19,8 @@ import so.sao.shop.supplier.dao.*;
 import so.sao.shop.supplier.domain.*;
 import so.sao.shop.supplier.pojo.BaseResult;
 import so.sao.shop.supplier.pojo.Result;
+import so.sao.shop.supplier.pojo.input.CommSearchInput;
+import so.sao.shop.supplier.pojo.input.CommSimpleSearchInput;
 import so.sao.shop.supplier.pojo.input.CommodityInput;
 import so.sao.shop.supplier.pojo.input.CommodityUpdateInput;
 import so.sao.shop.supplier.pojo.output.CommodityExportOutput;
@@ -188,7 +190,7 @@ public class CommodityServiceImpl implements CommodityService {
             return Result.fail("未选择商品科属二级分类！");
         }
         //获取三级分类list
-        List<CommCategory> commCategoryList = commCategoryDao.findByIds(categoryOneId.toString(), categoryTwoId.toString(), categoryThreeId.toString());
+        List<CommCategory> commCategoryList = commCategoryDao.findByIds(categoryOneId, categoryTwoId, categoryThreeId);
         List<Long> ids = new ArrayList<>();
         CommCategory commCategoryOne = null;
         CommCategory commCategoryTwo = null;
@@ -394,73 +396,59 @@ public class CommodityServiceImpl implements CommodityService {
     /**
      * 根据查询条件查询商品详情(简单条件查询)
      *
-     * @param supplierId    供应商ID
-     * @param inputvalue    输入参数
-     * @param beginCreateAt 创建时间（起始）
-     * @param endCreateAt   创建时间（终止）
-     * @param pageNum       当前页号
-     * @param pageSize      页面大小
+     * @param commSimpleSearchInput 简单查询请求
      * @return
      */
     @Override
-    public Result simpleSearchCommodities(Long supplierId, String inputvalue, Date beginCreateAt, Date endCreateAt, Integer pageNum, Integer pageSize) {
+    public Result simpleSearchCommodities(CommSimpleSearchInput commSimpleSearchInput) {
         //入参校验
+        Date beginCreateAt = commSimpleSearchInput.getBeginCreateAt();
+        Date endCreateAt = commSimpleSearchInput.getEndCreateAt();
         String createAtMessage = DataCompare.createAtCheck(beginCreateAt, endCreateAt);
         if(!"".equals(createAtMessage)){
             return Result.fail(createAtMessage);
         }
         //开始分页
-        PageTool.startPage(pageNum, pageSize);
-        List<SuppCommSearchVo> respList = supplierCommodityDao.findSimple(supplierId, inputvalue, beginCreateAt, endCreateAt);
+        PageTool.startPage(commSimpleSearchInput.getPageNum(), commSimpleSearchInput.getPageSize());
+        List<SuppCommSearchVo> respList = supplierCommodityDao.findSimple(commSimpleSearchInput.getSupplierId(), commSimpleSearchInput.getInputvalue(), beginCreateAt, endCreateAt);
         respList.forEach(suppCommSearchVo->{
             int statusNum = Integer.parseInt(suppCommSearchVo.getStatus());
             suppCommSearchVo.setStatusNum(statusNum);
             suppCommSearchVo.setStatus(CommConstant.getStatus(statusNum));
             //转换金额为千分位
-            suppCommSearchVo.setUnitPrice("￥" + NumberUtil.number2Thousand(new BigDecimal(suppCommSearchVo.getUnitPrice())));
-            suppCommSearchVo.setPrice("￥" + NumberUtil.number2Thousand(new BigDecimal(suppCommSearchVo.getPrice())));
+            suppCommSearchVo.setUnitPrice(NumberUtil.number2ThousandFormat(new BigDecimal(suppCommSearchVo.getUnitPrice())));
+            suppCommSearchVo.setPrice(NumberUtil.number2ThousandFormat(new BigDecimal(suppCommSearchVo.getPrice())));
         });
         PageInfo<SuppCommSearchVo> pageInfo = new PageInfo<SuppCommSearchVo>(respList);
         return Result.success("查询完成", pageInfo);
     }
 
     /**
-     *
-     * @param supplierId 供应商ID
-     * @param commCode69 商品编码
-     * @param sku  SKU（商品ID）
-     * @param suppCommCode 商家商品编码
-     * @param commName 商品名称
-     * @param status 状态
-     * @param typeId 类型ID
-     * @param minPrice 价格（低）
-     * @param maxPrice 价格（高）
-     * @param pageNum 当前页号
-     * @param pageSize 页面大小
+     * 高级搜索
+     * @param commSearchInput 高级搜索查询请求
      * @return
      */
     @Override
-    public Result searchCommodities(Long supplierId, String commCode69, String sku, String suppCommCode, String commName, Integer status, Long typeId,
-                                    BigDecimal minPrice, BigDecimal maxPrice, Date beginCreateAt, Date endCreateAt, Integer pageNum, Integer pageSize) {
+    public Result searchCommodities(CommSearchInput commSearchInput) {
         //入参校验
-        String priceMessage = DataCompare.priceCheck(minPrice, maxPrice);
+        String priceMessage = DataCompare.priceCheck(commSearchInput.getMinPrice(), commSearchInput.getMaxPrice());
         if(!"".equals(priceMessage)){
             return Result.fail(priceMessage);
         }
-        String createAtMessage = DataCompare.createAtCheck(beginCreateAt,endCreateAt);
+        String createAtMessage = DataCompare.createAtCheck(commSearchInput.getBeginCreateAt(),commSearchInput.getEndCreateAt());
         if(!"".equals(createAtMessage)){
             return Result.fail(createAtMessage);
         }
         //开始分页
-        PageTool.startPage(pageNum, pageSize);
-        List<SuppCommSearchVo> respList = supplierCommodityDao.find(supplierId, commCode69, sku, suppCommCode, commName, status, typeId, minPrice, maxPrice, beginCreateAt, endCreateAt);
+        PageTool.startPage(commSearchInput.getPageNum(), commSearchInput.getPageSize());
+        List<SuppCommSearchVo> respList = supplierCommodityDao.find(commSearchInput);
         respList.forEach(suppCommSearchVo->{
             int statusNum = DataCompare.formatInteger(suppCommSearchVo.getStatus());
             suppCommSearchVo.setStatusNum(statusNum);
             suppCommSearchVo.setStatus(CommConstant.getStatus(statusNum));
             //转换金额为千分位
-            suppCommSearchVo.setPrice("￥"+NumberUtil.number2Thousand(new BigDecimal(suppCommSearchVo.getPrice())));
-            suppCommSearchVo.setUnitPrice("￥"+NumberUtil.number2Thousand(new BigDecimal(suppCommSearchVo.getUnitPrice())));
+            suppCommSearchVo.setPrice(NumberUtil.number2ThousandFormat(new BigDecimal(suppCommSearchVo.getPrice())));
+            suppCommSearchVo.setUnitPrice(NumberUtil.number2ThousandFormat(new BigDecimal(suppCommSearchVo.getUnitPrice())));
         });
 
         PageInfo<SuppCommSearchVo> pageInfo = new PageInfo<SuppCommSearchVo>(respList);
