@@ -36,13 +36,11 @@ import java.util.Map;
 @RequestMapping("/comm")
 @Api(description = "商品管理接口")
 public class CommodityController {
-    @Autowired
-    private StorageConfig storageConfig;
 
     @Autowired
     private CommodityService commodityService;
 
-    @ApiOperation(value="查询供应商商品信息集合（高级搜索）", notes="根据参数返回符合条件的商品信息集合（高级搜索）")
+    @ApiOperation(value="查询供应商商品信息集合（高级搜索）", notes="根据参数返回符合条件的商品信息集合（高级搜索）【责任人：刘刚】")
     @GetMapping(value="/search")
     public Result search(HttpServletRequest request, @RequestParam(required = false)  Long supplierId, @RequestParam(required = false) String commCode69, @RequestParam(required = false) String sku,
                          @RequestParam(required = false) String suppCommCode, @RequestParam(required = false) String commName, @RequestParam(required = false) Integer status,
@@ -56,7 +54,7 @@ public class CommodityController {
         return commodityService.searchCommodities(supplierId, commCode69, sku, suppCommCode, commName, status, typeId, minPrice, maxPrice, beginCreateAt, endCreateAt, pageNum, pageSize);
     }
 
-    @ApiOperation(value="查询供应商商品信息集合（简单查询）", notes="根据参数返回符合条件的商品信息集合（简单查询）")
+    @ApiOperation(value="查询供应商商品信息集合（简单查询）", notes="根据参数返回符合条件的商品信息集合（简单查询）【责任人：刘刚】")
     @GetMapping(value="/simplesearch")
     public Result simpleSearch(HttpServletRequest request,@RequestParam(required = false)  Long supplierId,@RequestParam(required = false)  String inputvalue,
                          @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd",iso= DateTimeFormat.ISO.DATE) Date beginCreateAt,
@@ -68,7 +66,7 @@ public class CommodityController {
         return commodityService.simpleSearchCommodities(supplierId, inputvalue, beginCreateAt, endCreateAt, pageNum, pageSize);
     }
 
-    @ApiOperation(value="查询商品详情信息", notes="根据ID返回相应的商品信息")
+    @ApiOperation(value="查询商品详情信息", notes="根据ID返回相应的商品信息【责任人：刘刚】")
     @GetMapping(value="/get/{id}")
     public Result get(@PathVariable Long id){
         return commodityService.getCommodity(id);
