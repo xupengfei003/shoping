@@ -69,7 +69,7 @@ public class CommMeasureSpecController {
         }
         //  效验输入的name = null ,"" 就抛出异常
         if( null == name || Ognl.isEmpty(name.trim()) ){
-            return Result.fail("请输入计量规格！");
+            return Result.fail("计量规格不能为空！");
         }else {
             name = name.trim();
             if(name.length() > Constant.CheckMaxLength.MAX_MEASURESPEC_NAME_LENGTH){

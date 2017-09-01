@@ -57,7 +57,7 @@ public class CommTagServiceImpl implements CommTagService {
             commTag.setUpdatedAt(new Date());
             //新增操作
             commTagDao.save(commTag);
-            return Result.success("商品标签新增成功！");
+            return Result.success("添加商品标签成功！");
         }
     }
 
@@ -79,7 +79,7 @@ public class CommTagServiceImpl implements CommTagService {
         //根据该ID在供应商商品表中查询是是否在被使用（未删除状态），在使用状态时不能进行删除操作
         int count = supplierCommodityDao.countSupplierCommodityByTagId(id);
         if (count > 0) {
-            return Result.fail("商品标签正在使用，暂时无法删除此标签！");
+            return Result.fail("商品标签正在使用，暂时无法删除此商品标签！");
         }
         //删除操作
         commTagDao.deleteById(id);
@@ -138,11 +138,11 @@ public class CommTagServiceImpl implements CommTagService {
         //商品标签存在性判断
         CommTag commTag = commTagDao.findOne(id);
         if (null == commTag) {
-            return Result.fail("该商品标签不存在！");
+            return Result.fail("商品标签不存在！");
         }
         //判断ID对应的商品标签supplierId与登录用户supplierId是否相同
         if (!supplierId.equals(commTag.getSupplierId())) {
-            return Result.fail("预置商品标签无权操作！");
+            return Result.fail("公共商品标签，不能操作！");
         }
         return null;
     }

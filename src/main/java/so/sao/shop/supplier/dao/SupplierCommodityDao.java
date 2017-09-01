@@ -185,4 +185,10 @@ public interface SupplierCommodityDao {
      * @return List<SupplierCommodity>
      */
     List<SupplierCommodity> findSupplierCommodityByUnitId(@Param("unitId") Long unitId);
+    /**
+     * 商品单位是否被sc表引用
+     * @param unitId
+     * @return int
+     */
+    int countByUnitId(@Param("unitId") Long unitId);
 }

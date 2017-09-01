@@ -45,11 +45,11 @@ public class CommTagController {
         }
         //判断标签名为null或空
         if (null == name || Ognl.isEmpty(name.trim())) {
-            return Result.fail("请输入商品标签名称！");
+            return Result.fail("商品标签不能为空！");
         }
         //校验商品标签名称长度
         if (name.trim().length() > Constant.CheckMaxLength.MAX_TAG_NAME_LENGTH) {
-            return Result.fail("商品标签名称长度不能超过" + Constant.CheckMaxLength.MAX_TAG_NAME_LENGTH + "位！");
+            return Result.fail("商品标签不能超过" + Constant.CheckMaxLength.MAX_TAG_NAME_LENGTH + "位！");
         }
         return commTagService.saveCommTag(supplierId, name);
     }
