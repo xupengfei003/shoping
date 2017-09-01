@@ -248,11 +248,12 @@ public class PurchaseServiceImpl implements PurchaseService {
         PageHelper.startPage(pageNum, rows);
         List<PurchasesVo> orderList = purchaseDao.findPage(purchaseSelectInput);
         //转换金额为千分位
-        for(PurchasesVo purchasesVo : orderList){
+        for (PurchasesVo purchasesVo : orderList) {
             purchasesVo.setOrderPrice(NumberUtil.number2Thousand(new BigDecimal(purchasesVo.getOrderPrice())));
         }
-        return  new PageInfo<>(orderList);
+        return new PageInfo<>(orderList);
     }
+
 
     /**
      * 发货接口
@@ -262,24 +263,12 @@ public class PurchaseServiceImpl implements PurchaseService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean deliverGoods(String orderId, Integer receiveMethod, String name, String number) throws Exception {
-        boolean flag = purchaseDao.deliverGoods(orderId, Constant.OrderStatusConfig.ISSUE_SHIP, new Date(), receiveMethod, name, number);
-        if (flag) {
-            //TODO 更改订单状态成功后向该供应商推送一条消息
-            Long accountId;
-            Purchase purchase = purchaseDao.findById(orderId);
-            if (null != purchase) {
-                accountId = purchase.getStoreId();
-                if(purchase.getPayStatus() != 0){ //支付状态是1 推送消息通知
-                    Notification notification = createNotification(accountId, orderId, Constant.OrderStatusConfig.ISSUE_SHIP);
-                    if (null != notification) {
-                        notificationDao.insert(notification);
-                    }
-                }
-            }
-        }
-        return flag;
+    public void deliverGoods(String orderId, Integer receiveMethod, String name, String number) throws Exception {
+        purchaseDao.deliverGoods(orderId, Constant.OrderStatusConfig.ISSUE_SHIP, new Date(), receiveMethod, name, number);
+        //TODO 更改订单状态成功后向该供应商推送一条消息
+        pushNotification(orderId, Constant.OrderStatusConfig.ISSUE_SHIP);
     }
+
 
     /**
      * 批量删除订单
@@ -288,10 +277,10 @@ public class PurchaseServiceImpl implements PurchaseService {
      * @return
      */
     @Override
-    public boolean deletePurchase(String orderIds) {
+    public void deletePurchase(String orderIds) {
         String[] orderIdArr = orderIds.split(",");
         Date updateDate = new Date();
-        return purchaseDao.deleteByOrderId(orderIdArr, updateDate);
+        purchaseDao.deleteByOrderId(orderIdArr, updateDate);
     }
 
     /**
@@ -805,25 +794,26 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     /**
      * 添加拒收货信息
-     *
+     * <p>
      * 将拒收理由及相关图片保存
      *
      * @param refuseOrderInput 封装了订单编号，拒收理由，拒收图片
      * @return Map 封装结果 键flag的值为true表示成功，false表示失败，message的值表示文字描述
      */
     @Override
-    public boolean refuseOrder(RefuseOrderInput refuseOrderInput) throws Exception {
-        Map<String,Object> map = new HashMap<>();
-        map.put("orderId",refuseOrderInput.getOrderId());//订单编号
-        map.put("refuseReason",refuseOrderInput.getRefuseReason());//拒收理由
-        map.put("refuseImgUrlA",refuseOrderInput.getRefuseImgUrlA());//拒收图片URL A
-        map.put("refuseImgUrlB",refuseOrderInput.getRefuseImgUrlB());//拒收图片URL B
-        map.put("refuseImgUrlC",refuseOrderInput.getRefuseImgUrlC());//拒收图片URL C
-        map.put("orderRefuseTime",new Date());//拒收时间
+    public void refuseOrder(RefuseOrderInput refuseOrderInput) throws Exception {
+        Map<String, Object> map = new HashMap<>();
+        map.put("orderId", refuseOrderInput.getOrderId());//订单编号
+        map.put("refuseReason", refuseOrderInput.getRefuseReason());//拒收理由
+        map.put("refuseImgUrlA", refuseOrderInput.getRefuseImgUrlA());//拒收图片URL A
+        map.put("refuseImgUrlB", refuseOrderInput.getRefuseImgUrlB());//拒收图片URL B
+        map.put("refuseImgUrlC", refuseOrderInput.getRefuseImgUrlC());//拒收图片URL C
+        map.put("orderRefuseTime", new Date());//拒收时间
         map.put("updatedAt", new Date());//更新时间
         map.put("orderStatus", Constant.OrderStatusConfig.REJECT);//订单状态 5 拒收
-        boolean flag = purchaseDao.insertRefuseMessage(map);
-        return flag;
+        purchaseDao.insertRefuseMessage(map);
+        //TODO 订单拒收成功给该供应商推送一条消息
+        pushNotification(refuseOrderInput.getOrderId(), Constant.OrderStatusConfig.REJECT);
     }
 
     /**
@@ -833,20 +823,33 @@ public class PurchaseServiceImpl implements PurchaseService {
      * @return map 封装了所有订单拒收原因信息
      */
     @Override
-    public Map<String,Object> searchRefuseReasonByOrderId(String orderId) throws Exception {
-        OrderRefuseReasonOutput orderRefuseReasonOutput =  purchaseDao.findRefuseReasonByOrderId(orderId);
-        Map<String,Object> map = new HashMap<>();
-        map.put("refuseReason",null);
-        map.put("refuseImgUrl",null);
+    public Map<String, Object> searchRefuseReasonByOrderId(String orderId) throws Exception {
+        OrderRefuseReasonOutput orderRefuseReasonOutput = purchaseDao.findRefuseReasonByOrderId(orderId);
+        Map<String, Object> map = new HashMap<>();
+        map.put("refuseReason", Constant.MessageConfig.MSG_NO_DATA);
+        map.put("refuseImgUrl", null);
         List<String> urlList = new ArrayList<>();
-        if(null != orderRefuseReasonOutput){
+        if (null != orderRefuseReasonOutput) {
             urlList.add(orderRefuseReasonOutput.getRefuseImgUrlA());
             urlList.add(orderRefuseReasonOutput.getRefuseImgUrlB());
             urlList.add(orderRefuseReasonOutput.getRefuseImgUrlC());
-            map.put("refuseReason",orderRefuseReasonOutput.getRefuseReason());
-            map.put("refuseImgUrl",urlList);
+            map.put("refuseReason", orderRefuseReasonOutput.getRefuseReason());
+            map.put("refuseImgUrl", urlList);
         }
         return map;
+    }
+
+    //推送消息通知
+    private void pushNotification(String orderId, Integer orderStatus) {
+        Purchase purchase = purchaseDao.findById(orderId);
+        if (null != purchase) {
+            if (purchase.getPayStatus() != 0) { //支付状态是1 推送消息通知
+                Notification notification = createNotification(purchase.getStoreId(), orderId, orderStatus);
+                if (null != notification) {
+                    notificationDao.insert(notification);
+                }
+            }
+        }
     }
 
     //创建消息通知
@@ -913,18 +916,20 @@ public class PurchaseServiceImpl implements PurchaseService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean cancelOrder(CancelReasonInput cancelReasonInput) throws Exception {
-        Map<String,Object> map = new HashMap<>();
-        map.put("orderId",cancelReasonInput.getOrderId());//订单编号
-        map.put("cancelReason",cancelReasonInput.getCancelReason());//取消订单理由
+    public void cancelOrder(CancelReasonInput cancelReasonInput) throws Exception {
+        Map<String, Object> map = new HashMap<>();
+        map.put("orderId", cancelReasonInput.getOrderId());//订单编号
+        map.put("cancelReason", cancelReasonInput.getCancelReason());//取消订单理由
         map.put("updatedAt", new Date());//更新时间
         map.put("orderStatus", Constant.OrderStatusConfig.CANCEL_ORDER);//订单状态 7 取消
-        boolean flag = purchaseDao.insertCancelMessage(map);
-        return flag;
+        purchaseDao.insertCancelMessage(map);
+        //TODO 订单取消成功给该供应商推送一条消息
+        pushNotification(cancelReasonInput.getOrderId(), Constant.OrderStatusConfig.CANCEL_ORDER);
     }
 
     /**
      * 根据订单编号查询取消订单原因
+     *
      * @param orderId 订单编号
      * @return 取消订单原因
      * @throws Exception
@@ -934,4 +939,5 @@ public class PurchaseServiceImpl implements PurchaseService {
         String cancelReason = purchaseDao.findCancelReason(orderId);
         return cancelReason;
     }
+
 }
