@@ -1137,6 +1137,8 @@ public class PurchaseServiceImpl implements PurchaseService {
         }
         result.put("flag", true);
         result.put("message", "退款成功");
+        // TODO 订单退款成功给该供应商推送一条消息
+        pushNotification(orderId, orderStatus);
         return result;
     }
 }
