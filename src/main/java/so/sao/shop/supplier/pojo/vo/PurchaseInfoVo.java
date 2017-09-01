@@ -31,11 +31,6 @@ public class PurchaseInfoVo {
     private String orderReceiverMobile;
 
     /**
-     * 收货人电话
-     */
-    private String orderAddress;
-
-    /**
      * 订单状态
      */
     private Short orderStatus;
