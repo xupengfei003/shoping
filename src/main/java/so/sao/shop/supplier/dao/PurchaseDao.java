@@ -207,13 +207,4 @@ public interface PurchaseDao {
      * @return List<Purchase>
      */
     List<Purchase> findByPayId(String payId);
-
-    /**
-     * 根据订单编号修改订单编号，退款时间
-     *
-     * @param refundMap 退款参数
-     * @return 修改行
-     * @throws Exception 异常
-     */
-    int refundByOrderId(@Param("refundMap") Map<String,Object> refundMap) throws Exception;
 }
