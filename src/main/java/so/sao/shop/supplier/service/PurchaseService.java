@@ -213,4 +213,5 @@ public interface PurchaseService {
      * @throws Exception 异常
      */
     void createReceivingQrcodeByPayId(String payId) throws Exception;
+
 }

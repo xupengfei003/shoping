@@ -32,6 +32,7 @@ public interface QrcodeDao {
      */
     public void saveQrcodes(List<Qrcode> qrcodes);
 
+
     /**
      * 修改二维码状态
      *

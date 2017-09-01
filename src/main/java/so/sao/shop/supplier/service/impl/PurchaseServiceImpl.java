@@ -793,6 +793,11 @@ public class PurchaseServiceImpl implements PurchaseService {
     public void createReceivingQrcodeByPayId(String payId) throws Exception {
         List<Purchase> purchaseList = purchaseDao.findByPayId(payId); // 根据支付id查询订单列表
 
+        int count = qrcodeDao.getQrcodesByPayId(payId);
+        if (count > 0) {
+            throw new Exception("一个订单只能生成一个二维码");
+        }
+
         List<String> qrcodePics = new ArrayList<>(); // 存储二维码图片
         List<Qrcode> qrcodeList = new ArrayList<>(); // 存储二维码实体
         String path = "/qrcode"; // 生成二维码的本地路径
@@ -849,6 +854,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         // 批量插入数据库
         qrcodeDao.saveQrcodes(qrcodeList);
     }
+
 
     /**
      * 扫描收货二维码
