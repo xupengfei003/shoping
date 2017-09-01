@@ -19,7 +19,7 @@
     </select>
 
     <!--根据id查询个数-->
-    <select id="countById">
+    <select id="countById" resultType="int">
         select
         count(1)
         from comm_measure_spec where id = #{id}

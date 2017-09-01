@@ -190,7 +190,7 @@ public class CommodityServiceImpl implements CommodityService {
             return Result.fail("未选择商品科属二级分类！");
         }
         //获取三级分类list
-        List<CommCategory> commCategoryList = commCategoryDao.findByIds(categoryOneId.toString(), categoryTwoId.toString(), categoryThreeId.toString());
+        List<CommCategory> commCategoryList = commCategoryDao.findByIds(categoryOneId, categoryTwoId, categoryThreeId);
         List<Long> ids = new ArrayList<>();
         CommCategory commCategoryOne = null;
         CommCategory commCategoryTwo = null;
