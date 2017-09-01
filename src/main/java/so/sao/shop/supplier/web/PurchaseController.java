@@ -55,7 +55,7 @@ public class PurchaseController {
      */
     @RequestMapping(value = "/createPurchase", method = RequestMethod.POST)
     @ApiOperation(value = "生成订单")
-    public Result createPurchase(@Valid PurchaseInput purchase) throws Exception{
+    public Result createPurchase(@Valid PurchaseInput purchase) throws Exception {
         Result output = new Result();
         Map<String, Object> resMap = purchaseService.savePurchase(purchase);
         Integer status = Integer.parseInt(String.valueOf(resMap.get("status")));
@@ -81,7 +81,7 @@ public class PurchaseController {
      */
     @RequestMapping(value = "/purchase/{orderId}", method = RequestMethod.GET)
     @ApiOperation(value = "获取订单详情", notes = "获取订单详情")
-    public PurchaseInfoOutput findById(@PathVariable String orderId) throws Exception{
+    public PurchaseInfoOutput findById(@PathVariable String orderId) throws Exception {
         PurchaseInfoOutput output = new PurchaseInfoOutput();
         output = purchaseService.findById(orderId);
         output.setCode(Constant.CodeConfig.CODE_SUCCESS);
@@ -101,7 +101,7 @@ public class PurchaseController {
     @ApiOperation(value = "POI批量导出订单列表", notes = "POI批量导出订单列表")
     @ResponseBody
     public BaseResult exportExcel(HttpServletRequest request, HttpServletResponse response, String pageNum, Integer pageSize,
-                                  @RequestParam(required = false) Long accountId, PurchaseSelectInput purchaseSelectInput) throws Exception{
+                                  @RequestParam(required = false) Long accountId, PurchaseSelectInput purchaseSelectInput) throws Exception {
         BaseResult result = new BaseResult();
         result.setCode(Constant.CodeConfig.CODE_DATE_INPUT_FORMAT_ERROR);
         result.setMessage(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
@@ -234,7 +234,7 @@ public class PurchaseController {
     /**
      * 账户收入明细查询(高级查询)
      * 1.获取当前登录用户
-     * 2.校验并判断条件封装类
+     * 2.校验入参中的条件检索类
      * 3.访问业务层，获取数据
      *
      * @param pageNum  当前页码
@@ -242,58 +242,42 @@ public class PurchaseController {
      * @param input    查询条件封装类
      * @return 出参
      */
-    @ApiOperation(value = "收入明细查询(高级查询)", notes = " 根据商户id及查询条件（起始创建订单-结束创建订单时间/起始下单时间-结束下单时间/起始-结束金额范围;订单编号/收货人名称/收货人联系方式）分页显示订单")
+    @ApiOperation(value = "收入明细查询(高级查询)", notes = " 根据商户id及查询条件（起始创建订单-结束创建订单时间/起始下单时间-结束下单时间/支付方式;订单编号/收货人名称/收货人联系方式）分页显示订单【负责人:郑振海】")
     @GetMapping(value = "/account/PurchasesHigh")
-    public Result<PageInfo> searchHigh(Integer pageNum, Integer pageSize, @Validated AccountPurchaseInput input, HttpServletRequest request) {
-        //设置初始化返回参数提示信息
-        Result<PageInfo> result = new Result<>();
-        result.setCode(Constant.CodeConfig.CODE_DATE_INPUT_FORMAT_ERROR);
-        result.setMessage(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
-
-        //取出当前登录用户
+    public Result<PageInfo> searchHigh(Integer pageNum, Integer pageSize, @Validated AccountPurchaseInput input, HttpServletRequest request) throws ParseException {
+        //1.取出当前登录用户
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
-        if (null == user) {   //验证用户是否登陆
-            result.setCode(Constant.CodeConfig.CODE_USER_NOT_LOGIN);
-            result.setMessage(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
-            return result;
+        if (null == user || Ognl.isEmpty(user.getAccountId())) {   //验证用户是否登陆
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
 
-        //判断条件类是否为空？ 不为判断是否有时间条件，
-        //若有时间条件，判断时间格式是否正确
-        try {
-            if (Ognl.isNotEmpty(input)) {
-                if (!StringUtils.isEmpty(input.getPayBeginTime()) && !DateUtil.isDate(input.getPayBeginTime())) {//开始时间（支付时间）
-                    return result;
-                }
-                if (!StringUtils.isEmpty(input.getPayEndTime()) && !DateUtil.isDate(input.getPayEndTime())) {//结束时间（支付时间）
-                    return result;
-                }
-                if (!StringUtils.isEmpty(input.getCreateBeginTime()) && !DateUtil.isDate(input.getCreateBeginTime())) {//开始时间（创建时间）
-                    return result;
-                }
-                if (!StringUtils.isEmpty(input.getCreateEndTime()) && !DateUtil.isDate(input.getCreateEndTime())) {//结束时间（创建时间）
-                    return result;
-                }
-                if (!StringUtils.isEmpty(input.getOrderPaymentMethod()) && 0 == input.getOrderPaymentMethod()) {//结束时间（创建时间）
-                    input.setOrderPaymentMethod(null);
-                }
+        //2.校验入参中的条件检索类
+        if (Ognl.isNotEmpty(input)) {
+            if (Ognl.isNotEmpty(input.getPayBeginTime()) && !DateUtil.isDate(input.getPayBeginTime())) {//开始时间（支付时间）
+                return Result.fail(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
             }
-
-            //访问业务层。获取数据
-            result = purchaseService.searchPurchasesHigh(pageNum, pageSize, input, user.getAccountId());
-        } catch (Exception e) {//捕捉异常，返回提示信息，并记录日志
-            logger.error("系统异常", e);
-            result.setCode(Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage(Constant.MessageConfig.MSG_FAILURE);
-        } finally {
-            return result;
+            if (Ognl.isNotEmpty(input.getPayEndTime()) && !DateUtil.isDate(input.getPayEndTime())) {//结束时间（支付时间）
+                return Result.fail(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
+            }
+            if (Ognl.isNotEmpty(input.getCreateBeginTime()) && !DateUtil.isDate(input.getCreateBeginTime())) {//开始时间（创建时间）
+                return Result.fail(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
+            }
+            if (Ognl.isNotEmpty(input.getCreateEndTime()) && !DateUtil.isDate(input.getCreateEndTime())) {//结束时间（创建时间）
+                return Result.fail(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
+            }
+            if (Ognl.isNotEmpty(input.getOrderPaymentMethod()) && 0 == input.getOrderPaymentMethod()) {//支付方式
+                input.setOrderPaymentMethod(null);
+            }
         }
+
+        //3.访问业务层,获取数据
+        return purchaseService.searchPurchasesHigh(pageNum, pageSize, input, user.getAccountId());
     }
 
     /**
      * 账户收入明细查询(普通查询)
      * 1.取出当前登录用户
-     * 2.校验并判断条件封装类
+     * 2.校验入参中的条件检索类
      * 3.访问业务层，获取数据
      *
      * @param pageNum  当前页码
@@ -301,43 +285,27 @@ public class PurchaseController {
      * @param input    查询条件封装类
      * @return 出参
      */
-    @ApiOperation(value = "收入明细查询(普通查询)", notes = " 根据商户id及查询条件（起始创建订单-结束创建订单时间/支付流水号/订单编号/收货人名称）分页显示订单")
+    @ApiOperation(value = "收入明细查询(普通查询)", notes = " 根据商户id及查询条件（起始创建订单-结束创建订单时间/支付流水号/订单编号/收货人名称）分页显示订单【负责人:郑振海】")
     @GetMapping(value = "/account/PurchasesLow")
-    public Result<PageInfo> searchLow(Integer pageNum, Integer pageSize, AccountPurchaseLowInput input, HttpServletRequest request) {
-        //初始化出参提示信息
-        Result<PageInfo> result = new Result<>();
-        result.setCode(Constant.CodeConfig.CODE_DATE_INPUT_FORMAT_ERROR);
-        result.setMessage(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
-
-        //取出当前登录用户
+    public Result<PageInfo> searchLow(Integer pageNum, Integer pageSize, AccountPurchaseLowInput input, HttpServletRequest request) throws ParseException {
+        //1.取出当前登录用户
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
-        if (null == user) {   //验证用户是否登陆
-            result.setCode(Constant.CodeConfig.CODE_USER_NOT_LOGIN);
-            result.setMessage(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
-            return result;
+        if (null == user || Ognl.isEmpty(user.getAccountId())) {   //验证用户是否登陆
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
 
-        //判断条件类是否为空？ 不为判断是否有时间条件，
-        //若有时间条件，判断时间格式是否正确
-        try {
-            if (Ognl.isNotEmpty(input)) {
-                if (!StringUtils.isEmpty(input.getCreateBeginTime()) && !DateUtil.isDate(input.getCreateBeginTime())) {//开始时间（创建时间）
-                    return result;
-                }
-                if (!StringUtils.isEmpty(input.getCreateEndTime()) && !DateUtil.isDate(input.getCreateEndTime())) {//结束时间（创建时间）
-                    return result;
-                }
+        //2.校验入参中的条件检索类
+        if (Ognl.isNotEmpty(input)) {
+            if (Ognl.isNotEmpty(input.getCreateBeginTime()) && !DateUtil.isDate(input.getCreateBeginTime())) {//开始时间（创建时间）
+                return Result.fail(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
             }
-
-            //访问业务层。获取数据
-            result = purchaseService.searchPurchasesLow(pageNum, pageSize, input, user.getAccountId());
-        } catch (Exception e) {
-            logger.error("系统异常", e);
-            result.setCode(Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage(Constant.MessageConfig.MSG_FAILURE);
-        } finally {
-            return result;
+            if (Ognl.isNotEmpty(input.getCreateEndTime()) && !DateUtil.isDate(input.getCreateEndTime())) {//结束时间（创建时间）
+                return Result.fail(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
+            }
         }
+
+        //3.访问业务层。获取数据
+        return purchaseService.searchPurchasesLow(pageNum, pageSize, input, user.getAccountId());
     }
 
     /**

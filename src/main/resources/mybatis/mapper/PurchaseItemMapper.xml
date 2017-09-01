@@ -33,7 +33,6 @@
         <result column="goods_name" property="goodsName"/>
         <result column="goods_number" property="goodsNumber"/>
         <result column="code" property="code"/>
-        <result column="goods_id" property="goodsCode"/>
         <result column="code69" property="code69"/>
         <result column="goods_attribute" property="goodsAttribute"/>
         <result column="goods_unit_price" property="goodsUnitPrice"/>
