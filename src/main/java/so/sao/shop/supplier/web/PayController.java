@@ -26,7 +26,7 @@ public class PayController {
     @Resource
     private PayService payService;
     @RequestMapping(value = "/create",method = RequestMethod.POST)
-    public Result create(@Valid PayInput payInput, BindingResult result, String sign){
+    public Result create(@Valid PayInput payInput, BindingResult result, String sign)  {
         Result output = new Result();
         //判断验证是否通过。true 未通过  false通过
         if (result.hasErrors()) {

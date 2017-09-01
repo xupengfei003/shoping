@@ -593,8 +593,8 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
     public String settlementMoney(String startTime, String endTime) {
         //根据条件，查询已结算的金额
         BigDecimal settlemenMoney = orderMoneyRecordDao.settledAmount(startTime, endTime);
-        String price =NumberUtil.number2Thousand(settlemenMoney);//将金额格式转化为千分位
-        return price;
+        //将金额格式转化为千分位
+        return NumberUtil.number2Thousand(settlemenMoney);
     }
 
     /**
@@ -608,9 +608,10 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
     public String unsettled(String startTime, String endTime) {
         //根据条件，查询未结算的金额
         BigDecimal unsettled = orderMoneyRecordDao.totalMoney(startTime, endTime);
-        String price = NumberUtil.number2Thousand(unsettled);//将金额格式转化为千分位
-        return price;
+        //将金额格式转化为千分位
+        return NumberUtil.number2Thousand(unsettled);
     }
+
 
     /**
      * 订单对象转换成PurchasesVo

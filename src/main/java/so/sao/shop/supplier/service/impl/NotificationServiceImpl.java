@@ -1,6 +1,5 @@
 package so.sao.shop.supplier.service.impl;
 
-import com.github.pagehelper.PageHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import so.sao.shop.supplier.dao.NotificationDao;
@@ -9,6 +8,7 @@ import so.sao.shop.supplier.pojo.input.NotificationInput;
 import so.sao.shop.supplier.pojo.output.NotificationOutput;
 import so.sao.shop.supplier.service.NotificationService;
 import so.sao.shop.supplier.util.NumberGenerate;
+import so.sao.shop.supplier.util.PageTool;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -67,7 +67,7 @@ public class NotificationServiceImpl implements NotificationService {
      */
     @Override
     public List<Notification> search(Integer pageNum, Integer pageSize, Long accountId, Integer notifiType) throws Exception {
-        PageHelper.startPage(null == pageNum || pageNum <= 0 ? 1 : pageNum, null == pageSize || pageSize <= 0 ? 10 : pageSize);
+        PageTool.startPage(pageNum, pageSize);
         List<Notification> dataList = getNotifications(accountId, notifiType, 0, 1);
         return dataList;
     }
