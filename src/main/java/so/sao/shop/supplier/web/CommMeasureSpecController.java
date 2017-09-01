@@ -97,7 +97,7 @@ public class CommMeasureSpecController {
         if(Constant.ADMIN_STATUS.equals(user.getIsAdmin())){
             supplierId = 0L;
         }
-        return commMeasureSpecService.deleteOneById(supplierId, id);
+        return commMeasureSpecService.deleteById(supplierId, id);
     }
 
     /**
