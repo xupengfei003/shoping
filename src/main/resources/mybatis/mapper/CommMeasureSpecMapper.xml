@@ -54,7 +54,7 @@
     </select>
 
 <!--  deleteOneById 通过规格id 删除对应的计量规格  -->
-    <delete id="deleteOneById" parameterType="long">
+    <delete id="deleteById" parameterType="long">
         DELETE FROM comm_measure_spec
         where id = #{id}
     </delete>

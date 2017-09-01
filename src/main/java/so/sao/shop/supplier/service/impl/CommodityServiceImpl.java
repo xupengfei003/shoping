@@ -684,15 +684,11 @@ public class CommodityServiceImpl implements CommodityService {
                 if (null == imgeList || imgeList.isEmpty()){
                     errorList.add(rowNum);
                 }else if ( !"".equals(code69) ) {
-                    if(!Tools.isNumeric(code69)){
-                        errorList.add(rowNum);
-                    }else {
                         //通过code69,supplierId,deleted=0判断商品是否存在
                         SupplierCommodity suppliercommodity = supplierCommodityDao.findSupplierCommodityInfo(code69,supplierId);
                         if (null != suppliercommodity) {
                             errorList.add(rowNum);
                         }
-                    }
                 }
             }
         }
@@ -709,7 +705,7 @@ public class CommodityServiceImpl implements CommodityService {
             }else {
                 CommodityImportOutput commodityImportOutput = new CommodityImportOutput();
                 commodityImportOutput.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SUCCESS);
-                commodityImportOutput.setMessage("商品编码:" + code69+"成功导入！");
+                commodityImportOutput.setMessage("商品条码:" + code69+"成功导入！");
                 commodityImportOutput.setCode69(code69);
                 commodityImportOutput.setBrand(commodityInput.getBrandName());
                 commodityImportOutput.setSjcode(commodityInput.getCommodityList().get(0).getCode());
