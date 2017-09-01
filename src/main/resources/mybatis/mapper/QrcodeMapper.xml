@@ -58,6 +58,35 @@
             )
     </insert>
 
+    <insert id="saveQrcodes" parameterType="java.util.List">
+        INSERT INTO qrcode
+            (
+                qrcode_id,
+                foreign_key,
+                url,
+                content,
+                status,
+                created_at,
+                disabled_at,
+                width,
+                height
+            )
+        VALUES
+        <foreach collection ="list" item="item" index= "index" separator =",">
+            (
+                #{item.qrcodeId},
+                #{item.foreignKey},
+                #{item.url},
+                #{item.content},
+                #{item.status},
+                #{item.createdAt},
+                #{item.disabledAt},
+                #{item.width},
+                #{item.height}
+            )
+        </foreach>
+    </insert>
+
     <!-- 修改二维码状态 -->
     <update id="updateStatus">
         UPDATE qrcode

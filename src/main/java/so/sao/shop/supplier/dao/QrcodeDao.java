@@ -25,6 +25,14 @@ public interface QrcodeDao {
     public int save(Qrcode qrcode);
 
     /**
+     * 批量保存二维码信息
+     *
+     * @param qrcodes 二维码对象列表
+     * @return
+     */
+    public void saveQrcodes(List<Qrcode> qrcodes);
+
+    /**
      * 修改二维码状态
      *
      * 根据订单编号修改二维码状态

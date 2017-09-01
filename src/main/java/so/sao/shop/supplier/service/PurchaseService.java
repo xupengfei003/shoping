@@ -205,4 +205,12 @@ public interface PurchaseService {
      * @throws Exception 异常
      */
     Map refundByOrderId(String orderId) throws Exception;
+
+    /**
+     * 根据支付id，批量生成订单的二维码
+     *
+     * @param payId 支付id
+     * @throws Exception 异常
+     */
+    void createReceivingQrcodeByPayId(String payId) throws Exception;
 }
