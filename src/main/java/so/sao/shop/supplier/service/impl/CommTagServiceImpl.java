@@ -44,7 +44,7 @@ public class CommTagServiceImpl implements CommTagService {
         //判断标签名为null或空
         if (null == name || Ognl.isEmpty(name.trim())) {
             result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage("请输入商品标签名称！");
+            result.setMessage("商品标签不能为空！");
             return result;
         }
         CommTag commTag = new CommTag();
@@ -55,7 +55,7 @@ public class CommTagServiceImpl implements CommTagService {
         //校验商品标签名称长度
         if (name.trim().length() > Constant.CheckMaxLength.MAX_TAG_NAME_LENGTH) {
             result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage("商品标签名称长度不能超过" + Constant.CheckMaxLength.MAX_TAG_NAME_LENGTH + "位！");
+            result.setMessage("商品标签不能超过" + Constant.CheckMaxLength.MAX_TAG_NAME_LENGTH + "位！");
             return result;
         }
         //判断新增标签名余supplierId是否重复,不重复时进行新增，重复时返回重复信息
@@ -64,15 +64,15 @@ public class CommTagServiceImpl implements CommTagService {
             //判断新增成功或失败
             if (commTagDao.save(commTag)) {
                 result.setCode(Constant.CodeConfig.CODE_SUCCESS);
-                result.setMessage("商品标签新增成功！");
+                result.setMessage("添加商品标签成功！");
             } else {
                 result.setCode(Constant.CodeConfig.CODE_FAILURE);
-                result.setMessage("商品标签新增失败！");
+                result.setMessage("添加商品标签失败！");
             }
             return result;
         } else {
             result.setCode(Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage("商品标签新增失败，新增的商品标签已存在！");
+            result.setMessage("商品标签已存在！");
             return result;
         }
     }
@@ -93,20 +93,20 @@ public class CommTagServiceImpl implements CommTagService {
         CommTag commTag = commTagDao.findOne(id);
         if (null == commTag) {
             result.setCode(Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage("商品标签删除失败，该标签不存在！");
+            result.setMessage("商品标签不存在！");
             return result;
         }
         //判断ID对应的商品标签supplierId与登录用户supplierId是否相同
         if (supplierId.longValue() != commTag.getSupplierId().longValue()) {
             result.setCode(Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage("您无权删除此商品标签！");
+            result.setMessage("公共商品标签，不能删除！");
             return result;
         }
         //根据该ID在供应商商品表中查询是是否在被使用（未删除状态），在使用状态时不能进行删除操作
         List<SupplierCommodity> supplierCommodityList = supplierCommodityDao.findSupplierCommodityByTagId(id);
         if (null != supplierCommodityList && supplierCommodityList.size() > 0) {
             result.setCode(Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage("商品标签正在使用，暂时无法删除此标签！");
+            result.setMessage("商品标签正在使用，暂时无法删除此商品标签！");
             return result;
         }
         //判断删除操作成功或失败
@@ -141,27 +141,27 @@ public class CommTagServiceImpl implements CommTagService {
         //判断标签名为null或空
         if (Ognl.isEmpty(commTagUpdateInput.getName().trim())) {
             result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage("请输入商品标签名称！");
+            result.setMessage("商品标签不能为空！");
             return result;
         }
         //判断该ID对应的商品标签是否存在
         CommTag one = commTagDao.findOne(commTagUpdateInput.getId());
         if (null == one) {
             result.setCode(Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage("商品标签修改失败，该标签不存在！");
+            result.setMessage("商品标签不存在！");
             return result;
         }
         //判断该ID对应的商品标签supplierId与登录用户supplierId是否相同
         if (supplierId.longValue() != one.getSupplierId().longValue()) {
             result.setCode(Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage("您无权修改此商品标签！");
+            result.setMessage("公共商品标签，不能修改！");
             return result;
         }
         //根据修改的name和supplierId判断是否重复
         List<CommTag> list = commTagDao.findByNameAndSupplierId(commTagUpdateInput.getName().trim(), supplierId);
         if (null != list && list.size() > 0) {
             result.setCode(Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage("商品标签修改失败，修改的商品标签名称重复！");
+            result.setMessage("商品标签已存在！");
             return result;
         }
         //判断修改标签是否成功
@@ -190,7 +190,7 @@ public class CommTagServiceImpl implements CommTagService {
         //判断商品标签查询是否成功
         if (null == commTags || commTags.size() == 0) {
             result.setCode(Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage("查询商品标签失败！");
+            result.setMessage("暂无数据，请先添加！");
         } else {
             result.setCode(Constant.CodeConfig.CODE_SUCCESS);
             result.setMessage("查询商品标签成功！");
