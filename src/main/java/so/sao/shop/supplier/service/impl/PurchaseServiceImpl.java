@@ -219,7 +219,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             purchaseInfoVo.setDistributorName(purchase.getDistributorName());
             purchaseInfoVo.setDistributorMobile(purchase.getDistributorMobile());
             purchaseInfoVo.setDrawbackTime(purchase.getDrawbackTime());
-
+            purchaseInfoVo.setOrderAddress(purchase.getOrderAddress());
             //PurchaseInfoOutput 添加订单明细列表
             List<PurchaseItemVo> purchaseItemVoList = purchaseItemDao.getOrderDetailByOId(purchase.getOrderId());
 
