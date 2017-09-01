@@ -8,7 +8,7 @@
         <id column="upload_mode" jdbcType="VARCHAR" property="uploadMode"/>
     </resultMap>
 
-    <select id="findPage" resultMap="accountMap" parameterType="so.sao.shop.supplier.domain.Condition">
+    <select id="findPage" resultMap="accountMap" parameterType="so.sao.shop.supplier.pojo.input.AccountInput">
         SELECT create_date AS createDate,provider_name,responsible,upload_mode
         FROM account
         <where>

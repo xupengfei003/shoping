@@ -38,13 +38,11 @@ public class AccountPurchaseVo {
     /**
      * 订单实付金额
      */
-    @NumberFormat(pattern = "\"###,##0.00\"")
     private String orderPrice;
 
     /**
      * 订单结算金额
      */
-    @NumberFormat(pattern = "\"###,##0.00\"")
     private String orderSettlemePrice;
 
     /**

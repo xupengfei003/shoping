@@ -2,6 +2,7 @@ package so.sao.shop.supplier.pojo.vo;
 
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotBlank;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
@@ -15,11 +16,6 @@ import java.util.List;
  * Created by QuJunLong on 2017/7/18.
  */
 public class SupplierCommodityVo {
-
-    /**
-     * ID
-     */
-    private Long id;
 
     /**
      * 商家编码
@@ -59,7 +55,7 @@ public class SupplierCommodityVo {
     private Long unitId;
 
     /**
-     * 计量单位
+     * 包装单位
      */
     private String unitName;
 
@@ -75,6 +71,7 @@ public class SupplierCommodityVo {
      * 缩略图
      */
     @NotBlank(message = "缩略图不能为空")
+    @Length(max = 500,message = "缩略图长度不能大于500")
     private String minImg;
 
     /**
@@ -96,16 +93,9 @@ public class SupplierCommodityVo {
     /**
      * 图片集合
      */
+    @NotEmpty(message = "图片不能为空")
     @Valid
     private List<CommImgeVo> imgeList;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getCode() {
         return code;

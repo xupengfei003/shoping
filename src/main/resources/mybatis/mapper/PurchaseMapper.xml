@@ -307,14 +307,13 @@
     <!--发货接口-->
     <update id="deliverGoods">
         UPDATE purchase
-            SET
-            order_status = #{orderStatus},
-            updated_at = #{updateDate},
-            distributor_name = #{name},
-            distributor_mobile = #{number},
-            order_ship_method= 3
+        SET
+        order_status = #{orderStatus},
+        updated_at = #{updateDate},
+        <if test="receiveMethod == 1">distributor_name = #{name},distributor_mobile = #{number},order_ship_method=1</if>
+        <if test="receiveMethod == 2">logistics_company = #{name} ,order_shipment_number = #{number},order_ship_method=2</if>
         WHERE
-          order_id = #{orderId}
+        order_id = #{orderId}
     </update>
 
     <!--删除订单-->

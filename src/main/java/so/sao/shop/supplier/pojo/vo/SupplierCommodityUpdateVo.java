@@ -57,7 +57,7 @@ public class SupplierCommodityUpdateVo {
      * 缩略图
      */
     @NotBlank(message = "缩略图不能为空")
-    @Length(max = 256,message = "缩略图长度不能大于500")
+    @Length(max = 500,message = "缩略图长度不能大于500")
     private String minImg;
 
     /**

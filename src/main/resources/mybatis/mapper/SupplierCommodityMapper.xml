@@ -112,6 +112,17 @@
         UPDATE supplier_commodity SET deleted=#{deleted},updated_at=#{updatedAt} WHERE id=#{id}
     </delete>
 
+    <update id="deleteByIds" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index" open="" close="" separator=";" >
+            UPDATE supplier_commodity
+            <set>
+                deleted = #{item.deleted},
+                updated_at = #{item.updatedAt}
+            </set>
+            WHERE id = #{item.id}
+        </foreach>
+    </update>
+
     <select id="searchSuppliersByCode69" parameterType="java.lang.String" resultType="java.lang.Long">
         SELECT sc.supplier_Id
         FROM supplier_commodity sc WHERE sc.code69 = #{code69}
@@ -164,7 +175,10 @@
         sc.created_at AS createdAt,
         sc.updated_at AS updatedAt,
         sc.supplier_id AS supplierId,
-        sc.status AS status
+        sc.status AS status,
+        (SELECT NAME FROM comm_category cc WHERE cc.id = c.category_one_id) AS categoryOneName,
+        (SELECT NAME FROM comm_category cc WHERE cc.id = c.category_two_id) AS categoryTwoName,
+        (SELECT NAME FROM comm_category cc WHERE cc.id = c.category_three_id) AS categoryThreeName
         FROM
         supplier_commodity sc INNER JOIN (commodity c LEFT JOIN comm_brand cb ON c.brand_id = cb.id) ON sc.code69 = c.code69
         LEFT JOIN comm_measure_spec cms ON sc.measure_spec_id = cms.id LEFT JOIN comm_unit cu ON sc.unit_id = cu.id LEFT JOIN comm_tag ct ON sc.tag_id = ct.id
@@ -241,7 +255,15 @@
     </select>
 
     <!--根据id查询个数-->
-    <select id="findCountById" resultType="int">
+    <select id="countByCode69" resultType="int">
+        select
+        count(*)
+        from supplier_commodity
+        WHERE deleted = 0 AND code69 = #{code69} AND supplier_id = #{supplierId}
+    </select>
+
+    <!--根据id查询个数-->
+    <select id="countById" resultType="int">
         select
         count(*)
         from supplier_commodity where id = #{id}
@@ -308,12 +330,10 @@
         WHERE id = #{id}
     </update>
 
-    <!--根据商品标签ID查询是否有正在使用-->
-    <select id="findSupplierCommodityByTagId" parameterType="java.lang.Long" resultType="so.sao.shop.supplier.domain.SupplierCommodity">
+    <!--根据商品标签ID查询是否有正在使用（存在性校验使用）-->
+    <select id="countSupplierCommodityByTagId" parameterType="java.lang.Long" resultType="int">
         select
-        id as id,
-        sku as sku,
-        tag_id as tagId
+        COUNT(id) as num
         from supplier_commodity sc
         WHERE sc.deleted = 0 and sc.tag_id=#{tagId}
     </select>
@@ -364,22 +384,20 @@
         </if>
     </select>
 
+       <!--根据unitId查询商品单位是否被supplier_commodity使用-->
+    <select id="countByUnitId" resultType="int">
+        select
+        count(*)
+        from supplier_commodity where deleted = 0
+        AND unit_id = #{unitId}
+    </select>
 
     <!--计量规格： findAllSupplierCommodityById 通过规格id 查SupplierCommodity  deleted = 0正在使用-->
-    <select id="findAllSupplierCommodityById" parameterType="long" resultMap="BaseResultMap">
-        SELECT id, sku, supplier_id, code69, tag_id, CODE,measure_spec_id,
-        rule_val, inventory, unit_id, price, unit_price, min_img,
-        created_at, updated_at, created_by, updated_by, deleted, STATUS, description, remark
+    <select id="countSupplierCommodityById" parameterType="long" >
+        SELECT count(*)
         FROM supplier_commodity
         WHERE deleted = 0 AND measure_spec_id = #{commMeasureSpecId}
     </select>
+    
 
-    <!-- findSupplierCommodityByUnitId 通过商品单位id 查SupplierCommodity  deleted = 0正在使用-->
-    <select id="findSupplierCommodityByUnitId" parameterType="long" resultType="so.sao.shop.supplier.domain.SupplierCommodity">
-        SELECT id, sku, supplier_id, code69, tag_id, CODE,measure_spec_id,
-        rule_val, inventory, unit_id, price, unit_price, min_img,
-        created_at, updated_at, created_by, updated_by, deleted, STATUS, description, remark
-        FROM supplier_commodity
-        WHERE deleted = 0 AND unit_id = #{unitId}
-    </select>
 </mapper>

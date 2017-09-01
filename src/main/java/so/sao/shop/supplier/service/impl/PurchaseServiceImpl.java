@@ -217,7 +217,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             purchaseInfoVo.setDistributorName(purchase.getDistributorName());
             purchaseInfoVo.setDistributorMobile(purchase.getDistributorMobile());
             purchaseInfoVo.setDrawbackTime(purchase.getDrawbackTime());
-
+            purchaseInfoVo.setOrderAddress(purchase.getOrderAddress());
             //PurchaseInfoOutput 添加订单明细列表
             List<PurchaseItemVo> purchaseItemVoList = purchaseItemDao.getOrderDetailByOId(purchase.getOrderId());
 
@@ -248,11 +248,12 @@ public class PurchaseServiceImpl implements PurchaseService {
         PageHelper.startPage(pageNum, rows);
         List<PurchasesVo> orderList = purchaseDao.findPage(purchaseSelectInput);
         //转换金额为千分位
-        for(PurchasesVo purchasesVo : orderList){
+        for (PurchasesVo purchasesVo : orderList) {
             purchasesVo.setOrderPrice(NumberUtil.number2Thousand(new BigDecimal(purchasesVo.getOrderPrice())));
         }
-        return  new PageInfo<>(orderList);
+        return new PageInfo<>(orderList);
     }
+
 
     /**
      * 发货接口
@@ -262,24 +263,12 @@ public class PurchaseServiceImpl implements PurchaseService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean deliverGoods(String orderId, Integer receiveMethod, String name, String number) throws Exception {
-        boolean flag = purchaseDao.deliverGoods(orderId, Constant.OrderStatusConfig.ISSUE_SHIP, new Date(), receiveMethod, name, number);
-        if (flag) {
-            //TODO 更改订单状态成功后向该供应商推送一条消息
-            Long accountId;
-            Purchase purchase = purchaseDao.findById(orderId);
-            if (null != purchase) {
-                accountId = purchase.getStoreId();
-                if(purchase.getPayStatus() != 0){ //支付状态是1 推送消息通知
-                    Notification notification = createNotification(accountId, orderId, Constant.OrderStatusConfig.ISSUE_SHIP);
-                    if (null != notification) {
-                        notificationDao.insert(notification);
-                    }
-                }
-            }
-        }
-        return flag;
+    public void deliverGoods(String orderId, Integer receiveMethod, String name, String number) throws Exception {
+        purchaseDao.deliverGoods(orderId, Constant.OrderStatusConfig.ISSUE_SHIP, new Date(), receiveMethod, name, number);
+        //TODO 更改订单状态成功后向该供应商推送一条消息
+        pushNotification(orderId, Constant.OrderStatusConfig.ISSUE_SHIP);
     }
+
 
     /**
      * 批量删除订单
@@ -288,10 +277,10 @@ public class PurchaseServiceImpl implements PurchaseService {
      * @return
      */
     @Override
-    public boolean deletePurchase(String orderIds) {
+    public void deletePurchase(String orderIds) {
         String[] orderIdArr = orderIds.split(",");
         Date updateDate = new Date();
-        return purchaseDao.deleteByOrderId(orderIdArr, updateDate);
+        purchaseDao.deleteByOrderId(orderIdArr, updateDate);
     }
 
     /**
@@ -461,20 +450,15 @@ public class PurchaseServiceImpl implements PurchaseService {
      * @return
      */
     @Override
-    public Result<String> findOrderStatus(Long storeId) {
-        Result<String> result = new Result<>();//返回类型
+    public String findOrderStatus(Long storeId) {
         //商户ID存在，将计算的总金额赋值给历史总金额字段
         BigDecimal income = purchaseDao.findOrderStatus(storeId);
-        String price = NumberUtil.number2Thousand(income);//将金额转换为千分位
         accountDao.updateUserPrice(income, storeId);//将查询到的总金额赋值给account表中的income(历史总收入)；
-        result.setCode(Constant.CodeConfig.CODE_SUCCESS);
-        result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
-        result.setData(price);
-        return result;
+        return NumberUtil.number2Thousand(income);
     }
 
     /**
-     * 根据商家编号及查询条件（起始创建订单-结束创建订单时间/起始下单时间-结束下单时间/起始-结束金额范围;支付流水号/订单编号/收货人名称/收货人联系方式）查找所有相关订单记录(分页)
+     * 根据商家编号及查询条件（起始创建订单-结束创建订单时间/起始下单时间-结束下单时间/支付方式;支付流水号/订单编号/收货人名称/收货人联系方式）查找所有相关订单记录(分页)
      *
      * @param pageNum  当前页码
      * @param pageSize 每页显示条数
@@ -485,71 +469,51 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Override
     public Result<PageInfo> searchPurchasesHigh(Integer pageNum, Integer pageSize, AccountPurchaseInput input, Long storeId) throws ParseException {
         /**
-         * 1、判断参数是否为空
-         *     1.1、判断 pageNum当前页码、pageSize是否为空，若为空给默认值
-         * 2、查询此商户ID有没有在数据库中，count=0则没有
-         *     2.1  若没有，封装错误信息并返回
-         * 3、设置分页，并判断条件类是否为空。不为空将日期字符串转化成Date格式，访问持久化层#findfindPageByStoreId方法查询
-         * 4、判断返回结果及是否为空：
-         *     4.1、不为空时出参中封装分页信息（当前页码，总页码，总条数，结果集）、“成功”的code码和message
-         *          4.1.1、将结果集中的泛型（domain类）转化成vo类
-         *     4.2、为空时在出参对象中封装“未查询到结果集”的code码和message
+         * 1.校验条件类
+         *      1.1 比较开始时间结束时间是否符合规则，不符合则返回提示信息
+         * 2.设置分页
+         * 3.访问持久化层，获取数据
+         *      3.1 若获取到的结果集不为空：
+         *           ① 将结果集中的泛型（domain类）转化成vo类
+         *           ② 出参中封装分页信息（当前页码，总页码，总条数，结果集）、“成功”的code码和message
+         *      3.2 若获取到的结果集为空时
+         *           ①.在出参对象中封装“未查询到结果集”的code码和message
          *
          */
-        Result result = new Result<>();//返回对象
-        //1.1、判断当前页码和每页显示条数是否为空
-        if (null == pageNum || 0 >= pageNum) {
-            pageNum = 1;
-        }
-        if (null == pageSize || 0 >= pageNum) {
-            pageSize = 10;
-        }
-
-        //2.查询此商户ID有没有在数据库中，count=0则没有
-        int count = accountDao.countByAccountId(storeId);
-        if (0 == count) {
-            //封装错误信息并返回
-            result = this.getOutPut(Constant.NoExistCodeConfig.NOSTORE, result, null);
-            return result;
-        }
-
-        //3、分页
-        PageHelper.startPage(pageNum, pageSize);
-        //判断input是否为空。不为空将字符串的时间转化成Date
-
+        //1.校验条件类
         if (Ognl.isNotEmpty(input)) {
-            //比较开始时间和结束时间、是否输入正常 若输入不正常返回提示信息
+            //1.1 比较开始时间结束时间是否符合规则，不符合则返回提示信息
             if (DataCompare.compareDate(input.getCreateBeginTime(),input.getCreateEndTime())){
-                result = this.getOutPut(Constant.CodeConfig.DateNOTLate,result,null);
-                return result;
+                return Result.fail(Constant.MessageConfig.DateNOTLate);
             }
             if (DataCompare.compareDate(input.getPayBeginTime(),input.getPayEndTime())){
-                result = this.getOutPut(Constant.CodeConfig.DateNOTLate,result,null);
-                return result;
+                return Result.fail(Constant.MessageConfig.DateNOTLate);
             }
         }
+        //2.分页
+        PageTool.startPage(pageNum,pageSize);
 
-        //3.2、访问持久化层，获取数据
+        //3.访问持久化层，获取数据
         List<Purchase> purchaseList = purchaseDao.findPageByStoreId(input, storeId);
 
-        //4、判断返回结果及是否为空：
-        //不为空时
+        Result result;//声明出参对象
+        //3.1 若获取到的结果集不为空
         if (null != purchaseList && !purchaseList.isEmpty()) {
-            PageInfo<Purchase> pageInfo = new PageInfo<>(purchaseList);
-            //4.1.1、将结果集中的泛型（domain类）转化成vo类
+            PageInfo<Purchase> pageInfo = new PageInfo<>(purchaseList);//分页对象
+            //①.将结果集中的泛型（domain类）转化成vo类
             List<AccountPurchaseVo> purchaseVos = this.inversion(purchaseList);
-            //4.1.2、出参中封装分页信息（当前页码，总页码，总条数，结果集）、“成功”的code码和message
+            //②.出参中封装分页信息（当前页码，总页码，总条数，结果集）、“成功”的code码和message
             PageInfo<AccountPurchaseVo> pageInfoVo = new PageInfo<>();
-            pageInfoVo.setPageNum(pageNum);//当前页码
-            pageInfoVo.setPageSize(pageSize);//每页显示条数
+            pageInfoVo.setPageNum(pageInfo.getPageNum());//当前页码
+            pageInfoVo.setPageSize(pageInfo.getPageSize());//每页显示条数
             pageInfoVo.setTotal(pageInfo.getTotal());//总条数
             pageInfoVo.setPages(pageInfo.getPages());//总页码
             pageInfoVo.setList(purchaseVos);//显示数据
             pageInfoVo.setSize(pageInfo.getSize());//每页实际数据条数
-            result = this.getOutPut(Constant.CodeConfig.CODE_SUCCESS, result, pageInfoVo);
-        } else {//为空时
-            // 4.2、在出参对象中封装“未查询到结果集”的code码和message
-            result = this.getOutPut(Constant.CodeConfig.CODE_NOT_FOUND_RESULT, result, null);
+            result = Result.success(Constant.MessageConfig.MSG_SUCCESS,pageInfoVo);
+        } else {//3.2 若获取到的结果集为空时
+            // ①.在出参对象中封装“未查询到结果集”的code码和message
+            result = Result.success(Constant.MessageConfig.MSG_NO_DATA);
         }
         return result;
     }
@@ -565,68 +529,50 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Override
     public Result<PageInfo> searchPurchasesLow(Integer pageNum, Integer pageSize, AccountPurchaseLowInput input, Long storeId) throws ParseException {
         /**
-         * 1、判断参数是否为空
-         *     1.1、判断 pageNum当前页码、pageSize是否为空，若为空给默认值
-         * 2、查询此商户ID有没有在数据库中，count=0则没有
-         *     2.1  若没有，封装错误信息并返回
-         * 3、设置分页，并判断条件类是否为空。不为空将日期字符串转化成Date格式，访问持久化层#findfindPageByStoreId方法查询
-         * 4、判断返回结果及是否为空：
-         *     4.1、不为空时出参中封装分页信息（当前页码，总页码，总条数，结果集）、“成功”的code码和message
-         *          4.1.1、将结果集中的泛型（domain类）转化成vo类
-         *     4.2、为空时在出参对象中封装“未查询到结果集”的code码和message
+         * 1.校验条件类
+         *      1.1 比较开始时间结束时间是否符合规则，不符合则返回提示信息
+         * 2.设置分页
+         * 3.访问持久化层，获取数据
+         *      3.1 若获取到的结果集不为空：
+         *           ① 将结果集中的泛型（domain类）转化成vo类
+         *           ② 出参中封装分页信息（当前页码，总页码，总条数，结果集）、“成功”的code码和message
+         *      3.2 若获取到的结果集为空时
+         *           ①.在出参对象中封装“未查询到结果集”的code码和message
          *
          */
-        Result result = new Result<>();//返回对象
-        //1.1、判断当前页码和每页显示条数是否为空
-        if (null == pageNum || 0 >= pageNum) {
-            pageNum = 1;
-        }
-        if (null == pageSize || 0 >= pageNum) {
-            pageSize = 10;
-        }
 
-/*        //2.查询此商户ID有没有在数据库中，count=0则没有
-        int count = accountDao.countByAccountId(storeId);
-        if (0 == count) {
-            //封装错误信息并返回
-            result = this.getOutPut(Constant.NoExistCodeConfig.NOSTORE, result, null);
-            return result;
-        }*/
-
-        //3、分页
-        PageHelper.startPage(pageNum, pageSize);
-
-        //判断input是否为空。不为空将字符串的时间转化成Date
+        //1.校验条件类
         if (Ognl.isNotEmpty(input)) {
             //比较开始时间和结束时间是否输入正常 若输入不正常返回提示信息
             if (DataCompare.compareDate(input.getCreateBeginTime(),input.getCreateEndTime())){
-                result = this.getOutPut(Constant.CodeConfig.DateNOTLate,result,null);
-                return result;
+                return Result.fail(Constant.MessageConfig.DateNOTLate);
             }
         }
 
-        //3.2、访问持久化层，获取数据
+        //2.分页
+        PageTool.startPage(pageNum,pageSize);
+
+        //3.访问持久化层，获取数据
         List<Purchase> purchaseList = purchaseDao.findPageByStoreIdLow(input, storeId);
 
-        //4、判断返回结果及是否为空：
-        //不为空时
+        Result result;//声明出参对象
+        // 3.1 若获取到的结果集不为空：
         if (null != purchaseList && !purchaseList.isEmpty()) {
             PageInfo<Purchase> pageInfo = new PageInfo<>(purchaseList);
-            //4.1.1、将结果集中的泛型（domain类）转化成vo类
+            //①.将结果集中的泛型（domain类）转化成vo类
             List<AccountPurchaseVo> purchaseVos = this.inversion(purchaseList);
-            //4.1.2、出参中封装分页信息（当前页码，总页码，总条数，结果集）、“成功”的code码和message
+            //②.出参中封装分页信息（当前页码，总页码，总条数，结果集）、“成功”的code码和message
             PageInfo<AccountPurchaseVo> pageInfoVo = new PageInfo<>();
-            pageInfoVo.setPageNum(pageNum);//当前页码
-            pageInfoVo.setPageSize(pageSize);//每页显示条数
+            pageInfoVo.setPageNum(pageInfo.getPageNum());//当前页码
+            pageInfoVo.setPageSize(pageInfo.getPageSize());//每页显示条数
             pageInfoVo.setTotal(pageInfo.getTotal());//总条数
             pageInfoVo.setPages(pageInfo.getPages());//总页码
             pageInfoVo.setSize(pageInfo.getSize());//每页实际数据条数
             pageInfoVo.setList(purchaseVos);//显示数据
 
-            result = this.getOutPut(Constant.CodeConfig.CODE_SUCCESS, result, pageInfoVo);
-        } else {//为空时
-            // 4.2、在出参对象中封装“未查询到结果集”的code码和message
-            result = this.getOutPut(Constant.CodeConfig.CODE_NOT_FOUND_RESULT, result, null);
+            result = Result.success(Constant.MessageConfig.MSG_SUCCESS,pageInfoVo);
+        } else {//3.2 若获取到的结果集为空时
+            result = Result.success(Constant.MessageConfig.MSG_NO_DATA);
         }
         return result;
     }
@@ -848,25 +794,26 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     /**
      * 添加拒收货信息
-     *
+     * <p>
      * 将拒收理由及相关图片保存
      *
      * @param refuseOrderInput 封装了订单编号，拒收理由，拒收图片
      * @return Map 封装结果 键flag的值为true表示成功，false表示失败，message的值表示文字描述
      */
     @Override
-    public boolean refuseOrder(RefuseOrderInput refuseOrderInput) throws Exception {
-        Map<String,Object> map = new HashMap<>();
-        map.put("orderId",refuseOrderInput.getOrderId());//订单编号
-        map.put("refuseReason",refuseOrderInput.getRefuseReason());//拒收理由
-        map.put("refuseImgUrlA",refuseOrderInput.getRefuseImgUrlA());//拒收图片URL A
-        map.put("refuseImgUrlB",refuseOrderInput.getRefuseImgUrlB());//拒收图片URL B
-        map.put("refuseImgUrlC",refuseOrderInput.getRefuseImgUrlC());//拒收图片URL C
-        map.put("orderRefuseTime",new Date());//拒收时间
+    public void refuseOrder(RefuseOrderInput refuseOrderInput) throws Exception {
+        Map<String, Object> map = new HashMap<>();
+        map.put("orderId", refuseOrderInput.getOrderId());//订单编号
+        map.put("refuseReason", refuseOrderInput.getRefuseReason());//拒收理由
+        map.put("refuseImgUrlA", refuseOrderInput.getRefuseImgUrlA());//拒收图片URL A
+        map.put("refuseImgUrlB", refuseOrderInput.getRefuseImgUrlB());//拒收图片URL B
+        map.put("refuseImgUrlC", refuseOrderInput.getRefuseImgUrlC());//拒收图片URL C
+        map.put("orderRefuseTime", new Date());//拒收时间
         map.put("updatedAt", new Date());//更新时间
         map.put("orderStatus", Constant.OrderStatusConfig.REJECT);//订单状态 5 拒收
-        boolean flag = purchaseDao.insertRefuseMessage(map);
-        return flag;
+        purchaseDao.insertRefuseMessage(map);
+        //TODO 订单拒收成功给该供应商推送一条消息
+        pushNotification(refuseOrderInput.getOrderId(), Constant.OrderStatusConfig.REJECT);
     }
 
     /**
@@ -876,57 +823,33 @@ public class PurchaseServiceImpl implements PurchaseService {
      * @return map 封装了所有订单拒收原因信息
      */
     @Override
-    public Map<String,Object> searchRefuseReasonByOrderId(String orderId) throws Exception {
-        OrderRefuseReasonOutput orderRefuseReasonOutput =  purchaseDao.findRefuseReasonByOrderId(orderId);
-        Map<String,Object> map = new HashMap<>();
-        map.put("refuseReason",null);
-        map.put("refuseImgUrl",null);
+    public Map<String, Object> searchRefuseReasonByOrderId(String orderId) throws Exception {
+        OrderRefuseReasonOutput orderRefuseReasonOutput = purchaseDao.findRefuseReasonByOrderId(orderId);
+        Map<String, Object> map = new HashMap<>();
+        map.put("refuseReason", Constant.MessageConfig.MSG_NO_DATA);
+        map.put("refuseImgUrl", null);
         List<String> urlList = new ArrayList<>();
-        if(null != orderRefuseReasonOutput){
+        if (null != orderRefuseReasonOutput) {
             urlList.add(orderRefuseReasonOutput.getRefuseImgUrlA());
             urlList.add(orderRefuseReasonOutput.getRefuseImgUrlB());
             urlList.add(orderRefuseReasonOutput.getRefuseImgUrlC());
-            map.put("refuseReason",orderRefuseReasonOutput.getRefuseReason());
-            map.put("refuseImgUrl",urlList);
+            map.put("refuseReason", orderRefuseReasonOutput.getRefuseReason());
+            map.put("refuseImgUrl", urlList);
         }
         return map;
     }
 
-    /**
-     * 封装出参的方法
-     *
-     * @param code   code码
-     * @param result 出参类
-     * @param info   分页工具
-     * @return 出参
-     */
-    private Result getOutPut(Integer code, Result<PageInfo> result, PageInfo info) {
-        result.setCode(code);
-        result.setData(info);
-        switch (code) {
-            case 1:
-                result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
-                break;
-            case 0:
-                result.setMessage(Constant.MessageConfig.MSG_FAILURE);
-                break;
-            case 4:
-                result.setMessage(Constant.MessageConfig.MSG_NOT_FOUND_RESULT);
-                break;
-            case 7:
-                result.setMessage(Constant.MessageConfig.DateNOTLate);
-                break;
-            case 8:
-                result.setMessage(Constant.MessageConfig.MoneyNOTLate);
-                break;
-            case 102:
-                result.setMessage(Constant.NoExistMessageConfig.NOSTORE);
-                break;
-            default:
-                result.setCode(Constant.CodeConfig.CODE_FAILURE);
-                result.setMessage(Constant.MessageConfig.MSG_FAILURE);
+    //推送消息通知
+    private void pushNotification(String orderId, Integer orderStatus) {
+        Purchase purchase = purchaseDao.findById(orderId);
+        if (null != purchase) {
+            if (purchase.getPayStatus() != 0) { //支付状态是1 推送消息通知
+                Notification notification = createNotification(purchase.getStoreId(), orderId, orderStatus);
+                if (null != notification) {
+                    notificationDao.insert(notification);
+                }
+            }
         }
-        return result;
     }
 
     //创建消息通知
@@ -993,18 +916,20 @@ public class PurchaseServiceImpl implements PurchaseService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean cancelOrder(CancelReasonInput cancelReasonInput) throws Exception {
-        Map<String,Object> map = new HashMap<>();
-        map.put("orderId",cancelReasonInput.getOrderId());//订单编号
-        map.put("cancelReason",cancelReasonInput.getCancelReason());//取消订单理由
+    public void cancelOrder(CancelReasonInput cancelReasonInput) throws Exception {
+        Map<String, Object> map = new HashMap<>();
+        map.put("orderId", cancelReasonInput.getOrderId());//订单编号
+        map.put("cancelReason", cancelReasonInput.getCancelReason());//取消订单理由
         map.put("updatedAt", new Date());//更新时间
         map.put("orderStatus", Constant.OrderStatusConfig.CANCEL_ORDER);//订单状态 7 取消
-        boolean flag = purchaseDao.insertCancelMessage(map);
-        return flag;
+        purchaseDao.insertCancelMessage(map);
+        //TODO 订单取消成功给该供应商推送一条消息
+        pushNotification(cancelReasonInput.getOrderId(), Constant.OrderStatusConfig.CANCEL_ORDER);
     }
 
     /**
      * 根据订单编号查询取消订单原因
+     *
      * @param orderId 订单编号
      * @return 取消订单原因
      * @throws Exception
@@ -1014,4 +939,5 @@ public class PurchaseServiceImpl implements PurchaseService {
         String cancelReason = purchaseDao.findCancelReason(orderId);
         return cancelReason;
     }
+
 }

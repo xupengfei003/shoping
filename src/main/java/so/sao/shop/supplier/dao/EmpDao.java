@@ -35,6 +35,6 @@ public interface EmpDao {
 	 * @param empUpdateInput 入参对象
 	 * @return 返回修改状态
 	 */
-	int updateEmpStatusById(EmpUpdateInput empUpdateInput);
+	void updateEmpStatusById(EmpUpdateInput empUpdateInput);
   
 }

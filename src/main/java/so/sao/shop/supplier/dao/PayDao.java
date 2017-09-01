@@ -7,6 +7,9 @@ import java.util.Map;
 /**
  * Created by acer on 2017/8/15.
  */
+/**
+ * Created by acer on 2017/8/15.
+ */
 public interface PayDao {
     /**
      * 保存支付信息
@@ -14,6 +17,6 @@ public interface PayDao {
      * @return int
      * @throws Exception
      */
-    public abstract boolean save(@Param("payInput") Map<String ,Object> payInput) throws Exception;
+    public abstract void save(@Param("payInput") Map<String ,Object> payInput) throws Exception;
 
 }

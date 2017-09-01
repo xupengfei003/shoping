@@ -2,7 +2,7 @@ package so.sao.shop.supplier.dao;
 
 import org.apache.ibatis.annotations.Param;
 import so.sao.shop.supplier.domain.Account;
-import so.sao.shop.supplier.domain.Condition;
+import so.sao.shop.supplier.pojo.input.AccountInput;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -95,10 +95,10 @@ public interface AccountDao {
     
     /**
      * 根据条件查询出相应供应商的信息
-     * @param condition 分页对象
+     * @param accountInput 入参对象
      * @return 返回分页对象
      */
-    List<Account> findPage(Condition condition);
+    List<Account> findPage(AccountInput accountInput);
 
 	/**
      * 将计算的总金额,更新为该商户id下的历史总收入

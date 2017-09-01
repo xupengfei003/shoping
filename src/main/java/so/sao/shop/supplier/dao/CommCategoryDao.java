@@ -18,11 +18,11 @@ public interface CommCategoryDao {
      */
     boolean save(@Param("commCategory") CommCategory commCategory);
     /**
-     * 删除商品类型
-     * @param id 商品类型ID
+     * 删除商品科属
+     * @param id 商品科属ID
      * @return 删除结果
      */
-    boolean deleteById(@Param("id") long id);
+    void deleteById(@Param("id") long id);
     /**
      * 修改商品类型
      * @param commCategory 商品类型对象
@@ -43,6 +43,15 @@ public interface CommCategoryDao {
      * @return 查询结果结合
      */
     List<CommCategory> find(CommCategory commCategory);
+
+    /**
+     * 查询商品类型集合
+     * @param commCategoryOneId
+     * @param commCategoryTwoId
+     * @param commCategoryThreeId
+     * @return
+     */
+    List<CommCategory> findByIds(@Param("commCategoryOneId")String commCategoryOneId, @Param("commCategoryTwoId")String commCategoryTwoId, @Param("commCategoryThreeId")String commCategoryThreeId);
 
     /**
      * 根据类型名称 查询商品类型

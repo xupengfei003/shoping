@@ -1,6 +1,7 @@
 package so.sao.shop.supplier.pojo.vo;
 
 import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.NotBlank;
 
 /**
  * 图片实体类
@@ -26,6 +27,7 @@ public class CommImgeVo {
     /**
      * 图片存储路径
      */
+    @NotBlank(message = "图片url不能为空")
     @Length(max = 500,message = "图片url长度不能大于500")
     private String url;
 
@@ -44,6 +46,7 @@ public class CommImgeVo {
     /**
      * 缩略图url
      */
+    @NotBlank(message = "图片缩略图url不能为空")
     @Length(max = 500,message = "缩略图url长度不能大于500")
     private String thumbnailUrl;
 

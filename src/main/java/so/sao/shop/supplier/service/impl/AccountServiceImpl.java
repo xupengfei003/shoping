@@ -23,7 +23,9 @@ import so.sao.shop.supplier.dao.*;
 import so.sao.shop.supplier.domain.*;
 import so.sao.shop.supplier.pojo.BaseResult;
 import so.sao.shop.supplier.pojo.Result;
+import so.sao.shop.supplier.pojo.input.AccountInput;
 import so.sao.shop.supplier.service.AccountService;
+import so.sao.shop.supplier.util.PageTool;
 import so.sao.shop.supplier.util.NumberUtil;
 import so.sao.shop.supplier.util.Ognl;
 
@@ -285,21 +287,16 @@ public class AccountServiceImpl implements AccountService {
     }
 
     /**
-     * 分页查询
+     * 多条件分页查询供应商列表
      *
-     * @param condition
+     * @param accountInput 入参对象
      * @return 分页对象
      */
     @Override
-    public PageInfo searchAccount(Condition condition) {
-        if (condition.getPageNum() == null) {
-            condition.setPageNum(1);
-        }
-        if (condition.getPageSize() == null) {
-            condition.setPageSize(10);
-        }
-        Page page = PageHelper.startPage(condition.getPageNum(), condition.getPageSize());
-        PageInfo pageInfo = new PageInfo(accountDao.findPage(condition));
+    public PageInfo searchAccount(AccountInput accountInput) {
+        PageTool.startPage(accountInput.getPageNum(), accountInput.getPageSize());
+        List<Account> accountList = accountDao.findPage(accountInput);
+        PageInfo pageInfo = new PageInfo(accountList);
         return pageInfo;
     }
 

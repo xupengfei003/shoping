@@ -47,8 +47,6 @@ public class CommodityServiceImpl implements CommodityService {
     @Autowired
     private CommCategoryDao commCategoryDao;
     @Autowired
-    private CommCategoryShipDao commCategoryShipDao;
-    @Autowired
     private CommodityDao commodityDao;
     @Autowired
     private CommImgeDao commImgeDao;
@@ -81,93 +79,11 @@ public class CommodityServiceImpl implements CommodityService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result saveCommodity(@Valid CommodityInput commodityInput,Long supplierId){
-        //返回的结果集
-        Result result = new Result();
-        //商品品牌为空校验
-        if(StringUtil.isNull(commodityInput.getBrandName())){
-            result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage("商品品牌不能为空！");
-            return result;
-        }
-        //用于存放商品69码
-        Set<String> code69Sets = new TreeSet<>();
-        //拼装69码集合
-        for (SupplierCommodityVo commodityVo : commodityInput.getCommodityList()) {
-            String code69 = commodityVo.getCode69();
-            if(StringUtil.isNull(code69)){
-                result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-                result.setMessage("商品条码不能为空！");
-                return result;
-            }
-            code69Sets.add(code69);
-        }
-        //校验插入数据是否有重复69码
-        if (code69Sets.size() < commodityInput.getCommodityList().size()) {
-            result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage("存在重复的商品条码，请修改后重新添加！");
-            return result;
-        }
-        Long categoryOneId = commodityInput.getCategoryOneId();
-        Long categoryTwoId = commodityInput.getCategoryTwoId();
-        Long categoryThreeId = commodityInput.getCategoryThreeId();
-        //验证是否选择商品分类
-        if(null == categoryOneId && null == categoryTwoId && null == categoryThreeId){
-            result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage("未选择商品科属！");
-            return result;
-        }
-        if(null == categoryOneId){
-            result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage("未选择商品科属一级分类！");
-            return result;
-        }
-        if(null != categoryOneId && null == categoryTwoId && null != categoryThreeId){
-            result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage("未选择商品科属二级分类！");
-            return result;
-        }
-        //验证商品一级分类是否存在
-        if(null != categoryOneId){
-            CommCategory commCategoryOne = commCategoryDao.findOne(categoryOneId);
-            if(null == commCategoryOne){
-                result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-                result.setMessage("商品科属一级分类不存在！");
-                return result;
-            }
-        }
-        //验证商品二级分类是否存在
-        if(null != categoryTwoId){
-            CommCategory commCategoryTwo = commCategoryDao.findOne(categoryTwoId);
-            if(null == commCategoryTwo){
-                result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-                result.setMessage("商品科属二级分类不存在！");
-                return result;
-            }
-        }
-        //验证商品三级分类是否存在
-        if(null != categoryThreeId){
-            CommCategory commCategoryThree = commCategoryDao.findOne(categoryThreeId);
-            if(null == commCategoryThree){
-                result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-                result.setMessage("商品科属三级分类不存在！");
-                return result;
-            }
-        }
-        //验证三级分类之间的关联是否正确
-        if(!verifyAssociation(categoryOneId, categoryTwoId, categoryThreeId)){
-            result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage("商品科属之间的关联不正确！");
-            return result;
-        }
-        if(null != commodityInput.getTagId()){
-            //验证商品标签是否存在
-            CommTag commTag = commTagDao.findOne(commodityInput.getTagId());
-            if(null == commTag){
-                result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-                result.setMessage("商品标签不存在！");
-                return result;
-            }
-        }
+        //验证请求体
+        Result result = validateCommodityInput(commodityInput);
+        if(result.getCode() == 0) return result;
+        //获取商品分类code码
+        String commCategoryCode = (String)result.getData();
         //验证品牌是否存在，不存在则新增
         CommBrand brand = commBrandDao.findByName(commodityInput.getBrandName());
         if (null == brand){
@@ -179,162 +95,185 @@ public class CommodityServiceImpl implements CommodityService {
             brand.setName(commodityInput.getBrandName());
             commBrandDao.save(brand);
         }
-        //建立供应商和商品关系
-        if(null != commodityInput.getCommodityList()){
-            for (SupplierCommodityVo commodityVo : commodityInput.getCommodityList()) {
-                //验证计量单位是否存在
-                if(null != commodityVo.getUnitId()){
-                    CommUnit commUnit = commUnitDao.findOne(commodityVo.getUnitId());
-                    if(null == commUnit){
-                        result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-                        result.setMessage("包装单位不存在！商品条码：" + commodityVo.getCode69());
-                        return result;
-                    }
-                }
-                //验证计量规格是否存在
-                if(null != commodityVo.getMeasureSpecId()){
-                    CommMeasureSpec commMeasureSpec = commMeasureSpecDao.findOne(commodityVo.getMeasureSpecId());
-                    if(null == commMeasureSpec){
-                        result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-                        result.setMessage("计量规格不存在！商品条码：" + commodityVo.getCode69());
-                        return result;
-                    }
-                }
-                String code69 = commodityVo.getCode69();
-                //验证商品是否存在,不存在则新增商品
-                Commodity commodity = commodityDao.findCommInfoByCode69(code69);
-                if(null == commodity) {
-                    commodity = new Commodity();
-                    commodity.setName(commodityInput.getName());
-                    commodity.setBrandId(brand.getId());
-                    commodity.setCategoryOneId(categoryOneId);
-                    commodity.setCategoryTwoId(categoryTwoId);
-                    commodity.setCategoryThreeId(categoryThreeId);
-                    commodity.setCompanyName(commodityInput.getCompanyName());
-                    commodity.setMarketTime(commodityInput.getMarketTime());
-                    commodity.setOriginPlace(commodityInput.getOriginPlace());
-                    commodity.setCode69(code69);
-                    commodity.setCreatedAt(new Date());
-                    commodity.setCreatedBy(supplierId);
-                    commodity.setUpdatedAt(new Date());
-                    commodity.setUpdatedBy(supplierId);
-                    commodityDao.save(commodity);
-                    //保存公共库图片
-                    if(null != commodityVo.getImgeList()){
-                        for (CommImgeVo imgeVo : commodityVo.getImgeList()) {
-                            TyCommImge tyCommImge = new TyCommImge();
-                            tyCommImge.setCode69(code69);
-                            tyCommImge.setName(imgeVo.getName());
-                            tyCommImge.setSize(imgeVo.getSize());
-                            tyCommImge.setUrl(imgeVo.getUrl());
-                            tyCommImge.setType(imgeVo.getType());
-                            tyCommImge.setThumbnailUrl(imgeVo.getThumbnailUrl());
-                            tyCommImge.setCreatedAt(new Date());
-                            tyCommImge.setUpdatedAt(new Date());
-                            tyCommImagDao.save(tyCommImge);
-                        }
-                    }
-                }
-                //校验sku是否重复
-                String sku = getSku(categoryOneId, categoryTwoId, categoryThreeId, commodity.getId(), supplierId);
-                SupplierCommodity supplierCommodity = supplierCommodityDao.findSupplierCommodityInfo(code69,supplierId);
-                if(null != supplierCommodity){
-                    return Result.fail("商品已存在！");
-                }
-                //新增商品规格
-                SupplierCommodity sc = new SupplierCommodity();
-                sc.setRemark(commodityInput.getRemark());
-                sc.setTagId(commodityInput.getTagId());
-                sc.setCode(commodityVo.getCode());
-                sc.setCode69(code69);
-                sc.setInventory(commodityVo.getInventory());
-                sc.setMinImg(commodityVo.getMinImg());
-                sc.setMeasureSpecId(commodityVo.getMeasureSpecId());
-                sc.setRuleVal(commodityVo.getRuleVal());
-                sc.setPrice(commodityVo.getPrice());
-                sc.setUnitPrice(commodityVo.getUnitPrice());
-                sc.setUnitId(commodityVo.getUnitId());
-                sc.setStatus(CommConstant.COMM_ST_XZ);
-                sc.setSupplierId(supplierId);
-                sc.setCreatedBy(supplierId);
-                sc.setUpdatedBy(supplierId);
-                sc.setCreatedAt(new Date());
-                sc.setUpdatedAt(new Date());
-                sc.setSku(sku);
-                supplierCommodityDao.save(sc);
-                //保存图片
-                if(null != commodityVo.getImgeList()){
-                    for (CommImgeVo imgeVo : commodityVo.getImgeList()) {
-                        CommImge imge = new CommImge();
-                        imge.setScId(sc.getId());
-                        imge.setName(imgeVo.getName());
-                        imge.setSize(imgeVo.getSize());
-                        imge.setUrl(imgeVo.getUrl());
-                        imge.setType(imgeVo.getType());
-                        imge.setThumbnailUrl(imgeVo.getThumbnailUrl());
-                        commImgeDao.save(imge);
-                    }
+        for (SupplierCommodityVo commodityVo : commodityInput.getCommodityList()) {
+            //验证计量单位是否存在
+            if(null != commodityVo.getUnitId()){
+                int commUnitNum = commUnitDao.countById(commodityVo.getUnitId());
+                if(commUnitNum == 0){
+                    return Result.fail("包装单位不存在！商品条码：" + commodityVo.getCode69());
                 }
             }
+            //验证计量规格是否存在
+            if(null != commodityVo.getMeasureSpecId()){
+                int commMeasureSpecNum = commMeasureSpecDao.countById(commodityVo.getMeasureSpecId());
+                if(commMeasureSpecNum == 0){
+                    return Result.fail("计量规格不存在！商品条码：" + commodityVo.getCode69());
+                }
+            }
+            String code69 = commodityVo.getCode69();
+            //验证商品是否存在,不存在则新增商品
+            Commodity commodity = commodityDao.findCommInfoByCode69(code69);
+            if(null == commodity) {
+                commodity = BeanMapper.map(commodityInput, Commodity.class);
+                commodity.setBrandId(brand.getId());
+                commodity.setCode69(code69);
+                commodity.setCreatedAt(new Date());
+                commodity.setCreatedBy(supplierId);
+                commodity.setUpdatedAt(new Date());
+                commodity.setUpdatedBy(supplierId);
+                commodityDao.save(commodity);
+                //保存公共库图片
+                List<TyCommImge> tyCommImges = new ArrayList<>();
+                commodityVo.getImgeList().forEach(imgeVo->{
+                    TyCommImge tyCommImge = BeanMapper.map(imgeVo, TyCommImge.class);
+                    tyCommImge.setCode69(code69);
+                    tyCommImge.setCreatedAt(new Date());
+                    tyCommImge.setUpdatedAt(new Date());
+                    tyCommImges.add(tyCommImge);
+                });
+                tyCommImagDao.batchSave(tyCommImges);
+            }
+            //校验商品条码是否重复
+            int scNum = supplierCommodityDao.countByCode69(code69,supplierId);
+            if(scNum > 0){
+                return Result.fail("商品已存在！");
+            }
+            //新增商品规格
+            SupplierCommodity sc = BeanMapper.map(commodityVo, SupplierCommodity.class);
+            sc.setRemark(commodityInput.getRemark());
+            sc.setTagId(commodityInput.getTagId());
+            sc.setStatus(CommConstant.COMM_ST_XZ);
+            sc.setSupplierId(supplierId);
+            sc.setCreatedBy(supplierId);
+            sc.setUpdatedBy(supplierId);
+            sc.setCreatedAt(new Date());
+            sc.setUpdatedAt(new Date());
+            String sku = createSku(commCategoryCode, commodity.getId(), supplierId);
+            sc.setSku(sku);
+            supplierCommodityDao.save(sc);
+            //保存图片
+            List<CommImge> commImges = new ArrayList<>();
+            commodityVo.getImgeList().forEach(imgeVo->{
+                CommImge imge = BeanMapper.map(imgeVo, CommImge.class);
+                imge.setScId(sc.getId());
+                commImges.add(imge);
+            });
+            commImgeDao.batchSave(commImges);
         }
-        result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SUCCESS);
-        result.setMessage("添加商品成功");
-        return result;
+        return Result.success("添加商品成功");
+    }
+
+    /**
+     * 验证 commodityInput.getCommodityList
+     * @param commodityInput
+     * @return Result
+     */
+    public Result validateCommodityInput(CommodityInput commodityInput) {
+        //用于存放商品69码
+        Set<String> code69Sets = new TreeSet<>();
+        //拼装69码集合
+        for (SupplierCommodityVo commodityVo : commodityInput.getCommodityList()) {
+            String code69 = commodityVo.getCode69();
+            code69Sets.add(code69);
+        }
+        //校验插入数据是否有重复69码
+        if (code69Sets.size() < commodityInput.getCommodityList().size()) {
+            return Result.fail("存在重复的商品条码，请修改后重新添加！");
+        }
+        Long categoryOneId = commodityInput.getCategoryOneId();
+        Long categoryTwoId = commodityInput.getCategoryTwoId();
+        Long categoryThreeId = commodityInput.getCategoryThreeId();
+        //验证是否选择商品科属
+        if(null == categoryTwoId && null != categoryThreeId){
+            return Result.fail("未选择商品科属二级分类！");
+        }
+        //获取三级分类list
+        List<CommCategory> commCategoryList = commCategoryDao.findByIds(categoryOneId.toString(), categoryTwoId.toString(), categoryThreeId.toString());
+        List<Long> ids = new ArrayList<>();
+        CommCategory commCategoryOne = null;
+        CommCategory commCategoryTwo = null;
+        CommCategory commCategoryThree = null;
+        for(CommCategory commCategory : commCategoryList){
+            if(commCategory.getId().equals(categoryOneId)){
+                commCategoryOne = commCategory;
+            } else if(commCategory.getId().equals(categoryTwoId)){
+                commCategoryTwo = commCategory;
+            } else if(commCategory.getId().equals(categoryThreeId)){
+                commCategoryThree = commCategory;
+            }
+            ids.add(commCategory.getId());
+        }
+        //验证商品一级分类是否存在
+        if(!ids.contains(categoryOneId)){
+            return Result.fail("商品科属一级分类不存在！");
+        }
+        //验证商品二级分类是否存在
+        if(null != categoryTwoId){
+            if(!ids.contains(categoryTwoId)){
+                return Result.fail("商品科属二级分类不存在！");
+            }
+        }
+        //验证商品三级分类是否存在
+        if(null != categoryThreeId){
+            if(!ids.contains(categoryThreeId)){
+                return Result.fail("商品科属三级分类不存在！");
+            }
+        }
+        //验证三级分类之间的关联是否正确
+        if(!verifyAssociation(commCategoryOne, commCategoryTwo, commCategoryThree)){
+            return Result.fail("商品科属之间的关联不正确！");
+        }
+        if(null != commodityInput.getTagId()){
+            //验证商品标签是否存在
+            int commTagNum = commTagDao.countById(commodityInput.getTagId());
+            if(commTagNum == 0){
+                return Result.fail("商品标签不存在！");
+            }
+        }
+        //拼装商品分类code码
+        String categoryOneCode = commCategoryOne.getCode();
+        String categoryTwoCode = CommConstant.CATEGORY_NULL_CODE;
+        String categoryThreeCode = CommConstant.CATEGORY_NULL_CODE;
+        if(null != commCategoryTwo){
+            categoryTwoCode = commCategoryTwo.getCode();
+        }
+        if(null != commCategoryThree){
+            categoryThreeCode = commCategoryThree.getCode();
+        }
+        String commCategoryCode = categoryOneCode + categoryTwoCode + categoryThreeCode;
+        return Result.success("校验通过", commCategoryCode);
     }
 
     /**
      * 生成sku
-     * @param categoryOneId 商品一级分类Id
-     * @param categoryTwoId 商品二级分类Id
-     * @param categoryThreeId 商品三级分类Id
+     * @param commCategoryCode 商品分类code码
      * @param commId 商品Id
      * @param supplierId 供应商Id
      * @return sku
      */
-    private String getSku(Long categoryOneId, Long categoryTwoId, Long categoryThreeId, Long commId, Long supplierId){
-        //前6位是商品分类，每级分类占两位
-        String categoryOneCode = commCategoryDao.findCodeById(categoryOneId);
-        String categoryTwoCode = commCategoryDao.findCodeById(categoryTwoId);
-        String categoryThreeCode = commCategoryDao.findCodeById(categoryThreeId);
-        //一级分类为空
-        if(StringUtil.isNull(categoryOneCode)){
-            categoryOneCode = "00";
-        }
-        //二级分类为空
-        if(StringUtil.isNull(categoryTwoCode)){
-            categoryTwoCode = "00";
-        }
-        //三级分类为空
-        if(StringUtil.isNull(categoryThreeCode)){
-            categoryThreeCode = "00";
-        }
-        //中间6位是商品表id自增(100000开始)
+    private String createSku(String commCategoryCode, Long commId, Long supplierId){
+        //前6位是商品分类，每级分类占两位,中间6位是商品表id自增(100000开始)
         Long commIdCode = 100000 + commId;
         //后面5位是供应商id字增(10000开始)
         Long supplierIdCode = 10000 + supplierId;
-        return categoryOneCode +  categoryTwoCode + categoryThreeCode + commIdCode.toString() + supplierIdCode.toString();
+        return commCategoryCode + commIdCode.toString() + supplierIdCode.toString();
     }
 
     /**
      * 验证商品分类关联关系
-     * @param categoryOneId
-     * @param categoryTwoId
-     * @param categoryThreeId
+     * @param commCategoryOne
+     * @param commCategoryTwo
+     * @param commCategoryThree
      * @return
      */
-    private boolean verifyAssociation(Long categoryOneId, Long categoryTwoId, Long categoryThreeId){
-        if(null != categoryOneId && null != categoryTwoId && null == categoryThreeId){
-            CommCategory commCategoryOne = commCategoryDao.findOne(categoryOneId);
-            CommCategory commCategoryTwo = commCategoryDao.findOne(categoryTwoId);
-            if(!(commCategoryOne.getPid().equals(0l) && commCategoryOne.getId().equals(commCategoryTwo.getPid()))){
+    private boolean verifyAssociation(CommCategory commCategoryOne, CommCategory commCategoryTwo, CommCategory commCategoryThree){
+        if(null != commCategoryTwo && null == commCategoryThree){
+            if(!(commCategoryOne.getPid().equals(CommConstant.CATEGORY_ONE_PID) && commCategoryOne.getId().equals(commCategoryTwo.getPid()))){
                 return false;
             }
         }
-        if(null != categoryOneId && null != categoryTwoId && null != categoryThreeId){
-            CommCategory commCategoryOne = commCategoryDao.findOne(categoryOneId);
-            CommCategory commCategoryTwo = commCategoryDao.findOne(categoryTwoId);
-            CommCategory commCategoryThree = commCategoryDao.findOne(categoryThreeId);
-            if(!(commCategoryOne.getPid().equals(0l) && commCategoryOne.getId().equals(commCategoryTwo.getPid()) && commCategoryTwo.getId().equals(commCategoryThree.getPid()))){
+        if(null != commCategoryTwo && null != commCategoryThree){
+            if(!(commCategoryOne.getPid().equals(CommConstant.CATEGORY_ONE_PID) && commCategoryOne.getId().equals(commCategoryTwo.getPid()) && commCategoryTwo.getId().equals(commCategoryThree.getPid()))){
                 return false;
             }
         }
@@ -346,23 +285,14 @@ public class CommodityServiceImpl implements CommodityService {
      * @return 商品信息
      */
     @Override
-    public Result findCommodity(String code69) {
-        Result result = new Result();
+    public Result findCommodity(String code69){
         CommodityInfoOutput commodityInfoOutput = commodityDao.findByCode69(code69);
         if(null == commodityInfoOutput){
-            result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage("商品不存在");
-            return result;
+            return Result.fail("商品不存在");
         } else {
             List<TyCommImge> imgeList = tyCommImagDao.findByCode69(code69);    //获取图片集合
             commodityInfoOutput.setImgeList(imgeList);
-            commodityInfoOutput.setCategoryOneName(commCategoryDao.findNameById(commodityInfoOutput.getCategoryOneId()));
-            commodityInfoOutput.setCategoryTwoName(commCategoryDao.findNameById(commodityInfoOutput.getCategoryTwoId()));
-            commodityInfoOutput.setCategoryThreeName(commCategoryDao.findNameById(commodityInfoOutput.getCategoryThreeId()));
-            result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SUCCESS);
-            result.setMessage("成功");
-            result.setData(commodityInfoOutput);
-            return result;
+            return Result.success("成功！",commodityInfoOutput);
         }
     }
 
@@ -377,24 +307,24 @@ public class CommodityServiceImpl implements CommodityService {
     public Result updateCommodity(CommodityUpdateInput commodityUpdateInput, Long supplierId){
         if(null != commodityUpdateInput.getTagId()){
             //验证商品标签是否存在
-            int commTagNum = commTagDao.findCountById(commodityUpdateInput.getTagId());
+            int commTagNum = commTagDao.countById(commodityUpdateInput.getTagId());
             if(commTagNum == 0){
                 return Result.fail("商品标签不存在！");
             }
         }
         for (SupplierCommodityUpdateVo commodityVo : commodityUpdateInput.getCommodityList()) {
             //验证商品是否存在
-            int supplierCommodityNum = supplierCommodityDao.findCountById(commodityVo.getId());
+            int supplierCommodityNum = supplierCommodityDao.countById(commodityVo.getId());
             if (supplierCommodityNum == 0) {
                 return Result.fail("商品不存在！");
             }
             //验证包装单位是否存在
-            int commUnitNum = commUnitDao.findCountById(commodityVo.getUnitId());
+            int commUnitNum = commUnitDao.countById(commodityVo.getUnitId());
             if (commUnitNum == 0) {
                 return Result.fail("包装单位不存在！");
             }
             //验证计量规格是否存在
-            int commMeasureSpecNum = commMeasureSpecDao.findCountById(commodityVo.getMeasureSpecId());
+            int commMeasureSpecNum = commMeasureSpecDao.countById(commodityVo.getMeasureSpecId());
             if (commMeasureSpecNum == 0) {
                 return Result.fail("计量规格不存在！");
             }
@@ -413,13 +343,13 @@ public class CommodityServiceImpl implements CommodityService {
                 commImgeDao.deleteByIds(ids);
             }
             //保存图片
-            if (null != commodityVo.getImgeList()) {
-                for (CommImgeUpdateVo imgeVo : commodityVo.getImgeList()) {
-                    CommImge imge = BeanMapper.map(imgeVo, CommImge.class);
-                    imge.setScId(sc.getId());
-                    commImgeDao.save(imge);
-                }
-            }
+            List<CommImge> commImges = new ArrayList<>();
+            commodityVo.getImgeList().forEach(imgeVo->{
+                CommImge imge = BeanMapper.map(imgeVo, CommImge.class);
+                imge.setScId(sc.getId());
+                commImges.add(imge);
+            });
+            commImgeDao.batchSave(commImges);
         }
         return Result.success("更新商品信息成功");
     }
@@ -430,44 +360,19 @@ public class CommodityServiceImpl implements CommodityService {
      */
     @Override
     public Result getCommodity(Long id) {
-        Result result = new Result();
         //根据供应商商品ID获取商品信息
         CommodityOutput commodityOutput = supplierCommodityDao.findDetail(id);
-        if(null == commodityOutput){
-            return null;
+        if(null != commodityOutput){
+            //根据供应商商品ID获取图片列表信息
+            List<CommImge> commImgeList = commImgeDao.find(id);
+            List<CommImgeVo> commImgeVoList = new ArrayList<>();
+            commImgeList.forEach(commImge->{
+                CommImgeVo commImgeVo = BeanMapper.map(commImge, CommImgeVo.class);
+                commImgeVoList.add(commImgeVo);
+            });
+            commodityOutput.setImgeList(commImgeVoList);
         }
-        String categoryOneName = commCategoryDao.findNameById(commodityOutput.getCategoryOneId());
-        String categoryTwoName = commCategoryDao.findNameById(commodityOutput.getCategoryTwoId());
-        String categoryThreeName = commCategoryDao.findNameById(commodityOutput.getCategoryThreeId());
-        if(!StringUtil.isNull(categoryOneName)){
-            commodityOutput.setCategoryOneName(categoryOneName);
-        }
-        if(!StringUtil.isNull(categoryTwoName)){
-            commodityOutput.setCategoryTwoName(categoryTwoName);
-        }
-        if(!StringUtil.isNull(categoryThreeName)){
-            commodityOutput.setCategoryThreeName(categoryThreeName);
-        }
-
-        //根据供应商商品ID获取图片列表信息
-        List<CommImge> commImgeList = commImgeDao.find(id);
-        List<CommImgeVo> commImgeVoList = new ArrayList<CommImgeVo>();
-        for(CommImge commImge : commImgeList){
-            CommImgeVo commImgeVo = new CommImgeVo();
-            commImgeVo.setId(commImge.getId());
-            commImgeVo.setScId(commImge.getScId());
-            commImgeVo.setUrl(commImge.getUrl());
-            commImgeVo.setType(commImge.getType());
-            commImgeVo.setSize(commImge.getSize());
-            commImgeVo.setName(commImge.getName());
-            commImgeVo.setThumbnailUrl(commImge.getThumbnailUrl());
-            commImgeVoList.add(commImgeVo);
-        }
-        commodityOutput.setImgeList(commImgeVoList);
-        result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SUCCESS);
-        result.setMessage("查询成功");
-        result.setData(commodityOutput);
-        return result;
+        return Result.success("查询成功", commodityOutput);
     }
 
     @Override
@@ -499,40 +404,24 @@ public class CommodityServiceImpl implements CommodityService {
      */
     @Override
     public Result simpleSearchCommodities(Long supplierId, String inputvalue, Date beginCreateAt, Date endCreateAt, Integer pageNum, Integer pageSize) {
-        Result result = new Result();
-        Page page = new Page(pageNum, pageSize);
         //入参校验
-        creatAtCheck(beginCreateAt,endCreateAt);
-        inputvalue = stringParamCheck(inputvalue);
-        //分页参数校验
-        page = PageUtil.pageCheck(page);
-        //开始分页
-        PageHelper.startPage(page.getPageNum(),page.getRows());
-        List<SuppCommSearchVo> respList = supplierCommodityDao.findSimple(supplierId, inputvalue, beginCreateAt, endCreateAt);
-        Long countTotal = supplierCommodityDao.countTotalSimple(supplierId, inputvalue, beginCreateAt, endCreateAt);
-        //查无数据直接返回
-        if (respList.size()==0)
-        {
-            result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SUCCESS);
-            result.setMessage("暂无商品数据");
-            return result;
+        String createAtMessage = DataCompare.createAtCheck(beginCreateAt, endCreateAt);
+        if(!"".equals(createAtMessage)){
+            return Result.fail(createAtMessage);
         }
-
-        for (SuppCommSearchVo suppCommSearchVo : respList)
-        {
+        //开始分页
+        PageTool.startPage(pageNum, pageSize);
+        List<SuppCommSearchVo> respList = supplierCommodityDao.findSimple(supplierId, inputvalue, beginCreateAt, endCreateAt);
+        respList.forEach(suppCommSearchVo->{
             int statusNum = Integer.parseInt(suppCommSearchVo.getStatus());
             suppCommSearchVo.setStatusNum(statusNum);
             suppCommSearchVo.setStatus(CommConstant.getStatus(statusNum));
             //转换金额为千分位
-            suppCommSearchVo.setUnitPrice("￥"+NumberUtil.number2Thousand(new BigDecimal(suppCommSearchVo.getUnitPrice())));
-            suppCommSearchVo.setPrice("￥"+NumberUtil.number2Thousand(new BigDecimal(suppCommSearchVo.getPrice())));
-        }
+            suppCommSearchVo.setUnitPrice("￥" + NumberUtil.number2Thousand(new BigDecimal(suppCommSearchVo.getUnitPrice())));
+            suppCommSearchVo.setPrice("￥" + NumberUtil.number2Thousand(new BigDecimal(suppCommSearchVo.getPrice())));
+        });
         PageInfo<SuppCommSearchVo> pageInfo = new PageInfo<SuppCommSearchVo>(respList);
-        pageInfo.setTotal(countTotal);
-        result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SUCCESS);
-        result.setMessage("查询完成");
-        result.setData(pageInfo);
-        return result;
+        return Result.success("查询完成", pageInfo);
     }
 
     /**
@@ -553,85 +442,29 @@ public class CommodityServiceImpl implements CommodityService {
     @Override
     public Result searchCommodities(Long supplierId, String commCode69, String sku, String suppCommCode, String commName, Integer status, Long typeId,
                                     BigDecimal minPrice, BigDecimal maxPrice, Date beginCreateAt, Date endCreateAt, Integer pageNum, Integer pageSize) {
-        Result result = new Result();
-        Page page = new Page(pageNum, pageSize);
         //入参校验
-        commCode69 = stringParamCheck(commCode69);
-        sku = stringParamCheck(sku);
-        suppCommCode = stringParamCheck(suppCommCode);
-        commName =stringParamCheck(commName);
-        priceCheck(minPrice, maxPrice);
-        creatAtCheck(beginCreateAt,endCreateAt);
-        //分页参数校验
-        page = PageUtil.pageCheck(page);
-        //开始分页
-        PageHelper.startPage(page.getPageNum(),page.getRows());
-        List<SuppCommSearchVo> respList = supplierCommodityDao.find(supplierId, commCode69, sku, suppCommCode, commName, status, typeId, minPrice, maxPrice, beginCreateAt, endCreateAt);
-        Long countTotal = supplierCommodityDao.countTotal(supplierId, commCode69, sku, suppCommCode, commName, status, typeId, minPrice, maxPrice, beginCreateAt, endCreateAt);
-        //查无数据直接返回
-        if (respList.size()==0)
-        {
-            result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SUCCESS);
-            result.setMessage("暂无商品数据");
-            return result;
+        String priceMessage = DataCompare.priceCheck(minPrice, maxPrice);
+        if(!"".equals(priceMessage)){
+            return Result.fail(priceMessage);
         }
-
-        for (SuppCommSearchVo suppCommSearchVo : respList)
-        {
-            int statusNum = Integer.parseInt(suppCommSearchVo.getStatus());
+        String createAtMessage = DataCompare.createAtCheck(beginCreateAt,endCreateAt);
+        if(!"".equals(createAtMessage)){
+            return Result.fail(createAtMessage);
+        }
+        //开始分页
+        PageTool.startPage(pageNum, pageSize);
+        List<SuppCommSearchVo> respList = supplierCommodityDao.find(supplierId, commCode69, sku, suppCommCode, commName, status, typeId, minPrice, maxPrice, beginCreateAt, endCreateAt);
+        respList.forEach(suppCommSearchVo->{
+            int statusNum = DataCompare.formatInteger(suppCommSearchVo.getStatus());
             suppCommSearchVo.setStatusNum(statusNum);
             suppCommSearchVo.setStatus(CommConstant.getStatus(statusNum));
             //转换金额为千分位
             suppCommSearchVo.setPrice("￥"+NumberUtil.number2Thousand(new BigDecimal(suppCommSearchVo.getPrice())));
             suppCommSearchVo.setUnitPrice("￥"+NumberUtil.number2Thousand(new BigDecimal(suppCommSearchVo.getUnitPrice())));
-        }
-		
+        });
+
         PageInfo<SuppCommSearchVo> pageInfo = new PageInfo<SuppCommSearchVo>(respList);
-        pageInfo.setTotal(countTotal);
-        result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SUCCESS);
-        result.setMessage("查询完成");
-        result.setData(pageInfo);
-        return result;
-    }
-
-    /**
-     * 价格校验
-     * @param minPrice
-     * @param maxPrice
-     */
-    private void priceCheck(BigDecimal minPrice, BigDecimal maxPrice)
-    {
-        if (null != minPrice && null != maxPrice)
-        {
-            int minCompare = minPrice.compareTo(BigDecimal.ZERO);   //当minCompare == -1，说明minPrice<0;
-            int maxCompare = maxPrice.compareTo(BigDecimal.ZERO);   //当maxCompare == -1，说明maxPrice<0;
-            int minMax = minPrice.compareTo(maxPrice);   //当minPrice > maxPrice,minMax==1
-            if (minCompare == -1 || maxCompare == -1)
-            {
-                throw new RuntimeException("价格不能为负数");
-             }
-
-            if (minMax == 1)
-            {
-                throw new RuntimeException("最小金额不能大于最大金额");
-            }
-        }
-    }
-
-    /**
-     * 价格校验
-     * @param beginCreatAt 起始时间
-     * @param endCreatAt 结束时间
-     */
-    private void creatAtCheck(Date beginCreatAt, Date endCreatAt)
-    {
-        if (null != beginCreatAt && null != endCreatAt)
-        {
-            if (endCreatAt.before(beginCreatAt))
-            {
-                throw new RuntimeException("起始时间不能大于终止时间");
-            }
-        }
+        return Result.success("查询成功！", pageInfo);
     }
 
     /**
@@ -642,29 +475,19 @@ public class CommodityServiceImpl implements CommodityService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result deleteCommodity(Long id) {
-        Result result = new Result();
-        Map<String,Long> map = new HashMap<>();
         //根据商品与供应商关系ID获取供应商商品对象
         SupplierCommodity supplierCommodity = supplierCommodityDao.findOne(id);
+        Map<String,Long> map = new HashMap<>();
         if(null != supplierCommodity){
-            map.put("supplierId",supplierCommodity.getSupplierId());
-            //根据商品与供应商关系ID查询商品状态
-            int status = supplierCommodityDao.findStatus(id);
+            map.put("supplierId", supplierCommodity.getSupplierId());
             //商品需下架才可删除
-            if(status != CommConstant.COMM_ST_XJ){
-                result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-                result.setMessage("商品需下架才可删除");
-                result.setData(map);
-                return result;
+            if(supplierCommodity.getStatus() != CommConstant.COMM_ST_XJ){
+                return Result.fail("商品需下架才可删除", map);
             }
             //删除商品,deleted更新为1
             supplierCommodityDao.deleteById(id, true, new Date());
         }
-
-        result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SUCCESS);
-        result.setMessage("删除商品成功");
-        result.setData(map);
-        return result;
+        return Result.success("删除商品成功", map);
     }
 
     /**
@@ -675,7 +498,6 @@ public class CommodityServiceImpl implements CommodityService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result deleteCommodities(Long[] ids) {
-        Result result = new Result();
         Map<String,Long> map = new HashMap<>();
         //可删除商品ID集合
         TreeSet<Long> idList = new TreeSet<>();
@@ -686,31 +508,30 @@ public class CommodityServiceImpl implements CommodityService {
             //根据商品与供应商关系ID获取供应商商品对象
             SupplierCommodity supplierCommodity = supplierCommodityDao.findOne(id);
             if(null != supplierCommodity){
-                map.put("supplierId",supplierCommodity.getSupplierId());
-                //根据商品与供应商关系ID查询商品状态
-                int status = supplierCommodityDao.findStatus(id);
+                map.put("supplierId", supplierCommodity.getSupplierId());
                 //商品需下架才可删除
-                if(status != CommConstant.COMM_ST_XJ){
+                if(supplierCommodity.getStatus() != CommConstant.COMM_ST_XJ){
                     idNotList.add(id);
                 }else{
                     idList.add(id);
                 }
             }
         }
-        for(long id : idList){
-            //删除商品,deleted更新为1
-            supplierCommodityDao.deleteById(id, true, new Date());
+        if(idList.size() > 0){
+            List<SupplierCommodity> supplierCommodityList = new ArrayList<>();
+            for(long id : idList){
+                SupplierCommodity supplierCommodity = new SupplierCommodity();
+                supplierCommodity.setId(id);
+                supplierCommodity.setUpdatedAt(new Date());
+                supplierCommodity.setDeleted(1);
+                supplierCommodityList.add(supplierCommodity);
+            }
+            supplierCommodityDao.deleteByIds(supplierCommodityList);
         }
-        if(null != idNotList && idNotList.size() > 0){
-            result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage("商品需下架才可删除");
-            result.setData(map);
-            return result;
+        if(idNotList.size() > 0){
+            return Result.fail("商品需下架才可删除", map);
         }
-        result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SUCCESS);
-        result.setMessage("删除商品成功");
-        result.setData(map);
-        return result;
+        return Result.success("删除商品成功", map);
     }
 
     /**
@@ -1173,19 +994,6 @@ public class CommodityServiceImpl implements CommodityService {
                 e.printStackTrace();
             }
         }
-    }
-
-    /**
-     * 字符串前后去空格
-     * @param string  需要去空格的字符串
-     * @return String 处理后的字符串
-     */
-    private String stringParamCheck(String string) {
-        if (null != string)
-        {
-            string = string.trim();
-        }
-        return  string;
     }
 
 }

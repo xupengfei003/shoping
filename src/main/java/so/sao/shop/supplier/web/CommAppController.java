@@ -30,7 +30,7 @@ public class CommAppController {
     }
 
 
-    @ApiOperation(value="查询供应商列表", notes="根据code69返回供应商列表")
+    @ApiOperation(value="查询供应商列表", notes="根据code69返回供应商列表【责任人：陈沙】")
     @GetMapping(value="/searchSuppliers/{code69}")
     public Result searchSuppliers(@PathVariable String code69){
         return commAppService.searchSuppliers(code69);
