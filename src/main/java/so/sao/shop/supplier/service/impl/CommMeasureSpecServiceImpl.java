@@ -61,7 +61,7 @@ public class CommMeasureSpecServiceImpl implements CommMeasureSpecService {
             commMeasureSp.setCreatedAt(new Date());
             commMeasureSp.setUpdatedAt(new Date());
             commMeasureSpecDao.save(commMeasureSp);
-            return  Result.success("计量规格新增成功",commMeasureSp);
+            return  Result.success("添加计量规格成功！",commMeasureSp);
         }
         return  result;
     }
@@ -137,10 +137,10 @@ public class CommMeasureSpecServiceImpl implements CommMeasureSpecService {
     private  Result checkIfInsertByAdminOrExist(Long supplierId, Long id) {
         CommMeasureSpec commMeasureSpec = commMeasureSpecDao.findOne(id);
         if (null == commMeasureSpec) {
-            return Result.fail("该计量规格不存在！");
+            return Result.fail("计量规格不存在！");
         } else {
             if (!supplierId.equals(commMeasureSpec.getSupplierId())) {
-                return Result.fail("预置计量规格无权操作！");
+                return Result.fail("公共计量规格，不能操作！");
             }
         }
         return null;

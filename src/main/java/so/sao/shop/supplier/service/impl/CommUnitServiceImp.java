@@ -3,15 +3,13 @@ package so.sao.shop.supplier.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.dao.CommUnitDao;
 import so.sao.shop.supplier.dao.SupplierCommodityDao;
 import so.sao.shop.supplier.domain.CommUnit;
-import so.sao.shop.supplier.domain.SupplierCommodity;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.CommUnitUpdateInput;
 import so.sao.shop.supplier.service.CommUnitService;
-import so.sao.shop.supplier.util.Ognl;
+import so.sao.shop.supplier.util.BeanMapper;
 
 import java.util.Date;
 import java.util.List;
@@ -35,43 +33,19 @@ public class CommUnitServiceImp implements CommUnitService {
      */
     @Transactional(rollbackFor = Exception.class)
     public Result saveCommUnit(Long supplierId, String  name){
-        //1.方法返回对象
-        Result result = new Result();
-        //3.校验输入name是否为空
-        if( null == name || Ognl.isEmpty(name.trim())){
-            result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage("商品单位不能为空！");
+        //判断新增标商品单位与supplierId是否重复,不重复时进行新增，重复时返回重复信息
+        Result result=checkUnitName(supplierId,name.trim());
+        if(null!=result){
             return result;
-        }else {
-            name = name.trim();
-            if (name.length()> Constant.CheckMaxLength.MAX_UNIT_NAME_LENGTH){
-                result.setCode(Constant.CodeConfig.CODE_FAILURE);
-                result.setMessage("商品单位不能超过"+ Constant.CheckMaxLength.MAX_UNIT_NAME_LENGTH+"位！");
-                return result;
-            }
-        }
-        //2.封装需要添加的对象数据
-        CommUnit commUnit = new CommUnit();
-        commUnit.setName(name);
-        commUnit.setSupplierId(supplierId);
-        commUnit.setCreatedAt(new Date());
-        commUnit.setUpdatedAt(new Date());
-        //4.判断新增商品单位是否重复,不重复时进行新增，重复时返回重复信息
-       List<CommUnit> unitList= commUnitDao.findNameAndSupplierId(supplierId,name);
-        if (null==unitList || unitList.size()==0) {
-            //5.判断新增成功或失败
-            if (commUnitDao.save(commUnit)) {
-                result.setCode(Constant.CodeConfig.CODE_SUCCESS);
-                result.setMessage("商品单位添加增成功！");
-            } else {
-                result.setCode(Constant.CodeConfig.CODE_FAILURE);
-                result.setMessage("商品单位添加失败！");
-            }
-            return result;
-        } else {
-            result.setCode(Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage("商品单位添加失败，新增的商品单位已存在！");
-            return result;
+        }else{
+            //封装需要添加的对象数据
+            CommUnit commUnit = new CommUnit();
+            commUnit.setName(name);
+            commUnit.setSupplierId(supplierId);
+            commUnit.setCreatedAt(new Date());
+            commUnit.setUpdatedAt(new Date());
+            commUnitDao.save(commUnit);
+            return Result.success("添加商品单位成功！");
         }
     }
 
@@ -86,49 +60,23 @@ public class CommUnitServiceImp implements CommUnitService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Result updateCommunit(Long supplierId, CommUnitUpdateInput commUnitUpdateInput) {
-        // 1. 创建结果对象，封装结果数据使用
-        Result result = new Result();
-        CommUnit commUnit = new CommUnit();
-        commUnit.setId( commUnitUpdateInput.getId());
-        //2.修改时判断输商品单位是否为空
-        if(Ognl.isEmpty(commUnitUpdateInput.getName().trim())){
-            result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage("商品单位不能为空！");
+    public Result updateCommunit(Long supplierId, CommUnitUpdateInput commUnitUpdateInput)  {
+        //商品单位是否存在与操作权限判断
+        Result result=checkExistAndPermission(supplierId,commUnitUpdateInput.getId());
+        if(null!=result){
             return result;
         }
-        commUnit.setName(commUnitUpdateInput.getName().trim());
+        //根据修改的name和supplierId判断是否重复
+        Result checkName=checkUnitName(supplierId,commUnitUpdateInput.getName().trim());
+        if (null!=checkName){
+            return checkName;
+        }
+        CommUnit commUnit= BeanMapper.map(commUnitUpdateInput,CommUnit.class);
         commUnit.setSupplierId(supplierId);
         commUnit.setUpdatedAt(new Date());
-        //3.判断该ID对应的商品单位是否存在
-        CommUnit one = commUnitDao.findOne(commUnitUpdateInput.getId());
-        if (null == one) {
-            result.setCode(Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage("商品单位修改失败，该商品单位不存在！");
-            return result;
-        }
-        //4.判断该ID对应的商品单位的supplierId与登录用户supplierId是否相同
-        if (supplierId.longValue() != one.getSupplierId().longValue()) {
-            result.setCode(Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage("您无权修改此商品单位！");
-            return result;
-        }
-       List<CommUnit> commUnitList= commUnitDao.findNameAndSupplierId(supplierId,commUnitUpdateInput.getName());
-        if (null!= commUnitList && commUnitList.size()>0) {
-            result.setCode(Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage("商品单位重复,请重新定义！");
-            return result;
-        }
-        //5.判断修改商品单位是否成功
-        if (commUnitDao.update(commUnit)) {
-            result.setCode(Constant.CodeConfig.CODE_SUCCESS);
-            result.setMessage("商品单位修改成功！");
-            return result;
-        } else {
-            result.setCode(Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage("商品单位修改失败！");
-            return result;
-        }
+        //执行修改操作
+        commUnitDao.update(commUnit);
+        return Result.success("商品单位修改成功！");
     }
 
     /**
@@ -144,41 +92,19 @@ public class CommUnitServiceImp implements CommUnitService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result deleteCommUnit(Long  supplierId, Long  id) {
-
-        //1.方法返回对象
-        Result result = new Result();
-        //2.根据该ID在供应商商品表中查询是是否在被使用（未删除状态），在使用状态时不能进行删除操作
-        List<SupplierCommodity> supplierCommodityList = supplierCommodityDao.findSupplierCommodityByUnitId(id);
-        if (null != supplierCommodityList && supplierCommodityList.size() > 0) {
-            result.setCode(Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage("商品单位正在使用！");
-            return result;
+        //商品单位是否存在与操作权限判断
+        Result result=checkExistAndPermission(supplierId,id);
+        if (null!=result){
+            return  result;
         }
-        //3.判断该ID对应的商品单位是否存在
-        CommUnit commUnit = commUnitDao.findOne(id);
-        if (null == commUnit) {
-            result.setCode(Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage("商品单位删除失败，该商品单位不存在！");
-            return result;
+        //根据该ID在供应商商品表中查询是是否在被使用（delete=0未删除状态），在使用状态时不能进行删除操作
+        int count=supplierCommodityDao.countByUnitId(id);
+        if (count>0) {
+            return Result.fail("商品单位正在使用，暂时无法删除此商品单位！");
         }
-        //4.判断ID对应的商品单位的supplierId与登录用户supplierId是否相同
-        if (supplierId.longValue() != commUnit.getSupplierId().longValue()) {
-            result.setCode(Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage("您无权删除此商品单位！");
-            return result;
-        }
-        //5.判断删除操作成功或失败
-        if (commUnitDao.delete(id)) {
-            result.setCode(Constant.CodeConfig.CODE_SUCCESS);
-            result.setMessage("商品单位删除成功！");
-            return result;
-        } else {
-            result.setCode(Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage("商品单位删除失败！");
-            return result;
-        }
+        commUnitDao.deleteById(id);
+        return Result.success("商品单位删除成功！");
     }
-
     /**
      * 查询商品单位集合（查询管理员和供应商单位）
      * @param supplierId 供应商id
@@ -186,16 +112,30 @@ public class CommUnitServiceImp implements CommUnitService {
      */
     @Override
     public Result searchCommUnit(Long supplierId) {
-         Result result=new Result();
          List<CommUnit> commUnitList=commUnitDao.search(supplierId);
-        if (null == commUnitList || commUnitList.size() == 0) {
-            result.setCode(Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage("查询商品单位失败！");
-        } else {
-            result.setCode(Constant.CodeConfig.CODE_SUCCESS);
-            result.setMessage("查询商品单位成功！");
-            result.setData(commUnitList);
+            return Result.success("查询商品单位成功！",commUnitList);
+    }
+    /**
+     * 商品包装单位存在性校验
+     * @param supplierId
+     * @param name
+     * @return
+     */
+    private Result checkUnitName(Long supplierId, String name ){
+        int count=commUnitDao.countByNameAndSupplierId(supplierId,name);
+        if(count>0){
+            return Result.fail("商品单位已存在！");
         }
-        return result;
+        return null;
+    }
+    private Result checkExistAndPermission(Long supplierId, Long id){
+        CommUnit commUnit=commUnitDao.findOne(id);
+        if(null==commUnit){
+            return Result.fail("该商品单位不存在！");
+        }
+        if(!supplierId.equals(commUnit.getSupplierId())){
+            return Result.fail("公共商品单位，不能操作！");
+        }
+        return null;
     }
 }
