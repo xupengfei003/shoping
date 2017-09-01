@@ -148,12 +148,15 @@ public class NumberUtil {
      * @param money 金额
      * @return 返回￥+千分位金额
      */
-    public static String number2ThousandFormat(BigDecimal money) {
-        if (null == money) {
+    public static String number2ThousandFormat(Object money) {
+        try {
+            if (null == money) {
+                return "￥0.00";
+            }
+            DecimalFormat decimalFormat = new DecimalFormat(",###,##0.00");
+            return "￥" + decimalFormat.format(new BigDecimal((String)money));
+        }catch (Exception e){
             return "￥0.00";
         }
-
-        DecimalFormat decimalFormat = new DecimalFormat(",###,##0.00");
-        return "￥" + decimalFormat.format(money);
     }
 }
