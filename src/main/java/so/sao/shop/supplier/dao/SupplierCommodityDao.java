@@ -20,19 +20,27 @@ public interface SupplierCommodityDao {
      * @param supplierCommodity 商品信息对象
      * @return 商品对象
      */
-    boolean save(SupplierCommodity supplierCommodity);
+    void save(SupplierCommodity supplierCommodity);
     /**
      * 删除商品
      * @param id 商品
      * @return 删除结果
      */
-    boolean deleteById(@Param("id") long id);
+    void deleteById(@Param("id") long id);
+
+    /**
+     * 批量删除商品
+     * @param supplierCommodityList 商品集合
+     * @return 删除结果
+     */
+    void deleteByIds(List supplierCommodityList);
+
     /**
      * 修改商品
      * @param supplierCommodity 商品信息对象
      * @return 修改结果
      */
-    boolean update(SupplierCommodity supplierCommodity);
+    void update(SupplierCommodity supplierCommodity);
 
     /**
      * 查询商品
@@ -54,6 +62,15 @@ public interface SupplierCommodityDao {
      * @return
      */
     SupplierCommodity findSupplierCommodityInfo(@Param("code69")String code69,@Param("supplierId") Long supplierId);
+
+    /**
+     * 根据id查询count
+     * @param code69
+     * @param supplierId
+     * @return
+     */
+    int countByCode69(@Param("code69")String code69,@Param("supplierId") Long supplierId);
+
     /**
      * 查询商品信息集合
      * @param supplierId 供应商ID
@@ -79,7 +96,7 @@ public interface SupplierCommodityDao {
      * @param id
      * @return
      */
-    int findCountById(@Param("id") Long id);
+    int countById(@Param("id") Long id);
 
     /**
      * 统计查询总记录数
@@ -161,8 +178,7 @@ public interface SupplierCommodityDao {
      * @param commMeasureSpecId 计量规格主键ID
      * @return List<SupplierCommodity>
      */
-    List<SupplierCommodity> findAllSupplierCommodityById( Long commMeasureSpecId);
-
+    int countSupplierCommodityById( Long commMeasureSpecId);
     /**
      *根据商品单位id查询商品单位是否被使用
      * @param unitId 商品单位id

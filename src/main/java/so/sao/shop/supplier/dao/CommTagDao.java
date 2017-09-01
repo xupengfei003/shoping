@@ -49,7 +49,7 @@ public interface CommTagDao {
      * @param id
      * @return
      */
-    int findCountById(@Param("id") Long id);
+    int countById(@Param("id") Long id);
 
     /**
      * 根据商品标签名称和supplierId查找商品标签

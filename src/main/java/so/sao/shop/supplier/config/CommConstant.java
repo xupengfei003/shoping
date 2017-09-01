@@ -29,6 +29,16 @@ public class CommConstant {
      */
     public static final int COMM_ST_XJ = 3;
 
+    /**
+     * 商品一级分类pid
+     */
+    public static final long CATEGORY_ONE_PID = 0L;
+
+    /**
+     * 商品分类不存在code码
+     */
+    public static final String CATEGORY_NULL_CODE = "00";
+
 
     public static String getStatus(int status){
         String st="待上架";
