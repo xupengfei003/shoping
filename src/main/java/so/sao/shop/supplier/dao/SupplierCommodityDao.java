@@ -178,8 +178,7 @@ public interface SupplierCommodityDao {
      * @param commMeasureSpecId 计量规格主键ID
      * @return List<SupplierCommodity>
      */
-    List<SupplierCommodity> findAllSupplierCommodityById( Long commMeasureSpecId);
-
+    int countSupplierCommodityById( Long commMeasureSpecId);
     /**
      *根据商品单位id查询商品单位是否被使用
      * @param unitId 商品单位id
