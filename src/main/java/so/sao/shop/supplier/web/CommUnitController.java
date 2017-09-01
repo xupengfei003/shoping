@@ -57,11 +57,11 @@ public class CommUnitController {
     public Result create(HttpServletRequest request, @RequestParam String name ){
         //校验输入name是否为空
         if( null == name || Ognl.isEmpty(name.trim())){
-            return Result.fail("请输入商品单位名称！");
+            return Result.fail("商品单位不能为空！");
         }else {
             name = name.trim();
             if (name.length()> Constant.CheckMaxLength.MAX_UNIT_NAME_LENGTH){
-                return Result.fail("商品单位名称长度不能超过"+ Constant.CheckMaxLength.MAX_UNIT_NAME_LENGTH+"位！");
+                return Result.fail("商品单位不能超过"+ Constant.CheckMaxLength.MAX_UNIT_NAME_LENGTH+"位！");
             }
         }
         User user = (User) request.getAttribute(Constant.REQUEST_USER);

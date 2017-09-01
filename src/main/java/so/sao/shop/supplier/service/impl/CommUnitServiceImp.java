@@ -45,7 +45,7 @@ public class CommUnitServiceImp implements CommUnitService {
             commUnit.setCreatedAt(new Date());
             commUnit.setUpdatedAt(new Date());
             commUnitDao.save(commUnit);
-            return Result.success("商品单位新增成功！");
+            return Result.success("添加商品单位成功！");
         }
     }
 
@@ -100,7 +100,7 @@ public class CommUnitServiceImp implements CommUnitService {
         //根据该ID在供应商商品表中查询是是否在被使用（delete=0未删除状态），在使用状态时不能进行删除操作
         int count=supplierCommodityDao.countByUnitId(id);
         if (count>0) {
-            return Result.fail("商品单位正在使用，暂时无法删除此单位！");
+            return Result.fail("商品单位正在使用，暂时无法删除此商品单位！");
         }
         commUnitDao.deleteById(id);
         return Result.success("商品单位删除成功！");
@@ -134,7 +134,7 @@ public class CommUnitServiceImp implements CommUnitService {
             return Result.fail("该商品单位不存在！");
         }
         if(!supplierId.equals(commUnit.getSupplierId())){
-            return Result.fail("预置商品单位无权操作！");
+            return Result.fail("公共商品单位无权操作");
         }
         return null;
     }
