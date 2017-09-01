@@ -134,7 +134,7 @@ public class CommUnitServiceImp implements CommUnitService {
             return Result.fail("该商品单位不存在！");
         }
         if(!supplierId.equals(commUnit.getSupplierId())){
-            return Result.fail("公共商品单位无权操作");
+            return Result.fail("公共商品单位，不能操作！");
         }
         return null;
     }
