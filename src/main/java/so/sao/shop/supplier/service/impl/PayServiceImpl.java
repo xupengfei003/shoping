@@ -67,9 +67,9 @@ public class PayServiceImpl implements PayService {
                     notificationDao.saveNotifications(notificationList);
                 }
             }
-            // 生成二维码
-            Map result = purchaseService.createReceivingQrcode(payInput.getOrderId());
-            flagDao = (boolean) result.get("flag");
+            // 根据支付id，批量生成订单的二维码
+            purchaseService.createReceivingQrcodeByPayId(payInput.getOrderId());
+
         }
         return flagDao;
     }
