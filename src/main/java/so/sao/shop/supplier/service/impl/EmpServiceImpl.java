@@ -3,10 +3,10 @@ package so.sao.shop.supplier.service.impl;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +28,8 @@ import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.EmpInput;
 import so.sao.shop.supplier.pojo.input.EmpUpdateInput;
 import so.sao.shop.supplier.service.EmpService;
+import so.sao.shop.supplier.util.PageTool;
+
 /**
  * <p>Title: EmpServiceImpl</p>
  * <p>Description: 员工业务实现</p>
@@ -155,17 +157,11 @@ public class EmpServiceImpl implements EmpService {
         if(accountId == null) {
         	return Result.fail("此登录账户不是供应商，无查询权限");
         }
-        //判断当前页码和每页显示的条数是否为空
-        if (null == empInput.getPageNum()){
-			empInput.setPageNum(1);
-        }
-        if (null == empInput.getPageSize()){
-			empInput.setPageSize(10);
-        }
         //分页
-        PageHelper.startPage(empInput.getPageNum(), empInput.getPageSize());
+        PageTool.startPage(empInput.getPageNum(), empInput.getPageSize());
         empInput.setAccountId(accountId);
-        PageInfo pageInfo = new PageInfo(empDao.findPage(empInput));
+        List<Emp> empList =  empDao.findPage(empInput);
+        PageInfo pageInfo = new PageInfo(empList);
         return Result.success("查询成功", pageInfo);
     }
 
@@ -182,11 +178,7 @@ public class EmpServiceImpl implements EmpService {
             	return Result.fail("此登录账户不是供应商，无更新权限");
             }
 			empUpdateInput.setUpdateAt(new Date());
-            int updateNumber = empDao.updateEmpStatusById(empUpdateInput);
-            //判断受影响的行数
-            if (updateNumber > 0){
-                return Result.success("修改成功！");
-            }
-            return Result.fail("修改失败！");
+            empDao.updateEmpStatusById(empUpdateInput);
+            return Result.success("员工状态修改成功");
     }
 }
