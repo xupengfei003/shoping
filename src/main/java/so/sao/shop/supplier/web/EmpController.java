@@ -82,7 +82,7 @@ public class EmpController {
      * @return 返回查询结果
      */
     @GetMapping("/findemp")
-    @ApiOperation(value = "查找员工列表")
+    @ApiOperation(value = "查找员工列表",notes = "负责人：唐文斌")
     public Result<PageInfo> search(EmpInput empInput, HttpServletRequest request) {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //验证是否登录
@@ -100,7 +100,7 @@ public class EmpController {
      * @return 返回修改状态结果
      */
     @PutMapping("/updateStatus")
-    @ApiOperation(value = "修改员工状态")
+    @ApiOperation(value = "修改员工状态",notes = "负责人：唐文斌")
     public Result updateStatus(@Valid @RequestBody EmpUpdateInput empUpdateInput, HttpServletRequest request,BindingResult bndresult) {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
       //验证是否登录

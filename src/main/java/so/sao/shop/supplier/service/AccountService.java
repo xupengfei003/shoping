@@ -2,7 +2,6 @@ package so.sao.shop.supplier.service;
 
 import com.github.pagehelper.PageInfo;
 import so.sao.shop.supplier.domain.Account;
-import so.sao.shop.supplier.domain.Condition;
 import so.sao.shop.supplier.domain.DictItem;
 import so.sao.shop.supplier.domain.User;
 import so.sao.shop.supplier.pojo.BaseResult;
@@ -10,6 +9,7 @@ import so.sao.shop.supplier.pojo.Result;
 import java.util.Date;
 import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
+import so.sao.shop.supplier.pojo.input.AccountInput;
 
 /**
  * Created by xujc on 2017/7/18.
@@ -102,10 +102,10 @@ public interface AccountService {
 
     /**
      * 分页查询供应商
-     * @param condition
+     * @param accountInput
      * @return 分页对象
      */
-	PageInfo searchAccount(Condition condition);
+	 PageInfo searchAccount(AccountInput accountInput);
 
 
     /**
