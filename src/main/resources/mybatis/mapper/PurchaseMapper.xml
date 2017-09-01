@@ -483,6 +483,7 @@
         order_refuse_imgA = #{map.refuseImgUrlA},
         order_refuse_imgB = #{map.refuseImgUrlB},
         order_refuse_imgC = #{map.refuseImgUrlC},
+        order_status = #{map.orderStatus},
         updated_at = #{map.updatedAt}
         WHERE order_id = #{map.orderId}
     </update>
@@ -547,6 +548,7 @@
         UPDATE purchase
         SET
         order_cancel_reason = #{cancelMap.cancelReason},
+        order_status = #{cancelMap.orderStatus},
         updated_at = #{cancelMap.updatedAt}
         WHERE order_id = #{cancelMap.orderId}
     </update>
