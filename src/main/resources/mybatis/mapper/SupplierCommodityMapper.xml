@@ -175,7 +175,10 @@
         sc.created_at AS createdAt,
         sc.updated_at AS updatedAt,
         sc.supplier_id AS supplierId,
-        sc.status AS status
+        sc.status AS status,
+        (SELECT NAME FROM comm_category cc WHERE cc.id = c.category_one_id) AS categoryOneName,
+        (SELECT NAME FROM comm_category cc WHERE cc.id = c.category_two_id) AS categoryTwoName,
+        (SELECT NAME FROM comm_category cc WHERE cc.id = c.category_three_id) AS categoryThreeName
         FROM
         supplier_commodity sc INNER JOIN (commodity c LEFT JOIN comm_brand cb ON c.brand_id = cb.id) ON sc.code69 = c.code69
         LEFT JOIN comm_measure_spec cms ON sc.measure_spec_id = cms.id LEFT JOIN comm_unit cu ON sc.unit_id = cu.id LEFT JOIN comm_tag ct ON sc.tag_id = ct.id

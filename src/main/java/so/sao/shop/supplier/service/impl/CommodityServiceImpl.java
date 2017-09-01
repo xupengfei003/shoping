@@ -360,44 +360,19 @@ public class CommodityServiceImpl implements CommodityService {
      */
     @Override
     public Result getCommodity(Long id) {
-        Result result = new Result();
         //根据供应商商品ID获取商品信息
         CommodityOutput commodityOutput = supplierCommodityDao.findDetail(id);
-        if(null == commodityOutput){
-            return null;
+        if(null != commodityOutput){
+            //根据供应商商品ID获取图片列表信息
+            List<CommImge> commImgeList = commImgeDao.find(id);
+            List<CommImgeVo> commImgeVoList = new ArrayList<>();
+            commImgeList.forEach(commImge->{
+                CommImgeVo commImgeVo = BeanMapper.map(commImge, CommImgeVo.class);
+                commImgeVoList.add(commImgeVo);
+            });
+            commodityOutput.setImgeList(commImgeVoList);
         }
-        String categoryOneName = commCategoryDao.findNameById(commodityOutput.getCategoryOneId());
-        String categoryTwoName = commCategoryDao.findNameById(commodityOutput.getCategoryTwoId());
-        String categoryThreeName = commCategoryDao.findNameById(commodityOutput.getCategoryThreeId());
-        if(!StringUtil.isNull(categoryOneName)){
-            commodityOutput.setCategoryOneName(categoryOneName);
-        }
-        if(!StringUtil.isNull(categoryTwoName)){
-            commodityOutput.setCategoryTwoName(categoryTwoName);
-        }
-        if(!StringUtil.isNull(categoryThreeName)){
-            commodityOutput.setCategoryThreeName(categoryThreeName);
-        }
-
-        //根据供应商商品ID获取图片列表信息
-        List<CommImge> commImgeList = commImgeDao.find(id);
-        List<CommImgeVo> commImgeVoList = new ArrayList<CommImgeVo>();
-        for(CommImge commImge : commImgeList){
-            CommImgeVo commImgeVo = new CommImgeVo();
-            commImgeVo.setId(commImge.getId());
-            commImgeVo.setScId(commImge.getScId());
-            commImgeVo.setUrl(commImge.getUrl());
-            commImgeVo.setType(commImge.getType());
-            commImgeVo.setSize(commImge.getSize());
-            commImgeVo.setName(commImge.getName());
-            commImgeVo.setThumbnailUrl(commImge.getThumbnailUrl());
-            commImgeVoList.add(commImgeVo);
-        }
-        commodityOutput.setImgeList(commImgeVoList);
-        result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SUCCESS);
-        result.setMessage("查询成功");
-        result.setData(commodityOutput);
-        return result;
+        return Result.success("查询成功", commodityOutput);
     }
 
     @Override
@@ -429,42 +404,24 @@ public class CommodityServiceImpl implements CommodityService {
      */
     @Override
     public Result simpleSearchCommodities(Long supplierId, String inputvalue, Date beginCreateAt, Date endCreateAt, Integer pageNum, Integer pageSize) {
-        Result result = new Result();
-        Page page = new Page(pageNum, pageSize);
-        //入参校验 -- 待改进，需要改动接口入参，优化此段代码
-        String createAtMessage = DataCompare.createAtCheck(beginCreateAt,endCreateAt);
+        //入参校验
+        String createAtMessage = DataCompare.createAtCheck(beginCreateAt, endCreateAt);
         if(!"".equals(createAtMessage)){
             return Result.fail(createAtMessage);
         }
-        //分页参数校验
-        page = PageUtil.pageCheck(page);
         //开始分页
-        PageHelper.startPage(page.getPageNum(),page.getRows());
+        PageTool.startPage(pageNum, pageSize);
         List<SuppCommSearchVo> respList = supplierCommodityDao.findSimple(supplierId, inputvalue, beginCreateAt, endCreateAt);
-        Long countTotal = supplierCommodityDao.countTotalSimple(supplierId, inputvalue, beginCreateAt, endCreateAt);
-        //查无数据直接返回
-        if (respList.size()==0)
-        {
-            result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SUCCESS);
-            result.setMessage("暂无商品数据");
-            return result;
-        }
-
-        for (SuppCommSearchVo suppCommSearchVo : respList)
-        {
+        respList.forEach(suppCommSearchVo->{
             int statusNum = Integer.parseInt(suppCommSearchVo.getStatus());
             suppCommSearchVo.setStatusNum(statusNum);
             suppCommSearchVo.setStatus(CommConstant.getStatus(statusNum));
             //转换金额为千分位
-            suppCommSearchVo.setUnitPrice("￥"+NumberUtil.number2Thousand(new BigDecimal(suppCommSearchVo.getUnitPrice())));
-            suppCommSearchVo.setPrice("￥"+NumberUtil.number2Thousand(new BigDecimal(suppCommSearchVo.getPrice())));
-        }
+            suppCommSearchVo.setUnitPrice("￥" + NumberUtil.number2Thousand(new BigDecimal(suppCommSearchVo.getUnitPrice())));
+            suppCommSearchVo.setPrice("￥" + NumberUtil.number2Thousand(new BigDecimal(suppCommSearchVo.getPrice())));
+        });
         PageInfo<SuppCommSearchVo> pageInfo = new PageInfo<SuppCommSearchVo>(respList);
-        pageInfo.setTotal(countTotal);
-        result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SUCCESS);
-        result.setMessage("查询完成");
-        result.setData(pageInfo);
-        return result;
+        return Result.success("查询完成", pageInfo);
     }
 
     /**
@@ -485,7 +442,7 @@ public class CommodityServiceImpl implements CommodityService {
     @Override
     public Result searchCommodities(Long supplierId, String commCode69, String sku, String suppCommCode, String commName, Integer status, Long typeId,
                                     BigDecimal minPrice, BigDecimal maxPrice, Date beginCreateAt, Date endCreateAt, Integer pageNum, Integer pageSize) {
-        //入参校验 -- 待改进，需要改动接口入参，优化此段代码
+        //入参校验
         String priceMessage = DataCompare.priceCheck(minPrice, maxPrice);
         if(!"".equals(priceMessage)){
             return Result.fail(priceMessage);
