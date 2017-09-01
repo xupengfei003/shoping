@@ -631,20 +631,15 @@ public class CommodityServiceImpl implements CommodityService {
      */
     @Override
     public Result importExcel(MultipartFile multipartFile, HttpServletRequest request, Long supplierId) throws Exception {
-        Map<String ,List> outmap = new HashMap();
+        Map<String ,List> outmap = new HashMap();// 封装errorList 和 rightList 数据
         List<CommodityImportOutput> commodityImportOutputList = new ArrayList<CommodityImportOutput>();
-        List<Map<String, String>> list = null;
-
         String tempPath = request.getSession().getServletContext().getRealPath("") + "/file/";// 文件上传到的文件夹
-        String filename = "";
-        transferTo(request, tempPath);//文件移动至tempPath路径下
-
+        String filename = transferTo(request, tempPath);//文件移动至tempPath路径下
         //接下来开始解压缩文件
         String newFileName = DateUtil.getStringDateTime();
         Map excelmap = new HashMap();
-        Result result = deCompressFile(tempPath, filename, newFileName, excelmap);//解压缩文件
-        if(excelmap.size() == 0){
-            return result;
+        if(!"".equals(filename.trim())){
+            newFileName= deCompressFile(tempPath, filename, newFileName, excelmap);//解压缩文件
         }
         String excelpath = tempPath + newFileName +"/"+excelmap.get("excel").toString();
         //使用工具类 获取Excel 内容
@@ -656,7 +651,6 @@ public class CommodityServiceImpl implements CommodityService {
         Map<String, String> map = null;
         List<CommodityInput> commodityInputs = new ArrayList<CommodityInput>();
         List<CommRuleVo> ruleList = new ArrayList<CommRuleVo>();
-
         // Excel 内容转 CommodityInput对象
         if(mapRight != null){
             for (Map.Entry<Integer,Map<String, String>> itmap : mapRight.entrySet()) {
@@ -670,8 +664,8 @@ public class CommodityServiceImpl implements CommodityService {
                 for (Map.Entry<String, String> cellMap: map.entrySet()) {
                     String key = cellMap.getKey() == null ? "" : cellMap.getKey();
                     String value = cellMap.getValue() == null ? "" : cellMap.getValue();
-
-                    checkCellData(key, value, commodityInput, supplierCommodityVo, pid, tempPath + newFileName, supplierId);
+                    //封装数据
+                    pid= checkCellData(key, value, commodityInput, supplierCommodityVo, pid, tempPath + newFileName, supplierId);
                 }
 
                 commodityList.add(supplierCommodityVo);
@@ -689,7 +683,7 @@ public class CommodityServiceImpl implements CommodityService {
                 int rowNum = commodityInput.getRowNum();
                 if (null == imgeList || imgeList.isEmpty()){
                     errorList.add(rowNum);
-                }else if (!"".equals(code69)) {
+                }else if ( !"".equals(code69) ) {
                     if(!Tools.isNumeric(code69)){
                         errorList.add(rowNum);
                     }else {
@@ -708,7 +702,6 @@ public class CommodityServiceImpl implements CommodityService {
             if(errorList.contains(rowNum)){//过滤错误数据记录
                 continue;
             }
-
             Result baseResult = saveCommodity(commodityInput, supplierId);
             String code69 = commodityInput.getCommodityList().get(0).getCode69();
             if(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SUCCESS != baseResult.getCode()){
@@ -733,9 +726,7 @@ public class CommodityServiceImpl implements CommodityService {
                 commodityImportOutputList.add(commodityImportOutput);
             }
         }
-
         if(null != mapError) {
-            Map.Entry<Integer, Map<String, String>> entrymaperro = null;
             for (Map.Entry<Integer,Map<String, String>> itmap : mapError.entrySet()) {
                 int rownum = itmap.getKey();
                 errorList.add(rownum);
@@ -745,7 +736,6 @@ public class CommodityServiceImpl implements CommodityService {
         FileUtil.deleteDirectory(tempPath + newFileName);
         outmap.put("rightlist",commodityImportOutputList);
         outmap.put("errolist",errorList);
-
         return Result.success("成功导入！", outmap);
     }
 
@@ -759,7 +749,7 @@ public class CommodityServiceImpl implements CommodityService {
      * @param filePath
      * @param supplierId
      */
-    private void checkCellData(String key, String value, CommodityInput commodityInput, SupplierCommodityVo supplierCommodityVo,
+    private Long checkCellData(String key, String value, CommodityInput commodityInput, SupplierCommodityVo supplierCommodityVo,
                                long pid, String filePath, long supplierId){
         switch (key) {
             case "商品条码":
@@ -810,7 +800,7 @@ public class CommodityServiceImpl implements CommodityService {
                 break;
             case "商品分类一级":
                 if (!"".equals(value)) {
-                    CommCategory commCategoryone = commCategoryDao.findCommCategoryByNameAndPid(value,pid); //修改為count
+                    CommCategory commCategoryone = commCategoryDao.findCommCategoryByNameAndPid(value,pid);
                     if (null != commCategoryone) {
                         pid = commCategoryone.getId();
                         commodityInput.setCategoryOneId(commCategoryone.getId());
@@ -819,7 +809,7 @@ public class CommodityServiceImpl implements CommodityService {
                 break;
             case "商品分类二级":
                 if (!"".equals(value)) {
-                    CommCategory commCategorytwo = commCategoryDao.findCommCategoryByNameAndPid(value,pid);//修改為count
+                    CommCategory commCategorytwo = commCategoryDao.findCommCategoryByNameAndPid(value,pid);
                     if (null != commCategorytwo) {
                         pid=commCategorytwo.getId();
                         commodityInput.setCategoryTwoId(commCategorytwo.getId());
@@ -828,16 +818,13 @@ public class CommodityServiceImpl implements CommodityService {
                 break;
             case "商品分类三级":
                 if (!"".equals(value)) {
-                    CommCategory commCategorythree = commCategoryDao.findCommCategoryByNameAndPid(value,pid);//修改為count
+                    CommCategory commCategorythree = commCategoryDao.findCommCategoryByNameAndPid(value,pid);
                     if (null != commCategorythree) {
                         commodityInput.setCategoryThreeId(commCategorythree.getId());
                     }
                 }
                 break;
             case "商品描述":
-                commodityInput.setRemark(value);
-                break;
-            case "商品介绍":
                 commodityInput.setRemark(value);
                 break;
             case "计量规格":
@@ -847,7 +834,6 @@ public class CommodityServiceImpl implements CommodityService {
                     if(null!=commMeasureSpeclist&&commMeasureSpeclist.size()>0){
                         supplierCommodityVo.setMeasureSpecId(commMeasureSpeclist.get(0).getId());
                     }
-
                 }
                 break;
             case "商品规格值":
@@ -900,6 +886,7 @@ public class CommodityServiceImpl implements CommodityService {
                 commodityInput.setMarketTime(DateUtil.stringToDate(value));
                 break;
         }
+        return  pid;
     }
 
     /**
@@ -908,17 +895,15 @@ public class CommodityServiceImpl implements CommodityService {
      * @param filename
      * @param newFileName
      * @param excelmap
-     * @return
+     * @return newFileName
      */
-    private Result deCompressFile(String tempPath, String filename, String newFileName, Map excelmap){
+    private String deCompressFile(String tempPath, String filename, String newFileName, Map excelmap) throws Exception{
         try {
             ZipUtil.deCompress(tempPath + filename,tempPath + newFileName,true);
-
             //解压完成后 遍历文件夹 如果有中文则修改为数字
             FileUtil.getreNameFile(tempPath + newFileName, newFileName);
             File file = new File(tempPath + newFileName);
             File[] tempList = file.listFiles();
-
             for (int i = 0; i < tempList.length; i++) {
                 if (tempList[i].isFile()) {
                     String type = tempList[i].toString().substring(tempList[i].toString().lastIndexOf(".") + 1);
@@ -926,7 +911,6 @@ public class CommodityServiceImpl implements CommodityService {
                         excelmap.put("excel", tempList[i].getName());
                     }
                 }
-
                 if(tempList[i].isDirectory()) {
                     newFileName = newFileName + "/" +tempList[i].getName();
                     File[] tempListdir = tempList[i].listFiles();
@@ -942,18 +926,19 @@ public class CommodityServiceImpl implements CommodityService {
             }
         } catch (Exception e) {
             logger.error("解压失败!", e);
-            return Result.fail("解压失败!");
+            throw new Exception("解压失败!");
         }
-
-        return Result.fail("解压失败!");
+        return  newFileName;
     }
 
     /**
      * 文件移动
      * @param request
      * @param tempPath
+     * @return filename
      */
-    private void transferTo(HttpServletRequest request, String tempPath){
+    private String transferTo(HttpServletRequest request, String tempPath){
+        String   filename = "";
         //创建一个通用的多部分解析器
         CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver(request.getSession().getServletContext());
         //判断 request 是否有文件上传,即多部分请求
@@ -968,6 +953,7 @@ public class CommodityServiceImpl implements CommodityService {
                     MultipartFile file = multiRequest.getFile(iter.next());
                     if(file != null){
                         //取得当前上传文件的文件名称
+                        filename = file.getOriginalFilename();
                         File fullFile = new File(file.getOriginalFilename().trim());
                         File newFile = new File(tempPath + fullFile.getName());
                         if (!new File(tempPath).isDirectory()) {
@@ -982,6 +968,8 @@ public class CommodityServiceImpl implements CommodityService {
                 e.printStackTrace();
             }
         }
+        return  filename;
     }
+
 
 }
