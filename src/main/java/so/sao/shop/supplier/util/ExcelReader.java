@@ -69,13 +69,11 @@ public class ExcelReader {
      * @createDate ：2015年8月31日下午3:12:06 <br>
      */
     public static Map<String, Map>  readExcelContent(String fileName, int contentStartRow) {
-
         Map<String, Map>  maps=new HashMap<>();
         //Excel中正确记录信息
         Map<Integer,Map<String, String>> mapright = new HashMap<>();
         //Excel中错误行号
         Map<Integer,Map<String, String>> maperror = new HashMap<>();
-
         List<Integer> errorlist = new ArrayList<>();
         Map<String, String> content = null;
         try {
@@ -107,12 +105,9 @@ public class ExcelReader {
             if (row == null)
             {
                 maperror.put(i+1,content);
-
                 continue;
             }
-
-
-            if (!(getCellFormatValue(row.getCell(0)).trim() == null || "".equals(getCellFormatValue(row.getCell(0)).trim())))
+            if (!(getCellFormatValue(row.getCell(0)) == null || "".equals(getCellFormatValue(row.getCell(0)).trim())))
             {
                 do {
                     content.put(titles[j], getCellFormatValue(row.getCell(j)).trim());
@@ -122,70 +117,17 @@ public class ExcelReader {
                 maperror.put(i+1,content);
                 content = null ;
             }
-
             if(content != null){
-
                 mapright.put(i+1,content);
             }
-
         }
         maps.put("mapright",mapright);
         maps.put("maperror",maperror);
         return maps;
     }
-	
-	 /**
-     * @param fileName ：Excel 文件路径
-     * @return List<Map<String,String>>
-     * @method ：readExcelContent<br>
-     * @describe ：读取 Excel 内容<br>
-     * @author ：wanglongjie<br>
-     * @createDate ：2015年8月31日下午3:12:06 <br>
-     */
-    public static String [][] readExcel(String fileName, int contentStartRow) {
-        List<Map<String, String>> list = new ArrayList<>();
-		String [][] strings;
-        Map<String, String> content = null;
-        try {
-            InputStream is;
-            is = new FileInputStream(fileName);
-            String postfix = fileName.substring(fileName.lastIndexOf("."), fileName.length());
-            if (postfix.equals(".xls")) {
-                // 针对 2003 Excel 文件
-                wb = new HSSFWorkbook(new POIFSFileSystem(is));
-                sheet = wb.getSheetAt(0);
-            } else {
-                // 针对2007 Excel 文件
-                wb = new XSSFWorkbook(is);
-                sheet = wb.getSheetAt(0);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        sheet = wb.getSheetAt(0);
-        int rowNum = sheet.getLastRowNum();// 得到总行数
-        row = sheet.getRow(contentStartRow - 1);//和title一样
-        int colNum = row.getPhysicalNumberOfCells();
-		strings=new String [rowNum][colNum];
-        String titles[] = readExcelTitle(fileName, contentStartRow - 1);
-        // 正文内容应该从第二行开始,第一行为表头的标题
-        for (int i = 0; i <rowNum; i++) {
-           
-            row = sheet.getRow(i);
-            content = new LinkedHashMap<>();
-			
-			for (int j=0;j<colNum;j++){
-				strings[i][j]=getCellFormatValue(row.getCell(j)).trim();
-			}
-           
-           
-        }
-        return strings;
-    }
 
     /**
      * 根据Cell类型设置数据
-     *
      * @param cell
      * @return
      */
@@ -203,7 +145,6 @@ public class ExcelReader {
                     } else { // 纯数字
                         cellvalue = df.format(cell.getNumericCellValue());
                     }
-
                     break;
                 case Cell.CELL_TYPE_FORMULA: {
                     // 判断当前的cell是否为Date
@@ -226,13 +167,11 @@ public class ExcelReader {
                 default:
                     // 默认的Cell值
                     cellvalue = cell.getRichStringCellValue() == null ? null : cell.getRichStringCellValue().toString();
-
             }
         } else {
             cellvalue = "";
         }
         return cellvalue;
-
     }
 
 
