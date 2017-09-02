@@ -47,7 +47,6 @@ public class PayServiceImpl implements PayService {
             map.put("updatedAt", new Date());//更新时间
             map.put("orderStatus", Constant.OrderStatusConfig.PENDING_SHIP);//订单状态
             map.put("orderId", payInput.getOrderId());//订单编号
-            map.put("orderPrice", payInput.getOrderPrice());//订单金额
             map.put("orderPaymentNum", payInput.getOrderPaymentNum());//支付流水号
             map.put("orderPaymentMethod", payInput.getOrderPaymentMethod());//支付方式
             map.put("payStatus", 1);//支付状态  0.未支付状态  1.已支付状态

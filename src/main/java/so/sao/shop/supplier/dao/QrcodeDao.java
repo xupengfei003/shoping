@@ -62,4 +62,5 @@ public interface QrcodeDao {
      * @return
      */
     int getQrcodesByPayId(String payId);
+
 }
