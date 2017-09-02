@@ -660,6 +660,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         output.setReceivingAddress(purchasePrintVo.getReceivingAddress());
         output.setOrderCreateTime(purchasePrintVo.getOrderCreateTime());
         output.setOrderCreateTimeStr(StringUtil.fomateData(purchasePrintVo.getOrderCreateTime(), "yyyy年MM月dd日"));
+        output.setOrderStatus(purchasePrintVo.getOrderStatus()); // 增加订单状态
         // 订单的二维码信息
         output.setQrcodeUrl(purchasePrintVo.getQrcodeUrl());
         output.setQrcodeStatus(purchasePrintVo.getQrcodeStatus());
