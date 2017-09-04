@@ -75,7 +75,7 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
          *   a).结算明细的list
          *   b).结算明细与订单关联关系list
          *   c).更新的accountList
-         *   d).获取计算明细中的值
+         *   d).获取账户id
          *   e).设置Account表中需要更新账户表中的字段
          *   f).查询该商户下已完成的且在指定结算方式内的订单
          *   g).循环订单id,设置结算明细与订单关联关系的值，并添加到结算明细与订单关联的recordPurchaseList
@@ -99,15 +99,8 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
             for (Account account : accountList) {
                 String remittanceType = account.getRemittanceType();//结算方式
 
-                //d).获取结算明细中的值
-                String recordId = NumberGenerate.generateId();
+                //d).获取账户id
                 Long accountId = account.getAccountId();
-                String bankName = account.getBankName();
-                String bankNameBranch = "";
-                String bankAccount = account.getBankNum();
-                String serialNumber = "";
-                String providerName = account.getProviderName();
-                String bankUserName = account.getBankUserName();
 
                 Date currentDate = new Date();
 
@@ -145,6 +138,8 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
                     continue;
                 }
 
+                String recordId = NumberGenerate.generateId();//生成结算明细id
+
                 //g).循环订单id,设置结算明细与订单关联关系的值，并添加到结算明细与订单关联的recordPurchaseList
                 BigDecimal tmpOrderSettlemePrice = new BigDecimal("0.00");
 
@@ -165,17 +160,17 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
                 OrderMoneyRecord omr = new OrderMoneyRecord();
                 omr.setRecordId(recordId);
                 omr.setUserId(accountId);// 账户id
-                omr.setBankName(bankName);// 开户行
-                omr.setBankNameBranch(bankNameBranch);// 开户支行
-                omr.setBankAccount(bankAccount);// 银行卡号
+                omr.setBankName(account.getBankName());// 开户行
+                omr.setBankNameBranch("");// 开户支行
+                omr.setBankAccount(account.getBankNum());// 银行卡号
                 omr.setTotalMoney(tmpOrderSettlemePrice);// 待结算金额
                 omr.setState("0");// 状态
                 omr.setCreatedAt(currentDate);// 创建时间
                 omr.setUpdatedAt(currentDate);// 更新时间
-                omr.setSerialNumber(serialNumber);//流水号
-                omr.setProviderName(providerName);//供应商名称
+                omr.setSerialNumber("");//流水号
+                omr.setProviderName(account.getProviderName());//供应商名称
                 omr.setSettledAmount(new BigDecimal("0.00"));//已结算金额
-                omr.setBankUserName(bankUserName);//开户人姓名
+                omr.setBankUserName(account.getBankUserName());//开户人姓名
                 omr.setCheckoutAt(currentDate);//结账时间
                 orderMoneyRecordList.add(omr);
 
