@@ -584,12 +584,10 @@ public class PurchaseController {
             result.setMessage(Constant.MessageConfig.MSG_NOT_EMPTY);
             return result;
         }
-        //暂不考虑
-        /*if (verifyOrderStatus(orderId, Constant.OrderStatusConfig.RECEIVED) == 0){
-            result.setMessage(Constant.MessageConfig.ORDER_STATUS_EERO);
-            return result;
-        }*/
 
+        if (!verifyOrderStatus(orderId, Constant.OrderStatusConfig.RECEIVED)) {
+            return Result.fail(Constant.MessageConfig.ORDER_STATUS_EERO);
+        }
         try {
             // 扫描收货二维码
             Map map = purchaseService.sweepReceiving(orderId);
