@@ -3,32 +3,21 @@ package so.sao.shop.supplier.web;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.ModelAndView;
-import so.sao.shop.supplier.config.StorageConfig;
 import so.sao.shop.supplier.pojo.BaseResult;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.CommSearchInput;
 import so.sao.shop.supplier.pojo.input.CommSimpleSearchInput;
 import so.sao.shop.supplier.pojo.input.CommodityInput;
 import so.sao.shop.supplier.pojo.input.CommodityUpdateInput;
-import so.sao.shop.supplier.pojo.output.CommodityExportOutput;
 import so.sao.shop.supplier.service.CommodityService;
 import so.sao.shop.supplier.util.CheckUtil;
-import so.sao.shop.supplier.util.CommodityExcelView;
-import so.sao.shop.supplier.util.ExcelView;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.math.BigDecimal;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
 
 /**
  * 商品管理 Controller
@@ -143,18 +132,13 @@ public class CommodityController {
        return commodityService.importExcel(excelFile, request, supplierId);
     }
 
-    @ApiOperation(value="导出商品信息", notes="导出商品信息到Excel")
+    @ApiOperation(value="导出商品信息", notes="导出商品信息到Excel【负责人：张瑞兵】")
     @GetMapping(value="/exportExcel")
-    public ModelAndView exportExcel(@RequestParam Long[] ids){
+    public Result exportExcel(HttpServletResponse response , @RequestParam Long[] ids){
         if(ids == null || ids.length == 0){
             throw new RuntimeException("请至少选择一个商品进行导出！");
         }
-        List<CommodityExportOutput> commodityList = commodityService.findByIds(ids);
-        Map<String, Object> map = new HashMap<String, Object>();
-        map.put("members", commodityList);
-        map.put("name", "商品信息表");
-        ExcelView excelView = new CommodityExcelView();
-        return new ModelAndView(excelView, map);
+        return commodityService.exportExcel(response,ids);
     }
 
 }

@@ -1,9 +1,6 @@
 package so.sao.shop.supplier.pojo.output;
 
 import java.math.BigDecimal;
-import java.util.Date;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
 import so.sao.shop.supplier.pojo.BaseResult;
 
 /**
@@ -77,6 +74,12 @@ public class CommodityExportOutput extends BaseResult{
      * 已上架 待上架 已下架
      */
     private int status;
+
+    /**
+     * 商品状态名称
+     */
+    private String statusName;
+
     /**
      *  创建时间
      */
@@ -230,5 +233,35 @@ public class CommodityExportOutput extends BaseResult{
         this.status = status;
     }
 
+    public String getStatusName() {
+        return statusName;
+    }
 
+    public void setStatusName(String statusName) {
+        this.statusName = statusName;
+    }
+
+    @Override
+    public String toString() {
+        return
+                sku +
+            "," + code69 +
+            "," + brandName +
+            "," + tagName +
+            "," + commName  +
+            "," + supplierCode +
+            "," + unitName +
+            "," + measureSpecName +
+            "," + ruleValue +
+            "," + price +
+            "," + unitPrice +
+            "," + inventory +
+            "," + statusName +
+            "," + createdAt +
+            "," + updatedAt +
+            "," + companyName +
+            "," + originPlace +
+            "," + marketTime ;
+
+    }
 }

@@ -1,19 +1,16 @@
 package so.sao.shop.supplier.service.impl;
 
-import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import org.apache.tomcat.util.http.fileupload.disk.DiskFileItemFactory;
-import org.apache.tomcat.util.http.fileupload.servlet.ServletFileUpload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile; 
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import so.sao.shop.supplier.config.CommConstant;
-import so.sao.shop.supplier.config.StorageConfig;
 import so.sao.shop.supplier.config.azure.AzureBlobService;
 import so.sao.shop.supplier.dao.*;
 import so.sao.shop.supplier.domain.*;
@@ -32,11 +29,11 @@ import so.sao.shop.supplier.service.CommodityService;
 import so.sao.shop.supplier.util.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -71,6 +68,9 @@ public class CommodityServiceImpl implements CommodityService {
 
     @Autowired
     private AzureBlobService azureBlobService;
+
+    @Value("${excel.tempaltepath}")
+    private String urlFile;
 
     /**
      * 新增商品
@@ -375,11 +375,6 @@ public class CommodityServiceImpl implements CommodityService {
             commodityOutput.setImgeList(commImgeVoList);
         }
         return Result.success("查询成功", commodityOutput);
-    }
-
-    @Override
-    public List<CommodityExportOutput> findByIds(Long[] ids) {
-        return commodityDao.findByIds(ids);
     }
 
     @Override
@@ -965,6 +960,108 @@ public class CommodityServiceImpl implements CommodityService {
             }
         }
         return  filename;
+    }
+
+    @Override
+    public  Result exportExcel(HttpServletResponse response , Long[] ids) {
+        POIExcelUtil poiExcelUtil = new POIExcelUtil();
+        List<Object[]> dataList = new ArrayList<>();
+        List<CommodityExportOutput> commodityList = findByIds(ids);
+        if(commodityList.size()>0 && commodityList != null){
+            commodityList.forEach(commodity->{
+                Object []  key = commodity.toString().split(",");
+                dataList.add( key);
+            });
+            if(!urlFile.isEmpty()){
+                poiExcelUtil.writeExcel(urlFile,dataList,1,response,"商品列表","商品列表");
+                return Result.success("导出商品成功！");
+            }
+            return Result.fail("指定模板文件不存在！");
+
+        }
+        return Result.fail("找不到商品！");
+
+    }
+
+    @Override
+    public List<CommodityExportOutput> findByIds(Long[] ids) {
+        List<CommodityExportOutput> commodityExportOutputs = commodityDao.findByIds(ids);
+        if(commodityExportOutputs.size()>0 && commodityExportOutputs != null){
+            commodityExportOutputs.forEach(commodityExportOutput->{
+                check(commodityExportOutput);
+            });
+        }
+        return commodityExportOutputs;
+    }
+
+    private CommodityExportOutput check(CommodityExportOutput commodityExportOutput){
+        if(commodityExportOutput.getCode69() == null){
+            commodityExportOutput.setCode69("");
+        }
+        if(commodityExportOutput.getBrandName() == null){
+            commodityExportOutput.setBrandName("");
+        }
+        if(commodityExportOutput.getCommName() == null){
+            commodityExportOutput.setCommName("");
+        }
+        if(commodityExportOutput.getSupplierCode() == null){
+            commodityExportOutput.setSupplierCode("");
+        }
+        if(commodityExportOutput.getSku() == null){
+            commodityExportOutput.setSku("");
+        }
+        if(commodityExportOutput.getUnitName() == null){
+            commodityExportOutput.setUnitName("");
+        }
+        if(commodityExportOutput.getMeasureSpecName() == null){
+            commodityExportOutput.setMeasureSpecName("");
+        }
+        if(commodityExportOutput.getTagName() == null){
+            commodityExportOutput.setTagName("");
+        }
+        if(commodityExportOutput.getOriginPlace() == null){
+            commodityExportOutput.setOriginPlace("");
+        }
+        if(commodityExportOutput.getCompanyName() == null){
+            commodityExportOutput.setCompanyName("");
+        }
+        if(commodityExportOutput.getMarketTime() == null || "".equals(commodityExportOutput.getMarketTime().trim())
+                || commodityExportOutput.getMarketTime().trim().length() < 10){
+            commodityExportOutput.setMarketTime("");
+        } else {
+            commodityExportOutput.setMarketTime(commodityExportOutput.getMarketTime().substring(0,10));
+        }
+        if(commodityExportOutput.getRuleValue() == null){
+            commodityExportOutput.setRuleValue("");
+        }
+        if(commodityExportOutput.getPrice() == null){
+            commodityExportOutput.setPrice(new BigDecimal(0.0));
+        }
+        if(commodityExportOutput.getUnitPrice() == null){
+            commodityExportOutput.setUnitPrice(new BigDecimal(0.0));
+        }
+        if(commodityExportOutput.getInventory() == null){
+            commodityExportOutput.setInventory(0.0);
+        }
+        if(commodityExportOutput.getCreatedAt() == null || "".equals(commodityExportOutput.getCreatedAt().trim())
+                || commodityExportOutput.getCreatedAt().length()<19){
+            commodityExportOutput.setCreatedAt("");
+        } else {
+            commodityExportOutput.setCreatedAt(commodityExportOutput.getCreatedAt().substring(0,19));
+        }
+        if(commodityExportOutput.getUpdatedAt() == null || "".equals(commodityExportOutput.getUpdatedAt().trim())
+                || commodityExportOutput.getUpdatedAt().length()<19){
+            commodityExportOutput.setUpdatedAt("");
+        } else {
+            commodityExportOutput.setUpdatedAt(commodityExportOutput.getUpdatedAt().substring(0,19));
+        }
+        if(commodityExportOutput.getStatus()<0){
+            commodityExportOutput.setStatusName("");
+        } else {
+            commodityExportOutput.setStatusName(CommConstant.getStatus(commodityExportOutput.getStatus()));
+        }
+        return commodityExportOutput;
+
     }
 
 
