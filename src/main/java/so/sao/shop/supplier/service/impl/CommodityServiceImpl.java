@@ -756,16 +756,7 @@ public class CommodityServiceImpl implements CommodityService {
                 break;
             case "图片":
                 if (!"".equals(value)) {
-                    String[] imgs = new String[15];
-                    if (value.contains(",") || value.contains("，")) {
-                        if (value.contains(",")) {
-                            imgs = value.split(",");
-                        } else if (value.contains("，")) {
-                            imgs = value.split("，");
-                        }
-                    } else {
-                        imgs[0] = value;
-                    }
+                    String[] imgs = value.replaceAll("，", ",").split(",");
                     List<String> imgList = Arrays.asList(imgs);
                     // 上传图片
                     List<Result> results = azureBlobService.uploadFilesComm(filePath, imgList);
