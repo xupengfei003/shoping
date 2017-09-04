@@ -24,15 +24,15 @@ public interface CommAppService {
     Result searchAllCommodities(Long supplierId, String sku, String code69, String suppCommCode, String inputValue, BigDecimal minPrice, BigDecimal maxPrice, Integer pageNum, Integer pageSize);
 
     /**
-     * 根据code69查找所有的供应商列表
+     * 根据code69查找所有供应商列表
      * @param code69
-     * @return
+     * @return 供应商列表
      */
     Result searchSuppliers(String code69);
 
 
     /**
-     * 查询所有商品分类
+     * 查询所有商品科属
      * @return Result结果集
      */
     Result searchCategories();
