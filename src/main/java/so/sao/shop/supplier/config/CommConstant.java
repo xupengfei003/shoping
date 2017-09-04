@@ -35,9 +35,9 @@ public class CommConstant {
     public static final long CATEGORY_ONE_PID = 0L;
 
     /**
-     * 商品分类不存在code码
+     * 商品科属分类级别数
      */
-    public static final String CATEGORY_NULL_CODE = "00";
+    public static final int CATEGORY_LEVEL_NUMBER = 3;
 
 
     public static String getStatus(int status){
