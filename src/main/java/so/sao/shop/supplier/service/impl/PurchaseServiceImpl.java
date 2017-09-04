@@ -846,7 +846,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             if (!flag) { // 上传失败
                 throw new Exception("上传失败");
             }
-            List<BlobUpload> blobUploadEntities = (List<BlobUpload>)result.getData();
+            List<BlobUpload> blobUploadEntities = (List<BlobUpload>) result.getData();
             if (blobUploadEntities.size() == qrcodeList.size()) {
                 for (int i = 0; i < qrcodeList.size(); i++) {
                     BlobUpload blobUpload = blobUploadEntities.get(i);
@@ -909,7 +909,8 @@ public class PurchaseServiceImpl implements PurchaseService {
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly(); // 失败回滚
             return map;
         }
-
+        //TODO 订单拒收成功给该供应商推送一条消息
+        pushNotification(orderId, Constant.OrderStatusConfig.RECEIVED);
         map.put("flag", true);
         map.put("message", "成功");
         return map;
@@ -1003,11 +1004,9 @@ public class PurchaseServiceImpl implements PurchaseService {
     private void pushNotification(String orderId, Integer orderStatus) {
         Purchase purchase = purchaseDao.findById(orderId);
         if (null != purchase) {
-            if (purchase.getPayStatus() != 0) { //支付状态是1 推送消息通知
-                Notification notification = createNotification(purchase.getStoreId(), orderId, orderStatus);
-                if (null != notification) {
-                    notificationDao.insert(notification);
-                }
+            Notification notification = createNotification(purchase.getStoreId(), orderId, orderStatus);
+            if (null != notification) {
+                notificationDao.insert(notification);
             }
         }
     }
