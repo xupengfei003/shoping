@@ -276,16 +276,8 @@ public class OrderMoneyRecordController {
      */
     @ApiOperation(value="导出结算明细excel", notes = "根据查询条件导出excel【负责人:王翼云】")
     @GetMapping("/excel")
-    public Result<Map<String,?>> exportExcel(HttpServletRequest request, HttpServletResponse response){
-        Result<Map<String,?>> result =  Result.fail(Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
-        try {
-            orderMoneyRecordService.exportExcel(request,response);
-        } catch (Exception e) {
-            logger.error("系统异常", e);
-            response.reset();
-            return result;
-        }
-        return result;
+    public void exportExcel(HttpServletRequest request, HttpServletResponse response) throws Exception{
+        orderMoneyRecordService.exportExcel(request,response);
     }
 
 }

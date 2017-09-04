@@ -677,23 +677,15 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
                 bos.write(buff, 0, bytesRead);
             }
             logger.debug("【excel 输出中完毕】 ： ");
-        } catch (Exception e) {
-            throw e;
         } finally {
-            try {
-                if (fileInputStream != null)
-                    fileInputStream.close();
-                if (bis != null)
-                    bis.close();
-                if (bos != null)
-                    bos.close();
-                if (workbook != null){
-                    workbook.close();
-                }
-//                if (excelFile != null && excelFile.exists())
-//                    excelFile.delete();
-            } catch (IOException e) {
-                throw e;
+            if (fileInputStream != null)
+                fileInputStream.close();
+            if (bis != null)
+                bis.close();
+            if (bos != null)
+                bos.close();
+            if (workbook != null){
+                workbook.close();
             }
         }
     }
