@@ -24,20 +24,7 @@ public interface CommAppDao {
                                      @Param("suppCommCode") String suppCommCode, @Param("inputValue") String inputValue,
                                      @Param("minPrice") BigDecimal minPrice, @Param("maxPrice") BigDecimal maxPrice);
 
-    /**
-     * 统计查询总记录数
-     * @param sku sku(商品ID)
-     * @param supplierId 商家ID
-     * @param suppCommCode 商家商品编码
-     * @param code69 商品编码
-     * @param inputValue 输入值（商品名称或分类名称）
-     * @param minPrice 价格（低）
-     * @param maxPrice 价格（高）
-     * @return 总记录条数
-     */
-    Long countAllTotal(@Param("supplierId") Long supplierId, @Param("sku")String sku, @Param("code69") String code69,
-                       @Param("suppCommCode") String suppCommCode, @Param("inputValue") String inputValue,
-                       @Param("minPrice") BigDecimal minPrice, @Param("maxPrice") BigDecimal maxPrice);
+
 
     /**
      * 根据code69查询供应商列表
@@ -47,8 +34,7 @@ public interface CommAppDao {
     List<Long> searchSuppliersByCode69(String code69);
 
 	/**
-     * 查询所有商品分类
+     * 查询所有商品科属
      */
     List<CategoryOutput> searchCategories();
-
 }
