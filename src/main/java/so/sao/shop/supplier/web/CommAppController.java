@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.service.CommAppService;
-import so.sao.shop.supplier.service.CommodityService;
 
 import java.math.BigDecimal;
 
