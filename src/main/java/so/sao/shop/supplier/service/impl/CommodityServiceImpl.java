@@ -973,7 +973,7 @@ public class CommodityServiceImpl implements CommodityService {
                 dataList.add( key);
             });
             if(!urlFile.isEmpty()){
-                poiExcelUtil.writeExcel(urlFile,dataList,1,response,"商品列表","商品列表");
+                poiExcelUtil.writeExcel(urlFile,dataList,CommConstant.POI_START_ROW,response,CommConstant.SHEET_NAME,CommConstant.FILE_NAME);
                 return Result.success("导出商品成功！");
             }
             return Result.fail("指定模板文件不存在！");

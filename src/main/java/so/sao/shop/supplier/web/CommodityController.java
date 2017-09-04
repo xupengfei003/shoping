@@ -136,7 +136,7 @@ public class CommodityController {
     @GetMapping(value="/exportExcel")
     public Result exportExcel(HttpServletResponse response , @RequestParam Long[] ids){
         if(ids == null || ids.length == 0){
-            throw new RuntimeException("请至少选择一个商品进行导出！");
+            return Result.fail("请至少选择一个商品进行导出！");
         }
         return commodityService.exportExcel(response,ids);
     }
