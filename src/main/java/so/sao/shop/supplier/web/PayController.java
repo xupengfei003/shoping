@@ -41,8 +41,11 @@ public class PayController {
             }
         } else {
             //验证订单状态格式
-            if (!verifyOrderStatus(payInput.getOrderId(), Constant.OrderStatusConfig.PENDING_SHIP)) {
-                return Result.fail(Constant.MessageConfig.ORDER_STATUS_EERO);
+            List<String> orderIdList = purchaseService.findOrderStatusByPayId(payInput.getOrderId());//获取该支付ID下的所有订单ID
+            for(String getOrderId : orderIdList){
+                if (!verifyOrderStatus(getOrderId, Constant.OrderStatusConfig.PENDING_SHIP)) {
+                    return Result.fail(Constant.MessageConfig.ORDER_STATUS_EERO);
+                }
             }
             if (payService.savePurchase(sign, payInput)) {
                 output.setCode(Constant.CodeConfig.CODE_SUCCESS);
@@ -63,6 +66,7 @@ public class PayController {
         if (orderStatus == Constant.OrderStatusConfig.PENDING_SHIP && getOrderStatus == Constant.OrderStatusConfig.PAYMENT) {
             flag = true;
         }
+
         //待付款 --> 已取消 / 待发货 --> 已取消
         if ((getOrderStatus == Constant.OrderStatusConfig.PAYMENT || getOrderStatus == Constant.OrderStatusConfig.PENDING_SHIP) && orderStatus == Constant.OrderStatusConfig.CANCEL_ORDER) {
             flag = true;
