@@ -19,6 +19,8 @@ import so.sao.shop.supplier.dao.*;
 import so.sao.shop.supplier.domain.*;
 import so.sao.shop.supplier.pojo.BaseResult;
 import so.sao.shop.supplier.pojo.Result;
+import so.sao.shop.supplier.pojo.input.CommSearchInput;
+import so.sao.shop.supplier.pojo.input.CommSimpleSearchInput;
 import so.sao.shop.supplier.pojo.input.CommodityInput;
 import so.sao.shop.supplier.pojo.input.CommodityUpdateInput;
 import so.sao.shop.supplier.pojo.output.CommodityExportOutput;
@@ -188,7 +190,7 @@ public class CommodityServiceImpl implements CommodityService {
             return Result.fail("未选择商品科属二级分类！");
         }
         //获取三级分类list
-        List<CommCategory> commCategoryList = commCategoryDao.findByIds(categoryOneId.toString(), categoryTwoId.toString(), categoryThreeId.toString());
+        List<CommCategory> commCategoryList = commCategoryDao.findByIds(categoryOneId, categoryTwoId, categoryThreeId);
         List<Long> ids = new ArrayList<>();
         CommCategory commCategoryOne = null;
         CommCategory commCategoryTwo = null;
@@ -394,73 +396,59 @@ public class CommodityServiceImpl implements CommodityService {
     /**
      * 根据查询条件查询商品详情(简单条件查询)
      *
-     * @param supplierId    供应商ID
-     * @param inputvalue    输入参数
-     * @param beginCreateAt 创建时间（起始）
-     * @param endCreateAt   创建时间（终止）
-     * @param pageNum       当前页号
-     * @param pageSize      页面大小
+     * @param commSimpleSearchInput 简单查询请求
      * @return
      */
     @Override
-    public Result simpleSearchCommodities(Long supplierId, String inputvalue, Date beginCreateAt, Date endCreateAt, Integer pageNum, Integer pageSize) {
+    public Result simpleSearchCommodities(CommSimpleSearchInput commSimpleSearchInput) {
         //入参校验
+        Date beginCreateAt = commSimpleSearchInput.getBeginCreateAt();
+        Date endCreateAt = commSimpleSearchInput.getEndCreateAt();
         String createAtMessage = DataCompare.createAtCheck(beginCreateAt, endCreateAt);
         if(!"".equals(createAtMessage)){
             return Result.fail(createAtMessage);
         }
         //开始分页
-        PageTool.startPage(pageNum, pageSize);
-        List<SuppCommSearchVo> respList = supplierCommodityDao.findSimple(supplierId, inputvalue, beginCreateAt, endCreateAt);
+        PageTool.startPage(commSimpleSearchInput.getPageNum(), commSimpleSearchInput.getPageSize());
+        List<SuppCommSearchVo> respList = supplierCommodityDao.findSimple(commSimpleSearchInput.getSupplierId(), commSimpleSearchInput.getInputvalue(), beginCreateAt, endCreateAt);
         respList.forEach(suppCommSearchVo->{
             int statusNum = Integer.parseInt(suppCommSearchVo.getStatus());
             suppCommSearchVo.setStatusNum(statusNum);
             suppCommSearchVo.setStatus(CommConstant.getStatus(statusNum));
             //转换金额为千分位
-            suppCommSearchVo.setUnitPrice("￥" + NumberUtil.number2Thousand(new BigDecimal(suppCommSearchVo.getUnitPrice())));
-            suppCommSearchVo.setPrice("￥" + NumberUtil.number2Thousand(new BigDecimal(suppCommSearchVo.getPrice())));
+            suppCommSearchVo.setUnitPrice(NumberUtil.number2ThousandFormat(suppCommSearchVo.getUnitPrice()));
+            suppCommSearchVo.setPrice(NumberUtil.number2ThousandFormat(suppCommSearchVo.getPrice()));
         });
         PageInfo<SuppCommSearchVo> pageInfo = new PageInfo<SuppCommSearchVo>(respList);
         return Result.success("查询完成", pageInfo);
     }
 
     /**
-     *
-     * @param supplierId 供应商ID
-     * @param commCode69 商品编码
-     * @param sku  SKU（商品ID）
-     * @param suppCommCode 商家商品编码
-     * @param commName 商品名称
-     * @param status 状态
-     * @param typeId 类型ID
-     * @param minPrice 价格（低）
-     * @param maxPrice 价格（高）
-     * @param pageNum 当前页号
-     * @param pageSize 页面大小
+     * 高级搜索
+     * @param commSearchInput 高级搜索查询请求
      * @return
      */
     @Override
-    public Result searchCommodities(Long supplierId, String commCode69, String sku, String suppCommCode, String commName, Integer status, Long typeId,
-                                    BigDecimal minPrice, BigDecimal maxPrice, Date beginCreateAt, Date endCreateAt, Integer pageNum, Integer pageSize) {
+    public Result searchCommodities(CommSearchInput commSearchInput) {
         //入参校验
-        String priceMessage = DataCompare.priceCheck(minPrice, maxPrice);
+        String priceMessage = DataCompare.priceCheck(commSearchInput.getMinPrice(), commSearchInput.getMaxPrice());
         if(!"".equals(priceMessage)){
             return Result.fail(priceMessage);
         }
-        String createAtMessage = DataCompare.createAtCheck(beginCreateAt,endCreateAt);
+        String createAtMessage = DataCompare.createAtCheck(commSearchInput.getBeginCreateAt(),commSearchInput.getEndCreateAt());
         if(!"".equals(createAtMessage)){
             return Result.fail(createAtMessage);
         }
         //开始分页
-        PageTool.startPage(pageNum, pageSize);
-        List<SuppCommSearchVo> respList = supplierCommodityDao.find(supplierId, commCode69, sku, suppCommCode, commName, status, typeId, minPrice, maxPrice, beginCreateAt, endCreateAt);
+        PageTool.startPage(commSearchInput.getPageNum(), commSearchInput.getPageSize());
+        List<SuppCommSearchVo> respList = supplierCommodityDao.find(commSearchInput);
         respList.forEach(suppCommSearchVo->{
             int statusNum = DataCompare.formatInteger(suppCommSearchVo.getStatus());
             suppCommSearchVo.setStatusNum(statusNum);
             suppCommSearchVo.setStatus(CommConstant.getStatus(statusNum));
             //转换金额为千分位
-            suppCommSearchVo.setPrice("￥"+NumberUtil.number2Thousand(new BigDecimal(suppCommSearchVo.getPrice())));
-            suppCommSearchVo.setUnitPrice("￥"+NumberUtil.number2Thousand(new BigDecimal(suppCommSearchVo.getUnitPrice())));
+            suppCommSearchVo.setPrice(NumberUtil.number2ThousandFormat(suppCommSearchVo.getPrice()));
+            suppCommSearchVo.setUnitPrice(NumberUtil.number2ThousandFormat(suppCommSearchVo.getUnitPrice()));
         });
 
         PageInfo<SuppCommSearchVo> pageInfo = new PageInfo<SuppCommSearchVo>(respList);
@@ -643,20 +631,15 @@ public class CommodityServiceImpl implements CommodityService {
      */
     @Override
     public Result importExcel(MultipartFile multipartFile, HttpServletRequest request, Long supplierId) throws Exception {
-        Map<String ,List> outmap = new HashMap();
+        Map<String ,List> outmap = new HashMap();// 封装errorList 和 rightList 数据
         List<CommodityImportOutput> commodityImportOutputList = new ArrayList<CommodityImportOutput>();
-        List<Map<String, String>> list = null;
-
         String tempPath = request.getSession().getServletContext().getRealPath("") + "/file/";// 文件上传到的文件夹
-        String filename = "";
-        transferTo(request, tempPath);//文件移动至tempPath路径下
-
+        String filename = transferTo(request, tempPath);//文件移动至tempPath路径下
         //接下来开始解压缩文件
         String newFileName = DateUtil.getStringDateTime();
         Map excelmap = new HashMap();
-        Result result = deCompressFile(tempPath, filename, newFileName, excelmap);//解压缩文件
-        if(excelmap.size() == 0){
-            return result;
+        if(!"".equals(filename.trim())){
+            newFileName= deCompressFile(tempPath, filename, newFileName, excelmap);//解压缩文件
         }
         String excelpath = tempPath + newFileName +"/"+excelmap.get("excel").toString();
         //使用工具类 获取Excel 内容
@@ -668,7 +651,6 @@ public class CommodityServiceImpl implements CommodityService {
         Map<String, String> map = null;
         List<CommodityInput> commodityInputs = new ArrayList<CommodityInput>();
         List<CommRuleVo> ruleList = new ArrayList<CommRuleVo>();
-
         // Excel 内容转 CommodityInput对象
         if(mapRight != null){
             for (Map.Entry<Integer,Map<String, String>> itmap : mapRight.entrySet()) {
@@ -682,8 +664,8 @@ public class CommodityServiceImpl implements CommodityService {
                 for (Map.Entry<String, String> cellMap: map.entrySet()) {
                     String key = cellMap.getKey() == null ? "" : cellMap.getKey();
                     String value = cellMap.getValue() == null ? "" : cellMap.getValue();
-
-                    checkCellData(key, value, commodityInput, supplierCommodityVo, pid, tempPath + newFileName, supplierId);
+                    //封装数据
+                    pid= checkCellData(key, value, commodityInput, supplierCommodityVo, pid, tempPath + newFileName, supplierId);
                 }
 
                 commodityList.add(supplierCommodityVo);
@@ -701,16 +683,12 @@ public class CommodityServiceImpl implements CommodityService {
                 int rowNum = commodityInput.getRowNum();
                 if (null == imgeList || imgeList.isEmpty()){
                     errorList.add(rowNum);
-                }else if (!"".equals(code69)) {
-                    if(!Tools.isNumeric(code69)){
-                        errorList.add(rowNum);
-                    }else {
+                }else if ( !"".equals(code69) ) {
                         //通过code69,supplierId,deleted=0判断商品是否存在
                         SupplierCommodity suppliercommodity = supplierCommodityDao.findSupplierCommodityInfo(code69,supplierId);
                         if (null != suppliercommodity) {
                             errorList.add(rowNum);
                         }
-                    }
                 }
             }
         }
@@ -720,7 +698,6 @@ public class CommodityServiceImpl implements CommodityService {
             if(errorList.contains(rowNum)){//过滤错误数据记录
                 continue;
             }
-
             Result baseResult = saveCommodity(commodityInput, supplierId);
             String code69 = commodityInput.getCommodityList().get(0).getCode69();
             if(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SUCCESS != baseResult.getCode()){
@@ -728,7 +705,7 @@ public class CommodityServiceImpl implements CommodityService {
             }else {
                 CommodityImportOutput commodityImportOutput = new CommodityImportOutput();
                 commodityImportOutput.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SUCCESS);
-                commodityImportOutput.setMessage("商品编码:" + code69+"成功导入！");
+                commodityImportOutput.setMessage("商品条码:" + code69+"成功导入！");
                 commodityImportOutput.setCode69(code69);
                 commodityImportOutput.setBrand(commodityInput.getBrandName());
                 commodityImportOutput.setSjcode(commodityInput.getCommodityList().get(0).getCode());
@@ -745,9 +722,7 @@ public class CommodityServiceImpl implements CommodityService {
                 commodityImportOutputList.add(commodityImportOutput);
             }
         }
-
         if(null != mapError) {
-            Map.Entry<Integer, Map<String, String>> entrymaperro = null;
             for (Map.Entry<Integer,Map<String, String>> itmap : mapError.entrySet()) {
                 int rownum = itmap.getKey();
                 errorList.add(rownum);
@@ -757,7 +732,6 @@ public class CommodityServiceImpl implements CommodityService {
         FileUtil.deleteDirectory(tempPath + newFileName);
         outmap.put("rightlist",commodityImportOutputList);
         outmap.put("errolist",errorList);
-
         return Result.success("成功导入！", outmap);
     }
 
@@ -771,7 +745,7 @@ public class CommodityServiceImpl implements CommodityService {
      * @param filePath
      * @param supplierId
      */
-    private void checkCellData(String key, String value, CommodityInput commodityInput, SupplierCommodityVo supplierCommodityVo,
+    private Long checkCellData(String key, String value, CommodityInput commodityInput, SupplierCommodityVo supplierCommodityVo,
                                long pid, String filePath, long supplierId){
         switch (key) {
             case "商品条码":
@@ -822,7 +796,7 @@ public class CommodityServiceImpl implements CommodityService {
                 break;
             case "商品分类一级":
                 if (!"".equals(value)) {
-                    CommCategory commCategoryone = commCategoryDao.findCommCategoryByNameAndPid(value,pid); //修改為count
+                    CommCategory commCategoryone = commCategoryDao.findCommCategoryByNameAndPid(value,pid);
                     if (null != commCategoryone) {
                         pid = commCategoryone.getId();
                         commodityInput.setCategoryOneId(commCategoryone.getId());
@@ -831,7 +805,7 @@ public class CommodityServiceImpl implements CommodityService {
                 break;
             case "商品分类二级":
                 if (!"".equals(value)) {
-                    CommCategory commCategorytwo = commCategoryDao.findCommCategoryByNameAndPid(value,pid);//修改為count
+                    CommCategory commCategorytwo = commCategoryDao.findCommCategoryByNameAndPid(value,pid);
                     if (null != commCategorytwo) {
                         pid=commCategorytwo.getId();
                         commodityInput.setCategoryTwoId(commCategorytwo.getId());
@@ -840,16 +814,13 @@ public class CommodityServiceImpl implements CommodityService {
                 break;
             case "商品分类三级":
                 if (!"".equals(value)) {
-                    CommCategory commCategorythree = commCategoryDao.findCommCategoryByNameAndPid(value,pid);//修改為count
+                    CommCategory commCategorythree = commCategoryDao.findCommCategoryByNameAndPid(value,pid);
                     if (null != commCategorythree) {
                         commodityInput.setCategoryThreeId(commCategorythree.getId());
                     }
                 }
                 break;
             case "商品描述":
-                commodityInput.setRemark(value);
-                break;
-            case "商品介绍":
                 commodityInput.setRemark(value);
                 break;
             case "计量规格":
@@ -859,7 +830,6 @@ public class CommodityServiceImpl implements CommodityService {
                     if(null!=commMeasureSpeclist&&commMeasureSpeclist.size()>0){
                         supplierCommodityVo.setMeasureSpecId(commMeasureSpeclist.get(0).getId());
                     }
-
                 }
                 break;
             case "商品规格值":
@@ -912,6 +882,7 @@ public class CommodityServiceImpl implements CommodityService {
                 commodityInput.setMarketTime(DateUtil.stringToDate(value));
                 break;
         }
+        return  pid;
     }
 
     /**
@@ -920,17 +891,15 @@ public class CommodityServiceImpl implements CommodityService {
      * @param filename
      * @param newFileName
      * @param excelmap
-     * @return
+     * @return newFileName
      */
-    private Result deCompressFile(String tempPath, String filename, String newFileName, Map excelmap){
+    private String deCompressFile(String tempPath, String filename, String newFileName, Map excelmap) throws Exception{
         try {
             ZipUtil.deCompress(tempPath + filename,tempPath + newFileName,true);
-
             //解压完成后 遍历文件夹 如果有中文则修改为数字
             FileUtil.getreNameFile(tempPath + newFileName, newFileName);
             File file = new File(tempPath + newFileName);
             File[] tempList = file.listFiles();
-
             for (int i = 0; i < tempList.length; i++) {
                 if (tempList[i].isFile()) {
                     String type = tempList[i].toString().substring(tempList[i].toString().lastIndexOf(".") + 1);
@@ -938,7 +907,6 @@ public class CommodityServiceImpl implements CommodityService {
                         excelmap.put("excel", tempList[i].getName());
                     }
                 }
-
                 if(tempList[i].isDirectory()) {
                     newFileName = newFileName + "/" +tempList[i].getName();
                     File[] tempListdir = tempList[i].listFiles();
@@ -954,18 +922,19 @@ public class CommodityServiceImpl implements CommodityService {
             }
         } catch (Exception e) {
             logger.error("解压失败!", e);
-            return Result.fail("解压失败!");
+            throw new Exception("解压失败!");
         }
-
-        return Result.fail("解压失败!");
+        return  newFileName;
     }
 
     /**
      * 文件移动
      * @param request
      * @param tempPath
+     * @return filename
      */
-    private void transferTo(HttpServletRequest request, String tempPath){
+    private String transferTo(HttpServletRequest request, String tempPath){
+        String   filename = "";
         //创建一个通用的多部分解析器
         CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver(request.getSession().getServletContext());
         //判断 request 是否有文件上传,即多部分请求
@@ -980,6 +949,7 @@ public class CommodityServiceImpl implements CommodityService {
                     MultipartFile file = multiRequest.getFile(iter.next());
                     if(file != null){
                         //取得当前上传文件的文件名称
+                        filename = file.getOriginalFilename();
                         File fullFile = new File(file.getOriginalFilename().trim());
                         File newFile = new File(tempPath + fullFile.getName());
                         if (!new File(tempPath).isDirectory()) {
@@ -994,6 +964,8 @@ public class CommodityServiceImpl implements CommodityService {
                 e.printStackTrace();
             }
         }
+        return  filename;
     }
+
 
 }
