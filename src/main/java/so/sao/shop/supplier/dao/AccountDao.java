@@ -90,7 +90,7 @@ public interface AccountDao {
      * @param account
      * @return
      */
-    int updateUserBalance(Account account) throws Exception;
+    void updateUserBalance(Account account) throws Exception;
 
     
     /**

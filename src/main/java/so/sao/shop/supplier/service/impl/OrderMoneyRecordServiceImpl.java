@@ -1,6 +1,5 @@
 package so.sao.shop.supplier.service.impl;
 
-import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -10,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
-import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.dao.AccountDao;
 import so.sao.shop.supplier.dao.OrderMoneyRecordDao;
 import so.sao.shop.supplier.dao.PurchaseDao;
@@ -19,7 +17,6 @@ import so.sao.shop.supplier.domain.Account;
 import so.sao.shop.supplier.domain.OrderMoneyRecord;
 import so.sao.shop.supplier.domain.Purchase;
 import so.sao.shop.supplier.domain.RecordPurchase;
-import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.OrderMoneyRecordInput;
 import so.sao.shop.supplier.pojo.output.OrderMoneyRecordOutput;
 import so.sao.shop.supplier.pojo.output.RecordToPurchaseOutput;
@@ -31,13 +28,18 @@ import so.sao.shop.supplier.util.ExcelExportHelper;
 import so.sao.shop.supplier.util.NumberGenerate;
 import so.sao.shop.supplier.util.NumberUtil;
 import so.sao.shop.supplier.util.StringUtil;
+import so.sao.shop.supplier.util.Ognl;
+import so.sao.shop.supplier.util.PageTool;
+
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -73,7 +75,7 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
          *   a).结算明细的list
          *   b).结算明细与订单关联关系list
          *   c).更新的accountList
-         *   d).获取计算明细中的值
+         *   d).获取账户id
          *   e).设置Account表中需要更新账户表中的字段
          *   f).查询该商户下已完成的且在指定结算方式内的订单
          *   g).循环订单id,设置结算明细与订单关联关系的值，并添加到结算明细与订单关联的recordPurchaseList
@@ -97,15 +99,8 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
             for (Account account : accountList) {
                 String remittanceType = account.getRemittanceType();//结算方式
 
-                //d).获取结算明细中的值
-                String recordId = NumberGenerate.generateId();
+                //d).获取账户id
                 Long accountId = account.getAccountId();
-                String bankName = account.getBankName();
-                String bankNameBranch = "";
-                String bankAccount = account.getBankNum();
-                String serialNumber = "";
-                String providerName = account.getProviderName();
-                String bankUserName = account.getBankUserName();
 
                 Date currentDate = new Date();
 
@@ -117,11 +112,11 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
 
                 //f).查询该商户下已完成的且在指定结算方式内的订单
                 List<Purchase> purchaseList = null;
-                if (!StringUtils.isEmpty(remittanceType) && "1".equals(remittanceType)) {
+                if (Ognl.isNotEmpty(remittanceType) && "1".equals(remittanceType)) {
                     //按自然月结算
                     purchaseList = purchaseDao.findPurchaseMonth(accountId, currentDate);
 
-                } else if (!StringUtils.isEmpty(remittanceType) && "2".equals(remittanceType)) {
+                } else if (Ognl.isNotEmpty(remittanceType) && "2".equals(remittanceType)) {
                     String remittanced = account.getRemittanced();//固定时间天数
                     Date lastSettlementDate = account.getLastSettlementDate();//上一次结算时间
 
@@ -131,7 +126,7 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
                     }
 
                     //判断固定结算时间，如果为空，则执行下一次循环
-                    if (StringUtils.isEmpty(remittanced)) {
+                    if (Ognl.isEmpty(remittanced)) {
                         continue;
                     }
 
@@ -142,6 +137,8 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
                 if (null == purchaseList || purchaseList.isEmpty()) {
                     continue;
                 }
+
+                String recordId = NumberGenerate.generateId();//生成结算明细id
 
                 //g).循环订单id,设置结算明细与订单关联关系的值，并添加到结算明细与订单关联的recordPurchaseList
                 BigDecimal tmpOrderSettlemePrice = new BigDecimal("0.00");
@@ -163,17 +160,17 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
                 OrderMoneyRecord omr = new OrderMoneyRecord();
                 omr.setRecordId(recordId);
                 omr.setUserId(accountId);// 账户id
-                omr.setBankName(bankName);// 开户行
-                omr.setBankNameBranch(bankNameBranch);// 开户支行
-                omr.setBankAccount(bankAccount);// 银行卡号
+                omr.setBankName(account.getBankName());// 开户行
+                omr.setBankNameBranch("");// 开户支行
+                omr.setBankAccount(account.getBankNum());// 银行卡号
                 omr.setTotalMoney(tmpOrderSettlemePrice);// 待结算金额
                 omr.setState("0");// 状态
                 omr.setCreatedAt(currentDate);// 创建时间
                 omr.setUpdatedAt(currentDate);// 更新时间
-                omr.setSerialNumber(serialNumber);//流水号
-                omr.setProviderName(providerName);//供应商名称
+                omr.setSerialNumber("");//流水号
+                omr.setProviderName(account.getProviderName());//供应商名称
                 omr.setSettledAmount(new BigDecimal("0.00"));//已结算金额
-                omr.setBankUserName(bankUserName);//开户人姓名
+                omr.setBankUserName(account.getBankUserName());//开户人姓名
                 omr.setCheckoutAt(currentDate);//结账时间
                 orderMoneyRecordList.add(omr);
 
@@ -212,8 +209,7 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
 		/*
 		 * 1.创建返回的对象output；
 		 * 2.分页
-		 *   a).设置分页页码及每页条数；
-		 *   b).使用PageHelper插件开启分页；
+		 *   a).使用PageTool工具类开启分页；
 		 * 3.根据入参条件，查询结算明细列表；
 		 * 4.取得OrderMoneyRecord的分页信息；
 		 * 5.对象转换为OrderMoneyRecordVo；
@@ -225,18 +221,8 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
         OrderMoneyRecordOutput output = null;
 
         //2.分页
-        //a).设置分页页码及每页条数
-        if (null == pageNum || pageNum <= 0) {
-            pageNum = 1; // 默认第1页
-        }
-
-        if (null == pageSize || pageSize <= 0) {
-
-            pageSize = 10; // 默认每页10条
-        }
-
-        //b).使用分页插件开启分页
-        PageHelper.startPage(pageNum, pageSize);
+        //a).使用PageTool工具类开启分页
+        PageTool.startPage(pageNum, pageSize);
 
         //3.根据入参条件，查询结算明细列表
         List<OrderMoneyRecord> list = orderMoneyRecordDao.findPageByState(input);
@@ -282,14 +268,13 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
          *   a)如果实体为null，则返回false；
          * 2.判断传入的state是否为"1"
          *   b)如果等于1，则继续执行；
-         *   c)如果不等于1，则返回false；
          * 3.根据待结算金额，设置结算明细中要更新的属性值，更新结算明细数据
-         *   d)获取待结算金额；
-         *   e)设置要更新的属性值；
-         *   f)更新结算明细数据；
+         *   c)获取待结算金额；
+         *   d)设置要更新的属性值；
+         *   e)更新结算明细数据；
          * 4.获取商户id，设置账户更新属性值，更新账户(Account)数据
-         *   g)设置Account中要更新的属性值；
-         *   h)更新账户(Account)数据；
+         *   f)设置Account中要更新的属性值；
+         *   g)更新账户(Account)数据；
          * 5.更新结算明细金额对应订单中的账户状态、更新时间；
          * 6.如果结算明细表、账户表、订单表同时更新成功，则设置flag为true；
          */
@@ -307,10 +292,10 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
         //b)如果等于1，则继续执行
         if ("1".equals(state)) {
             //3.根据待结算金额，设置结算明细中要更新的属性值，更新结算明细数据
-            //d)获取待结算金额
+            //c)获取待结算金额
             BigDecimal tmpTotalAmount = orderMoneyRecord.getTotalMoney();
 
-            //e)设置要更新的属性值
+            //d)设置要更新的属性值
             orderMoneyRecord.setRecordId(recordId);//结算明细id
             orderMoneyRecord.setState(state);//结算状态
             orderMoneyRecord.setUpdatedAt(new Date());//更新时间
@@ -318,18 +303,18 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
             orderMoneyRecord.setTotalMoney(new BigDecimal("0.00"));//待结算金额
             orderMoneyRecord.setSettledAmount(tmpTotalAmount);//已结算金额
 
-            //f)更新结算明细数据
+            //e)更新结算明细数据
             int modifyRecordNum = orderMoneyRecordDao.updateOrderMoneyRecord(orderMoneyRecord);
 
             //4.获取账户id，设置账户更新属性值，更新账户(Account)数据
-            //g)设置Account中要更新的属性值
+            //f)设置Account中要更新的属性值
             Long accountId = orderMoneyRecord.getUserId();//账户id
             Account account = new Account();
             account.setBalance(new BigDecimal("0.00"));
             account.setUpdateDate(new Date());
             account.setAccountId(accountId);
 
-            //h)更新账户(Account)数据
+            //g)更新账户(Account)数据
             int modifyAccountNum = accountDao.updateAccountByUserId(account);
 
             //5.更新结算明细金额对应订单中的账户状态、更新时间
@@ -341,11 +326,7 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
                 flag = true;
             } else {
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly(); // 失败回滚
-                return flag;
             }
-
-        } else { //c)如果不等于1，则返回false
-            return flag;
         }
         return flag;
     }
@@ -379,22 +360,6 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
         return tmpList;
     }
 
-    /**
-     * 将正数的钱转为千分位格式（若为负或为null,返回0.00）
-     * @param money
-     * @return
-     * @throws Exception
-     */
-    private String transformMoney(BigDecimal money) throws Exception{
-        if (null != money && money.compareTo(BigDecimal.ZERO) == 1) {
-            //金额输出格式（千分位且保留两位小数）
-            String moneyFormat = NumberUtil.number2Thousand(money);
-            return moneyFormat;
-        }else {
-            return "0.00";
-        }
-    }
-
 
     /**
      * 结算明细对象转换为OrderMoneyRecordVo对象
@@ -413,10 +378,8 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
                 aormVo.setBankName(omr.getBankName());  //开户行
                 aormVo.setBankNameBranch(omr.getBankNameBranch());  //开户支行
                 aormVo.setCheckoutAt(omr.getCheckoutAt() == null ? null : StringUtil.fomateData(omr.getCheckoutAt(), "yyyy-MM-dd"));//结账时间
-                String moneyFormat = transformMoney(omr.getTotalMoney());
-                aormVo.setTotalMoney(moneyFormat);//待结算金额
-                String settledFormat = transformMoney(omr.getSettledAmount());
-                aormVo.setSettledAmount(settledFormat);//已结算金额
+                aormVo.setTotalMoney(NumberUtil.number2Thousand(omr.getTotalMoney()));//待结算金额
+                aormVo.setSettledAmount(NumberUtil.number2Thousand(omr.getSettledAmount()));//已结算金额
                 aormVo.setSettledAt(omr.getSettledAt() == null ? null: StringUtil.fomateData(omr.getSettledAt(), "yyyy-MM-dd HH:mm"));//结算时间
                 aormVo.setBankAccount(omr.getBankAccount());//银行卡号
                 tmpList.add(aormVo);
@@ -428,82 +391,65 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
 
     /**
      * 根据根据申请人账户ID查询满足结算时间条件的已结算/待结算明细，并根据pageNum和pageSize进行分页
-     * @param accountId   申请人ID
-     * @param put      多条件查询入参
-     * @param pageNum  当前页数
-     * @param pageSize 每页条数
+     *
+     * @param accountId 申请人ID
+     * @param put       多条件查询入参
+     * @param pageNum   当前页数
+     * @param pageSize  每页条数
      * @return
      * @throws Exception
      */
     @Override
-    public Result searchRecords(Long accountId, OrderMoneyRecordInput put, Integer pageNum, Integer pageSize) throws Exception {
-        //返回对象
-        Result result = new Result<>();
-        result.setCode(Constant.CodeConfig.CODE_SUCCESS);
-        result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
-        result.setData(null);
-        Map map = new HashMap();
+    public Map<String, Object> searchRecords(Long accountId, OrderMoneyRecordInput put, Integer pageNum, Integer pageSize) throws Exception {
         /*
-            1.若分页参数为null,默认第一页，每页10条
-            2.判断put中的状态码,若状态码为1,则进行已结算明细查询,若状态码为0,则进行待结算明细查询
+            1.判断put中的状态码,若状态码为1,则进行已结算明细查询,若状态码为0,则进行待结算明细查询
               1).计算该用户的已结算/待结算总金额
               2).根据申请人ID查询满足结算时间条件的已结算/待结算明细,若时间为null,则查询全部明细
-            3.若统计金额为null或为负，给其赋值0.00,正确数据则进行格式化
-            4.判断List是否为null及是否为空,若不为null和空，进行转换封装,若List为null或为空,PageInfo为null
-                a.获取OrderMoneyRecord分页的PageInfo<OrderMoneyRecord>
-                b.将orderMoneyRecordList转为orderMoneyRecordVoList
-                c.生成OrderMoneyRecordVo分页的PageInfo<OrderMoneyRecordVo>
+            2.若统计金额为null或为负，给其赋值0.00,正确数据则进行格式化
+            3.判断List是否为null及是否为空,若不为null和空，进行转换封装,若List为null或为空,PageInfo为null
+              a.获取OrderMoneyRecord分页的PageInfo<OrderMoneyRecord>
+              b.将orderMoneyRecordList转为orderMoneyRecordVoList
+              c.生成OrderMoneyRecordVo分页的PageInfo<OrderMoneyRecordVo>
          */
-        // 1.若分页数据为null,默认第一页，每页10条
-        Integer PageHelperPageNum = (null == pageNum || 0 >= pageNum) ? 1 : pageNum;
-        Integer PageHelperPageSize = (null == pageSize || 0 >= pageSize) ? 10 : pageSize;
-        // 2.判断put中的状态码,若状态码为1,则进行已结算明细查询,若状态码为0,则进行待结算明细查询
-        BigDecimal money;  //已结算/待结算总金额
-        List<OrderMoneyRecord> oList; //查询全部已结算/待结算明细集合
-        if ("1".equals(put.getState())){
+        // 1.判断put中的状态码,若状态码为1,则进行已结算明细查询,若状态码为0,则进行待结算明细查询
+        BigDecimal money = null;     //已结算/待结算总金额
+        List<OrderMoneyRecord> oList = null;  //已结算/待结算明细集合
+        if ("1".equals(put.getState())) {
             // 计算该用户的已结算总金额
-            money =orderMoneyRecordDao.findTotalSettledAmount(accountId);
+            money = orderMoneyRecordDao.findTotalSettledAmount(accountId);
             // 根据申请人ID查询满足结算时间条件的已结算明细,若时间为null,则查询全部已结算明细
-            PageHelper.startPage(PageHelperPageNum, PageHelperPageSize);
-            oList = orderMoneyRecordDao.findSettledPage(accountId,put);
-        } else if ("0".equals(put.getState())){
+            PageTool.startPage(pageNum, pageSize);
+            oList = orderMoneyRecordDao.findSettledPage(accountId, put);
+        } else if ("0".equals(put.getState())) {
             // 计算该用户的待结算总金额
             money = orderMoneyRecordDao.findTotalUnpaidMoney(accountId);
             // 根据申请人ID查询满足结算时间条件的待结算明细,若时间为null,则查询全部待结算明细
-            PageHelper.startPage(PageHelperPageNum, PageHelperPageSize);
-            oList = orderMoneyRecordDao.findUnpaidPage(accountId,put);
-        } else {
-            result.setCode(Constant.AccountCodeConfig.CODE_SETTLED_STATE_ERROR);
-            result.setMessage(Constant.AccountMessageConfig.MESSAGE_SETTLED_STATE_ERROR);
-            return result;
+            PageTool.startPage(pageNum, pageSize);
+            oList = orderMoneyRecordDao.findUnpaidPage(accountId, put);
         }
-        // 3.若统计金额为null或为负，给其赋值0.00,正确数据则进行格式化
-        String moneyFormat = transformMoney(money);
-        map.put("money",moneyFormat);
+        // 3.若统计金额为null给其赋值0.00,正确数据则进行格式化
+        String moneyFormat = NumberUtil.number2Thousand(money);
+        // 定义map存放data
+        Map<String, Object> map = new HashMap();
+        map.put("money", moneyFormat);
         // 4.判断List是否为null及是否为空,若不为null和空，进行转换封装,若List为null或为空,PageInfo为null
-        if (null != oList && !oList.isEmpty()) {
+        PageInfo<AccountOrderMoneyRecordVO> pageInfoVo = null;
+        if (Ognl.CollectionIsNotEmpty(oList)) {
             // a.获取分页的PageInfo
             PageInfo<OrderMoneyRecord> pageInfo = new PageInfo<>(oList);
             // b.将orderMoneyRecordList转为orderMoneyRecordVoList
             List<AccountOrderMoneyRecordVO> voList = transformOrderMoneyRecordVo(oList);
             // c.生成Vo分页的PageInfo
-            PageInfo<AccountOrderMoneyRecordVO> pageInfoVo = new PageInfo<>(voList);
-            pageInfoVo.setPageNum(PageHelperPageNum);   // 当前页
-            pageInfoVo.setPageSize(PageHelperPageSize); // 每页条数
+            pageInfoVo = new PageInfo<>(voList);
+            pageInfoVo.setPageNum(pageNum);             // 当前页
+            pageInfoVo.setPageSize(pageSize);           // 每页条数
             pageInfoVo.setList(voList);                 // List<AccountOrderMoneyRecordVO>
             pageInfoVo.setTotal(pageInfo.getTotal());   // 总条数
             pageInfoVo.setPages(pageInfo.getPages());   // 总页数
             pageInfoVo.setSize(pageInfo.getSize());     // 当前页条数
-            // 生成返回的Result的pageInfo
-            map.put("pageInfo",pageInfoVo);
-            result.setData(map);
-        } else {
-            result.setCode(Constant.CodeConfig.CODE_NOT_FOUND_RESULT);
-            result.setMessage(Constant.MessageConfig.MSG_NO_DATA);
-            map.put("pageInfo",null);
-            result.setData(map);
         }
-        return result;
+        map.put("pageInfo", pageInfoVo);
+        return map;
     }
 
     /**
@@ -521,8 +467,7 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
         /*
 		 * 1.创建返回的对象output；
 		 * 2.分页
-		 *   a).设置分页页码及每页条数；
-		 *   b).使用PageHelper插件开启分页；
+		 *   a).使用PageTool工具类开启分页；
 		 * 3.根据条件，查询结算明细所对应的订单列表信息；
 		 * 4.根据结算明细id，查询该结算明细id对应的所有订单的结算金额之和；
 		 * 5.取得Purchase的分页信息；
@@ -535,17 +480,8 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
         RecordToPurchaseOutput output = null;
 
         //2.分页
-        //a).设置分页页码及每页条数
-        if (null == pageNum || pageNum <= 0) {
-            pageNum = 1;    //默认第1页
-        }
-
-        if (null == pageSize || pageSize <= 0) {
-            pageSize = 10;  //默认每页10条
-        }
-
-        //b).使用PageHelper插件开启分页
-        PageHelper.startPage(pageNum, pageSize);
+        //a).使用PageTool工具类开启分页
+        PageTool.startPage(pageNum, pageSize);
 
         //3.根据条件，查询结算明细所对应的订单列表信息
         List<Purchase> purchaseList = orderMoneyRecordDao.findPageOMRPurchase(recordId, orderId);
@@ -638,6 +574,12 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
         return recordPurchaseVoList;
     }
 
+    /**
+     * 结算明细列表 导出excel
+     * @param request
+     * @param response
+     * @throws Exception
+     */
     @Override
     public void exportExcel(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
@@ -735,23 +677,15 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
                 bos.write(buff, 0, bytesRead);
             }
             logger.debug("【excel 输出中完毕】 ： ");
-        } catch (Exception e) {
-            throw e;
         } finally {
-            try {
-                if (fileInputStream != null)
-                    fileInputStream.close();
-                if (bis != null)
-                    bis.close();
-                if (bos != null)
-                    bos.close();
-                if (workbook != null){
-                    workbook.close();
-                }
-//                if (excelFile != null && excelFile.exists())
-//                    excelFile.delete();
-            } catch (IOException e) {
-                throw e;
+            if (fileInputStream != null)
+                fileInputStream.close();
+            if (bis != null)
+                bis.close();
+            if (bos != null)
+                bos.close();
+            if (workbook != null){
+                workbook.close();
             }
         }
     }
