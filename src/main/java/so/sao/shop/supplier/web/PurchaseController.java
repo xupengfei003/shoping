@@ -160,6 +160,9 @@ public class PurchaseController {
     @PostMapping(value = "/deliverGoods/{orderId}")
     @ApiOperation(value = "发货接口", notes = "发货接口")
     public Result deliverGoods(@RequestBody @PathVariable("orderId") String orderId, @RequestBody Map map) throws Exception {
+        if (!verifyOrderStatus(orderId, Constant.OrderStatusConfig.ISSUE_SHIP)) {
+            return Result.fail(Constant.MessageConfig.ORDER_STATUS_EERO);
+        }
         if (!StringUtils.isEmpty(map.get("name")) && !StringUtils.isEmpty(map.get("number"))) {
             //更改订单状态操作
             purchaseService.deliverGoods(orderId, (Integer) map.get("receiveMethod"), (String) map.get("name"), (String) map.get("number"));
@@ -276,27 +279,6 @@ public class PurchaseController {
 
     }
 
-    // TODO 验证订单状态，本期不考虑
-    /*private Integer verifyOrderStatus(String orderId,Integer orderStatus) {
-        Integer getOrderStatus = purchaseService.findOrderStatus(orderId);
-        if (getOrderStatus == Constant.OrderStatusConfig.PAYMENT && orderStatus == Constant.OrderStatusConfig.PENDING_SHIP){
-            getOrderStatus = Constant.OrderStatusConfig.PENDING_SHIP;
-        } else if (getOrderStatus == Constant.OrderStatusConfig.PENDING_SHIP && orderStatus == Constant.OrderStatusConfig.ISSUE_SHIP){
-            getOrderStatus = Constant.OrderStatusConfig.ISSUE_SHIP;
-        } else if (getOrderStatus == Constant.OrderStatusConfig.ISSUE_SHIP && orderStatus == Constant.OrderStatusConfig.RECEIVED){
-            getOrderStatus = Constant.OrderStatusConfig.RECEIVED;
-        } else if (getOrderStatus == Constant.OrderStatusConfig.ISSUE_SHIP && orderStatus == Constant.OrderStatusConfig.REJECT){
-            getOrderStatus = Constant.OrderStatusConfig.REJECT;
-        } else if (getOrderStatus == Constant.OrderStatusConfig.RECEIVED && orderStatus == Constant.OrderStatusConfig.REJECT){
-            getOrderStatus = Constant.OrderStatusConfig.REJECT;
-        } else if (getOrderStatus == Constant.OrderStatusConfig.REJECT && orderStatus == Constant.OrderStatusConfig.REFUNDED){
-            getOrderStatus = Constant.OrderStatusConfig.REFUNDED;
-        } else {
-            getOrderStatus = 0;
-        }
-        return getOrderStatus;
-    }*/
-
     /**
      * 生成收货二维码接口
      * <p>
@@ -367,6 +349,9 @@ public class PurchaseController {
         if (Ognl.isEmpty(orderId)) {  // 参数为空
             return Result.fail(Constant.MessageConfig.MSG_NOT_EMPTY);
         }
+        if (!verifyOrderStatus(orderId, Constant.OrderStatusConfig.RECEIVED)) {
+            return Result.fail(Constant.MessageConfig.ORDER_STATUS_EERO);
+        }
         // 扫描收货二维码
         Map map = purchaseService.sweepReceiving(orderId);
         boolean flag = (boolean) map.get("flag");
@@ -385,6 +370,9 @@ public class PurchaseController {
     @ApiOperation("拒收货接口")
     @PostMapping("/refuseOrder")
     public Result refuseOrder(@RequestBody @Valid RefuseOrderInput refuseOrderInput) throws Exception {
+        if (!verifyOrderStatus(refuseOrderInput.getOrderId(), Constant.OrderStatusConfig.REJECT)) {
+            return Result.fail(Constant.MessageConfig.ORDER_STATUS_EERO);
+        }
         purchaseService.refuseOrder(refuseOrderInput);
         return Result.success(Constant.MessageConfig.MSG_SUCCESS);
     }
@@ -412,6 +400,9 @@ public class PurchaseController {
     @ApiOperation("新增取消订单原因接口")
     @PostMapping("/insertCancelReason")
     public Result insertCancelReason(@RequestBody @Valid CancelReasonInput cancelReasonInput) throws Exception {
+        if (!verifyOrderStatus(cancelReasonInput.getOrderId(), Constant.OrderStatusConfig.CANCEL_ORDER)) {
+            return Result.fail(Constant.MessageConfig.ORDER_STATUS_EERO);
+        }
         purchaseService.cancelOrder(cancelReasonInput);
         return Result.success(Constant.MessageConfig.MSG_SUCCESS);
     }
@@ -430,6 +421,33 @@ public class PurchaseController {
             return Result.success(Constant.MessageConfig.MSG_SUCCESS, cancelReason);
         }
         return Result.success(Constant.MessageConfig.MSG_SUCCESS, Constant.MessageConfig.MSG_NO_DATA);
+    }
+
+    //验证订单状态
+    private boolean verifyOrderStatus(String orderId, Integer orderStatus) {
+        boolean flag = false;
+        Integer getOrderStatus = purchaseService.findOrderStatus(orderId);
+        //待付款 --> 待发货
+        if (getOrderStatus == Constant.OrderStatusConfig.PAYMENT && orderStatus == Constant.OrderStatusConfig.PENDING_SHIP) {
+            flag = true;
+        }
+        //待付款 --> 已取消 / 待发货 --> 已取消
+        if ((getOrderStatus == Constant.OrderStatusConfig.PAYMENT || getOrderStatus == Constant.OrderStatusConfig.PENDING_SHIP) && orderStatus == Constant.OrderStatusConfig.CANCEL_ORDER) {
+            flag = true;
+        }
+        //待发货 --> 已发货
+        if (getOrderStatus == Constant.OrderStatusConfig.PENDING_SHIP && orderStatus == Constant.OrderStatusConfig.ISSUE_SHIP) {
+            flag = true;
+        }
+        //已发货 --> 已完成 / 已发货 --> 已拒收
+        if (getOrderStatus == Constant.OrderStatusConfig.ISSUE_SHIP && (orderStatus == Constant.OrderStatusConfig.RECEIVED || orderStatus == Constant.OrderStatusConfig.REJECT)) {
+            flag = true;
+        }
+        //已拒收 --> 已退款 / 已取消 --> 已退款
+        if ((getOrderStatus == Constant.OrderStatusConfig.REJECT || getOrderStatus == Constant.OrderStatusConfig.CANCEL_ORDER) && orderStatus == Constant.OrderStatusConfig.REFUNDED) {
+            flag = true;
+        }
+        return flag;
     }
 
     //验证时间格式
