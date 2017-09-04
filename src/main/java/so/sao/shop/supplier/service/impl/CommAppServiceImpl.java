@@ -1,6 +1,5 @@
 package so.sao.shop.supplier.service.impl;
 
-import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,9 +9,7 @@ import so.sao.shop.supplier.pojo.output.CategoryOutput;
 import so.sao.shop.supplier.service.CommAppService;
 import so.sao.shop.supplier.util.DataCompare;
 import so.sao.shop.supplier.util.PageTool;
-import so.sao.shop.supplier.util.PageUtil;
 import so.sao.shop.supplier.pojo.output.CommAppSeachOutput;
-import so.sao.shop.supplier.pojo.vo.Page;
 import java.math.BigDecimal;
 
 import java.util.*;

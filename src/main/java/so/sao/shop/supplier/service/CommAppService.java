@@ -1,6 +1,5 @@
 package so.sao.shop.supplier.service;
 
-import org.springframework.web.bind.annotation.RequestParam;
 import so.sao.shop.supplier.pojo.Result;
 
 import java.math.BigDecimal;

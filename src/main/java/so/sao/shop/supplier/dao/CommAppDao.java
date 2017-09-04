@@ -37,5 +37,4 @@ public interface CommAppDao {
      * 查询所有商品科属
      */
     List<CategoryOutput> searchCategories();
-
 }
