@@ -1,12 +1,13 @@
 package so.sao.shop.supplier.pojo.output;
 
 import java.math.BigDecimal;
-import so.sao.shop.supplier.pojo.BaseResult;
+import so.sao.shop.supplier.config.CommConstant;
+import so.sao.shop.supplier.util.DateUtil;
 
 /**
  * Created by renle on 2017/7/20.
  */
-public class CommodityExportOutput extends BaseResult{
+public class CommodityExportOutput {
     /**
      * 商品id
      */
@@ -166,7 +167,7 @@ public class CommodityExportOutput extends BaseResult{
     }
 
     public void setMarketTime(String marketTime) {
-        this.marketTime = marketTime;
+        this.marketTime = DateUtil.subStringByIndex(marketTime , 10);
     }
 
     public String getOriginPlace() {
@@ -190,7 +191,7 @@ public class CommodityExportOutput extends BaseResult{
     }
 
     public void setPrice(BigDecimal price) {
-        this.price = price;
+        this.price = price == null ? new BigDecimal(0.0) : price;
     }
 
     public BigDecimal getUnitPrice() {
@@ -198,7 +199,7 @@ public class CommodityExportOutput extends BaseResult{
     }
 
     public void setUnitPrice(BigDecimal unitPrice) {
-        this.unitPrice = unitPrice;
+        this.unitPrice = unitPrice == null ? new BigDecimal(0.0) : unitPrice;
     }
 
     public Double getInventory() {
@@ -206,7 +207,7 @@ public class CommodityExportOutput extends BaseResult{
     }
 
     public void setInventory(Double inventory) {
-        this.inventory = inventory;
+        this.inventory = inventory == null ? 0.0 : inventory;
     }
 
     public String getCreatedAt() {
@@ -214,7 +215,7 @@ public class CommodityExportOutput extends BaseResult{
     }
 
     public void setCreatedAt(String createdAt) {
-        this.createdAt = createdAt;
+        this.createdAt = DateUtil.subStringByIndex(createdAt , 19);
     }
 
     public String getUpdatedAt() {
@@ -222,7 +223,7 @@ public class CommodityExportOutput extends BaseResult{
     }
 
     public void setUpdatedAt(String updatedAt) {
-        this.updatedAt = updatedAt;
+        this.updatedAt = DateUtil.subStringByIndex(updatedAt , 19);
     }
 
     public int getStatus() {
@@ -230,15 +231,7 @@ public class CommodityExportOutput extends BaseResult{
     }
 
     public void setStatus(int status) {
-        this.status = status;
-    }
-
-    public String getStatusName() {
-        return statusName;
-    }
-
-    public void setStatusName(String statusName) {
-        this.statusName = statusName;
+        this.statusName = CommConstant.getStatus(status);
     }
 
     @Override

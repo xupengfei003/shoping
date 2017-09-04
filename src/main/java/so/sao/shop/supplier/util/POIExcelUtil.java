@@ -91,14 +91,12 @@ public class POIExcelUtil {
 				HttpMethod.GET,
 				new HttpEntity<byte[]>(headers),
 				byte[].class);
-
 		byte[] result = response.getBody();
-
 		inputStream = new ByteArrayInputStream(result);
 		try {
 			inputStream.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("读取文件异常！", e);
 		}
 		return inputStream;
 

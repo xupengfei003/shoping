@@ -47,13 +47,6 @@ public interface CommodityService {
     Result getCommodity(Long id);
 
     /**
-     * 根据id查询多个商品
-     * @param ids
-     * @return
-     */
-    public List<CommodityExportOutput> findByIds(Long[] ids);
-
-    /**
      * 根据userId查Account实体
      * @param userId
      * @return
