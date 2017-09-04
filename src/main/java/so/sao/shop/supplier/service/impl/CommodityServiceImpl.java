@@ -757,12 +757,11 @@ public class CommodityServiceImpl implements CommodityService {
             case "图片":
                 if (!"".equals(value)) {
                     String[] imgs = new String[15];
-                    if (value.contains(",") || value.contains("，")) {
-                        if (value.contains(",")) {
-                            imgs = value.split(",");
-                        } else if (value.contains("，")) {
-                            imgs = value.split("，");
+                    if (value.contains(",") || value.contains("，") ) {
+                        if( value.contains("，") ){
+                            value = value.replaceAll("，" , ",");
                         }
+                        imgs = value.split(",");
                     } else {
                         imgs[0] = value;
                     }
