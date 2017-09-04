@@ -247,7 +247,7 @@ public class OrderMoneyRecordController {
     @GetMapping(value = "/orderMoneyRecord/unsettled")
     public Result totalMoney(String startTime, String endTime) throws Exception {
         //判断null和空值
-        if (Ognl.isNotEmpty(startTime) || Ognl.isNotEmpty(endTime)) {
+        if (Ognl.isEmpty(startTime) || Ognl.isEmpty(endTime)) {
             return Result.fail(Constant.MessageConfig.MSG_NOT_EMPTY);
         }
 
