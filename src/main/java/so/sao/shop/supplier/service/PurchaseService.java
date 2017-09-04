@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -106,6 +107,13 @@ public interface PurchaseService {
      */
     Integer findOrderStatus(String orderId);
 
+    /**
+     * 根据支付ID获取订单状态
+     *
+     * @param payId
+     * @return
+     */
+    List<String> findOrderStatusByPayId(String payId);
     /**
      * 根据订单查询订单打印页面信息
      *

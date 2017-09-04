@@ -623,11 +623,34 @@ public class PurchaseServiceImpl implements PurchaseService {
         return result;
     }
 
+    /**
+     * 根据订单ID获取订单状态
+     *
+     * @param orderId
+     * @return
+     */
     @Override
     public Integer findOrderStatus(String orderId) {
         return purchaseDao.getOrderStatus(orderId);
     }
 
+    /**
+     * 根据支付ID获取订单状态列表
+     *
+     * @param payId 支付ID
+     * @return
+     */
+    @Override
+    public List<String> findOrderStatusByPayId(String payId) {
+        List<Purchase> purchaseList = purchaseDao.findByPayId(payId);
+        List<String> orderStatusList = new ArrayList<>();
+        if(purchaseList.size()>0){
+            for(Purchase purchase : purchaseList){
+                orderStatusList.add(purchase.getOrderId());
+            }
+        }
+        return orderStatusList;
+    }
     /**
      * 根据订单查询订单打印页面信息
      * <p>
