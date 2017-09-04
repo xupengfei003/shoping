@@ -185,13 +185,11 @@ public class CommodityServiceImpl implements CommodityService {
         Long categoryOneId = commodityInput.getCategoryOneId();
         Long categoryTwoId = commodityInput.getCategoryTwoId();
         Long categoryThreeId = commodityInput.getCategoryThreeId();
-        //验证是否选择商品科属
-        if(null == categoryTwoId && null != categoryThreeId){
-            return Result.fail("未选择商品科属二级分类！");
-        }
         //获取三级分类list
         List<CommCategory> commCategoryList = commCategoryDao.findByIds(categoryOneId, categoryTwoId, categoryThreeId);
-        List<Long> ids = new ArrayList<>();
+        if(commCategoryList.size() < CommConstant.CATEGORY_LEVEL_NUMBER){
+            return Result.fail("商品科属有分类不存在！");
+        }
         CommCategory commCategoryOne = null;
         CommCategory commCategoryTwo = null;
         CommCategory commCategoryThree = null;
@@ -202,23 +200,6 @@ public class CommodityServiceImpl implements CommodityService {
                 commCategoryTwo = commCategory;
             } else if(commCategory.getId().equals(categoryThreeId)){
                 commCategoryThree = commCategory;
-            }
-            ids.add(commCategory.getId());
-        }
-        //验证商品一级分类是否存在
-        if(!ids.contains(categoryOneId)){
-            return Result.fail("商品科属一级分类不存在！");
-        }
-        //验证商品二级分类是否存在
-        if(null != categoryTwoId){
-            if(!ids.contains(categoryTwoId)){
-                return Result.fail("商品科属二级分类不存在！");
-            }
-        }
-        //验证商品三级分类是否存在
-        if(null != categoryThreeId){
-            if(!ids.contains(categoryThreeId)){
-                return Result.fail("商品科属三级分类不存在！");
             }
         }
         //验证三级分类之间的关联是否正确
@@ -233,16 +214,7 @@ public class CommodityServiceImpl implements CommodityService {
             }
         }
         //拼装商品分类code码
-        String categoryOneCode = commCategoryOne.getCode();
-        String categoryTwoCode = CommConstant.CATEGORY_NULL_CODE;
-        String categoryThreeCode = CommConstant.CATEGORY_NULL_CODE;
-        if(null != commCategoryTwo){
-            categoryTwoCode = commCategoryTwo.getCode();
-        }
-        if(null != commCategoryThree){
-            categoryThreeCode = commCategoryThree.getCode();
-        }
-        String commCategoryCode = categoryOneCode + categoryTwoCode + categoryThreeCode;
+        String commCategoryCode = commCategoryOne.getCode() + commCategoryTwo.getCode() + commCategoryThree.getCode();
         return Result.success("校验通过", commCategoryCode);
     }
 
@@ -269,15 +241,8 @@ public class CommodityServiceImpl implements CommodityService {
      * @return
      */
     private boolean verifyAssociation(CommCategory commCategoryOne, CommCategory commCategoryTwo, CommCategory commCategoryThree){
-        if(null != commCategoryTwo && null == commCategoryThree){
-            if(!(commCategoryOne.getPid().equals(CommConstant.CATEGORY_ONE_PID) && commCategoryOne.getId().equals(commCategoryTwo.getPid()))){
-                return false;
-            }
-        }
-        if(null != commCategoryTwo && null != commCategoryThree){
-            if(!(commCategoryOne.getPid().equals(CommConstant.CATEGORY_ONE_PID) && commCategoryOne.getId().equals(commCategoryTwo.getPid()) && commCategoryTwo.getId().equals(commCategoryThree.getPid()))){
-                return false;
-            }
+        if(!(commCategoryOne.getPid().equals(CommConstant.CATEGORY_ONE_PID) && commCategoryOne.getId().equals(commCategoryTwo.getPid()) && commCategoryTwo.getId().equals(commCategoryThree.getPid()))){
+            return false;
         }
         return true;
     }
