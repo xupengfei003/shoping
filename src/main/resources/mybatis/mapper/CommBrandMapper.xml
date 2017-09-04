@@ -20,7 +20,7 @@
         )
     </insert>
     <select id="findByName" resultType="so.sao.shop.supplier.domain.CommBrand">
-        SELECT id, name,deleted FROM comm_brand WHERE deleted != '1' AND name LIKE #{name}
+        SELECT id, name,deleted FROM comm_brand WHERE deleted != '1' AND name = #{name}
     </select>
     <select id="find" resultType="so.sao.shop.supplier.domain.CommBrand">
         SELECT id, name,deleted FROM comm_brand

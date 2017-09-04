@@ -1,14 +1,13 @@
 package so.sao.shop.supplier.pojo.output;
 
 import com.github.pagehelper.PageInfo;
-import so.sao.shop.supplier.pojo.BaseResult;
 import so.sao.shop.supplier.pojo.vo.OrderMoneyRecordVo;
 
 
 /**
  * Created by fangzhou on 2017/7/20.
  */
-public class OrderMoneyRecordOutput extends BaseResult {
+public class OrderMoneyRecordOutput {
 
     private PageInfo<OrderMoneyRecordVo> pageInfo;
 

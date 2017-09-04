@@ -74,6 +74,7 @@ public class CartServiceImplTest {
         int count = random.nextInt();
         count = Math.abs(count);
         System.out.println("更新的数量为："+count);
+		 System.out.println("更新的数量为："+count);
         cartItemInput.setCount(count);
 
         boolean  flag = cartService.updateCartItem(id,count);

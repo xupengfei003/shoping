@@ -1,10 +1,11 @@
 package so.sao.shop.supplier.pojo.input;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import org.hibernate.validator.constraints.Length;
-import so.sao.shop.supplier.pojo.vo.CommImgeVo;
 import so.sao.shop.supplier.pojo.vo.SupplierCommodityVo;
 
 import javax.validation.Valid;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -13,43 +14,68 @@ import java.util.List;
  * Created by QuJunLong on 2017/7/19.
  */
 public class CommodityInput {
+
     /**
      *
      * Excel 行号
      */
-
     private  int rowNum;
 
     /**
      * 品牌
      */
-    @Length(max = 256,message = "品牌长度不能大于256")
-    private String brand;
+    @Length(max = 256,message = "商品品牌长度不能大于256")
+    private String brandName;
+
     /**
      * 一级类型Id
      */
     private Long categoryOneId;
+
     /**
      * 二级类型Id
      */
     private Long categoryTwoId;
+
     /**
      * 三级类型Id
      */
     private Long categoryThreeId;
+
     /**
      * 商品名称
      */
     @Length(max = 256,message = "商品名称长度不能大于256")
     private String name;
+
     /**
      * 商品描述
      */
     private String remark;
+
     /**
-     * 商品介绍
+     * 商品标签Id
      */
-    private String description;
+    private Long tagId;
+
+    /**
+     * 企业名称
+     */
+    @Length(max = 256,message = "企业名称长度不能大于256")
+    private String companyName;
+
+    /**
+     * 上市时间
+     */
+    @JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
+    private Date marketTime;
+
+    /**
+     * 商品产地
+     */
+    @Length(max = 256,message = "商品产地长度不能大于256")
+    private String originPlace;
+
     /**
      * 商品集合
      */
@@ -64,28 +90,12 @@ public class CommodityInput {
         this.rowNum = rowNum;
     }
 
-    public String getBrand() {
-        return brand;
+    public String getBrandName() {
+        return brandName;
     }
 
-    public void setBrand(String brand) {
-        this.brand = brand;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public List<SupplierCommodityVo> getCommodityList() {
-        return commodityList;
-    }
-
-    public void setCommodityList(List<SupplierCommodityVo> commodityList) {
-        this.commodityList = commodityList;
+    public void setBrandName(String brandName) {
+        this.brandName = brandName;
     }
 
     public Long getCategoryOneId() {
@@ -112,6 +122,14 @@ public class CommodityInput {
         this.categoryThreeId = categoryThreeId;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public String getRemark() {
         return remark;
     }
@@ -120,11 +138,43 @@ public class CommodityInput {
         this.remark = remark;
     }
 
-    public String getDescription() {
-        return description;
+    public Long getTagId() {
+        return tagId;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setTagId(Long tagId) {
+        this.tagId = tagId;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
+
+    public Date getMarketTime() {
+        return marketTime;
+    }
+
+    public void setMarketTime(Date marketTime) {
+        this.marketTime = marketTime;
+    }
+
+    public String getOriginPlace() {
+        return originPlace;
+    }
+
+    public void setOriginPlace(String originPlace) {
+        this.originPlace = originPlace;
+    }
+
+    public List<SupplierCommodityVo> getCommodityList() {
+        return commodityList;
+    }
+
+    public void setCommodityList(List<SupplierCommodityVo> commodityList) {
+        this.commodityList = commodityList;
     }
 }

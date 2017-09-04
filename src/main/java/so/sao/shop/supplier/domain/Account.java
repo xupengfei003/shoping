@@ -1,9 +1,8 @@
 package so.sao.shop.supplier.domain;
 
+import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
-
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.math.BigDecimal;
@@ -24,11 +23,13 @@ public class Account {
 	 * 供应商名称
 	 */
 	@NotEmpty(message = "供应商名称不能为空")
+	@Length(max = 255,message = "供应商名称长度不能超过255")
 	private String providerName;
 	/**
 	 * 供应商法人代表
 	 */
 	@NotEmpty(message = "供应商法人代表不能为空")
+	@Length(max = 255,message = "供应商法人代表长度不能超过255")
 	private String responsible;
 	/**
 	 * 供应商法人代表电话
@@ -40,6 +41,7 @@ public class Account {
 	 * 供应商营业执照号
 	 */
 	@NotEmpty(message = "供应商营业执照号不能为空")
+	@Length(max = 255,message = "供应商营业执照长度不能超过255")
 	private String license;
 	/**
 	 * 供应商营业执照开始时间
@@ -81,6 +83,7 @@ public class Account {
 	 * 供应商注册详细地址（街道，门牌号）
 	 */
 	@NotEmpty(message = "供应商注册详细地址不能为空")
+    @Length(max = 255,message = "供应商注册详细地址长度不能超过255")
 	private String registerAddressDetail;
 	/**
 	 * 折扣信息
@@ -95,11 +98,13 @@ public class Account {
 	 * 银行账号
 	 */
 	@NotEmpty(message = "银行账号不能为空")
+	@Length(max = 128,message = "开户行账号长度不能超过128")
 	private String bankNum;
 	/**
 	 * 开户人姓名
 	 */
 	@NotEmpty(message = "开户人姓名不能为空")
+	@Length(max = 255,message = "开户人姓名长度不能超过255")
 	private String bankUserName;
 	/**
 	 * 合同开始日期
@@ -139,6 +144,7 @@ public class Account {
 	/**
 	 * 备注
 	 */
+	@Length(max = 255,message = "备注长度不能超过255")
 	private String remark;
 	/**
 	 * 余额
@@ -152,6 +158,7 @@ public class Account {
 	 * 合同法人代表
 	 */
 	@NotEmpty(message = "合同法人代表不能为空")
+	@Length(max = 255,message = "合同法人代表长度不能超过255")
 	private String contractResponsible;
 	/**
 	 * 合同法人代表电话
@@ -163,6 +170,7 @@ public class Account {
 	 * 合同营业执照号
 	 */
 	@NotEmpty(message = "合同营业执照号不能为空")
+	@Length(max = 255,message = "合同营业执照号长度不能超过255")
 	private String contractLicense;
 	/**
 	 * 合同营业执照开始日期
@@ -199,6 +207,7 @@ public class Account {
 	 * 合同注册详细地址（街道，门牌号）
 	 */
 	@NotEmpty(message = "合同注册详细地址不能为空")
+    @Length(max = 255,message = "合同注册详细地址长度不能超过255")
 	private String contractRegisterAddressDetail;
 	/**
 	 * 上传方式 ，1单次，2批量
@@ -215,6 +224,36 @@ public class Account {
 	 * 供应商地址和供应商合同地址
 	 */
 	private List areaList;
+	
+	/**
+	 * 合同云端名称
+	 */
+	@NotEmpty(message = "上传合同名称")
+	@Length(max = 255,message = "上传合同名称长度不能超过255")
+	private String contractOriginalName;
+	/**
+	 * 合同云端地址
+	 */
+	@NotEmpty(message = "上传合同地址")
+	@Length(max = 255,message = "上传合同地址长度不能超过255")
+	private String contractOriginal;
+
+	/**
+	 * 上次结算时间
+	 */
+	private Date lastSettlementDate;
+	/**
+	 * 客服电话
+	 */
+	private String servicePhone;
+
+	public String getServicePhone() {
+		return servicePhone;
+	}
+
+	public void setServicePhone(String servicePhone) {
+		this.servicePhone = servicePhone;
+	}
 
 	public Long getAccountId() {
 		return accountId;
@@ -544,4 +583,29 @@ public class Account {
     public void setContractRegisterAddressDistrict(String contractRegisterAddressDistrict) {
         this.contractRegisterAddressDistrict = contractRegisterAddressDistrict;
     }
+
+	public String getContractOriginal() {
+		return contractOriginal;
+	}
+
+	public void setContractOriginal(String contractOriginal) {
+		this.contractOriginal = contractOriginal;
+	}
+
+	public String getContractOriginalName() {
+		return contractOriginalName;
+	}
+
+	public void setContractOriginalName(String contractOriginalName) {
+		this.contractOriginalName = contractOriginalName;
+	}
+
+	public Date getLastSettlementDate() {
+		return lastSettlementDate;
+	}
+
+	public void setLastSettlementDate(Date lastSettlementDate) {
+		this.lastSettlementDate = lastSettlementDate;
+	}
+    
 }

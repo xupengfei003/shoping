@@ -25,6 +25,18 @@
         <result column="goods_image" property="goodsImage"/>
         <result column="goods_name" property="goodsName"/>
         <result column="brand_name" property="brandName"/>
+        <result column="goods_unit_price" property="goodsUnitPrice"/>
+    </resultMap>
+
+    <!--收入明细中的订单明细映射结果-->
+    <resultMap id="PurchaseItemVo" type="so.sao.shop.supplier.pojo.vo.AccountPurchaseItemVo">
+        <result column="goods_name" property="goodsName"/>
+        <result column="goods_number" property="goodsNumber"/>
+        <result column="code" property="code"/>
+        <result column="code69" property="code69"/>
+        <result column="goods_attribute" property="goodsAttribute"/>
+        <result column="goods_unit_price" property="goodsUnitPrice"/>
+        <result column="goods_tatol_price" property="goodsTatolPrice"/>
     </resultMap>
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
@@ -40,7 +52,8 @@
         pi.goods_id,
         pi.goods_number,
         pi.goods_tatol_price,
-        pi.brand_name
+        pi.brand_name,
+        pi.goods_unit_price
         FROM
         purchase_item pi
         JOIN purchase p ON p.order_id = pi.order_id
@@ -78,11 +91,28 @@
         </foreach>
     </insert>
 
-    <!-- 分页条件检索-->
-    <select id="findPage" resultMap="BaseResultMap" parameterType="java.lang.String">
+    <!-- 根据订单编号分页条件检索订单明细-->
+    <select id="findPage" resultMap="PurchaseItemVo" parameterType="java.lang.String">
+        <!--商品名称,商品商家编号,商品条码,购买数量,商品规格,单价,总额-->
         SELECT
-        GOODS_ID,GOODS_NAME,GOODS_NUMBER,GOODS_UNIT_PRICE
-        FROM PURCHASE_ITEM
+        p.GOODS_NAME,p.GOODS_NUMBER,p.GOODS_ATTRIBUTE,p.GOODS_UNIT_PRICE,p.GOODS_TATOL_PRICE,s.code69,s.code
+        FROM PURCHASE_ITEM p
+        LEFT JOIN supplier_commodity s ON s.id = p.goods_id
         WHERE ORDER_ID = #{orderId,jdbcType=BIGINT}
+    </select>
+
+    <!-- 根据订单查询订单对应的所有商品条目 -->
+    <select id="findPrintItems" resultType="so.sao.shop.supplier.pojo.vo.PurchaseItemPrintVo">
+        SELECT
+            g.goods_name AS goodsName,
+            c.code69 AS goodsId,
+            g.brand_name AS brandName,
+            g.goods_attribute AS goodsAttribute,
+            g.goods_unit_price AS goodsUnitPrice,
+            g.goods_number AS goodsNumber,
+            g.goods_tatol_price AS goodsTatolPrice
+        FROM PURCHASE_ITEM g
+        LEFT JOIN SUPPLIER_COMMODITY c ON g.goods_id = c.id
+        WHERE  ORDER_ID = #{orderId,jdbcType=BIGINT}
     </select>
 </mapper>

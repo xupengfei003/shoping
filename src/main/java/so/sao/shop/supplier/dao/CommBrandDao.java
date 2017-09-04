@@ -29,4 +29,6 @@ public interface CommBrandDao {
      * @return  商品类型对象
      */
     CommBrand findByName(@Param("name")String name);
+
+
 }

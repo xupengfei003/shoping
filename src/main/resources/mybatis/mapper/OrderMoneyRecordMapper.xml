@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="so.sao.shop.supplier.dao.OrderMoneyRecordDao">
+  <!--通用查询映射结果-->
   <resultMap id="BaseResultMap" type="so.sao.shop.supplier.domain.OrderMoneyRecord">
     <id column="record_id" property="recordId" />
     <result column="user_id" property="userId" />
@@ -12,68 +13,16 @@
     <result column="created_at"  property="createdAt" />
     <result column="updated_at" property="updatedAt" />
     <result column="serial_number" property="serialNumber" />
-    <result column="order_id" property="orderId" />
+    <result column="provider_name" property="providerName" />
+    <result column="settled_amount" property="settledAmount" />
+    <result column="bank_user_name" property="bankUserName" />
+    <result column="checkout_at" property="checkoutAt" />
+    <result column="settled_at" property="settledAt" />
   </resultMap>
+
+  <!-- 通用查询结果列 -->
   <sql id="Base_Column_List">
-    record_id, user_id, bank_name, bank_name_branch, bank_account, total_money, state, created_at, updated_at, serial_number, order_id
-  </sql>
-
-  <!--保存提现申请-->
-  <insert id="save" parameterType="so.sao.shop.supplier.domain.OrderMoneyRecord" useGeneratedKeys="true">
-    INSERT INTO order_money_record (user_id, bank_name, bank_name_branch, bank_account, total_money, state, created_at, updated_at, serial_number, order_id)
-    VALUES(#{userId}, #{bankName}, #{bankNameBranch}, #{bankAccount}, #{totalMoney}, #{state}, #{createdAt}, #{updatedAt}, #{serialNumber}, #{orderId})
-    <selectKey resultType="java.lang.Long" order="AFTER" keyProperty="recordId">
-      SELECT LAST_INSERT_ID()
-    </selectKey>
-  </insert>
-
-  <!--查找提现申请-->
-  <select id="findPageByState" resultMap="BaseResultMap">
-    select
-      <include refid="Base_Column_List" />
-    FROM order_money_record
-    WHERE state = '0'
-      <if test="input != null">
-        <if test="input.startDate != null and input.startDate != '' ">
-          AND created_at &gt;= #{input.startDate}
-        </if>
-        <if test="input.endDate != null and input.endDate != '' ">
-          AND created_at &lt;= #{input.endDate}
-        </if>
-        <if test="input.startMoney != null and input.startMoney != '' ">
-          AND total_money &gt;= #{input.startMoney}
-        </if>
-        <if test="input.endMoney != null and input.endMoney != '' ">
-          AND total_money &lt;= #{input.endMoney}
-        </if>
-      </if>
-  </select>
-
-  <!--根据提现申请id查找提现申请实体-->
-  <select id="findOne" resultMap="BaseResultMap">
-    SELECT
-      <include refid="Base_Column_List" />
-    FROM order_money_record
-    WHERE record_id = #{recordId}
-  </select>
-
-  <!--根据提现申请记录修改提现申请状态-->
-  <update id="updateOrderMoneyRecord" parameterType="so.sao.shop.supplier.domain.OrderMoneyRecord">
-    UPDATE order_money_record
-    <set>
-      <if test="state != null">
-        state = #{state},
-      </if>
-      <if test="updatedAt != null">
-        updated_at = #{updatedAt},
-      </if>
-    </set>
-    WHERE record_id = #{recordId}
-  </update>
-
-  <!--根据UserId查询该账户名下所有的提现记录-->
-  <select id="findPage" resultMap="BaseResultMap">
-    SELECT record_id,
+    record_id,
     user_id,
     bank_name,
     bank_name_branch,
@@ -82,27 +31,288 @@
     state,
     created_at,
     updated_at,
-    serial_number
+    serial_number,
+    provider_name,
+    settled_amount,
+    bank_user_name,
+    checkout_at,
+    settled_at
+  </sql>
+
+  <!-- 批量添加结算明细 -->
+  <insert id="saveOrderMoneyRecords" parameterType="java.util.List">
+    INSERT INTO order_money_record
+      (
+        record_id,
+        user_id,
+        bank_name,
+        bank_name_branch,
+        bank_account,
+        total_money,
+        state,
+        created_at,
+        updated_at,
+        serial_number,
+        provider_name,
+        settled_amount,
+        bank_user_name,
+        checkout_at
+        )
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.recordId},
+            #{item.userId},
+            #{item.bankName},
+            #{item.bankNameBranch},
+            #{item.bankAccount},
+            #{item.totalMoney},
+            #{item.state},
+            #{item.createdAt},
+            #{item.updatedAt},
+            #{item.serialNumber},
+            #{item.providerName},
+            #{item.settledAmount},
+            #{item.bankUserName},
+            #{item.checkoutAt}
+            )
+        </foreach>
+    </insert>
+
+  <!--findPageByState()查询映射结果集-->
+  <resultMap id="PageByStateList" type="so.sao.shop.supplier.domain.OrderMoneyRecord" >
+    <id column="record_id" property="recordId" />
+    <result column="provider_name" property="providerName" />
+    <result column="checkout_at" property="checkoutAt" />
+    <result column="total_money" property="totalMoney" />
+    <result column="settled_amount" property="settledAmount" />
+    <result column="settled_at" property="settledAt" />
+    <result column="state" property="state" />
+    <result column="bank_account" property="bankAccount" />
+  </resultMap>
+
+  <!--根据指定时间、状态查询结算明细列表-->
+  <select id="findPageByState" resultMap="PageByStateList" parameterType="so.sao.shop.supplier.pojo.input.OrderMoneyRecordInput">
+    SELECT
+      record_id,
+      provider_name,
+      checkout_at,
+      total_money,
+      settled_amount,
+      settled_at,
+      state,
+      bank_account
     FROM order_money_record
-    WHERE user_id=#{userId}
-    <if test="put !=null">
-      <if test="put.startTime !=null and put.startTime !=''">
-        And created_at &gt;= #{put.startTime}
+    <where>
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(startTime)">
+        AND checkout_at >= TRIM(STR_TO_DATE(#{startTime},'%Y-%m-%d'))
       </if>
-      <if test="put.endTime !=null and put.endTime !=''">
-        And created_at &lt;= #{put.endTime}
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(endTime)">
+        AND checkout_at &lt; TRIM(DATE_ADD(STR_TO_DATE(#{endTime},'%Y-%m-%d'),INTERVAL 1 DAY))
       </if>
-      <if test="put.startMoney !=null and put.startMoney !=''">
-        And total_money &gt;= #{put.startMoney}
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(state)">
+        AND state = #{state}
       </if>
-      <if test="put.endMoney !=null and put.endMoney !=''">
-        And total_money &lt;= #{put.endMoney}
-      </if>
-      <if test="put.state !=null and put.state !=''">
-        And state = #{put.state}
-      </if>
-    </if>
-    ORDER BY created_at DESC
+    </where>
   </select>
 
+  <!--根据指定时间、状态查询结算明细列表 用于excel导出-->
+  <select id="findRecords" resultMap="PageByStateList" >
+        SELECT
+        record_id,
+        provider_name,
+        checkout_at,
+        total_money,
+        settled_amount,
+        settled_at,
+        state,
+        bank_account
+        FROM order_money_record
+        <where>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(startTime)">
+                AND checkout_at >= TRIM(STR_TO_DATE(#{startTime},'%Y-%m-%d'))
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(endTime)">
+                AND checkout_at &lt; TRIM(STR_TO_DATE(#{endTime},'%Y-%m-%d'))
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(state)">
+                AND state = #{state}
+            </if>
+        </where>
+
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(limit)">
+            limit ${limit}
+        </if>
+    </select>
+
+  <!--findPageOMRPurchase()查询映射结果集-->
+  <resultMap id="PageOMRPurchaseList" type="so.sao.shop.supplier.domain.Purchase">
+    <id column="order_id" property="orderId" />
+    <result column="order_receiver_name" property="orderReceiverName" />
+    <result column="order_receiver_mobile" property="orderReceiverMobile" />
+    <result column="order_price" property="orderPrice" />
+    <result column="order_settleme_price" property="orderSettlemePrice" />
+    <result column="order_create_time" property="orderCreateTime" />
+  </resultMap>
+
+  <!--根据结算明细id和订单id查询该结算明细对应的订单列表-->
+  <select id="findPageOMRPurchase" resultMap="PageOMRPurchaseList">
+    SELECT
+      p.order_id,
+      p.order_receiver_name,
+      p.order_receiver_mobile,
+      p.order_price,
+      p.order_settleme_price,
+      p.order_create_time
+    FROM
+      order_money_record omr
+    LEFT JOIN record_purchase rp ON omr.record_id = rp.record_id
+    LEFT JOIN purchase p ON rp.order_id = p.order_id
+    WHERE
+      omr.record_id = #{recordId}
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderId)">
+        AND p.order_id = #{orderId}
+      </if>
+  </select>
+
+    <!--根据指定时间询已结算金额-->
+    <select id="settledAmount" resultType="java.math.BigDecimal">
+        SELECT
+        sum(settled_amount)
+        FROM order_money_record
+        <where>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(startTime)">
+                AND checkout_at >= TRIM(STR_TO_DATE(#{startTime},'%Y-%m-%d'))
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(endTime)">
+                AND checkout_at &lt; TRIM(DATE_ADD(STR_TO_DATE(#{endTime},'%Y-%m-%d'),INTERVAL 1 DAY))
+            </if>
+                AND state = 1
+        </where>
+    </select>
+
+    <!--根据指定时间查询未结算金额-->
+    <select id="totalMoney" resultType="java.math.BigDecimal">
+        SELECT
+        sum(total_money)
+        FROM order_money_record
+        <where>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(startTime)">
+                checkout_at >= TRIM(STR_TO_DATE(#{startTime},'%Y-%m-%d'))
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(endTime)">
+                AND checkout_at &lt; TRIM(DATE_ADD(STR_TO_DATE(#{endTime},'%Y-%m-%d'),INTERVAL 1 DAY))
+            </if>
+                AND  state = 0
+        </where>
+    </select>
+
+  <!--根据结算明细id查找结算明细实体-->
+  <select id="findOne" resultMap="BaseResultMap">
+    SELECT
+      <include refid="Base_Column_List"/>
+    FROM order_money_record
+    WHERE record_id = #{recordId}
+  </select>
+
+  <!--根据结算明细id修改结算状态、更新时间、结算时间、待结算金额、已结算金额-->
+  <update id="updateOrderMoneyRecord" parameterType="so.sao.shop.supplier.domain.OrderMoneyRecord">
+    UPDATE order_money_record
+    <set>
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(state)">
+        state = #{state},
+      </if>
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(updatedAt)">
+        updated_at = #{updatedAt},
+      </if>
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(settledAt)">
+        settled_at = #{settledAt},
+      </if>
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(totalMoney)">
+        total_money = #{totalMoney},
+      </if>
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(settledAmount)">
+        settled_amount = #{settledAmount},
+      </if>
+    </set>
+    WHERE record_id = #{recordId}
+  </update>
+
+  <!--根据账户id查询满足结账时间条件的已结算明细-->
+  <select id="findSettledPage" resultMap="BaseResultMap">
+    SELECT
+      record_id,
+      bank_name,
+      bank_name_branch,
+      bank_account,
+      total_money,
+      settled_amount,
+      bank_user_name,
+      checkout_at,
+      settled_at
+    FROM order_money_record
+    WHERE user_id=#{accountId} And state = 1
+    <!--按条件检索数据-->
+    <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(put)">
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(put.startTime)">
+          And settled_at &gt;= TRIM(STR_TO_DATE(#{put.startTime},'%Y-%m-%d'))
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(put.endTime)">
+          AND settled_at &lt; TRIM(DATE_ADD(STR_TO_DATE(#{put.endTime},'%Y-%m-%d'),INTERVAL 1 DAY))
+        </if>
+    </if>
+    ORDER BY settled_at DESC
+  </select>
+
+  <!--根据账户id查询满足结算时间的待结算明细-->
+  <select id="findUnpaidPage" resultMap="BaseResultMap">
+    SELECT
+    record_id,
+    bank_name,
+    bank_name_branch,
+    bank_account,
+    total_money,
+    settled_amount,
+    bank_user_name,
+    checkout_at,
+    settled_at
+    FROM order_money_record
+    WHERE user_id=#{accountId} And state = 0
+    <!--按条件检索数据-->
+    <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(put)">
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(put.startTime)">
+        And checkout_at &gt;= TRIM(STR_TO_DATE(#{put.startTime},'%Y-%m-%d'))
+      </if>
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(put.endTime)">
+        AND checkout_at &lt; TRIM(DATE_ADD(STR_TO_DATE(#{put.endTime},'%Y-%m-%d'),INTERVAL 1 DAY))
+      </if>
+    </if>
+    ORDER BY checkout_at DESC
+  </select>
+
+  <!--根据账户id统计该账户名下所有已结算金额之和-->
+  <select id="findTotalSettledAmount" resultType="java.math.BigDecimal" parameterType="java.lang.Long">
+    SELECT SUM(settled_amount)
+    FROM order_money_record
+    WHERE user_id=#{accountId} AND state=1;
+  </select>
+
+  <!--根据账户id统计该账户名下所有待结算金额之和-->
+  <select id="findTotalUnpaidMoney" resultType="java.math.BigDecimal" parameterType="java.lang.Long">
+    SELECT SUM(total_money)
+    FROM order_money_record
+    WHERE user_id=#{accountId} AND state=0;
+  </select>
+
+    <!--查询该结算明细对应的所有订单的结算金额之和-->
+    <select id="findOMRPurchaseTotalSettlemePrice" resultType="java.math.BigDecimal" parameterType="java.lang.String">
+        SELECT
+          sum(p.order_settleme_price)
+        FROM
+          order_money_record omr
+        LEFT JOIN record_purchase rp ON omr.record_id = rp.record_id
+        LEFT JOIN purchase p ON rp.order_id = p.order_id
+        WHERE
+          omr.record_id = #{recordId}
+    </select>
 </mapper>

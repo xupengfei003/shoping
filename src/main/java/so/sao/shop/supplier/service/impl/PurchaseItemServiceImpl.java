@@ -5,13 +5,18 @@ import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import so.sao.shop.supplier.config.Constant;
+import so.sao.shop.supplier.dao.PurchaseDao;
 import so.sao.shop.supplier.dao.PurchaseItemDao;
-import so.sao.shop.supplier.domain.PurchaseItem;
-import so.sao.shop.supplier.pojo.output.RecordToPurchaseOutput;
+import so.sao.shop.supplier.domain.Purchase;
+import so.sao.shop.supplier.pojo.Result;
+import so.sao.shop.supplier.pojo.output.RecordToPurchaseItemOutput;
 import so.sao.shop.supplier.pojo.vo.AccountPurchaseItemVo;
+import so.sao.shop.supplier.pojo.vo.PurchaseInListVo;
 import so.sao.shop.supplier.service.PurchaseItemService;
+import so.sao.shop.supplier.util.NumberUtil;
 
-import java.util.ArrayList;
+import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.util.List;
 
 /**
@@ -22,6 +27,8 @@ public class PurchaseItemServiceImpl implements PurchaseItemService {
 
     @Autowired
     PurchaseItemDao purchaseItemDao;
+    @Autowired
+    PurchaseDao purchaseDao;
 
     /**
      * 根据订单编号查询所有相关的订单明细记录（分页）
@@ -31,84 +38,63 @@ public class PurchaseItemServiceImpl implements PurchaseItemService {
      * @return 相关记录的集合
      */
     @Override
-    public RecordToPurchaseOutput searchPurchaseItems(Integer pageNum, Integer pageSize, String orderId) {
+    public Result<RecordToPurchaseItemOutput> searchPurchaseItems(Integer pageNum, Integer pageSize, String orderId) {
         /**
-         * 1.判断参数是否为空，是否合法
-         *   ①.判断当前页码和每页显示条数是否为空，为空赋予默认值，否则继续执行
-         *   ②.判断订单编号orderId 是否存在，存在继续执行，否则结束业务，返回错误代码
-         * 2.访问持久化层，获取数据集合
-         *   ①.使用分页插件设置分页
-         *   ②.访问持久化层方法获取数据
-         * 3.将获取到的数据集合中的泛型转化成vo层的类对象
-         *   ①.将获取到的数据集合使用循环方法依次放入另一个集合中
-         * 4.将转化后的数据集合封装到PageInfo对象中
-         *   ①.封装PageInfo时要封装：当前页码，每页显示条数，数据集合
-         * 5.将PageInfo对象封装到output类中返回
+         * 1  判断当前页码和每页显示条数是否为空
+         *      1.1 若为空或输入数据不恰当（非正数） 赋予默认值（当前页码为1,每页显示条数为10）
+         * 2  访问持久化层#findById(String orderId),根据订单编号检索该订单数据
+         * 3  判断#findById(String orderId) 返回数据是否为空
+         *      3.1 若为空，返回‘暂无订单数据’的信息
+         * 4  使用分页工具进行分页设置
+         * 5  访问持久化层#findPage(String orderId)。根基订单编号检索改订单下所有订单明细
+         * 6  判断#findPage(String orderId)返回数据市口为空
+         *      6.1 若为空，返回‘暂无订单数据’的信息
+         * 7  将订单及改订单下的订单明细封装到出参中，并封装成功信息   封装分页信息，  并返回
          */
-        RecordToPurchaseOutput output = new RecordToPurchaseOutput();//出参对象
+        Result<RecordToPurchaseItemOutput> result = new Result<>();//出参对象
+        result.setCode(Constant.CodeConfig.CODE_NOT_FOUND_RESULT);
+        result.setMessage(Constant.MessageConfig.MSG_NOT_FOUND_RESULT);
+        result.setData(null);
 
-        //1.1判断当前页码和每页显示条数是否为空
-        if (null==pageNum){
+        //1.1 判断当前页码和每页显示条数是否为空
+        if (null==pageNum || 0 >= pageNum){
             pageNum = 1;
         }
-        if (null==pageSize){
+        if (null==pageSize || 0 >= pageSize){
             pageSize = 10;
         }
 
-        //分页
+        //2.获取该订单编号对应的数据
+        Purchase purchase = purchaseDao.findById(orderId);
+
+        //3. 判断数据是否为空,若为空，返回‘暂无订单数据’的信息
+        if (null == purchase){
+            return result;
+        }
+
+        //4. 分页
         PageHelper.startPage(pageNum,pageSize);
 
-        //访问持久化层获取数据
-        List<PurchaseItem> purchaseItemList = purchaseItemDao.findPage(orderId);
+        //5. 访问持久化层获取数据
+        List<AccountPurchaseItemVo> purchaseItemList = purchaseItemDao.findPage(orderId);
 
         if(null != purchaseItemList && !purchaseItemList.isEmpty()){
-
-            PageInfo<PurchaseItem> pageInfo = new PageInfo<>(purchaseItemList);
-
-            //3.将获得的list集合中的对象全部转化成vo层的对象
-            List<AccountPurchaseItemVo> purchaseItemVos = this.inversion(purchaseItemList);
-
-            PageInfo<AccountPurchaseItemVo> pageInfoVo = new PageInfo<>();
-            pageInfoVo.setPageNum(pageNum);
-            pageInfoVo.setPageSize(pageSize);
-            pageInfoVo.setTotal(pageInfo.getTotal());
-            pageInfoVo.setPages(pageInfo.getPages());
-            pageInfoVo.setSize(pageInfo.getSize());
-            pageInfoVo.setList(purchaseItemVos);
+            for (AccountPurchaseItemVo account:purchaseItemList) {//将价格转化成科学记数法
+                account.setGoodsUnitPrice(NumberUtil.number2Thousand(new BigDecimal(account.getGoodsUnitPrice())));
+                account.setGoodsTatolPrice(NumberUtil.number2Thousand(new BigDecimal(account.getGoodsTatolPrice())));
+            }
+            PageInfo<AccountPurchaseItemVo> pageInfo = new PageInfo<>(purchaseItemList);
 
             //4.将转化后的数据集合封装到PageInfo对象中,封装成功信息和code
-            output.setCode(Constant.CodeConfig.CODE_SUCCESS);
-            output.setMessage(Constant.MessageConfig.MSG_SUCCESS);
-            output.setPageInfo(pageInfoVo);
-        } else {
-            output.setCode(Constant.CodeConfig.CODE_NOT_FOUND_RESULT);
-            output.setMessage(Constant.MessageConfig.MSG_NOT_FOUND_RESULT);
-            output.setPageInfo(null);
+            PurchaseInListVo purchaseInListVo = new PurchaseInListVo(purchase.getOrderId(),purchase.getOrderPrice(),purchase.getOrderReceiverName());
+            RecordToPurchaseItemOutput output = new RecordToPurchaseItemOutput();
+            output.setPurchaseInListVo(purchaseInListVo);
+            output.setPageInfo(pageInfo);
+            result.setCode(Constant.CodeConfig.CODE_SUCCESS);
+            result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
+            result.setData(output);
         }
-        return output;
-    }
-
-
-    /**
-     * 转化集合中的泛型
-     * @param purchaseItemList 转化前的集合
-     * @return 转化后的集合
-     */
-    private List<AccountPurchaseItemVo> inversion(List<PurchaseItem> purchaseItemList) {
-        List<AccountPurchaseItemVo> purchaseItemVos = new ArrayList<>();//存储转化后泛型的集合
-        AccountPurchaseItemVo purchaseItemVo = null;//要转化的泛型对象
-        if (null != purchaseItemList && !purchaseItemList.isEmpty()) {
-            for (PurchaseItem purchaseItem:purchaseItemList) {
-                //循环转化数据
-                purchaseItemVo = new AccountPurchaseItemVo();
-                purchaseItemVo.setGoodsId(purchaseItem.getGoodsId());//商品编号
-                purchaseItemVo.setGoodsName(purchaseItem.getGoodsName());//商品名称
-                purchaseItemVo.setGoodsNumber(purchaseItem.getGoodsNumber());//商品数量
-                purchaseItemVo.setGoodsUnitPrice(purchaseItem.getGoodsUnitPrice());//商品单价
-                purchaseItemVos.add(purchaseItemVo);//将转化后的数据添加到集合中
-            }
-        }
-        return purchaseItemVos;
+        return result;
     }
 
 }

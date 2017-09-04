@@ -2,7 +2,6 @@ package so.sao.shop.supplier.domain;
 
 import java.util.Date;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.DateTimeFormat.ISO;
 
@@ -22,6 +21,11 @@ public class Condition {
      */
 	@DateTimeFormat(pattern = "yyyy-MM-dd",iso=ISO.DATE)
     private Date endDate;
+
+    /**
+     * 供应商名称/法人代表（合同）模糊查询
+     */
+    private String vague;
 
     /**
      * 供应商名称
@@ -176,5 +180,13 @@ public class Condition {
 
     public void setContractCreateDate(Date contractCreateDate) {
         this.contractCreateDate = contractCreateDate;
+    }
+
+    public String getVague() {
+        return vague;
+    }
+
+    public void setVague(String vague) {
+        this.vague = vague;
     }
 }

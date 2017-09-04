@@ -9,6 +9,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import so.sao.shop.supplier.domain.User;
 
+
 import java.util.Date;
 import java.util.List;
 
@@ -27,4 +28,7 @@ public interface UserDao {
     int add(User user);
     int update(@Param("id")Long id, @Param("tel")String tel);
     int updateLogoutTime(@Param("userId")Long userId,@Param("logoutTime")Date logoutTime);
+
+    User findByLoginName(String loginName);
+   
 }

@@ -1,6 +1,5 @@
 package so.sao.shop.supplier.config;
 
-import java.math.BigDecimal;
 
 /**
  * <p>
@@ -12,9 +11,25 @@ import java.math.BigDecimal;
  */
 public interface Constant {
     /**
+     * request中存user的key
+     */
+    public static final String REQUEST_USER = "user";
+
+    /**
+     * 供货平台在redis中key前缀
+     */
+    public static final String REDIS_KEY_PREFIX = "supplier_platform_";
+
+    /**
+     * 供货平台在redis中登陆信息key前缀
+     */
+    public static final String REDIS_LOGIN_KEY_PREFIX = "supplier_platform_login_";
+
+    /**
      * 判断是否是管理员 1是
      */
     public static final String ADMIN_STATUS = "1";
+
     /**
      * code定义
      */
@@ -47,6 +62,16 @@ public interface Constant {
          * 未登录
          */
         public static final Integer CODE_USER_NOT_LOGIN = 6;
+
+        /**
+         * 起始时间不能晚于结束时间
+         */
+        public static final Integer DateNOTLate = 7;
+
+        /**
+         * 最小金额不能大于最大金额
+         */
+        public static final Integer MoneyNOTLate = 8;
     }
     /**
      * Message定义
@@ -91,7 +116,29 @@ public interface Constant {
          */
         public static final String ORDER_STATUS_EERO = "订单状态不合法";
 
+        /**
+         *  供应商ID不能为空
+         */
+        public static final String STORE_ID_NOT_NULL = "供应商ID不能为空";
 
+        /**
+         * 起始时间不能晚于结束时间
+         */
+        public static final String DateNOTLate = "起始时间不能晚于结束时间";
+
+        /**
+         * 最小金额不能大于最大金额
+         */
+        public static final String MoneyNOTLate = "最小金额不能大于最大金额";
+		 /**
+         * 权限不足
+         */
+        public static final String PERMISSION_DENIED_ERROR = "权限不足";
+
+        /**
+         * 暂无数据
+         */
+        public static final String MSG_NO_DATA = "暂无数据";
     }
 
     interface OrderStatusConfig{
@@ -108,7 +155,7 @@ public interface Constant {
          */
         public static final Integer ISSUE_SHIP = 3;
         /**
-         * 已收货
+         * 已完成
          */
         public static final Integer RECEIVED = 4;
         /**
@@ -120,139 +167,10 @@ public interface Constant {
          */
         public static final Integer REFUNDED = 6;
         /**
-         * 已完成
+         * 已取消
          */
-        public static final Integer COMPLETE = 7;
-    }
+        public static final Integer CANCEL_ORDER = 7;
 
-
-    /**
-     * 提现申请时间段（每月10至15号可提现）
-     */
-    interface OMRTimePeriodConfig {
-        /**
-         * 每月可提现开始时间
-         */
-        public static final int START_DATE = 10;
-
-        /**
-         * 每月可提现结束时间
-         */
-        public static final int END_DATE = 15;
-    }
-
-    /**
-     * 提现申请code定义
-     */
-    interface OMRCodeConfig {
-        /**
-         * 参数错误
-         */
-        public static final Integer OMR_CODE_PARAM_ERROR = -4;
-
-        /**
-         * 该账户不存在
-         */
-        public static final Integer OMR_CODE_ACCOUNT_NOT_EXIST = -3;
-
-        /**
-         * 当前时间不在提现日期内
-         */
-        public static final Integer OMR_CODE_NOT_TIME_PERIOD = -2;
-
-        /**
-         * 提现金额小于最小提现金额，不能提现
-         */
-        public static final Integer OMR_CODE_MIN_WITHDRAW = -1;
-
-        /**
-         * 提现申请失败
-         */
-        public static final Integer OMR_CODE_FAILURE = 0;
-
-        /**
-         * 提现申请成功
-         */
-        public static final Integer OMR_CODE_SUCCESS = 1;
-
-
-        //提现申请状态定义
-        /**
-         * 提现申请中，不能操作
-         */
-        public static final Integer OMR_CODE_APPLY = 2;
-
-        /**
-         * 审核已通过
-         */
-        public static final Integer OMR_CODE_PASSED = 3;
-
-        /**
-         * 提现已完成
-         */
-        public static final Integer OMR_CODE_DONE = 4;
-
-    }
-
-    /**
-     * 提现申请Message定义
-     */
-    interface OMRMessageConfig {
-
-        /**
-         * 参数错误
-         */
-        public static final String OMR_MSG_PARAM_ERROR = "参数错误";
-
-        /**
-         * 该账户不存在
-         */
-        public static final String OMR_MSG_ACCOUNT_NOT_EXIST = "该账户不存在";
-
-        /**
-         * 当前时间不在提现日期内
-         */
-        public static final String OMR_MSG_NOT_TIME_PERIOD = "当前时间不在提现日期内";
-
-        /**
-         * 提现金额小于最小提现金额，不能提现
-         */
-        public static final String OMR_MSG_MIN_WITHDRAW = "提现金额小于最小提现金额，不能提现";
-
-        /**
-         * 提现申请失败
-         */
-        public static final String OMR_MSG_FAILURE = "提现申请失败";
-
-        /**
-         * 提现申请成功
-         */
-        public static final String OMR_MSG_SUCCESS = "提现申请成功";
-
-
-        //提现申请状态定义
-        /**
-         * 提现申请中，不能操作
-         */
-        public static final String OMR_MSG_APPLY = "提现申请中，不能操作";
-
-        /**
-         * 审核已通过
-         */
-        public static final String OMR_MSG_PASSED = "审核已通过";
-
-        /**
-         * 提现已完成
-         */
-        public static final String OMR_MSG_DONE = "提现已完成";
-
-    }
-
-    interface OMRMinWithdrawConfig {
-        /**
-         * 最小提现金额
-         */
-        public static final BigDecimal MIN_TOTAL_MONEY = new BigDecimal(500.00);
     }
 
     interface OrderMessageConfig{
@@ -271,7 +189,7 @@ public interface Constant {
         /**
          * 4
          */
-        public static final String RECEIVED = "已收货";
+        public static final String RECEIVED = "已完成";
         /**
          * 5
          */
@@ -283,7 +201,7 @@ public interface Constant {
         /**
          * 7
          */
-        public static final String COMPLETE = "已完成";
+        public static final String CANCEL_ORDER = "已取消";
     }
 
     interface PaymentStatusConfig{
@@ -333,4 +251,78 @@ public interface Constant {
         public static final int NOSTORE = 102;
     }
 
+    /**
+     * 更改订单状态对应的消息通知
+     */
+    interface NotifiConfig{
+        /**
+         * 1
+         */
+        public static final String PAYMENT_NOTIFI = "您好:您有一笔新的订单通知,订单编号:";
+        /**
+         * 2
+         */
+        public static final String PENDING_SHIP_NOTIFI = "您好:您有一笔待发货的订单通知,订单编号:";
+        /**
+         * 3
+         */
+        public static final String ISSUE_SHIP_NOTIFI = "您好:您有一笔确认发货的订单通知,订单编号:";
+        /**
+         * 4
+         */
+        public static final String RECEIVED_NOTIFI = "您好:您有一笔已完成的订单通知,订单编号:";
+        /**
+         * 5
+         */
+        public static final String REJECT_NOTIFI = "您好:您有一笔拒收待审核的订单通知,订单编号:";
+        /**
+         * 6
+         */
+        public static final String REFUNDED_NOTIFI = "您好:您有一笔已退款的订单通知,订单编号:";
+
+        /**
+         * 7
+         */
+        public static final String CANCEL_ORDER = "您好:您有一笔已取消待审核的订单通知,订单编号:";
+    }
+
+    interface AccountCodeConfig{
+        /**
+         * 该账户不存在
+         */
+        public static final int CODE_NOT_EXIST_ACCOUNT = 201;
+
+        /**
+         * 结算状态错误
+         */
+        public static final int CODE_SETTLED_STATE_ERROR = 202;
+
+    }
+
+    interface AccountMessageConfig{
+        /**
+         * 账户不存在
+         */
+        public static final String MESSAGE_NOT_EXIST_ACCOUNT = "该账户不存在";
+
+        /**
+         * 结算状态错误
+         */
+        public static final String MESSAGE_SETTLED_STATE_ERROR = "结算状态错误";
+    }
+
+    interface CheckMaxLength{
+        /**
+         * 商品标签名称最大长度
+         */
+        public static final int MAX_TAG_NAME_LENGTH = 64;
+        /**
+         * 商品单位名称最大长度
+         */
+        public static final int MAX_UNIT_NAME_LENGTH = 64;
+        /**
+         * 商品计量规格名称最大长度
+         */
+        public static final int MAX_MEASURESPEC_NAME_LENGTH = 64;
+    }
 }

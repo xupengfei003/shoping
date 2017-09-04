@@ -1,17 +1,15 @@
 package so.sao.shop.supplier.auth;
 
-import org.codehaus.jackson.map.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
-import so.sao.shop.supplier.domain.User;
-import so.sao.shop.supplier.pojo.BaseResult;
-import so.sao.shop.supplier.util.Constant;
+import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.util.JwtTokenUtil;
 
 import javax.servlet.FilterChain;
@@ -42,6 +40,9 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
 
+    @Autowired
+    private RedisTemplate redisTemplate;
+
     /**
      * 根据token获取权限,user对象放到request中，供后续使用
      * @param request
@@ -61,8 +62,9 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
         response.setHeader("Access-Control-Allow-Credentials","true");
         response.setHeader("Access-Control-Allow-Headers", "x-requested-with,Authorization,Content-Type");
 
-        boolean islogin = false;
         String authHeader = request.getHeader(this.tokenHeader);
+        //header取不到从url中取
+        authHeader = StringUtils.isBlank(authHeader)?request.getParameter("token"):authHeader;
         if (authHeader != null && authHeader.startsWith(tokenHead)) {
             final String authToken = authHeader.substring(tokenHead.length());
             //验证token 不正确时抛异常(TODO 异常处理)
@@ -70,22 +72,27 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             Map claims = jwtTokenUtil.getClaimsFromToken(authToken);
             String username = claims.get(JwtTokenUtil.CLAIM_KEY_USERNAME).toString();
 
-            logger.info("checking authentication " + username);
-
-            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                User userDetails = (User) this.userDetailsService.loadUserByUsername(username);
-                if (jwtTokenUtil.validateToken(authToken, userDetails)) {
-                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                            userDetails, null, userDetails.getAuthorities());
-                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(
-                            request));
-                    logger.info("authenticated user " + username + ", setting security context");
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
-                    request.setAttribute(Constant.REQUEST_USER,userDetails);
-                    response.setHeader(tokenHeader,jwtTokenUtil.getTokenFromRequest(request));
-                    islogin = true;
+            if (username != null /*&& SecurityContextHolder.getContext().getAuthentication() == null*/) {
+                //redis中用户信息,包含权限信息,结构{user:{username:abc...},authentication:authentication}
+                Object result = redisTemplate.opsForHash().entries(Constant.REDIS_LOGIN_KEY_PREFIX+username);
+                if(result != null){
+                    Map resultMap = (Map) result;
+                    if (jwtTokenUtil.validateToken(authToken, (UserDetails) resultMap.get("user"))) {
+                        request.setAttribute(Constant.REQUEST_USER,(UserDetails) resultMap.get("user"));
+                        response.setHeader(tokenHeader,jwtTokenUtil.getTokenFromRequest(request));
+                        SecurityContextHolder.getContext().setAuthentication((Authentication) resultMap.get("authentication"));
+                    }else{
+                        logger.debug("doFilterInternal:authToken:"+authToken+"-"+resultMap);
+                    }
+                }else{
+                    logger.debug("doFilterInternal:result:"+result);
                 }
+            }else{
+                logger.debug("username:"+username);
+                logger.debug("getAuthentication:"+SecurityContextHolder.getContext().getAuthentication());
             }
+        }else{
+            logger.debug("authHeader:"+authHeader+"-url:"+request.getServletPath()+request.getPathInfo());
         }
         //if(request.getMethod().equals("OPTIONS") || islogin || new AntPathRequestMatcher("/order/export/**").matches(request)|| new AntPathRequestMatcher("/comm/exportExcel/**").matches(request) || new AntPathRequestMatcher("/account/findPassword/**").matches(request) || new AntPathRequestMatcher("/swagger-resources/**").matches(request)|| new AntPathRequestMatcher("/v2/**").matches(request) || new AntPathRequestMatcher("/webjars/**").matches(request) ||new AntPathRequestMatcher("/swagger-ui.html").matches(request) || new AntPathRequestMatcher("/account/auth/**").matches(request)){
         //    chain.doFilter(request, response);

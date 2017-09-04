@@ -28,6 +28,13 @@ public class NumberGenerate {
             "84", "85", "86", "87", "88", "89", "90", "91", "92", "93", "94", "95", "96",
             "97", "98", "99"};
 
+    public static String[] chars_en = new String[]{"a", "b", "c", "d", "e", "f",
+            "g", "h", "i", "g", "k", "l", "m", "n", "o", "p", "q", "r", "s",
+            "t", "u", "v", "w", "x", "y", "z", "0", "1", "2", "3", "4", "5",
+            "6", "7", "8", "9", "A", "B", "C", "D", "E", "F", "G", "H", "I",
+            "G", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V",
+            "W", "X", "Y", "Z"};
+
     /**
      * 通过UUID进行截取每4位一个单位，转换10进制数字，与100求余得出当前选中参数
      * @return
@@ -44,10 +51,19 @@ public class NumberGenerate {
         return shortBuffer.toString();
     }
 
-    public static void main(String[] args) {
-        long start = System.currentTimeMillis();
-        System.out.println(generateUuid());
-        long end = System.currentTimeMillis();
-        System.out.println(end - start);
+    /**
+     * 通过UUID进行截取每4位一个单位，转换10进制数字，与100求余得出当前选中参数
+     * @return
+     */
+    public static String generateId() {
+        SimpleDateFormat sf = new SimpleDateFormat("yyyyMMddHHmmss");
+        StringBuffer shortBuffer = new StringBuffer(sf.format(new Date()));
+        String uuid = UUID.randomUUID().toString().replace("-", "");
+        for (int i = 0; i < 8; i++) {
+            String str = uuid.substring(i * 4, i * 4 + 4);
+            int x = Integer.parseInt(str, 16);
+            shortBuffer.append(chars_en[x % 62]);
+        }
+        return shortBuffer.toString();
     }
 }

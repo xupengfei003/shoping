@@ -1,5 +1,7 @@
 package so.sao.shop.supplier.pojo;
 
+import so.sao.shop.supplier.config.Constant;
+
 /**
  * 返回对象
  *
@@ -20,6 +22,34 @@ public class Result<T>{
         this.code = code;
         this.message = message;
         this.data = data;
+    }
+
+    /**
+     * 失败时返回结构
+     * @param msg
+     * @return
+     */
+    public static Result fail(String msg){
+        return new Result(Constant.CodeConfig.CODE_FAILURE, msg, null);
+    }
+
+    /**
+     * 成功时返回结构
+     * @param msg
+     * @return
+     */
+    public static Result success(String msg){
+        return new Result(Constant.CodeConfig.CODE_SUCCESS, msg, null);
+    }
+
+    /**
+     * 成功时返回结构
+     * @param msg
+     * @param data
+     * @return
+     */
+    public static Result success(String msg, Object data){
+        return new Result(Constant.CodeConfig.CODE_SUCCESS, msg, data);
     }
 
     public Integer getCode() {

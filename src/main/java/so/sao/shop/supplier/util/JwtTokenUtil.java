@@ -1,5 +1,8 @@
 package so.sao.shop.supplier.util;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,7 +28,7 @@ import java.util.Map;
  **/
 @Component
 public class JwtTokenUtil implements Serializable {
-
+    protected final Log logger = LogFactory.getLog(getClass());
     private static final long serialVersionUID = 8113483942194008184L;
     public static final String CLAIM_KEY_USERNAME = "sub";
     public static final String CLAIM_KEY_CREATED = "created";
@@ -145,6 +148,7 @@ public class JwtTokenUtil implements Serializable {
         Map claims = getClaimsFromToken(token);
         String username = claims.get(CLAIM_KEY_USERNAME).toString();
         Date created = new Date(Long.valueOf(claims.get(CLAIM_KEY_CREATED).toString()));
+        logger.debug("validateToken:"+username+"-"+user);
         return (
                 username.equals(user.getUsername())
                         && !isTokenExpired(token) && (user.getLastPasswordResetDate()==null || !isCreatedBeforeLastPasswordReset(created, user.getLastPasswordResetDate())) && (user.getLogoutTime()==null || !isLogout(created,user.getLogoutTime())));
@@ -158,6 +162,7 @@ public class JwtTokenUtil implements Serializable {
      */
     public Map getClaimsFromRequest(HttpServletRequest request) throws IOException {
         String authHeader = request.getHeader(tokenHeader);
+        authHeader = StringUtils.isBlank(authHeader)?request.getParameter("token"):authHeader;
         String authToken = authHeader.substring(tokenHead.length());
         return new ObjectMapper().readValue(JwtHelper.decode(authToken).getClaims(), Map.class);
     }
@@ -170,6 +175,7 @@ public class JwtTokenUtil implements Serializable {
      */
     public String getTokenFromRequest(HttpServletRequest request) throws IOException {
         String authHeader = request.getHeader(tokenHeader);
+        authHeader = StringUtils.isBlank(authHeader)?request.getParameter("token"):authHeader;
         String authToken = authHeader.substring(tokenHead.length());
         return authToken;
     }

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Date;
 
 /**
  * Created by acer on 2017/7/20.
@@ -48,12 +47,6 @@ public class PurchaseSelectInput {
     private String orderReceiverMobile;
 
     /**
-     * 付款时间
-     */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
-    private String orderPaymentDate;
-
-    /**
      * 支付方式
      */
     private Integer orderPaymentMethod;
@@ -77,6 +70,35 @@ public class PurchaseSelectInput {
      * 商户ID
      */
     private BigInteger storeId;
+
+    /**
+     * 收货起始时间
+     */
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private String orderReceiveBeginTime;
+
+    /**
+     * 收货截止时间
+     */
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private String orderReceiveEndTime;
+
+    /**
+     * 订单支付起始时间
+     */
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private String orderPaymentBeginTime;
+
+    /**
+     * 订单支付截止时间
+     */
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private String orderPaymentEndTime;
+
+    /**
+     * 订单支付状态  0.未支付 1.已支付
+     */
+    private Integer payStatus;
 
     public String getOrderId() {
         return orderId;
@@ -134,14 +156,6 @@ public class PurchaseSelectInput {
         this.orderReceiverMobile = orderReceiverMobile;
     }
 
-    public String getOrderPaymentDate() {
-        return orderPaymentDate;
-    }
-
-    public void setOrderPaymentDate(String orderPaymentDate) {
-        this.orderPaymentDate = orderPaymentDate;
-    }
-
     public Integer getOrderPaymentMethod() {
         return orderPaymentMethod;
     }
@@ -180,5 +194,45 @@ public class PurchaseSelectInput {
 
     public void setStoreId(BigInteger storeId) {
         this.storeId = storeId;
+    }
+
+    public String getOrderReceiveBeginTime() {
+        return orderReceiveBeginTime;
+    }
+
+    public void setOrderReceiveBeginTime(String orderReceiveBeginTime) {
+        this.orderReceiveBeginTime = orderReceiveBeginTime;
+    }
+
+    public String getOrderReceiveEndTime() {
+        return orderReceiveEndTime;
+    }
+
+    public void setOrderReceiveEndTime(String orderReceiveEndTime) {
+        this.orderReceiveEndTime = orderReceiveEndTime;
+    }
+
+    public String getOrderPaymentBeginTime() {
+        return orderPaymentBeginTime;
+    }
+
+    public void setOrderPaymentBeginTime(String orderPaymentBeginTime) {
+        this.orderPaymentBeginTime = orderPaymentBeginTime;
+    }
+
+    public String getOrderPaymentEndTime() {
+        return orderPaymentEndTime;
+    }
+
+    public void setOrderPaymentEndTime(String orderPaymentEndTime) {
+        this.orderPaymentEndTime = orderPaymentEndTime;
+    }
+
+    public Integer getPayStatus() {
+        return payStatus;
+    }
+
+    public void setPayStatus(Integer payStatus) {
+        this.payStatus = payStatus;
     }
 }

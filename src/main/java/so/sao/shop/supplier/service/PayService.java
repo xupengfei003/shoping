@@ -1,0 +1,11 @@
+package so.sao.shop.supplier.service;
+
+import so.sao.shop.supplier.pojo.input.PayInput;
+
+/**
+ * Created by acer on 2017/8/15.
+ */
+public interface PayService {
+    public abstract boolean savePurchase(String sign, PayInput payInput) throws Exception;
+
+}

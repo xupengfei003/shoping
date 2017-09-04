@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="so.sao.shop.supplier.dao.RecordPurchaseDao">
+
+  <!--通用返回结果集-->
+  <resultMap id="BaseResultMap" type="so.sao.shop.supplier.domain.RecordPurchase">
+    <id column="id" property="id" />
+    <result column="record_id" property="recordId" />
+    <result column="order_id" property="orderId" />
+  </resultMap>
+
+  <!--批量保存提现申请记录与订单之间的关系-->
+  <insert id="saveRecordPurchases" parameterType="java.util.List">
+    INSERT INTO record_purchase
+      (
+        record_id,
+        order_id
+      )
+    VALUES
+    <foreach collection ="list" item="item" index= "index" separator =",">
+      (
+        #{item.recordId},
+        #{item.orderId}
+      )
+    </foreach>
+  </insert>
+
+</mapper>

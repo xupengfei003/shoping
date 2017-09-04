@@ -4,6 +4,7 @@ import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
 import so.sao.shop.supplier.pojo.vo.PurchaseItemVo;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -19,10 +20,15 @@ import java.util.List;
  */
 public class PurchaseInput {
     /**
-     * 买家ID
+     * 门店ID
      */
-    @NotNull(message="买家ID不能为空")
+    @NotNull(message="门店ID不能为空")
     private Long userId;
+    /**
+     * 门店名称
+     */
+    @NotEmpty(message="门店名称不能为空")
+    private String userName;
     /**
      * 收货人姓名
      */
@@ -47,6 +53,7 @@ public class PurchaseInput {
      * 订单详情信息
      */
     @NotNull(message="商品列表属性不能为空")
+    @Valid
     private List<PurchaseItemVo> listPurchaseItem;
 
 
@@ -93,4 +100,12 @@ public class PurchaseInput {
     public List<PurchaseItemVo> getListPurchaseItem() { return listPurchaseItem; }
 
     public void setListPurchaseItem(List<PurchaseItemVo> listPurchaseItem) { this.listPurchaseItem = listPurchaseItem; }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
 }

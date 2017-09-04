@@ -13,11 +13,16 @@ public class CommodityExportOutput extends BaseResult{
     /**
      * 商品id
      */
-    private Long commId;
+    private String sku;
     /**
      * 商品编码
      */
     private String code69;
+    /**
+     * 商品标签名称
+     */
+    private String tagName;
+
     /**
      * 品牌
      */
@@ -33,11 +38,11 @@ public class CommodityExportOutput extends BaseResult{
     /**
      * 计量单位
      */
-    private String unit;
+    private String unitName;
     /**
-     * 规格名称
+     * 计量规格名称
      */
-    private String ruleName;
+    private String measureSpecName;
     /**
      * 规格值
      */
@@ -50,6 +55,19 @@ public class CommodityExportOutput extends BaseResult{
      * 售价
      */
     private BigDecimal unitPrice;
+    /**
+     * 企业名称
+     */
+    private String companyName;
+    /**
+     * 上市时间
+     */
+    private String marketTime;
+    /**
+     * 商品产地
+     */
+    private String originPlace;
+
     /**
      * 库存
      */
@@ -68,12 +86,20 @@ public class CommodityExportOutput extends BaseResult{
      */
     private String updatedAt;
 
-    public Long getCommId() {
-        return commId;
+    public String getTagName() {
+        return tagName;
     }
 
-    public void setCommId(Long commId) {
-        this.commId = commId;
+    public void setTagName(String tagName) {
+        this.tagName = tagName;
+    }
+
+    public String getSku() {
+        return sku;
+    }
+
+    public void setSku(String sku) {
+        this.sku = sku;
     }
 
     public String getCode69() {
@@ -108,20 +134,44 @@ public class CommodityExportOutput extends BaseResult{
         this.supplierCode = supplierCode;
     }
 
-    public String getUnit() {
-        return unit;
+    public String getUnitName() {
+        return unitName;
     }
 
-    public void setUnit(String unit) {
-        this.unit = unit;
+    public void setUnitName(String unitName) {
+        this.unitName = unitName;
     }
 
-    public String getRuleName() {
-        return ruleName;
+    public String getMeasureSpecName() {
+        return measureSpecName;
     }
 
-    public void setRuleName(String ruleName) {
-        this.ruleName = ruleName;
+    public void setMeasureSpecName(String measureSpecName) {
+        this.measureSpecName = measureSpecName;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
+
+    public String getMarketTime() {
+        return marketTime;
+    }
+
+    public void setMarketTime(String marketTime) {
+        this.marketTime = marketTime;
+    }
+
+    public String getOriginPlace() {
+        return originPlace;
+    }
+
+    public void setOriginPlace(String originPlace) {
+        this.originPlace = originPlace;
     }
 
     public String getRuleValue() {

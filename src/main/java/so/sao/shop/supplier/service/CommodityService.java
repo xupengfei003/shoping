@@ -7,11 +7,13 @@ import so.sao.shop.supplier.domain.Account;
 import so.sao.shop.supplier.pojo.BaseResult;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.CommodityInput;
+import so.sao.shop.supplier.pojo.input.CommodityUpdateInput;
 import so.sao.shop.supplier.pojo.output.CommodityExportOutput;
 import so.sao.shop.supplier.pojo.output.CommodityOutput;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -25,21 +27,21 @@ public interface CommodityService {
      * @param commodityInput 商品信息对象
      * @return 保存结果
      */
-    BaseResult saveCommodity(CommodityInput commodityInput,Long supplierId) throws Exception;
+    Result saveCommodity(CommodityInput commodityInput,Long supplierId);
 
     /**
      * 修改商品
-     * @param commodityInput 商品信息对象
+     * @param commodityUpdateInput 商品信息对象
      * @return 修改结果
      */
-    BaseResult updateCommodity(CommodityInput commodityInput,Long supplierId) throws Exception;
+    Result updateCommodity(CommodityUpdateInput commodityUpdateInput, Long supplierId);
 
     /**
      * 根据供应商商品ID获取商品详细信息
      * @param id
      * @return
      */
-    CommodityOutput getCommodity(Long id);
+    Result getCommodity(Long id);
 
     /**
      * 根据id查询多个商品
@@ -56,17 +58,24 @@ public interface CommodityService {
     public Account findAccountByUserId(Long userId);
 
     /**
+     * 根据商品条码查询商品信息
+     * @param code69
+     * @return  商品信息
+     */
+    Result findCommodity(String code69);
+
+    /**
      * 删除商品图片
      * @param id
      * @return
      */
     public BaseResult deleteCommImge(Long id);
     /**
-     * 根据查询条件查询商品详情
+     * 根据查询条件查询商品详情（高级搜索）
      * @author liugang
      * @param supplierId 供应商ID
      * @param commCode69 商品编码
-     * @param commId 商品ID
+     * @param sku SKU(商品ID)
      * @param suppCommCode 商家商品编码
      * @param commName 商品名称
      * @param status 状态
@@ -75,26 +84,25 @@ public interface CommodityService {
      * @param maxPrice 价格（高）
      * @param pageNum 当前页号
      * @param pageSize 页面大小
-     * @return PageInfo pageInfo对象
+     * @param beginCreateAt 创建时间（起始）
+     * @param endCreateAt 创建时间（终止）
+     * @return Result Result对象
      */
-    PageInfo searchCommodities(Long supplierId, String commCode69, Long commId, String suppCommCode, String commName, Integer status, Long typeId,
-                               BigDecimal minPrice, BigDecimal maxPrice, Integer pageNum, Integer pageSize);
+    Result searchCommodities(Long supplierId, String commCode69, String sku, String suppCommCode, String commName, Integer status, Long typeId,
+                               BigDecimal minPrice, BigDecimal maxPrice, Date beginCreateAt, Date endCreateAt, Integer pageNum, Integer pageSize);
 
 
     /**
-     * 根据查询条件查询商品详情
-     * @param id  scID
-     * @param commName 商品名称
-     * @param code69  商品编码
-     * @param suppCommCode 商家商品编码
-     * @param typeId 类型ID
-     * @param minPrice 价格（低）
-     * @param maxPrice 价格（高）
-     * @param pageNum 当前页号
+     * 根据查询条件查询商品详情(简单条件查询)
+     * @param supplierId  供应商ID
+     * @param inputvalue  输入参数
+     * @param beginCreateAt 创建时间（起始）
+     * @param endCreateAt 创建时间（终止）
+     * @param pageNum  当前页号
      * @param pageSize 页面大小
-     * @return PageInfo pageInfo对象
+     * @return
      */
-    PageInfo searchAllCommodities(Long id, String commName, String code69, String suppCommCode,  Long typeId, BigDecimal minPrice,BigDecimal maxPrice, Integer pageNum, Integer pageSize);
+    Result simpleSearchCommodities(Long supplierId, String inputvalue, Date beginCreateAt, Date endCreateAt, Integer pageNum, Integer pageSize);
 
     /**
      * 删除商品
@@ -140,11 +148,10 @@ public interface CommodityService {
 
 
     /**
-
      *
      * @param multipartFile 文件对象
      * @return 导入结果
      */
 
-    Map<String ,List> importExcel(MultipartFile multipartFile , HttpServletRequest request, StorageConfig storageConfig, Long supplierId) throws Exception;
+    Result importExcel(MultipartFile multipartFile , HttpServletRequest request, StorageConfig storageConfig, Long supplierId) throws Exception;
 }

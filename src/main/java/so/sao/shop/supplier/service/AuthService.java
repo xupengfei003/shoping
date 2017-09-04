@@ -1,5 +1,6 @@
 package so.sao.shop.supplier.service;
 
+import so.sao.shop.supplier.domain.User;
 import so.sao.shop.supplier.pojo.BaseResult;
 import so.sao.shop.supplier.pojo.Result;
 
@@ -26,10 +27,10 @@ public interface AuthService {
 
     /**
      * 登出
-     * @param userId
+     * @param user
      * @return
      */
-    public Result logout(Long userId) ;
+    public Result logout(User user) ;
 
     /**
      * 刷新token
@@ -57,11 +58,11 @@ public interface AuthService {
 
     /**
      * 验证码校验
-     * @param userId
+     * @param user
      * @param code
      * @return
      */
-    public BaseResult verifySmsCode(Long userId, String code);
+    public BaseResult verifySmsCode(User user, String code);
 
     /**
      * 密码修改
@@ -69,6 +70,6 @@ public interface AuthService {
      * @param encodedPassword
      * @return
      */
-    public BaseResult updatePassword(Long userId, String encodedPassword);
+    public Result updatePassword(Long userId, String encodedPassword) throws IOException;
 
 }

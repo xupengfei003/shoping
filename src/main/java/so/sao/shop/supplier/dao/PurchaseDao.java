@@ -5,12 +5,16 @@ import org.apache.ibatis.annotations.Param;
 import so.sao.shop.supplier.domain.Account;
 import so.sao.shop.supplier.domain.Purchase;
 import so.sao.shop.supplier.pojo.input.AccountPurchaseInput;
+import so.sao.shop.supplier.pojo.input.AccountPurchaseLowInput;
 import so.sao.shop.supplier.pojo.input.PurchaseSelectInput;
+import so.sao.shop.supplier.pojo.output.OrderRefuseReasonOutput;
+import so.sao.shop.supplier.pojo.vo.PurchasePrintVo;
 import so.sao.shop.supplier.pojo.vo.PurchasesVo;
 
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -56,16 +60,16 @@ public interface PurchaseDao {
     boolean updateOrder(@Param("orderId") String orderId, @Param("orderStatus") Integer orderStatus,@Param("updateDate") Date updateDate);
 
     /**
-     * 更改状态辅助操作（更改退款时间、插入物流配送方式）
+     * 发货接口
      *
-     * @param drawbackTime
+     * @param orderStatus
      * @param receiveMethod
      * @param name
      * @param number
      * @return boolean
      */
-    boolean updateOrderAtr(@Param("orderId") String orderId, @Param("drawbackTime") Date drawbackTime,
-                           @Param("receiveMethod") Integer receiveMethod, @Param("name") String name, @Param("number") String number);
+    void deliverGoods(@Param("orderId") String orderId,@Param("orderStatus") Integer orderStatus,@Param("updateDate") Date date,
+                      @Param("receiveMethod") Integer receiveMethod, @Param("name") String name, @Param("number") String number) throws Exception;
 
     /**
      * 删除订单，可批量删除
@@ -73,14 +77,14 @@ public interface PurchaseDao {
      * @param orderIdArr
      * @return
      */
-    boolean deleteByOrderId(@Param("orderIdArr") String[] orderIdArr, @Param("updateDate") Date updateDate);
+    void deleteByOrderId(@Param("orderIdArr") String[] orderIdArr, @Param("updateDate") Date updateDate);
 
     /**
      * 批量获取订单列表
      * @param accountId 供应商ID
      * @return List<Purchase>
      */
-    List<Purchase> getOrderListByIds(Long accountId);
+    List<Purchase> getOrderListByIds(@Param("purchaseSelectInput") PurchaseSelectInput purchaseSelectInput,@Param("accountId") Long accountId);
 
     /**
      * 根据商品ID查询供应商信息
@@ -93,28 +97,19 @@ public interface PurchaseDao {
     /**
      * 更新订单中账户状态
      *
-     * @param userId 商家id
+     * @param recordId 结算明细id
+     * @param updateDate 更新时间
      * @return
      */
-    int updateAccountStatus(@Param("userId") Long userId);
+    int updateAccountStatus(@Param("recordId") String recordId, @Param("updateDate") Date updateDate);
 
     /**
-     * 1.根据订单表（purchase）中的商户（store_id）字段查询该表中订单状态（order_status）为已完成，
-     * 账户状态（account_status）为未统计的订单金额（order_price）之和,返回和数；
+     * 根据订单表商户ID，查询该表中订单状态为已收货，账户状态为未结算的订单结算金额累计之和,返回和数；
      *
-     * @param userId
+     * @param storeId
      * @return
      */
-    BigDecimal findUncountedMoney(@Param("userId") Long userId);
-
-    /**
-     * 1.根据订单表（purchase）中的商户（store_id）字段，将该表中订单状态（order_status）为已完成，
-     * 账户状态（account_status）为未统计（状态码：0）的改为已统计（状态码：1）,返回受影响行数；
-     *
-     * @param userId
-     * @return
-     */
-    int updatePurchaseAccountStatus(@Param("userId") Long userId);
+    BigDecimal findUncountedMoney(@Param("storeId") Long storeId) throws Exception;
 
     /**
      * 根据商户ID查询订单状态并返回总金额
@@ -122,27 +117,10 @@ public interface PurchaseDao {
      * @param storeId
      * @return
      */
-    Double findOrderStatus(@Param("storeId") Long storeId);
-
-
-    /**
-     * 查询该商户下已完成且已统计的订单id
-     *
-     * @return 订单id, 多个以逗号分隔
-     */
-    String findOrderIdsByStatus(@Param("storeId") Long storeId);
-
+    BigDecimal findOrderStatus(@Param("storeId") Long storeId);
 
     /**
-     * 根据提现申请记录查询该记录所对应的订单列表
-     *
-     * @param orderIds
-     * @return
-     */
-    List<Purchase> findPageOMRPurchaseDetails(String[] orderIds);
-
-    /**
-     * 根据商家编号查找所有相关订单记录
+     * 根据商家编号查找所有相关订单记录(高级搜索)
      *
      * @param storeId 商家编号
      * @return 查询的相关记录
@@ -150,12 +128,12 @@ public interface PurchaseDao {
     List<Purchase> findPageByStoreId(@Param("input") AccountPurchaseInput input, @Param("storeId") Long storeId);
 
     /**
-     * 根据商家编号查询记录总条数
+     * 根据商家编号查找所有相关订单记录(普通查询)
      *
      * @param storeId 商家编号
-     * @return 符合条件的记录条数
+     * @return 查询的相关记录
      */
-    int countByStoreId(@Param("storeId") Long storeId);
+    List<Purchase> findPageByStoreIdLow(@Param("input")AccountPurchaseLowInput input,@Param("storeId") Long storeId);
 
     /**
      *
@@ -164,4 +142,78 @@ public interface PurchaseDao {
      * @return
      */
     Integer getOrderStatus(@Param("orderId") String orderId);
+
+    /**
+     * 根据订单编号查询订单打印页面信息
+     *
+     * @param orderId 订单编号
+     * @return 订单页面信息封装的vo
+     */
+    PurchasePrintVo findPrintOrderInfo(@Param("orderId") String orderId);
+
+    /**
+     * 添加拒收货信息
+     *
+     * @param map 封装了所有拒收相关的信息
+     * @return boolean 返回true则为成功，false为失败
+     */
+    void insertRefuseMessage(@Param("map") Map<String,Object> map) throws Exception;
+
+    /**
+     * 根据订单ID获取该订单的拒收原因
+     *
+     * @param orderId 订单ID
+     * @return OrderRefuseReasonOutput 封装了所有订单拒收原因信息
+     */
+    OrderRefuseReasonOutput findRefuseReasonByOrderId(@Param("orderId") String orderId) throws Exception;
+
+    /**
+     * 查询该商户下已完成且按自然月结算的订单列表
+     * @param storeId 商户id
+     * @param currentDate 当前时间
+     * @return
+     */
+    List<Purchase> findPurchaseMonth(@Param("storeId") Long storeId, @Param("currentDate") Date currentDate);
+
+    /**
+     * 查询该商户下已完成且按固定时间段结算的订单列表
+     * @param storeId 商户id
+     * @param lastSettlementDate 上一次结算时间
+     * @param remittanced  结算的时间间隔
+     * @return
+     */
+    List<Purchase> findPurchaseFixedTime(@Param("storeId") Long storeId, @Param("lastSettlementDate") Date lastSettlementDate,  @Param("remittanced") String remittanced);
+
+    /**
+     * 添加取消订单信息
+     *
+     * @param cancelMap 封装了所有取消订单相关的信息
+     * @return boolean 返回true则为成功，false为失败
+     * @throws Exception
+     */
+    void insertCancelMessage(@Param("cancelMap") Map<String,Object> cancelMap) throws Exception;
+
+    /**
+     * 根据订单编号查询取消订单原因
+     *
+     * @param orderId 订单编号
+     * @return
+     */
+    String findCancelReason(@Param("orderId") String orderId);
+
+    /**
+     * 根据支付ID获取订单
+     * @param payId 支付ID
+     * @return List<Purchase>
+     */
+    List<Purchase> findByPayId(String payId);
+
+    /**
+     * 根据订单编号修改订单编号，退款时间
+     *
+     * @param refundMap 退款参数
+     * @return 修改行
+     * @throws Exception 异常
+     */
+    int refundByOrderId(@Param("refundMap") Map<String,Object> refundMap) throws Exception;
 }

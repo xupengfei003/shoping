@@ -1,109 +1,95 @@
 package so.sao.shop.supplier.pojo.vo;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.math.BigDecimal;
-import java.util.Date;
 
 public class OrderMoneyRecordVo {
     /**
-     * 申请提现记录id
+     * 结算明细id
      */
-    private Long recordId;
+    private String recordId;
 
     /**
-     * 申请人
+     * 供应商名称
      */
-    private Long userId;
+    private String providerName;
 
     /**
-     * 开户行
+     * 结账时间
      */
-    private String bankName;
+    private String checkoutAt;
 
     /**
-     * 开户支行
+     * 待结算金额
      */
-    private String bankNameBranch;
+    private String totalMoney;
+
+    /**
+     * 已结算金额
+     */
+    private String settledAmount;
+
+    /**
+     * 结算时间
+     */
+    private String settledAt;
+
+    /**
+     * 结算状态 0 待结算 1 已结算
+     */
+    private String state;
 
     /**
      * 银行卡号
      */
     private String bankAccount;
 
-    /**
-     * 提现金额
-     */
-    private BigDecimal totalMoney;
-
-    /**
-     * 状态 0 提现申请中 1 已通过 2 已完成
-     */
-    private String state;
-
-    /**
-     * 创建时间
-     */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
-    private Date createdAt;
-
-    /**
-     * 更新时间
-     */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
-    private Date updatedAt;
-
-    /**
-     * 银行流水号
-     */
-    private String serialNumber;
-
-    public Long getRecordId() {
+    public String getRecordId() {
         return recordId;
     }
 
-    public void setRecordId(Long recordId) {
+    public void setRecordId(String recordId) {
         this.recordId = recordId;
     }
 
-    public Long getUserId() {
-        return userId;
+    public String getProviderName() {
+        return providerName;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setProviderName(String providerName) {
+        this.providerName = providerName;
     }
 
-    public String getBankName() {
-        return bankName;
+    public String getCheckoutAt() {
+        return checkoutAt;
     }
 
-    public void setBankName(String bankName) {
-        this.bankName = bankName == null ? null : bankName.trim();
+    public void setCheckoutAt(String checkoutAt) {
+        this.checkoutAt = checkoutAt;
     }
 
-    public String getBankNameBranch() {
-        return bankNameBranch;
-    }
-
-    public void setBankNameBranch(String bankNameBranch) {
-        this.bankNameBranch = bankNameBranch == null ? null : bankNameBranch.trim();
-    }
-
-    public String getBankAccount() {
-        return bankAccount;
-    }
-
-    public void setBankAccount(String bankAccount) {
-        this.bankAccount = bankAccount == null ? null : bankAccount.trim();
-    }
-
-    public BigDecimal getTotalMoney() {
+    public String getTotalMoney() {
         return totalMoney;
     }
 
-    public void setTotalMoney(BigDecimal totalMoney) {
+    public void setTotalMoney(String totalMoney) {
         this.totalMoney = totalMoney;
+    }
+
+    public String getSettledAmount() {
+        return settledAmount;
+    }
+
+    public void setSettledAmount(String settledAmount) {
+        this.settledAmount = settledAmount;
+    }
+
+    public String getSettledAt() {
+        return settledAt;
+    }
+
+    public void setSettledAt(String settledAt) {
+        this.settledAt = settledAt;
     }
 
     public String getState() {
@@ -111,30 +97,14 @@ public class OrderMoneyRecordVo {
     }
 
     public void setState(String state) {
-        this.state = state == null ? null : state.trim();
+        this.state = state;
     }
 
-    public Date getCreatedAt() {
-        return createdAt;
+    public String getBankAccount() {
+        return bankAccount;
     }
 
-    public void setCreatedAt(Date createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Date getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Date updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public String getSerialNumber() {
-        return serialNumber;
-    }
-
-    public void setSerialNumber(String serialNumber) {
-        this.serialNumber = serialNumber == null ? null : serialNumber.trim();
+    public void setBankAccount(String bankAccount) {
+        this.bankAccount = bankAccount;
     }
 }

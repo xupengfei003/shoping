@@ -42,6 +42,9 @@
     <result column="contract_register_address_detail" property="contractRegisterAddressDetail" jdbcType="VARCHAR" />
     <result column="upload_mode" property="uploadMode" jdbcType="VARCHAR" />
     <result column="sms_code" property="smsCode" jdbcType="VARCHAR" />
+    <result column="contract_original_name" property="contractOriginalName" jdbcType="VARCHAR" />
+    <result column="contract_original" property="contractOriginal" jdbcType="VARCHAR" />
+    <result column="service_phone" property="servicePhone" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Base_Column_List" >
     account_id,
@@ -76,7 +79,10 @@
     contract_register_address,
     contract_register_address_detail,
     upload_mode,
-    sms_code
+    sms_code,
+    contract_original_name,
+    contract_original,
+    service_phone
   </sql>
 
   <!-- 查询出省市区汉字字段-->
@@ -139,7 +145,7 @@
        contract_register_address_province,contract_register_address_city,
        contract_register_address_district,
       contract_register_address_detail, upload_mode, 
-      sms_code)
+      sms_code,contract_original_name,contract_original,last_settlement_date,service_phone)
     values (#{accountId,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, #{providerName,jdbcType=VARCHAR}, 
       #{responsible,jdbcType=VARCHAR}, #{responsiblePhone,jdbcType=VARCHAR}, #{license,jdbcType=VARCHAR}, 
       #{licenseTimeCreate}, #{licenseTimeEnd}, #{businessType,jdbcType=VARCHAR},
@@ -154,7 +160,7 @@
       #{contractLicenseEnd},#{contractRegisterAddress,jdbcType=VARCHAR}, #{contractRegisterAddressProvince,jdbcType=VARCHAR},
       #{contractRegisterAddressCity,jdbcType=VARCHAR}, #{contractRegisterAddressDistrict,jdbcType=VARCHAR},
       #{contractRegisterAddressDetail,jdbcType=VARCHAR}, #{uploadMode,jdbcType=VARCHAR}, 
-      #{smsCode,jdbcType=VARCHAR})
+      #{smsCode,jdbcType=VARCHAR},#{contractOriginalName,jdbcType=VARCHAR},#{contractOriginal,jdbcType=VARCHAR},#{lastSettlementDate},#{servicePhone})
   </insert>
 
   <insert id="insertSelective" parameterType="so.sao.shop.supplier.domain.Account" >
@@ -569,6 +575,15 @@
       <if test="smsCode != null" >
         sms_code = #{smsCode,jdbcType=VARCHAR},
       </if>
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(contractOriginalName)">
+      	contract_original_name = #{contractOriginalName,jdbcType=VARCHAR},
+      </if>
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(contractOriginal)">
+      	contract_original = #{contractOriginal,jdbcType=VARCHAR},
+      </if>
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(servicePhone)">
+        service_phone = #{servicePhone,jdbcType=VARCHAR}
+      </if>
     </set>
     where account_id = #{accountId,jdbcType=BIGINT}
   </update>
@@ -590,17 +605,18 @@
     and contract_register_address_district = cd.sr_id
   </select>
 
+  <!--根据用户id修改账余额、更新时间-->
   <update id="updateAccountByUserId" parameterType="so.sao.shop.supplier.domain.Account">
     UPDATE account
     <set>
-      <if test="balance != null">
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(balance)">
         balance = #{balance},
       </if>
-      <if test="updateDate != null">
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(updateDate)">
         update_date = #{updateDate},
       </if>
     </set>
-    WHERE user_id = #{userId,jdbcType=BIGINT}
+    WHERE account_id = #{accountId}
   </update>
   <insert id="saveBatch" parameterType="so.sao.shop.supplier.domain.Account">
     INSERT INTO
@@ -670,20 +686,21 @@
     </foreach>
   </insert>
 
-
-  <!--根据账户表（account）中的user_id（用户id）字段查询账户表（account）中用户的余额-->
-  <select id="findUserBalance" resultType="java.math.BigDecimal" parameterType="java.lang.Long">
-    SELECT balance
-    FROM account
-    WHERE user_id=#{userId};
-  </select>
-  <!--根据账户表（account）中的user_id（用户id）字段修改账户表（account）中用户的余额-->
+  <!--根据账户表账户id,修改账户表中用户余额-->
   <update id="updateUserBalance" parameterType="so.sao.shop.supplier.domain.Account">
     UPDATE account
-    SET balance = #{account.balance}
-    WHERE user_id=#{account.userId};
+    <set>
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(balance)">
+        balance = #{balance},
+      </if>
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(updateDate)">
+        update_date = #{updateDate},
+      </if>
+    </set>
+    WHERE account_id=#{accountId};
   </update>
-<select id="findPage" resultMap="BaseResultMap" parameterType="so.sao.shop.supplier.domain.Condition">
+
+  <select id="findPage" resultMap="BaseResultMap" parameterType="so.sao.shop.supplier.domain.Condition">
           SELECT a.contract_responsible,a.contract_create_date, a.account_id,a.user_id,a.create_date,a.provider_name, a.contract_end_date, a.contract_responsible_phone,p.name regist_address_province,
                   c.name regist_address_city,d.name regist_address_district  ,cp.name contract_register_address_province,cc.name contract_register_address_city,
                   cd.name contract_register_address_district,  a.contract_register_address
@@ -704,7 +721,7 @@
                 <if test="endDate != null ">
                     AND STR_TO_DATE(DATE_FORMAT(a.create_date,'%Y-%c-%d'),'%Y-%m-%d') <![CDATA[<=]]> STR_TO_DATE(#{endDate},'%Y-%m-%d')
                 </if>
-                <if test="providerName != null and providerName != ''">
+                <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(providerName)">
                     AND provider_name LIKE "%${providerName}%"
                 </if>
 				<if test="contractCreateDate != null ">
@@ -713,22 +730,24 @@
                 <if test="contractEndDate != null ">
                     AND STR_TO_DATE(DATE_FORMAT(a.contract_end_date,'%Y-%c-%d'),'%Y-%m-%d') <![CDATA[<=]]> TRIM(STR_TO_DATE(#{contractEndDate},'%Y-%m-%d'))
                 </if>
-                <if test="contractResponsible != null and contractResponsible != ''">
+                <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(contractResponsible)">
                     AND contract_responsible LIKE "%${contractResponsible}%"
                 </if>
-                <if test="contractResponsiblePhone != null and contractResponsiblePhone != ''">
+                <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(contractResponsiblePhone)">
                     AND  contract_responsible_phone  LIKE "%${contractResponsiblePhone}%"
                 </if>
-                <if test="contractRegisterAddressProvince != null and contractRegisterAddressProvince!=''">
+                <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(contractRegisterAddressProvince)">
                   AND  contract_register_address_province = #{contractRegisterAddressProvince}
                 </if>
-                <if test="contractRegisterAddressCity != null  and contractRegisterAddressProvince!=''">
+                <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(contractRegisterAddressCity)">
                   AND  contract_register_address_city = #{contractRegisterAddressCity}
                 </if>
-                <if test="contractRegisterAddressDistrict != null  and contractRegisterAddressProvince!=''">
+                <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(contractRegisterAddressDistrict)">
                   AND  contract_register_address_district = #{contractRegisterAddressDistrict} 
                 </if>
-
+                <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(vague)">
+                   AND  (contract_responsible LIKE "%${vague}%" or provider_name LIKE "%${vague}%")
+                 </if>
     </where>
              ORDER  BY  a.create_date DESC 
   </select>
@@ -740,7 +759,7 @@
                  AREA,area_detail,remittance_type,remittanced, account_status,create_date,
                  update_date,remark, balance,income,contract_responsible,contract_responsible_phone,
                  contract_license,contract_license_time,contract_register_address,
-                 contract_register_address_detail
+                 contract_register_address_detail,service_phone
             FROM
               account
            WHERE account_id = #{accountId}
@@ -748,6 +767,88 @@
 
     <!-- 修改历史总收入 -->
     <update id="updateUserPrice">
-      UPDATE account SET INCOME = #{account} WHERE USER_ID = #{storeId}
+      UPDATE account SET INCOME = #{account} WHERE account_id = #{storeId}
     </update>
+    
+    <!-- 根据用户id查询供应商id -->
+    <select id="findAccountIdByUserId" parameterType="long" resultType="long">
+    	SELECT account_id 
+    	FROM   account 
+    	WHERE  user_id = #{userId}
+    </select>
+
+    <!-- 统计已入驻供应商数量总和 -->
+  <select id="findAccountNumber" resultType="int">
+    select COUNT(provider_name) FROM account AS a ,user AS u WHERE account_status= 1 AND a.user_id = u.user_id AND u.is_admin = 0
+  </select>
+
+  <!--查询出当天要结算的供应商信息列表-->
+  <select id="findAccountList" resultMap="findAccountListResultMap">
+    SELECT
+      account_id,
+      user_id,
+      provider_name,
+      bank_name,
+      bank_num,
+      bank_user_name,
+      remittance_type,
+      remittanced,
+      create_date,
+      last_settlement_date
+    FROM
+      account
+    WHERE remittanced = #{days} AND remittance_type = 1
+    UNION ALL
+    SELECT
+      account_id,
+      user_id,
+      provider_name,
+      bank_name,
+      bank_num,
+      bank_user_name,
+      remittance_type,
+      remittanced,
+      create_date,
+      last_settlement_date
+    FROM account
+    WHERE datediff(#{currentDate}, DATE(last_settlement_date))%remittanced = 0 AND remittance_type = 2;
+  </select>
+
+  <!--findAccountList()查询映射结果集-->
+  <resultMap id="findAccountListResultMap" type="so.sao.shop.supplier.domain.Account">
+    <id column="account_id" property="accountId" />
+    <result column="user_id" property="userId" />
+    <result column="provider_name" property="providerName" />
+    <result column="bank_name" property="bankName" />
+    <result column="bank_num" property="bankNum" />
+    <result column="bank_user_name" property="bankUserName" />
+    <result column="remittance_type" property="remittanceType" />
+    <result column="remittanced" property="remittanced" />
+    <result column="create_date" property="createDate" />
+    <result column="last_settlement_date" property="lastSettlementDate" />
+  </resultMap>
+
+  <!--批量更新上一次结算时间-->
+  <update id="updateAccountLastSettlementDate" parameterType="java.util.List">
+    <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+      UPDATE account
+      SET last_settlement_date = #{item.lastSettlementDate}
+      WHERE account_id = #{item.accountId}
+    </foreach>
+  </update>
+
+  <!-- 结算明细中根据商户id查询该商户 -->
+  <select id="findAccountByUserId" resultMap="BaseResultMap">
+    SELECT
+      <include refid="Base_Column_List" />
+    FROM
+      account
+    WHERE user_id = #{userId}
+  </select>
+  <!--根据账户ID查找是否存在该账户-->
+  <select id="countByAccountId" parameterType="java.lang.Long" resultType="java.lang.Integer">
+     SELECT COUNT(account_id)
+        FROM account
+        WHERE account_id = #{accountId}
+  </select>
 </mapper>

@@ -1,6 +1,7 @@
 package so.sao.shop.supplier.pojo.vo;
 
 import org.hibernate.validator.constraints.NotBlank;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
@@ -17,7 +18,7 @@ public class PurchaseItemVo {
     /**
      * 商品属性
      */
-    @NotNull(message="商品属性不能为空")
+    @NotEmpty(message="商品属性不能为空")
     private String goodsAttribute;
     /**
      * 商品编号
@@ -32,7 +33,7 @@ public class PurchaseItemVo {
     /**
      * 商品总价
      */
-    private BigDecimal goodsTatolPrice;
+    private String goodsTatolPrice;
     /**
      * 商品图片
      */
@@ -45,6 +46,10 @@ public class PurchaseItemVo {
      * 品牌名称
      */
     private String brandName;
+    /**
+     * 商品单价
+     */
+    private String goodsUnitPrice;
 
     public String getGoodsAttribute() {
         return goodsAttribute;
@@ -71,11 +76,11 @@ public class PurchaseItemVo {
     }
 
 
-    public BigDecimal getGoodsTatolPrice() {
+    public String getGoodsTatolPrice() {
         return goodsTatolPrice;
     }
 
-    public void setGoodsTatolPrice(BigDecimal goodsTatolPrice) {
+    public void setGoodsTatolPrice(String goodsTatolPrice) {
         this.goodsTatolPrice = goodsTatolPrice;
     }
 
@@ -102,5 +107,13 @@ public class PurchaseItemVo {
 
     public void setBrandName(String brandName) {
         this.brandName = brandName;
+    }
+
+    public String getGoodsUnitPrice() {
+        return goodsUnitPrice;
+    }
+
+    public void setGoodsUnitPrice(String goodsUnitPrice) {
+        this.goodsUnitPrice = goodsUnitPrice;
     }
 }

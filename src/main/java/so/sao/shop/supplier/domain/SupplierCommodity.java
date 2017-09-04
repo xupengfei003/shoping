@@ -23,13 +23,9 @@ public class SupplierCommodity {
      */
     private Long supplierId;
     /**
-     * 品牌
+     * 商品标签ID
      */
-    private Long brandId;
-    /**
-     * 品牌
-     */
-    private String brand;
+    private Long tagId;
     /**
      * 商家编码
      */
@@ -38,26 +34,6 @@ public class SupplierCommodity {
      * 商品编码
      */
     private String code69;
-    /**
-     * 一级类型Id
-     */
-    private Long categoryOneId;
-    /**
-     * 二级类型Id
-     */
-    private Long categoryTwoId;
-    /**
-     * 三级类型Id
-     */
-    private Long categoryThreeId;
-    /**
-     * 商品
-     */
-    private Long commodityId;
-    /**
-     * 商品名称
-     */
-    private String name;
     /**
      * 商品描述
      */
@@ -72,18 +48,18 @@ public class SupplierCommodity {
      */
     private int status;
     /**
-     * 规格名称
+     * 计量规格ID
      */
-    private String ruleName;
+    private Long measureSpecId;
     /**
      * 规格值
      */
     private String ruleVal;
 
     /**
-     * 计量单位
+     * 计量单位ID
      */
-    private String unit;
+    private Long unitId;
     /**
      * 库存
      */
@@ -196,14 +172,6 @@ public class SupplierCommodity {
         this.status = status;
     }
 
-    public Long getCommodityId() {
-        return commodityId;
-    }
-
-    public void setCommodityId(Long commodityId) {
-        this.commodityId = commodityId;
-    }
-
     public String getCode() {
         return code;
     }
@@ -220,52 +188,12 @@ public class SupplierCommodity {
         this.description = description;
     }
 
-    public Long getBrandId() {
-        return brandId;
-    }
-
-    public void setBrandId(Long brandId) {
-        this.brandId = brandId;
-    }
-
     public String getCode69() {
         return code69;
     }
 
     public void setCode69(String code69) {
         this.code69 = code69;
-    }
-
-    public Long getCategoryOneId() {
-        return categoryOneId;
-    }
-
-    public void setCategoryOneId(Long categoryOneId) {
-        this.categoryOneId = categoryOneId;
-    }
-
-    public Long getCategoryTwoId() {
-        return categoryTwoId;
-    }
-
-    public void setCategoryTwoId(Long categoryTwoId) {
-        this.categoryTwoId = categoryTwoId;
-    }
-
-    public Long getCategoryThreeId() {
-        return categoryThreeId;
-    }
-
-    public void setCategoryThreeId(Long categoryThreeId) {
-        this.categoryThreeId = categoryThreeId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getRemark() {
@@ -276,28 +204,12 @@ public class SupplierCommodity {
         this.remark = remark;
     }
 
-    public String getRuleName() {
-        return ruleName;
-    }
-
-    public void setRuleName(String ruleName) {
-        this.ruleName = ruleName;
-    }
-
     public String getRuleVal() {
         return ruleVal;
     }
 
     public void setRuleVal(String ruleVal) {
         this.ruleVal = ruleVal;
-    }
-
-    public String getUnit() {
-        return unit;
-    }
-
-    public void setUnit(String unit) {
-        this.unit = unit;
     }
 
     public String getMinImg() {
@@ -316,14 +228,6 @@ public class SupplierCommodity {
         this.sku = sku;
     }
 
-    public String getBrand() {
-        return brand;
-    }
-
-    public void setBrand(String brand) {
-        this.brand = brand;
-    }
-
     public BigDecimal getPrice() {
         return price;
     }
@@ -338,5 +242,29 @@ public class SupplierCommodity {
 
     public void setUnitPrice(BigDecimal unitPrice) {
         this.unitPrice = unitPrice;
+    }
+
+    public Long getTagId() {
+        return tagId;
+    }
+
+    public void setTagId(Long tagId) {
+        this.tagId = tagId;
+    }
+
+    public Long getMeasureSpecId() {
+        return measureSpecId;
+    }
+
+    public void setMeasureSpecId(Long measureSpecId) {
+        this.measureSpecId = measureSpecId;
+    }
+
+    public Long getUnitId() {
+        return unitId;
+    }
+
+    public void setUnitId(Long unitId) {
+        this.unitId = unitId;
     }
 }

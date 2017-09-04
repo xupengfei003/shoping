@@ -2,8 +2,11 @@ package so.sao.shop.supplier.service.impl;
 
 import com.aliyun.mns.model.TopicMessage;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -13,13 +16,13 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.config.sms.SmsService;
 import so.sao.shop.supplier.dao.UserDao;
 import so.sao.shop.supplier.domain.User;
 import so.sao.shop.supplier.pojo.BaseResult;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.service.AuthService;
-import so.sao.shop.supplier.util.Constant;
 import so.sao.shop.supplier.util.JwtTokenUtil;
 
 import javax.servlet.http.HttpServletRequest;
@@ -38,11 +41,13 @@ import java.util.Map;
 @Service
 public class AuthServiceImpl implements AuthService {
 
+    private Logger logger = LoggerFactory.getLogger(getClass());
     private AuthenticationManager authenticationManager;
     private UserDetailsService userDetailsService;
     private UserDao userDao;
     private JwtTokenUtil jwtTokenUtil;
     private SmsService smsService;
+    private RedisTemplate redisTemplate;
 
     /**
      * 验证码
@@ -60,12 +65,13 @@ public class AuthServiceImpl implements AuthService {
     public AuthServiceImpl(
             AuthenticationManager authenticationManager,
             UserDetailsService userDetailsService,
-            UserDao userDao,JwtTokenUtil jwtTokenUtil,SmsService smsService) {
+            UserDao userDao, JwtTokenUtil jwtTokenUtil, SmsService smsService, RedisTemplate redisTemplate) {
         this.authenticationManager = authenticationManager;
         this.userDetailsService = userDetailsService;
         this.userDao = userDao;
-        this.jwtTokenUtil=jwtTokenUtil;
-        this.smsService=smsService;
+        this.jwtTokenUtil = jwtTokenUtil;
+        this.smsService = smsService;
+        this.redisTemplate = redisTemplate;
     }
 
     /**
@@ -81,29 +87,36 @@ public class AuthServiceImpl implements AuthService {
         try {
             userDetails = userDetailsService.loadUserByUsername(username);
         }catch (UsernameNotFoundException e){
-            return new Result(0,"当前号码无效!","");
+            return new Result(Constant.CodeConfig.CODE_FAILURE,"当前号码无效!","");
         }
         try{
             UsernamePasswordAuthenticationToken upToken = new UsernamePasswordAuthenticationToken(username, password);
             final Authentication authentication = authenticationManager.authenticate(upToken);
+            //TODO 后续增加权限功能时,权限、角色变更（新增权限到人，新增角色并给人，角色变更权限，权限变更）反查到人更新authentication
+            redisTemplate.opsForHash().put(Constant.REDIS_LOGIN_KEY_PREFIX+userDetails.getUsername(),"authentication", authentication);
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }catch (Exception e){
-            return new Result(0,"用户名或密码错误!","");
+            logger.debug("登陆异常:"+e.getMessage());
+            return new Result(Constant.CodeConfig.CODE_FAILURE,"用户名或密码错误!","");
         }
+        //登陆后放入缓存,后续从redis取,登出时del
+        redisTemplate.opsForHash().put(Constant.REDIS_LOGIN_KEY_PREFIX+userDetails.getUsername(),"user", userDetails);
         Map result = new HashMap();
         result.put("token", jwtTokenUtil.generateToken(userDetails));
         result.put("user",userDetails);
-        return new Result<Map>(1, "", result);
+        return new Result<Map>(Constant.CodeConfig.CODE_SUCCESS, "", result);
     }
 
     /**
      * 登出
-     * @param userId
+     * @param user
      * @return
      */
-    public Result logout(Long userId){
-        userDao.updateLogoutTime(userId, new Date());
-        return new Result(1,"登出成功",null);
+    public Result logout(User user){
+        userDao.updateLogoutTime(user.getId(), new Date());
+        //登出时del
+        redisTemplate.opsForHash().delete(Constant.REDIS_LOGIN_KEY_PREFIX+user.getUsername(),"user", "authentication");
+        return new Result(Constant.CodeConfig.CODE_SUCCESS,"登出成功",null);
     }
 
     /**
@@ -136,9 +149,9 @@ public class AuthServiceImpl implements AuthService {
             //密码加密保存,忘记密码只能手机验证发送新密码
             userDao.updatePassword(u.getId(),new BCryptPasswordEncoder().encode(password), new Date());
             smsService.sendSms(Collections.singletonList(phone), Collections.singletonList("password"), Collections.singletonList(password), smsTemplateCode3);
-            return new BaseResult(1, "发送成功");
+            return new BaseResult(Constant.CodeConfig.CODE_SUCCESS, "发送成功");
         }else{
-            return new BaseResult(0, "当前号码无效!");
+            return new BaseResult(Constant.CodeConfig.CODE_FAILURE, "当前号码无效!");
         }
     }
 
@@ -154,25 +167,26 @@ public class AuthServiceImpl implements AuthService {
         userDao.saveSmsCode(phone, code);
         TopicMessage topicMessage = smsService.sendSms(Collections.singletonList(phone),Collections.singletonList("code"), Collections.singletonList(code), smsTemplateCode1);
         if(topicMessage != null) {
-            return new BaseResult(1,"发送成功");
+            return new BaseResult(Constant.CodeConfig.CODE_SUCCESS,"发送成功");
         } else {
-            return new BaseResult(0,"发送失败");
+            return new BaseResult(Constant.CodeConfig.CODE_FAILURE,"发送失败");
         }
     }
 
     /**
      * 验证码校验
-     * @param userId
+     * @param user
      * @param code
      * @return
      */
     @Override
-    public BaseResult verifySmsCode(Long userId, String code){
-        String SmsCode = userDao.findSmsCode(userId);
+    public BaseResult verifySmsCode(User user, String code){
+        String SmsCode = userDao.findSmsCode(user.getId());
         if(SmsCode!=null&&SmsCode.equals(code)){
-            return new BaseResult(1, "验证通过");
+            userDao.saveSmsCode(user.getUsername(),"");
+            return new BaseResult(Constant.CodeConfig.CODE_SUCCESS, "验证通过");
         }else{
-            return new BaseResult(0, "验证不通过");
+            return new BaseResult(Constant.CodeConfig.CODE_FAILURE, "验证不通过");
         }
     }
 
@@ -183,13 +197,27 @@ public class AuthServiceImpl implements AuthService {
      * @return
      */
     @Override
-    public BaseResult updatePassword(Long userId,  String encodedPassword) {
+    public Result updatePassword(Long userId,  String encodedPassword) throws IOException{
 
         User user = userDao.findOne(userId);
         if(user!=null&& StringUtils.isNotBlank(user.getPassword())){
+            if(new BCryptPasswordEncoder().matches(encodedPassword,user.getPassword())){
+                return Result.fail("新密码不能和旧密码相同");
+            }
             userDao.updatePassword(user.getId(),new BCryptPasswordEncoder().encode(encodedPassword), new Date());
-            return new BaseResult(1,"密码修改成功");
+            UserDetails userDetails = null;
+            try {
+                userDetails = userDetailsService.loadUserByUsername(user.getUsername());
+            }catch (UsernameNotFoundException e){
+                logger.error("当前号码无效",e.getMessage());
+                return Result.fail("当前号码无效");
+            }
+            redisTemplate.opsForHash().put(Constant.REDIS_LOGIN_KEY_PREFIX+userDetails.getUsername(),"user", userDetails);
+            Map result = new HashMap();
+            result.put("token", jwtTokenUtil.generateToken(userDetails));
+            result.put("user",userDetails);
+            return Result.success("密码修改成功", result);
         }
-        return new BaseResult(0,"当前号码无效!");
+        return Result.fail("当前号码无效");
     }
 }

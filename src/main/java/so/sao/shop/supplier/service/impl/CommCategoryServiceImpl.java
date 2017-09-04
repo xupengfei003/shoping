@@ -2,6 +2,7 @@ package so.sao.shop.supplier.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.dao.CommCategoryDao;
 import so.sao.shop.supplier.domain.CommCategory;
@@ -31,6 +32,7 @@ public class CommCategoryServiceImpl implements CommCategoryService {
      * @param commCategoryInput
      * @return
      */
+    @Transactional(rollbackFor = Exception.class)
     public BaseResult saveCommCategory(CommCategoryInput commCategoryInput){
         BaseResult result = new BaseResult();
         CommCategory commCategory =commCategoryDao.findCommCategoryByName(commCategoryInput.getName());
@@ -65,6 +67,7 @@ public class CommCategoryServiceImpl implements CommCategoryService {
         }
     }
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public BaseResult deleteCommCategory(Long id) {
         boolean flag = commCategoryDao.deleteById(id);
         return BaseResultUtil.transTo(flag,"删除商品类型成功","删除商品类型失败");
@@ -77,6 +80,7 @@ public class CommCategoryServiceImpl implements CommCategoryService {
      */
  
 	@Override
+    @Transactional(rollbackFor = Exception.class)
     public BaseResult updateCommCategory(CommCategoryUpdateInput commCategoryUpdateInput) {
 	    BaseResult result = new BaseResult();
         CommCategory one = commCategoryDao.findOne(commCategoryUpdateInput.getId());

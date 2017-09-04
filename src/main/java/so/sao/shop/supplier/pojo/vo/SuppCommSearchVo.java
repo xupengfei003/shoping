@@ -19,9 +19,9 @@ public class SuppCommSearchVo {
      */
     private String minImg;
     /**
-     * 商品ID
+     * SKU(商品ID)
      */
-    private Long commId;
+    private String sku;
     /**
      * 商品编码
      */
@@ -39,13 +39,13 @@ public class SuppCommSearchVo {
      */
     private String commName;
     /**
-     * 商品单位
+     * 商品单位名称
      */
-    private String unit;
+    private String unitName;
     /**
-     * 规格名称
+     * 计量规格名称
      */
-    private String ruleName;
+    private String measureSpecName;
     /**
      * 规格值
      */
@@ -67,11 +67,11 @@ public class SuppCommSearchVo {
     /**
      * 市场价
      */
-    private BigDecimal price;
+    private String price;
     /**
      * 售价
      */
-    private BigDecimal unitPrice;
+    private String unitPrice;
 
     /**
      *  创建时间
@@ -100,12 +100,12 @@ public class SuppCommSearchVo {
         this.minImg = minImg;
     }
 
-    public Long getCommId() {
-        return commId;
+    public String getSku() {
+        return sku;
     }
 
-    public void setCommId(Long commId) {
-        this.commId = commId;
+    public void setSku(String sku) {
+        this.sku = sku;
     }
 
     public String getCode69() {
@@ -140,20 +140,20 @@ public class SuppCommSearchVo {
         this.commName = commName;
     }
 
-    public String getUnit() {
-        return unit;
+    public String getUnitName() {
+        return unitName;
     }
 
-    public void setUnit(String unit) {
-        this.unit = unit;
+    public void setUnitName(String unitName) {
+        this.unitName = unitName;
     }
 
-    public String getRuleName() {
-        return ruleName;
+    public String getMeasureSpecName() {
+        return measureSpecName;
     }
 
-    public void setRuleName(String ruleName) {
-        this.ruleName = ruleName;
+    public void setMeasureSpecName(String measureSpecName) {
+        this.measureSpecName = measureSpecName;
     }
 
     public String getRuleVal() {
@@ -204,19 +204,19 @@ public class SuppCommSearchVo {
         this.updatedAt = updatedAt;
     }
 
-    public BigDecimal getPrice() {
+    public String getPrice() {
         return price;
     }
 
-    public void setPrice(BigDecimal price) {
+    public void setPrice(String price) {
         this.price = price;
     }
 
-    public BigDecimal getUnitPrice() {
+    public String getUnitPrice() {
         return unitPrice;
     }
 
-    public void setUnitPrice(BigDecimal unitPrice) {
+    public void setUnitPrice(String unitPrice) {
         this.unitPrice = unitPrice;
     }
 }

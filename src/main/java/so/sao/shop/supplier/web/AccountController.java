@@ -4,25 +4,26 @@ import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import so.sao.shop.supplier.domain.*;
 import so.sao.shop.supplier.pojo.BaseResult;
 import so.sao.shop.supplier.pojo.Result;
-import so.sao.shop.supplier.pojo.output.AccountBalanceOutput;
 import so.sao.shop.supplier.service.*;
-import so.sao.shop.supplier.util.Constant;
+import so.sao.shop.supplier.util.DownloadAzureFile;
 import so.sao.shop.supplier.util.ExcelImportUtils;
-
+import so.sao.shop.supplier.config.Constant;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.*;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +35,10 @@ import java.util.Map;
 @RequestMapping("/account")
 @Api(description = "供应商管理-所有接口")
 public class AccountController {
+	/**
+	 * 初始化日志
+	 */
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private AccountService accountService;
@@ -58,10 +63,10 @@ public class AccountController {
      */
     @ApiOperation("添加供应商信息")
     @PostMapping("/save")
-    public BaseResult save(HttpServletRequest request, @Valid @RequestBody Account account,BindingResult result) {
-        BaseResult baseResult = new BaseResult();
+    public Result save(HttpServletRequest request, @Valid @RequestBody Account account,BindingResult result) throws Exception{
+        Result baseResult = new Result();
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
-        if(user==null || !user.getIsAdmin().equals(Constant.IS_ADMIN)){
+        if(user==null || !user.getIsAdmin().equals(Constant.ADMIN_STATUS)){
             baseResult.setCode(0);
             baseResult.setMessage(so.sao.shop.supplier.config.Constant.MessageConfig.ADMIN_AUTHORITY_EERO);
             return baseResult;
@@ -77,7 +82,7 @@ public class AccountController {
             /**
              * 插入用户和供应商信息
              */
-            return accountService.saveUserAndAccount(account);
+			return accountService.saveUserAndAccount(account);
         }
         return baseResult;
     }
@@ -104,7 +109,7 @@ public class AccountController {
     public BaseResult update(@Valid @RequestBody Account account,BindingResult result, HttpServletRequest request) {
         BaseResult baseResult = new BaseResult();
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
-        if(user==null || !user.getIsAdmin().equals(Constant.IS_ADMIN)){
+        if(user==null || !user.getIsAdmin().equals(Constant.ADMIN_STATUS)){
             baseResult.setCode(0);
             baseResult.setMessage(so.sao.shop.supplier.config.Constant.MessageConfig.ADMIN_AUTHORITY_EERO);
             return baseResult;
@@ -143,7 +148,7 @@ public class AccountController {
     public BaseResult delete(@PathVariable Long id, HttpServletRequest request) {
         BaseResult baseResult = new BaseResult();
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
-        if(user==null || !user.getIsAdmin().equals(Constant.IS_ADMIN)){
+        if(user==null || !user.getIsAdmin().equals(Constant.ADMIN_STATUS)){
             baseResult.setCode(0);
             baseResult.setMessage(so.sao.shop.supplier.config.Constant.MessageConfig.ADMIN_AUTHORITY_EERO);
             return baseResult;
@@ -203,7 +208,7 @@ public class AccountController {
     @ApiOperation("登陆")
     @PostMapping(value = "${jwt.route.authentication.path}")
     public Result<String> createAuthenticationToken(
-            User authenticationRequest, HttpServletResponse response) throws AuthenticationException, IOException {
+            @RequestBody User authenticationRequest, HttpServletResponse response) throws AuthenticationException, IOException {
 
         return authService.login(authenticationRequest.getUsername(), authenticationRequest.getPassword());
     }
@@ -232,7 +237,7 @@ public class AccountController {
     public Result getUserName(HttpServletRequest request){
         Map result = new HashMap();
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
-        Account account = accountService.selectByUserId(user.getId());
+        Account account = accountService.selectById(user.getAccountId());
         result.put("username",account!=null?account.getProviderName():"");
         return new Result(1,"",result);
     }
@@ -246,19 +251,39 @@ public class AccountController {
     @PostMapping(value = "/logout")
     public Result<String> logout(HttpServletRequest request) {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
-        return authService.logout(user.getId());
+        return authService.logout(user);
     }
 
     /**
-     * 根据用户ID查询用户的实时余额并更新用户表余额
+     * 根据用户ID查询用户的实时余额并更新用户余额
      *
-     * @param id
+     * @param request
      * @return
      */
-    @ApiOperation(value = "根据用户ID查询用户余额", notes = "根据用户的ID，统计用户订单中未统计的余额，即增额，查询用户的固有余额，求和得到用户余额")
-    @GetMapping(value = "/selectAccountBalance/{id}")//访问路径
-    public AccountBalanceOutput getBalance(@PathVariable("id") @Validated Long id) {//入参为用户ID
-        return accountService.getAccountBalance(id);//根据Service方法，返回余额对象
+    @ApiOperation(value = "根据用户的账户查询用户余额", notes = "根据用户的账户ID,查询未结算金额")
+    @GetMapping(value = "/selectAccountBalance")
+    public Result getBalance(HttpServletRequest request) {
+        Result result = new Result<>();
+        Map map = new HashMap();
+        map.put("balance","0.00");
+        //获取用户
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        //判断是否登陆
+        if (null == user){
+            result.setCode(Constant.CodeConfig.CODE_USER_NOT_LOGIN);
+            result.setMessage(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
+            result.setData(map);
+            return result;
+        }
+        try{
+            result = accountService.getAccountBalance(user.getAccountId());
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SYSTEM_EXCEPTION);
+            result.setMessage(so.sao.shop.supplier.config.Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
+            result.setData(map);
+        }
+        return result;
     }
 
     /**
@@ -284,7 +309,7 @@ public class AccountController {
     @ApiOperation(value = "查询供应商列表")
     public PageInfo search(Condition condition, HttpServletRequest request)  {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
-        if(user==null || !user.getIsAdmin().equals(Constant.IS_ADMIN)){
+        if(user==null || !user.getIsAdmin().equals(Constant.ADMIN_STATUS)){
             throw new RuntimeException("unauthorized access");
         }
         return accountService.searchAccount(condition);
@@ -327,9 +352,9 @@ public class AccountController {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         if(user==null){
             throw new RuntimeException("unauthorized access");
-        }else if(user.getIsAdmin().equals(Constant.IS_ADMIN )&&(id == null || id == 0)){
+        }else if(user.getIsAdmin().equals(Constant.ADMIN_STATUS )&&(id == null || id == 0)){
             throw new RuntimeException("unauthorized access");
-        }else if(!user.getIsAdmin().equals(Constant.IS_ADMIN )){
+        }else if(!user.getIsAdmin().equals(Constant.ADMIN_STATUS )){
             id = user.getAccountId();
         }
         return id;
@@ -350,15 +375,35 @@ public class AccountController {
 
 
     /**
+     * 查询当前登录用户登录手机号码
+     * @return 当前登录用户登录手机号码
+     */
+    @GetMapping("/LoginPhone")
+    @ApiOperation(value = "查询当前登录用户手机号码")
+    public Result getLoginPhone(HttpServletRequest request){
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        if(user!=null) {
+            String tel=user.getUsername();
+            return new Result(Constant.CodeConfig.CODE_SUCCESS,"查询成功",tel);
+        }else {
+            return new Result(Constant.CodeConfig.CODE_FAILURE,"获取用户登录信息异常","");
+        }
+    }
+
+    /**
      * 发送验证码
-     *
-     * @param tel
-     * @return
+     * @param request
+     * @return 验证码信息
      * @throws IOException
      */
     @ApiOperation("发送验证码")
-    @GetMapping(value = "/sendCode/{tel}")
-    public BaseResult sendCode(@PathVariable String tel) throws IOException {
+    @GetMapping(value = "/sendCode")
+    public BaseResult sendCode(HttpServletRequest request) throws IOException {
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        if(null==user){
+            return new BaseResult(Constant.CodeConfig.CODE_FAILURE, "登录验证不通过");
+        }
+        String tel=user.getUsername();
         return authService.sendCode(tel);
     }
 
@@ -372,7 +417,13 @@ public class AccountController {
     @GetMapping(value = "/verifySmsCode/{code}")
     public BaseResult verifySmsCode(HttpServletRequest request, @PathVariable String code) {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
-        return authService.verifySmsCode(user.getId(), code);
+        if(null==user){
+            return new BaseResult(Constant.CodeConfig.CODE_FAILURE, "登录验证不通过");
+        }
+        if(null==code||code==""){
+            return new BaseResult(Constant.CodeConfig.CODE_FAILURE, "验证码无效");
+        }
+        return authService.verifySmsCode(user, code);
     }
 
     /**
@@ -384,8 +435,11 @@ public class AccountController {
      */
     @ApiOperation("密码修改")
     @PutMapping(value = "/updatePassword/{encodedPassword}")
-    public BaseResult updatePassword(HttpServletRequest request, @PathVariable String encodedPassword) {
+    public Result updatePassword(HttpServletRequest request, @PathVariable String encodedPassword) throws IOException {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        if(null==user){
+            return Result.fail("登录验证不通过");
+        }
         return authService.updatePassword(user.getId(), encodedPassword);
     }
 
@@ -421,7 +475,7 @@ public class AccountController {
     @PostMapping("/upload")
     public String excelUpload(HttpServletRequest request, HttpServletResponse response, MultipartFile file) {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
-        if(user==null || !user.getIsAdmin().equals(Constant.IS_ADMIN)){
+        if(user==null || !user.getIsAdmin().equals(Constant.ADMIN_STATUS)){
             throw new RuntimeException("unauthorized access");
         }
         //判断文件是否为空
@@ -446,5 +500,50 @@ public class AccountController {
         //批量导入
         String message = importExcel.batchImport(fileName, file);
         return message;
+    }
+
+    /**
+     * 统计已入驻供应商数量
+     * @return 已入驻供应商数量
+     */
+    @ApiOperation("统计已入驻供应商数量")
+    @GetMapping(value = "/AccountNumber")
+    public Result getAccountNumber(){
+         int num=accountService.selectAccountNumber();
+         return Result.success("查询成功",num);
+    }
+    
+    /**
+     * 供应商合同上传
+     * @param request
+     * @param multipartFile 合同
+     * @return 返回合同云存储地址
+     */
+    @ApiOperation("供应商合同上传")
+    @PostMapping(value = "/uploadContract")
+    public Result uploadContract(HttpServletRequest request,@RequestPart("file") MultipartFile multipartFile,String blobName) {
+    	User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        if(user==null || !user.getIsAdmin().equals(Constant.ADMIN_STATUS)){
+        	return Result.fail(so.sao.shop.supplier.config.Constant.MessageConfig.ADMIN_AUTHORITY_EERO);
+        }
+    	return accountService.uploadContract(multipartFile,blobName);
+    }
+    
+    /**
+     * 云端合同下载文件转换
+     * @param downloadUrl 文件云端地址
+     * @param realFileName 文件云端名称
+     * @param request
+     * @param response
+     * @return
+     */
+    @ApiOperation("供应商合同下载")
+    @GetMapping(value = "/downloadContract")
+    public Result download(@RequestParam String downloadUrl, @RequestParam String realFileName, HttpServletRequest request, HttpServletResponse response) throws Exception{
+    	User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        if(user==null){
+        	return Result.fail("请登录后再操作");
+        }
+        return DownloadAzureFile.downloadFile(downloadUrl, realFileName, request, response);
     }
 }

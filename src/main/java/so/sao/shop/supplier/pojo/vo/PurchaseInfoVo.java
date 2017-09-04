@@ -21,6 +21,11 @@ public class PurchaseInfoVo {
     private String orderReceiverName;
 
     /**
+     * 收货人地址
+     */
+    private String orderAddress;
+
+    /**
      * 收货人电话
      */
     private String orderReceiverMobile;
@@ -33,7 +38,7 @@ public class PurchaseInfoVo {
     /**
      * 订单金额
      */
-    private BigDecimal orderPrice;
+    private String orderPrice;
 
     /**
      * 下单时间
@@ -125,11 +130,11 @@ public class PurchaseInfoVo {
         this.orderStatus = orderStatus;
     }
 
-    public BigDecimal getOrderPrice() {
+    public String getOrderPrice() {
         return orderPrice;
     }
 
-    public void setOrderPrice(BigDecimal orderPrice) {
+    public void setOrderPrice(String orderPrice) {
         this.orderPrice = orderPrice;
     }
 
@@ -219,5 +224,13 @@ public class PurchaseInfoVo {
 
     public void setDrawbackTime(Date drawbackTime) {
         this.drawbackTime = drawbackTime;
+    }
+
+    public String getOrderAddress() {
+        return orderAddress;
+    }
+
+    public void setOrderAddress(String orderAddress) {
+        this.orderAddress = orderAddress;
     }
 }

@@ -1,6 +1,7 @@
 package so.sao.shop.supplier.service;
 
-import so.sao.shop.supplier.pojo.output.RecordToPurchaseOutput;
+import so.sao.shop.supplier.pojo.Result;
+import so.sao.shop.supplier.pojo.output.RecordToPurchaseItemOutput;
 
 /**
  * Created by niewenchao on 2017/7/19.
@@ -14,6 +15,6 @@ public interface PurchaseItemService {
      * @param orderId 订单编号
      * @return 相关记录的集合
      */
-    RecordToPurchaseOutput searchPurchaseItems(Integer pageNum, Integer pageSize, String orderId);
+    Result<RecordToPurchaseItemOutput> searchPurchaseItems(Integer pageNum, Integer pageSize, String orderId);
 
 }
