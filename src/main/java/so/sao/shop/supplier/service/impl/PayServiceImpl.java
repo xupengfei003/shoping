@@ -33,54 +33,53 @@ public class PayServiceImpl implements PayService {
     /**
      * 保存支付信息
      *
+     * @param sign     支付平台传来的加密串
      * @param payInput 输入实体
      * @return int
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean updatePurchasePayment(PayInput payInput) throws Exception {
+    public boolean updatePurchasePayment(String sign, PayInput payInput) throws Exception {
+        boolean flagDao = false;
         Map<String, Object> map = new HashMap<>();
-        boolean flag = false;
-        if (isSign(payInput)) {
+        if (isSign(payInput, sign)) {
             map.put("orderPaymentTime", new Date());//支付时间
             map.put("updatedAt", new Date());//更新时间
             map.put("orderStatus", Constant.OrderStatusConfig.PENDING_SHIP);//订单状态
-            map.put("payId", payInput.getOrderId());//支付编号
-            map.put("orderPrice", payInput.getOrderPrice());//订单金额
+            map.put("orderId", payInput.getOrderId());//订单编号
             map.put("orderPaymentNum", payInput.getOrderPaymentNum());//支付流水号
             map.put("orderPaymentMethod", payInput.getOrderPaymentMethod());//支付方式
             map.put("payStatus", 1);//支付状态  0.未支付状态  1.已支付状态
-            payDao.save(map);
+            flagDao = payDao.save(map);
             //TODO 为该供应商推送"待发货"消息通知
             List<Purchase> purchaseList = purchaseDao.findByPayId(payInput.getOrderId());
             List<Notification> notificationList = new ArrayList<>();
-            if(null != purchaseList && purchaseList.size() > 0){
+            if (null != purchaseList && purchaseList.size() > 0) {
                 purchaseList.forEach(purchase -> {
-                    if(purchase.getPayStatus() != 0){
+                    if (purchase.getPayStatus() != 0) {
                         Notification notification = new Notification(purchase.getStoreId(), 0, purchase.getOrderId(),
                                 Constant.NotifiConfig.PENDING_SHIP_NOTIFI + purchase.getOrderId(), new Date(), 0);
                         notificationList.add(notification);
                     }
                 });
-                if(null != notificationList && notificationList.size() > 0){
+                if (null != notificationList && notificationList.size() > 0) {
                     notificationDao.saveNotifications(notificationList);
                 }
             }
-            // 生成二维码
-            Map mapQrcode = purchaseService.createReceivingQrcode(payInput.getOrderId());
-            flag = (boolean) mapQrcode.get("flag");
-            return flag;
+            // 根据支付id，批量生成订单的二维码
+            purchaseService.createReceivingQrcodeByPayId(payInput.getOrderId());
+
         }
-        return flag;
+        return flagDao;
     }
 
     //判断支付平台传来的串是否合法
-    public boolean isSign(PayInput payInput) {
+    public boolean isSign(PayInput payInput, String sign) {
         //拼接订单ID、实付金额、支付流水号字符串
         String str = "orderId=" + payInput.getOrderId() + "&orderPrice=" + payInput.getOrderPrice() + "&orderPaymentNum=" + payInput.getOrderPaymentNum();
         //加密后的订单ID、实付金额、支付流水号字符串
         String md5Str = MD5Util.getMD5(str);
-        if (payInput.getSign().equals(md5Str)) {
+        if (sign.equals(md5Str)) {
             return true;
         }
         return false;

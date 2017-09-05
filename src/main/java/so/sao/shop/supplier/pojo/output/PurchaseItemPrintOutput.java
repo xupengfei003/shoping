@@ -80,6 +80,16 @@ public class PurchaseItemPrintOutput{
      */
     private List<PurchaseItemPrintVo> purchaseItemPrintVos;
 
+    private Integer orderStatus;
+
+    public Integer getOrderStatus() {
+        return orderStatus;
+    }
+
+    public void setOrderStatus(Integer orderStatus) {
+        this.orderStatus = orderStatus;
+    }
+
     public String getOrderId() {
         return orderId;
     }
