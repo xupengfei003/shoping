@@ -116,7 +116,7 @@ public class CommodityController {
 
     @ApiOperation(value="删除商品图片", notes="根据ID删除相应的商品图片")
     @DeleteMapping(value="/delete/imge/{id}")
-    public BaseResult deleteImge(@PathVariable Long id){
+    public Result deleteImge(@PathVariable Long id){
       return commodityService.deleteCommImge(id);
     }
 
