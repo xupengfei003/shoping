@@ -14,6 +14,7 @@ import so.sao.shop.supplier.pojo.output.CommodityExportOutput;
 import so.sao.shop.supplier.pojo.output.CommodityOutput;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
@@ -46,13 +47,6 @@ public interface CommodityService {
     Result getCommodity(Long id);
 
     /**
-     * 根据id查询多个商品
-     * @param ids
-     * @return
-     */
-    public List<CommodityExportOutput> findByIds(Long[] ids);
-
-    /**
      * 根据userId查Account实体
      * @param userId
      * @return
@@ -66,12 +60,6 @@ public interface CommodityService {
      */
     Result findCommodity(String code69);
 
-    /**
-     * 删除商品图片
-     * @param id
-     * @return
-     */
-    public BaseResult deleteCommImge(Long id);
     /**
      * 根据查询条件查询商品详情（高级搜索）
      * @author liugang
@@ -106,28 +94,28 @@ public interface CommodityService {
      * @param id
      * @return
      */
-    Result updateStatusSj(Long id);
+    Result onShelves(Long id);
 
     /**
      * 下架商品
      * @param id
      * @return
      */
-    Result updateStatusXj(Long id);
+    Result offShelves(Long id);
 
     /**
      * 批量上架商品
      * @param ids
      * @return
      */
-    BaseResult updateStatusSjs(Long[] ids);
+    Result onShelvesBatch(Long[] ids);
 
     /**
      * 批量下架商品
      * @param ids
      * @return
      */
-    BaseResult updateStatusXjs(Long[] ids);
+    Result offShelvesBatch(Long[] ids);
 
 
     /**
@@ -137,4 +125,11 @@ public interface CommodityService {
      */
 
     Result importExcel(MultipartFile multipartFile , HttpServletRequest request, Long supplierId) throws Exception;
+
+    /**
+     * 批量导出
+     * @param ids
+     * @return
+     */
+    Result exportExcel(HttpServletResponse response , Long[] ids);
 }

@@ -68,4 +68,17 @@ public class DateUtil {
         }
         return date;
     }
+
+    /**
+     *截取指定的时间串
+     * @param originStr 源串
+     * @param index 字符下标
+     * @return  String
+     */
+    public static String subStringByIndex(String originStr , int index){
+        if(originStr.length()<index){
+            return "";
+        }
+        return originStr.substring(0 , index);
+    }
 }
