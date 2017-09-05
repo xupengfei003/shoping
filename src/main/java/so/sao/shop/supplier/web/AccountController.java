@@ -20,6 +20,8 @@ import so.sao.shop.supplier.service.*;
 import so.sao.shop.supplier.util.DownloadAzureFile;
 import so.sao.shop.supplier.util.ExcelImportUtils;
 import so.sao.shop.supplier.config.Constant;
+import so.sao.shop.supplier.util.Ognl;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -245,35 +247,26 @@ public class AccountController {
     }
 
     /**
-     * 根据用户ID查询用户的实时余额并更新用户余额
-     *
+     * 根据用户ID查询用户的实时余额
      * @param request
      * @return
      */
-    @ApiOperation(value = "根据用户的账户查询用户余额", notes = "根据用户的账户ID,查询未结算金额")
+    @ApiOperation(value = "根据账户ID查询用户余额", notes = "根据用户的账户ID,查询未结算金额【负责人：方洲】")
     @GetMapping(value = "/selectAccountBalance")
-    public Result getBalance(HttpServletRequest request) {
-        Result result = new Result<>();
-        Map map = new HashMap();
-        map.put("balance","0.00");
+    public Result getBalanceByAccountId(HttpServletRequest request) throws Exception{
         //获取用户
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        //定义map存放余额
+        Map<String,String > map = new HashMap();
         //判断是否登陆
-        if (null == user){
-            result.setCode(Constant.CodeConfig.CODE_USER_NOT_LOGIN);
-            result.setMessage(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
-            result.setData(map);
-            return result;
+        if (Ognl.isNull(user)){
+            //若没登陆，返回余额0.00
+            map.put("balance","0.00");
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN,map);
         }
-        try{
-            result = accountService.getAccountBalance(user.getAccountId());
-        }catch (Exception e){
-            e.printStackTrace();
-            result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SYSTEM_EXCEPTION);
-            result.setMessage(so.sao.shop.supplier.config.Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
-            result.setData(map);
-        }
-        return result;
+        //查询用户余额
+        map = accountService.getAccountBalance(user.getAccountId());
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS,map);
     }
 
     /**
