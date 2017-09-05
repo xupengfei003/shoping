@@ -208,7 +208,13 @@ public interface Constant {
          */
         public static final String CANCEL_ORDER = "已取消";
     }
+    interface OrderStatusRule{
+        /**
+         * 待付款\待发货\已发货\已完成\已拒收\已退款\已取消
+         */
 
+        public static final String[] RULES = {"2#7","3#7","4#5","#","6#","#","6#"};
+    }
     interface PaymentStatusConfig{
         /**
          * 支付宝
