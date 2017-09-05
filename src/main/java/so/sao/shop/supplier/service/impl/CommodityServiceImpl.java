@@ -553,7 +553,7 @@ public class CommodityServiceImpl implements CommodityService {
     public Result offShelvesBatch(Long[] ids) {
         //根据id数组查询，过滤已删除的商品
         List<SupplierCommodity> supplierCommodityList = supplierCommodityDao.findSupplierCommodityByIds(ids);
-        if (0 == supplierCommodityList.size()){
+        if (supplierCommodityList.size() == 0){
             return Result.fail("该商品无记录！");
         }
         List<SupplierCommodity> list = new ArrayList<>();
