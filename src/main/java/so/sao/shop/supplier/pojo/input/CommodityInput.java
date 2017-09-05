@@ -40,11 +40,13 @@ public class CommodityInput {
     /**
      * 二级类型Id
      */
+    @NotNull(message = "商品科属二级类型不能为空")
     private Long categoryTwoId;
 
     /**
      * 三级类型Id
      */
+    @NotNull(message = "商品科属三级类型不能为空")
     private Long categoryThreeId;
 
     /**

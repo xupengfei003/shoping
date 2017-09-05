@@ -1,6 +1,10 @@
 package so.sao.shop.supplier.util;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.util.StringUtils;
+
+import java.util.Collection;
+
 /**
  * 用户mybatis动态SQL验证判断字符串用
  *
@@ -76,6 +80,15 @@ public class Ognl {
      */
     public static boolean isNotIndexOf(String str, String str1) {
         return !isIndexOf(str, str1);
+    }
+
+    /**
+     * 判断集合是否不为null与isEmpty
+     * @param coll
+     * @return
+     */
+    public static boolean CollectionIsNotEmpty(final Collection<?> coll){
+        return CollectionUtils.isNotEmpty(coll);
     }
 }
 

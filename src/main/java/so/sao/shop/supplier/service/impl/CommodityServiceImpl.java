@@ -1,19 +1,16 @@
 package so.sao.shop.supplier.service.impl;
 
-import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import org.apache.tomcat.util.http.fileupload.disk.DiskFileItemFactory;
-import org.apache.tomcat.util.http.fileupload.servlet.ServletFileUpload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile; 
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import so.sao.shop.supplier.config.CommConstant;
-import so.sao.shop.supplier.config.StorageConfig;
 import so.sao.shop.supplier.config.azure.AzureBlobService;
 import so.sao.shop.supplier.dao.*;
 import so.sao.shop.supplier.domain.*;
@@ -32,11 +29,11 @@ import so.sao.shop.supplier.service.CommodityService;
 import so.sao.shop.supplier.util.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -71,6 +68,9 @@ public class CommodityServiceImpl implements CommodityService {
 
     @Autowired
     private AzureBlobService azureBlobService;
+
+    @Value("${excel.tempaltepath}")
+    private String urlFile;
 
     /**
      * 新增商品
@@ -174,10 +174,11 @@ public class CommodityServiceImpl implements CommodityService {
         //用于存放商品69码
         Set<String> code69Sets = new TreeSet<>();
         //拼装69码集合
-        for (SupplierCommodityVo commodityVo : commodityInput.getCommodityList()) {
+        commodityInput.getCommodityList().forEach(commodityVo->{
             String code69 = commodityVo.getCode69();
             code69Sets.add(code69);
-        }
+        });
+
         //校验插入数据是否有重复69码
         if (code69Sets.size() < commodityInput.getCommodityList().size()) {
             return Result.fail("存在重复的商品条码，请修改后重新添加！");
@@ -185,13 +186,11 @@ public class CommodityServiceImpl implements CommodityService {
         Long categoryOneId = commodityInput.getCategoryOneId();
         Long categoryTwoId = commodityInput.getCategoryTwoId();
         Long categoryThreeId = commodityInput.getCategoryThreeId();
-        //验证是否选择商品科属
-        if(null == categoryTwoId && null != categoryThreeId){
-            return Result.fail("未选择商品科属二级分类！");
-        }
         //获取三级分类list
         List<CommCategory> commCategoryList = commCategoryDao.findByIds(categoryOneId, categoryTwoId, categoryThreeId);
-        List<Long> ids = new ArrayList<>();
+        if(commCategoryList.size() < CommConstant.CATEGORY_LEVEL_NUMBER){
+            return Result.fail("商品科属有分类不存在！");
+        }
         CommCategory commCategoryOne = null;
         CommCategory commCategoryTwo = null;
         CommCategory commCategoryThree = null;
@@ -202,23 +201,6 @@ public class CommodityServiceImpl implements CommodityService {
                 commCategoryTwo = commCategory;
             } else if(commCategory.getId().equals(categoryThreeId)){
                 commCategoryThree = commCategory;
-            }
-            ids.add(commCategory.getId());
-        }
-        //验证商品一级分类是否存在
-        if(!ids.contains(categoryOneId)){
-            return Result.fail("商品科属一级分类不存在！");
-        }
-        //验证商品二级分类是否存在
-        if(null != categoryTwoId){
-            if(!ids.contains(categoryTwoId)){
-                return Result.fail("商品科属二级分类不存在！");
-            }
-        }
-        //验证商品三级分类是否存在
-        if(null != categoryThreeId){
-            if(!ids.contains(categoryThreeId)){
-                return Result.fail("商品科属三级分类不存在！");
             }
         }
         //验证三级分类之间的关联是否正确
@@ -233,16 +215,7 @@ public class CommodityServiceImpl implements CommodityService {
             }
         }
         //拼装商品分类code码
-        String categoryOneCode = commCategoryOne.getCode();
-        String categoryTwoCode = CommConstant.CATEGORY_NULL_CODE;
-        String categoryThreeCode = CommConstant.CATEGORY_NULL_CODE;
-        if(null != commCategoryTwo){
-            categoryTwoCode = commCategoryTwo.getCode();
-        }
-        if(null != commCategoryThree){
-            categoryThreeCode = commCategoryThree.getCode();
-        }
-        String commCategoryCode = categoryOneCode + categoryTwoCode + categoryThreeCode;
+        String commCategoryCode = commCategoryOne.getCode() + commCategoryTwo.getCode() + commCategoryThree.getCode();
         return Result.success("校验通过", commCategoryCode);
     }
 
@@ -269,15 +242,8 @@ public class CommodityServiceImpl implements CommodityService {
      * @return
      */
     private boolean verifyAssociation(CommCategory commCategoryOne, CommCategory commCategoryTwo, CommCategory commCategoryThree){
-        if(null != commCategoryTwo && null == commCategoryThree){
-            if(!(commCategoryOne.getPid().equals(CommConstant.CATEGORY_ONE_PID) && commCategoryOne.getId().equals(commCategoryTwo.getPid()))){
-                return false;
-            }
-        }
-        if(null != commCategoryTwo && null != commCategoryThree){
-            if(!(commCategoryOne.getPid().equals(CommConstant.CATEGORY_ONE_PID) && commCategoryOne.getId().equals(commCategoryTwo.getPid()) && commCategoryTwo.getId().equals(commCategoryThree.getPid()))){
-                return false;
-            }
+        if(!(commCategoryOne.getPid().equals(CommConstant.CATEGORY_ONE_PID) && commCategoryOne.getId().equals(commCategoryTwo.getPid()) && commCategoryTwo.getId().equals(commCategoryThree.getPid()))){
+            return false;
         }
         return true;
     }
@@ -340,8 +306,7 @@ public class CommodityServiceImpl implements CommodityService {
             supplierCommodityDao.update(sc);
             //清空原有大图数据信息
             List<Long> ids = commImgeDao.findIdsByScId(sc.getId());
-            if (ids != null && ids.size() > 0)
-            {
+            if (ids != null && ids.size() > 0) {
                 commImgeDao.deleteByIds(ids);
             }
             //保存图片
@@ -378,19 +343,8 @@ public class CommodityServiceImpl implements CommodityService {
     }
 
     @Override
-    public List<CommodityExportOutput> findByIds(Long[] ids) {
-        return commodityDao.findByIds(ids);
-    }
-
-    @Override
     public Account findAccountByUserId(Long userId){
         return accountDao.findByUserId(userId);
-    }
-
-    @Override
-    public BaseResult deleteCommImge(Long id) {
-        boolean flag = commImgeDao.deleteById(id);
-        return BaseResultUtil.transTo(flag,"删除图片成功","删除图片失败");
     }
 
     /**
@@ -507,13 +461,14 @@ public class CommodityServiceImpl implements CommodityService {
         }
         if(idList.size() > 0){
             List<SupplierCommodity> supplierCommodityList = new ArrayList<>();
-            for(long id : idList){
-                SupplierCommodity supplierCommodity = new SupplierCommodity();
-                supplierCommodity.setId(id);
-                supplierCommodity.setUpdatedAt(new Date());
-                supplierCommodity.setDeleted(1);
-                supplierCommodityList.add(supplierCommodity);
-            }
+            final SupplierCommodity[] supplierCommodity = new SupplierCommodity[1];
+            idList.forEach(id->{
+                supplierCommodity[0] = new SupplierCommodity();
+                supplierCommodity[0].setId(id);
+                supplierCommodity[0].setUpdatedAt(new Date());
+                supplierCommodity[0].setDeleted(1);
+                supplierCommodityList.add(supplierCommodity[0]);
+            });
             supplierCommodityDao.deleteByIds(supplierCommodityList);
         }
         if(idNotList.size() > 0){
@@ -756,16 +711,7 @@ public class CommodityServiceImpl implements CommodityService {
                 break;
             case "图片":
                 if (!"".equals(value)) {
-                    String[] imgs = new String[15];
-                    if (value.contains(",") || value.contains("，")) {
-                        if (value.contains(",")) {
-                            imgs = value.split(",");
-                        } else if (value.contains("，")) {
-                            imgs = value.split("，");
-                        }
-                    } else {
-                        imgs[0] = value;
-                    }
+                    String[] imgs = value.replaceAll("，", ",").split(",");
                     List<String> imgList = Arrays.asList(imgs);
                     // 上传图片
                     List<Result> results = azureBlobService.uploadFilesComm(filePath, imgList);
@@ -779,6 +725,7 @@ public class CommodityServiceImpl implements CommodityService {
                                     supplierCommodityVo.setMinImg(blobUpload.getMinImgUrl());
                                 }
                                 CommImgeVo commImgeVo = BeanMapper.map(blobUpload, CommImgeVo.class);
+                                commImgeVo.setThumbnailUrl(blobUpload.getMinImgUrl());
                                 commImgeVo.setName(blobUpload.getFileName());
                                 commImgeVoList.add(commImgeVo);
                             }
@@ -967,5 +914,23 @@ public class CommodityServiceImpl implements CommodityService {
         return  filename;
     }
 
+    @Override
+    public  Result exportExcel(HttpServletResponse response , Long[] ids) {
+        POIExcelUtil poiExcelUtil = new POIExcelUtil();
+        List<Object[]> dataList = new ArrayList<>();
+        if(urlFile.isEmpty()) {
+            return Result.fail("指定模板文件不存在！");
+        }
+        List<CommodityExportOutput> commodityList = commodityDao.findByIds(ids);
+        if(commodityList.size()>0 && commodityList != null) {
+            commodityList.forEach(commodity -> {
+                Object[] key = commodity.toString().split(",");
+                dataList.add(key);
+            });
+            poiExcelUtil.writeExcel(urlFile, dataList, CommConstant.POI_START_ROW, response, CommConstant.SHEET_NAME, CommConstant.FILE_NAME);
+            return Result.success("导出商品成功！");
+        }
+        return Result.fail("暂无商品记录！");
+    }
 
 }

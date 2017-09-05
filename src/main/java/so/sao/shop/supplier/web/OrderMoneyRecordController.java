@@ -5,9 +5,6 @@ import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.StringUtils;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.domain.User;
@@ -27,7 +24,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.validation.Valid;
-import java.util.List;
 
 /**
  * Created by niewenchao on 2017/7/19.
@@ -44,191 +40,142 @@ public class OrderMoneyRecordController {
 
     /**
      * 根据账期时间、结算状态查询结算明细列表
-     * <p>
-     * 1.创建返回对象，并设置返回信息
-     * 2.校验参数合法性
-     * 2.1 判断起始时间、结束时间、结算状态不为空
-     * 2.2 判断时间格式是否正确
-     * 2.3 判断起始时间是否小于结束时间
-     * 3.查询结算明细列表
-     * 3.1 未查找到结果
-     * 3.2 查询成功，返回结果
-     * 4.异常信息
      *
-     * @param pageNo   页码
+     * 1.校验参数合法性
+     *      1.1 如果入参对象为null,则返回失败信息
+     *      1.2 判断起始时间、结束时间、结算状态不为空
+     *      1.3 判断时间格式是否正确
+     *      1.4 判断起始时间是否小于结束时间
+     * 2.查询结算明细列表
+     *      2.1 未查找到结果
+     *      2.2 查询成功，返回结果
+     *
+     * @param pageNo  页码
      * @param pageSize 每页条数
      * @param input    入参
      * @return
+     * @throws Exception
      */
-    @ApiOperation(value = "查询结算明细列表", notes = "查询结算明细列表")
+    @ApiOperation(value = "查询结算明细列表", notes = "查询结算明细列表【负责人:聂文超】")
     @GetMapping(value = "/search")
-    public Result<OrderMoneyRecordOutput> search(Integer pageNo, Integer pageSize, OrderMoneyRecordInput input) {
-        //1.创建返回对象，并设置返回信息
-        Result<OrderMoneyRecordOutput> result = new Result<>();
-        result.setCode(Constant.CodeConfig.CODE_FAILURE);
-        result.setMessage(Constant.MessageConfig.MSG_FAILURE);
-        try {
-            if (null == input) {
-                return result;
-            }
+    public Result search(Integer pageNo, Integer pageSize, OrderMoneyRecordInput input) throws Exception {
 
-            String startTime = input.getStartTime();
-            String endTime = input.getEndTime();
-
-            //2.校验参数合法性
-            //2.1 判断起始时间、结束时间、结算状态不为空
-            if (StringUtils.isEmpty(startTime) || StringUtils.isEmpty(endTime) || StringUtils.isEmpty(input.getState())) {
-                result.setCode(Constant.CodeConfig.CODE_NOT_EMPTY);
-                result.setMessage(Constant.MessageConfig.MSG_NOT_EMPTY);
-                return result;
-            }
-
-            //2.2 判断时间格式是否正确
-            if (!DateUtil.isDate(startTime) || !DateUtil.isDate(endTime)) {
-                result.setCode(Constant.CodeConfig.CODE_DATE_INPUT_FORMAT_ERROR);
-                result.setMessage(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
-                return result;
-            }
-
-            //2.3 判断起始时间是否小于结束时间
-            if (DataCompare.compareDate(startTime, endTime)) {
-                result.setCode(Constant.CodeConfig.DateNOTLate);
-                result.setMessage(Constant.MessageConfig.DateNOTLate);
-                return result;
-            }
-
-            //3.查询结算明细列表
-            OrderMoneyRecordOutput output = orderMoneyRecordService.searchOrderMoneyRecords(pageNo, pageSize, input);
-
-            //3.1 未查找到结果
-            if (null == output) {
-                result.setCode(Constant.CodeConfig.CODE_NOT_FOUND_RESULT);
-                result.setMessage(Constant.MessageConfig.MSG_NO_DATA);
-                return result;
-            }
-
-            //3.2 查询成功，返回结果
-            result.setCode(Constant.CodeConfig.CODE_SUCCESS);
-            result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
-            result.setData(output);
-
-        } catch (Exception e) {
-            //4.异常信息
-            logger.error("系统异常", e);
-            result.setCode(Constant.CodeConfig.CODE_SYSTEM_EXCEPTION);
-            result.setMessage(Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
+        //1.校验参数合法性
+        //1.1 如果入参对象为null,则返回失败信息
+        if (null == input) {
+            return Result.fail(Constant.MessageConfig.MSG_FAILURE);
         }
-        return result;
+
+        String startTime = input.getStartTime();
+        String endTime = input.getEndTime();
+
+        //1.2 判断起始时间、结束时间、结算状态不为空
+        if (Ognl.isEmpty(startTime) || Ognl.isEmpty(endTime) || Ognl.isEmpty(input.getState())) {
+            return Result.fail(Constant.MessageConfig.MSG_NOT_EMPTY);
+        }
+
+        //1.3 判断时间格式是否正确
+        if (!DateUtil.isDate(startTime) || !DateUtil.isDate(endTime)) {
+            return Result.fail(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
+        }
+
+        //1.4 判断起始时间是否小于结束时间
+        if (DataCompare.compareDate(startTime, endTime)) {
+            return Result.fail(Constant.MessageConfig.DateNOTLate);
+        }
+
+        //2.查询结算明细列表
+        OrderMoneyRecordOutput output = orderMoneyRecordService.searchOrderMoneyRecords(pageNo, pageSize, input);
+
+        //2.1 未查找到结果
+        if (null == output) {
+            return Result.success(Constant.MessageConfig.MSG_NO_DATA);
+        }
+
+        //2.2 查询成功，返回结果
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS, output);
     }
 
 
     /**
      * 更新结算状态
-     * <p>
-     * 1.创建返回对象，并设置返回信息
-     * 2.校验参数合法性
-     * 2.1 判断参数不为空
-     * 3.修改结算状态
-     * 3.1 修改状态成功，返回信息
-     * 4.异常信息
+     *
+     * 1.校验参数合法性
+     *      1.1 判断参数不为空
+     * 2.修改结算状态
+     *      2.1 修改状态成功，返回信息
+     *      2.2 修改状态失败，返回信息
      *
      * @param recordId 结算明细id
      * @param state    结算状态
      * @return
+     * @throws Exception
      */
-    @ApiOperation(value = "更新结算状态", notes = "更新结算状态")
+    @ApiOperation(value = "更新结算状态", notes = "更新结算状态【负责人:聂文超】")
     @PostMapping(value = "/orderMoneyRecord/updateState")
-    public Result updateState(String recordId, String state) {
-        //1.创建返回对象，并设置返回信息
-        Result result = new Result();
-        result.setCode(Constant.CodeConfig.CODE_FAILURE);
-        result.setMessage(Constant.MessageConfig.MSG_FAILURE);
-        try {
+    public Result updateState(String recordId, String state) throws Exception {
 
-            //2.校验参数合法性
-            //2.1 判断参数不为空
-            if (StringUtils.isEmpty(recordId) || StringUtils.isEmpty(state)) {
-                result.setCode(Constant.CodeConfig.CODE_NOT_EMPTY);
-                result.setMessage(Constant.MessageConfig.MSG_NOT_EMPTY);
-                return result;
-            }
-
-            //3.修改结算状态
-            boolean flag = orderMoneyRecordService.updateOrderMoneyRecordState(recordId, state);
-
-            //3.1 修改状态成功，返回信息
-            if (flag) {
-                result.setCode(Constant.CodeConfig.CODE_SUCCESS);
-                result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
-            }
-        } catch (Exception e) {
-            //4.异常信息
-            logger.error("系统异常", e);
-            result.setCode(Constant.CodeConfig.CODE_SYSTEM_EXCEPTION);
-            result.setMessage(Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
+        //1.校验参数合法性
+        //1.1 判断参数不为空
+        if (Ognl.isEmpty(recordId) || Ognl.isEmpty(state)) {
+            return Result.fail(Constant.MessageConfig.MSG_NOT_EMPTY);
         }
-        return result;
+
+        //2.修改结算状态
+        boolean flag = orderMoneyRecordService.updateOrderMoneyRecordState(recordId, state);
+
+        //2.1 修改状态成功，返回信息
+        if (flag) {
+            return Result.success(Constant.MessageConfig.MSG_SUCCESS);
+        }
+
+        //2.2 修改状态失败，返回信息
+        return Result.fail(Constant.MessageConfig.MSG_FAILURE);
     }
 
 
     /**
      * 根据根据申请人账户查询满足结算时间条件的已结算/待结算明细，并根据pageNum和pageSize进行分页
-     *
      * @param pageNum
      * @param pageSize
      * @param request
      * @param put
      * @return
      */
-    @ApiOperation(value = "根据账户ID查询已结算/待结算明细", notes = "根据账户ID查询已结算/待结算明细并分页")
+    @ApiOperation(value = "根据账户ID查询已结算/待结算明细", notes = "根据账户ID查询已结算/待结算明细并分页【负责人：方洲】")
     @GetMapping(value = "/orderMoneyRecords")
-    public Result searchOrderMoneyRecords(Integer pageNum, Integer pageSize, HttpServletRequest request, @Valid OrderMoneyRecordInput put) {
-        //初始化
-        Result result = new Result<>();
-        result.setCode(Constant.CodeConfig.CODE_DATE_INPUT_FORMAT_ERROR);
-        result.setMessage(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
-        result.setData(null);
+    public Result searchOrderMoneyRecords(Integer pageNum, Integer pageSize, HttpServletRequest request, @Valid OrderMoneyRecordInput put) throws Exception {
         //获取用户
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //判断是否登陆
-        if (null == user) {
-            result.setCode(Constant.CodeConfig.CODE_USER_NOT_LOGIN);
-            result.setMessage(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
-            return result;
+        if (Ognl.isNull(user)) {
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
-        try {
-            // 校验时间参数
-            if (!StringUtils.isEmpty(put.getStartTime()) && !DateUtil.isDate(put.getStartTime())) {
-                return result;
-            }
-            if (!StringUtils.isEmpty(put.getEndTime()) && !DateUtil.isDate(put.getEndTime())) {
-                return result;
-            }
-            if (DataCompare.compareDate(put.getStartTime(), put.getEndTime())) {
-                result.setCode(Constant.CodeConfig.DateNOTLate);
-                result.setMessage(Constant.MessageConfig.DateNOTLate);
-                return result;
-            }
-            // 查询数据
-            result = orderMoneyRecordService.searchRecords(user.getAccountId(), put, pageNum, pageSize);
-        } catch (Exception e) {
-            logger.error("系统异常", e);
-            result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SYSTEM_EXCEPTION);
-            result.setMessage(so.sao.shop.supplier.config.Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
+        // 若传入起始时间，校验其是否是时间格式
+        if (Ognl.isNotEmpty(put.getStartTime()) && !DateUtil.isDate(put.getStartTime())) {
+            return Result.fail(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
         }
-        return result;
+        // 若传入结束时间，校验其是否是时间格式
+        if (Ognl.isNotEmpty(put.getEndTime()) && !DateUtil.isDate(put.getEndTime())) {
+            return Result.fail(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
+        }
+        // 若传入起始和结束时间，检查起始时间是否大于结束时间
+        if (DataCompare.compareDate(put.getStartTime(), put.getEndTime())) {
+            return Result.fail(Constant.MessageConfig.DateNOTLate);
+        }
+        // 查询数据
+        Map<String, Object> map = orderMoneyRecordService.searchRecords(user.getAccountId(), put, pageNum, pageSize);
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS,map);
     }
 
     /**
      * 根据结算明细id查询该明细所对应的订单列表
-     * <p>
-     * 1.创建返回对象，并设置返回信息
-     * 2.校验参数合法性
-     * 2.1 判断recordId不为空
-     * 3.查询结算明细id对应的订单列表
-     * 3.1 未查找到结果
-     * 3.2 查询成功，返回结果
-     * 4.异常信息
+     *
+     * 1.校验参数合法性
+     *      1.1 判断recordId不为空
+     * 2.查询结算明细id对应的订单列表
+     *      2.1 未查找到结果
+     *      2.2 查询成功，返回结果
      *
      * @param recordId 结算明细id
      * @param pageNum  页码
@@ -236,46 +183,26 @@ public class OrderMoneyRecordController {
      * @param orderId  订单id
      * @return
      */
-    @ApiOperation(value = "根据结算明细id查询该明细对应的订单列表", notes = "根据结算明细id查询该明细对应的订单列表，并根据pageNum和pageSize进行分页")
+    @ApiOperation(value = "根据结算明细id查询该明细对应的订单列表", notes = "根据结算明细id查询该明细对应的订单列表，并根据pageNum和pageSize进行分页【负责人:聂文超】")
     @GetMapping(value = "/orderMoneyRecord/searchPurchasesByRecordId")
-    public Result<RecordToPurchaseOutput> searchOMRPurchaseDetails(String recordId, Integer pageNum, Integer pageSize, String orderId) {
-        //1.创建返回对象，并设置返回信息
-        Result<RecordToPurchaseOutput> result = new Result<>();
-        result.setCode(Constant.CodeConfig.CODE_FAILURE);
-        result.setMessage(Constant.MessageConfig.MSG_FAILURE);
+    public Result searchOMRPurchaseDetails(String recordId, Integer pageNum, Integer pageSize, String orderId) throws Exception {
 
-        try {
-
-            //2.校验参数合法性
-            //2.1 2.1 判断recordId不为空
-            if (StringUtils.isEmpty(recordId)) {
-                result.setCode(Constant.CodeConfig.CODE_NOT_EMPTY);
-                result.setMessage(Constant.MessageConfig.MSG_NOT_EMPTY);
-                return result;
-            }
-
-            //3.查询结算明细id对应的订单列表
-            RecordToPurchaseOutput output = orderMoneyRecordService.searchOMRPurchaseDetails(recordId, pageNum, pageSize, orderId);
-
-            //3.1 未查找到结果
-            if (null == output) {
-                result.setCode(Constant.CodeConfig.CODE_NOT_FOUND_RESULT);
-                result.setMessage(Constant.MessageConfig.MSG_NO_DATA);
-                return result;
-            }
-
-            //3.2 查询成功，返回结果
-            result.setCode(Constant.CodeConfig.CODE_SUCCESS);
-            result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
-            result.setData(output);
-
-        } catch (Exception e) {
-            //4.异常信息
-            logger.error("系统异常", e);
-            result.setCode(Constant.CodeConfig.CODE_SYSTEM_EXCEPTION);
-            result.setMessage(Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
+        //1.校验参数合法性
+        //1.1 判断recordId不为空
+        if (Ognl.isEmpty(recordId)) {
+            return Result.fail(Constant.MessageConfig.MSG_NOT_EMPTY);
         }
-        return result;
+
+        //2.查询结算明细id对应的订单列表
+        RecordToPurchaseOutput output = orderMoneyRecordService.searchOMRPurchaseDetails(recordId, pageNum, pageSize, orderId);
+
+        //2.1 未查找到结果
+        if (null == output) {
+            return Result.success(Constant.MessageConfig.MSG_NO_DATA);
+        }
+
+        //2.2 查询成功，返回结果
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS, output);
     }
 
     /**
@@ -287,19 +214,25 @@ public class OrderMoneyRecordController {
      */
     @ApiOperation(value = "根据开始时间和结束时间查询已结算金额", notes = "根据开始时间和结束时间,计算其已结算金额【负责人:巨江坤】")
     @GetMapping(value = "/orderMoneyRecord/settlement")
-    public Result<String> settlementMoney(String startTime, String endTime) throws Exception {
-        if (Ognl.isEmpty(startTime) || Ognl.isEmpty(endTime)) {  //判断null和空值
+    public Result settlementMoney(String startTime, String endTime) throws Exception {
+        //判断null和空值
+        if (Ognl.isEmpty(startTime) || Ognl.isEmpty(endTime)) {
             return Result.fail(Constant.MessageConfig.MSG_NOT_EMPTY);
         }
-        if (!DateUtil.isDate(startTime) || !DateUtil.isDate(endTime)) {  //判断时间格式
+
+        //判断时间格式
+        if (!DateUtil.isDate(startTime) || !DateUtil.isDate(endTime)) {
             return Result.fail(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
         }
+
         //判断起始时间是否小于结束时间
         if (DataCompare.compareDate(startTime, endTime)) {
             return Result.fail(Constant.MessageConfig.DateNOTLate);
         }
-        //获取业务层数据-已结算金额
+
+        //获取传入时间段内的已结算金额
         String sumSettledAmout = orderMoneyRecordService.settlementMoney(startTime, endTime);
+
         return Result.success(Constant.MessageConfig.MSG_SUCCESS, sumSettledAmout);
     }
 
@@ -312,39 +245,39 @@ public class OrderMoneyRecordController {
      */
     @ApiOperation(value = "根据开始时间和结束时间查询未结算金额", notes = "根据开始时间和结束时间,计算其未结算金额 【负责人:巨江坤】")
     @GetMapping(value = "/orderMoneyRecord/unsettled")
-    public Result<String> totalMoney(String startTime, String endTime) throws Exception {
-        if (Ognl.isNotEmpty(startTime) || Ognl.isNotEmpty(endTime)) {  //判断null和空值
+    public Result totalMoney(String startTime, String endTime) throws Exception {
+        //判断null和空值
+        if (Ognl.isEmpty(startTime) || Ognl.isEmpty(endTime)) {
             return Result.fail(Constant.MessageConfig.MSG_NOT_EMPTY);
         }
-        if (!DateUtil.isDate(startTime) || !DateUtil.isDate(endTime)) {  //判断时间格式
+
+        //判断时间格式
+        if (!DateUtil.isDate(startTime) || !DateUtil.isDate(endTime)) {
             return Result.fail(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
         }
+
         //判断起始时间是否小于结束时间
         if (DataCompare.compareDate(startTime, endTime)) {
             return Result.fail(Constant.MessageConfig.DateNOTLate);
         }
+
+        //获取传入时间段内的待结算金额
         String totalMonay = orderMoneyRecordService.unsettled(startTime, endTime);
+
         return Result.success(Constant.MessageConfig.MSG_SUCCESS, totalMonay);
     }
 
 
-    @ApiOperation(value = "导出结算明细excel", notes = "根据查询条件导出excel")
+    /**
+     * 结算明细列表 导出excel
+     * @param request
+     * @param response
+     * @throws Exception
+     */
+    @ApiOperation(value="导出结算明细excel", notes = "根据查询条件导出excel【负责人:王翼云】")
     @GetMapping("/excel")
-    public Result<Map<String, ?>> exportExcel(HttpServletRequest request, HttpServletResponse response) {
-        Result<Map<String, ?>> result = new Result<>();
-        Map<String, ?> map = new HashMap<>();
-        result.setData(map);
-        result.setCode(Constant.CodeConfig.CODE_SYSTEM_EXCEPTION);
-        result.setMessage(Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
-
-        try {
-            orderMoneyRecordService.exportExcel(request, response);
-        } catch (Exception e) {
-            logger.error("系统异常", e);
-            response.reset();
-            return result;
-        }
-        return null;
+    public void exportExcel(HttpServletRequest request, HttpServletResponse response) throws Exception{
+        orderMoneyRecordService.exportExcel(request,response);
     }
 
 }
