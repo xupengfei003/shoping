@@ -235,6 +235,7 @@ public class AccountController {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         if(user==null || !user.getIsAdmin().equals(Constant.ADMIN_STATUS)){
             throw new RuntimeException("unauthorized access");
+
         }
         return accountService.searchAccount(accountInput);
     }
