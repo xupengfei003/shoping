@@ -20,7 +20,7 @@ public interface AccountDao {
      * @param accountId 供应商id
      * @return 返回受影响行数
      */
-    int deleteByPrimaryKey(Long accountId);
+    void deleteByPrimaryKey(Long accountId);
 
     /**
      * 单次添加供应商信息
@@ -28,13 +28,6 @@ public interface AccountDao {
      * @return 返回受影响行数
      */
     int insert(Account record);
-
-    /**
-     * 单次添加供应商信息
-     * @param record 供应商对象
-     * @return 返回受影响行数
-     */
-    int insertSelective(Account record);
 
     /**
      * 根据id查询供应商信息(省市区汉字)
@@ -63,13 +56,6 @@ public interface AccountDao {
      * @return 返回受影响行数
      */
     int updateByPrimaryKey(Account record);
-
-    /**
-     * 批量插入供应商信息
-     * @param accounts
-     * @return 返回受影响行数
-     */
-    int saveBatch(List<Account> accounts);
 
     /**
      * 根据用户id，查找该用户的账户信息

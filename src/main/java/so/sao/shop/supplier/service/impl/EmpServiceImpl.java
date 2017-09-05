@@ -93,14 +93,10 @@ public class EmpServiceImpl implements EmpService {
 	 */
     @Transactional(rollbackFor = Exception.class)
 	public Result saveEmp(Emp emp) throws Exception{
-		//定义返回值
-		Result baseResult = new Result();
 		//判断登录用户是否为员工
 		Long accountId = accountDao.findAccountIdByUserId(emp.getUserId());
         if(accountId == null) {
-        	baseResult.setMessage("此登录账户为员工，无添加员工权限");
-            baseResult.setCode(Constant.CodeConfig.CODE_FAILURE);
-            return baseResult;
+            return Result.fail("此登录账户为员工，无添加员工权限");
         }
 		//利用redis的setnx，获取锁成功返回true
 		Boolean lock = redisTemplate.opsForValue().setIfAbsent(Constant.REDIS_KEY_PREFIX+emp.getEmpTel(),"1");
@@ -130,20 +126,16 @@ public class EmpServiceImpl implements EmpService {
                             smsService.sendSms(Collections.singletonList(emp.getEmpTel()),Arrays.asList("phone","password"), Arrays.asList(emp.getEmpTel(),password), smsTemplateCode2);
                         }
                     });
-            		baseResult.setMessage("员工信息添加成功！");
-                    baseResult.setCode(Constant.CodeConfig.CODE_SUCCESS);
-                    return baseResult;
+                    return Result.success("员工信息添加成功！");
 				}
 			}
-			baseResult.setMessage("此员工信息已经存在！");
-	        baseResult.setCode(Constant.CodeConfig.CODE_FAILURE);
 		} catch (Exception e) {
 			logger.error("插入员工信息异常！",e);
-			throw new Exception(e.getMessage());
+			throw new Exception("插入员工信息异常！",e);
 		} finally {
 			redisTemplate.delete(Constant.REDIS_KEY_PREFIX+emp.getEmpTel());
 		}
-        return baseResult;
+        return Result.fail("员工信息插入失败！");
 	}
 
 	/**
