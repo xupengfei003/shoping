@@ -441,6 +441,7 @@ public class PurchaseController {
         orderStatusList.add("4#5");//3
         orderStatusList.add("#");//4
         orderStatusList.add("6#");//5
+        orderStatusList.add("#");//6
         orderStatusList.add("6#");//7
         return orderStatusList.get(getOrderStatus-1);
     }
