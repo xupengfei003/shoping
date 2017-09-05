@@ -61,12 +61,6 @@ public interface CommodityService {
     Result findCommodity(String code69);
 
     /**
-     * 删除商品图片
-     * @param id
-     * @return
-     */
-    public Result deleteCommImge(Long id);
-    /**
      * 根据查询条件查询商品详情（高级搜索）
      * @author liugang
      * @param commSearchInput 高级搜索查询请求

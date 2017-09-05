@@ -347,12 +347,6 @@ public class CommodityServiceImpl implements CommodityService {
         return accountDao.findByUserId(userId);
     }
 
-    @Override
-    public Result deleteCommImge(Long id) {
-        commImgeDao.deleteById(id);
-        return Result.success("删除图片成功");
-    }
-
     /**
      * 根据查询条件查询商品详情(简单条件查询)
      *

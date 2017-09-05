@@ -114,12 +114,6 @@ public class CommodityController {
         return commodityService.deleteCommodities(id);
     }
 
-    @ApiOperation(value="删除商品图片", notes="根据ID删除相应的商品图片")
-    @DeleteMapping(value="/delete/imge/{id}")
-    public Result deleteImge(@PathVariable Long id){
-      return commodityService.deleteCommImge(id);
-    }
-
     @ApiOperation(value="批量导入商品", notes="通过Excel模板批量导入商品信息【负责人：潘帅帅】")
     @PostMapping(value="/importExcel")
     public  Result importExcel(@RequestPart(value = "excelFile") MultipartFile excelFile, HttpServletRequest request,@RequestParam(required = false) Long supplierId ) throws Exception {
@@ -132,7 +126,7 @@ public class CommodityController {
        return commodityService.importExcel(excelFile, request, supplierId);
     }
 
-    @ApiOperation(value="导出商品信息", notes="导出商品信息到Excel【负责人：张瑞兵】")
+    @ApiOperation(value="导出商品信息到Excel模板", notes="【责任人：张瑞兵】")
     @GetMapping(value="/exportExcel")
     public Result exportExcel(HttpServletResponse response , @RequestParam Long[] ids){
         if(ids == null || ids.length == 0){
