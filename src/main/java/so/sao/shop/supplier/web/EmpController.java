@@ -11,8 +11,6 @@ import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -54,20 +52,13 @@ public class EmpController {
 	 * @param emp 员工对象
 	 * @return 返回插入结果
 	 */
-	@ApiOperation(value="新增员工信息", notes="")
+	@ApiOperation(value="新增员工信息", notes="新增员工信息【负责人：张腾飞】")
 	@PutMapping("/create")
-	public Result create(HttpServletRequest request,@Valid @RequestBody Emp emp,BindingResult result) throws Exception{
+	public Result create(HttpServletRequest request,@Valid @RequestBody Emp emp) throws Exception{
 		User user = (User) request.getAttribute(Constant.REQUEST_USER);
 		if(user == null) {
             return Result.fail("请登录后再操作");
 		}
-		//判断验证是否通过。true 未通过  false通过
-        if(result.hasErrors()) {
-            List<ObjectError> list = result.getAllErrors();
-            for (ObjectError error : list) {
-                return Result.fail(error.getDefaultMessage());
-            }
-        }
     	/**
     	 * 插入员工信息
     	 */
@@ -101,19 +92,11 @@ public class EmpController {
      */
     @PutMapping("/updateStatus")
     @ApiOperation(value = "修改员工状态",notes = "负责人：唐文斌")
-    public Result updateStatus(@Valid @RequestBody EmpUpdateInput empUpdateInput, HttpServletRequest request,BindingResult bndresult) {
+    public Result updateStatus(@Valid @RequestBody EmpUpdateInput empUpdateInput, HttpServletRequest request) {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
       //验证是否登录
         if (user == null) {
             return Result.fail("请登录后再操作");
-        }
-        
-      //判断验证是否通过。true 未通过  false通过
-        if(bndresult.hasErrors()) {
-            List<ObjectError> list = bndresult.getAllErrors();
-            for (ObjectError error : list) {
-            	return Result.fail(error.getDefaultMessage());
-            }
         }
         empUpdateInput.setUserId(user.getId());
         return empService.updateEmpStatus(empUpdateInput);

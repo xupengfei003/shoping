@@ -144,7 +144,7 @@ public class CommodityServiceImpl implements CommodityService {
             SupplierCommodity sc = BeanMapper.map(commodityVo, SupplierCommodity.class);
             sc.setRemark(commodityInput.getRemark());
             sc.setTagId(commodityInput.getTagId());
-            sc.setStatus(CommConstant.COMM_ST_XZ);
+            sc.setStatus(CommConstant.COMM_ST_NEW);
             sc.setSupplierId(supplierId);
             sc.setCreatedBy(supplierId);
             sc.setUpdatedBy(supplierId);
@@ -423,7 +423,7 @@ public class CommodityServiceImpl implements CommodityService {
         if(null != supplierCommodity){
             map.put("supplierId", supplierCommodity.getSupplierId());
             //商品需下架才可删除
-            if(supplierCommodity.getStatus() != CommConstant.COMM_ST_XJ){
+            if(supplierCommodity.getStatus() != CommConstant.COMM_ST_OFF_SHELVES){
                 return Result.fail("商品需下架才可删除", map);
             }
             //删除商品,deleted更新为1
@@ -452,7 +452,7 @@ public class CommodityServiceImpl implements CommodityService {
             if(null != supplierCommodity){
                 map.put("supplierId", supplierCommodity.getSupplierId());
                 //商品需下架才可删除
-                if(supplierCommodity.getStatus() != CommConstant.COMM_ST_XJ){
+                if(supplierCommodity.getStatus() != CommConstant.COMM_ST_OFF_SHELVES){
                     idNotList.add(id);
                 }else{
                     idList.add(id);
@@ -484,37 +484,18 @@ public class CommodityServiceImpl implements CommodityService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Result updateStatusSj(Long id) {
-        Result result = new Result();
-        Map<String,Integer> map = new HashMap<>();
-        SupplierCommodity supplierCommodity = supplierCommodityDao.findOne(id);
-        if(null == supplierCommodity){
-            result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-
-            result.setMessage("该商品不存在");
-            return result;
+    public Result onShelves(Long id) {
+        int count = supplierCommodityDao.countById(id);
+        if(count == 0){
+            return Result.fail("该商品无记录！");
         }
-        supplierCommodity = assemblyObject(id,CommConstant.COMM_ST_SJ);
-        boolean flag = supplierCommodityDao.updateStatusSXj(supplierCommodity);
-        if (flag)
-        {
-            result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SUCCESS);
-            result.setMessage("上架商品成功");
-            map.put("status",CommConstant.COMM_ST_SJ);
-            result.setData(map);
-        }else {
-            result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage("上架商品失败");
-        }
-        return result;
-    }
-
-    private SupplierCommodity assemblyObject(Long id,int status){
         SupplierCommodity supplierCommodity = new SupplierCommodity();
         supplierCommodity.setId(id);
-        supplierCommodity.setStatus(status);
+        supplierCommodity.setStatus(CommConstant.COMM_ST_ON_SHELVES);
         supplierCommodity.setUpdatedAt(new Date());
-        return supplierCommodity;
+        //上架操作
+        supplierCommodityDao.onOrOffShelves(supplierCommodity);
+        return Result.success("上架商品成功！");
     }
 
     /**
@@ -524,56 +505,66 @@ public class CommodityServiceImpl implements CommodityService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Result updateStatusXj(Long id) {
-        Result result = new Result();
-        Map<String,Integer> map = new HashMap<>();
-        SupplierCommodity supplierCommodity = supplierCommodityDao.findOne(id);
-        if(null == supplierCommodity){
-            result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage("该商品不存在");
-            return result;
+    public Result offShelves(Long id) {
+        int count = supplierCommodityDao.countById(id);
+        if(count == 0){
+            return Result.fail("该商品无记录！");
         }
-        supplierCommodity = assemblyObject(id,CommConstant.COMM_ST_XJ);
-        boolean flag = supplierCommodityDao.updateStatusSXj(supplierCommodity);
-        if (flag)
-        {
-            result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SUCCESS);
-            result.setMessage("下架商品成功");
-            map.put("status",CommConstant.COMM_ST_XJ);
-            result.setData(map);
-        }else {
-            result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage("下架商品失败");
-        }
-        return result;
+        SupplierCommodity supplierCommodity = new SupplierCommodity();
+        supplierCommodity.setId(id);
+        supplierCommodity.setStatus(CommConstant.COMM_ST_OFF_SHELVES);
+        supplierCommodity.setUpdatedAt(new Date());
+        //下架操作
+        supplierCommodityDao.onOrOffShelves(supplierCommodity);
+        return Result.success("下架商品成功！");
     }
 
+    /**
+     * 商品批量上架
+     * @param ids 供应商商品id数组
+     * @return
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public BaseResult updateStatusSjs(Long[] ids) {
-        boolean flag = false;
-        if(null != ids && ids.length > 0){
-            for(int i = 0; i < ids.length; i++){
-                SupplierCommodity supplierCommodity = assemblyObject(ids[i],CommConstant.COMM_ST_SJ);
-                supplierCommodityDao.updateStatusSXj(supplierCommodity);
-                flag = true;
-            }
+    public Result onShelvesBatch(Long[] ids) {
+        //根据id数组查询，过滤已删除的商品
+        List<SupplierCommodity> supplierCommodityList = supplierCommodityDao.findSupplierCommodityByIds(ids);
+        if (null == supplierCommodityList || supplierCommodityList.size() == 0){
+            return Result.fail("该商品无记录！");
         }
-        return BaseResultUtil.transTo(flag,"批量上架商品成功","批量上架商品失败");
+        List<SupplierCommodity> list = new ArrayList<>();
+        for (SupplierCommodity supplierCommodity:supplierCommodityList) {
+            supplierCommodity.setStatus(CommConstant.COMM_ST_ON_SHELVES);
+            supplierCommodity.setUpdatedAt(new Date());
+            list.add(supplierCommodity);
+        }
+        //批量上架操作
+        supplierCommodityDao.onOrOffShelvesBatch(list);
+        return Result.success("上架商品成功！");
     }
 
+    /**
+     * 商品批量下架
+     * @param ids 供应商商品id数组
+     * @return
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public BaseResult updateStatusXjs(Long[] ids) {
-        boolean flag = false;
-        if(null != ids && ids.length > 0){
-            for(int i = 0; i < ids.length; i++){
-                SupplierCommodity supplierCommodity = assemblyObject(ids[i],CommConstant.COMM_ST_XJ);
-                supplierCommodityDao.updateStatusSXj(supplierCommodity);
-                flag = true;
-            }
+    public Result offShelvesBatch(Long[] ids) {
+        //根据id数组查询，过滤已删除的商品
+        List<SupplierCommodity> supplierCommodityList = supplierCommodityDao.findSupplierCommodityByIds(ids);
+        if (null == supplierCommodityList || supplierCommodityList.size() == 0){
+            return Result.fail("该商品无记录！");
         }
-        return BaseResultUtil.transTo(flag,"批量下架商品成功","批量下架商品失败");
+        List<SupplierCommodity> list = new ArrayList<>();
+        for (SupplierCommodity supplierCommodity:supplierCommodityList) {
+            supplierCommodity.setStatus(CommConstant.COMM_ST_OFF_SHELVES);
+            supplierCommodity.setUpdatedAt(new Date());
+            list.add(supplierCommodity);
+        }
+        //批量下架操作
+        supplierCommodityDao.onOrOffShelvesBatch(list);
+        return Result.success("下架商品成功！");
     }
 
     /**

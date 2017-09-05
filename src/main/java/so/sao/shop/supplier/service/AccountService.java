@@ -22,23 +22,16 @@ public interface AccountService {
     /**
      * 根据id修改供应商状态为删除
      * @param accountId 供应商id
-     * @return 返回受影响行数
+     * @return 返回结果
      */
-    int delete(Long accountId);
+	Result delete(Long accountId) throws Exception;
 
     /**
-     * 单次添加供应商信息
+     * 修改供应商信息和用户信息
      * @param account 供应商对象
-     * @return 返回受影响行数
+     * @return 返回修改结果
      */
-    int insert(Account account);
-
-    /**
-     * 修改供应商信息
-     * @param account 供应商对象
-     * @return 返回受影响行数
-     */
-    int update(Account account);
+    Result updateAccountAndUser(Account account) throws Exception;
 
     /**
      * 根据id查询供应商信息(省市区汉字)
@@ -73,14 +66,6 @@ public interface AccountService {
      * @return 变更条数
      */
     int add(User user);
-
-    /**
-     * 根据id更新用户信息
-     * @param id
-     * @param tel
-     * @return 返回更新行数
-     */
-    int updateUser(Long id, String tel);
 
     /**
      * 初始化行业信息

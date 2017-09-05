@@ -266,7 +266,7 @@
     <select id="countById" resultType="int">
         select
         count(*)
-        from supplier_commodity where id = #{id}
+        from supplier_commodity where deleted = 0 AND id = #{id}
     </select>
 
     <!--统计查询总记录数-->
@@ -324,10 +324,22 @@
     </select>
 
     <!--上下架商品-->
-    <update id="updateStatusSXj">
+    <update id="onOrOffShelves">
         UPDATE supplier_commodity
         SET updated_at = #{updatedAt},status = #{status}
         WHERE id = #{id}
+    </update>
+
+    <!--批量上下架商品-->
+    <update id="onOrOffShelvesBatch">
+        <foreach collection="list" separator=";" open=" " close=" " item="item">
+            UPDATE supplier_commodity
+            <set>
+                updated_at = #{item.updatedAt},
+                status = #{item.status}
+            </set>
+            WHERE id = #{item.id}
+        </foreach>
     </update>
 
     <!--根据商品标签ID查询是否有正在使用（存在性校验使用）-->
@@ -398,6 +410,19 @@
         FROM supplier_commodity
         WHERE deleted = 0 AND measure_spec_id = #{commMeasureSpecId}
     </select>
-    
+
+    <!--根据id数组查询，过滤已删除的商品-->
+    <select id="findSupplierCommodityByIds" resultMap="BaseResultMap">
+        select
+        id,
+        updated_at AS updatedAt,
+        status
+        from supplier_commodity
+        where deleted = 0
+        AND id IN
+        <foreach collection="ids" open="(" close=")" separator="," item="id">
+          #{id}
+        </foreach>
+    </select>
 
 </mapper>

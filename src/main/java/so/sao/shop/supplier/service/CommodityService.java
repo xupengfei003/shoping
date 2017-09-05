@@ -94,28 +94,28 @@ public interface CommodityService {
      * @param id
      * @return
      */
-    Result updateStatusSj(Long id);
+    Result onShelves(Long id);
 
     /**
      * 下架商品
      * @param id
      * @return
      */
-    Result updateStatusXj(Long id);
+    Result offShelves(Long id);
 
     /**
      * 批量上架商品
      * @param ids
      * @return
      */
-    BaseResult updateStatusSjs(Long[] ids);
+    Result onShelvesBatch(Long[] ids);
 
     /**
      * 批量下架商品
      * @param ids
      * @return
      */
-    BaseResult updateStatusXjs(Long[] ids);
+    Result offShelvesBatch(Long[] ids);
 
 
     /**
