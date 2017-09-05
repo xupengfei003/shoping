@@ -4,13 +4,12 @@
     <update id="save" parameterType="java.util.Map">
         UPDATE purchase
         SET
-        order_price = #{payInput.orderPrice},
         order_payment_num = #{payInput.orderPaymentNum},
         order_payment_method = #{payInput.orderPaymentMethod},
         order_payment_time = #{payInput.orderPaymentTime},
         updated_at = #{payInput.updatedAt},
         order_status = #{payInput.orderStatus},
         pay_status = #{payInput.payStatus}
-        WHERE pay_id = #{payInput.payId}
+        WHERE pay_id = #{payInput.orderId}
     </update>
 </mapper>
