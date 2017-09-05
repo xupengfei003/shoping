@@ -57,6 +57,35 @@
                 #{height}
             )
     </insert>
+    <!-- 批量添加二维码 -->
+    <insert id="saveQrcodes" parameterType="java.util.List">
+        INSERT INTO qrcode
+        (
+        qrcode_id,
+        foreign_key,
+        url,
+        content,
+        status,
+        created_at,
+        disabled_at,
+        width,
+        height
+        )
+        VALUES
+        <foreach collection ="list" item="item" index= "index" separator =",">
+            (
+            #{item.qrcodeId},
+            #{item.foreignKey},
+            #{item.url},
+            #{item.content},
+            #{item.status},
+            #{item.createdAt},
+            #{item.disabledAt},
+            #{item.width},
+            #{item.height}
+            )
+        </foreach>
+    </insert>
 
     <!-- 修改二维码状态 -->
     <update id="updateStatus">
@@ -81,5 +110,17 @@
         FROM qrcode
         WHERE foreign_key = #{orderId}
         ORDER BY created_at DESC
+    </select>
+
+    <!--根据支付id查询对应订单的二维码，返回二维码数量-->
+    <select id="getQrcodesByPayId" resultType="java.lang.Integer" parameterType="java.lang.String">
+        SELECT COUNT(order_id)
+        from purchase p
+        where pay_id = #{payId}
+        AND EXISTS (
+        SELECT qrcode_id
+        from qrcode q
+        where p.order_id=q.foreign_key
+        )
     </select>
 </mapper>
