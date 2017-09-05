@@ -529,6 +529,9 @@ public class CommodityServiceImpl implements CommodityService {
     public Result onShelvesBatch(Long[] ids) {
         //根据id数组查询，过滤已删除的商品
         List<SupplierCommodity> supplierCommodityList = supplierCommodityDao.findSupplierCommodityByIds(ids);
+        if (supplierCommodityList.size() == 0){
+            return Result.fail("该商品无记录！");
+        }
         List<SupplierCommodity> list = new ArrayList<>();
         for (SupplierCommodity supplierCommodity:supplierCommodityList) {
             supplierCommodity.setStatus(CommConstant.COMM_ST_ON_SHELVES);
@@ -550,6 +553,9 @@ public class CommodityServiceImpl implements CommodityService {
     public Result offShelvesBatch(Long[] ids) {
         //根据id数组查询，过滤已删除的商品
         List<SupplierCommodity> supplierCommodityList = supplierCommodityDao.findSupplierCommodityByIds(ids);
+        if (0 == supplierCommodityList.size()){
+            return Result.fail("该商品无记录！");
+        }
         List<SupplierCommodity> list = new ArrayList<>();
         for (SupplierCommodity supplierCommodity:supplierCommodityList) {
             supplierCommodity.setStatus(CommConstant.COMM_ST_OFF_SHELVES);
