@@ -6,6 +6,7 @@ import so.sao.shop.supplier.dao.CommCategoryDao;
 import so.sao.shop.supplier.domain.CommCategory;
 import so.sao.shop.supplier.pojo.output.CommCategorySelectOutput;
 import so.sao.shop.supplier.service.CommCategoryService;
+import so.sao.shop.supplier.util.BeanMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,9 +32,7 @@ public class CommCategoryServiceImpl implements CommCategoryService {
         //将CommCategory遍历添加到一个新数组里面，新数组存放需要的对象属性值
         List<CommCategory> tempList = commCategoryDao.find(pid);
         tempList.forEach( commCategory ->{
-            CommCategorySelectOutput commCategorySelectOutput = new CommCategorySelectOutput();
-            commCategorySelectOutput.setId(commCategory.getId());
-            commCategorySelectOutput.setName(commCategory.getName());
+            CommCategorySelectOutput commCategorySelectOutput = BeanMapper.map(commCategory , CommCategorySelectOutput.class);
             list.add(commCategorySelectOutput);
         });
         return list;
