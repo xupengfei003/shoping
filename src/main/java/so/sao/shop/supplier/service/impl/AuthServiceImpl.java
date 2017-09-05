@@ -87,7 +87,7 @@ public class AuthServiceImpl implements AuthService {
         try {
             userDetails = userDetailsService.loadUserByUsername(username);
         }catch (UsernameNotFoundException e){
-            return new Result(Constant.CodeConfig.CODE_FAILURE,"当前号码无效!","");
+            return Result.fail("当前号码无效!");
         }
         try{
             UsernamePasswordAuthenticationToken upToken = new UsernamePasswordAuthenticationToken(username, password);
@@ -97,14 +97,14 @@ public class AuthServiceImpl implements AuthService {
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }catch (Exception e){
             logger.debug("登陆异常:"+e.getMessage());
-            return new Result(Constant.CodeConfig.CODE_FAILURE,"用户名或密码错误!","");
+            return Result.fail("用户名或密码错误!");
         }
         //登陆后放入缓存,后续从redis取,登出时del
         redisTemplate.opsForHash().put(Constant.REDIS_LOGIN_KEY_PREFIX+userDetails.getUsername(),"user", userDetails);
         Map result = new HashMap();
         result.put("token", jwtTokenUtil.generateToken(userDetails));
         result.put("user",userDetails);
-        return new Result<Map>(Constant.CodeConfig.CODE_SUCCESS, "", result);
+        return Result.success("", result);
     }
 
     /**
@@ -116,7 +116,7 @@ public class AuthServiceImpl implements AuthService {
         userDao.updateLogoutTime(user.getId(), new Date());
         //登出时del
         redisTemplate.opsForHash().delete(Constant.REDIS_LOGIN_KEY_PREFIX+user.getUsername(),"user", "authentication");
-        return new Result(Constant.CodeConfig.CODE_SUCCESS,"登出成功",null);
+        return Result.success("登出成功");
     }
 
     /**
@@ -141,7 +141,7 @@ public class AuthServiceImpl implements AuthService {
      * @throws IOException
      */
     @Override
-    public BaseResult getPassword(String phone) throws IOException {
+    public Result getPassword(String phone) throws IOException {
         User u = userDao.findByUsername(phone);
         //判断当前登录人和接收密码手机是否一直
         if(u!=null&& StringUtils.isNotBlank(u.getUsername())){
@@ -149,9 +149,9 @@ public class AuthServiceImpl implements AuthService {
             //密码加密保存,忘记密码只能手机验证发送新密码
             userDao.updatePassword(u.getId(),new BCryptPasswordEncoder().encode(password), new Date());
             smsService.sendSms(Collections.singletonList(phone), Collections.singletonList("password"), Collections.singletonList(password), smsTemplateCode3);
-            return new BaseResult(Constant.CodeConfig.CODE_SUCCESS, "发送成功");
+            return Result.success("发送成功");
         }else{
-            return new BaseResult(Constant.CodeConfig.CODE_FAILURE, "当前号码无效!");
+            return Result.fail("当前号码无效!");
         }
     }
 
@@ -162,7 +162,7 @@ public class AuthServiceImpl implements AuthService {
      * @throws IOException
      */
     @Override
-    public BaseResult sendCode(String phone) throws IOException {
+    public Result sendCode(String phone) throws IOException {
         String code = smsService.getVerCode();
         Boolean isSuccess = redisTemplate.opsForValue().setIfAbsent(Constant.REDIS_SMSCODE_KEY_PREFIX+phone,code);
         if(isSuccess==null|| !isSuccess){
@@ -170,9 +170,9 @@ public class AuthServiceImpl implements AuthService {
         }
         TopicMessage topicMessage = smsService.sendSms(Collections.singletonList(phone),Collections.singletonList("code"), Collections.singletonList(code), smsTemplateCode1);
         if(topicMessage != null) {
-            return new BaseResult(Constant.CodeConfig.CODE_SUCCESS,"发送成功");
+            return Result.success("发送成功");
         } else {
-            return new BaseResult(Constant.CodeConfig.CODE_FAILURE,"发送失败");
+            return Result.fail("发送失败");
         }
     }
     /**
@@ -182,7 +182,7 @@ public class AuthServiceImpl implements AuthService {
      * @return
      */
     @Override
-    public BaseResult verifySmsCode(User user, String code){
+    public Result verifySmsCode(User user, String code){
         String SmsCode=(String)redisTemplate.opsForValue().get(Constant.REDIS_SMSCODE_KEY_PREFIX+user.getUsername()).toString();
         SmsCode = StringUtils.isNotBlank(SmsCode)?SmsCode:userDao.findSmsCode(user.getId());
         if(SmsCode!=null&&SmsCode.equals(code)){
@@ -190,9 +190,9 @@ public class AuthServiceImpl implements AuthService {
             if(isSuccess<1){
                 userDao.saveSmsCode(user.getUsername(),"");
             }
-            return new BaseResult(Constant.CodeConfig.CODE_SUCCESS, "验证通过");
+            return Result.success("验证通过");
         }else{
-            return new BaseResult(Constant.CodeConfig.CODE_FAILURE, "验证不通过");
+            return Result.fail("验证不通过");
         }
     }
 
