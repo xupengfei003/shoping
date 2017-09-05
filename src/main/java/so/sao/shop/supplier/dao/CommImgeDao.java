@@ -3,6 +3,7 @@ package so.sao.shop.supplier.dao;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import so.sao.shop.supplier.domain.CommImge;
+import so.sao.shop.supplier.domain.TyCommImge;
 
 import java.util.List;
 
@@ -17,12 +18,13 @@ public interface CommImgeDao {
      * @return 商品大图
      */
     boolean save(CommImge commImge);
+
     /**
-     * 删除商品大图
-     * @param id 商品大图ID
-     * @return 删除结果
+     * 批量新增
+     * @param commImges
      */
-    boolean deleteById(@Param("id") Long id);
+    void batchSave(List<CommImge> commImges);
+
     /**
      * 修改商品大图
      * @param commImge 商品大图对象

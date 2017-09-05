@@ -23,7 +23,11 @@ import so.sao.shop.supplier.dao.*;
 import so.sao.shop.supplier.domain.*;
 import so.sao.shop.supplier.pojo.BaseResult;
 import so.sao.shop.supplier.pojo.Result;
+import so.sao.shop.supplier.pojo.input.AccountInput;
 import so.sao.shop.supplier.service.AccountService;
+import so.sao.shop.supplier.util.PageTool;
+import so.sao.shop.supplier.util.NumberUtil;
+import so.sao.shop.supplier.util.Ognl;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -241,83 +245,58 @@ public class AccountServiceImpl implements AccountService {
 
     /**
      * 根据账户ID获取用户的可用余额；
-     *
      * @param accountId
      * @return
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Result getAccountBalance(Long accountId) throws Exception{
-        //返回对象
-        Result result = new Result<>();
-        //初始化为查询失败，余额为0.00
-        result.setCode(Constant.CodeConfig.CODE_FAILURE);
-        result.setMessage(Constant.MessageConfig.MSG_FAILURE);
-        Map map = new HashMap();
-        map.put("balance","0.00");
-        result.setData(map);
-        //余额输出格式（千分位且保留两位小数）
-        DecimalFormat dFormat=new DecimalFormat(",###,##0.00");
+    public Map<String,String> getAccountBalance(Long accountId) throws Exception{
         /*
             1、判断账户是否存在,若账户存在，统计账户下订单产生的增额
                a.统计订单状态为已完成，账户状态为未结算的订单金额之和
                b.若统计金额为空或小于等于0，赋值0.00
                c.将所得余额同步到账户表中
-            2、若账户不存在，返回账户不存在
+            2、若账户不存在，返回余额为0.00
         */
-        // 1.判断账户是否存在,若账户存在，统计账户下订单产生的增额
+        //根据账户ID查询账户个数
         int accountNum = accountDao.countByAccountId(accountId);
+        //定义map存放余额，初始余额为0.00
+        Map<String,String> map = new HashMap();
+        map.put("balance","0.00");
+        // 1.判断账户是否存在,若账户存在，统计账户下订单产生的增额
         if(1 == accountNum){
             // a.统计订单状态为已完成，账户状态为未结算的订单金额之和
             BigDecimal uncountedMoney = purchaseDao.findUncountedMoney(accountId);
-            // b.若统计金额为空或小于等于0，赋值0.00
-            if (null == uncountedMoney || (BigDecimal.ZERO).compareTo(uncountedMoney) == 1){
+            // b.若统计金额为空，赋值0.00
+            if (Ognl.isNull(uncountedMoney)){
                 uncountedMoney = new BigDecimal("0.00");
             }
             // c.将所得余额同步到账户表中
             Account account = new Account();
-            Date date = new Date(); //系统时间
-            account.setAccountId(accountId); //账户
-            account.setBalance(uncountedMoney); //用户余额
-            account.setUpdateDate(date); //系统时间
-            int resultInt = accountDao.updateUserBalance(account);
-            // 判断更新是否成功
-            if(resultInt == 1){
-               result.setCode(Constant.CodeConfig.CODE_SUCCESS);
-               result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
-               String balance = dFormat.format(uncountedMoney);// 余额格式化
-               map.put("balance",balance);
-               result.setData(map);
-            }
-        } else if (0 == accountNum){
-            //为0则账户不存在
-            result.setCode(Constant.AccountCodeConfig.CODE_NOT_EXIST_ACCOUNT);
-            result.setMessage(Constant.AccountMessageConfig.MESSAGE_NOT_EXIST_ACCOUNT);
-        } else {
-            //其余则表中数据有误，即系统异常
-            result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SYSTEM_EXCEPTION);
-            result.setMessage(so.sao.shop.supplier.config.Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
+            Date date = new Date();              //系统时间
+            account.setAccountId(accountId);     //账户
+            account.setBalance(uncountedMoney);  //用户余额
+            account.setUpdateDate(date);         //更新时间
+            accountDao.updateUserBalance(account);
+            // 返回数据
+            String balance = NumberUtil.number2Thousand(uncountedMoney);// 余额格式化
+            map.put("balance",balance);
         }
         //返回对象
-        return result;
+        return map;
     }
 
     /**
-     * 分页查询
+     * 多条件分页查询供应商列表
      *
-     * @param condition
+     * @param accountInput 入参对象
      * @return 分页对象
      */
     @Override
-    public PageInfo searchAccount(Condition condition) {
-        if (condition.getPageNum() == null) {
-            condition.setPageNum(1);
-        }
-        if (condition.getPageSize() == null) {
-            condition.setPageSize(10);
-        }
-        Page page = PageHelper.startPage(condition.getPageNum(), condition.getPageSize());
-        PageInfo pageInfo = new PageInfo(accountDao.findPage(condition));
+    public PageInfo searchAccount(AccountInput accountInput) {
+        PageTool.startPage(accountInput.getPageNum(), accountInput.getPageSize());
+        List<Account> accountList = accountDao.findPage(accountInput);
+        PageInfo pageInfo = new PageInfo(accountList);
         return pageInfo;
     }
 

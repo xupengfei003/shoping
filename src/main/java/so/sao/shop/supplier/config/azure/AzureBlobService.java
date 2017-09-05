@@ -146,17 +146,14 @@ public class AzureBlobService {
                         map.put("fileName",fileName);
                         return Result.fail("上传的文件中包含非jpg/png/jpeg/gif格式", map);
                     }
-
                     //拼装blob的名称(新的图片文件名 =UUID+"."图片扩展名)
                     String newFileName = UUIDGenerator.getUUID() + "." + extensionName;
                     String preName = UploadController.getBlobPreName(extensionName, false).toLowerCase();//大图路径
                     String blobName = preName + newFileName;
-
                     //设置文件类型，并且上传到azure blob
                     CloudBlockBlob blob = container.getBlockBlobReference(blobName);
                     blob.getProperties().setContentType(file.getContentType());
                     blob.upload(file.getInputStream(), file.getSize());
-
                     //生成缩略图，并上传至AzureStorage
                     BufferedImage img = new BufferedImage(CommConstant.THUMBNAIL_DEFAULT_WIDTH, CommConstant.THUMBNAIL_DEFAULT_HEIGHT, BufferedImage.TYPE_INT_RGB);
                     img.createGraphics().drawImage(ImageIO.read(file.getInputStream()).getScaledInstance(CommConstant.THUMBNAIL_DEFAULT_WIDTH, CommConstant.THUMBNAIL_DEFAULT_HEIGHT, Image.SCALE_SMOOTH), 0, 0, null);
@@ -168,7 +165,6 @@ public class AzureBlobService {
                     thumbnailBlob.getProperties().setContentType(CommConstant.IMAGE_JPEG);
                     InputStream inputStream = new ByteArrayInputStream(thumbnailStream.toByteArray());
                     thumbnailBlob.upload(inputStream, thumbnailStream.toByteArray().length);
-
                     //将上传后的图片URL返
                     commBlobUpload.setFileName(fileName);
                     commBlobUpload.setUrl(blob.getUri().toString());
@@ -201,15 +197,12 @@ public class AzureBlobService {
             if (files.size() != 0) {
                 CloudBlobContainer container = getBlobContainer(CommConstant.AZURE_CONTAINER.toLowerCase());
                 File dir = new File(realzippath+"/img");
-                if  (!dir .exists()  && !dir .isDirectory()) {
-                    dir .mkdir();
+                if  (!dir.exists() && !dir.isDirectory()) {
+                    dir.mkdir();
                 }
-
                 for (String fileStr : files) {
                     //图片尺寸不变，压缩图片文件大小outputQuality实现,参数1为最高质量
-                    Thumbnails.of(realzippath+"/"+ fileStr.trim())
-                            .scale(1f).outputQuality(0.25f)
-                            .toFile(realzippath+"/img/"+ fileStr.trim());
+                    Thumbnails.of(realzippath+"/"+ fileStr.trim()).scale(1f).outputQuality(0.25f).toFile(realzippath+"/img/"+ fileStr.trim());
                     File file = new File(realzippath+"/img/"+ fileStr.trim());
                     String fileName = file.getName();
                     if (file.exists()) {
@@ -217,7 +210,6 @@ public class AzureBlobService {
                             //获取上传文件的名称及文件类型
                             CommBlobUpload blobUploadEntity = new CommBlobUpload();
                             String extensionName = StringUtils.substringAfter(fileName, ".");
-
                             //过滤非jpg,png,jpeg,gif格式的文件
                             if (!(fileName.endsWith(CommConstant.IMG_FILE_JPG)
                                     || fileName.endsWith(CommConstant.IMG_FILE_JPEG)
@@ -227,7 +219,6 @@ public class AzureBlobService {
                                 results.add(Result.fail("上传的文件中包含非jpg/png/jpeg/gif格式",map));
                                 continue;
                             }
-
                             //拼装blob的名称(新的图片文件名 =UUID+"."图片扩展名)
                             String newFileName = UUIDGenerator.getUUID() + "." + extensionName;
                             String preName = UploadController.getBlobPreName(extensionName, false).toLowerCase();

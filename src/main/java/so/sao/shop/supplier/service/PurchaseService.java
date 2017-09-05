@@ -3,7 +3,6 @@ package so.sao.shop.supplier.service;
 
 import com.github.pagehelper.PageInfo;
 import com.google.zxing.WriterException;
-import org.apache.ibatis.annotations.Param;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.AccountPurchaseInput;
 import so.sao.shop.supplier.pojo.input.PurchaseInput;
@@ -11,10 +10,8 @@ import so.sao.shop.supplier.pojo.input.PurchaseSelectInput;
 import so.sao.shop.supplier.pojo.input.RefuseOrderInput;
 import so.sao.shop.supplier.pojo.output.PurchaseInfoOutput;
 import so.sao.shop.supplier.pojo.output.PurchaseItemPrintOutput;
-import so.sao.shop.supplier.pojo.output.PurchaseSelectOutput;
-import com.google.zxing.WriterException;
 import so.sao.shop.supplier.pojo.input.*;
-import so.sao.shop.supplier.pojo.output.*;
+import so.sao.shop.supplier.pojo.vo.PurchasesVo;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -52,16 +49,15 @@ public interface PurchaseService {
      * @param rows
      * @return list
      */
-    PurchaseSelectOutput searchOrders(Integer pageNum, Integer rows, PurchaseSelectInput purchaseSelectInput) throws Exception;
+    PageInfo<PurchasesVo> searchOrders(Integer pageNum, Integer rows, PurchaseSelectInput purchaseSelectInput) throws Exception;
 
     /**
      *
-     * 更改订单状态
+     * 发货接口
      * @param orderId
-     * @param orderStatus
      * @return
      */
-    boolean updateOrder(String orderId, Integer orderStatus,Integer receiveMethod,String name,String number);
+    void deliverGoods(String orderId, Integer receiveMethod,String name,String number) throws Exception;
 
     /**
      *
@@ -69,7 +65,7 @@ public interface PurchaseService {
      * @param orderIds
      * @return boolean
      */
-    boolean deletePurchase(String orderIds);
+    void deletePurchase(String orderIds);
 
     /**
      * POI导出(当前页/所选页/全部)订单列表
@@ -97,7 +93,7 @@ public interface PurchaseService {
      * @param storeId
      * @return
      */
-    Result<String> findOrderStatus(Long storeId);
+    String findOrderStatus(Long storeId);
 
     /**
      * 根据订单ID获取订单状态
@@ -160,7 +156,7 @@ public interface PurchaseService {
      * @param refuseOrderInput 封装了订单编号，拒收理由，拒收图片
      * @return Map 封装结果 键flag的值为true表示成功，false表示失败，message的值表示文字描述
      */
-    Map refuseOrder(RefuseOrderInput refuseOrderInput)  throws Exception;
+    void refuseOrder(RefuseOrderInput refuseOrderInput)  throws Exception;
 
     /**
      * 根据订单ID获取该订单的拒收原因
@@ -187,7 +183,7 @@ public interface PurchaseService {
      * @return Map 封装结果 键flag的值为true表示成功，false表示失败，message的值表示文字描述
      * @throws Exception
      */
-    Map cancelOrder(CancelReasonInput cancelReasonInput)  throws Exception;
+    void cancelOrder(CancelReasonInput cancelReasonInput)  throws Exception;
 
     /**
      * 根据订单编号查询取消订单原因

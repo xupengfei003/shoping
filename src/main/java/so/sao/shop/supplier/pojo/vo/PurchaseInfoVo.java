@@ -21,6 +21,11 @@ public class PurchaseInfoVo {
     private String orderReceiverName;
 
     /**
+     * 收货人地址
+     */
+    private String orderAddress;
+
+    /**
      * 收货人电话
      */
     private String orderReceiverMobile;
@@ -219,5 +224,13 @@ public class PurchaseInfoVo {
 
     public void setDrawbackTime(Date drawbackTime) {
         this.drawbackTime = drawbackTime;
+    }
+
+    public String getOrderAddress() {
+        return orderAddress;
+    }
+
+    public void setOrderAddress(String orderAddress) {
+        this.orderAddress = orderAddress;
     }
 }
