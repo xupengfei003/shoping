@@ -77,30 +77,29 @@ public class CommodityController {
         return commodityService.updateCommodity(commodityUpdateInput, supplierId);
     }
 
-    @ApiOperation(value="上架商品", notes="")
-    @PutMapping(value="/updateStatusSj/{id}")
-    public Result updateStatusSj(@PathVariable long id){
-        return commodityService.updateStatusSj(id);
+    @ApiOperation(value="上架商品", notes="【负责人：张瑞兵】")
+    @PutMapping(value="/onShelves/{id}")
+    public Result onShelves(@PathVariable long id){
+        return commodityService.onShelves(id);
     }
 
-    @ApiOperation(value="批量商品上架", notes="")
-    @PutMapping(value="/updateStatusSj/bulk")
-    public BaseResult updateStatusSjs(@RequestParam Long[] ids){
-        return commodityService.updateStatusSjs(ids);
+    @ApiOperation(value="批量商品上架", notes="【负责人：张瑞兵】")
+    @PutMapping(value="/onShelves/batch")
+    public Result onShelvesBatch(@RequestParam Long[] ids){
+        return commodityService.onShelvesBatch(ids);
     }
 
-    @ApiOperation(value="下架商品", notes="")
-    @PutMapping(value="/updateStatusXj/{id}")
-    public Result updateStatusXj(@PathVariable long id){
-        return commodityService.updateStatusXj(id);
+    @ApiOperation(value="下架商品", notes="【负责人：张瑞兵】")
+    @PutMapping(value="/offShelves/{id}")
+    public Result offShelves(@PathVariable long id){
+        return commodityService.offShelves(id);
     }
 
-    @ApiOperation(value="批量商品下架", notes="")
-    @PutMapping(value="/updateStatusXj/bulk")
-    public BaseResult updateStatusXjs(@RequestParam Long[] ids){
-        return commodityService.updateStatusXjs(ids);
+    @ApiOperation(value="批量商品下架", notes="【负责人：张瑞兵】")
+    @PutMapping(value="/offShelves/batch")
+    public Result offShelvesBatch(@RequestParam Long[] ids){
+        return commodityService.offShelvesBatch(ids);
     }
-
 
     @ApiOperation(value="删除商品信息", notes="根据ID删除相应的商品【责任人：武凯江】")
     @DeleteMapping(value="/delete/{id}")

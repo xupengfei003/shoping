@@ -130,7 +130,13 @@ public interface SupplierCommodityDao {
      * 上下架商品
      * @param supplierCommodity
      */
-    boolean updateStatusSXj(SupplierCommodity supplierCommodity);
+    void onOrOffShelves(SupplierCommodity supplierCommodity);
+
+    /**
+     * 批量上下架商品
+     * @param list
+     */
+    void onOrOffShelvesBatch(List<SupplierCommodity> list);
 
 	/**
      * 查询商品信息集合
@@ -179,4 +185,11 @@ public interface SupplierCommodityDao {
      * @return int
      */
     int countByUnitId(@Param("unitId") Long unitId);
+
+    /**
+     * 根据id数组查询，过滤已删除的商品
+     * @param ids
+     * @return
+     */
+    List<SupplierCommodity> findSupplierCommodityByIds(@Param("ids") Long[] ids);
 }

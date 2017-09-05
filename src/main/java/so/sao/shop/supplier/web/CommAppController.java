@@ -35,7 +35,7 @@ public class CommAppController {
 
     @ApiOperation(value="获取所有商品分类", notes="获取所有商品分类【责任人：刘刚】")
     @GetMapping(value="/searchCategories")
-    public Result searchHots(){
+    public Result searchCategories(){
         return commAppService.searchCategories();
     }
 
