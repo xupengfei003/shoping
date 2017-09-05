@@ -2,20 +2,22 @@ package so.sao.shop.supplier.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.google.zxing.WriterException;
 import org.apache.poi.hssf.usermodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.config.StorageConfig;
-import so.sao.shop.supplier.config.azure.BlobUpload;
+import so.sao.shop.supplier.config.azure.AzureBlobService;
 import so.sao.shop.supplier.dao.*;
 import so.sao.shop.supplier.domain.*;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.*;
-import so.sao.shop.supplier.pojo.output.*;
+import so.sao.shop.supplier.pojo.output.CommodityOutput;
+import so.sao.shop.supplier.pojo.output.OrderRefuseReasonOutput;
+import so.sao.shop.supplier.pojo.output.PurchaseInfoOutput;
+import so.sao.shop.supplier.pojo.output.PurchaseItemPrintOutput;
 import so.sao.shop.supplier.pojo.vo.*;
 import so.sao.shop.supplier.service.CommodityService;
 import so.sao.shop.supplier.service.PurchaseService;
@@ -58,7 +60,11 @@ public class PurchaseServiceImpl implements PurchaseService {
     QrcodeService qrcodeService;// 二维码service
     @Autowired
     StorageConfig storageConfig;//上传到云端的配置
-    @Autowired
+    @Value("${qrcode.receive.url}")
+    private String receiveUrl;  //收货二维码内容中的地址前缀
+    @Resource
+    private AzureBlobService azureBlobService; // azure blob存储相关
+    @Resource
     private NotificationDao notificationDao;
 
     /**
@@ -164,17 +170,17 @@ public class PurchaseServiceImpl implements PurchaseService {
             Notification notification = createNotification(sId, orderId, Constant.OrderStatusConfig.PAYMENT);
             notificationList.add(notification);
         }
-        if(null != listPurchase && listPurchase.size() > 0 && null != listItem && listItem.size() > 0){
+        if (null != listPurchase && listPurchase.size() > 0 && null != listItem && listItem.size() > 0) {
             int result = purchaseDao.savePurchase(listPurchase);
             int resultSum = purchaseItemDao.savePurchaseItem(listItem);
-            BigDecimal totalMoney =  new BigDecimal(0);//所有订单实付总金额
+            BigDecimal totalMoney = new BigDecimal(0);//所有订单实付总金额
             if (result > 0 && resultSum > 0) {
                 flag = true;
                 //TODO 订单生成成功给该供应商推送一条消息
-                if(null != notificationList && notificationList.size() > 0){
+                if (null != notificationList && notificationList.size() > 0) {
                     notificationDao.saveNotifications(notificationList);
                 }
-                for (Purchase obj : listPurchase){
+                for (Purchase obj : listPurchase) {
                     //计算所有订单总金额
                     totalMoney = totalMoney.add(obj.getOrderPrice());
                 }
@@ -222,7 +228,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             List<PurchaseItemVo> purchaseItemVoList = purchaseItemDao.getOrderDetailByOId(purchase.getOrderId());
 
             //转换金额为千分位
-            for(PurchaseItemVo purchaseItemVo : purchaseItemVoList){
+            for (PurchaseItemVo purchaseItemVo : purchaseItemVoList) {
                 purchaseItemVo.setGoodsTatolPrice(NumberUtil.number2Thousand(new BigDecimal(purchaseItemVo.getGoodsTatolPrice())));
                 purchaseItemVo.setGoodsUnitPrice(NumberUtil.number2Thousand(new BigDecimal(purchaseItemVo.getGoodsUnitPrice())));
             }
@@ -293,7 +299,7 @@ public class PurchaseServiceImpl implements PurchaseService {
      * @param pageSize  pageSize
      */
     @Override
-    public void exportExcel(HttpServletRequest request, HttpServletResponse response, String pageNum, Integer pageSize, Long accountId,PurchaseSelectInput purchaseSelectInput) throws Exception {
+    public void exportExcel(HttpServletRequest request, HttpServletResponse response, String pageNum, Integer pageSize, Long accountId, PurchaseSelectInput purchaseSelectInput) throws Exception {
 
         //创建HSSFWorkbook对象(excel的文档对象)
         HSSFWorkbook wb = new HSSFWorkbook();
@@ -355,16 +361,16 @@ public class PurchaseServiceImpl implements PurchaseService {
                 Collections.sort(pageNumList);
                 for (int i = pageNumList.get(0); i <= pageNumList.get(1); i++) {
                     PageHelper.startPage(i, pageSize);
-                    orderList = purchaseDao.getOrderListByIds(purchaseSelectInput,accountId);
+                    orderList = purchaseDao.getOrderListByIds(purchaseSelectInput, accountId);
                     purchaseList.addAll(orderList);
                 }
             } else { //获取当前页列表
                 PageHelper.startPage(pageNumList.get(0), pageSize);
-                purchaseList = purchaseDao.getOrderListByIds(purchaseSelectInput,accountId);
+                purchaseList = purchaseDao.getOrderListByIds(purchaseSelectInput, accountId);
             }
 
         } else { //查询全部列表
-            purchaseList = purchaseDao.getOrderListByIds(purchaseSelectInput,accountId);
+            purchaseList = purchaseDao.getOrderListByIds(purchaseSelectInput, accountId);
         }
 
         //向单元格里填充数据
@@ -483,15 +489,15 @@ public class PurchaseServiceImpl implements PurchaseService {
         //1.校验条件类
         if (Ognl.isNotEmpty(input)) {
             //1.1 比较开始时间结束时间是否符合规则，不符合则返回提示信息
-            if (DataCompare.compareDate(input.getCreateBeginTime(),input.getCreateEndTime())){
+            if (DataCompare.compareDate(input.getCreateBeginTime(), input.getCreateEndTime())) {
                 return Result.fail(Constant.MessageConfig.DateNOTLate);
             }
-            if (DataCompare.compareDate(input.getPayBeginTime(),input.getPayEndTime())){
+            if (DataCompare.compareDate(input.getPayBeginTime(), input.getPayEndTime())) {
                 return Result.fail(Constant.MessageConfig.DateNOTLate);
             }
         }
         //2.分页
-        PageTool.startPage(pageNum,pageSize);
+        PageTool.startPage(pageNum, pageSize);
 
         //3.访问持久化层，获取数据
         List<Purchase> purchaseList = purchaseDao.findPageByStoreId(input, storeId);
@@ -510,7 +516,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             pageInfoVo.setPages(pageInfo.getPages());//总页码
             pageInfoVo.setList(purchaseVos);//显示数据
             pageInfoVo.setSize(pageInfo.getSize());//每页实际数据条数
-            result = Result.success(Constant.MessageConfig.MSG_SUCCESS,pageInfoVo);
+            result = Result.success(Constant.MessageConfig.MSG_SUCCESS, pageInfoVo);
         } else {//3.2 若获取到的结果集为空时
             // ①.在出参对象中封装“未查询到结果集”的code码和message
             result = Result.success(Constant.MessageConfig.MSG_NO_DATA);
@@ -520,10 +526,11 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     /**
      * 根据商家编号及查询条件（起始创建订单-结束创建订单时间/支付流水号/订单编号/收货人名称）查找所有相关订单记录(分页)
-     * @param pageNum 当前页码
+     *
+     * @param pageNum  当前页码
      * @param pageSize 每页显示条数
-     * @param input 查询条件封装类
-     * @param storeId 商家编号
+     * @param input    查询条件封装类
+     * @param storeId  商家编号
      * @return 出参
      */
     @Override
@@ -544,13 +551,13 @@ public class PurchaseServiceImpl implements PurchaseService {
         //1.校验条件类
         if (Ognl.isNotEmpty(input)) {
             //比较开始时间和结束时间是否输入正常 若输入不正常返回提示信息
-            if (DataCompare.compareDate(input.getCreateBeginTime(),input.getCreateEndTime())){
+            if (DataCompare.compareDate(input.getCreateBeginTime(), input.getCreateEndTime())) {
                 return Result.fail(Constant.MessageConfig.DateNOTLate);
             }
         }
 
         //2.分页
-        PageTool.startPage(pageNum,pageSize);
+        PageTool.startPage(pageNum, pageSize);
 
         //3.访问持久化层，获取数据
         List<Purchase> purchaseList = purchaseDao.findPageByStoreIdLow(input, storeId);
@@ -570,28 +577,51 @@ public class PurchaseServiceImpl implements PurchaseService {
             pageInfoVo.setSize(pageInfo.getSize());//每页实际数据条数
             pageInfoVo.setList(purchaseVos);//显示数据
 
-            result = Result.success(Constant.MessageConfig.MSG_SUCCESS,pageInfoVo);
+            result = Result.success(Constant.MessageConfig.MSG_SUCCESS, pageInfoVo);
         } else {//3.2 若获取到的结果集为空时
             result = Result.success(Constant.MessageConfig.MSG_NO_DATA);
         }
         return result;
     }
 
+    /**
+     * 根据订单ID获取订单状态
+     *
+     * @param orderId
+     * @return
+     */
     @Override
     public Integer findOrderStatus(String orderId) {
         return purchaseDao.getOrderStatus(orderId);
     }
 
     /**
-     * 根据订单查询订单打印页面信息
+     * 根据支付ID获取订单状态列表
      *
+     * @param payId 支付ID
+     * @return
+     */
+    @Override
+    public List<String> findOrderStatusByPayId(String payId) {
+        List<Purchase> purchaseList = purchaseDao.findByPayId(payId);
+        List<String> orderStatusList = new ArrayList<>();
+        if (purchaseList.size() > 0) {
+            for (Purchase purchase : purchaseList) {
+                orderStatusList.add(purchase.getOrderId());
+            }
+        }
+        return orderStatusList;
+    }
+
+    /**
+     * 根据订单查询订单打印页面信息
      * 1.查询订单信息
      * 2.查询商品条目
      * 3.将订单信息和商品条目封装到output对象
-     * 4.格式化金额
+     * 4.在实体类属性的get方法中格式化数据
      *
      * @param orderId 订单编号
-     * @return 封装返回结果
+     * @return 封装结果 PurchaseItemPrintOutput
      */
     @Override
     public PurchaseItemPrintOutput getPrintItems(String orderId) {
@@ -607,26 +637,9 @@ public class PurchaseServiceImpl implements PurchaseService {
 
         // 3.封装返回对象
         PurchaseItemPrintOutput output = new PurchaseItemPrintOutput(); //返回对象
-        output.setProviderName(purchasePrintVo.getProviderName());
-        output.setOrderId(purchasePrintVo.getOrderId());
-        output.setCustomer(purchasePrintVo.getCustomer());
-        output.setCustomerPhone(purchasePrintVo.getCustomerPhone());
-        output.setReceivingAddress(purchasePrintVo.getReceivingAddress());
-        output.setOrderCreateTime(purchasePrintVo.getOrderCreateTime());
-        output.setOrderCreateTimeStr(StringUtil.fomateData(purchasePrintVo.getOrderCreateTime(), "yyyy年MM月dd日"));
-        // 订单的二维码信息
-        output.setQrcodeUrl(purchasePrintVo.getQrcodeUrl());
-        output.setQrcodeStatus(purchasePrintVo.getQrcodeStatus());
+        output = BeanMapper.map(purchasePrintVo, output.getClass()); // 将purchasePrintVo复制到output
 
-        // 4.格式化：订单的合计金额信息
-        BigDecimal totalPrice = purchasePrintVo.getTotalPrice();
-        output.setTotalPrice(totalPrice);
-        // 合计金额转换成中文
-        output.setTotalPriceCN(NumberUtil.number2CN(totalPrice));
-        // 合计金额转换成千分位
-        output.setTotalPriceFormat(NumberUtil.number2Thousand(totalPrice));
-
-        // 订单的商品条目
+        // 添加商品条目
         output.setPurchaseItemPrintVos(purchaseItemPrintVos);
 
         return output;
@@ -635,47 +648,40 @@ public class PurchaseServiceImpl implements PurchaseService {
     /**
      * 根据订单编号生成收货二维码
      * 如果订单已经存在二维码返回false，生成二维码失败返回false
-     *
+     * <p>
      * 1.验证订单并判断订单id是否存在关联的二维码
-     *      1.1．存在返回false(一个订单仅对应一个二维码)
-     *      1.2．不存在执行步骤2
+     * 1.1．存在返回false(一个订单仅对应一个二维码)
+     * 1.2．不存在执行步骤2
      * 2.生成二维码图片
-     *      2.1．拼接二维码内容
-     *      2.2. 生成二维码图片
-     *      2.3.将二维码图片上传到云端
-     *      2.4.将二维码信息保存到数据库
-     *      2.5.删除本地图片
+     * 2.1．拼接二维码内容
+     * 2.2. 生成二维码图片
+     * 2.3.将二维码图片上传到云端
+     * 2.4.将二维码信息保存到数据库
+     * 2.5.删除本地图片
      *
      * @param orderId 订单编号
-     * @return map 封装结果 键flag的值为true表示成功，false表示失败，message的值表示文字描述
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Map createReceivingQrcode(String orderId) throws IOException, WriterException {
-        Map map = new HashMap<>(); // 封装结果
-
+    public void createReceivingQrcode(String orderId) throws Exception {
         // 1.验证订单并判断订单id是否存在关联的二维码
         Purchase purchase = purchaseDao.findById(orderId);
         // 1.1.订单不存在
         if (null == purchase) {
-            map.put("flag", false);
-            map.put("message", "订单不存在");
-            return map;
+            throw new Exception("订单不存在");
         }
 
         List<Qrcode> qrcodeList = qrcodeDao.findQrcodeByOrderId(orderId);
         // 1.2.该订单已经存在二维码
         if (null != qrcodeList && qrcodeList.size() > 0) {
-            map.put("flag", false);
-            map.put("message", "该订单已经存在二维码");
-            return map;
+            throw new Exception("该订单已经存在二维码");
         }
 
 
         // 2.生成二维码图片
         // 2.1拼接二维码内容
         String qrcodeId = NumberGenerate.generateId();
-        String content = "?orderId=" + orderId;
+        String content = receiveUrl + "?orderId=" + orderId;
 
         // 2.2生成二维码图片
         String path = "/qrcode";
@@ -685,25 +691,27 @@ public class PurchaseServiceImpl implements PurchaseService {
         // 调用二维码工具类CodeUtil生成图片
         boolean flag = qrcodeService.createQrCode(new FileOutputStream(new File(img)), content, 230, "png");
         if (!flag) { // 失败
-            map.put("flag", false);
-            map.put("message", "生成二维码图片失败");
-            return map;
+            throw new Exception("生成二维码图片失败");
         }
 
         // 2.3将二维码图片上传到云端
         FileUtil fileUtil = new FileUtil();
-        Result result = fileUtil.uploadQrcode(path, name, storageConfig);
+        List files = new ArrayList();
+        files.add(name);
+        List<Result> uploadResult = azureBlobService.uploadFilesComm(path, files);
+
+        if (uploadResult.size() != 1) {
+            throw new Exception("将二维码图片上传到云端失败");
+        }
+        Result result = uploadResult.get(0);
         if (null == result || result.getCode() != Constant.CodeConfig.CODE_SUCCESS) {
-            map.put("flag", false);
-            map.put("message", "将二维码图片上传到云端失败");
-            return map;
+            throw new Exception("将二维码图片上传到云端失败");
         }
-        CommBlobUpload blobUpload = (CommBlobUpload) result.getData();
-        if (null == blobUpload) {
-            map.put("flag", false);
-            map.put("message", "将二维码图片上传到云端未返回结果");
-            return map;
+        List<CommBlobUpload> blobUploadEntities = (List<CommBlobUpload>) result.getData();
+        if (blobUploadEntities.size() != 1) {
+            throw new Exception("将二维码图片上传到云端失败");
         }
+        CommBlobUpload blobUpload = blobUploadEntities.get(0);
         String url = blobUpload.getUrl(); // 云端的二维码地址
 
         // 2.4将二维码信息保存到数据库
@@ -717,12 +725,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         qrcode.setWidth(230d); // 二维码宽度
         qrcode.setHeight(230d); // 二维码高度
 
-        int count = qrcodeDao.save(qrcode);
-        if (count == 0) { // 保存失败
-            map.put("flag", false);
-            map.put("message", "将二维码信息保存到数据库失败");
-            return map;
-        }
+        qrcodeDao.save(qrcode);
 
         // 2.5删除本地图片
         File file = new File(img);
@@ -730,65 +733,109 @@ public class PurchaseServiceImpl implements PurchaseService {
             System.gc();
             file.delete();
         }
+    }
 
-        map.put("flag", true);
-        map.put("message", "成功");
+    /**
+     * 根据支付id，批量生成订单对应的收货二维码
+     *
+     * @param payId 支付id
+     * @throws Exception 异常
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void createReceivingQrcodeByPayId(String payId) throws Exception {
+        List<Purchase> purchaseList = purchaseDao.findByPayId(payId); // 根据支付id查询订单列表
+        // 根据支付id查询对应订单是否已经存在二维码
+        int count = qrcodeDao.getQrcodesByPayId(payId);
+        if (count > 0) { // 订单存在二维码
+            throw new Exception("一个订单只能生成一个二维码");
+        }
+        List<String> qrcodePics = new ArrayList<>(); // 存储二维码图片
+        List<Qrcode> qrcodeList = new ArrayList<>(); // 存储二维码实体
+        String path = "/qrcode"; // 生成二维码的本地路径
+        Boolean flag = true; // 批量生成二维码-成功
+        if (null != purchaseList && purchaseList.size() > 0) {
+            for (int i = 0; i < purchaseList.size(); i++) {
+                String orderId = purchaseList.get(i).getOrderId(); // 订单编号
+                String qrcodeId = NumberGenerate.generateId(); // 二维码id
+                String content = receiveUrl + "?orderId=" + orderId; // 二维码内容
+                String name = System.currentTimeMillis() + ".png"; // 二维码临时名称
+                boolean b = FileUtil.createDir(path); // 二维码临时路径
+                String img = path + "/" + name; // 二维码相对地址
+                // 生成二维码图片
+                flag = qrcodeService.createQrCode(new FileOutputStream(new File(img)), content, 230, "png");
+                if (!flag) { // 失败
+                    throw new Exception("生成二维码失败");
+                }
+                qrcodePics.add(name);
+                Qrcode qrcode = new Qrcode();
+                qrcode.setQrcodeId(qrcodeId); // 二维码id
+                qrcode.setForeignKey(orderId); // 二维码关联的外键
+                qrcode.setContent(content); // 二维码内容
+                qrcode.setStatus(0); // 二维码状态：0-未失效 1-失效
+                qrcode.setCreatedAt(new Date()); // 创建时间
+//                qrcode.setUrl(url); // 二维码图片地址 // 上传到云端后返回图片url
+                qrcode.setWidth(230d); // 二维码宽度
+                qrcode.setHeight(230d); // 二维码高度
 
-        return map;
+                qrcodeList.add(qrcode);
+            }
+        }
+
+
+        // 批量上传到云端
+        FileUtil fileUtil = new FileUtil();
+        List<Result> uploadResult = azureBlobService.uploadFilesComm(path, qrcodePics);
+
+        if (uploadResult.size() == 1) {
+            Result result = uploadResult.get(0);
+            flag = Constant.CodeConfig.CODE_SUCCESS.equals(result.getCode());
+            if (!flag) { // 上传失败
+                throw new Exception("上传失败");
+            }
+            List<CommBlobUpload> blobUploadEntities = (List<CommBlobUpload>) result.getData();
+            if (blobUploadEntities.size() == qrcodeList.size()) {
+                for (int i = 0; i < qrcodeList.size(); i++) {
+                    CommBlobUpload blobUpload = blobUploadEntities.get(i);
+                    qrcodeList.get(i).setUrl(blobUpload.getUrl()); // 云端的二维码地址
+                }
+            }
+        }
+
+        // 批量插入数据库
+        qrcodeDao.saveQrcodes(qrcodeList);
     }
 
     /**
      * 扫描收货二维码
-     *
+     * <p>
      * 1.验证是否可以扫码收货
      * 2.将订单状态改为已收货
      * 3.将二维码状态改为失效，并记录失效时间
      *
      * @param orderId 订单编号
-     * @return  map 封装结果 键flag的值为true表示成功，false表示失败，message的值表示文字描述
+     * @return Map类型  成功flag返回true;
+     * 失败flag返回false,message返回失败信息
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Map sweepReceiving(String orderId) {
-        Map map = new HashMap<>(); // 返回结果
-
+    public Map sweepReceiving(String orderId) throws Exception {
         // 1.验证是否可以扫码收货
-        PurchasePrintVo purchasePrintVo = purchaseDao.findPrintOrderInfo(orderId);
-        if (null == purchasePrintVo) {
+        PurchasePrintVo purchasePrintVo = purchaseDao.findPrintOrderInfo(orderId); // 查询订单和二维码信息
+        Map map = new HashMap<>(); // 返回结果
+        if (null == purchasePrintVo || null == purchasePrintVo.getQrcodeStatus()
+                || purchasePrintVo.getQrcodeStatus().equals(1)) { // 订单为null或二维码状态失效（1）
             map.put("flag", false);
-            map.put("message", "订单不存在");
+            map.put("message", "订单不存在或二维码已经失效");
             return map;
         }
-        Integer status = purchasePrintVo.getQrcodeStatus();
-        if (null == status || status == 1) {
-            map.put("flag", false);
-            map.put("message", "二维码已经失效");
-            return map;
-        }
-
-        // 2.将订单状态改为已收货，成功返回true，失败返回false
-        boolean flag = purchaseDao.updateOrder(orderId, Constant.OrderStatusConfig.RECEIVED, new Date());
-
-        // 订单状态修改失败，返回false
-        if (!flag) {
-            map.put("flag", false);
-            map.put("message", "订单状态修改失败");
-            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly(); // 失败回滚
-            return map;
-        }
-
+        // 2.将订单状态改为已收货
+        purchaseDao.updateOrder(orderId, Constant.OrderStatusConfig.RECEIVED, new Date());
         // 3.将二维码状态改为失效，并记录失效时间
         Date date = new Date();
-        boolean b = qrcodeDao.updateStatus(orderId, 1, date, date);
-        if (!b) { // 更改失败
-            map.put("flag", false);
-            map.put("message", "二维码状态修改失败");
-            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly(); // 失败回滚
-            return map;
-        }
-
+        qrcodeDao.updateStatus(orderId, 1, date, date);
         map.put("flag", true);
-        map.put("message", "成功");
+        //TODO 订单拒收成功给该供应商推送一条消息
+        pushNotification(orderId, Constant.OrderStatusConfig.RECEIVED);
         return map;
     }
 
@@ -839,15 +886,50 @@ public class PurchaseServiceImpl implements PurchaseService {
         return map;
     }
 
+    /**
+     * 封装出参的方法
+     *
+     * @param code   code码
+     * @param result 出参类
+     * @param info   分页工具
+     * @return 出参
+     */
+    private Result getOutPut(Integer code, Result<PageInfo> result, PageInfo info) {
+        result.setCode(code);
+        result.setData(info);
+        switch (code) {
+            case 1:
+                result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
+                break;
+            case 0:
+                result.setMessage(Constant.MessageConfig.MSG_FAILURE);
+                break;
+            case 4:
+                result.setMessage(Constant.MessageConfig.MSG_NOT_FOUND_RESULT);
+                break;
+            case 7:
+                result.setMessage(Constant.MessageConfig.DateNOTLate);
+                break;
+            case 8:
+                result.setMessage(Constant.MessageConfig.MoneyNOTLate);
+                break;
+            case 102:
+                result.setMessage(Constant.NoExistMessageConfig.NOSTORE);
+                break;
+            default:
+                result.setCode(Constant.CodeConfig.CODE_FAILURE);
+                result.setMessage(Constant.MessageConfig.MSG_FAILURE);
+        }
+        return result;
+    }
+
     //推送消息通知
     private void pushNotification(String orderId, Integer orderStatus) {
         Purchase purchase = purchaseDao.findById(orderId);
         if (null != purchase) {
-            if (purchase.getPayStatus() != 0) { //支付状态是1 推送消息通知
-                Notification notification = createNotification(purchase.getStoreId(), orderId, orderStatus);
-                if (null != notification) {
-                    notificationDao.insert(notification);
-                }
+            Notification notification = createNotification(purchase.getStoreId(), orderId, orderStatus);
+            if (null != notification) {
+                notificationDao.insert(notification);
             }
         }
     }
@@ -863,11 +945,11 @@ public class PurchaseServiceImpl implements PurchaseService {
         if (status == Constant.OrderStatusConfig.PAYMENT) {
             notifiDetail = Constant.NotifiConfig.PAYMENT_NOTIFI;
         } else if (status == Constant.OrderStatusConfig.PENDING_SHIP) {
-            notifiDetail= Constant.NotifiConfig.PENDING_SHIP_NOTIFI;
+            notifiDetail = Constant.NotifiConfig.PENDING_SHIP_NOTIFI;
         } else if (status == Constant.OrderStatusConfig.ISSUE_SHIP) {
             notifiDetail = Constant.NotifiConfig.ISSUE_SHIP_NOTIFI;
         } else if (status == Constant.OrderStatusConfig.RECEIVED) {
-            notifiDetail= Constant.NotifiConfig.RECEIVED_NOTIFI;
+            notifiDetail = Constant.NotifiConfig.RECEIVED_NOTIFI;
         } else if (status == Constant.OrderStatusConfig.REJECT) {
             notifiDetail = Constant.NotifiConfig.REJECT_NOTIFI;
         } else if (status == Constant.OrderStatusConfig.REFUNDED) {
@@ -875,7 +957,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         } else if (status == Constant.OrderStatusConfig.CANCEL_ORDER) {
             notifiDetail = Constant.NotifiConfig.CANCEL_ORDER;
         }
-        notification.setNotifiDetail(notifiDetail+orderId);
+        notification.setNotifiDetail(notifiDetail + orderId);
         notification.setCreatedAt(new Date());
         return notification;
     }
@@ -940,4 +1022,51 @@ public class PurchaseServiceImpl implements PurchaseService {
         return cancelReason;
     }
 
+    /**
+     * 根据订单编号调用退款接口退款并修改订单状态
+     *
+     * @param orderId 订单编号
+     * @return 返回Map：flag：true|false,message:信息
+     * @throws Exception 异常
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public Map refundByOrderId(String orderId) throws Exception {
+        // TODO: 2017/8/31 调用退款接口实现真正的退款,退款失败返回失败信息
+        System.out.println("调用退款接口实现真正的退款----------------------成功");
+
+        // 根据订单状态验证是否可以退款
+        Integer orderStatus = purchaseDao.getOrderStatus(orderId); // 订单状态
+
+        // 仅已取消（7）和已拒收（5）状态的订单可以退款，其他状态不可以退款
+        boolean canRefund = Constant.OrderStatusConfig.CANCEL_ORDER.equals(orderStatus)
+                || Constant.OrderStatusConfig.REJECT.equals(orderStatus); // 是否可以退款
+        Map result = new HashMap();
+        if (!canRefund) { // 已取消或已拒收
+            result.put("flag", false);
+            result.put("message", "仅已取消和已拒收状态的订单可以退款，其他状态不可以退款");
+            return result;
+        }
+
+        // 修改订单状态为退款，修改退款时间为当前时间
+        Map params = new HashMap();
+        params.put("orderId", orderId);
+        params.put("orderStatus", Constant.OrderStatusConfig.REFUNDED); // 已退款
+        Date now = new Date();
+        params.put("drawbackTime", now); // 退款时间
+        params.put("updatedAt", now); // 更新时间
+        int count = purchaseDao.refundByOrderId(params);
+        if (count == 0) {
+            result.put("flag", false);
+            result.put("message", "退款失败");
+            return result;
+        }
+
+        result.put("flag", true);
+        result.put("message", "退款成功");
+
+        // TODO 订单退款成功给该供应商推送一条消息
+        pushNotification(orderId, Constant.OrderStatusConfig.REFUNDED);
+
+        return result;
+    }
 }
