@@ -27,8 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.math.BigInteger;
 import java.text.ParseException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * <p>
@@ -94,8 +93,13 @@ public class PurchaseController {
     public Result exportExcel(HttpServletRequest request, HttpServletResponse response, String pageNum, Integer pageSize,
                                   @RequestParam(required = false) Long accountId, PurchaseSelectInput purchaseSelectInput) throws Exception {
         //判断时间格式
-        if (!verifyDate(purchaseSelectInput)) {
-            return Result.fail(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
+        List<String> dateList = Arrays.asList(purchaseSelectInput.getBeginDate(),purchaseSelectInput.getEndDate(),
+                purchaseSelectInput.getOrderReceiveBeginTime(),purchaseSelectInput.getOrderReceiveEndTime(),
+                purchaseSelectInput.getOrderPaymentBeginTime(),purchaseSelectInput.getOrderPaymentEndTime());
+        for(String dateInput : dateList){
+            if (!verifyDate(dateInput)) {
+                return Result.fail(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
+            }
         }
         if (restrictDate(purchaseSelectInput)) {
             return Result.fail(Constant.MessageConfig.DateNOTLate);
@@ -131,8 +135,13 @@ public class PurchaseController {
             purchaseSelectInput.setStoreId(BigInteger.valueOf(user.getAccountId()));
         }
         //判断时间格式
-        if (!verifyDate(purchaseSelectInput)) {
-            return Result.fail(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
+        List<String> dateList = Arrays.asList(purchaseSelectInput.getBeginDate(),purchaseSelectInput.getEndDate(),
+                purchaseSelectInput.getOrderReceiveBeginTime(),purchaseSelectInput.getOrderReceiveEndTime(),
+                purchaseSelectInput.getOrderPaymentBeginTime(),purchaseSelectInput.getOrderPaymentEndTime());
+        for(String dateInput : dateList){
+            if (!verifyDate(dateInput)) {
+                return Result.fail(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
+            }
         }
         //对比开始时间和结束时间
         if (restrictDate(purchaseSelectInput)) {
@@ -160,7 +169,7 @@ public class PurchaseController {
     @PostMapping(value = "/deliverGoods/{orderId}")
     @ApiOperation(value = "发货接口", notes = "发货接口")
     public Result deliverGoods(@RequestBody @PathVariable("orderId") String orderId, @RequestBody Map map) throws Exception {
-        if (!verifyOrderStatus(orderId, Constant.OrderStatusConfig.ISSUE_SHIP)) {
+        if(!"3#7".equals(verifyOrderStatus(orderId))){
             return Result.fail(Constant.MessageConfig.ORDER_STATUS_EERO);
         }
         if (!StringUtils.isEmpty(map.get("name")) && !StringUtils.isEmpty(map.get("number"))) {
@@ -349,7 +358,8 @@ public class PurchaseController {
         if (Ognl.isEmpty(orderId)) {  // 参数为空
             return Result.fail(Constant.MessageConfig.MSG_NOT_EMPTY);
         }
-        if (!verifyOrderStatus(orderId, Constant.OrderStatusConfig.RECEIVED)) {
+
+        if(!"4#5".equals(verifyOrderStatus(orderId))){
             return Result.fail(Constant.MessageConfig.ORDER_STATUS_EERO);
         }
         // 扫描收货二维码
@@ -370,7 +380,7 @@ public class PurchaseController {
     @ApiOperation("拒收货接口")
     @PostMapping("/refuseOrder")
     public Result refuseOrder(@RequestBody @Valid RefuseOrderInput refuseOrderInput) throws Exception {
-        if (!verifyOrderStatus(refuseOrderInput.getOrderId(), Constant.OrderStatusConfig.REJECT)) {
+        if(!"6#".equals(verifyOrderStatus(refuseOrderInput.getOrderId()))){
             return Result.fail(Constant.MessageConfig.ORDER_STATUS_EERO);
         }
         purchaseService.refuseOrder(refuseOrderInput);
@@ -400,7 +410,7 @@ public class PurchaseController {
     @ApiOperation("新增取消订单原因接口")
     @PostMapping("/insertCancelReason")
     public Result insertCancelReason(@RequestBody @Valid CancelReasonInput cancelReasonInput) throws Exception {
-        if (!verifyOrderStatus(cancelReasonInput.getOrderId(), Constant.OrderStatusConfig.CANCEL_ORDER)) {
+        if(!"6#".equals(verifyOrderStatus(cancelReasonInput.getOrderId()))){
             return Result.fail(Constant.MessageConfig.ORDER_STATUS_EERO);
         }
         purchaseService.cancelOrder(cancelReasonInput);
@@ -422,79 +432,30 @@ public class PurchaseController {
         }
         return Result.success(Constant.MessageConfig.MSG_SUCCESS, Constant.MessageConfig.MSG_NO_DATA);
     }
-
     //验证订单状态
-    private boolean verifyOrderStatus(String orderId, Integer orderStatus) {
-        boolean flag = false;
+    private String verifyOrderStatus(String orderId) {
         Integer getOrderStatus = purchaseService.findOrderStatus(orderId);
-        //待付款 --> 待发货
-        if (getOrderStatus == Constant.OrderStatusConfig.PAYMENT && orderStatus == Constant.OrderStatusConfig.PENDING_SHIP) {
-            flag = true;
-        }
-        //待付款 --> 已取消 / 待发货 --> 已取消
-        if ((getOrderStatus == Constant.OrderStatusConfig.PAYMENT || getOrderStatus == Constant.OrderStatusConfig.PENDING_SHIP) && orderStatus == Constant.OrderStatusConfig.CANCEL_ORDER) {
-            flag = true;
-        }
-        //待发货 --> 已发货
-        if (getOrderStatus == Constant.OrderStatusConfig.PENDING_SHIP && orderStatus == Constant.OrderStatusConfig.ISSUE_SHIP) {
-            flag = true;
-        }
-        //已发货 --> 已完成 / 已发货 --> 已拒收
-        if (getOrderStatus == Constant.OrderStatusConfig.ISSUE_SHIP && (orderStatus == Constant.OrderStatusConfig.RECEIVED || orderStatus == Constant.OrderStatusConfig.REJECT)) {
-            flag = true;
-        }
-        //已拒收 --> 已退款 / 已取消 --> 已退款
-        if ((getOrderStatus == Constant.OrderStatusConfig.REJECT || getOrderStatus == Constant.OrderStatusConfig.CANCEL_ORDER) && orderStatus == Constant.OrderStatusConfig.REFUNDED) {
-            flag = true;
-        }
-        return flag;
+        List<String> orderStatusList = new ArrayList<>();
+        orderStatusList.add("2#7");//1
+        orderStatusList.add("3#7");//2
+        orderStatusList.add("4#5");//3
+        orderStatusList.add("#");//4
+        orderStatusList.add("6#");//5
+        orderStatusList.add("6#");//7
+        return orderStatusList.get(getOrderStatus-1);
     }
-
     //验证时间格式
-    private boolean verifyDate(PurchaseSelectInput purchaseSelectInput) {
+    private boolean verifyDate(String inputDate) {
         boolean flag = true;
         //订单创建时间
-        if (!StringUtils.isEmpty(purchaseSelectInput.getBeginDate())) {
-            flag = DateUtil.isDate(purchaseSelectInput.getBeginDate());
-            if (!flag) {
-                return flag;
-            }
-        }
-        if (!StringUtils.isEmpty(purchaseSelectInput.getEndDate())) {
-            flag = DateUtil.isDate(purchaseSelectInput.getEndDate());
-            if (!flag) {
-                return flag;
-            }
-        }
-        //订单付款时间
-        if (!StringUtils.isEmpty(purchaseSelectInput.getOrderPaymentBeginTime())) {
-            flag = DateUtil.isDate(purchaseSelectInput.getOrderPaymentBeginTime());
-            if (!flag) {
-                return flag;
-            }
-        }
-        if (!StringUtils.isEmpty(purchaseSelectInput.getOrderPaymentEndTime())) {
-            flag = DateUtil.isDate(purchaseSelectInput.getOrderPaymentEndTime());
-            if (!flag) {
-                return flag;
-            }
-        }
-        //收货时间
-        if (!StringUtils.isEmpty(purchaseSelectInput.getOrderReceiveBeginTime())) {
-            flag = DateUtil.isDate(purchaseSelectInput.getOrderReceiveBeginTime());
-            if (!flag) {
-                return flag;
-            }
-        }
-        if (!StringUtils.isEmpty(purchaseSelectInput.getOrderReceiveEndTime())) {
-            flag = DateUtil.isDate(purchaseSelectInput.getOrderReceiveEndTime());
+        if (!StringUtils.isEmpty(inputDate)) {
+            flag = DateUtil.isDate(inputDate);
             if (!flag) {
                 return flag;
             }
         }
         return flag;
     }
-
     //限制开始时间小于结束时间
     private boolean restrictDate(PurchaseSelectInput purchaseSelectInput) throws Exception {
         boolean flag = false;
