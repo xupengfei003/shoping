@@ -174,10 +174,11 @@ public class CommodityServiceImpl implements CommodityService {
         //用于存放商品69码
         Set<String> code69Sets = new TreeSet<>();
         //拼装69码集合
-        for (SupplierCommodityVo commodityVo : commodityInput.getCommodityList()) {
+        commodityInput.getCommodityList().forEach(commodityVo->{
             String code69 = commodityVo.getCode69();
             code69Sets.add(code69);
-        }
+        });
+
         //校验插入数据是否有重复69码
         if (code69Sets.size() < commodityInput.getCommodityList().size()) {
             return Result.fail("存在重复的商品条码，请修改后重新添加！");
@@ -305,8 +306,7 @@ public class CommodityServiceImpl implements CommodityService {
             supplierCommodityDao.update(sc);
             //清空原有大图数据信息
             List<Long> ids = commImgeDao.findIdsByScId(sc.getId());
-            if (ids != null && ids.size() > 0)
-            {
+            if (ids != null && ids.size() > 0) {
                 commImgeDao.deleteByIds(ids);
             }
             //保存图片
@@ -348,9 +348,9 @@ public class CommodityServiceImpl implements CommodityService {
     }
 
     @Override
-    public BaseResult deleteCommImge(Long id) {
-        boolean flag = commImgeDao.deleteById(id);
-        return BaseResultUtil.transTo(flag,"删除图片成功","删除图片失败");
+    public Result deleteCommImge(Long id) {
+        commImgeDao.deleteById(id);
+        return Result.success("删除图片成功");
     }
 
     /**
@@ -467,13 +467,14 @@ public class CommodityServiceImpl implements CommodityService {
         }
         if(idList.size() > 0){
             List<SupplierCommodity> supplierCommodityList = new ArrayList<>();
-            for(long id : idList){
-                SupplierCommodity supplierCommodity = new SupplierCommodity();
-                supplierCommodity.setId(id);
-                supplierCommodity.setUpdatedAt(new Date());
-                supplierCommodity.setDeleted(1);
-                supplierCommodityList.add(supplierCommodity);
-            }
+            final SupplierCommodity[] supplierCommodity = new SupplierCommodity[1];
+            idList.forEach(id->{
+                supplierCommodity[0] = new SupplierCommodity();
+                supplierCommodity[0].setId(id);
+                supplierCommodity[0].setUpdatedAt(new Date());
+                supplierCommodity[0].setDeleted(1);
+                supplierCommodityList.add(supplierCommodity[0]);
+            });
             supplierCommodityDao.deleteByIds(supplierCommodityList);
         }
         if(idNotList.size() > 0){

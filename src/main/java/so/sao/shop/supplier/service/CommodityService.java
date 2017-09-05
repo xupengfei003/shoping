@@ -65,7 +65,7 @@ public interface CommodityService {
      * @param id
      * @return
      */
-    public BaseResult deleteCommImge(Long id);
+    public Result deleteCommImge(Long id);
     /**
      * 根据查询条件查询商品详情（高级搜索）
      * @author liugang
