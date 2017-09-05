@@ -735,6 +735,7 @@ public class CommodityServiceImpl implements CommodityService {
                                     supplierCommodityVo.setMinImg(blobUpload.getMinImgUrl());
                                 }
                                 CommImgeVo commImgeVo = BeanMapper.map(blobUpload, CommImgeVo.class);
+                                commImgeVo.setThumbnailUrl(blobUpload.getMinImgUrl());
                                 commImgeVo.setName(blobUpload.getFileName());
                                 commImgeVoList.add(commImgeVo);
                             }
