@@ -11,6 +11,6 @@
         updated_at = #{payInput.updatedAt},
         order_status = #{payInput.orderStatus},
         pay_status = #{payInput.payStatus}
-        WHERE pay_id = #{payInput.orderId}
+        WHERE pay_id = #{payInput.payId}
     </update>
 </mapper>

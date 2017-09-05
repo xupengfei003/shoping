@@ -17,9 +17,10 @@ public class SysRegionServiceImpl implements SysRegionService {
     private SysRegionDao sysRegionDao;
 
     /**
-     * �����ϼ�id��ѯ�¼�
-     * @param pid �ϼ�id
-     * @return �¼��б�
+     * 获取地区下级列表
+     *
+     * @param pid 地区id
+     * @return 返回下级列表
      */
     @Override
     public List<SysRegion> findByPid(Integer pid) {

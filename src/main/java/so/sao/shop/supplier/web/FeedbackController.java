@@ -23,7 +23,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/feedback")
-@Api(description = "反馈管理-所有接口")
+@Api(description = "反馈管理-所有接口 【负责人:郭兴业】")
 public class FeedbackController {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -39,31 +39,17 @@ public class FeedbackController {
      */
     @PostMapping("/createFeedback")
     @ApiOperation(value = "提交反馈", notes = "提交反馈")
-    public Result createFeedback(HttpServletRequest request, @RequestBody Map map) {
-        Result result = new Result();
+    public Result createFeedback(HttpServletRequest request, @RequestBody Map map) throws Exception {
         //验证供应商是否登陆并取出accountId
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         if (null == user) {   //验证用户是否登陆
-            result.setCode(Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
-            return result;
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
         String suggest = (String) map.get("suggest");
         if (null == suggest || "".equals(suggest)) {
-            result.setCode(Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage(Constant.MessageConfig.MSG_NOT_EMPTY);
-            return result;
+            return Result.fail(Constant.MessageConfig.MSG_NOT_EMPTY);
         }
-        try {
-            feedbackService.createFeedback(user.getAccountId(), suggest);
-            result.setCode(Constant.CodeConfig.CODE_SUCCESS);
-            result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
-        } catch (Exception e) {
-            logger.error("系统异常", e);
-            result.setCode(Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage(Constant.MessageConfig.MSG_FAILURE);
-            return result;
-        }
-        return result;
+        feedbackService.createFeedback(user.getAccountId(), suggest);
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS);
     }
 }

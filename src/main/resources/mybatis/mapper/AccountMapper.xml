@@ -163,7 +163,7 @@
       #{smsCode,jdbcType=VARCHAR},#{contractOriginalName,jdbcType=VARCHAR},#{contractOriginal,jdbcType=VARCHAR},#{lastSettlementDate},#{servicePhone})
   </insert>
 
-  <insert id="insertSelective" parameterType="so.sao.shop.supplier.domain.Account" >
+  <!-- <insert id="insertSelective" parameterType="so.sao.shop.supplier.domain.Account" >
     insert into account
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="accountId != null" >
@@ -409,7 +409,7 @@
         #{smsCode,jdbcType=VARCHAR},
       </if>
     </trim>
-  </insert>
+  </insert> -->
 
   <update id="updateByPrimaryKey" parameterType="so.sao.shop.supplier.domain.Account" >
     update account
@@ -618,73 +618,6 @@
     </set>
     WHERE account_id = #{accountId}
   </update>
-  <insert id="saveBatch" parameterType="so.sao.shop.supplier.domain.Account">
-    INSERT INTO
-	    account(user_id,
-	    provider_name,
-	    responsible,
-	    responsible_phone,
-	    license,license_time_create,
-	    license_time_end,
-	    regist_address,
-        regist_address_province,
-        regist_address_city,
-        regist_address_district,
-	    register_address_detail,
-	    business_type,
-	    contract_responsible,
-	    contract_responsible_phone,
-	    contract_license,
-	    contract_license_create,
-	    contract_license_end,
-	    contract_register_address,
-        contract_register_address_province,
-        contract_register_address_city,
-        contract_register_address_district,
-	    contract_register_address_detail,
-	    contract_create_date,
-	    contract_end_date,
-	    bank_name,
-	    bank_num,
-	    bank_user_name,
-	    remittanced,
-	    upload_mode,
-	    create_date)
-    VALUES
-    <foreach collection="list" item="accounts" index="1" separator=",">
-      (#{accounts.userId},
-          #{accounts.providerName},
-          #{accounts.responsible},
-          #{accounts.responsiblePhone},
-          #{accounts.license},
-          #{accounts.licenseTimeCreate},
-          #{accounts.licenseTimeEnd},
-          #{accounts.registAddress},
-          #{accounts.registAddressProvince},
-          #{accounts.registAddressCity},
-          #{accounts.registAddressDistrict},
-          #{accounts.registerAddressDetail},
-          #{accounts.businessType},
-          #{accounts.contractResponsible},
-          #{accounts.contractResponsiblePhone},
-          #{accounts.contractLicense},
-          #{accounts.contractLicenseCreate},
-          #{accounts.contractLicenseEnd},
-          #{accounts.contractRegisterAddress},
-          #{accounts.contractRegisterAddressProvince},
-          #{accounts.contractRegisterAddressCity},
-          #{accounts.contractRegisterAddressDistrict},
-          #{accounts.contractRegisterAddressDetail},
-          #{accounts.contractCreateDate},
-          #{accounts.contractEndDate},
-          #{accounts.bankName},
-          #{accounts.bankNum},
-          #{accounts.bankUserName},
-          #{accounts.remittanced},
-          #{accounts.uploadMode},
-          #{accounts.createDate})
-    </foreach>
-  </insert>
 
   <!--根据账户表账户id,修改账户表中用户余额-->
   <update id="updateUserBalance" parameterType="so.sao.shop.supplier.domain.Account">
@@ -700,7 +633,7 @@
     WHERE account_id=#{accountId};
   </update>
 
-  <select id="findPage" resultMap="BaseResultMap" parameterType="so.sao.shop.supplier.domain.Condition">
+  <select id="findPage" resultMap="BaseResultMap" parameterType="so.sao.shop.supplier.pojo.input.AccountInput">
           SELECT a.contract_responsible,a.contract_create_date, a.account_id,a.user_id,a.create_date,a.provider_name, a.contract_end_date, a.contract_responsible_phone,p.name regist_address_province,
                   c.name regist_address_city,d.name regist_address_district  ,cp.name contract_register_address_province,cc.name contract_register_address_city,
                   cd.name contract_register_address_district,  a.contract_register_address

@@ -1,6 +1,7 @@
 package so.sao.shop.supplier.pojo.vo;
 
 import org.springframework.format.annotation.NumberFormat;
+import so.sao.shop.supplier.util.NumberUtil;
 
 import java.math.BigDecimal;
 
@@ -90,15 +91,16 @@ public class AccountPurchaseItemVo {
     }
 
     public String getGoodsUnitPrice() {
-        return goodsUnitPrice;
+        return NumberUtil.number2Thousand(new BigDecimal(goodsUnitPrice));
     }
+
 
     public void setGoodsUnitPrice(String goodsUnitPrice) {
         this.goodsUnitPrice = goodsUnitPrice;
     }
 
     public String getGoodsTatolPrice() {
-        return goodsTatolPrice;
+        return NumberUtil.number2Thousand(new BigDecimal(goodsUnitPrice));
     }
 
     public void setGoodsTatolPrice(String goodsTatolPrice) {

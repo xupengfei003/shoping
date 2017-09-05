@@ -31,8 +31,8 @@ public class UploadController {
     @Autowired
     private AzureBlobService azureBlobService;
 
-    @ApiOperation(value = "文件批量上传", notes = "")
     @PostMapping(value = "/file")
+    @ApiOperation(value = "文件批量上传", notes = "商品-图片文件批量上传【负责人：许鹏飞】")
     public Result loadFile(@RequestPart("file") MultipartFile[] multipartFile) {
         List<CommBlobUpload> blobUploadList = new ArrayList<CommBlobUpload>();
         try {

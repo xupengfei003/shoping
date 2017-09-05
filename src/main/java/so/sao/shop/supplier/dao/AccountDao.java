@@ -2,7 +2,7 @@ package so.sao.shop.supplier.dao;
 
 import org.apache.ibatis.annotations.Param;
 import so.sao.shop.supplier.domain.Account;
-import so.sao.shop.supplier.domain.Condition;
+import so.sao.shop.supplier.pojo.input.AccountInput;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -20,7 +20,7 @@ public interface AccountDao {
      * @param accountId 供应商id
      * @return 返回受影响行数
      */
-    int deleteByPrimaryKey(Long accountId);
+    void deleteByPrimaryKey(Long accountId);
 
     /**
      * 单次添加供应商信息
@@ -28,13 +28,6 @@ public interface AccountDao {
      * @return 返回受影响行数
      */
     int insert(Account record);
-
-    /**
-     * 单次添加供应商信息
-     * @param record 供应商对象
-     * @return 返回受影响行数
-     */
-    int insertSelective(Account record);
 
     /**
      * 根据id查询供应商信息(省市区汉字)
@@ -65,13 +58,6 @@ public interface AccountDao {
     int updateByPrimaryKey(Account record);
 
     /**
-     * 批量插入供应商信息
-     * @param accounts
-     * @return 返回受影响行数
-     */
-    int saveBatch(List<Account> accounts);
-
-    /**
      * 根据用户id，查找该用户的账户信息
      * @param userId
      * @return
@@ -90,15 +76,15 @@ public interface AccountDao {
      * @param account
      * @return
      */
-    int updateUserBalance(Account account) throws Exception;
+    void updateUserBalance(Account account) throws Exception;
 
     
     /**
      * 根据条件查询出相应供应商的信息
-     * @param condition 分页对象
+     * @param accountInput 入参对象
      * @return 返回分页对象
      */
-    List<Account> findPage(Condition condition);
+    List<Account> findPage(AccountInput accountInput);
 
 	/**
      * 将计算的总金额,更新为该商户id下的历史总收入

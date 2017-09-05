@@ -1,10 +1,7 @@
 package so.sao.shop.supplier.service;
 
-import so.sao.shop.supplier.domain.CommUnit;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.CommUnitUpdateInput;
-
-import java.util.List;
 
 /**
  * Created by Renzhiping on 2017/8/14.

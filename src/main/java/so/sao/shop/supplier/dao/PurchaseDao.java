@@ -60,16 +60,16 @@ public interface PurchaseDao {
     boolean updateOrder(@Param("orderId") String orderId, @Param("orderStatus") Integer orderStatus,@Param("updateDate") Date updateDate);
 
     /**
-     * 更改状态辅助操作（更改退款时间、插入物流配送方式）
+     * 发货接口
      *
-     * @param drawbackTime
+     * @param orderStatus
      * @param receiveMethod
      * @param name
      * @param number
      * @return boolean
      */
-    boolean updateOrderAtr(@Param("orderId") String orderId, @Param("drawbackTime") Date drawbackTime, @Param("orderReceiveTime") Date orderReceiveTime,
-                           @Param("receiveMethod") Integer receiveMethod, @Param("name") String name, @Param("number") String number);
+    void deliverGoods(@Param("orderId") String orderId,@Param("orderStatus") Integer orderStatus,@Param("updateDate") Date date,
+                      @Param("receiveMethod") Integer receiveMethod, @Param("name") String name, @Param("number") String number) throws Exception;
 
     /**
      * 删除订单，可批量删除
@@ -77,7 +77,7 @@ public interface PurchaseDao {
      * @param orderIdArr
      * @return
      */
-    boolean deleteByOrderId(@Param("orderIdArr") String[] orderIdArr, @Param("updateDate") Date updateDate);
+    void deleteByOrderId(@Param("orderIdArr") String[] orderIdArr, @Param("updateDate") Date updateDate);
 
     /**
      * 批量获取订单列表
@@ -157,7 +157,7 @@ public interface PurchaseDao {
      * @param map 封装了所有拒收相关的信息
      * @return boolean 返回true则为成功，false为失败
      */
-    boolean insertRefuseMessage(@Param("map") Map<String,Object> map) throws Exception;
+    void insertRefuseMessage(@Param("map") Map<String,Object> map) throws Exception;
 
     /**
      * 根据订单ID获取该订单的拒收原因
@@ -191,7 +191,7 @@ public interface PurchaseDao {
      * @return boolean 返回true则为成功，false为失败
      * @throws Exception
      */
-    boolean insertCancelMessage(@Param("cancelMap") Map<String,Object> cancelMap) throws Exception;
+    void insertCancelMessage(@Param("cancelMap") Map<String,Object> cancelMap) throws Exception;
 
     /**
      * 根据订单编号查询取消订单原因

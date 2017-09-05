@@ -42,6 +42,31 @@
             #{updatedAt}
         )
   </insert>
+    <!--批量新增图片-->
+    <insert id="batchSave" parameterType="java.util.List">
+        insert ty_comm_imge (
+        code69,
+        name,
+        thumbnail_url,
+        url,
+        type,
+        size,
+        created_at,
+        updated_at
+        )VALUES
+        <foreach collection ="list" item="data" index= "index" separator =",">
+        (
+        #{data.code69},
+        #{data.name},
+        #{data.thumbnailUrl},
+        #{data.url},
+        #{data.type},
+        #{data.size},
+        #{data.createdAt},
+        #{data.updatedAt}
+        )
+        </foreach>
+    </insert>
 </mapper>
 
 

@@ -21,7 +21,8 @@
         level AS level,
         remark AS remark,
         sort AS sort,
-        deleted AS deleted
+        deleted AS deleted,
+        code
     </sql>
 
     <!--查询商品品类列表-->
@@ -34,58 +35,21 @@
         ORDER BY cy.sort
     </select>
 
-    <select id="findOne" resultType="so.sao.shop.supplier.domain.CommCategory">
+    <!--查询商品品类列表-->
+    <select id="findByIds" resultType="so.sao.shop.supplier.domain.CommCategory">
         SELECT
         <include refid="baseColumns"/>
-        FROM comm_category WHERE id = #{id}
+        FROM comm_category
+        WHERE
+        id in (#{commCategoryOneId},#{commCategoryTwoId},#{commCategoryThreeId})
     </select>
-    <select id="findNameById" resultType="String">
-        SELECT
-        name
-        FROM comm_category WHERE id = #{id}
-    </select>
-    <!-- 根据商品类型id获取code -->
-    <select id="findCodeById" resultType="String">
-        SELECT
-        code
-        FROM comm_category WHERE id = #{id}
-    </select>
+
     <select id="findOneByName" resultType="so.sao.shop.supplier.domain.CommCategory">
         SELECT
         <include refid="baseColumns"/>
         FROM comm_category WHERE name = #{name}
     </select>
 
-
-    <!-- 新增商品类型  -->
-    <insert id="save" parameterType="so.sao.shop.supplier.domain.CommCategory">
-        insert comm_category (
-        pid,
-        name,
-        remark,
-        level,
-        sort,
-        deleted,
-        created_at,
-        updated_at
-        )VALUES (
-        #{commCategory.pid},
-        #{commCategory.name},
-        #{commCategory.remark},
-        #{commCategory.level},
-        #{commCategory.sort},
-        #{commCategory.deleted},
-        #{commCategory.createdAt},
-        #{commCategory.updatedAt}
-        )
-    </insert>
-
-    <!-- 根据商品 名称查询， 返回商品输出对象 -->
-    <select id="findCommCategoryByName" resultMap="baseCommCategory" parameterType="string">
-        SELECT  id,pid,name, remark,level,sort,deleted,created_at, updated_at
-        FROM  comm_category commC
-        WHERE  commC.name =#{commCategoryName}
-    </select>
     <!-- 根据商品 名称查询， 返回商品输出对象 -->
     <select id="findCommCategoryByNameAndPid" resultMap="baseCommCategory" >
         SELECT  id,pid,name, remark,level,sort,deleted,created_at, updated_at
@@ -93,19 +57,4 @@
         WHERE  commC.name =#{commCategoryName} and commC.pid = #{pid}
     </select>
 
-
-    <!-- 根据新增的类型PID 查询商品类型ID = PID 的商品类型的等级level -->
-    <select id="findCommCategoryLevelByPid" parameterType="long" resultType="_int">
-        SELECT LEVEL
-        FROM comm_category
-        WHERE id = #{pid}
-    </select>
-	<!-- 根据商品类型ID，修改商品类型名称、商品类型描述、商品类型顺序、商品类型更新时间-->
-    <update id="update">
-         UPDATE comm_category SET name=#{name},remark=#{remark},sort = #{sort},updated_at = #{updatedAt} WHERE id = #{id} 
-	</update>
-     
-    <delete id="deleteById">
-         DELETE FROM comm_category WHERE id=#{id}
-    </delete>
 </mapper>

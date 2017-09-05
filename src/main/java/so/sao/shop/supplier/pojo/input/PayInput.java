@@ -34,6 +34,12 @@ public class PayInput {
     @NotNull(message = "支付方式不能为空")
     private Integer orderPaymentMethod;
 
+    /**
+     * 支付回调加密码
+     */
+    @NotEmpty(message = "支付回调加密码不能为空")
+    private String sign;
+
     public String getOrderId() {
         return orderId;
     }
@@ -66,4 +72,11 @@ public class PayInput {
         this.orderPaymentMethod = orderPaymentMethod;
     }
 
+    public String getSign() {
+        return sign;
+    }
+
+    public void setSign(String sign) {
+        this.sign = sign;
+    }
 }
