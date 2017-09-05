@@ -26,12 +26,6 @@ public interface CommImgeDao {
     void batchSave(List<CommImge> commImges);
 
     /**
-     * 删除商品大图
-     * @param id 商品大图ID
-     * @return 删除结果
-     */
-    boolean deleteById(@Param("id") Long id);
-    /**
      * 修改商品大图
      * @param commImge 商品大图对象
      * @return 修改结果
