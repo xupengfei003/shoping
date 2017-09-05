@@ -14,6 +14,7 @@ import so.sao.shop.supplier.pojo.output.CommodityExportOutput;
 import so.sao.shop.supplier.pojo.output.CommodityOutput;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
@@ -44,13 +45,6 @@ public interface CommodityService {
      * @return
      */
     Result getCommodity(Long id);
-
-    /**
-     * 根据id查询多个商品
-     * @param ids
-     * @return
-     */
-    public List<CommodityExportOutput> findByIds(Long[] ids);
 
     /**
      * 根据userId查Account实体
@@ -137,4 +131,11 @@ public interface CommodityService {
      */
 
     Result importExcel(MultipartFile multipartFile , HttpServletRequest request, Long supplierId) throws Exception;
+
+    /**
+     * 批量导出
+     * @param ids
+     * @return
+     */
+    Result exportExcel(HttpServletResponse response , Long[] ids);
 }
