@@ -406,6 +406,7 @@ public class AccountController {
     	User user = (User) request.getAttribute(Constant.REQUEST_USER);
         if(user==null){
         	return Result.fail("请登录后再操作");
+        	
         }
         return DownloadAzureFile.downloadFile(downloadUrl, realFileName, request, response);
     }
