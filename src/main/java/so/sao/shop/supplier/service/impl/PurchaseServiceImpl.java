@@ -365,7 +365,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                     purchaseList.addAll(orderList);
                 }
             } else { //获取当前页列表
-                PageHelper.startPage(pageNumList.get(0), pageSize);
+                PageTool.startPage(pageNumList.get(0), pageSize);
                 purchaseList = purchaseDao.getOrderListByIds(purchaseSelectInput, accountId);
             }
 

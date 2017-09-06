@@ -1,9 +1,5 @@
 package so.sao.shop.supplier.web;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -24,7 +20,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/pay")
 public class PayController {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Resource
     private PayService payService;
     @Resource
