@@ -107,16 +107,19 @@ public class ExcelReader {
                 maperror.put(i+1,content);
                 continue;
             }
-            if (!(getCellFormatValue(row.getCell(0)) == null || "".equals(getCellFormatValue(row.getCell(0)).trim())))
-            {
+
                 do {
+                    if(!"商品标签".equals(titles[j])||!"商品产地".equals(titles[j])||!"企业名称".equals(titles[j])||!"上市时间".equals(titles[j])){
+                        if(getCellFormatValue(row.getCell(j)) == null || "".equals(getCellFormatValue(row.getCell(j)).trim())){
+                            maperror.put(i+1,content);
+                            content = null ;
+                            break;
+                        }
+                    }
                     content.put(titles[j], getCellFormatValue(row.getCell(j)).trim());
                     j++;
                 } while (j < colNum);
-            }else{
-                maperror.put(i+1,content);
-                content = null ;
-            }
+
             if(content != null){
                 mapright.put(i+1,content);
             }
