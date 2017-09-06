@@ -305,6 +305,33 @@ public class PurchaseController {
     }
 
     /**
+     * 生成收货二维码接口
+     * <p>
+     * 根据订单编号生成二维码图片，并将二维码信息保存到数据库。
+     * 1.验证参数合法性；
+     * 2.生成二维码图片并保存到数据库。
+     *
+     * @param params Map封装入参键值对，包含orderId
+     * @return 返回一个Result对象
+     * @throws Exception 异常
+     */
+    @ApiOperation(value = "生成收货二维码接口", notes = "根据订单编号生成收货二维码接口【负责人：杨恒乐】")
+    @PostMapping("createReceivingQrcode")
+    public Result createReceivingQrcode(@RequestBody Map params) throws Exception {
+        String orderId = (String) params.get("orderId");
+
+        // 1.验证参数合法性
+        if (Ognl.isEmpty(orderId)) { // 参数为空
+            return Result.fail(Constant.MessageConfig.MSG_NOT_EMPTY);
+        }
+
+        // 2.生成二维码图片并保存到数据库
+        purchaseService.createReceivingQrcode(orderId);
+
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS);
+    }
+
+    /**
      * 扫码收货接口
      * <p>
      * 根据订单编号验证订单，修改订单状态，并将二维码状态设置为失效。

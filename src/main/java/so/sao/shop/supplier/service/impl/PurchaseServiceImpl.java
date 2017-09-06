@@ -737,10 +737,13 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     /**
      * 根据支付id，批量生成收货二维码
-     *
+     * <p>
      * 根据支付id查询所有订单，批量给每个订单生成二维码，并将二维码图片上传到云端，其中有一个失败，则抛出异常，全部回滚。
-     * 1.1.根据支付id查询对应订单是否已经存在二维码；
-     * 2.
+     * 1.根据支付id查询对应订单是否已经存在二维码；
+     * 2.批量生成二维码并存储二维码信息；
+     * 3.批量上传到云端；
+     * 4.批量插入数据库。
+
      * @param payId 支付id
      * @throws Exception 异常
      */
@@ -753,6 +756,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             throw new Exception("一个订单只能生成一个二维码");
         }
 
+        // 2.批量生成二维码并存储二维码信息
         List<String> qrcodePics = new ArrayList<>(); // 存储二维码图片
         List<Qrcode> qrcodeList = new ArrayList<>(); // 存储二维码实体
         String path = "/qrcode"; // 生成二维码的本地路径
@@ -769,6 +773,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                 // 生成二维码图片
                 flag = qrcodeService.createQrCode(new FileOutputStream(new File(img)), content, 230, "png");
                 if (!flag) { // 失败
+                    System.gc();
                     FileUtil.deleteDirectory(path); // 删除本地二维码文件夹
                     throw new Exception("生成二维码失败");
                 }
@@ -788,15 +793,13 @@ public class PurchaseServiceImpl implements PurchaseService {
             }
         }
 
-
-        // 批量上传到云端
+        // 3.批量上传到云端
         List<Result> uploadResult = azureBlobService.uploadFilesComm(path, qrcodePics);
-
-
         if (uploadResult.size() == 1) {
             Result result = uploadResult.get(0);
             flag = Constant.CodeConfig.CODE_SUCCESS.equals(result.getCode());
             if (!flag) { // 上传失败
+                System.gc();
                 FileUtil.deleteDirectory(path); // 删除本地二维码文件夹
                 throw new Exception("上传失败");
             }
@@ -807,24 +810,40 @@ public class PurchaseServiceImpl implements PurchaseService {
                     qrcodeList.get(i).setUrl(blobUpload.getUrl()); // 云端的二维码地址
                 }
             }
+        } else {
+            FileUtil.deleteDirectory(path); // 删除本地二维码文件夹
+            throw new Exception("上传失败");
         }
 
-        // 批量插入数据库
+        // 4.批量插入数据库
         qrcodeDao.saveQrcodes(qrcodeList);
 
+        // 5.删除本地缓存的二维码图片
+        System.gc();
         FileUtil.deleteDirectory(path); // 删除本地二维码文件夹
+    }
+
+    /**
+     * 批量上传到云端，失败的重新上传三次
+     * @return
+     */
+    public List<Result> batchUploadPic(String path ,List<String> files) {
+
+        return null;
     }
 
     /**
      * 扫描收货二维码
      * <p>
-     * 1.验证是否可以扫码收货
-     * 2.将订单状态改为已收货
-     * 3.将二维码状态改为失效，并记录失效时间
+     * 根据订单编号实现收货逻辑。
+     * 1.验证是否可以扫码收货；
+     * 2.将订单状态改为已收货；
+     * 3.将二维码状态改为失效，并记录失效时间；
+     * 4.推送收货消息。
      *
      * @param orderId 订单编号
-     * @return Map类型  成功flag返回true;
-     * 失败flag返回false,message返回失败信息
+     * @return 返回Map：flag：成功true|失败false,message:信息
+     * @throws Exception 异常
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -838,14 +857,19 @@ public class PurchaseServiceImpl implements PurchaseService {
             map.put("message", "订单不存在或二维码已经失效");
             return map;
         }
+
         // 2.将订单状态改为已收货
         purchaseDao.updateOrder(orderId, Constant.OrderStatusConfig.RECEIVED, new Date());
+
         // 3.将二维码状态改为失效，并记录失效时间
         Date date = new Date();
         qrcodeDao.updateStatus(orderId, 1, date, date);
-        map.put("flag", true);
-        //TODO 订单拒收成功给该供应商推送一条消息
+
+        // 4.推送收货消息
         pushNotification(orderId, Constant.OrderStatusConfig.RECEIVED);
+
+        map.put("flag", true);
+
         return map;
     }
 
@@ -1042,7 +1066,7 @@ public class PurchaseServiceImpl implements PurchaseService {
      * 4.推送退款消息。
      *
      * @param orderId 订单编号
-     * @return 返回Map：flag：true|false,message:信息
+     * @return 返回Map：flag：成功true|失败false,message:信息
      * @throws Exception 异常
      */
     @Transactional(rollbackFor = Exception.class)

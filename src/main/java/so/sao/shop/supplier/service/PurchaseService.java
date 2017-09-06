@@ -2,7 +2,6 @@ package so.sao.shop.supplier.service;
 
 
 import com.github.pagehelper.PageInfo;
-import com.google.zxing.WriterException;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.*;
 import so.sao.shop.supplier.pojo.output.PurchaseInfoOutput;
@@ -11,7 +10,6 @@ import so.sao.shop.supplier.pojo.vo.PurchasesVo;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
@@ -134,8 +132,8 @@ public interface PurchaseService {
      * 如果订单已经存在二维码返回false，生成二维码失败返回false。
      * 1.验证订单并判断订单编号是否存在关联的二维码；
      * 2.生成二维码图片。
-     *      2.1．拼接二维码内容；
-     *      2.2. 生成二维码图片；
+     *      2.1.拼接二维码内容；
+     *      2.2.生成二维码图片；
      *      2.3.将二维码图片上传到云端；
      *      2.4.将二维码信息保存到数据库；
      *      2.5.删除本地图片。
