@@ -33,16 +33,15 @@ public class PayServiceImpl implements PayService {
     /**
      * 保存支付信息
      *
-     * @param sign     支付平台传来的加密串
      * @param payInput 输入实体
      * @return int
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean updatePurchasePayment(String sign, PayInput payInput) throws Exception {
+    public boolean updatePurchasePayment(PayInput payInput) throws Exception {
         boolean flagDao = false;
         Map<String, Object> map = new HashMap<>();
-        if (isSign(payInput, sign)) {
+        if (isSign(payInput)) {
             map.put("orderPaymentTime", new Date());//支付时间
             map.put("updatedAt", new Date());//更新时间
             map.put("orderStatus", Constant.OrderStatusConfig.PENDING_SHIP);//订单状态
@@ -74,12 +73,12 @@ public class PayServiceImpl implements PayService {
     }
 
     //判断支付平台传来的串是否合法
-    public boolean isSign(PayInput payInput, String sign) {
+    public boolean isSign(PayInput payInput) {
         //拼接订单ID、实付金额、支付流水号字符串
         String str = "orderId=" + payInput.getOrderId() + "&orderPrice=" + payInput.getOrderPrice() + "&orderPaymentNum=" + payInput.getOrderPaymentNum();
         //加密后的订单ID、实付金额、支付流水号字符串
         String md5Str = MD5Util.getMD5(str);
-        if (sign.equals(md5Str)) {
+        if (payInput.getSign().equals(md5Str)) {
             return true;
         }
         return false;
