@@ -486,13 +486,13 @@ public class PurchaseController {
         int i = 0;
         while(flag){
             if (DataCompare.compareDate(dateList.get(i), dateList.get(++i))) {
-                return true;
+                return flag;
             }
             i++;
             if(i == 6){
                 flag = false;
             }
         }
-        return false;
+        return flag;
     }
 }
