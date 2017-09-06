@@ -194,22 +194,4 @@ public class PurchaseItemPrintOutput{
     public void setProviderName(String providerName) {
         this.providerName = providerName;
     }
-
-    @Override
-    public String toString() {
-        return "PurchaseItemPrintOutput{" +
-                "orderId='" + orderId + '\'' +
-                ", customer='" + customer + '\'' +
-                ", customerPhone='" + customerPhone + '\'' +
-                ", receivingAddress='" + receivingAddress + '\'' +
-                ", orderCreateTime=" + orderCreateTime +
-                ", orderCreateTimeStr='" + orderCreateTimeStr + '\'' +
-                ", totalPrice=" + totalPrice +
-                ", totalPriceFormat='" + totalPriceFormat + '\'' +
-                ", totalPriceCN='" + totalPriceCN + '\'' +
-                ", qrcodeUrl='" + qrcodeUrl + '\'' +
-                ", qrcodeStatus=" + qrcodeStatus +
-                ", purchaseItemPrintVos=" + purchaseItemPrintVos +
-                '}';
-    }
 }

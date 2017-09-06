@@ -18,9 +18,14 @@ public class PurchaseItemPrintVo {
     private String goodsName;
 
     /**
-     * 商品编号（商品编码）
+     * 商品编号
      */
     private String goodsId;
+
+    /**
+     * 商品编码
+     */
+    private String code69;
 
     /**
      * 品牌名称（商品品牌）
@@ -66,6 +71,14 @@ public class PurchaseItemPrintVo {
 
     public void setGoodsId(String goodsId) {
         this.goodsId = goodsId;
+    }
+
+    public String getCode69() {
+        return code69;
+    }
+
+    public void setCode69(String code69) {
+        this.code69 = code69;
     }
 
     public String getBrandName() {
@@ -114,52 +127,5 @@ public class PurchaseItemPrintVo {
 
     public void setGoodsTatolPriceFormat(String goodsTatolPriceFormat) {
         this.goodsTatolPriceFormat = goodsTatolPriceFormat;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        PurchaseItemPrintVo that = (PurchaseItemPrintVo) o;
-
-        if (goodsName != null ? !goodsName.equals(that.goodsName) : that.goodsName != null) return false;
-        if (goodsId != null ? !goodsId.equals(that.goodsId) : that.goodsId != null) return false;
-        if (brandName != null ? !brandName.equals(that.brandName) : that.brandName != null) return false;
-        if (goodsAttribute != null ? !goodsAttribute.equals(that.goodsAttribute) : that.goodsAttribute != null)
-            return false;
-        if (goodsUnitPrice != null ? !goodsUnitPrice.equals(that.goodsUnitPrice) : that.goodsUnitPrice != null)
-            return false;
-        if (goodsNumber != null ? !goodsNumber.equals(that.goodsNumber) : that.goodsNumber != null) return false;
-        if (goodsTatolPrice != null ? !goodsTatolPrice.equals(that.goodsTatolPrice) : that.goodsTatolPrice != null)
-            return false;
-        return goodsTatolPriceFormat != null ? goodsTatolPriceFormat.equals(that.goodsTatolPriceFormat) : that.goodsTatolPriceFormat == null;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = goodsName != null ? goodsName.hashCode() : 0;
-        result = 31 * result + (goodsId != null ? goodsId.hashCode() : 0);
-        result = 31 * result + (brandName != null ? brandName.hashCode() : 0);
-        result = 31 * result + (goodsAttribute != null ? goodsAttribute.hashCode() : 0);
-        result = 31 * result + (goodsUnitPrice != null ? goodsUnitPrice.hashCode() : 0);
-        result = 31 * result + (goodsNumber != null ? goodsNumber.hashCode() : 0);
-        result = 31 * result + (goodsTatolPrice != null ? goodsTatolPrice.hashCode() : 0);
-        result = 31 * result + (goodsTatolPriceFormat != null ? goodsTatolPriceFormat.hashCode() : 0);
-        return result;
-    }
-
-    @Override
-    public String toString() {
-        return "PurchaseItemPrintVo{" +
-                "goodsName='" + goodsName + '\'' +
-                ", goodsId=" + goodsId +
-                ", brandName='" + brandName + '\'' +
-                ", goodsAttribute='" + goodsAttribute + '\'' +
-                ", goodsUnitPrice=" + goodsUnitPrice +
-                ", goodsNumber=" + goodsNumber +
-                ", goodsTatolPrice=" + goodsTatolPrice +
-                ", goodsTatolPriceFormat='" + goodsTatolPriceFormat + '\'' +
-                '}';
     }
 }
