@@ -615,68 +615,66 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     /**
      * 根据订单查询订单打印页面信息
-     * 1.查询订单信息
-     * 2.查询商品条目
-     * 3.将订单信息和商品条目封装到output对象
-     * 4.在实体类属性的get方法中格式化数据
+     * <p>
+     * 1.查询订单信息；
+     * 2.查询商品条目；
+     * 3.将订单信息和商品条目封装到output对象；
+     * 4.在实体类属性的get方法中格式化数据。
      *
      * @param orderId 订单编号
-     * @return 封装结果 PurchaseItemPrintOutput
+     * @return 返回一个PurchaseItemPrintOutput对象
+     * @throws Exception 异常
      */
     @Override
-    public PurchaseItemPrintOutput getPrintItems(String orderId) {
-        // 1.查询出订单信息（客户、客户电话、收货地址、下单时间、合计）
+    public PurchaseItemPrintOutput getPrintItems(String orderId) throws Exception{
+        // 1.查询订单信息（客户、客户电话、收货地址、下单时间、合计）
         PurchasePrintVo purchasePrintVo = purchaseDao.findPrintOrderInfo(orderId);
+
+        if (null == purchasePrintVo) { // 未查询到订单信息
+            return null;
+        }
 
         // 2.查询订单的商品条目
         List<PurchaseItemPrintVo> purchaseItemPrintVos = purchaseItemDao.findPrintItems(orderId);
 
-        if (null == purchasePrintVo) {
-            return null;
-        }
-
         // 3.封装返回对象
-        PurchaseItemPrintOutput output = new PurchaseItemPrintOutput(); //返回对象
-        output = BeanMapper.map(purchasePrintVo, output.getClass()); // 将purchasePrintVo复制到output
-
-        // 添加商品条目
-        output.setPurchaseItemPrintVos(purchaseItemPrintVos);
+        PurchaseItemPrintOutput output = new PurchaseItemPrintOutput(); // 封装返回对象
+        output = BeanMapper.map(purchasePrintVo, output.getClass()); // 将订单信息复制到output
+        output.setPurchaseItemPrintVos(purchaseItemPrintVos); // 添加商品条目
 
         return output;
     }
 
     /**
      * 根据订单编号生成收货二维码
-     * 如果订单已经存在二维码返回false，生成二维码失败返回false
      * <p>
-     * 1.验证订单并判断订单id是否存在关联的二维码
-     * 1.1．存在返回false(一个订单仅对应一个二维码)
-     * 1.2．不存在执行步骤2
-     * 2.生成二维码图片
-     * 2.1．拼接二维码内容
-     * 2.2. 生成二维码图片
-     * 2.3.将二维码图片上传到云端
-     * 2.4.将二维码信息保存到数据库
-     * 2.5.删除本地图片
+     * 如果订单已经存在二维码返回false，生成二维码失败返回false。
+     * 1.验证订单并判断订单编号是否存在关联的二维码；
+     * 2.生成二维码图片。
+     *      2.1．拼接二维码内容；
+     *      2.2. 生成二维码图片；
+     *      2.3.将二维码图片上传到云端；
+     *      2.4.将二维码信息保存到数据库；
+     *      2.5.删除本地图片。
      *
      * @param orderId 订单编号
+     * @throws Exception 异常
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void createReceivingQrcode(String orderId) throws Exception {
-        // 1.验证订单并判断订单id是否存在关联的二维码
+        // 1.验证订单并判断订单编号是否存在关联的二维码
         Purchase purchase = purchaseDao.findById(orderId);
         // 1.1.订单不存在
         if (null == purchase) {
             throw new Exception("订单不存在");
         }
 
-        List<Qrcode> qrcodeList = qrcodeDao.findQrcodeByOrderId(orderId);
+        List<Qrcode> qrcodeList = qrcodeDao.findQrcodeByOrderId(orderId); // 查询订单对应的二维码
         // 1.2.该订单已经存在二维码
         if (null != qrcodeList && qrcodeList.size() > 0) {
             throw new Exception("该订单已经存在二维码");
         }
-
 
         // 2.生成二维码图片
         // 2.1拼接二维码内容
@@ -684,11 +682,13 @@ public class PurchaseServiceImpl implements PurchaseService {
         String content = receiveUrl + "?orderId=" + orderId;
 
         // 2.2生成二维码图片
+        // 设置本地二维码路径和名称
         String path = "/qrcode";
         String name = System.currentTimeMillis() + ".png";
         boolean b = FileUtil.createDir(path);
         String img = path + "/" + name; // 二维码相对地址
-        // 调用二维码工具类CodeUtil生成图片
+
+        // 生成二维码图片并输出到本地img
         boolean flag = qrcodeService.createQrCode(new FileOutputStream(new File(img)), content, 230, "png");
         if (!flag) { // 失败
             throw new Exception("生成二维码图片失败");
@@ -736,19 +736,23 @@ public class PurchaseServiceImpl implements PurchaseService {
     }
 
     /**
-     * 根据支付id，批量生成订单对应的收货二维码
+     * 根据支付id，批量生成收货二维码
      *
+     * 根据支付id查询所有订单，批量给每个订单生成二维码，并将二维码图片上传到云端，其中有一个失败，则抛出异常，全部回滚。
+     * 1.1.根据支付id查询对应订单是否已经存在二维码；
+     * 2.
      * @param payId 支付id
      * @throws Exception 异常
      */
     @Transactional(rollbackFor = Exception.class)
     public void createReceivingQrcodeByPayId(String payId) throws Exception {
         List<Purchase> purchaseList = purchaseDao.findByPayId(payId); // 根据支付id查询订单列表
-        // 根据支付id查询对应订单是否已经存在二维码
+        // 1.根据支付id查询对应订单是否已经存在二维码
         int count = qrcodeDao.getQrcodesByPayId(payId);
         if (count > 0) { // 订单存在二维码
             throw new Exception("一个订单只能生成一个二维码");
         }
+
         List<String> qrcodePics = new ArrayList<>(); // 存储二维码图片
         List<Qrcode> qrcodeList = new ArrayList<>(); // 存储二维码实体
         String path = "/qrcode"; // 生成二维码的本地路径
@@ -761,39 +765,43 @@ public class PurchaseServiceImpl implements PurchaseService {
                 String name = System.currentTimeMillis() + ".png"; // 二维码临时名称
                 boolean b = FileUtil.createDir(path); // 二维码临时路径
                 String img = path + "/" + name; // 二维码相对地址
+
                 // 生成二维码图片
                 flag = qrcodeService.createQrCode(new FileOutputStream(new File(img)), content, 230, "png");
                 if (!flag) { // 失败
+                    FileUtil.deleteDirectory(path); // 删除本地二维码文件夹
                     throw new Exception("生成二维码失败");
                 }
-                qrcodePics.add(name);
+
+                // 封装二维码信息
                 Qrcode qrcode = new Qrcode();
                 qrcode.setQrcodeId(qrcodeId); // 二维码id
                 qrcode.setForeignKey(orderId); // 二维码关联的外键
                 qrcode.setContent(content); // 二维码内容
                 qrcode.setStatus(0); // 二维码状态：0-未失效 1-失效
                 qrcode.setCreatedAt(new Date()); // 创建时间
-//                qrcode.setUrl(url); // 二维码图片地址 // 上传到云端后返回图片url
                 qrcode.setWidth(230d); // 二维码宽度
                 qrcode.setHeight(230d); // 二维码高度
 
-                qrcodeList.add(qrcode);
+                qrcodePics.add(name); // 存储本地二维码图片名称
+                qrcodeList.add(qrcode); // 存储二维码信息
             }
         }
 
 
         // 批量上传到云端
-        FileUtil fileUtil = new FileUtil();
         List<Result> uploadResult = azureBlobService.uploadFilesComm(path, qrcodePics);
+
 
         if (uploadResult.size() == 1) {
             Result result = uploadResult.get(0);
             flag = Constant.CodeConfig.CODE_SUCCESS.equals(result.getCode());
             if (!flag) { // 上传失败
+                FileUtil.deleteDirectory(path); // 删除本地二维码文件夹
                 throw new Exception("上传失败");
             }
             List<CommBlobUpload> blobUploadEntities = (List<CommBlobUpload>) result.getData();
-            if (blobUploadEntities.size() == qrcodeList.size()) {
+            if (blobUploadEntities.size() == qrcodeList.size()) { // 上传云端返回的结果和上传的数量一致则表示成功
                 for (int i = 0; i < qrcodeList.size(); i++) {
                     CommBlobUpload blobUpload = blobUploadEntities.get(i);
                     qrcodeList.get(i).setUrl(blobUpload.getUrl()); // 云端的二维码地址
@@ -803,6 +811,8 @@ public class PurchaseServiceImpl implements PurchaseService {
 
         // 批量插入数据库
         qrcodeDao.saveQrcodes(qrcodeList);
+
+        FileUtil.deleteDirectory(path); // 删除本地二维码文件夹
     }
 
     /**
@@ -1023,7 +1033,13 @@ public class PurchaseServiceImpl implements PurchaseService {
     }
 
     /**
-     * 根据订单编号调用退款接口退款并修改订单状态
+     * 根据订单编号实现退款逻辑
+     * <p>
+     * 根据订单编号验证订单、修改订单状态、调用退款接口、推送退款消息。
+     * 1.根据订单状态验证是否可以退款（仅已取消（7）和已拒收（5）状态的订单可以退款，其他状态不可以退款）；
+     * 2.修改订单状态为退款，修改退款时间为当前时间；
+     * 3.调用退款接口实现真正的退款；
+     * 4.推送退款消息。
      *
      * @param orderId 订单编号
      * @return 返回Map：flag：true|false,message:信息
@@ -1031,41 +1047,43 @@ public class PurchaseServiceImpl implements PurchaseService {
      */
     @Transactional(rollbackFor = Exception.class)
     public Map refundByOrderId(String orderId) throws Exception {
-        // TODO: 2017/8/31 调用退款接口实现真正的退款,退款失败返回失败信息
-        System.out.println("调用退款接口实现真正的退款----------------------成功");
-
-        // 根据订单状态验证是否可以退款
+        // 1.根据订单状态验证是否可以退款
         Integer orderStatus = purchaseDao.getOrderStatus(orderId); // 订单状态
 
         // 仅已取消（7）和已拒收（5）状态的订单可以退款，其他状态不可以退款
-        boolean canRefund = Constant.OrderStatusConfig.CANCEL_ORDER.equals(orderStatus)
-                || Constant.OrderStatusConfig.REJECT.equals(orderStatus); // 是否可以退款
+        boolean canRefund = null == orderStatus // 订单状态不存在
+                || Constant.OrderStatusConfig.CANCEL_ORDER.equals(orderStatus) // 已取消（7）
+                || Constant.OrderStatusConfig.REJECT.equals(orderStatus); // 已拒收（5）
         Map result = new HashMap();
-        if (!canRefund) { // 已取消或已拒收
+        if (!canRefund) { // 已取消或已拒收不可以退款
             result.put("flag", false);
             result.put("message", "仅已取消和已拒收状态的订单可以退款，其他状态不可以退款");
             return result;
         }
 
-        // 修改订单状态为退款，修改退款时间为当前时间
+        // 2.修改订单状态为退款，修改退款时间为当前时间
         Map params = new HashMap();
         params.put("orderId", orderId);
         params.put("orderStatus", Constant.OrderStatusConfig.REFUNDED); // 已退款
         Date now = new Date();
         params.put("drawbackTime", now); // 退款时间
         params.put("updatedAt", now); // 更新时间
-        int count = purchaseDao.refundByOrderId(params);
+        int count = purchaseDao.refundByOrderId(params); // 修改订单状态为退款，修改退款时间为当前时间
         if (count == 0) {
             result.put("flag", false);
             result.put("message", "退款失败");
             return result;
         }
 
-        result.put("flag", true);
-        result.put("message", "退款成功");
+        // 3.调用退款接口实现真正的退款
+        // TODO: 2017/8/31 调用退款接口实现真正的退款,退款失败返回失败信息
+        // 退款失败抛异常，事务回滚
+        System.out.println("调用退款接口实现真正的退款----------------------成功");
 
-        // TODO 订单退款成功给该供应商推送一条消息
+        // 4.推送退款消息
         pushNotification(orderId, Constant.OrderStatusConfig.REFUNDED);
+
+        result.put("flag", true);
 
         return result;
     }
