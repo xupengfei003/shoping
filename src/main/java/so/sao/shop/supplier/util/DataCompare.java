@@ -46,6 +46,10 @@ public class DataCompare {
         }
         return false;
     }
+    public static BigDecimal roundData(BigDecimal value,int newScale){
+        return value.setScale(newScale,   BigDecimal.ROUND_HALF_UP);
+
+    }
 
     /**
      * 价格校验
