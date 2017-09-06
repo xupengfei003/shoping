@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.domain.CartItem;
 import so.sao.shop.supplier.pojo.BaseResult;
+import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.CartItemInput;
 import so.sao.shop.supplier.service.CartService;
 
@@ -28,11 +29,10 @@ public class CartController {
      * @param cartitemId
      * @return
      */
-    @ApiOperation(value="根据购物车记录ID删除购物车记录",notes = "")
+    @ApiOperation(value="根据购物车记录ID删除购物车记录",notes = "根据购物车记录ID删除购物车记录【负责人：王翼云】")
     @DeleteMapping(value="/cartitem/{cartitemid}")
-    public BaseResult deleteCartItem(@PathVariable("cartitemid")Long cartitemId){
-        boolean flag = cartService.deleteCartItemById(cartitemId);
-        return convertBoolean(flag);
+    public Result deleteCartItem(@PathVariable("cartitemid")Long cartitemId){
+        return convertBoolean(cartService.deleteCartItemById(cartitemId));
     }
 
     /**
@@ -41,11 +41,11 @@ public class CartController {
      * @param number
      * @return
      */
-    @ApiOperation(value="更新购物车商品数量",notes = "")
+    @ApiOperation(value="更新购物车商品数量",notes = "更新购物车商品数量【负责人：王翼云】")
     @PutMapping(value="/cartitem/{cartitemid}")
-    public BaseResult updateCartItem(@PathVariable("cartitemid") Long cartitemId,Integer number){
-        boolean flag = cartService.updateCartItem(cartitemId,number);
-       return convertBoolean(flag);
+    public Result updateCartItem(@PathVariable("cartitemid") Long cartitemId,Integer number){
+
+       return convertBoolean(cartService.updateCartItem(cartitemId,number));
     }
 
     /**
@@ -55,7 +55,7 @@ public class CartController {
      * @param pageSize
      * @return
      */
-    @ApiOperation(value="根据用户id获取用户购物车信息",notes = "")
+    @ApiOperation(value="根据用户id获取用户购物车信息",notes = "根据用户id获取用户购物车信息【负责人：王翼云】")
     @GetMapping(value ="/{userid}")
     public PageInfo<CartItem> getCartItems(@PathVariable("userid") Long userid, @RequestParam("pageNum")int pageNum, @RequestParam("pageSize")int pageSize){
         return  cartService.findCartItemByUserId(userid,pageNum,pageSize);
@@ -66,11 +66,10 @@ public class CartController {
      * @param cartItemInput
      * @return
      */
-    @ApiOperation(value="向购物车添加商品",notes = "")
+    @ApiOperation(value="向购物车添加商品",notes = "向购物车添加商品【负责人：王翼云】")
     @PostMapping(value ="/cartitem")
-    public BaseResult createCartItems(@RequestBody @Validated CartItemInput cartItemInput){
-        boolean flag = cartService.saveCartItem(cartItemInput);
-        return convertBoolean(flag);
+    public Result createCartItems(@RequestBody @Validated CartItemInput cartItemInput){
+        return convertBoolean(cartService.saveCartItem(cartItemInput));
     }
 
     /**
@@ -78,14 +77,12 @@ public class CartController {
      * @param flag
      * @return
      */
-    private BaseResult convertBoolean(boolean flag){
-        BaseResult result = new BaseResult();
+    private Result convertBoolean(boolean flag){
+        Result result = null;
         if(flag){
-            result.setCode(Constant.CodeConfig.CODE_SUCCESS);
-            result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
+            Result.success(Constant.MessageConfig.MSG_SUCCESS);
         }else{
-            result.setCode(Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage(Constant.MessageConfig.MSG_FAILURE);
+            Result.success(Constant.MessageConfig.MSG_FAILURE);
         }
         return result;
     }
