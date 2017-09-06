@@ -1,7 +1,5 @@
 package so.sao.shop.supplier.service.impl;
 
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 
 import org.springframework.data.redis.core.RedisTemplate;
@@ -21,7 +19,6 @@ import so.sao.shop.supplier.config.azure.BlobUpload;
 import so.sao.shop.supplier.config.sms.SmsService;
 import so.sao.shop.supplier.dao.*;
 import so.sao.shop.supplier.domain.*;
-import so.sao.shop.supplier.pojo.BaseResult;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.AccountInput;
 import so.sao.shop.supplier.service.AccountService;
@@ -30,7 +27,6 @@ import so.sao.shop.supplier.util.NumberUtil;
 import so.sao.shop.supplier.util.Ognl;
 
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -107,11 +103,12 @@ public class AccountServiceImpl implements AccountService {
      * 根据id修改供应商状态为删除
      *
      * @param accountId 供应商id
-     * @return 返回受影响行数
+     * @return 返回结果
      */
     @Override
-    public int delete(Long accountId) {
-        return accountDao.deleteByPrimaryKey(accountId);
+    public Result delete(Long accountId) throws Exception{
+        accountDao.deleteByPrimaryKey(accountId);
+        return Result.success("删除供应商成功！");
     }
 
     /**
@@ -147,42 +144,24 @@ public class AccountServiceImpl implements AccountService {
     }
 
     /**
-     * 根据id更新用户信息
-     *
-     * @param id
-     * @param tel
-     * @return 返回更新行数
-     */
-    @Override
-    public int updateUser(Long id, String tel) {
-        return userDao.update(id, tel);
-    }
-
-    /**
-     * 单次添加供应商信息
+     * 修改供应商信息和用户信息
      *
      * @param account 供应商对象
-     * @return 返回受影响行数
+     * @return 返回修改结果
      */
     @Override
-    public int insert(Account account) {
-        // 创建日期
-        account.setCreateDate(new Date());
-        return accountDao.insertSelective(account);
-    }
-
-    /**
-     * 修改供应商信息
-     *
-     * @param account 供应商对象
-     * @return 返回受影响行数
-     */
-    @Override
-    public int update(Account account) {
+    @Transactional(rollbackFor = Exception.class)
+    public Result updateAccountAndUser(Account account) throws Exception{
+    	//修改用户信息
+    	userDao.update(account.getUserId(), account.getContractResponsiblePhone());
+    	//修改供应商信息
         account.setUpdateDate(new Date());
         account.setCreateDate(null);
-        return accountDao.updateByPrimaryKeySelective(account);
+        accountDao.updateByPrimaryKeySelective(account);
+        return Result.success("修改供应商和用户成功");
     }
+    
+    
 
     /**
      * 根据userId查供应商信息
@@ -308,8 +287,6 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public  Result saveUserAndAccount(Account account) throws Exception{
-
-        Result baseResult = new Result();
         Boolean lock = redisTemplate.opsForValue().setIfAbsent(Constant.REDIS_KEY_PREFIX+account.getContractResponsiblePhone(),"1");
         try {
             if(lock!=null&&lock) {
@@ -336,21 +313,16 @@ public class AccountServiceImpl implements AccountService {
                             smsService.sendSms(Collections.singletonList(account.getContractResponsiblePhone()),Arrays.asList("phone","password"), Arrays.asList(account.getContractResponsiblePhone(),password), smsTemplateCode2);
                         }
                     });
-                    //smsService.sendSms(Collections.singletonList(account.getContractResponsiblePhone()),Arrays.asList("phone","password"), Arrays.asList(account.getContractResponsiblePhone(),password), smsTemplateCode2);
-                    baseResult.setMessage("用户和供应商添加成功！");
-                    baseResult.setCode(Constant.CodeConfig.CODE_SUCCESS);
-                    return baseResult;
+                    return Result.success("用户和供应商添加成功！");
                 }
             }
-            baseResult.setMessage("此供应商已经存在！");
-            baseResult.setCode(Constant.CodeConfig.CODE_FAILURE);
         } catch (Exception e) {
         	logger.error("增加供应商异常",e);
-        	throw new Exception(e.getMessage());
+        	throw new Exception("增加供应商异常",e);
         }finally {
             redisTemplate.delete(Constant.REDIS_KEY_PREFIX+account.getContractResponsiblePhone());
         }
-        return baseResult;
+        return Result.fail("此供应商已经存在！");
     }
 
     /**

@@ -2,20 +2,13 @@ package so.sao.shop.supplier.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.dao.CommCategoryDao;
 import so.sao.shop.supplier.domain.CommCategory;
-import so.sao.shop.supplier.pojo.BaseResult;
-import so.sao.shop.supplier.pojo.Result;
-import so.sao.shop.supplier.pojo.input.CommCategoryInput;
-import so.sao.shop.supplier.pojo.input.CommCategoryUpdateInput;
 import so.sao.shop.supplier.pojo.output.CommCategorySelectOutput;
 import so.sao.shop.supplier.service.CommCategoryService;
-import so.sao.shop.supplier.util.BaseResultUtil;
+import so.sao.shop.supplier.util.BeanMapper;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -29,85 +22,6 @@ public class CommCategoryServiceImpl implements CommCategoryService {
     private CommCategoryDao commCategoryDao;
 
     /**
-     * 新增加商品品类--ServiceImpl
-     * @param commCategoryInput
-     * @return
-     */
-    @Transactional(rollbackFor = Exception.class)
-    public BaseResult saveCommCategory(CommCategoryInput commCategoryInput){
-        BaseResult result = new BaseResult();
-        CommCategory commCategory =commCategoryDao.findCommCategoryByName(commCategoryInput.getName());
-        //判断需要新增的类型名称是否已经存在
-        if(null == commCategory){
-            CommCategory commCate = new CommCategory();
-            //如果新增的类型没有PID,那就让PID==0
-            if(null == commCategoryInput.getPid()){
-                commCate.setPid(0L);
-            }else {
-                commCate.setPid(commCategoryInput.getPid());
-            }
-            commCate.setName(commCategoryInput.getName());
-            commCate.setSort(commCategoryInput.getSort());
-            commCate.setRemark(commCategoryInput.getRemark());
-            if(null == commCategoryInput.getPid() || 0==commCategoryInput.getPid()){
-                commCate.setLevel(1);
-            }else {
-                //需要新增的PID有数值时候，需要查询id = Pid的商品类型的level是多少，最后返回level+1
-                Integer level = commCategoryDao.findCommCategoryLevelByPid(commCategoryInput.getPid());
-                commCate.setLevel(level+1);
-            }
-            commCate.setDeleted(0);
-            commCate.setCreatedAt(new Date());
-            commCate.setUpdatedAt(new Date());
-            boolean flag = commCategoryDao.save(commCate);
-            return BaseResultUtil.transTo(flag,"添加商品类型成功","添加商品类型失败");
-        }else {
-            result.setCode(Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage("你输入的商品类型名称已经存在了，请重新定义！");
-            return result;
-        }
-    }
-    /**
-     * 删除商品科属
-     * @param id 商品科属表ID
-     * @return
-     */
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public Result deleteCommCategory(Long id) {
-         commCategoryDao.deleteById(id);
-         return Result.success("删除商品科属成功！");
-    }
-
-    /**
-     * 根据ID修改商品类型信息
-     * @param commCategoryUpdateInput 商品类型对象入参
-     * @return
-     */
- 
-	@Override
-    @Transactional(rollbackFor = Exception.class)
-    public BaseResult updateCommCategory(CommCategoryUpdateInput commCategoryUpdateInput) {
-	    BaseResult result = new BaseResult();
-        CommCategory one = commCategoryDao.findOne(commCategoryUpdateInput.getId());
-        //修改前再次验证ID是否存在
-        if(null != one){
-            CommCategory commCategory = new CommCategory();
-            commCategory.setId(commCategoryUpdateInput.getId());
-            commCategory.setName(commCategoryUpdateInput.getName());
-            commCategory.setRemark(commCategoryUpdateInput.getRemark());
-            commCategory.setSort(commCategoryUpdateInput.getSort());
-            commCategory.setUpdatedAt(new Date());
-            boolean flag = commCategoryDao.update(commCategory);
-            return BaseResultUtil.transTo(flag,"更新商品类型成功","更新商品类型失败");
-        }else {
-            result.setCode(Constant.CodeConfig.CODE_NOT_FOUND_RESULT);
-            result.setMessage("你选择修改的商品类型不存在，请重新选择");
-            return result;
-        }
-    }
-
-    /**
      * 查询商品品类列表；
      * @param pid
      * @return CommCategorySelectOutput
@@ -117,12 +31,10 @@ public class CommCategoryServiceImpl implements CommCategoryService {
         List<CommCategorySelectOutput> list = new ArrayList<>();
         //将CommCategory遍历添加到一个新数组里面，新数组存放需要的对象属性值
         List<CommCategory> tempList = commCategoryDao.find(pid);
-        for (CommCategory commCategory : tempList) {
-            CommCategorySelectOutput commCategorySelectOutput = new CommCategorySelectOutput();
-            commCategorySelectOutput.setId(commCategory.getId());
-            commCategorySelectOutput.setName(commCategory.getName());
+        tempList.forEach( commCategory ->{
+            CommCategorySelectOutput commCategorySelectOutput = BeanMapper.map(commCategory , CommCategorySelectOutput.class);
             list.add(commCategorySelectOutput);
-        }
+        });
         return list;
 
     }

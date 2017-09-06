@@ -46,7 +46,7 @@ public interface AuthService {
      * @return
      * @throws IOException
      */
-    public BaseResult getPassword(String tel) throws IOException;
+    public Result getPassword(String tel) throws IOException;
 
 
     /**
@@ -54,7 +54,7 @@ public interface AuthService {
      * @param tel
      * @return
      */
-    public BaseResult sendCode(String tel) throws IOException;
+    public Result sendCode(String tel) throws IOException;
 
     /**
      * 验证码校验
@@ -62,7 +62,7 @@ public interface AuthService {
      * @param code
      * @return
      */
-    public BaseResult verifySmsCode(User user, String code);
+    public Result verifySmsCode(User user, String code);
 
     /**
      * 密码修改

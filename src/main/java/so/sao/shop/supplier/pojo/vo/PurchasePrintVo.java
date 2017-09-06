@@ -56,6 +56,16 @@ public class PurchasePrintVo {
      */
     private String providerName;
 
+    private Integer orderStatus;
+
+    public Integer getOrderStatus() {
+        return orderStatus;
+    }
+
+    public void setOrderStatus(Integer orderStatus) {
+        this.orderStatus = orderStatus;
+    }
+
     public String getOrderId() {
         return orderId;
     }

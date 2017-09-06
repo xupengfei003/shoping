@@ -25,18 +25,27 @@ public interface QrcodeDao {
     public int save(Qrcode qrcode);
 
     /**
-     * 修改二维码状态
+     * 批量保存二维码信息
      *
+     * @param qrcodes 二维码对象列表
+     * @return
+     */
+    public void saveQrcodes(List<Qrcode> qrcodes);
+
+
+    /**
+     * 修改二维码状态
+     * <p>
      * 根据订单编号修改二维码状态
      *
-     * @param orderId 订单编号
-     * @param status 状态
+     * @param orderId    订单编号
+     * @param status     状态
      * @param disabledAt 失效时间
-     * @param updatedAt 修改时间
+     * @param updatedAt  修改时间
      * @return 成功返回true，失败返回false
      */
-    boolean updateStatus(@Param("orderId") String orderId, @Param("status")Integer status,
-                         @Param("disabledAt")Date disabledAt, @Param("updatedAt")Date updatedAt);
+    boolean updateStatus(@Param("orderId") String orderId, @Param("status") Integer status,
+                         @Param("disabledAt") Date disabledAt, @Param("updatedAt") Date updatedAt);
 
     /**
      * 根据订单编号查询对应的二维码
@@ -45,4 +54,12 @@ public interface QrcodeDao {
      * @return 返回二维码对象集合
      */
     public List<Qrcode> findQrcodeByOrderId(String orderId);
+
+    /**
+     * 根据支付id查询对应订单的二维码，返回二维码数量
+     *
+     * @param payId 支付id
+     * @return
+     */
+    int getQrcodesByPayId(String payId);
 }

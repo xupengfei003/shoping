@@ -9,24 +9,24 @@ import javax.validation.constraints.Size;
  * Created by XuPengFei on 2017/7/20.
  */
 public class CommCategoryInput {
-    /**
-     * ID 自动增加，
-     */
-    //private Long id;
+
     /**
      *  PID
      */
     private Long pid;
+
     /**
      *  类型名称
      */
     @NotBlank(message = "类型名称不能为空")
     @Size(min = 1,max = 50,message = "商品类型名称长度不能超过50")
     private String name;
+
     /**
      *  备注
      */
     private String remark;
+
     /**
      *  类型的排序
      */

@@ -15,7 +15,7 @@ public class CommConstant {
     /**
      * 未上架
      */
-    public static final int COMM_ST_XZ = 0;
+    public static final int COMM_ST_NEW = 0;
     /**
      * 删除
      */
@@ -23,11 +23,11 @@ public class CommConstant {
     /**
      * 上架
      */
-    public static final int COMM_ST_SJ = 2;
+    public static final int COMM_ST_ON_SHELVES = 2;
     /**
      * 下架
      */
-    public static final int COMM_ST_XJ = 3;
+    public static final int COMM_ST_OFF_SHELVES = 3;
 
     /**
      * 商品一级分类pid
@@ -43,16 +43,16 @@ public class CommConstant {
     public static String getStatus(int status){
         String st="待上架";
         switch (status){
-            case CommConstant.COMM_ST_XZ:
+            case CommConstant.COMM_ST_NEW:
                 st="待上架";
                 break;
 /*            case Constant.COMM_ST_FC:
                 st="已废除";
                 break;*/
-            case CommConstant.COMM_ST_SJ:
+            case CommConstant.COMM_ST_ON_SHELVES:
                 st="上架";
                 break;
-            case CommConstant.COMM_ST_XJ:
+            case CommConstant.COMM_ST_OFF_SHELVES:
                 st="下架";
                 break;
         }
@@ -137,4 +137,20 @@ public class CommConstant {
     public static final String[] IMAGE_TYPE = {"image/jpg","image/jpeg","image/png","image/gif"};
     public static final String IMAGE_JPEG = "image/jpeg";
     public static final String IMAGE_JPG = "jpg";
+
+    /**
+     * Excel的开始行
+     */
+    public static final int POI_START_ROW = 1;
+
+    /**
+     * Excel的sheet名
+     */
+    public static final String SHEET_NAME = "商品列表";
+
+    /**
+     * Excel文件名
+     */
+    public static final String FILE_NAME = "商品列表";
+
 }

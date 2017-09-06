@@ -26,12 +26,12 @@ public interface UserDao {
     int saveSmsCode(@Param("tel")String tel, @Param("code")String code);
     String findSmsCode(Long userId);
     int add(User user);
-    int update(@Param("id")Long id, @Param("tel")String tel);
+    void update(@Param("id")Long id, @Param("tel")String tel);
     int updateLogoutTime(@Param("userId")Long userId,@Param("logoutTime")Date logoutTime);
     /**
-     * ¸ù¾İµÇÂ¼Ãû³Æ²éÑ¯ÓÃ»§
-     * @param loginName µÇÂ¼Ãû³Æ
-     * @return ÓÃ»§¶ÔÏó
+     * æ ¹æ®ç™»å½•åæŸ¥è¯¢ç”¨æˆ·ä¿¡æ¯
+     * @param loginName ç™»å½•åç§°
+     * @return ç”¨æˆ·å¯¹è±¡
      */
     User findByLoginName(String loginName);
    

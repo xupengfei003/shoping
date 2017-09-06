@@ -90,25 +90,24 @@
     </update>
     <select id="findByIds" parameterType="Long[]" resultType="so.sao.shop.supplier.pojo.output.CommodityExportOutput">
         SELECT
-        sc.sku AS sku,
-        sc.code69 AS code69,
-        cb.name AS brandName,
-        ct.name AS tagName,
-        cc.name AS commName,
-        sc.code AS supplierCode,
-        cu.name AS unitName,
-        cms.name AS measureSpecName,
-        sc.rule_val AS ruleValue,
-        sc.price AS price,
-        sc.unit_price AS unitPrice,
-        sc.inventory AS inventory,
-        sc.status AS status,
-        sc.created_at AS createdAt,
-        sc.updated_at AS updatedAt,
-        cc.company_name AS companyName,
-        cc.origin_place AS originPlace,
-        cc.market_time AS marketTime
-
+            IFNULL(sc.sku,'') AS sku,
+            IFNULL(sc.code69,'') AS code69,
+            IFNULL(cb.name,'') AS brandName,
+            IFNULL(ct.name,'') AS tagName,
+            IFNULL(cc.name,'') AS commName,
+            IFNULL(sc.code,'') AS supplierCode,
+            IFNULL(cu.name,'') AS unitName,
+            IFNULL(cms.name,'') AS measureSpecName,
+            IFNULL(sc.rule_val,'') AS ruleValue,
+            sc.price AS price,
+            sc.unit_price AS unitPrice,
+            sc.inventory AS inventory,
+            sc.status AS status,
+            IFNULL(sc.created_at,'') AS createdAt,
+            IFNULL(sc.updated_at,'') AS updatedAt,
+            IFNULL(cc.company_name,'') AS companyName,
+            IFNULL(cc.origin_place,'') AS originPlace,
+            IFNULL(cc.market_time,'') AS marketTime
         FROM supplier_commodity sc INNER JOIN (commodity c LEFT JOIN comm_brand cb on c.brand_id = cb.id) on sc.code69 = c.code69
         LEFT JOIN comm_measure_spec cms on sc.measure_spec_id = cms.id LEFT JOIN comm_unit cu on sc.unit_id = cu.id  LEFT JOIN comm_tag ct on sc.tag_id = ct.id  LEFT JOIN commodity cc on sc.code69 = cc.code69
         WHERE sc.id IN

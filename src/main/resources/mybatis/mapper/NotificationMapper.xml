@@ -43,7 +43,7 @@
                 GROUP BY sigin
             </if>
         </where>
-        ORDER BY notifi_status ASC,created_at DESC
+        ORDER BY created_at DESC
     </select>
     <!-- 查询未读消息列表 -->
     <select id="searchUnread" resultMap="BaseResultMap">

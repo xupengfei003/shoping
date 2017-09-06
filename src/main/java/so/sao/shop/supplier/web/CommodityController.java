@@ -3,32 +3,21 @@ package so.sao.shop.supplier.web;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.ModelAndView;
-import so.sao.shop.supplier.config.StorageConfig;
 import so.sao.shop.supplier.pojo.BaseResult;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.CommSearchInput;
 import so.sao.shop.supplier.pojo.input.CommSimpleSearchInput;
 import so.sao.shop.supplier.pojo.input.CommodityInput;
 import so.sao.shop.supplier.pojo.input.CommodityUpdateInput;
-import so.sao.shop.supplier.pojo.output.CommodityExportOutput;
 import so.sao.shop.supplier.service.CommodityService;
 import so.sao.shop.supplier.util.CheckUtil;
-import so.sao.shop.supplier.util.CommodityExcelView;
-import so.sao.shop.supplier.util.ExcelView;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.math.BigDecimal;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
 
 /**
  * 商品管理 Controller
@@ -88,30 +77,29 @@ public class CommodityController {
         return commodityService.updateCommodity(commodityUpdateInput, supplierId);
     }
 
-    @ApiOperation(value="上架商品", notes="")
-    @PutMapping(value="/updateStatusSj/{id}")
-    public Result updateStatusSj(@PathVariable long id){
-        return commodityService.updateStatusSj(id);
+    @ApiOperation(value="上架商品", notes="【负责人：张瑞兵】")
+    @PutMapping(value="/onShelves/{id}")
+    public Result onShelves(@PathVariable long id){
+        return commodityService.onShelves(id);
     }
 
-    @ApiOperation(value="批量商品上架", notes="")
-    @PutMapping(value="/updateStatusSj/bulk")
-    public BaseResult updateStatusSjs(@RequestParam Long[] ids){
-        return commodityService.updateStatusSjs(ids);
+    @ApiOperation(value="批量商品上架", notes="【负责人：张瑞兵】")
+    @PutMapping(value="/onShelves/batch")
+    public Result onShelvesBatch(@RequestParam Long[] ids){
+        return commodityService.onShelvesBatch(ids);
     }
 
-    @ApiOperation(value="下架商品", notes="")
-    @PutMapping(value="/updateStatusXj/{id}")
-    public Result updateStatusXj(@PathVariable long id){
-        return commodityService.updateStatusXj(id);
+    @ApiOperation(value="下架商品", notes="【负责人：张瑞兵】")
+    @PutMapping(value="/offShelves/{id}")
+    public Result offShelves(@PathVariable long id){
+        return commodityService.offShelves(id);
     }
 
-    @ApiOperation(value="批量商品下架", notes="")
-    @PutMapping(value="/updateStatusXj/bulk")
-    public BaseResult updateStatusXjs(@RequestParam Long[] ids){
-        return commodityService.updateStatusXjs(ids);
+    @ApiOperation(value="批量商品下架", notes="【负责人：张瑞兵】")
+    @PutMapping(value="/offShelves/batch")
+    public Result offShelvesBatch(@RequestParam Long[] ids){
+        return commodityService.offShelvesBatch(ids);
     }
-
 
     @ApiOperation(value="删除商品信息", notes="根据ID删除相应的商品【责任人：武凯江】")
     @DeleteMapping(value="/delete/{id}")
@@ -123,12 +111,6 @@ public class CommodityController {
     @DeleteMapping(value="/delete/bulk")
     public Result delete(@RequestParam Long[] id){
         return commodityService.deleteCommodities(id);
-    }
-
-    @ApiOperation(value="删除商品图片", notes="根据ID删除相应的商品图片")
-    @DeleteMapping(value="/delete/imge/{id}")
-    public BaseResult deleteImge(@PathVariable Long id){
-      return commodityService.deleteCommImge(id);
     }
 
     @ApiOperation(value="批量导入商品", notes="通过Excel模板批量导入商品信息【负责人：潘帅帅】")
@@ -143,18 +125,13 @@ public class CommodityController {
        return commodityService.importExcel(excelFile, request, supplierId);
     }
 
-    @ApiOperation(value="导出商品信息", notes="导出商品信息到Excel")
+    @ApiOperation(value="导出商品信息到Excel模板", notes="【责任人：张瑞兵】")
     @GetMapping(value="/exportExcel")
-    public ModelAndView exportExcel(@RequestParam Long[] ids){
+    public Result exportExcel(HttpServletResponse response , @RequestParam Long[] ids){
         if(ids == null || ids.length == 0){
-            throw new RuntimeException("请至少选择一个商品进行导出！");
+            return Result.fail("请至少选择一个商品进行导出！");
         }
-        List<CommodityExportOutput> commodityList = commodityService.findByIds(ids);
-        Map<String, Object> map = new HashMap<String, Object>();
-        map.put("members", commodityList);
-        map.put("name", "商品信息表");
-        ExcelView excelView = new CommodityExcelView();
-        return new ModelAndView(excelView, map);
+        return commodityService.exportExcel(response,ids);
     }
 
 }
