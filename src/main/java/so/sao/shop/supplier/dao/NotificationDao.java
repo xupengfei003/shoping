@@ -22,7 +22,7 @@ public interface NotificationDao {
     void saveNotifications(List<Notification> notificationList);
 
     /**
-     *
+     * 分页查询消息通知
      * @param accountId accountId
      * @param notifiType notifiType
      * @return List<Notification>

@@ -529,6 +529,9 @@ public class CommodityServiceImpl implements CommodityService {
     public Result onShelvesBatch(Long[] ids) {
         //根据id数组查询，过滤已删除的商品
         List<SupplierCommodity> supplierCommodityList = supplierCommodityDao.findSupplierCommodityByIds(ids);
+        if (null == supplierCommodityList || supplierCommodityList.size() == 0){
+            return Result.fail("该商品无记录！");
+        }
         List<SupplierCommodity> list = new ArrayList<>();
         for (SupplierCommodity supplierCommodity:supplierCommodityList) {
             supplierCommodity.setStatus(CommConstant.COMM_ST_ON_SHELVES);
@@ -550,6 +553,9 @@ public class CommodityServiceImpl implements CommodityService {
     public Result offShelvesBatch(Long[] ids) {
         //根据id数组查询，过滤已删除的商品
         List<SupplierCommodity> supplierCommodityList = supplierCommodityDao.findSupplierCommodityByIds(ids);
+        if (null == supplierCommodityList || supplierCommodityList.size() == 0){
+            return Result.fail("该商品无记录！");
+        }
         List<SupplierCommodity> list = new ArrayList<>();
         for (SupplierCommodity supplierCommodity:supplierCommodityList) {
             supplierCommodity.setStatus(CommConstant.COMM_ST_OFF_SHELVES);
@@ -628,6 +634,14 @@ public class CommodityServiceImpl implements CommodityService {
                         SupplierCommodity suppliercommodity = supplierCommodityDao.findSupplierCommodityInfo(code69,supplierId);
                         if (null != suppliercommodity) {
                             errorList.add(rowNum);
+                        }else if( supplierCommodityVo.getPrice().compareTo(BigDecimal.ZERO) == -1){
+                            errorList.add(rowNum);
+                        }else if( supplierCommodityVo.getUnitPrice().compareTo(BigDecimal.ZERO) == -1){
+                            errorList.add(rowNum);
+                        }else if(supplierCommodityVo.getUnitPrice().compareTo(supplierCommodityVo.getPrice()) != -1){
+                            errorList.add(rowNum);
+                        }else if( supplierCommodityVo.getInventory() <0){
+                            errorList.add(rowNum);
                         }
                 }
             }
@@ -689,10 +703,14 @@ public class CommodityServiceImpl implements CommodityService {
                                long pid, String filePath, long supplierId){
         switch (key) {
             case "商品条码":
-                supplierCommodityVo.setCode69(value);
+                if (!"".equals(value)) {
+                    supplierCommodityVo.setCode69(value);
+                }
                 break;
             case "商品品牌":
-                commodityInput.setBrandName(value);
+                if (!"".equals(value)) {
+                    commodityInput.setBrandName(value);
+                }
                 break;
             case "图片":
                 if (!"".equals(value)) {
@@ -721,10 +739,14 @@ public class CommodityServiceImpl implements CommodityService {
                 }
                 break;
             case "商品名称":
-                commodityInput.setName(value);
+                if (!"".equals(value)) {
+                    commodityInput.setName(value);
+                }
                 break;
             case "商家编码":
-                supplierCommodityVo.setCode(value);
+                if (!"".equals(value)) {
+                    supplierCommodityVo.setCode(value);
+                }
                 break;
             case "商品分类一级":
                 if (!"".equals(value)) {
@@ -753,7 +775,9 @@ public class CommodityServiceImpl implements CommodityService {
                 }
                 break;
             case "商品描述":
-                commodityInput.setRemark(value);
+                if (!"".equals(value)) {
+                    commodityInput.setRemark(value);
+                }
                 break;
             case "计量规格":
                 if (!"".equals(value)) {
@@ -765,23 +789,28 @@ public class CommodityServiceImpl implements CommodityService {
                 }
                 break;
             case "商品规格值":
-                supplierCommodityVo.setRuleVal(value);
+                if (!"".equals(value)) {
+                    supplierCommodityVo.setRuleVal(value);
+                }
                 break;
             case "成本价":
                 if (!"".equals(value)) {
-                    supplierCommodityVo.setUnitPrice(new BigDecimal(value));
+                    supplierCommodityVo.setUnitPrice(DataCompare.roundData(new BigDecimal(value),2));
                 }
                 break;
             case "市场价":
                 if (!"".equals(value)) {
-                    supplierCommodityVo.setPrice(new BigDecimal(value));
+                    supplierCommodityVo.setPrice(DataCompare.roundData(new BigDecimal(value),2));
                 }
                 break;
             case "库存":
-                if (!"".equals(value)) {
-                    supplierCommodityVo.setInventory(Double.parseDouble(value));
-                }else {
-                    supplierCommodityVo.setInventory(0.0);
+                if (!"".equals(value)  ) {
+                    if(value.trim().length() >9){
+                        supplierCommodityVo.setInventory(-1.0);
+                    }else{
+                        supplierCommodityVo.setInventory(Double.valueOf(value));
+                    }
+
                 }
                 break;
             case "包装单位":
