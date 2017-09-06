@@ -3,8 +3,6 @@ package so.sao.shop.supplier.web;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -44,7 +42,6 @@ import java.util.Map;
 @Api(description = "订单类-所有接口")
 public class PurchaseController {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Resource
     private PurchaseService purchaseService;
 
@@ -209,7 +206,7 @@ public class PurchaseController {
      */
     @ApiOperation(value = "收入明细查询(高级查询)", notes = " 根据商户id及查询条件（起始创建订单-结束创建订单时间/起始下单时间-结束下单时间/支付方式;订单编号/收货人名称/收货人联系方式）分页显示订单【负责人:郑振海】")
     @GetMapping(value = "/account/PurchasesHigh")
-    public Result<PageInfo> searchHigh(Integer pageNum, Integer pageSize, @Validated AccountPurchaseInput input, HttpServletRequest request) throws ParseException {
+    public Result searchHigh(Integer pageNum, Integer pageSize, @Validated AccountPurchaseInput input, HttpServletRequest request) throws ParseException {
         //1.取出当前登录用户
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         if (null == user || Ognl.isEmpty(user.getAccountId())) {   //验证用户是否登陆
@@ -250,7 +247,7 @@ public class PurchaseController {
      */
     @ApiOperation(value = "收入明细查询(普通查询)", notes = " 根据商户id及查询条件（起始创建订单-结束创建订单时间/支付流水号/订单编号/收货人名称）分页显示订单【负责人:郑振海】")
     @GetMapping(value = "/account/PurchasesLow")
-    public Result<PageInfo> searchLow(Integer pageNum, Integer pageSize, AccountPurchaseLowInput input, HttpServletRequest request) throws ParseException {
+    public Result searchLow(Integer pageNum, Integer pageSize, AccountPurchaseLowInput input, HttpServletRequest request) throws ParseException {
         //1.取出当前登录用户
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         if (null == user || Ognl.isEmpty(user.getAccountId())) {   //验证用户是否登陆
