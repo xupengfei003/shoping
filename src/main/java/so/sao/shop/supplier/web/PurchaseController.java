@@ -102,6 +102,9 @@ public class PurchaseController {
         }
         //对比开始时间和结束时间
         if (restrictDate(dateList)) return Result.fail(Constant.MessageConfig.DateNOTLate);
+        //对比开始金额和结束金额
+        if (DataCompare.compareMoney(purchaseSelectInput.getBeginMoney(),purchaseSelectInput.getEndMoney()))
+            return Result.fail(Constant.MessageConfig.MoneyNOTLate);
         purchaseService.exportExcel(request, response, pageNum, pageSize, accountId, purchaseSelectInput);
         return Result.success(Constant.MessageConfig.MSG_SUCCESS);
     }
@@ -142,6 +145,9 @@ public class PurchaseController {
         }
         //对比开始时间和结束时间
         if (restrictDate(dateList)) return Result.fail(Constant.MessageConfig.DateNOTLate);
+        //对比开始金额和结束金额
+        if (DataCompare.compareMoney(purchaseSelectInput.getBeginMoney(),purchaseSelectInput.getEndMoney()))
+            return Result.fail(Constant.MessageConfig.MoneyNOTLate);
         //查询订单
         if (rows == null || rows <= 0) {
             rows = 10;
