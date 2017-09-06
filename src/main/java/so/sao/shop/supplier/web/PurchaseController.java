@@ -103,13 +103,11 @@ public class PurchaseController {
                 return Result.fail(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
             }
         }
-        if (restrictDate(purchaseSelectInput)) {
-            return Result.fail(Constant.MessageConfig.DateNOTLate);
-        }
+        //对比开始时间和结束时间
+        if (restrictDate(dateList)) return Result.fail(Constant.MessageConfig.DateNOTLate);
         purchaseService.exportExcel(request, response, pageNum, pageSize, accountId, purchaseSelectInput);
         return Result.success(Constant.MessageConfig.MSG_SUCCESS);
     }
-
     /**
      * 查询全部订单列表
      *
@@ -146,9 +144,7 @@ public class PurchaseController {
             }
         }
         //对比开始时间和结束时间
-        if (restrictDate(purchaseSelectInput)) {
-            return Result.fail(Constant.MessageConfig.DateNOTLate);
-        }
+        if (restrictDate(dateList)) return Result.fail(Constant.MessageConfig.DateNOTLate);
         //查询订单
         if (rows == null || rows <= 0) {
             rows = 10;
@@ -159,6 +155,7 @@ public class PurchaseController {
         PageInfo<PurchasesVo> pageInfo = purchaseService.searchOrders(pageNum, rows, purchaseSelectInput);
         return Result.success(Constant.MessageConfig.MSG_SUCCESS, pageInfo);
     }
+
 
     /**
      * 发货接口
@@ -480,18 +477,19 @@ public class PurchaseController {
         return true;
     }
 
-    //限制开始时间小于结束时间
-    private boolean restrictDate(PurchaseSelectInput purchaseSelectInput) throws Exception {
-        boolean flag = false;
-        if (!StringUtils.isEmpty(purchaseSelectInput.getBeginDate()) && !StringUtils.isEmpty(purchaseSelectInput.getEndDate())) {
-            flag = DataCompare.compareDate(purchaseSelectInput.getBeginDate(), purchaseSelectInput.getEndDate());
+    //对比时间大小
+    private boolean restrictDate(List<String> dateList) throws ParseException {
+        boolean flag = true;
+        int i = 0;
+        while(flag){
+            if (DataCompare.compareDate(dateList.get(i), dateList.get(++i))) {
+                return true;
+            }
+            i++;
+            if(i == 6){
+                flag = false;
+            }
         }
-        if (!StringUtils.isEmpty(purchaseSelectInput.getOrderPaymentBeginTime()) && !StringUtils.isEmpty(purchaseSelectInput.getOrderPaymentEndTime())) {
-            flag = DataCompare.compareDate(purchaseSelectInput.getOrderPaymentBeginTime(), purchaseSelectInput.getOrderPaymentEndTime());
-        }
-        if (!StringUtils.isEmpty(purchaseSelectInput.getOrderReceiveBeginTime()) && !StringUtils.isEmpty(purchaseSelectInput.getOrderReceiveEndTime())) {
-            flag = DataCompare.compareDate(purchaseSelectInput.getOrderReceiveBeginTime(), purchaseSelectInput.getOrderReceiveEndTime());
-        }
-        return flag;
+        return false;
     }
 }
