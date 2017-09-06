@@ -224,4 +224,13 @@ public interface PurchaseService {
      */
     void createReceivingQrcodeByPayId(String payId) throws Exception;
 
+    /**
+     * 根据订单状态查询订单ID
+     *
+     * @param orderStatus 订单状态
+     * @return String 订单ID
+     * @throws Exception 异常
+     */
+    List<String> findOrderIdByOrderStatus(Integer orderStatus) throws Exception;
+
 }

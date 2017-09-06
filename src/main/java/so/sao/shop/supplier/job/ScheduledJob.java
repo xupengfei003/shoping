@@ -8,9 +8,12 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.domain.Account;
+import so.sao.shop.supplier.pojo.input.CancelReasonInput;
 import so.sao.shop.supplier.service.AccountService;
 import so.sao.shop.supplier.service.OrderMoneyRecordService;
+import so.sao.shop.supplier.service.PurchaseService;
 
+import javax.annotation.Resource;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -28,7 +31,8 @@ public class ScheduledJob {
     private AccountService accountService;
     @Autowired
     private OrderMoneyRecordService orderMoneyRecordService;
-
+    @Resource
+    private PurchaseService purchaseService;
     /**
      * redisTemplate
      */
@@ -58,6 +62,35 @@ public class ScheduledJob {
             logger.error("系统异常", e);
         } finally {
             redisTemplate.delete(Constant.REDIS_KEY_PREFIX + "COUNT_BILLING_DETAILS");
+        }
+    }
+
+    /**
+     * 定时执行取消到期待付款的订单
+     * @throws Exception
+     */
+//    @Scheduled(cron = "0 0/1 * * * ?")
+    public void CancelOrderJob () throws Exception {
+        System.out.println("11111111");
+        Boolean lock = redisTemplate.opsForValue().setIfAbsent(Constant.REDIS_KEY_PREFIX + "CANCEL_PAYMENT_ORDER", "1");
+        try {
+            if (null != lock && lock) {
+                //根据订单状态查询所有为待付款的订单ID
+                List<String> orderIdList = purchaseService.findOrderIdByOrderStatus(Constant.OrderStatusConfig.PAYMENT);
+                if (null != orderIdList && !orderIdList.isEmpty()) {
+                    CancelReasonInput cancelReasonInput = new CancelReasonInput();
+                    for(String orderId : orderIdList){
+                        cancelReasonInput.setOrderId(orderId);
+                        if(purchaseService.findOrderStatus(orderId) == 1){
+                            purchaseService.cancelOrder(cancelReasonInput);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            logger.error("系统异常", e);
+        } finally {
+            redisTemplate.delete(Constant.REDIS_KEY_PREFIX + "CANCEL_PAYMENT_ORDER");
         }
     }
 }

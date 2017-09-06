@@ -411,7 +411,8 @@ public class PurchaseController {
     @PostMapping("/insertCancelReason")
     public Result insertCancelReason(@RequestBody @Valid CancelReasonInput cancelReasonInput) throws Exception {
         //判断订单状态
-        if (!verifyOrderStatus(cancelReasonInput.getOrderId(), Constant.OrderStatusConfig.CANCEL_ORDER)) {
+        if (!verifyOrderStatus(cancelReasonInput.getOrderId(), Constant.OrderStatusConfig.CANCEL_ORDER) ||
+                !verifyOrderStatus(cancelReasonInput.getOrderId(), Constant.OrderStatusConfig.PAYMENT_CANCEL_ORDER)) {
             return Result.fail(Constant.MessageConfig.ORDER_STATUS_EERO);
         }
         purchaseService.cancelOrder(cancelReasonInput);

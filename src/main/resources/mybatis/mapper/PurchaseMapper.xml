@@ -82,13 +82,16 @@
         <where>
             order_status != -1
 
-            <if test="@so.sao.shop.supplier.util.Ognl@isEmpty(purchaseSelectInput.orderStatus)">
+            <!--<if test="@so.sao.shop.supplier.util.Ognl@isEmpty(purchaseSelectInput.orderStatus)">
                 AND (order_status != 7 || pay_status != 0)
             </if>
             <if test="purchaseSelectInput.orderStatus == 7">
                 AND pay_status != 0
             </if>
             <if test="purchaseSelectInput.orderStatus!=null">
+                AND order_status = TRIM(#{purchaseSelectInput.orderStatus})
+            </if>-->
+            <if test="@so.sao.shop.supplier.util.Ognl@isEmpty(purchaseSelectInput.orderStatus)">
                 AND order_status = TRIM(#{purchaseSelectInput.orderStatus})
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.orderReceiverName) and
@@ -582,4 +585,14 @@
         updated_at = #{refundMap.updatedAt}
         WHERE order_id = #{refundMap.orderId}
     </update>
+
+    <!--根据订单状态查询订单ID-->
+    <select id="findOrderIdByOrderStatus" parameterType="java.lang.Integer" resultType="java.lang.String">
+        SELECT
+        order_id
+        FROM purchase
+        WHERE order_status = #{orderStatus}
+        AND pay_status = 0
+        AND TIMESTAMPDIFF(HOUR,order_create_time,NOW()) >= 24
+    </select>
 </mapper>
