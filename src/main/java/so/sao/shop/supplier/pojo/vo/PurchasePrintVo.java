@@ -56,6 +56,9 @@ public class PurchasePrintVo {
      */
     private String providerName;
 
+    /**
+     * 订单状态
+     */
     private Integer orderStatus;
 
     public Integer getOrderStatus() {

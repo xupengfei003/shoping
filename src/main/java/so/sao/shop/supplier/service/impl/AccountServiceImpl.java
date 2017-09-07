@@ -345,8 +345,11 @@ public class AccountServiceImpl implements AccountService {
             return Result.fail("上传文件为空");
         }
     	//文件名称不为空，先删除云端文件
+//    	if(!"".equals(blobName) && blobName != null) {
+//    		azureBlobService.deleteFile(CommConstant.AZURE_CONTAINER.toLowerCase(), blobName.split("-_-")[1]);
+//    	}
     	if(!"".equals(blobName) && blobName != null) {
-    		azureBlobService.deleteFile(CommConstant.AZURE_CONTAINER.toLowerCase(), blobName.split("-_-")[1]);
+    		azureBlobService.deleteFile(CommConstant.AZURE_CONTAINER.toLowerCase(), blobName);
     	}
         //获取文件名称
         String fileName = multipartFile.getOriginalFilename();
@@ -355,8 +358,11 @@ public class AccountServiceImpl implements AccountService {
         //获取文件后缀名
         String prefix=fileName.substring(fileName.lastIndexOf(".")+1);
         //判断文件类型
-        if(!("doc".equals(prefix) || "docx".equals(prefix)||"ppt".equals(prefix)||"pptx".equals(prefix)||"wps".equals(prefix)||"pdf".equals(prefix)||"txt".equals(prefix))) {
-            return Result.fail("不符合文件类型");
+//        if(!("doc".equals(prefix) || "docx".equals(prefix)||"ppt".equals(prefix)||"pptx".equals(prefix)||"wps".equals(prefix)||"pdf".equals(prefix)||"txt".equals(prefix))) {
+//            return Result.fail("不符合文件类型");
+//        }
+        if(!"pdf".equals(prefix)) {
+        	return Result.fail("不符合文件类型");
         }
         //判断文件大小
         if(fileSize/1024/1024>20) {
@@ -365,7 +371,7 @@ public class AccountServiceImpl implements AccountService {
       //上传成功封装为result返回页面
         List<BlobUpload> blobUploadList =azureBlobService.uploadFiles(new MultipartFile[] {multipartFile}, CommConstant.AZURE_CONTAINER.toLowerCase());
         BlobUpload blobUpload = blobUploadList.get(0);
-        blobUpload.setFileName(fileName+"-_-"+blobUpload.getFileName());
+        blobUpload.setOriginalFileName(fileName);
         return Result.success("文件上传成功",blobUpload);
 
     }
