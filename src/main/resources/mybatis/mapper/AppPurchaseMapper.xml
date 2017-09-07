@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="so.sao.shop.supplier.dao.AppPurchaseDao">
+    <!--App端查询全部订单列表-->
+    <resultMap id="AppOrderAllList" type="so.sao.shop.supplier.pojo.vo.AppPurchasesVo">
+        <id column="order_id" property="orderId"/>
+        <result column="order_create_time" property="orderCreateTime"/>
+        <result column="store_name" property="storeName"/>
+        <result column="order_status" property="orderStatus"/>
+        <result column="order_receiver_name" property="orderReceiverName"/>
+        <result column="order_receiver_sex" property="orderReceiverSex"/>
+        <result column="order_receiver_mobile" property="orderReceiverMobile"/>
+        <result column="order_address" property="orderAddress"/>
+        <result column="order_price" property="orderPrice"/>
+    </resultMap>
+
+    <sql id="App_Order_Column_List">
+        order_id, order_create_time, store_name, order_status, order_receiver_name,
+        order_receiver_sex, order_receiver_mobile, order_address,order_price
+    </sql>
+    <select id="findOrderList" resultMap="AppOrderAllList" parameterType="java.lang.Integer">
+        SELECT
+        <include refid="App_Order_Column_List"/>
+        FROM purchase
+        WHERE
+        order_status != -1
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderStatus)">
+            AND order_status = TRIM(#{orderStatus})
+        </if>
+        ORDER BY updated_at DESC
+    </select>
+
+</mapper>
