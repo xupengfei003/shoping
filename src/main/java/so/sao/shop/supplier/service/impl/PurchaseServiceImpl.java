@@ -999,11 +999,15 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void cancelOrder(CancelReasonInput cancelReasonInput) throws Exception {
+        Integer orderStatus = purchaseDao.getOrderStatus(cancelReasonInput.getOrderId());
+        Integer inputOrderStatus = Constant.OrderStatusConfig.CANCEL_ORDER;
+        if(orderStatus == Constant.OrderStatusConfig.PAYMENT)
+            inputOrderStatus = Constant.OrderStatusConfig.PAYMENT_CANCEL_ORDER;
         Map<String, Object> map = new HashMap<>();
         map.put("orderId", cancelReasonInput.getOrderId());//订单编号
         map.put("cancelReason", cancelReasonInput.getCancelReason());//取消订单理由
         map.put("updatedAt", new Date());//更新时间
-        map.put("orderStatus", Constant.OrderStatusConfig.CANCEL_ORDER);//订单状态 7 取消
+        map.put("orderStatus", inputOrderStatus);//订单状态 7 取消
         purchaseDao.insertCancelMessage(map);
         //TODO 订单取消成功给该供应商推送一条消息
         pushNotification(cancelReasonInput.getOrderId(), Constant.OrderStatusConfig.CANCEL_ORDER);
@@ -1068,5 +1072,18 @@ public class PurchaseServiceImpl implements PurchaseService {
         pushNotification(orderId, Constant.OrderStatusConfig.REFUNDED);
 
         return result;
+    }
+
+    /**
+     * 根据订单状态查询订单ID
+     *
+     * @param orderStatus 订单状态
+     * @return String 订单状态
+     * @throws Exception 异常
+     */
+    @Override
+    public List<String> findOrderIdByOrderStatus(Integer orderStatus) throws Exception {
+        List<String> orderIdList = purchaseDao.findOrderIdByOrderStatus(orderStatus);
+        return orderIdList;
     }
 }

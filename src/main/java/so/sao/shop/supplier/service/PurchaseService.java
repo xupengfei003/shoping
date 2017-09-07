@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -223,5 +224,14 @@ public interface PurchaseService {
      * @throws Exception 异常
      */
     void createReceivingQrcodeByPayId(String payId) throws Exception;
+
+    /**
+     * 根据订单状态查询订单ID
+     *
+     * @param orderStatus 订单状态
+     * @return String 订单ID
+     * @throws Exception 异常
+     */
+    List<String> findOrderIdByOrderStatus(Integer orderStatus) throws Exception;
 
 }
