@@ -52,7 +52,8 @@
 		    ON u.user_id = e.user_id 
 		WHERE u.login_name = #{username} 
 		  AND (
-		    a.account_status = 1 
+		    a.account_status = 1
+		    OR a.account_status = 2
 		    OR e.emp_status = 1
 		  )
     </select>
@@ -102,6 +103,7 @@
 		WHERE u.login_name = #{username}
 		  AND (
 		    a.account_status = 1
+		    OR a.account_status = 2
 		    OR e.emp_status = 1
 		    OR e.emp_status = 0
 		  )

@@ -641,10 +641,10 @@
   <select id="findPage" resultMap="BaseResultMap" parameterType="so.sao.shop.supplier.pojo.input.AccountInput">
           SELECT a.contract_responsible,a.contract_create_date, a.account_id,a.user_id,a.create_date,a.provider_name, a.contract_end_date, a.contract_responsible_phone,p.name regist_address_province,
                   c.name regist_address_city,d.name regist_address_district  ,cp.name contract_register_address_province,cc.name contract_register_address_city,
-                  cd.name contract_register_address_district,  a.contract_register_address
+                  cd.name contract_register_address_district,  a.contract_register_address, account_status
             FROM account a,sys_region p, sys_region c, sys_region d, sys_region cp, sys_region cc, sys_region cd, user u
             <where>
-                    account_status = 1
+              (account_status = 1 OR account_status = 2)
               AND u.is_admin = 0
               AND a.user_id = u.user_id
               AND regist_address_province = p.sr_id
@@ -717,7 +717,7 @@
 
     <!-- 统计已入驻供应商数量总和 -->
   <select id="findAccountNumber" resultType="int">
-    select COUNT(provider_name) FROM account AS a ,user AS u WHERE account_status= 1 AND a.user_id = u.user_id AND u.is_admin = 0
+    select COUNT(provider_name) FROM account AS a ,user AS u WHERE (account_status= 1 OR account_status= 2) AND a.user_id = u.user_id AND u.is_admin = 0
   </select>
 
   <!--查询出当天要结算的供应商信息列表-->
