@@ -1007,7 +1007,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         map.put("orderId", cancelReasonInput.getOrderId());//订单编号
         map.put("cancelReason", cancelReasonInput.getCancelReason());//取消订单理由
         map.put("updatedAt", new Date());//更新时间
-        map.put("orderStatus", inputOrderStatus);//订单状态 7 取消
+        map.put("orderStatus", inputOrderStatus);//订单状态 7-已付款已取消/8-待付款已取消
         purchaseDao.insertCancelMessage(map);
         //TODO 订单取消成功给该供应商推送一条消息
         pushNotification(cancelReasonInput.getOrderId(), Constant.OrderStatusConfig.CANCEL_ORDER);

@@ -1,5 +1,7 @@
 package so.sao.shop.supplier.service.impl;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
 import so.sao.shop.supplier.dao.AppPurchaseDao;
 import so.sao.shop.supplier.dao.AppPurchaseItemDao;
@@ -32,7 +34,8 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
      * @throws Exception 异常
      */
     @Override
-    public List<AppPurchaseOutput> findOrderList(BigInteger userId,Integer orderStatus) throws Exception {
+    public PageInfo<AppPurchaseOutput> findOrderList(Integer pageNum, Integer rows, BigInteger userId, Integer orderStatus) throws Exception {
+        PageHelper.startPage(pageNum, rows);
         List<AppPurchasesVo> orderIdList = appPurchaseDao.findOrderList(userId,orderStatus);
         List<AppPurchaseOutput> appPurchaseOutputs = new ArrayList<>();
         if(orderIdList.size()>0){
@@ -43,6 +46,6 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
                 appPurchaseOutputs.add(appPurchaseOutput);
             }
         }
-        return appPurchaseOutputs;
+        return new PageInfo<>(appPurchaseOutputs);
     }
 }
