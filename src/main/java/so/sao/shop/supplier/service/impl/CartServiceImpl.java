@@ -63,8 +63,16 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public PageInfo<CartItem> findCartItemByUserId(Long userId, int pageNum, int pageSize) {
+
         PageHelper.startPage(pageNum,pageSize);
         List<CartItem> list = cartItemDao.findCartItemByUserId(userId);
+
+        for (int i = 0; i < list.size(); i++) {
+            CartItem cartItem = list.get(i);
+            Long cid =  cartItem.getCommodityId();
+            //查询商品是否还有库存
+            cartItem.setInventory(checkStore(cid).getInventory());
+        }
         return new PageInfo<CartItem>(list);
     }
 
@@ -107,6 +115,14 @@ public class CartServiceImpl implements CartService {
         }
     }
 
+    /**
+     * 得到商品信息
+     * @return
+     * @param cid 商品id
+     */
+    private SupplierCommodity checkStore(Long cid) {
+        return supplierCommodityDao.findOne(cid);
+    }
 
 
     /**

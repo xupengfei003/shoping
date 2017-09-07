@@ -70,8 +70,13 @@ public class CartController {
      */
     @ApiOperation(value="根据用户id获取用户购物车信息",notes = "根据用户id获取用户购物车信息【负责人：王翼云】")
     @GetMapping(value ="/{userid}")
-    public PageInfo<CartItem> getCartItems(@PathVariable("userid") Long userid, @RequestParam("pageNum")int pageNum, @RequestParam("pageSize")int pageSize){
-        return  cartService.findCartItemByUserId(userid,pageNum,pageSize);
+    public Result getCartItems(@PathVariable("userid") Long userid, @RequestParam("pageNum")int pageNum, @RequestParam("pageSize")int pageSize){
+        if(!checkUser()){
+            return Result.fail(Constant.MessageConfig.MSG_FAILURE);
+        }
+        PageInfo<CartItem> pageInfo = cartService.findCartItemByUserId(userid,pageNum,pageSize);
+
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS,pageInfo);
     }
 
     /**

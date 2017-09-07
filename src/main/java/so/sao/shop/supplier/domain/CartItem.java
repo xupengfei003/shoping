@@ -20,9 +20,18 @@ public class CartItem {
      */
     private Long supplierId;
     /**
+     * 供应商名称
+     */
+    private String supplierName;
+
+    /**
      * 商品id
      */
     private Long commodityId;
+    /**
+     * 商品sku
+     */
+    private Long sku;
     /**
      * 价格
      */
@@ -33,13 +42,15 @@ public class CartItem {
      */
     private String commodityName;
     /**
-     * 供应商名称
-     */
-    private String supplierName;
-    /**
      * 商品图片路径
      */
     private String commodityPic;
+
+    /**
+     * 数量
+     */
+    private Integer count;
+
     /**
      * 商品属性
      */
@@ -56,9 +67,9 @@ public class CartItem {
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date updatedAt;
     /**
-     * 数量
+     * 商品库存数量
      */
-    private Integer count;
+    private Double inventory;
 
     /**
      * 供应商对应的商品
@@ -191,5 +202,21 @@ public class CartItem {
 
     public void setCount(Integer count) {
         this.count = count;
+    }
+
+    public Long getSku() {
+        return sku;
+    }
+
+    public void setSku(Long sku) {
+        this.sku = sku;
+    }
+
+    public Double getInventory() {
+        return inventory;
+    }
+
+    public void setInventory(Double inventory) {
+        this.inventory = inventory;
     }
 }
