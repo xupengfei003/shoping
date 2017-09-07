@@ -10,8 +10,8 @@ import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.domain.User;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.*;
-import so.sao.shop.supplier.pojo.output.PurchaseInfoOutput;
 import so.sao.shop.supplier.pojo.output.PurchaseItemPrintOutput;
+import so.sao.shop.supplier.pojo.vo.PurchaseInfoVo;
 import so.sao.shop.supplier.pojo.vo.PurchasesVo;
 import so.sao.shop.supplier.service.PurchaseService;
 import so.sao.shop.supplier.util.DataCompare;
@@ -74,8 +74,8 @@ public class PurchaseController {
     @RequestMapping(value = "/purchase/{orderId}", method = RequestMethod.GET)
     @ApiOperation(value = "获取订单详情", notes = "获取订单详情")
     public Result findById(@PathVariable String orderId) throws Exception {
-        PurchaseInfoOutput output = purchaseService.findById(orderId);
-        return Result.success(Constant.MessageConfig.MSG_SUCCESS, output);
+        PurchaseInfoVo purchaseInfoVo = purchaseService.findById(orderId);
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS, purchaseInfoVo);
     }
 
     /**
@@ -103,7 +103,7 @@ public class PurchaseController {
         //对比开始时间和结束时间
         if (restrictDate(dateList)) return Result.fail(Constant.MessageConfig.DateNOTLate);
         //对比开始金额和结束金额
-        if (DataCompare.compareMoney(purchaseSelectInput.getBeginMoney(),purchaseSelectInput.getEndMoney()))
+        if (DataCompare.compareMoney(purchaseSelectInput.getBeginMoney(), purchaseSelectInput.getEndMoney()))
             return Result.fail(Constant.MessageConfig.MoneyNOTLate);
         purchaseService.exportExcel(request, response, pageNum, pageSize, accountId, purchaseSelectInput);
         return Result.success(Constant.MessageConfig.MSG_SUCCESS);
@@ -147,7 +147,7 @@ public class PurchaseController {
         //对比开始时间和结束时间
         if (restrictDate(dateList)) return Result.fail(Constant.MessageConfig.DateNOTLate);
         //对比开始金额和结束金额
-        if (DataCompare.compareMoney(purchaseSelectInput.getBeginMoney(),purchaseSelectInput.getEndMoney()))
+        if (DataCompare.compareMoney(purchaseSelectInput.getBeginMoney(), purchaseSelectInput.getEndMoney()))
             return Result.fail(Constant.MessageConfig.MoneyNOTLate);
         //查询订单
         if (rows == null || rows <= 0) {
@@ -501,12 +501,12 @@ public class PurchaseController {
     private boolean restrictDate(List<String> dateList) throws ParseException {
         boolean flag = true;
         int i = 0;
-        while(flag){
+        while (flag) {
             if (DataCompare.compareDate(dateList.get(i), dateList.get(++i))) {
                 return flag;
             }
             i++;
-            if(i == 6){
+            if (i == 6) {
                 flag = false;
             }
         }

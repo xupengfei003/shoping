@@ -7,7 +7,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Created by acer on 2017/7/26.
+ * @author gxy on 2017/7/26.
  */
 public class PurchaseInfoVo {
     /**
