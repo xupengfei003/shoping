@@ -228,21 +228,21 @@ public class Account {
 	/**
 	 * 合同云端名称
 	 */
-	@NotEmpty(message = "合同云端名称")
-	@Length(max = 255,message = "合同云端名称长度不能超过255")
+	@NotEmpty(message = "上传合同名称")
+	@Length(max = 255,message = "上传合同名称长度不能超过255")
 	private String contractOriginalName;
 	/**
 	 * 合同云端地址
 	 */
-	@NotEmpty(message = "合同云端地址")
-	@Length(max = 255,message = "合同云端地址长度不能超过255")
+	@NotEmpty(message = "上传合同地址")
+	@Length(max = 255,message = "上传合同地址长度不能超过255")
 	private String contractOriginal;
 	
 	/**
 	 * 合同原文件名
 	 */
-	@NotEmpty(message = "合同云端地址")
-	@Length(max = 255,message = "合同云端地址长度不能超过255")
+	@NotEmpty(message = "上传合同地址")
+	@Length(max = 255,message = "上传合同地址长度不能超过255")
 	private String contractName;
 
 	/**
