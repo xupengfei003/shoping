@@ -210,6 +210,15 @@ public class Account {
     @Length(max = 255,message = "合同注册详细地址长度不能超过255")
 	private String contractRegisterAddressDetail;
 	/**
+	 * 合同日期
+	 */
+	private String contractDate;
+
+	/**
+	 * 合同状态(正常状态:0 /即将过期:1 /已过期:2)
+	 */
+	private int contractStatus;
+	/**
 	 * 上传方式 ，1单次，2批量
 	 */
 	private String uploadMode;
@@ -622,5 +631,20 @@ public class Account {
 	public void setContractName(String contractName) {
 		this.contractName = contractName;
 	}
-    
+
+	public String getContractDate() {
+		return contractDate;
+	}
+
+	public void setContractDate(String contractDate) {
+		this.contractDate = contractDate;
+	}
+
+	public int getContractStatus() {
+		return contractStatus;
+	}
+
+	public void setContractStatus(int contractStatus) {
+		this.contractStatus = contractStatus;
+	}
 }
