@@ -1,10 +1,5 @@
 package so.sao.shop.supplier.pojo.input;
 
-import org.hibernate.validator.constraints.Length;
-
-import javax.validation.constraints.Min;
-import java.math.BigDecimal;
-
 /**
  * <p>
  * 账户余额明细查询input类 (普通查询条件类)

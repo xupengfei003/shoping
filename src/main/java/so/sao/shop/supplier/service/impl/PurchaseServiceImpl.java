@@ -16,7 +16,6 @@ import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.*;
 import so.sao.shop.supplier.pojo.output.CommodityOutput;
 import so.sao.shop.supplier.pojo.output.OrderRefuseReasonOutput;
-import so.sao.shop.supplier.pojo.output.PurchaseInfoOutput;
 import so.sao.shop.supplier.pojo.output.PurchaseItemPrintOutput;
 import so.sao.shop.supplier.pojo.vo.*;
 import so.sao.shop.supplier.service.CommodityService;
@@ -202,8 +201,7 @@ public class PurchaseServiceImpl implements PurchaseService {
      * @throws Exception
      */
     @Override
-    public PurchaseInfoOutput findById(String orderId) throws Exception {
-        PurchaseInfoOutput purchaseInfoOutput = new PurchaseInfoOutput();
+    public PurchaseInfoVo findById(String orderId) throws Exception {
         PurchaseInfoVo purchaseInfoVo = new PurchaseInfoVo();
         Purchase purchase = purchaseDao.findById(orderId);
         if (purchase != null) {
@@ -224,9 +222,8 @@ public class PurchaseServiceImpl implements PurchaseService {
             purchaseInfoVo.setDistributorMobile(purchase.getDistributorMobile());
             purchaseInfoVo.setDrawbackTime(purchase.getDrawbackTime());
             purchaseInfoVo.setOrderAddress(purchase.getOrderAddress());
-            //PurchaseInfoOutput 添加订单明细列表
+            //添加订单明细列表
             List<PurchaseItemVo> purchaseItemVoList = purchaseItemDao.getOrderDetailByOId(purchase.getOrderId());
-
             //转换金额为千分位
             for (PurchaseItemVo purchaseItemVo : purchaseItemVoList) {
                 purchaseItemVo.setGoodsTatolPrice(NumberUtil.number2Thousand(new BigDecimal(purchaseItemVo.getGoodsTatolPrice())));
@@ -237,9 +234,8 @@ public class PurchaseServiceImpl implements PurchaseService {
             } else {
                 purchaseInfoVo.setPurchaseItemVoList(new ArrayList<>());
             }
-            purchaseInfoOutput.setPurchaseInfoVo(purchaseInfoVo);
         }
-        return purchaseInfoOutput;
+        return purchaseInfoVo;
     }
 
     /**
@@ -260,7 +256,6 @@ public class PurchaseServiceImpl implements PurchaseService {
         return new PageInfo<>(orderList);
     }
 
-
     /**
      * 发货接口
      *
@@ -274,7 +269,6 @@ public class PurchaseServiceImpl implements PurchaseService {
         //TODO 更改订单状态成功后向该供应商推送一条消息
         pushNotification(orderId, Constant.OrderStatusConfig.ISSUE_SHIP);
     }
-
 
     /**
      * 批量删除订单
@@ -446,7 +440,6 @@ public class PurchaseServiceImpl implements PurchaseService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     /**
@@ -886,43 +879,6 @@ public class PurchaseServiceImpl implements PurchaseService {
         return map;
     }
 
-    /**
-     * 封装出参的方法
-     *
-     * @param code   code码
-     * @param result 出参类
-     * @param info   分页工具
-     * @return 出参
-     */
-    private Result getOutPut(Integer code, Result<PageInfo> result, PageInfo info) {
-        result.setCode(code);
-        result.setData(info);
-        switch (code) {
-            case 1:
-                result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
-                break;
-            case 0:
-                result.setMessage(Constant.MessageConfig.MSG_FAILURE);
-                break;
-            case 4:
-                result.setMessage(Constant.MessageConfig.MSG_NOT_FOUND_RESULT);
-                break;
-            case 7:
-                result.setMessage(Constant.MessageConfig.DateNOTLate);
-                break;
-            case 8:
-                result.setMessage(Constant.MessageConfig.MoneyNOTLate);
-                break;
-            case 102:
-                result.setMessage(Constant.NoExistMessageConfig.NOSTORE);
-                break;
-            default:
-                result.setCode(Constant.CodeConfig.CODE_FAILURE);
-                result.setMessage(Constant.MessageConfig.MSG_FAILURE);
-        }
-        return result;
-    }
-
     //推送消息通知
     private void pushNotification(String orderId, Integer orderStatus) {
         Purchase purchase = purchaseDao.findById(orderId);
@@ -956,6 +912,8 @@ public class PurchaseServiceImpl implements PurchaseService {
             notifiDetail = Constant.NotifiConfig.REFUNDED_NOTIFI;
         } else if (status == Constant.OrderStatusConfig.CANCEL_ORDER) {
             notifiDetail = Constant.NotifiConfig.CANCEL_ORDER;
+        } else if (status == Constant.OrderStatusConfig.PAYMENT_CANCEL_ORDER) {
+            notifiDetail = Constant.NotifiConfig.PAYMENT_CANCEL_ORDER;
         }
         notification.setNotifiDetail(notifiDetail + orderId);
         notification.setCreatedAt(new Date());
@@ -1001,7 +959,7 @@ public class PurchaseServiceImpl implements PurchaseService {
     public void cancelOrder(CancelReasonInput cancelReasonInput) throws Exception {
         Integer orderStatus = purchaseDao.getOrderStatus(cancelReasonInput.getOrderId());
         Integer inputOrderStatus = Constant.OrderStatusConfig.CANCEL_ORDER;
-        if(orderStatus == Constant.OrderStatusConfig.PAYMENT)
+        if (orderStatus == Constant.OrderStatusConfig.PAYMENT)
             inputOrderStatus = Constant.OrderStatusConfig.PAYMENT_CANCEL_ORDER;
         Map<String, Object> map = new HashMap<>();
         map.put("orderId", cancelReasonInput.getOrderId());//订单编号
@@ -1010,7 +968,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         map.put("orderStatus", inputOrderStatus);//订单状态 7-已付款已取消/8-待付款已取消
         purchaseDao.insertCancelMessage(map);
         //TODO 订单取消成功给该供应商推送一条消息
-        pushNotification(cancelReasonInput.getOrderId(), Constant.OrderStatusConfig.CANCEL_ORDER);
+        pushNotification(cancelReasonInput.getOrderId(), inputOrderStatus);
     }
 
     /**

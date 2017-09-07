@@ -10,8 +10,8 @@ import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.domain.User;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.*;
-import so.sao.shop.supplier.pojo.output.PurchaseInfoOutput;
 import so.sao.shop.supplier.pojo.output.PurchaseItemPrintOutput;
+import so.sao.shop.supplier.pojo.vo.PurchaseInfoVo;
 import so.sao.shop.supplier.pojo.vo.PurchasesVo;
 import so.sao.shop.supplier.service.PurchaseService;
 import so.sao.shop.supplier.util.DataCompare;
@@ -74,8 +74,8 @@ public class PurchaseController {
     @RequestMapping(value = "/purchase/{orderId}", method = RequestMethod.GET)
     @ApiOperation(value = "获取订单详情", notes = "获取订单详情")
     public Result findById(@PathVariable String orderId) throws Exception {
-        PurchaseInfoOutput output = purchaseService.findById(orderId);
-        return Result.success(Constant.MessageConfig.MSG_SUCCESS, output);
+        PurchaseInfoVo purchaseInfoVo = purchaseService.findById(orderId);
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS, purchaseInfoVo);
     }
 
     /**
@@ -103,11 +103,12 @@ public class PurchaseController {
         //对比开始时间和结束时间
         if (restrictDate(dateList)) return Result.fail(Constant.MessageConfig.DateNOTLate);
         //对比开始金额和结束金额
-        if (DataCompare.compareMoney(purchaseSelectInput.getBeginMoney(),purchaseSelectInput.getEndMoney()))
+        if (DataCompare.compareMoney(purchaseSelectInput.getBeginMoney(), purchaseSelectInput.getEndMoney()))
             return Result.fail(Constant.MessageConfig.MoneyNOTLate);
         purchaseService.exportExcel(request, response, pageNum, pageSize, accountId, purchaseSelectInput);
         return Result.success(Constant.MessageConfig.MSG_SUCCESS);
     }
+
     /**
      * 查询全部订单列表
      *
@@ -146,7 +147,7 @@ public class PurchaseController {
         //对比开始时间和结束时间
         if (restrictDate(dateList)) return Result.fail(Constant.MessageConfig.DateNOTLate);
         //对比开始金额和结束金额
-        if (DataCompare.compareMoney(purchaseSelectInput.getBeginMoney(),purchaseSelectInput.getEndMoney()))
+        if (DataCompare.compareMoney(purchaseSelectInput.getBeginMoney(), purchaseSelectInput.getEndMoney()))
             return Result.fail(Constant.MessageConfig.MoneyNOTLate);
         //查询订单
         if (rows == null || rows <= 0) {
@@ -291,7 +292,7 @@ public class PurchaseController {
 
     /**
      * 查询打印商品条目接口
-     *
+     * <p>
      * 根据订单编号查询打印页面的信息及订单对应的商品条目
      * 1.验证参数合法性
      * 2.查询打印信息
@@ -316,7 +317,7 @@ public class PurchaseController {
     /**
      * // FIXME: 2017/9/4 此接口优化时去掉，只保留service方法
      * 生成收货二维码接口
-     *
+     * <p>
      * 根据订单编号生成二维码图片，上传云端并将二维码信息保存到数据库
      * 1.验证参数合法性
      * 2.生成二维码图片并保存到数据库
@@ -438,7 +439,7 @@ public class PurchaseController {
 
     /**
      * 实现退款逻辑
-     *
+     * <p>
      * 根据订单编号调用退款接口退款并修改订单状态
      *
      * @param orderId 订单编号
@@ -485,12 +486,12 @@ public class PurchaseController {
     private boolean restrictDate(List<String> dateList) throws ParseException {
         boolean flag = true;
         int i = 0;
-        while(flag){
+        while (flag) {
             if (DataCompare.compareDate(dateList.get(i), dateList.get(++i))) {
                 return flag;
             }
             i++;
-            if(i == 6){
+            if (i == 6) {
                 flag = false;
             }
         }
