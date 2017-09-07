@@ -52,6 +52,7 @@ public class CartItemInput {
      * 数量
      */
     @Min(value=1,message = "不能小于1")
+    @NotNull(message = "数量不能为空")
     private Integer count;
 
 
