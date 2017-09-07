@@ -2,7 +2,6 @@ package so.sao.shop.supplier.service;
 
 
 import com.github.pagehelper.PageInfo;
-import com.google.zxing.WriterException;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.*;
 import so.sao.shop.supplier.pojo.output.PurchaseItemPrintOutput;
@@ -11,7 +10,6 @@ import so.sao.shop.supplier.pojo.vo.PurchasesVo;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
@@ -116,34 +114,31 @@ public interface PurchaseService {
     /**
      * 根据订单查询订单打印页面信息
      * <p>
-     * 1.查询订单信息
-     * 2.查询商品条目
-     * 3.将订单信息和商品条目封装到output对象
-     * 4.格式化金额
+     * 1.查询订单信息；
+     * 2.查询商品条目；
+     * 3.将订单信息和商品条目封装到output对象；
+     * 4.在实体类属性的get方法中格式化数据。
      *
      * @param orderId 订单编号
-     * @return 封装返回结果
+     * @return 返回一个PurchaseItemPrintOutput对象
+     * @throws Exception 异常
      */
-    PurchaseItemPrintOutput getPrintItems(String orderId);
+    PurchaseItemPrintOutput getPrintItems(String orderId) throws Exception;
 
     /**
      * 根据订单编号生成收货二维码
-     * 如果订单已经存在二维码返回false，生成二维码失败返回false
      * <p>
-     * 1.验证订单并判断订单id是否存在关联的二维码
-     * 1.1．存在返回false(一个订单仅对应一个二维码)
-     * 1.2．不存在执行步骤2
-     * 2.生成二维码图片
-     * 2.1．拼接二维码内容
-     * 2.2. 生成二维码图片
-     * 2.3.将二维码图片上传到云端
-     * 2.4.将二维码信息保存到数据库
-     * 2.5.删除本地图片
+     * 如果订单已经存在二维码返回false，生成二维码失败返回false。
+     * 1.验证订单并判断订单编号是否存在关联的二维码；
+     * 2.生成二维码图片。
+     *      2.1.拼接二维码内容；
+     *      2.2.生成二维码图片；
+     *      2.3.将二维码图片上传到云端；
+     *      2.4.将二维码信息保存到数据库；
+     *      2.5.删除本地图片。
      *
      * @param orderId 订单编号
-     * @return map 封装结果 键flag的值为true表示成功，false表示失败，message的值表示文字描述
-     * @throws IOException     io异常
-     * @throws WriterException 编码二维码时的异常
+     * @throws Exception 异常
      */
     void createReceivingQrcode(String orderId) throws Exception;
 
@@ -207,7 +202,13 @@ public interface PurchaseService {
     String searchCancelReasonByOrderId(String orderId) throws Exception;
 
     /**
-     * 根据订单编号调用退款接口退款并修改订单状态
+     * 根据订单编号实现退款逻辑
+     * <p>
+     * 根据订单编号验证订单、修改订单状态、调用退款接口、推送退款消息。
+     * 1.根据订单状态验证是否可以退款（仅已取消（7）和已拒收（5）状态的订单可以退款，其他状态不可以退款）；
+     * 2.修改订单状态为退款，修改退款时间为当前时间；
+     * 3.调用退款接口实现真正的退款；
+     * 4.推送退款消息。
      *
      * @param orderId 订单编号
      * @return 返回Map：flag：true|false,message:信息
