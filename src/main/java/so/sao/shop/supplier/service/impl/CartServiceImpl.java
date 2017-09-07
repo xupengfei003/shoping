@@ -33,26 +33,40 @@ public class CartServiceImpl implements CartService {
     public static final Integer EQUALS_REMAINING = 0;//等于库存
 
 
+
     @Override
     public boolean saveCartItem(CartItemInput cartItemInput) {
 
         if(cartItemInput == null){
             return false;
         }
+
+        if (!(checkStore(cartItemInput.getCommodityId()).getInventory() > 0)){//没库存
+            return false;
+        }
+
         CartItem cartItem = new CartItem();
         cartItem = convertToCartItem(cartItemInput);
         cartItem.setCreatedAt(new Date());
         //查询是否存在相同的商品
         List<CartItem> existsCartItemLit = cartItemDao.findExistsCartItem(cartItem.getUserId(),cartItem.getSupplierId(),cartItem.getCommodityId());
         if(existsCartItemLit!=null&&existsCartItemLit.size()>0){//如果存在，则更新商品数量
+
             CartItem existsCartItem = existsCartItemLit.get(0);
-            CartItem updateCartItem = new CartItem();
-            updateCartItem.setId(existsCartItem.getId());
-            updateCartItem.setCount(existsCartItem.getCount()+cartItemInput.getCount());
-            updateCartItem.setUpdatedAt(new Date());
-            return cartItemDao.updateByPrimaryKeySelective(updateCartItem)>0?true:false;
-        }else{
-            return cartItemDao.insertSelective(cartItem)>0?true:false;
+            Integer updateNumber = existsCartItem.getCount()+cartItemInput.getCount();
+            //更新记录信息并返回商品库存信息
+            Integer remaining = updateCartItem(existsCartItem.getId(),existsCartItem.getCommodityId(),updateNumber);
+            return (remaining-updateNumber) >= 0 ? true : false;
+        }else{//如果不存在相同的商品
+            //查询商品库存
+            SupplierCommodity supplierCommodity = supplierCommodityDao.findOne(cartItem.getCommodityId());
+            Double inventory = supplierCommodity.getInventory();
+            //判断添加的数量是否超过商品库存
+            if((inventory.intValue()-cartItem.getCount()) >= 0){
+                return cartItemDao.insertSelective(cartItem)>0?true:false;
+            }else{
+                return false;
+            }
         }
     }
 

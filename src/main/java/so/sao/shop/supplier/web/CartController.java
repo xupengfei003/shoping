@@ -87,6 +87,9 @@ public class CartController {
     @ApiOperation(value="向购物车添加商品",notes = "向购物车添加商品【负责人：王翼云】")
     @PostMapping(value ="/cartitem")
     public Result createCartItems(@RequestBody @Validated CartItemInput cartItemInput){
+        if(!checkUser()){
+            return Result.fail(Constant.MessageConfig.MSG_FAILURE);
+        }
         return convertBoolean(cartService.saveCartItem(cartItemInput));
     }
 
