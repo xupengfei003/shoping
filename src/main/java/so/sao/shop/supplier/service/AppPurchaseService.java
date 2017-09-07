@@ -1,5 +1,6 @@
 package so.sao.shop.supplier.service;
 
+import com.github.pagehelper.PageInfo;
 import so.sao.shop.supplier.pojo.output.AppPurchaseOutput;
 import so.sao.shop.supplier.pojo.vo.AppPurchasesVo;
 
@@ -18,5 +19,5 @@ public interface AppPurchaseService {
      * @return List<AppPurchasesVo> 订单列表
      * @throws Exception 异常
      */
-    List<AppPurchaseOutput> findOrderList(BigInteger userId, Integer orderStatus) throws Exception;
+    PageInfo<AppPurchaseOutput> findOrderList(Integer pageNum, Integer rows, BigInteger userId, Integer orderStatus) throws Exception;
 }
