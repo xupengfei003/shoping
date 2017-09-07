@@ -217,7 +217,6 @@ public class AzureBlobService {
                                     || fileName.endsWith(CommConstant.IMG_FILE_PNG)
                                     || fileName.endsWith(CommConstant.IMG_FILE_GIF))) {
                                 errorImgNames.add(fileName);
-                                results.add(Result.fail("上传的文件中包含非jpg/png/jpeg/gif格式",errorImgNames) );
                                 continue;
                             }
                             //拼装blob的名称(新的图片文件名 =UUID+"."图片扩展名)
