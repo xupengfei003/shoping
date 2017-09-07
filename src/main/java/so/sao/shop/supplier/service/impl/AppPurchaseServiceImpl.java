@@ -1,6 +1,5 @@
 package so.sao.shop.supplier.service.impl;
 
-import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
 import so.sao.shop.supplier.dao.AppPurchaseDao;
@@ -10,6 +9,7 @@ import so.sao.shop.supplier.pojo.vo.AppPurchaseItemVo;
 import so.sao.shop.supplier.pojo.vo.AppPurchasesVo;
 import so.sao.shop.supplier.service.AppPurchaseService;
 import so.sao.shop.supplier.util.BeanMapper;
+import so.sao.shop.supplier.util.PageTool;
 
 import javax.annotation.Resource;
 import java.math.BigInteger;
@@ -35,10 +35,11 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
      */
     @Override
     public PageInfo<AppPurchaseOutput> findOrderList(Integer pageNum, Integer rows, BigInteger userId, Integer orderStatus) throws Exception {
-        PageHelper.startPage(pageNum, rows);
+        PageTool.startPage(pageNum,rows);
         List<AppPurchasesVo> orderIdList = appPurchaseDao.findOrderList(userId,orderStatus);
         List<AppPurchaseOutput> appPurchaseOutputs = new ArrayList<>();
-        if(orderIdList.size()>0){
+        PageInfo pageInfo = new PageInfo(orderIdList);
+        if(null != orderIdList && orderIdList.size()>0){
             for(AppPurchasesVo appPurchasesVo : orderIdList){
                 List<AppPurchaseItemVo> appPurchaseItemVoList = appPurchaseItemDao.findOrderItemList(appPurchasesVo.getOrderId());
                 AppPurchaseOutput appPurchaseOutput = BeanMapper.map(appPurchasesVo,AppPurchaseOutput.class);
@@ -46,6 +47,7 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
                 appPurchaseOutputs.add(appPurchaseOutput);
             }
         }
-        return new PageInfo<>(appPurchaseOutputs);
+        pageInfo.setList(appPurchaseOutputs);
+        return pageInfo;
     }
 }

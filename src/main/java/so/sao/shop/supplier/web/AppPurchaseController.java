@@ -4,16 +4,14 @@ import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.domain.User;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.output.AppPurchaseOutput;
-import so.sao.shop.supplier.pojo.vo.AppPurchasesVo;
-import so.sao.shop.supplier.pojo.vo.PurchasesVo;
 import so.sao.shop.supplier.service.AppPurchaseService;
+import so.sao.shop.supplier.util.PageTool;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
