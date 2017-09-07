@@ -5,20 +5,18 @@ import com.github.pagehelper.PageInfo;
 import com.google.zxing.WriterException;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.*;
-import so.sao.shop.supplier.pojo.output.PurchaseInfoOutput;
 import so.sao.shop.supplier.pojo.output.PurchaseItemPrintOutput;
+import so.sao.shop.supplier.pojo.vo.PurchaseInfoVo;
 import so.sao.shop.supplier.pojo.vo.PurchasesVo;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 /**
- * 
  * 订单信息  service 接口
  * </p>
  *
@@ -38,10 +36,10 @@ public interface PurchaseService {
      * 根据订单ID获取订单详情
      *
      * @param orderId orderId
-     * @return PurchaseOutput
-     * @throws Exception
+     * @return PurchaseInfoVo
+     * @throws Exception Exception
      */
-    PurchaseInfoOutput findById(String orderId) throws Exception;
+    PurchaseInfoVo findById(String orderId) throws Exception;
 
     /**
      * 查询订单列表，并分页
@@ -117,7 +115,7 @@ public interface PurchaseService {
 
     /**
      * 根据订单查询订单打印页面信息
-     * 
+     * <p>
      * 1.查询订单信息
      * 2.查询商品条目
      * 3.将订单信息和商品条目封装到output对象
@@ -131,7 +129,7 @@ public interface PurchaseService {
     /**
      * 根据订单编号生成收货二维码
      * 如果订单已经存在二维码返回false，生成二维码失败返回false
-     * 
+     * <p>
      * 1.验证订单并判断订单id是否存在关联的二维码
      * 1.1．存在返回false(一个订单仅对应一个二维码)
      * 1.2．不存在执行步骤2
@@ -151,7 +149,7 @@ public interface PurchaseService {
 
     /**
      * 扫描收货二维码
-     * 
+     * <p>
      * 1.验证是否可以扫码收货
      * 2.将订单状态改为已收货
      * 3.将二维码状态改为失效，并记录失效时间
@@ -163,7 +161,7 @@ public interface PurchaseService {
 
     /**
      * 添加拒收货信息
-     * 
+     * <p>
      * 将拒收理由及相关图片保存
      *
      * @param refuseOrderInput 封装了订单编号，拒收理由，拒收图片
