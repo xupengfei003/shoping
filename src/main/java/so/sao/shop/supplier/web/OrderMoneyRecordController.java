@@ -104,21 +104,22 @@ public class OrderMoneyRecordController {
      *
      * @param recordId 结算明细id
      * @param state    结算状态
+     * @param serialNumber 流水号
      * @return
      * @throws Exception
      */
     @ApiOperation(value = "更新结算状态", notes = "更新结算状态【负责人:聂文超】")
     @PostMapping(value = "/orderMoneyRecord/updateState")
-    public Result updateState(String recordId, String state) throws Exception {
+    public Result updateState(String recordId, String state, String serialNumber) throws Exception {
 
         //1.校验参数合法性
         //1.1 判断参数不为空
-        if (Ognl.isEmpty(recordId) || Ognl.isEmpty(state)) {
+        if (Ognl.isEmpty(recordId) || Ognl.isEmpty(state) || Ognl.isEmpty(serialNumber)) {
             return Result.fail(Constant.MessageConfig.MSG_NOT_EMPTY);
         }
 
         //2.修改结算状态
-        boolean flag = orderMoneyRecordService.updateOrderMoneyRecordState(recordId, state);
+        boolean flag = orderMoneyRecordService.updateOrderMoneyRecordState(recordId, state, serialNumber);
 
         //2.1 修改状态成功，返回信息
         if (flag) {

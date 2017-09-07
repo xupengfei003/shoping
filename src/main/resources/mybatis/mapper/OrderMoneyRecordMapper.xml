@@ -215,7 +215,7 @@
     WHERE record_id = #{recordId}
   </select>
 
-  <!--根据结算明细id修改结算状态、更新时间、结算时间、待结算金额、已结算金额-->
+  <!--根据结算明细id修改结算状态、更新时间、结算时间、待结算金额、已结算金额、流水号-->
   <update id="updateOrderMoneyRecord" parameterType="so.sao.shop.supplier.domain.OrderMoneyRecord">
     UPDATE order_money_record
     <set>
@@ -233,6 +233,9 @@
       </if>
       <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(settledAmount)">
         settled_amount = #{settledAmount},
+      </if>
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(serialNumber)">
+        serial_number = #{serialNumber},
       </if>
     </set>
     WHERE record_id = #{recordId}

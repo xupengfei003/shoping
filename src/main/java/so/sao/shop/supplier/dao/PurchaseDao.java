@@ -216,4 +216,11 @@ public interface PurchaseDao {
      * @throws Exception 异常
      */
     int refundByOrderId(@Param("refundMap") Map<String,Object> refundMap) throws Exception;
+
+    /**
+     * 批量更新订单的账户状态
+     * @param purchaseUpdateList
+     */
+    void updatePurchasesAccountStatusById(List<Purchase> purchaseUpdateList);
+
 }

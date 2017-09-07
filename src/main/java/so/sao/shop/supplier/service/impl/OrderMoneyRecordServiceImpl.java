@@ -33,6 +33,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.FileInputStream;
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -54,7 +55,7 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
     private RecordPurchaseDao recordPurchaseDao;
 
     /**
-     * 保存结算明细、结算明细与订单关联关系、更新Account表中的上一次结算时间字段
+     * 保存结算明细、结算明细与订单关联关系、更新账户的上一次结算时间、更新订单中的账户状态
      *
      * @param accountList
      * @return
@@ -65,127 +66,338 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
 
 		/*
          * 1、判断accountList，不为空的话则循环列表
-         *   a).结算明细的list
-         *   b).结算明细与订单关联关系list
-         *   c).更新的accountList
-         *   d).获取账户id
-         *   e).设置Account表中需要更新账户表中的字段
-         *   f).查询该商户下已完成的且在指定结算方式内的订单
-         *   g).循环订单id,设置结算明细与订单关联关系的值，并添加到结算明细与订单关联的recordPurchaseList
-         *   h).设置该商户下结算明细的值，并添加到结算明细的orderMoneyRecordList
-         * 2、批量更新Account表中的上一次结算时间字段
-		 * 3、批量保存结算明细记录
-		 * 4、批量保存结算明细与订单关联关系
+         * 2、新建插入数据、更新数据list
+         *      a)、结算明细的列表orderMoneyRecordList
+         *      b)、结算明细与订单关联关系列表recordPurchaseList
+         *      c)、账户更新的数据列表accountList
+         *      d)、订单更新的数据列表purchaseUpdateList
+		 * 3、批量插入数据、批量更新数据
+		 *      e)、批量更新供应商账户表中的上一次结算时间
+		 *      f)、批量保存结算明细记录
+		 *      g)、批量保存结算明细与订单关联关系
+		 *      h)、批量更新订单中的账户状态
 		 */
 
         //1、判断accountList，不为空的话则循环列表
         if (null != accountList && !accountList.isEmpty()) {
-            //a).结算明细的list
+
+            //2、新建插入数据、更新数据list
+            //a)、结算明细的列表orderMoneyRecordList
             List<OrderMoneyRecord> orderMoneyRecordList = new ArrayList<>();
 
-            //b).结算明细与订单关联关系list
+            //b)、结算明细与订单关联关系列表recordPurchaseList
             List<RecordPurchase> recordPurchaseList = new ArrayList<>();
 
-            //c).更新的accountList
+            //c)、账户更新的数据列表accountList
             List<Account> accountUpdateList = new ArrayList<>();
+
+            //d)、订单更新的数据列表purchaseUpdateList
+            List<Purchase> purchaseUpdateList = new ArrayList<>();
 
             for (Account account : accountList) {
                 String remittanceType = account.getRemittanceType();//结算方式
-
-                //d).获取账户id
-                Long accountId = account.getAccountId();
-
-                Date currentDate = new Date();
-
-                //e).设置Account表中需要更新账户表中的字段
-                Account updateAccount = new Account();
-                updateAccount.setAccountId(accountId);
-                updateAccount.setLastSettlementDate(currentDate);//上一次结帐日期
-                accountUpdateList.add(updateAccount);
-
-                //f).查询该商户下已完成的且在指定结算方式内的订单
-                List<Purchase> purchaseList = null;
-                if (Ognl.isNotEmpty(remittanceType) && "1".equals(remittanceType)) {
-                    //按自然月结算
-                    purchaseList = purchaseDao.findPurchaseMonth(accountId, currentDate);
-
-                } else if (Ognl.isNotEmpty(remittanceType) && "2".equals(remittanceType)) {
-                    String remittanced = account.getRemittanced();//固定时间天数
-                    Date lastSettlementDate = account.getLastSettlementDate();//上一次结算时间
-
-                    //判断上一次结算时间，如果为空的话，则设置上一次结算时间为创建时间
-                    if (null == lastSettlementDate) {
-                        lastSettlementDate = account.getCreateDate();
-                    }
-
-                    //判断固定结算时间，如果为空，则执行下一次循环
-                    if (Ognl.isEmpty(remittanced)) {
-                        continue;
-                    }
-
-                    //按固定时间结算
-                    purchaseList = purchaseDao.findPurchaseFixedTime(accountId, lastSettlementDate, remittanced);
-                }
-
-                if (null == purchaseList || purchaseList.isEmpty()) {
+                if (Ognl.isEmpty(remittanceType)) { //如果结算方式为空，则执行下一次循环
                     continue;
                 }
 
-                String recordId = NumberGenerate.generateId();//生成结算明细id
-
-                //g).循环订单id,设置结算明细与订单关联关系的值，并添加到结算明细与订单关联的recordPurchaseList
-                BigDecimal tmpOrderSettlemePrice = new BigDecimal("0.00");
-
-                for (Purchase purchase : purchaseList) {
-                    RecordPurchase recordPurchase = new RecordPurchase();
-                    recordPurchase.setRecordId(recordId);
-                    recordPurchase.setOrderId(purchase.getOrderId());
-                    recordPurchaseList.add(recordPurchase);
-
-                    BigDecimal orderSettlemePrice = purchase.getOrderSettlemePrice();
-                    if (null == orderSettlemePrice) {
-                        orderSettlemePrice = new BigDecimal("0.00");
-                    }
-                    tmpOrderSettlemePrice = tmpOrderSettlemePrice.add(orderSettlemePrice);
-                }
-
-                //h).设置该商户下结算明细的值，并添加到结算明细的orderMoneyRecordList
-                OrderMoneyRecord omr = new OrderMoneyRecord();
-                omr.setRecordId(recordId);
-                omr.setUserId(accountId);// 账户id
-                omr.setBankName(account.getBankName());// 开户行
-                omr.setBankNameBranch("");// 开户支行
-                omr.setBankAccount(account.getBankNum());// 银行卡号
-                omr.setTotalMoney(tmpOrderSettlemePrice);// 待结算金额
-                omr.setState("0");// 状态
-                omr.setCreatedAt(currentDate);// 创建时间
-                omr.setUpdatedAt(currentDate);// 更新时间
-                omr.setSerialNumber("");//流水号
-                omr.setProviderName(account.getProviderName());//供应商名称
-                omr.setSettledAmount(new BigDecimal("0.00"));//已结算金额
-                omr.setBankUserName(account.getBankUserName());//开户人姓名
-                omr.setCheckoutAt(currentDate);//结账时间
-                orderMoneyRecordList.add(omr);
-
+                //设置新增、更新数据
+                purchaseListByRemittanceType(remittanceType, account, orderMoneyRecordList, recordPurchaseList, purchaseUpdateList, accountUpdateList);
             }
+            //3、批量插入数据、批量更新数据
 
             if (!accountUpdateList.isEmpty()) {
-                //2、批量更新Account表中的上一次结算时间字段
+                //e)、批量更新供应商账户表中的上一次结算时间
                 accountDao.updateAccountLastSettlementDate(accountUpdateList);
             }
 
-            if (orderMoneyRecordList.isEmpty() || recordPurchaseList.isEmpty()) {
+            if (orderMoneyRecordList.isEmpty() || recordPurchaseList.isEmpty() || purchaseUpdateList.isEmpty()) {
                 return;
             }
 
-            //3、批量保存结算明细记录
+            //f)、批量保存结算明细记录
             orderMoneyRecordDao.saveOrderMoneyRecords(orderMoneyRecordList);
 
-            //4、批量保存结算明细与订单关联关系
+            //g)、批量保存结算明细与订单关联关系
             recordPurchaseDao.saveRecordPurchases(recordPurchaseList);
+
+            //h)、批量更新订单中的账户状态
+            purchaseDao.updatePurchasesAccountStatusById(purchaseUpdateList);
 
         }
     }
+
+    /**
+     * 根据不同结算方式，获取不同方式下的订单列表数据
+     *
+     * @param remittanceType       结算方式
+     * @param account              供应商账户
+     * @param orderMoneyRecordList 结算明细list
+     * @param recordPurchaseList   结算明细与订单关联关系list
+     * @param purchaseUpdateList   待更新的订单list
+     * @param accountUpdateList    待更新的账户list
+     * @throws Exception
+     */
+    public void purchaseListByRemittanceType(String remittanceType, Account account, List<OrderMoneyRecord> orderMoneyRecordList,
+                                             List<RecordPurchase> recordPurchaseList, List<Purchase> purchaseUpdateList,
+                                             List<Account> accountUpdateList) throws Exception {
+
+        Date lastSettlementDate = account.getLastSettlementDate();//上一次结账时间
+
+        //获取账户id
+        Long accountId = account.getAccountId();
+        Date currentDate = new Date();
+
+        Date updateLastSettDate = null;
+
+        /* 1、获取不同结算方式下，对应时间段内订单列表
+         *    1)、按自然月结算
+         *      a)、获取当前时间与上次结算时间相差的月数
+         *      b)、获取上次结算时间相差i个月之后的时间
+         *      c)、获取指定时间上一个月的内的订单数据
+         *      d)、设置结算明细、结算明细与订单关联关系、待更新的订单、待更新的账户的值，并添加到对应的list
+         *    2)、按固定时间结算
+         *      e)、获取两个时间相差天数
+         *      f)、相差天数与固定结算时间取整，即判断几个周期未结算
+         *      g)、获取上次结算时间加上固定结算时间j个周期之后的时间
+         *      h)、获取指定时间段内的订单数据
+         *      i)、设置结算明细、结算明细与订单关联关系、待更新的订单、待更新的账户的值，并添加到对应的list
+         * 2、设置更新供应商账户数据，并添加到对应的列表
+         *
+         */
+
+
+        //1、获取不同结算方式下，对应时间段内订单列表
+        List<Purchase> purchaseList = null;
+
+        //1)、按自然月结算
+        if ("1".equals(remittanceType)) {
+            updateLastSettDate = getFirstDayOfMonth();//设置上一次结帐时间
+
+            //a)、获取当前时间与上次结算时间相差的月数
+            int months = countMonths(lastSettlementDate, currentDate);
+            if (months <= 0) {
+                return;
+            }
+
+            for (int i = 1; i <= months; i++) {
+                //b)、获取上次结算时间相差i个月之后的时间
+                Date tmpLastSettlementDate = addMonths(lastSettlementDate, i);
+
+                //c)、获取指定时间上一个月内的订单数据
+                purchaseList = purchaseDao.findPurchaseMonth(accountId, tmpLastSettlementDate);
+
+                //d)、设置结算明细、结算明细与订单关联关系、待更新的订单、待更新的账户的值，并添加到对应的list
+                setValues(purchaseList, account, currentDate, orderMoneyRecordList, recordPurchaseList,
+                        purchaseUpdateList, tmpLastSettlementDate);
+            }
+        } else if ("2".equals(remittanceType)) {
+            //2)、按固定时间结算
+            updateLastSettDate = currentDate;//设置上一次结帐时间
+
+            String remittanced = account.getRemittanced();//固定时间天数
+            if (null == lastSettlementDate) {
+                //判断上一次结算时间，如果为空的话，则设置上一次结算时间为创建时间
+                lastSettlementDate = account.getCreateDate();
+            }
+
+            //判断固定结算时间，如果为空，则返回
+            if (Ognl.isEmpty(remittanced)) {
+                return;
+            }
+
+            //e)、获取两个时间相差天数
+            int days = daysOfTwoDate(lastSettlementDate, currentDate);
+            int tmpRemittanced = Integer.valueOf(remittanced);
+
+            //f)、相差天数与固定结算时间取整，即判断几个周期未结算
+            int tmpCountRemittanced = days / tmpRemittanced;
+            if (tmpCountRemittanced <= 0) {
+                return;
+            }
+
+            for (int j = 1; j <= tmpCountRemittanced; tmpCountRemittanced++) {
+                //g)、获取上次结算时间加上固定结算时间j个周期之后的时间
+                Date tmpLastSettlementDate = addDays(lastSettlementDate, tmpRemittanced * j);
+
+                //h)、获取指定时间段内的订单数据
+                purchaseList = purchaseDao.findPurchaseFixedTime(accountId, tmpLastSettlementDate, remittanced);
+
+                //i)、设置结算明细、结算明细与订单关联关系、待更新的订单、待更新的账户的值，并添加到对应的list
+                setValues(purchaseList, account, currentDate, orderMoneyRecordList, recordPurchaseList,
+                        purchaseUpdateList, tmpLastSettlementDate);
+            }
+        }
+
+        //2、设置更新供应商账户数据，并添加到对应的列表
+        Account updateAccount = new Account();
+        updateAccount.setAccountId(accountId);
+        updateAccount.setLastSettlementDate(updateLastSettDate);//上一次结帐日期
+        accountUpdateList.add(updateAccount);
+    }
+
+
+    /**
+     * 设置结算明细及结算明细与订单关联、订单更新数据
+     * @param purchaseList
+     * @param account
+     * @param currentDate
+     * @param orderMoneyRecordList
+     * @param recordPurchaseList
+     * @param purchaseUpdateList
+     */
+    public void setValues(List<Purchase> purchaseList, Account account, Date currentDate, List<OrderMoneyRecord> orderMoneyRecordList,
+                          List<RecordPurchase> recordPurchaseList, List<Purchase> purchaseUpdateList, Date tmpLastSettlementDate) {
+        if (null == purchaseList || purchaseList.isEmpty()) {
+            return;
+        }
+
+        String recordId = NumberGenerate.generateId();//生成结算明细id
+        BigDecimal tmpOrderSettlemePrice = new BigDecimal("0.00");
+
+        //设置结算明细与订单关联数据、订单更新数据，并添加到对应的list中
+        setRecordPurchaseValues(purchaseList, recordPurchaseList, purchaseUpdateList, recordId, tmpOrderSettlemePrice);
+
+        //设置该商户下结算明细的值，并添加到结算明细的orderMoneyRecordList
+        setOMRValues(recordId, account, tmpOrderSettlemePrice, currentDate, orderMoneyRecordList, tmpLastSettlementDate);
+
+    }
+
+
+    /**
+     * 设置结算明细数据，并添加到orderMoneyRecordList
+     * @param recordId 结算明细id
+     * @param account  供应商账户
+     * @param tmpOrderSettlemePrice 待结算金额
+     * @param currentDate 当前时间
+     * @return
+     */
+    public void setOMRValues(String recordId, Account account, BigDecimal tmpOrderSettlemePrice, Date currentDate,
+                             List<OrderMoneyRecord> orderMoneyRecordList, Date tmpLastSettlementDate) {
+        OrderMoneyRecord omr = new OrderMoneyRecord();
+        omr.setRecordId(recordId);
+        omr.setUserId(account.getAccountId());// 账户id
+        omr.setBankName(account.getBankName());// 开户行
+        omr.setBankNameBranch("");// 开户支行
+        omr.setBankAccount(account.getBankNum());// 银行卡号
+        omr.setTotalMoney(tmpOrderSettlemePrice);// 待结算金额
+        omr.setState("0");// 状态
+        omr.setCreatedAt(currentDate);// 创建时间
+        omr.setUpdatedAt(currentDate);// 更新时间
+        omr.setSerialNumber("");//流水号
+        omr.setProviderName(account.getProviderName());//供应商名称
+        omr.setSettledAmount(new BigDecimal("0.00"));//已结算金额
+        omr.setBankUserName(account.getBankUserName());//开户人姓名
+        omr.setCheckoutAt(tmpLastSettlementDate);//结账时间
+        orderMoneyRecordList.add(omr);
+    }
+
+    /**
+     * 设置结算明细与订单关联表数据，以及要更新的订单数据
+     * @param purchaseList
+     * @param recordPurchaseList
+     * @param purchaseUpdateList
+     * @param recordId
+     * @param tmpOrderSettlemePrice
+     */
+    public void setRecordPurchaseValues(List<Purchase> purchaseList, List<RecordPurchase> recordPurchaseList,
+                                        List<Purchase> purchaseUpdateList, String recordId, BigDecimal tmpOrderSettlemePrice) {
+        for (Purchase purchase : purchaseList) {
+            RecordPurchase recordPurchase = new RecordPurchase();
+            recordPurchase.setRecordId(recordId);
+            recordPurchase.setOrderId(purchase.getOrderId());
+            recordPurchaseList.add(recordPurchase);//结算明细与订单关联数据添加到recordPurchaseList
+
+            BigDecimal orderSettlemePrice = purchase.getOrderSettlemePrice();
+            if (null == orderSettlemePrice) {
+                orderSettlemePrice = new BigDecimal("0.00");
+            }
+            //统计purchaseList订单列表的结算金额之和
+            tmpOrderSettlemePrice = tmpOrderSettlemePrice.add(orderSettlemePrice);
+
+            purchase.setUpdatedAt(new Date());
+            purchaseUpdateList.add(purchase);//订单更新数据添加到purchaseUpdateList
+        }
+    }
+
+
+    /**
+     * 获取两个时间之间相差几个月
+     * @param lastDate  上次结算时间
+     * @param currentDate   当前时间
+     * @return
+     * @throws ParseException
+     */
+    public static int countMonths(Date lastDate, Date currentDate) throws ParseException {
+        Calendar c1 = Calendar.getInstance();
+        Calendar c2 = Calendar.getInstance();
+        c1.setTime(lastDate);
+        c2.setTime(currentDate);
+        int year = c2.get(Calendar.YEAR) - c1.get(Calendar.YEAR);
+        //开始日期若小月结束日期
+        if(year < 0){
+            year = -year;
+            return year*12 + c1.get(Calendar.MONTH) - c2.get(Calendar.MONTH);
+        }
+        return year*12 + c2.get(Calendar.MONTH) - c1.get(Calendar.MONTH);
+    }
+
+    /**
+     * 获取指定时间，加上n个月之后的时间
+     * @param date 当前时间
+     * @param n
+     * @return
+     */
+    public static Date addMonths(Date date, int n) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.MONTH, n);
+        return calendar.getTime();
+    }
+
+    /**
+     * 获取当前时间所在月的第一天时间
+     * @return
+     * @throws ParseException
+     */
+    public static Date getFirstDayOfMonth() throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Calendar lastDate = Calendar.getInstance();
+        lastDate.set(Calendar.DATE, 1); //设为当前月的1号
+        Date date = sdf.parse(sdf.format(lastDate.getTime()) + " 00:00:00");
+        return date;
+    }
+
+    /**
+     * 判断两个时间相差天数
+     *   例如：2017-09-06 23:59:59 和 2017-09-07 00:01:00 相差1天
+     * @param fDate 起始时间
+     * @param oDate 结束时间
+     * @return
+     */
+    public static int daysOfTwoDate(Date fDate, Date oDate) {
+        Calendar aCalendar = Calendar.getInstance();
+        aCalendar.setTime(fDate);
+        int day1 = aCalendar.get(Calendar.DAY_OF_YEAR);
+        aCalendar.setTime(oDate);
+        int day2 = aCalendar.get(Calendar.DAY_OF_YEAR);
+        return day2 - day1;
+    }
+
+    /**
+     * 获取指定时间加上固定天数之后的时间
+     * @param curDate
+     * @param num
+     * @return
+     * @throws ParseException
+     */
+    public static Date addDays(Date curDate, int num) throws ParseException {
+        Calendar ca = Calendar.getInstance();
+        ca.setTime(curDate);
+        ca.add(Calendar.DATE, num);// num为增加的天数
+        Date endDate = ca.getTime();
+        return endDate;
+    }
+
 
     /**
      * 查询结算明细列表
@@ -254,7 +466,7 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean updateOrderMoneyRecordState(String recordId, String state) throws Exception {
+    public boolean updateOrderMoneyRecordState(String recordId, String state, String serialNumber) throws Exception {
 
         /*
          * 1.查找该recordId对应的OrderMoneyRecord实体
@@ -295,6 +507,7 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
             orderMoneyRecord.setSettledAt(new Date());//结算时间
             orderMoneyRecord.setTotalMoney(new BigDecimal("0.00"));//待结算金额
             orderMoneyRecord.setSettledAmount(tmpTotalAmount);//已结算金额
+            orderMoneyRecord.setSerialNumber(serialNumber);//流水号
 
             //e)更新结算明细数据
             int modifyRecordNum = orderMoneyRecordDao.updateOrderMoneyRecord(orderMoneyRecord);
