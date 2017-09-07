@@ -231,7 +231,7 @@ public class AccountController {
      * @return
      */
     @GetMapping(value = "/findAccount")
-    @ApiOperation(value = "查询供应商列表" , notes = "负责人：唐文斌")
+    @ApiOperation(value = "查询供应商列表" , notes = "查找供应商列表【负责人：唐文斌】")
     public PageInfo search(AccountInput accountInput, HttpServletRequest request)  {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         if(user==null || !user.getIsAdmin().equals(Constant.ADMIN_STATUS)){
