@@ -26,8 +26,10 @@ public class AppPurchaseItemController {
     @ApiOperation(value = "门店端获取订单列表", notes = "负责人【白治华】")
     public Result findPurchaseItemByOrderId(String orderId) throws Exception{
         List<AppPurchaseItemOutput> appPurchaseItemOutputs = appPurchaseItemService.findOrderItemList(orderId);
-        if(appPurchaseItemOutputs.size()>0){
+        if(null != appPurchaseItemOutputs && appPurchaseItemOutputs.size()>0){
             return Result.success(Constant.MessageConfig.MSG_SUCCESS,appPurchaseItemOutputs);
+        } else if(appPurchaseItemOutputs.size() == 0){
+            return Result.success(Constant.MessageConfig.MSG_SUCCESS,null);
         }
         return Result.fail(Constant.MessageConfig.MSG_FAILURE);
     }

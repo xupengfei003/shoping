@@ -3,6 +3,7 @@ package so.sao.shop.supplier.dao;
 import org.apache.ibatis.annotations.Param;
 import so.sao.shop.supplier.pojo.vo.AppPurchasesVo;
 
+import java.math.BigInteger;
 import java.util.List;
 
 /**
@@ -16,5 +17,5 @@ public interface AppPurchaseDao {
      * @return List<AppPurchaseItemVo> 订单列表
      * @throws Exception 异常
      */
-    List<AppPurchasesVo> findOrderList(@Param("orderStatus") Integer orderStatus) throws Exception;
+    List<AppPurchasesVo> findOrderList(@Param("userId") BigInteger userId, @Param("orderStatus") Integer orderStatus) throws Exception;
 }

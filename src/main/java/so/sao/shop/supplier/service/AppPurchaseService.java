@@ -3,6 +3,7 @@ package so.sao.shop.supplier.service;
 import so.sao.shop.supplier.pojo.output.AppPurchaseOutput;
 import so.sao.shop.supplier.pojo.vo.AppPurchasesVo;
 
+import java.math.BigInteger;
 import java.util.List;
 
 /**
@@ -12,9 +13,10 @@ public interface AppPurchaseService {
     /**
      * 根据订单状态查询订单列表
      *
+     * @param userId 用户ID
      * @param orderStatus 订单状态
      * @return List<AppPurchasesVo> 订单列表
      * @throws Exception 异常
      */
-    List<AppPurchaseOutput> findOrderList(Integer orderStatus) throws Exception;
+    List<AppPurchaseOutput> findOrderList(BigInteger userId, Integer orderStatus) throws Exception;
 }

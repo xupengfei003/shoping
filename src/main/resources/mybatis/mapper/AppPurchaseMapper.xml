@@ -27,6 +27,9 @@
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderStatus)">
             AND order_status = TRIM(#{orderStatus})
         </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(userId)">
+            AND user_id = TRIM(#{userId})
+        </if>
         ORDER BY updated_at DESC
     </select>
 

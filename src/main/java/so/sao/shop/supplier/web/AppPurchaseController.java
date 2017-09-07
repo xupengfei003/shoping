@@ -7,12 +7,15 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import so.sao.shop.supplier.config.Constant;
+import so.sao.shop.supplier.domain.User;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.output.AppPurchaseOutput;
 import so.sao.shop.supplier.pojo.vo.AppPurchasesVo;
 import so.sao.shop.supplier.service.AppPurchaseService;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.math.BigInteger;
 import java.util.List;
 
 /**
@@ -26,10 +29,18 @@ public class AppPurchaseController {
     private AppPurchaseService appPurchaseService;
     @GetMapping(value = "/appOrderList")
     @ApiOperation(value = "门店端获取订单列表", notes = "负责人【白治华】")
-    public Result appOrderList(Integer orderStatus) throws Exception{
-        List<AppPurchaseOutput> appPurchasesVoList = appPurchaseService.findOrderList(orderStatus);
-        if(appPurchasesVoList.size()>0){
+    public Result appOrderList(HttpServletRequest request, Integer orderStatus) throws Exception{
+        //获取当前登陆账户
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        //判断是否登陆
+        if (null == user) {
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
+        }
+        List<AppPurchaseOutput> appPurchasesVoList = appPurchaseService.findOrderList(BigInteger.valueOf(user.getId()),orderStatus);
+        if(null != appPurchasesVoList && appPurchasesVoList.size()>0){
             return Result.success(Constant.MessageConfig.MSG_SUCCESS,appPurchasesVoList);
+        } else if(appPurchasesVoList.size() == 0){
+            return Result.success(Constant.MessageConfig.MSG_SUCCESS,null);
         }
         return Result.fail(Constant.MessageConfig.MSG_FAILURE);
     }

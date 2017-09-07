@@ -37,7 +37,7 @@ public class AppPurchaseItemServiceImpl implements AppPurchaseItemService {
     public List<AppPurchaseItemOutput> findOrderItemList(String orderId) throws Exception {
         List<AppPurchaseItemVo> appPurchaseItemVoList = appPurchaseItemDao.findOrderItemList(orderId);
         Integer orderStatus = purchaseDao.getOrderStatus(orderId);
-        List<AppPurchasesVo> appPurchasesVos = appPurchaseDao.findOrderList(orderStatus);
+        List<AppPurchasesVo> appPurchasesVos = appPurchaseDao.findOrderList(null,orderStatus);
         List<AppPurchaseItemOutput> appPurchaseItemOutputs = new ArrayList<>();
         AppPurchaseItemOutput appPurchaseItemOutput = null;
         if(null != appPurchasesVos && appPurchasesVos.size()>0){

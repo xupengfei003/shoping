@@ -10,6 +10,7 @@ import so.sao.shop.supplier.service.AppPurchaseService;
 import so.sao.shop.supplier.util.BeanMapper;
 
 import javax.annotation.Resource;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,13 +26,14 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
     /**
      * 根据订单状态查询订单列表
      *
+     * @param userId 用户ID
      * @param orderStatus 订单状态
      * @return List<AppPurchasesVo> 订单列表
      * @throws Exception 异常
      */
     @Override
-    public List<AppPurchaseOutput> findOrderList(Integer orderStatus) throws Exception {
-        List<AppPurchasesVo> orderIdList = appPurchaseDao.findOrderList(orderStatus);
+    public List<AppPurchaseOutput> findOrderList(BigInteger userId,Integer orderStatus) throws Exception {
+        List<AppPurchasesVo> orderIdList = appPurchaseDao.findOrderList(userId,orderStatus);
         List<AppPurchaseOutput> appPurchaseOutputs = new ArrayList<>();
         if(orderIdList.size()>0){
             for(AppPurchasesVo appPurchasesVo : orderIdList){
