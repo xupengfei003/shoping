@@ -48,9 +48,10 @@ public interface CartService {
     /**
      * 修改购物车内商品的数量
      * @param cartitemId
+     * @param commodity
      * @param number
-     * @return
+     * @return 库存数量
      */
-    boolean updateCartItem(Long cartitemId, Integer number);
+    Integer updateCartItem(Long cartitemId,Long commodity, Integer number);
 
 }

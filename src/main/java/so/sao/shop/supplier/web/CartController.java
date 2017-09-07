@@ -7,10 +7,15 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.domain.CartItem;
+import so.sao.shop.supplier.domain.User;
 import so.sao.shop.supplier.pojo.BaseResult;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.CartItemInput;
 import so.sao.shop.supplier.service.CartService;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 
 /**
  * Created by wyy on 2017/7/17.
@@ -22,6 +27,8 @@ public class CartController {
     @Autowired
     private CartService cartService;
 
+    @Autowired
+    private HttpServletRequest request;
 
 
     /**
@@ -34,7 +41,6 @@ public class CartController {
     public Result deleteCartItem(@PathVariable("cartitemid")Long cartitemId){
         return convertBoolean(cartService.deleteCartItemById(cartitemId));
     }
-
     /**
      * 更新数量
      * @param cartitemId
@@ -43,9 +49,16 @@ public class CartController {
      */
     @ApiOperation(value="更新购物车商品数量",notes = "更新购物车商品数量【负责人：王翼云】")
     @PutMapping(value="/cartitem/{cartitemid}")
-    public Result updateCartItem(@PathVariable("cartitemid") Long cartitemId,Integer number){
+    public Result updateCartItem(@PathVariable("cartitemid") Long cartitemId,
+                                 @NotNull(message = "物品i都不能为空") Long commodityId,
+                                 @NotNull(message = "更新数量不能为空")
+                                 @Min(value = 1,message = "更新数量必须大于1") Integer number){
+        if(!checkUser()){
+            return Result.fail(Constant.MessageConfig.MSG_FAILURE);
+        }
 
-       return convertBoolean(cartService.updateCartItem(cartitemId,number));
+        Integer remaining = cartService.updateCartItem(cartitemId,commodityId,number);
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS,remaining);
     }
 
     /**
@@ -70,6 +83,19 @@ public class CartController {
     @PostMapping(value ="/cartitem")
     public Result createCartItems(@RequestBody @Validated CartItemInput cartItemInput){
         return convertBoolean(cartService.saveCartItem(cartItemInput));
+    }
+
+    /**
+     * 判断用户是否登陆
+     * @return
+     */
+    private boolean checkUser() {
+        User user = (User)request.getAttribute(Constant.REQUEST_USER);
+        if(user == null){
+            return false;
+        }else{
+            return true;
+        }
     }
 
     /**
