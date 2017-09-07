@@ -164,10 +164,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public Result sendCode(String phone) throws IOException {
         String code = smsService.getVerCode();
-        Boolean isSuccess = redisTemplate.opsForValue().setIfAbsent(Constant.REDIS_SMSCODE_KEY_PREFIX+phone,code);
-        if(isSuccess==null|| !isSuccess){
-            userDao.saveSmsCode(phone, code);
-        }
+        userDao.saveSmsCode(phone, code);
         TopicMessage topicMessage = smsService.sendSms(Collections.singletonList(phone),Collections.singletonList("code"), Collections.singletonList(code), smsTemplateCode1);
         if(topicMessage != null) {
             return Result.success("发送成功");
@@ -183,13 +180,9 @@ public class AuthServiceImpl implements AuthService {
      */
     @Override
     public Result verifySmsCode(User user, String code){
-        String SmsCode=(String)redisTemplate.opsForValue().get(Constant.REDIS_SMSCODE_KEY_PREFIX+user.getUsername()).toString();
-        SmsCode = StringUtils.isNotBlank(SmsCode)?SmsCode:userDao.findSmsCode(user.getId());
+        String SmsCode = userDao.findSmsCode(user.getId());
         if(SmsCode!=null&&SmsCode.equals(code)){
-            Long isSuccess = redisTemplate.opsForHash().delete(Constant.REDIS_KEY_PREFIX+user.getUsername());
-            if(isSuccess<1){
-                userDao.saveSmsCode(user.getUsername(),"");
-            }
+            userDao.saveSmsCode(user.getUsername(),"");
             return Result.success("验证通过");
         }else{
             return Result.fail("验证不通过");

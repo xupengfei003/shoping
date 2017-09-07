@@ -16,6 +16,7 @@ import so.sao.shop.supplier.service.*;
 import so.sao.shop.supplier.util.DownloadAzureFile;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.util.Ognl;
+import so.sao.shop.supplier.util.StringUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -310,7 +311,7 @@ public class AccountController {
     @GetMapping(value = "/sendCode")
     public Result sendCode(HttpServletRequest request) throws IOException {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
-        if(null==user){
+        if(null == user){
             return Result.fail("登录验证不通过");
         }
         String tel=user.getUsername();
@@ -327,10 +328,10 @@ public class AccountController {
     @GetMapping(value = "/verifySmsCode/{code}")
     public Result verifySmsCode(HttpServletRequest request, @PathVariable String code) {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
-        if(null==user){
+        if(null == user){
             return Result.fail("登录验证不通过");
         }
-        if(null==code||code==""){
+        if(StringUtil.isNull(code)){
             return Result.fail("验证码无效");
         }
         return authService.verifySmsCode(user, code);
@@ -347,7 +348,7 @@ public class AccountController {
     @PutMapping(value = "/updatePassword/{encodedPassword}")
     public Result updatePassword(HttpServletRequest request, @PathVariable String encodedPassword) throws IOException {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
-        if(null==user){
+        if(null == user){
             return Result.fail("登录验证不通过");
         }
         return authService.updatePassword(user.getId(), encodedPassword);
