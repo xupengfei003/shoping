@@ -2,7 +2,6 @@ package so.sao.shop.supplier.web;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,8 +24,6 @@ import java.util.Map;
 @RequestMapping("/feedback")
 @Api(description = "反馈管理-所有接口 【负责人:郭兴业】")
 public class FeedbackController {
-
-    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private FeedbackService feedbackService;

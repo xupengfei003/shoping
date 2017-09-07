@@ -26,8 +26,6 @@ import java.util.List;
 @Api(description = "消息管理-所有接口【负责人：郭兴业】")
 public class NotificationController {
 
-    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
-
     @Autowired
     private NotificationService notificationService;
 

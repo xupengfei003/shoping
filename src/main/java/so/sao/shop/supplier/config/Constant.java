@@ -172,9 +172,13 @@ public interface Constant {
          */
         public static final Integer REFUNDED = 6;
         /**
-         * 已取消
+         * 已付款已取消
          */
         public static final Integer CANCEL_ORDER = 7;
+        /**
+         * 待付款已取消
+         */
+        public static final Integer PAYMENT_CANCEL_ORDER = 8;
 
     }
 
@@ -206,9 +210,19 @@ public interface Constant {
         /**
          * 7
          */
-        public static final String CANCEL_ORDER = "已取消";
+        public static final String CANCEL_ORDER = "已付款已取消";
+        /**
+         * 8
+         */
+        public static final String PAYMENT_CANCEL_ORDER = "待付款已取消";
     }
+    interface OrderStatusRule{
+        /**
+         * 待付款\待发货\已发货\已完成\已拒收\已退款\已付款已取消\待付款已取消
+         */
 
+        public static final String[] RULES = {"2#8","3#7","4#5","#","6#","#","6#","#"};
+    }
     interface PaymentStatusConfig{
         /**
          * 支付宝

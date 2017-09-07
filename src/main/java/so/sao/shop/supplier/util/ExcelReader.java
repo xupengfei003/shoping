@@ -74,7 +74,6 @@ public class ExcelReader {
         Map<Integer,Map<String, String>> mapright = new HashMap<>();
         //Excel中错误行号
         Map<Integer,Map<String, String>> maperror = new HashMap<>();
-        List<Integer> errorlist = new ArrayList<>();
         Map<String, String> content = null;
         try {
             InputStream is;
@@ -92,7 +91,6 @@ public class ExcelReader {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        sheet = wb.getSheetAt(0);
         int rowNum = sheet.getLastRowNum();// 得到总行数
         row = sheet.getRow(contentStartRow - 1);//和title一样
         int colNum = row.getPhysicalNumberOfCells();
@@ -107,16 +105,18 @@ public class ExcelReader {
                 maperror.put(i+1,content);
                 continue;
             }
-            if (!(getCellFormatValue(row.getCell(0)) == null || "".equals(getCellFormatValue(row.getCell(0)).trim())))
-            {
                 do {
+                    if(! ("商品标签".equals(titles[j]) ||  "商品产地".equals(titles[j])  ||  "企业名称".equals(titles[j])  || "上市时间".equals(titles[j]) )  ){
+                        if(getCellFormatValue(row.getCell(j)) == null || "".equals(getCellFormatValue(row.getCell(j)).trim())){
+                            maperror.put(i+1,content);
+                            content = null ;
+                            break;
+                        }
+                    }
                     content.put(titles[j], getCellFormatValue(row.getCell(j)).trim());
                     j++;
                 } while (j < colNum);
-            }else{
-                maperror.put(i+1,content);
-                content = null ;
-            }
+
             if(content != null){
                 mapright.put(i+1,content);
             }
@@ -166,7 +166,7 @@ public class ExcelReader {
                     break;
                 default:
                     // 默认的Cell值
-                    cellvalue = cell.getRichStringCellValue() == null ? null : cell.getRichStringCellValue().toString();
+                    cellvalue = cell.getRichStringCellValue() == null ? "" : cell.getRichStringCellValue().toString();
             }
         } else {
             cellvalue = "";

@@ -24,13 +24,7 @@ import so.sao.shop.supplier.pojo.vo.AccountOrderMoneyRecordVO;
 import so.sao.shop.supplier.pojo.vo.OrderMoneyRecordVo;
 import so.sao.shop.supplier.pojo.vo.PurchaseVo;
 import so.sao.shop.supplier.service.OrderMoneyRecordService;
-import so.sao.shop.supplier.util.ExcelExportHelper;
-import so.sao.shop.supplier.util.NumberGenerate;
-import so.sao.shop.supplier.util.NumberUtil;
-import so.sao.shop.supplier.util.StringUtil;
-import so.sao.shop.supplier.util.Ognl;
-import so.sao.shop.supplier.util.PageTool;
-
+import so.sao.shop.supplier.util.*;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -38,7 +32,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -204,10 +197,10 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
      */
     @Override
     public OrderMoneyRecordOutput searchOrderMoneyRecords(Integer pageNum, Integer pageSize,
-                                                          OrderMoneyRecordInput input)  throws Exception{
+                                                          OrderMoneyRecordInput input) throws Exception {
 
 		/*
-		 * 1.创建返回的对象output；
+         * 1.创建返回的对象output；
 		 * 2.分页
 		 *   a).使用PageTool工具类开启分页；
 		 * 3.根据入参条件，查询结算明细列表；
@@ -337,14 +330,14 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
      * @param list 要转换的list
      * @return
      */
-    private List<OrderMoneyRecordVo> convertOrderMoneyRecordVo(List<OrderMoneyRecord> list) throws Exception{
+    private List<OrderMoneyRecordVo> convertOrderMoneyRecordVo(List<OrderMoneyRecord> list) throws Exception {
         //新建要返回的List<OrderMoneyRecordVo>
         List<OrderMoneyRecordVo> tmpList = new ArrayList<>();
 
         if (null != list && !list.isEmpty()) {
             for (OrderMoneyRecord omr : list) {
                 OrderMoneyRecordVo ormVo = new OrderMoneyRecordVo();
-				ormVo.setRecordId(omr.getRecordId());//结算明细id
+                ormVo.setRecordId(omr.getRecordId());//结算明细id
                 ormVo.setProviderName(omr.getProviderName());//供应商名称
                 ormVo.setCheckoutAt(omr.getCheckoutAt() == null ? "" : StringUtil.fomateData(omr.getCheckoutAt(), "yyyy-MM-dd"));//结账时间
                 ormVo.setTotalMoney(NumberUtil.number2Thousand(omr.getTotalMoney()));//待结算金额
@@ -367,7 +360,7 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
      * @param list 要转换的list
      * @return
      */
-    private List<AccountOrderMoneyRecordVO> transformOrderMoneyRecordVo(List<OrderMoneyRecord> list) throws Exception{
+    private List<AccountOrderMoneyRecordVO> transformOrderMoneyRecordVo(List<OrderMoneyRecord> list) throws Exception {
         //新建要返回的List<OrderMoneyRecordVo>
         List<AccountOrderMoneyRecordVO> tmpList = new ArrayList<>();
         if (null != list && !list.isEmpty()) {
@@ -380,7 +373,7 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
                 aormVo.setCheckoutAt(omr.getCheckoutAt() == null ? null : StringUtil.fomateData(omr.getCheckoutAt(), "yyyy-MM-dd"));//结账时间
                 aormVo.setTotalMoney(NumberUtil.number2Thousand(omr.getTotalMoney()));//待结算金额
                 aormVo.setSettledAmount(NumberUtil.number2Thousand(omr.getSettledAmount()));//已结算金额
-                aormVo.setSettledAt(omr.getSettledAt() == null ? null: StringUtil.fomateData(omr.getSettledAt(), "yyyy-MM-dd HH:mm"));//结算时间
+                aormVo.setSettledAt(omr.getSettledAt() == null ? null : StringUtil.fomateData(omr.getSettledAt(), "yyyy-MM-dd HH:mm"));//结算时间
                 aormVo.setBankAccount(omr.getBankAccount());//银行卡号
                 tmpList.add(aormVo);
             }
@@ -576,6 +569,7 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
 
     /**
      * 结算明细列表 导出excel
+     *
      * @param request
      * @param response
      * @throws Exception
@@ -584,67 +578,66 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
     public void exportExcel(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
 
-
         BufferedInputStream bis = null;
         BufferedOutputStream bos = null;
         FileInputStream fileInputStream = null;
         XSSFWorkbook workbook = null;
 //        File excelFile = null;
         try {
-            int startPage,endPage;
+            int startPage, endPage;
             String pageNum = request.getParameter("pageNo");
             String pageSize = request.getParameter("pageSize");
             String startTime = request.getParameter("startTime");
             String endTime = request.getParameter("endTime");
             String state = request.getParameter("state");
 
-            logger.debug("【startTime 】"+startTime);
-            logger.debug("【endTime】"+endTime);
+            logger.debug("【startTime 】" + startTime);
+            logger.debug("【endTime】" + endTime);
 
-            logger.debug("【pageNum 】"+pageNum);
-            logger.debug("【pageSize】"+pageSize);
-            logger.debug("【state 】"+state);
+            logger.debug("【pageNum 】" + pageNum);
+            logger.debug("【pageSize】" + pageSize);
+            logger.debug("【state 】" + state);
 
 
             //数据合法性验证
-            if (pageNum.split(",").length>1){
+            if (pageNum.split(",").length > 1) {
                 startPage = Integer.valueOf(pageNum.split(",")[0]).intValue();
                 endPage = Integer.valueOf(pageNum.split(",")[1]).intValue();
                 //参数不合法，抛出异常
-                if(startPage<1 || endPage <1 || (endPage-startPage)<0){
+                if (startPage < 1 || endPage < 1 || (endPage - startPage) < 0) {
                     throw new Exception();
                 }
-            }else{
+            } else {
                 startPage = Integer.valueOf(pageNum).intValue();
                 endPage = Integer.valueOf(pageNum).intValue();
             }
 
-            if(StringUtils.isEmpty(startTime) || StringUtils.isEmpty(endTime) || StringUtils.isEmpty(state) ){
+            if (StringUtils.isEmpty(startTime) || StringUtils.isEmpty(endTime) || StringUtils.isEmpty(state)) {
                 throw new Exception();
             }
 
             Date startDate = new SimpleDateFormat("yyyy-MM-dd").parse(startTime);
             Date endDate = new SimpleDateFormat("yyyy-MM-dd").parse(endTime);
             //验证：起始日期不能大于大于终止日期
-            if(!endDate.after(startDate)){
+            if (!endDate.after(startDate)) {
                 throw new Exception();
             }
 
             //整理传参数据
             int year = Integer.valueOf(startTime.split("-")[0]).intValue();
             int month = Integer.valueOf(startTime.split("-")[1]).intValue();
-            int pageRange = endPage-startPage+1;//页数范围
-            int offset = (startPage-1)*Integer.valueOf(pageSize).intValue();//偏移量
-            int limit = pageRange*Integer.valueOf(pageSize).intValue();//总条数
-            String limits = offset+","+limit;//分页条件
+            int pageRange = endPage - startPage + 1;//页数范围
+            int offset = (startPage - 1) * Integer.valueOf(pageSize).intValue();//偏移量
+            int limit = pageRange * Integer.valueOf(pageSize).intValue();//总条数
+            String limits = offset + "," + limit;//分页条件
 
-            int nextMonth = month==12?1:month+1;
-            int nextYear = month==12?year+1:year;
+            int nextMonth = month == 12 ? 1 : month + 1;
+            int nextYear = month == 12 ? year + 1 : year;
 
-            startTime = new String(year+"-"+month+"-01");
-            endTime = new String(nextYear+"-"+nextMonth+"-01");
-            logger.debug("【startTime 】"+startTime);
-            logger.debug("【endTime】"+endTime);
+            startTime = new String(year + "-" + month + "-01");
+            endTime = new String(nextYear + "-" + nextMonth + "-01");
+            logger.debug("【startTime 】" + startTime);
+            logger.debug("【endTime】" + endTime);
 
             //设置响应参数
             response.reset();
@@ -657,17 +650,17 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
             response.setHeader("Content-Type", "application/octet-stream");
             ServletOutputStream out = response.getOutputStream();
             //根据条件查询数据
-            List<OrderMoneyRecord> records = orderMoneyRecordDao.findRecords(startTime,endTime,state,limits);
+            List<OrderMoneyRecord> records = orderMoneyRecordDao.findRecords(startTime, endTime, state, limits);
             List<Object[]> data = new ArrayList<>();
-            String[] titles = {"供应商名称","结账时间","待结算金额（¥）","已结算金额（¥）","结算时间","结算状态","供应商账户"};
+            String[] titles = {"供应商名称", "结账时间", "待结算金额（¥）", "已结算金额（¥）", "结算时间", "结算状态", "供应商账户"};
             for (int i = 0; i < records.size(); i++) {//转换数据格式
                 Object[] o = OrderMoneyRecord.converData(records.get(i));
-                logger.debug("【数据 为】 ： "+Arrays.toString(o));
+                logger.debug("【数据 为】 ： " + Arrays.toString(o));
                 data.add(o);
             }
             //生成excel文件
             logger.debug("【excel 输出中。。】 ： ");
-            workbook = ExcelExportHelper.exportExcel(data,titles);
+            workbook = ExcelExportHelper.exportExcel(data, titles);
 //          输出excel
             workbook.write(out);
             bos = new BufferedOutputStream(out);
@@ -684,7 +677,7 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
                 bis.close();
             if (bos != null)
                 bos.close();
-            if (workbook != null){
+            if (workbook != null) {
                 workbook.close();
             }
         }

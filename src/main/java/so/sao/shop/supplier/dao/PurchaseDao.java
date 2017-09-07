@@ -216,4 +216,13 @@ public interface PurchaseDao {
      * @throws Exception 异常
      */
     int refundByOrderId(@Param("refundMap") Map<String,Object> refundMap) throws Exception;
+
+    /**
+     * 根据订单状态查询订单ID
+     *
+     * @param orderStatus 订单状态
+     * @return String 订单ID
+     * @throws Exception 异常
+     */
+    List<String> findOrderIdByOrderStatus(@Param("orderStatus") Integer orderStatus) throws Exception;
 }
