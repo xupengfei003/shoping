@@ -257,6 +257,7 @@ public class AzureBlobService {
                             continue;
                         }
                     } catch (Exception e) {
+                        LOGGER.error("文件上传异常",e);
                         errorImgNames.add(fileName);
                         continue;
                     }
@@ -264,13 +265,10 @@ public class AzureBlobService {
                 results.add(Result.success("文件上传成功", blobUploadEntities));
                 results.add(Result.fail("文件上传异常", errorImgNames));
             }else{
-                errorImgNames.add(fileName);
-                results.add(Result.success("文件上传成功", blobUploadEntities));
                 results.add(Result.fail("未选择上传的文件", errorImgNames));
             }
         } catch (Exception e) {
-            errorImgNames.add(fileName);
-            results.add(Result.success("文件上传成功", blobUploadEntities));
+            LOGGER.error("文件上传异常",e);
             results.add(Result.fail("文件上传异常", errorImgNames));
         }
         return results;
