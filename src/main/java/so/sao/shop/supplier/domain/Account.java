@@ -237,6 +237,13 @@ public class Account {
 	@NotEmpty(message = "合同云端地址")
 	@Length(max = 255,message = "合同云端地址长度不能超过255")
 	private String contractOriginal;
+	
+	/**
+	 * 合同原文件名
+	 */
+	@NotEmpty(message = "合同云端地址")
+	@Length(max = 255,message = "合同云端地址长度不能超过255")
+	private String contractName;
 
 	/**
 	 * 上次结算时间
@@ -606,6 +613,14 @@ public class Account {
 
 	public void setLastSettlementDate(Date lastSettlementDate) {
 		this.lastSettlementDate = lastSettlementDate;
+	}
+
+	public String getContractName() {
+		return contractName;
+	}
+
+	public void setContractName(String contractName) {
+		this.contractName = contractName;
 	}
     
 }

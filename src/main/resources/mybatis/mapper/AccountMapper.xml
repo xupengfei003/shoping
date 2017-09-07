@@ -45,6 +45,7 @@
     <result column="contract_original_name" property="contractOriginalName" jdbcType="VARCHAR" />
     <result column="contract_original" property="contractOriginal" jdbcType="VARCHAR" />
     <result column="service_phone" property="servicePhone" jdbcType="VARCHAR" />
+    <result column="contract_name" property="contractName" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Base_Column_List" >
     account_id,
@@ -82,7 +83,8 @@
     sms_code,
     contract_original_name,
     contract_original,
-    service_phone
+    service_phone,
+    contract_name
   </sql>
 
   <!-- 查询出省市区汉字字段-->
@@ -145,7 +147,7 @@
        contract_register_address_province,contract_register_address_city,
        contract_register_address_district,
       contract_register_address_detail, upload_mode, 
-      sms_code,contract_original_name,contract_original,last_settlement_date,service_phone)
+      sms_code,contract_original_name,contract_original,last_settlement_date,service_phone,contract_name)
     values (#{accountId,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, #{providerName,jdbcType=VARCHAR}, 
       #{responsible,jdbcType=VARCHAR}, #{responsiblePhone,jdbcType=VARCHAR}, #{license,jdbcType=VARCHAR}, 
       #{licenseTimeCreate}, #{licenseTimeEnd}, #{businessType,jdbcType=VARCHAR},
@@ -160,7 +162,7 @@
       #{contractLicenseEnd},#{contractRegisterAddress,jdbcType=VARCHAR}, #{contractRegisterAddressProvince,jdbcType=VARCHAR},
       #{contractRegisterAddressCity,jdbcType=VARCHAR}, #{contractRegisterAddressDistrict,jdbcType=VARCHAR},
       #{contractRegisterAddressDetail,jdbcType=VARCHAR}, #{uploadMode,jdbcType=VARCHAR}, 
-      #{smsCode,jdbcType=VARCHAR},#{contractOriginalName,jdbcType=VARCHAR},#{contractOriginal,jdbcType=VARCHAR},#{lastSettlementDate},#{servicePhone})
+      #{smsCode,jdbcType=VARCHAR},#{contractOriginalName,jdbcType=VARCHAR},#{contractOriginal,jdbcType=VARCHAR},#{lastSettlementDate},#{servicePhone},#{contractName})
   </insert>
 
   <!-- <insert id="insertSelective" parameterType="so.sao.shop.supplier.domain.Account" >
@@ -582,7 +584,10 @@
       	contract_original = #{contractOriginal,jdbcType=VARCHAR},
       </if>
       <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(servicePhone)">
-        service_phone = #{servicePhone,jdbcType=VARCHAR}
+        service_phone = #{servicePhone,jdbcType=VARCHAR},
+      </if>
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(contractName)">
+        contract_name = #{contractName,jdbcType=VARCHAR}
       </if>
     </set>
     where account_id = #{accountId,jdbcType=BIGINT}
