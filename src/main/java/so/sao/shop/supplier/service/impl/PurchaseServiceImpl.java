@@ -614,8 +614,9 @@ public class PurchaseServiceImpl implements PurchaseService {
     }
 
     /**
-     * 根据订单查询订单打印页面信息
+     * 查询配送单信息
      * <p>
+     * 根据订单编号查询配送单页面的所有信息。
      * 1.查询订单信息；
      * 2.查询商品条目；
      * 3.将订单信息和商品条目封装到output对象；
@@ -646,16 +647,14 @@ public class PurchaseServiceImpl implements PurchaseService {
     }
 
     /**
-     * 根据订单编号生成收货二维码
+     * 生成收货二维码
      * <p>
-     * 如果订单已经存在二维码返回false，生成二维码失败返回false。
-     * 1.验证订单并判断订单编号是否存在关联的二维码；
+     * 根据订单编号实现二维码的生成，上传，保存到数据库。
+     * 1.验证订单,验证订单和二维码的关系；
      * 2.生成二维码图片。
-     *      2.1．拼接二维码内容；
-     *      2.2. 生成二维码图片；
-     *      2.3.将二维码图片上传到云端；
-     *      2.4.将二维码信息保存到数据库；
-     *      2.5.删除本地图片。
+     * 3.将二维码图片上传到云端；
+     * 4.将二维码信息保存到数据库；
+     * 5.删除本地图片。
      *
      * @param orderId 订单编号
      * @throws Exception 异常
@@ -665,87 +664,102 @@ public class PurchaseServiceImpl implements PurchaseService {
     public void createReceivingQrcode(String orderId) throws Exception {
         // 1.验证订单并判断订单编号是否存在关联的二维码
         Purchase purchase = purchaseDao.findById(orderId);
-        // 1.1.订单不存在
         if (null == purchase) {
             throw new Exception("订单不存在");
         }
 
         List<Qrcode> qrcodeList = qrcodeDao.findQrcodeByOrderId(orderId); // 查询订单对应的二维码
-        // 1.2.该订单已经存在二维码
         if (null != qrcodeList && qrcodeList.size() > 0) {
             throw new Exception("该订单已经存在二维码");
         }
 
         // 2.生成二维码图片
-        // 2.1拼接二维码内容
-        String qrcodeId = NumberGenerate.generateId();
-        String content = receiveUrl + "?orderId=" + orderId;
+        Map<String, String> map = generateQrcodeByOrderId(orderId, null); // 失败抛出异常
 
-        // 2.2生成二维码图片
-        // 设置本地二维码路径和名称
-        String path = "/qrcode";
-        String name = System.currentTimeMillis() + ".png";
-        boolean b = FileUtil.createDir(path);
+        // 3.将二维码图片上传到云端
+        List files = new ArrayList();
+        files.add(map.get("name"));
+        List<CommBlobUpload> blobUploadEntities = batchUploadPic(map.get("path"), files, 0);
+        if (blobUploadEntities.size() != 1) {
+            throw new Exception("上传二维码图片到云端失败");
+        }
+        CommBlobUpload blobUpload = blobUploadEntities.get(0); // 云端返回的实体
+
+        // 4.将二维码信息保存到数据库
+        Qrcode qrcode = new Qrcode(NumberGenerate.generateId(), orderId, blobUpload.getUrl(), map.get("content"));
+        qrcodeDao.save(qrcode);
+
+        // 5.删除本地图片
+        System.gc();
+        FileUtil.deleteDirectory(map.get("path"));
+    }
+
+    /**
+     * 生成二维码
+     *
+     * 根据订单编号，生成二维码，返回二维码信息
+     * 1.配置二维码内容；
+     * 2.path不存在，自动生成path：/qrocode/时间戳；
+     * 3.自动生成二维码名称：uuid + 时间戳 + .png
+     * 4.根据二维码内容、path、名称生成二维码
+     * 4.生成失败，删除path，抛出异常
+     * 5.生成成功，将路径、名称、内容封装到Map返回
+     * @param orderId 订单编号
+     * @return 返回Map对象，封装了生成二维码的路径、名称、内容
+     * @throws Exception 生成二维码异常
+     */
+    public Map generateQrcodeByOrderId(String orderId, String path) throws Exception {
+        String content = configQrcodeContent(orderId);
+
+        if (Ognl.isEmpty(path)) {
+            path = "/qrcode/" + System.currentTimeMillis();
+            FileUtil.createDir(path);
+        }
+
+        String name = NumberGenerate.generateId() + System.currentTimeMillis() + ".png";
         String img = path + "/" + name; // 二维码相对地址
 
         // 生成二维码图片并输出到本地img
         boolean flag = qrcodeService.createQrCode(new FileOutputStream(new File(img)), content, 230, "png");
         if (!flag) { // 失败
+            System.gc();
+            FileUtil.deleteDirectory(path); // 删除本地二维码文件夹
             throw new Exception("生成二维码图片失败");
         }
 
-        // 2.3将二维码图片上传到云端
-        FileUtil fileUtil = new FileUtil();
-        List files = new ArrayList();
-        files.add(name);
-        List<Result> uploadResult = azureBlobService.uploadFilesComm(path, files);
+        Map result = new HashMap(); // 封装返回结果
+        result.put("path", path); // 二维码路径
+        result.put("name", name); // 二维码名称
+        result.put("img", img); // 二维码路径 + 名称
+        result.put("content", "content"); // 二维码内容
 
-        if (uploadResult.size() != 1) {
-            throw new Exception("将二维码图片上传到云端失败");
-        }
-        Result result = uploadResult.get(0);
-        if (null == result || result.getCode() != Constant.CodeConfig.CODE_SUCCESS) {
-            throw new Exception("将二维码图片上传到云端失败");
-        }
-        List<CommBlobUpload> blobUploadEntities = (List<CommBlobUpload>) result.getData();
-        if (blobUploadEntities.size() != 1) {
-            throw new Exception("将二维码图片上传到云端失败");
-        }
-        CommBlobUpload blobUpload = blobUploadEntities.get(0);
-        String url = blobUpload.getUrl(); // 云端的二维码地址
-
-        // 2.4将二维码信息保存到数据库
-        Qrcode qrcode = new Qrcode();
-        qrcode.setQrcodeId(qrcodeId); // 二维码id
-        qrcode.setForeignKey(orderId); // 二维码关联的外键
-        qrcode.setContent(content); // 二维码内容
-        qrcode.setStatus(0); // 二维码状态：0-未失效 1-失效
-        qrcode.setCreatedAt(new Date()); // 创建时间
-        qrcode.setUrl(url); // 二维码图片地址
-        qrcode.setWidth(230d); // 二维码宽度
-        qrcode.setHeight(230d); // 二维码高度
-
-        qrcodeDao.save(qrcode);
-
-        // 2.5删除本地图片
-        File file = new File(img);
-        if (file.exists() && file.isFile()) {
-            System.gc();
-            file.delete();
-        }
+        return result;
     }
 
     /**
-     * 根据支付id，批量生成收货二维码
+     * 配置二维码内容
      * <p>
-     * 根据支付id查询所有订单，批量给每个订单生成二维码，并将二维码图片上传到云端，其中有一个失败，则抛出异常，全部回滚。
+     * 根据订单编号配置二维码内容。
+     *
+     * @param orderId 订单编号
+     * @return 二维码内容
+     */
+    public String configQrcodeContent(String orderId) {
+        return receiveUrl + "?orderId=" + orderId;
+    }
+
+    /**
+     * 批量生成收货二维码
+     * <p>
+     * 根据支付id查询所有订单，批量给每个订单实现生成二维码、上传云端、保存到数据。
+     * 如果上传云端失败，则将失败的图片重新上传3次，3次后还失败，不再处理，不抛异常。
      * 1.根据支付id查询对应订单是否已经存在二维码；
      * 2.批量生成二维码并存储二维码信息；
      * 3.批量上传到云端；
      * 4.批量插入数据库。
 
      * @param payId 支付id
-     * @throws Exception 异常
+     * @throws Exception 可能是订单异常
      */
     @Transactional(rollbackFor = Exception.class)
     public void createReceivingQrcodeByPayId(String payId) throws Exception {
@@ -759,37 +773,19 @@ public class PurchaseServiceImpl implements PurchaseService {
         // 2.批量生成二维码并存储二维码信息
         List<String> qrcodePics = new ArrayList<>(); // 存储二维码图片
         List<Qrcode> qrcodeList = new ArrayList<>(); // 存储二维码实体
-        String path = "/qrcode"; // 生成二维码的本地路径
-        Boolean flag = true; // 批量生成二维码-成功
+        String path = "/qrcode/" + System.currentTimeMillis(); // 生成二维码的本地路径
+        FileUtil.createDir(path);
         if (null != purchaseList && purchaseList.size() > 0) {
             for (int i = 0; i < purchaseList.size(); i++) {
                 String orderId = purchaseList.get(i).getOrderId(); // 订单编号
-                String content = receiveUrl + "?orderId=" + orderId; // 二维码内容
 
-                String name = NumberGenerate.generateId()+ ".png"; // 二维码临时名称
-                FileUtil.createDir(path); // 二维码临时路径
-                String img = path + "/" + name; // 二维码相对地址
-
-                // 生成二维码图片
-                flag = qrcodeService.createQrCode(new FileOutputStream(new File(img)), content, 230, "png");
-                if (!flag) { // 失败
-                    System.gc();
-                    FileUtil.deleteDirectory(path); // 删除本地二维码文件夹
-                    throw new Exception("生成二维码失败");
-                }
+                // 生成二维码
+                Map<String, String> map = generateQrcodeByOrderId(orderId, path); // 失败抛出异常
 
                 // 封装二维码信息
-                Qrcode qrcode = new Qrcode();
-                qrcode.setQrcodeId(NumberGenerate.generateId()); // 二维码id
-                qrcode.setForeignKey(orderId); // 二维码关联的外键
-                qrcode.setContent(content); // 二维码内容
-                qrcode.setStatus(0); // 二维码状态：0-未失效 1-失效
-                qrcode.setCreatedAt(new Date()); // 创建时间
-                qrcode.setWidth(230d); // 二维码宽度
-                qrcode.setHeight(230d); // 二维码高度
-
-                qrcodePics.add(name); // 存储本地二维码图片名称
+                Qrcode qrcode = new Qrcode(NumberGenerate.generateId(), orderId, "", map.get("content"));
                 qrcodeList.add(qrcode); // 存储二维码信息
+                qrcodePics.add(map.get("name")); // 存储本地二维码图片名称
             }
         }
 
@@ -804,7 +800,6 @@ public class PurchaseServiceImpl implements PurchaseService {
             }
         }
 
-
         // 4.批量插入数据库
         qrcodeDao.saveQrcodes(qrcodeList);
 
@@ -814,14 +809,27 @@ public class PurchaseServiceImpl implements PurchaseService {
     }
 
     /**
-     * 批量上传到云端，失败的重新上传三次
-     * @return
+     * 批量上传
+     * <p>
+     * 批量上传到云端，失败后重新尝试n次，n次后仍然失败，不再处理，仅返回所有上传成功的对象集合。
+     * 1.调用uploadFilesComm上传文件；
+     * 2.分离出上传成功和失败的文件；
+     * 3.上传成功的结果保存起来；
+     * 4.上传失败的结果，如果尝试次数number大于等于0，重新上传；
+     * 5.本次和下次上传成功的结果合并到list集合，返回。
+     * @param path   本地路径
+     * @param files  上传文件列表
+     * @param number 尝试次数
+     * @return 返回CommBlobUpload的集合List对象
      */
     public List<CommBlobUpload> batchUploadPic(String path ,List<String> files, int number) {
+        // 1.调用uploadFilesComm上传文件
         List<Result> uploadResult = azureBlobService.uploadFilesComm(path, files); // 上传图片
 
+        // 2.分离出上传成功和失败的文件
         boolean isAllSuccess = false; // 是否全部上传成功
         List uploadFailList = new ArrayList(); // 上传失败文件名集合
+        // 3.上传成功的结果保存起来
         List<CommBlobUpload> blobUploadEntities = null; // 本次上传成功实体集合
         for (int i = 0; i < uploadResult.size(); i++) { // 循环返回结果
             Result result = uploadResult.get(i);
@@ -832,7 +840,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                     break;
                 }
             } else {
-                uploadFailList.add(((Map) result.getData()).get("fileName")); // 上传失败文件名添加到list
+                uploadFailList.addAll((List) result.getData()); // 上传失败文件名添加到list
             }
         }
 
@@ -840,8 +848,9 @@ public class PurchaseServiceImpl implements PurchaseService {
             return blobUploadEntities;
         }
 
+        // 4.上传失败的结果，如果尝试次数number大于等于0，重新上传
         if (number >= 0) { // 再次上传
-            List<CommBlobUpload> successList = batchUploadPic(path, uploadFailList, number--); // 失败文件再次上传
+            List<CommBlobUpload> successList = batchUploadPic(path, uploadFailList, --number); // 失败文件再次上传
             if (null != blobUploadEntities) { // 本次上传部分成功
                 blobUploadEntities.addAll(successList); // 本次成功的和下次成功的合并
                 return blobUploadEntities;
@@ -854,7 +863,7 @@ public class PurchaseServiceImpl implements PurchaseService {
     }
 
     /**
-     * 扫描收货二维码
+     * 扫描二维码收货
      * <p>
      * 根据订单编号实现收货逻辑。
      * 1.验证是否可以扫码收货；
