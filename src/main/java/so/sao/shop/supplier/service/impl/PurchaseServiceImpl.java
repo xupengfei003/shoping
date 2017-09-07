@@ -764,10 +764,10 @@ public class PurchaseServiceImpl implements PurchaseService {
         if (null != purchaseList && purchaseList.size() > 0) {
             for (int i = 0; i < purchaseList.size(); i++) {
                 String orderId = purchaseList.get(i).getOrderId(); // 订单编号
-                String qrcodeId = NumberGenerate.generateId(); // 二维码id
                 String content = receiveUrl + "?orderId=" + orderId; // 二维码内容
-                String name = System.currentTimeMillis() + ".png"; // 二维码临时名称
-                boolean b = FileUtil.createDir(path); // 二维码临时路径
+
+                String name = NumberGenerate.generateId()+ ".png"; // 二维码临时名称
+                FileUtil.createDir(path); // 二维码临时路径
                 String img = path + "/" + name; // 二维码相对地址
 
                 // 生成二维码图片
@@ -780,7 +780,7 @@ public class PurchaseServiceImpl implements PurchaseService {
 
                 // 封装二维码信息
                 Qrcode qrcode = new Qrcode();
-                qrcode.setQrcodeId(qrcodeId); // 二维码id
+                qrcode.setQrcodeId(NumberGenerate.generateId()); // 二维码id
                 qrcode.setForeignKey(orderId); // 二维码关联的外键
                 qrcode.setContent(content); // 二维码内容
                 qrcode.setStatus(0); // 二维码状态：0-未失效 1-失效
@@ -794,26 +794,16 @@ public class PurchaseServiceImpl implements PurchaseService {
         }
 
         // 3.批量上传到云端
-        List<Result> uploadResult = azureBlobService.uploadFilesComm(path, qrcodePics);
-        if (uploadResult.size() == 1) {
-            Result result = uploadResult.get(0);
-            flag = Constant.CodeConfig.CODE_SUCCESS.equals(result.getCode());
-            if (!flag) { // 上传失败
-                System.gc();
-                FileUtil.deleteDirectory(path); // 删除本地二维码文件夹
-                throw new Exception("上传失败");
+        List<CommBlobUpload> blobUploadEntities = batchUploadPic(path, qrcodePics, 3);
+
+        if (null != blobUploadEntities) {
+            for (int i = 0; i < blobUploadEntities.size(); i++) {
+                CommBlobUpload blobUpload = blobUploadEntities.get(i);
+                String fileName = blobUpload.getFileName();
+                qrcodeList.get(qrcodePics.indexOf(fileName)).setUrl(blobUpload.getUrl()); // 云端的二维码地址
             }
-            List<CommBlobUpload> blobUploadEntities = (List<CommBlobUpload>) result.getData();
-            if (blobUploadEntities.size() == qrcodeList.size()) { // 上传云端返回的结果和上传的数量一致则表示成功
-                for (int i = 0; i < qrcodeList.size(); i++) {
-                    CommBlobUpload blobUpload = blobUploadEntities.get(i);
-                    qrcodeList.get(i).setUrl(blobUpload.getUrl()); // 云端的二维码地址
-                }
-            }
-        } else {
-            FileUtil.deleteDirectory(path); // 删除本地二维码文件夹
-            throw new Exception("上传失败");
         }
+
 
         // 4.批量插入数据库
         qrcodeDao.saveQrcodes(qrcodeList);
@@ -827,9 +817,40 @@ public class PurchaseServiceImpl implements PurchaseService {
      * 批量上传到云端，失败的重新上传三次
      * @return
      */
-    public List<Result> batchUploadPic(String path ,List<String> files) {
+    public List<CommBlobUpload> batchUploadPic(String path ,List<String> files, int number) {
+        List<Result> uploadResult = azureBlobService.uploadFilesComm(path, files); // 上传图片
 
-        return null;
+        boolean isAllSuccess = false; // 是否全部上传成功
+        List uploadFailList = new ArrayList(); // 上传失败文件名集合
+        List<CommBlobUpload> blobUploadEntities = null; // 本次上传成功实体集合
+        for (int i = 0; i < uploadResult.size(); i++) { // 循环返回结果
+            Result result = uploadResult.get(i);
+            if (Constant.CodeConfig.CODE_SUCCESS.equals(result.getCode())) {
+                blobUploadEntities = (List<CommBlobUpload>) result.getData();
+                if (blobUploadEntities.size() == files.size()) { // 上传成功的文件数量和上传数量一致，则上传成功
+                    isAllSuccess = true;
+                    break;
+                }
+            } else {
+                uploadFailList.add(((Map) result.getData()).get("fileName")); // 上传失败文件名添加到list
+            }
+        }
+
+        if (isAllSuccess) { // 全部上传成功
+            return blobUploadEntities;
+        }
+
+        if (number >= 0) { // 再次上传
+            List<CommBlobUpload> successList = batchUploadPic(path, uploadFailList, number--); // 失败文件再次上传
+            if (null != blobUploadEntities) { // 本次上传部分成功
+                blobUploadEntities.addAll(successList); // 本次成功的和下次成功的合并
+                return blobUploadEntities;
+            } else { // 本次上传全部失败
+                return successList;
+            }
+        } else { // 上传次数超限
+            return blobUploadEntities;
+        }
     }
 
     /**
