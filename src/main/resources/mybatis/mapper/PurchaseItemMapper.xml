@@ -105,7 +105,8 @@
     <select id="findPrintItems" resultType="so.sao.shop.supplier.pojo.vo.PurchaseItemPrintVo">
         SELECT
             g.goods_name AS goodsName,
-            c.code69 AS goodsId,
+            c.code69 AS code69,
+            g.goods_id AS goodsId,
             g.brand_name AS brandName,
             g.goods_attribute AS goodsAttribute,
             g.goods_unit_price AS goodsUnitPrice,
