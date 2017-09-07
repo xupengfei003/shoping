@@ -647,7 +647,7 @@ public class PurchaseServiceImpl implements PurchaseService {
     }
 
     /**
-     * 生成收货二维码
+     * 生成单个收货二维码
      * <p>
      * 根据订单编号实现二维码的生成，上传，保存到数据库。
      * 1.验证订单,验证订单和二维码的关系；
@@ -696,28 +696,31 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     /**
      * 生成二维码
-     *
-     * 根据订单编号，生成二维码，返回二维码信息
-     * 1.配置二维码内容；
-     * 2.path不存在，自动生成path：/qrocode/时间戳；
-     * 3.自动生成二维码名称：uuid + 时间戳 + .png
-     * 4.根据二维码内容、path、名称生成二维码
+     * <p>
+     * 根据订单编号，生成二维码，返回二维码信息。
+     * 1.path不存在，自动生成path：/qrocode/时间戳；
+     * 2.自动生成二维码名称：uuid + 时间戳 + .png
+     * 3.根据二维码内容、path、名称生成二维码
      * 4.生成失败，删除path，抛出异常
      * 5.生成成功，将路径、名称、内容封装到Map返回
+     *
      * @param orderId 订单编号
      * @return 返回Map对象，封装了生成二维码的路径、名称、内容
      * @throws Exception 生成二维码异常
      */
     public Map generateQrcodeByOrderId(String orderId, String path) throws Exception {
-        String content = configQrcodeContent(orderId);
-
+        // 生成二维码路径
         if (Ognl.isEmpty(path)) {
             path = "/qrcode/" + System.currentTimeMillis();
             FileUtil.createDir(path);
         }
 
+        // 生成二维码名称
         String name = NumberGenerate.generateId() + System.currentTimeMillis() + ".png";
         String img = path + "/" + name; // 二维码相对地址
+
+        // 配置二维码内容
+        String content = configQrcodeContent(orderId);
 
         // 生成二维码图片并输出到本地img
         boolean flag = qrcodeService.createQrCode(new FileOutputStream(new File(img)), content, 230, "png");
@@ -731,7 +734,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         result.put("path", path); // 二维码路径
         result.put("name", name); // 二维码名称
         result.put("img", img); // 二维码路径 + 名称
-        result.put("content", "content"); // 二维码内容
+        result.put("content", content); // 二维码内容
 
         return result;
     }
@@ -801,6 +804,9 @@ public class PurchaseServiceImpl implements PurchaseService {
         }
 
         // 4.批量插入数据库
+        qrcodeList.removeIf(qrcode -> {
+            return Ognl.isEmpty(qrcode.getUrl());
+        });
         qrcodeDao.saveQrcodes(qrcodeList);
 
         // 5.删除本地缓存的二维码图片
@@ -823,7 +829,7 @@ public class PurchaseServiceImpl implements PurchaseService {
      * @return 返回CommBlobUpload的集合List对象
      */
     public List<CommBlobUpload> batchUploadPic(String path ,List<String> files, int number) {
-        // 1.调用uploadFilesComm上传文件
+        // 1.调用uploadFilesComm方法上传文件
         List<Result> uploadResult = azureBlobService.uploadFilesComm(path, files); // 上传图片
 
         // 2.分离出上传成功和失败的文件
@@ -881,10 +887,15 @@ public class PurchaseServiceImpl implements PurchaseService {
         // 1.验证是否可以扫码收货
         PurchasePrintVo purchasePrintVo = purchaseDao.findPrintOrderInfo(orderId); // 查询订单和二维码信息
         Map map = new HashMap<>(); // 返回结果
-        if (null == purchasePrintVo || null == purchasePrintVo.getQrcodeStatus()
+        if (null == purchasePrintVo) {
+            map.put("flag", false);
+            map.put("message", "订单不存在");
+            return map;
+        }
+        if (null == purchasePrintVo.getQrcodeStatus()
                 || purchasePrintVo.getQrcodeStatus().equals(1)) { // 订单为null或二维码状态失效（1）
             map.put("flag", false);
-            map.put("message", "订单不存在或二维码已经失效");
+            map.put("message", "二维码不存在或已经失效");
             return map;
         }
 

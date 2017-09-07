@@ -77,11 +77,14 @@ public class PurchaseItemPrintOutput{
     private Integer qrcodeStatus;
 
     /**
+     * 订单状态
+     */
+    private Integer orderStatus;
+
+    /**
      * 商品明细列表
      */
     private List<PurchaseItemPrintVo> purchaseItemPrintVos;
-
-    private Integer orderStatus;
 
     public Integer getOrderStatus() {
         return orderStatus;
