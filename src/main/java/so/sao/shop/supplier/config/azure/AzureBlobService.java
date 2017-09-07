@@ -192,7 +192,6 @@ public class AzureBlobService {
     public List<Result> uploadFilesComm(String realzippath ,List<String> files) {
         List<CommBlobUpload> blobUploadEntities = new ArrayList<CommBlobUpload>();
         List<String> errorImgNames = new ArrayList<String>();
-        Map<String,String> map = new HashMap<>();
         List<Result> results = new ArrayList<>();
         String fileName="";
         try {
