@@ -1,37 +1,37 @@
 package so.sao.shop.supplier.dao;
 
 import org.apache.ibatis.annotations.Param;
-import so.sao.shop.supplier.domain.CartItem;
+import so.sao.shop.supplier.domain.AppCartItem;
 
 import java.util.List;
 
-public interface CartItemDao {
+public interface AppCartItemDao {
 
     int deleteByPrimaryKey(Long id);
 
-    int insert(CartItem record);
+    int insert(AppCartItem record);
 
-    int insertSelective(CartItem record);
+    int insertSelective(AppCartItem record);
 
-    CartItem selectByPrimaryKey(Long id);
+    AppCartItem selectByPrimaryKey(Long id);
 
-    int updateByPrimaryKeySelective(CartItem record);
+    int updateByPrimaryKeySelective(AppCartItem record);
 
-    int updateByPrimaryKey(CartItem record);
+    int updateByPrimaryKey(AppCartItem record);
 
     /**
      * 根据用户ID查找购物车中的商品信息
      * @param userId
      * @return
      */
-    List<CartItem> findCartItemByUserId(Long userId);
+    List<AppCartItem> findCartItemByUserId(Long userId);
 
     /**
      * 根据ID查找到关联的商品信息和商户信息
      * @param id
      * @return
      */
-    CartItem findCartItemById(Long id);
+    AppCartItem findCartItemById(Long id);
 
     /**
      * 批量删除
@@ -46,5 +46,5 @@ public interface CartItemDao {
      * @param supplierId
      * @param commodityId
      */
-    List<CartItem> findExistsCartItem(@Param("user_id")Long userId, @Param("supplier_id")Long supplierId, @Param("commodity_id")Long commodityId);
+    List<AppCartItem> findExistsCartItem(@Param("user_id")Long userId, @Param("supplier_id")Long supplierId, @Param("commodity_id")Long commodityId);
 }

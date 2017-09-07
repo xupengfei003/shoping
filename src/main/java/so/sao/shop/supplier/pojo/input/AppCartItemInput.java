@@ -8,7 +8,7 @@ import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Date;
 
-public class CartItemInput {
+public class AppCartItemInput {
 
 
     /**
@@ -127,5 +127,20 @@ public class CartItemInput {
 
     public void setCount(Integer count) {
         this.count = count;
+    }
+
+    @Override
+    public String toString() {
+        return "AppCartItemInput{" +
+                "userId=" + userId +
+                ", supplierId=" + supplierId +
+                ", commodityId=" + commodityId +
+                ", commodityPrice=" + commodityPrice +
+                ", commodityName='" + commodityName + '\'' +
+                ", supplierName='" + supplierName + '\'' +
+                ", commodityPic='" + commodityPic + '\'' +
+                ", commodityProperties='" + commodityProperties + '\'' +
+                ", count=" + count +
+                '}';
     }
 }

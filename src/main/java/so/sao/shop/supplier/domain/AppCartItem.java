@@ -5,7 +5,7 @@ import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-public class CartItem {
+public class AppCartItem {
 
     /**
      * 记录ID
@@ -218,5 +218,28 @@ public class CartItem {
 
     public void setInventory(Double inventory) {
         this.inventory = inventory;
+    }
+
+    @Override
+    public String toString() {
+        return "AppCartItem{" +
+                "id=" + id +
+                ", userId=" + userId +
+                ", supplierId=" + supplierId +
+                ", supplierName='" + supplierName + '\'' +
+                ", commodityId=" + commodityId +
+                ", sku=" + sku +
+                ", commodityPrice=" + commodityPrice +
+                ", commodityName='" + commodityName + '\'' +
+                ", commodityPic='" + commodityPic + '\'' +
+                ", count=" + count +
+                ", commodityProperties='" + commodityProperties + '\'' +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", inventory=" + inventory +
+                ", supplierCommodity=" + supplierCommodity +
+                ", commodity=" + commodity +
+                ", user=" + user +
+                '}';
     }
 }
