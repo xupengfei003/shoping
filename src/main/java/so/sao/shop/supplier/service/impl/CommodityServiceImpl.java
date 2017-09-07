@@ -14,12 +14,8 @@ import so.sao.shop.supplier.config.CommConstant;
 import so.sao.shop.supplier.config.azure.AzureBlobService;
 import so.sao.shop.supplier.dao.*;
 import so.sao.shop.supplier.domain.*;
-import so.sao.shop.supplier.pojo.BaseResult;
 import so.sao.shop.supplier.pojo.Result;
-import so.sao.shop.supplier.pojo.input.CommSearchInput;
-import so.sao.shop.supplier.pojo.input.CommSimpleSearchInput;
-import so.sao.shop.supplier.pojo.input.CommodityInput;
-import so.sao.shop.supplier.pojo.input.CommodityUpdateInput;
+import so.sao.shop.supplier.pojo.input.*;
 import so.sao.shop.supplier.pojo.output.CommodityExportOutput;
 import so.sao.shop.supplier.pojo.output.CommodityImportOutput;
 import so.sao.shop.supplier.pojo.output.CommodityInfoOutput;
@@ -81,6 +77,8 @@ public class CommodityServiceImpl implements CommodityService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result saveCommodity(@Valid CommodityInput commodityInput,Long supplierId){
+        //获取当前供应商
+        Account account = accountDao.selectByPrimaryKey(supplierId);
         //验证请求体
         Result result = validateCommodityInput(commodityInput);
         if(result.getCode() == 0) return result;
@@ -152,6 +150,10 @@ public class CommodityServiceImpl implements CommodityService {
             sc.setUpdatedAt(new Date());
             String sku = createSku(commCategoryCode, commodity.getId(), supplierId);
             sc.setSku(sku);
+            //若供应商被禁用，新增的商品是失效状态
+            if(account.getAccountStatus()==CommConstant.ACCOUNT_INVALID_STATUS){
+                sc.setInvalidStatus(CommConstant.COMM_INVALID_STATUS);
+            }
             supplierCommodityDao.save(sc);
             //保存图片
             List<CommImge> commImges = new ArrayList<>();
@@ -945,6 +947,26 @@ public class CommodityServiceImpl implements CommodityService {
             return Result.success("导出商品成功！");
         }
         return Result.fail("暂无商品记录！");
+    }
+
+    /**
+     * 根据供应商更新商品失效
+     *
+     * @param accountStatus 供应商状态
+     * @return
+     */
+    @Override
+    public void updateCommInvalidStatus(CommInvalidStutasInput commInvalidStutasInput, Integer accountStatus) {
+        //如果供应商被禁用，则商品失效
+        if(accountStatus == CommConstant.ACCOUNT_INVALID_STATUS){
+            commInvalidStutasInput.setInvalidStatus(CommConstant.COMM_INVALID_STATUS);
+        }
+        if(accountStatus == CommConstant.ACCOUNT_ACTIVE_STATUS){
+            commInvalidStutasInput.setInvalidStatus(CommConstant.COMM_ACTIVE_STATUS);
+        }
+        commInvalidStutasInput.setUpdatedAt(new Date());
+        supplierCommodityDao.updateInvalidStatus(commInvalidStutasInput);
+
     }
 
 }

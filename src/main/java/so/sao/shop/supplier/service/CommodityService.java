@@ -6,10 +6,7 @@ import so.sao.shop.supplier.config.StorageConfig;
 import so.sao.shop.supplier.domain.Account;
 import so.sao.shop.supplier.pojo.BaseResult;
 import so.sao.shop.supplier.pojo.Result;
-import so.sao.shop.supplier.pojo.input.CommSearchInput;
-import so.sao.shop.supplier.pojo.input.CommSimpleSearchInput;
-import so.sao.shop.supplier.pojo.input.CommodityInput;
-import so.sao.shop.supplier.pojo.input.CommodityUpdateInput;
+import so.sao.shop.supplier.pojo.input.*;
 import so.sao.shop.supplier.pojo.output.CommodityExportOutput;
 import so.sao.shop.supplier.pojo.output.CommodityOutput;
 
@@ -132,4 +129,11 @@ public interface CommodityService {
      * @return
      */
     Result exportExcel(HttpServletResponse response , Long[] ids);
+
+    /**
+     * 根据供应商的激活状态更新商品的激活状态
+     * @param accountStatus  供应商状态
+     * @return
+     */
+    void updateCommInvalidStatus(CommInvalidStutasInput commInvalidStutasInput, Integer accountStatus);
 }
