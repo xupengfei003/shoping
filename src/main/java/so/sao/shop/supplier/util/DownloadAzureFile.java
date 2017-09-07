@@ -30,7 +30,7 @@ public class DownloadAzureFile {
 	/**
 	 * 云端文件下载转换
 	 * @param downloadUrl 云端地址
-	 * @param realFileName 云端名称
+	 * @param realFileName 文件名称
 	 * @param request 
 	 * @param response
 	 * @return
@@ -54,7 +54,8 @@ public class DownloadAzureFile {
   
             Long fileLength = conn.getContentLengthLong();//获取文件大小  
             //设置reponse响应头，真实文件名重命名，就是在这里设置，设置编码  
-            response.setHeader("Content-disposition", "attachment; filename=" + new String(realFileName.split("-_-")[0].getBytes("utf-8"), "ISO8859-1"));  
+            //response.setHeader("Content-disposition", "attachment; filename=" + new String(realFileName.split("-_-")[0].getBytes("utf-8"), "ISO8859-1"));  
+            response.setHeader("Content-disposition", "attachment; filename=" + new String(realFileName.getBytes("utf-8"), "ISO8859-1"));  
             response.setHeader("Content-Length", String.valueOf(fileLength));  
   
             bis = new BufferedInputStream(conn.getInputStream());//构造读取流  
