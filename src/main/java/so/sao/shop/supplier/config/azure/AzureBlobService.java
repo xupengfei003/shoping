@@ -191,8 +191,9 @@ public class AzureBlobService {
      */
     public List<Result> uploadFilesComm(String realzippath ,List<String> files) {
         List<CommBlobUpload> blobUploadEntities = new ArrayList<CommBlobUpload>();
-        Map<String,String> map = new HashMap<>();
+        List<String> errorImgNames = new ArrayList<String>();
         List<Result> results = new ArrayList<>();
+        String fileName="";
         try {
             if (files.size() != 0) {
                 CloudBlobContainer container = getBlobContainer(CommConstant.AZURE_CONTAINER.toLowerCase());
@@ -201,12 +202,12 @@ public class AzureBlobService {
                     dir.mkdir();
                 }
                 for (String fileStr : files) {
-                    //图片尺寸不变，压缩图片文件大小outputQuality实现,参数1为最高质量
-                    Thumbnails.of(realzippath+"/"+ fileStr.trim()).scale(1f).outputQuality(0.25f).toFile(realzippath+"/img/"+ fileStr.trim());
-                    File file = new File(realzippath+"/img/"+ fileStr.trim());
-                    String fileName = file.getName();
-                    if (file.exists()) {
-                        try {
+                    fileName=fileStr;
+                    try {
+                        //图片尺寸不变，压缩图片文件大小outputQuality实现,参数1为最高质量
+                        Thumbnails.of(realzippath+"/"+ fileStr.trim()).scale(1f).outputQuality(0.25f).toFile(realzippath+"/img/"+ fileStr.trim());
+                        File file = new File(realzippath+"/img/"+ fileStr.trim());
+                        if (file.exists()) {
                             //获取上传文件的名称及文件类型
                             CommBlobUpload blobUploadEntity = new CommBlobUpload();
                             String extensionName = StringUtils.substringAfter(fileName, ".");
@@ -215,8 +216,7 @@ public class AzureBlobService {
                                     || fileName.endsWith(CommConstant.IMG_FILE_JPEG)
                                     || fileName.endsWith(CommConstant.IMG_FILE_PNG)
                                     || fileName.endsWith(CommConstant.IMG_FILE_GIF))) {
-                                map.put("fileName",fileName);
-                                results.add(Result.fail("上传的文件中包含非jpg/png/jpeg/gif格式",map));
+                                errorImgNames.add(fileName);
                                 continue;
                             }
                             //拼装blob的名称(新的图片文件名 =UUID+"."图片扩展名)
@@ -252,24 +252,26 @@ public class AzureBlobService {
                             blobUploadEntity.setSize(sourceImg.getWidth() + "*" + sourceImg.getHeight());
 
                             blobUploadEntities.add(blobUploadEntity);
-                        } catch (Exception e) {
-                            map.put("fileName:",fileName);
-                            results.add(Result.fail("文件上传异常", map));
+                        }else {
+                            errorImgNames.add(fileName);
                             continue;
                         }
-                    }else {
-                        map.put("fileName",fileName);
-                        results.add(Result.fail("上传文件为空", map));
+                    } catch (Exception e) {
+                        errorImgNames.add(fileName);
                         continue;
                     }
                 }
                 results.add(Result.success("文件上传成功", blobUploadEntities));
+                results.add(Result.fail("文件上传异常", errorImgNames));
             }else{
-                map.put("错误原因：","未选择上传的文件");
-                results.add(Result.fail("未选择上传的文件", map));
+                errorImgNames.add(fileName);
+                results.add(Result.success("文件上传成功", blobUploadEntities));
+                results.add(Result.fail("未选择上传的文件", errorImgNames));
             }
         } catch (Exception e) {
-            results.add(Result.fail("文件上传异常", map));
+            errorImgNames.add(fileName);
+            results.add(Result.success("文件上传成功", blobUploadEntities));
+            results.add(Result.fail("文件上传异常", errorImgNames));
         }
         return results;
     }
