@@ -2,3 +2,7 @@
 ALTER TABLE supplier_commodity ADD invalid_status int(2) default 1 comment '商品是否失效：0 失效 ，1正常' after status;
 /*增加订单详情表-code69字段*/
 ALTER TABLE purchase_item ADD code69 VARCHAR(20) COMMENT '商品条码' AFTER goods_id;
+/*订单表增加商户名称*/
+ALTER TABLE purchase ADD store_name VARCHAR(50) COMMENT '商户名称' AFTER store_id;
+/*订单表增加收货人性别*/
+ALTER TABLE purchase ADD order_receiver_sex INT(1) COMMENT '收货人性别 男:1，女:0' AFTER order_receiver_name;
