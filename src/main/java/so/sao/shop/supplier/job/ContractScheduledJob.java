@@ -15,8 +15,8 @@ public class ContractScheduledJob {
     @Autowired
     private ContractScheduledService Scheduled;
 
-    //设定每天上午9点定时检查合同过期供应商
-    @Scheduled(cron = "0 0 9 * * ?")
+    //设定每天中午12点定时检查合同过期供应商
+    @Scheduled(cron = "0 0 12 * * ?")
     public void ContractEnd(){
 
         Scheduled.contractScheduled();

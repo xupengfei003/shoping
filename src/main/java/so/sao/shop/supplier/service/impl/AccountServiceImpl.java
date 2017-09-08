@@ -432,7 +432,7 @@ public class AccountServiceImpl implements AccountService {
         Long contractEndDate=accountDao.selectById(accountUpdateInput.getAccountId()).getContractEndDate().getTime();
         Long Timedifference=contractEndDate-currentTime;
         if(accountUpdateInput.getAccountStatus()==1&&Timedifference<=0){
-            return Result.fail("合同有效期已过期，请更新后启用");
+            return Result.fail("合同有效期已过期，请更新后启用！");
         }
         Account account = accountDao.selectById(accountUpdateInput.getAccountId());
         if (account != null) {
@@ -458,7 +458,7 @@ public class AccountServiceImpl implements AccountService {
             }
             return Result.success("更新成功！");
         }
-        return Result.success("更新失败！");
+        return Result.fail("更新失败！");
     }
 
     /**
