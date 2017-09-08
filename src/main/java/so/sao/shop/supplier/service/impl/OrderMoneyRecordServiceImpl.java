@@ -175,7 +175,7 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
         List<Purchase> purchaseList = null;
         //1)、按自然月结算
         if ("1".equals(remittanceType)) {
-            updateLastSettDate = getFirstDayOfMonth();//设置上一次结帐时间
+            updateLastSettDate = getFirstDayOfMonth();//设置上一次结帐时间为当前月1号
 
             //a)、获取当前时间与上次结算时间相差的月数
             int months = countMonths(lastSettlementDate, currentDate);
