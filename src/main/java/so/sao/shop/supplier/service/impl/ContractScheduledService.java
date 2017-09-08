@@ -22,8 +22,8 @@ import java.util.*;
  */
 @Service
 public class ContractScheduledService {
-    public static final String INFORM = "您的合同到期时间仅剩30天，合同到期后无法接收新订单";
-    public static final String ENDINFORM = "您的账号已被禁用，暂时无法接收新订单，如有疑问请联系管理员";
+    public static final String INFORM = "您的合同到期时间仅剩30天，合同到期后无法接收新订单！";
+    public static final String ENDINFORM = "您的账号已被禁用，暂时无法接收新订单！";
 
     @Autowired
     private AccountDao accountDao;
