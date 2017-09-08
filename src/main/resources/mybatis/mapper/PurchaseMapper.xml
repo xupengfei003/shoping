@@ -360,7 +360,7 @@
     <update id="updateAccountStatus">
         UPDATE record_purchase rp
         LEFT JOIN purchase p ON rp.order_id = p.order_id
-        SET p.account_status = 1, p.updated_at = #{updateDate}
+        SET p.account_status = '2', p.updated_at = #{updateDate}
         WHERE rp.record_id = #{recordId};
     </update>
 
@@ -600,7 +600,7 @@
     <update id="updatePurchasesAccountStatusById" parameterType="java.util.List">
         <foreach collection="list" item="item" index="index" open="" close="" separator=";">
             UPDATE purchase
-            SET account_status = '2',updated_at = #{item.updatedAt}
+            SET account_status = '1', updated_at = #{item.updatedAt}
             WHERE order_id = #{item.orderId}
         </foreach>
     </update>
