@@ -22,27 +22,21 @@ import java.util.List;
  * Created by acer on 2017/9/6.
  */
 @RestController
-@RequestMapping("/appOrder")
+@RequestMapping("/order")
 @Api(description = "App订单类-所有接口")
 public class AppPurchaseController {
     @Resource
     private AppPurchaseService appPurchaseService;
     @GetMapping(value = "/appOrderList")
     @ApiOperation(value = "门店端获取订单列表", notes = "负责人【白治华】")
-    public Result appOrderList(HttpServletRequest request,Integer pageNum, Integer rows, Integer orderStatus) throws Exception{
-        //获取当前登陆账户
-        User user = (User) request.getAttribute(Constant.REQUEST_USER);
-        //判断是否登陆
-        if (null == user) {
-            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
-        }
+    public Result appOrderList(Integer pageNum, Integer rows,String userId, Integer orderStatus) throws Exception{
         if (rows == null || rows <= 0) {
             rows = 5;
         }
         if (pageNum == null || pageNum <= 0) {
             pageNum = 1;
         }
-        PageInfo<AppPurchaseOutput> appPurchasesVoList = appPurchaseService.findOrderList(pageNum, rows, BigInteger.valueOf(user.getId()),orderStatus);
+        PageInfo<AppPurchaseOutput> appPurchasesVoList = appPurchaseService.findOrderList(pageNum, rows, userId,orderStatus);
         return Result.success(Constant.MessageConfig.MSG_SUCCESS,appPurchasesVoList);
     }
 }
