@@ -2,6 +2,7 @@ package so.sao.shop.supplier.service;
 
 import so.sao.shop.supplier.domain.Account;
 import so.sao.shop.supplier.pojo.input.OrderMoneyRecordInput;
+import so.sao.shop.supplier.pojo.input.OrderMoneyRecordRankInput;
 import so.sao.shop.supplier.pojo.output.OrderMoneyRecordOutput;
 import so.sao.shop.supplier.pojo.output.RecordToPurchaseOutput;
 
@@ -49,7 +50,7 @@ public interface OrderMoneyRecordService {
      * @return
      * @throws Exception
      */
-    Map<String, Object> searchRecords(Long accountId, OrderMoneyRecordInput put, Integer pageNum, Integer pageSize) throws Exception;
+    Map<String, Object> searchRecords(Long accountId, OrderMoneyRecordRankInput put, Integer pageNum, Integer pageSize) throws Exception;
 
     /**
      * 根据结算明细查询该明细所对应的订单列表，并根据pageNum和pageSize进行分页展示
