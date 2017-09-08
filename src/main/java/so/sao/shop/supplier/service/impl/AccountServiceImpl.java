@@ -456,8 +456,9 @@ public class AccountServiceImpl implements AccountService {
                 });
                 return Result.success("供应商启用成功！");
             }
+            return Result.success("更新成功！");
         }
-        return Result.success("更新成功！");
+        return Result.success("更新失败！");
     }
 
 }
