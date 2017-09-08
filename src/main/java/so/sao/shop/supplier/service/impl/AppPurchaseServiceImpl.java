@@ -34,13 +34,15 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
      * @throws Exception 异常
      */
     @Override
-    public PageInfo<AppPurchaseOutput> findOrderList(Integer pageNum, Integer rows, BigInteger userId, Integer orderStatus) throws Exception {
+    public PageInfo<AppPurchaseOutput> findOrderList(Integer pageNum, Integer rows, String userId, Integer orderStatus) throws Exception {
         PageTool.startPage(pageNum,rows);
+        //查询订单信息
         List<AppPurchasesVo> orderIdList = appPurchaseDao.findOrderList(userId,orderStatus);
         List<AppPurchaseOutput> appPurchaseOutputs = new ArrayList<>();
         PageInfo pageInfo = new PageInfo(orderIdList);
         if(null != orderIdList && orderIdList.size()>0){
             for(AppPurchasesVo appPurchasesVo : orderIdList){
+                //查询详情信息
                 List<AppPurchaseItemVo> appPurchaseItemVoList = appPurchaseItemDao.findOrderItemList(appPurchasesVo.getOrderId());
                 AppPurchaseOutput appPurchaseOutput = BeanMapper.map(appPurchasesVo,AppPurchaseOutput.class);
                 appPurchaseOutput.setAppPurchaseItemVos(appPurchaseItemVoList);

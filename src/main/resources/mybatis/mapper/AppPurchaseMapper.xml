@@ -8,7 +8,6 @@
         <result column="store_name" property="storeName"/>
         <result column="order_status" property="orderStatus"/>
         <result column="order_receiver_name" property="orderReceiverName"/>
-        <result column="order_receiver_sex" property="orderReceiverSex"/>
         <result column="order_receiver_mobile" property="orderReceiverMobile"/>
         <result column="order_address" property="orderAddress"/>
         <result column="order_price" property="orderPrice"/>
@@ -16,7 +15,7 @@
 
     <sql id="App_Order_Column_List">
         order_id, order_create_time, store_name, order_status, order_receiver_name,
-        order_receiver_sex, order_receiver_mobile, order_address,order_price
+        order_receiver_mobile, order_address,order_price
     </sql>
     <select id="findOrderList" resultMap="AppOrderAllList" parameterType="java.lang.Integer">
         SELECT
@@ -27,10 +26,19 @@
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderStatus)">
             AND order_status = TRIM(#{orderStatus})
         </if>
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(userId)">
-            AND user_id = TRIM(#{userId})
-        </if>
+        AND user_id = TRIM(#{userId})
         ORDER BY updated_at DESC
     </select>
+
+    <select id="findOrderListByOrderId" resultMap="AppOrderAllList" parameterType="java.lang.String">
+        SELECT
+        <include refid="App_Order_Column_List"/>
+        FROM purchase
+        WHERE
+        order_status != -1
+        AND order_id = TRIM(#{orderId})
+        ORDER BY updated_at DESC
+    </select>
+
 
 </mapper>

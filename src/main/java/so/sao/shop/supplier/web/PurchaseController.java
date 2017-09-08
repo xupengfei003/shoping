@@ -484,6 +484,9 @@ public class PurchaseController {
     //验证订单状态
     private boolean verifyOrderStatus(String orderId, Integer orderStatus) {
         Integer getOrderStatus = purchaseService.findOrderStatus(orderId);
+        if(null != getOrderStatus){
+            return false;
+        }
         String status = Constant.OrderStatusRule.RULES[getOrderStatus - 1];
         return status.contains(String.valueOf(orderStatus));
     }
