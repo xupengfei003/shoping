@@ -44,7 +44,7 @@ public class CommAppController {
 
     @ApiOperation(value="查询品牌名称", notes="模糊查询品牌名称")
     @GetMapping(value="/getBrandName")
-    public Result getBrandName(@RequestParam String name){
+    public Result getBrandName(@RequestParam(required = false)  String name){
         return commAppService.getBrandName(name);
     }
 

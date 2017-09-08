@@ -83,8 +83,11 @@
         SELECT
         id,name
         FROM comm_brand cb
-        WHERE name like '%${name}%'
-        AND deleted = 0
+        WHERE
+        deleted = 0
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(name)">
+            AND cb.name LIKE '%${name}%'
+        </if>
     </select>
     <!--根据名称，分类，品牌Ids查询商品信息-->
     <select id="findCommodities" resultType="so.sao.shop.supplier.pojo.output.CommAppSeachOutput">
