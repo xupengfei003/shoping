@@ -1,9 +1,13 @@
 package so.sao.shop.supplier.domain;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import org.codehaus.jackson.map.ObjectMapper;
+import so.sao.shop.supplier.pojo.output.CommodityOutput;
 
 public class AppCartItem {
 
@@ -31,7 +35,7 @@ public class AppCartItem {
     /**
      * 商品sku
      */
-    private Long sku;
+    private String sku;
     /**
      * 价格
      */
@@ -72,6 +76,30 @@ public class AppCartItem {
     private Double inventory;
 
     /**
+     * 计量规格ID
+     */
+    private Long measureSpecId;
+    /**
+     * 计量规格名称
+     */
+    private String measureSpecName;
+    /**
+     * 规格值
+     */
+    private String ruleVal;
+    /**
+     * 计量单位ID
+     */
+    private Long unitId;
+    /**
+     * 计量单位名称
+     */
+    private String unitName;
+
+
+
+
+    /**
      * 供应商对应的商品
      */
     private SupplierCommodity supplierCommodity;
@@ -89,6 +117,13 @@ public class AppCartItem {
     }
 
     public void setCommodityProperties(String commodityProperties) {
+        //如果无法解析为json字符串则不存值
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.readValue(commodityProperties, Map.class);
+        } catch (IOException e) {
+            return;
+        }
         this.commodityProperties = commodityProperties;
     }
 
@@ -204,11 +239,11 @@ public class AppCartItem {
         this.count = count;
     }
 
-    public Long getSku() {
+    public String getSku() {
         return sku;
     }
 
-    public void setSku(Long sku) {
+    public void setSku(String sku) {
         this.sku = sku;
     }
 
@@ -218,6 +253,46 @@ public class AppCartItem {
 
     public void setInventory(Double inventory) {
         this.inventory = inventory;
+    }
+
+    public Long getMeasureSpecId() {
+        return measureSpecId;
+    }
+
+    public void setMeasureSpecId(Long measureSpecId) {
+        this.measureSpecId = measureSpecId;
+    }
+
+    public String getMeasureSpecName() {
+        return measureSpecName;
+    }
+
+    public void setMeasureSpecName(String measureSpecName) {
+        this.measureSpecName = measureSpecName;
+    }
+
+    public String getRuleVal() {
+        return ruleVal;
+    }
+
+    public void setRuleVal(String ruleVal) {
+        this.ruleVal = ruleVal;
+    }
+
+    public Long getUnitId() {
+        return unitId;
+    }
+
+    public void setUnitId(Long unitId) {
+        this.unitId = unitId;
+    }
+
+    public String getUnitName() {
+        return unitName;
+    }
+
+    public void setUnitName(String unitName) {
+        this.unitName = unitName;
     }
 
     @Override
@@ -237,9 +312,46 @@ public class AppCartItem {
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
                 ", inventory=" + inventory +
+                ", measureSpecId=" + measureSpecId +
+                ", measureSpecName='" + measureSpecName + '\'' +
+                ", ruleVal='" + ruleVal + '\'' +
+                ", unitId=" + unitId +
+                ", unitName='" + unitName + '\'' +
                 ", supplierCommodity=" + supplierCommodity +
                 ", commodity=" + commodity +
                 ", user=" + user +
                 '}';
+    }
+
+    /**
+     * 复制属性
+     * @param supplierCommodity
+     */
+    public void copySupplierCommodity(SupplierCommodity supplierCommodity) {
+        if(supplierCommodity == null){
+            return ;
+        }
+        this.setCommodityId(supplierCommodity.getId());
+        this.setCommodityName(supplierCommodity.getRemark());
+        this.setCommodityPic(supplierCommodity.getMinImg());
+        this.setCommodityPrice(supplierCommodity.getUnitPrice());
+        this.setSku(supplierCommodity.getSku());
+        this.setSupplierId(supplierCommodity.getSupplierId());
+    }
+
+    /**
+     * 复制属性
+     * @param commodityOutput
+     */
+    public void copyCommodityOutput(CommodityOutput commodityOutput) {
+        if(supplierCommodity == null){
+            return ;
+        }
+        this.setMeasureSpecId(commodityOutput.getMeasureSpecId());
+        this.setMeasureSpecName(commodityOutput.getMeasureSpecName());
+        this.setRuleVal(commodityOutput.getRuleVal());
+        this.setUnitId(commodityOutput.getUnitId());
+        this.setUnitName(commodityOutput.getUnitName());
+
     }
 }

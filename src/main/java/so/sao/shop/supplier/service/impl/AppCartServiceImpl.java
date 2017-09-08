@@ -12,6 +12,7 @@ import so.sao.shop.supplier.dao.SupplierCommodityDao;
 import so.sao.shop.supplier.domain.AppCartItem;
 import so.sao.shop.supplier.domain.SupplierCommodity;
 import so.sao.shop.supplier.pojo.input.AppCartItemInput;
+import so.sao.shop.supplier.pojo.output.CommodityOutput;
 import so.sao.shop.supplier.service.AppCartService;
 
 import java.util.Date;
@@ -55,11 +56,11 @@ public class AppCartServiceImpl implements AppCartService {
         appCartItem.setCreatedAt(new Date());
         //查询是否存在相同的商品
         List<AppCartItem> existsAppCartItemLit = cartItemDao.findExistsCartItem(appCartItem.getUserId(), appCartItem.getSupplierId(), appCartItem.getCommodityId());
-        logger.debug("【查询是否存在相同的商品】" + existsAppCartItemLit.toString());
+        logger.debug("【查询是否存在相同的商品】" + existsAppCartItemLit.size());
         if(existsAppCartItemLit !=null&& existsAppCartItemLit.size()>0){//如果存在，则更新商品数量
 
             AppCartItem existsAppCartItem = existsAppCartItemLit.get(0);
-            Integer updateNumber = existsAppCartItem.getCount()+ appCartItemInput.getCount();
+            Integer updateNumber = existsAppCartItem.getCount()+ appCartItemInput.getCount();//需要更新的库存数量
             logger.debug("【需要更新的数量】" + updateNumber);
             //更新记录信息并返回商品库存信息
             Integer remaining = updateCartItem(existsAppCartItem.getId(), existsAppCartItem.getCommodityId(),updateNumber);
@@ -68,7 +69,10 @@ public class AppCartServiceImpl implements AppCartService {
         }else{//如果不存在相同的商品
             //查询商品库存
             SupplierCommodity supplierCommodity = supplierCommodityDao.findOne(appCartItem.getCommodityId());
+            CommodityOutput commodityOutput = supplierCommodityDao.findDetail(appCartItem.getCommodityId());
             Double inventory = supplierCommodity.getInventory();
+            appCartItem.copySupplierCommodity(supplierCommodity);
+            appCartItem.copyCommodityOutput(commodityOutput);
             //判断添加的数量是否超过商品库存
             if((inventory.intValue()- appCartItem.getCount()) >= 0){
                 logger.debug("【插入购物车信息】" + appCartItem);
@@ -116,6 +120,9 @@ public class AppCartServiceImpl implements AppCartService {
 
         //判断库存余量
         SupplierCommodity supplierCommodity = supplierCommodityDao.findOne(commodityId);
+        CommodityOutput commodityOutput = supplierCommodityDao.findDetail(commodityId);
+
+
         Double inventory = supplierCommodity.getInventory();
         logger.debug("【库存余量】" + inventory);
         if(number == null || number.intValue() < 1){
@@ -134,6 +141,8 @@ public class AppCartServiceImpl implements AppCartService {
             appCartItem.setId(cartitemId);
             appCartItem.setCount(number);
             appCartItem.setUpdatedAt(new Date());
+            appCartItem.copySupplierCommodity(supplierCommodity);
+            appCartItem.copyCommodityOutput(commodityOutput);
             logger.debug("【更新的数据为】" + appCartItem);
             cartItemDao.updateByPrimaryKeySelective(appCartItem);
             return remaining;

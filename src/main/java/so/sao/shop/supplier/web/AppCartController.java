@@ -95,6 +95,8 @@ public class AppCartController {
         if(!checkUser()){
             return Result.fail(Constant.MessageConfig.MSG_FAILURE);
         }
+        User user = (User)request.getAttribute(Constant.REQUEST_USER);
+        appCartItemInput.setUserId(user.getId());
         return convertBoolean(cartService.saveCartItem(appCartItemInput));
     }
 
@@ -121,7 +123,7 @@ public class AppCartController {
         if(flag){
             Result.success(Constant.MessageConfig.MSG_SUCCESS);
         }else{
-            Result.success(Constant.MessageConfig.MSG_FAILURE);
+            Result.fail(Constant.MessageConfig.MSG_FAILURE);
         }
         return result;
     }

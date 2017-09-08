@@ -3,7 +3,7 @@
 <mapper namespace="so.sao.shop.supplier.dao.AppCartItemDao" >
   <resultMap id="BaseResultMap" type="so.sao.shop.supplier.domain.AppCartItem" >
     <id column="id" property="id" jdbcType="BIGINT" />
-    <result column="user_id" property="userId" jdbcType="BIGINT" />
+    <result column="user_id" property="userId" jdbcType="BIGINT"  />
     <result column="supplier_id" property="supplierId" jdbcType="BIGINT" />
     <result column="commodity_id" property="commodityId" jdbcType="BIGINT" />
     <result column="commodity_price" property="commodityPrice" jdbcType="DECIMAL" />
@@ -13,11 +13,18 @@
     <result column="supplier_name" property="supplierName" jdbcType="VARCHAR" />
     <result column="created_at" property="createdAt"  />
     <result column="updated_at" property="updatedAt"  />
+
+    <result column="measure_spec_id" property="measureSpecId"   jdbcType="BIGINT" />
+    <result column="measure_spec_name" property="measureSpecName"  jdbcType="VARCHAR"  />
+    <result column="rule_val" property="ruleVal"  jdbcType="VARCHAR"  />
+    <result column="unit_id" property="unitId"   jdbcType="BIGINT" />
+    <result column="unit_name" property="unitName"  jdbcType="VARCHAR"  />
     <result column="count" property="count" jdbcType="INTEGER" />
   </resultMap>
   <sql id="Base_Column_List" >
     id, user_id, supplier_id, commodity_id, commodity_price, commodity_name, commodity_properties,
-    commodity_pic, supplier_name, created_at, updated_at, count
+    commodity_pic, supplier_name, created_at, updated_at, count,
+    measure_spec_id,measure_spec_name,rule_val,unit_id,unit_name
   </sql>
 
 
