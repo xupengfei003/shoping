@@ -69,7 +69,8 @@ public class ScheduledJob {
      * 定时执行取消到期待付款的订单
      * @throws Exception
      */
-//    @Scheduled(cron = "0 0/1 * * * ?")
+    //定位每30分钟检索一次待付款的订单
+//    @Scheduled(cron = "0 0/30 * * * ?")
     public void CancelOrderJob () throws Exception {
         System.out.println("11111111");
         Boolean lock = redisTemplate.opsForValue().setIfAbsent(Constant.REDIS_KEY_PREFIX + "CANCEL_PAYMENT_ORDER", "1");
