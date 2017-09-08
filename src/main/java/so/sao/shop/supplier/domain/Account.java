@@ -250,8 +250,8 @@ public class Account {
 	/**
 	 * 合同原文件名
 	 */
-	@NotEmpty(message = "上传合同地址")
-	@Length(max = 255,message = "上传合同地址长度不能超过255")
+	@NotEmpty(message = "合同原文件名")
+	@Length(max = 255,message = "合同原文件名长度不能超过255")
 	private String contractName;
 
 	/**
