@@ -69,7 +69,7 @@ public class PurchaseController {
      * 根据订单ID获取订单详情
      *
      * @param orderId orderId
-     * @return PurchaseOutput
+     * @return Result
      */
     @RequestMapping(value = "/purchase/{orderId}", method = RequestMethod.GET)
     @ApiOperation(value = "获取订单详情", notes = "获取订单详情")

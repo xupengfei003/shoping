@@ -192,4 +192,10 @@ public interface SupplierCommodityDao {
      * @return
      */
     List<SupplierCommodity> findSupplierCommodityByIds(@Param("ids") Long[] ids);
+
+    /**
+     * 商品失效
+     * @param
+     */
+    void updateInvalidStatus(SupplierCommodity supplierCommodity);
 }

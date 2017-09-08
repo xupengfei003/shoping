@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import so.sao.shop.supplier.domain.*;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.AccountInput;
+import so.sao.shop.supplier.pojo.input.AccountUpdateInput;
 import so.sao.shop.supplier.service.*;
 import so.sao.shop.supplier.util.DownloadAzureFile;
 import so.sao.shop.supplier.config.Constant;
@@ -231,13 +232,14 @@ public class AccountController {
      * @return
      */
     @GetMapping(value = "/findAccount")
-    @ApiOperation(value = "查询供应商列表" , notes = "查找供应商列表【负责人：唐文斌】")
+    @ApiOperation(value = "查询供应商列表" , notes = "负责人：唐文斌")
     public PageInfo search(AccountInput accountInput, HttpServletRequest request)  {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         if(user==null || !user.getIsAdmin().equals(Constant.ADMIN_STATUS)){
             throw new RuntimeException("unauthorized access");
         }
-        return accountService.searchAccount(accountInput);
+        List<Account> accountList = accountService.searchAccount(accountInput);
+        return new PageInfo(accountList);
     }
 
     /**
@@ -410,4 +412,23 @@ public class AccountController {
         }
         return DownloadAzureFile.downloadFile(downloadUrl, realFileName, request, response);
     }
+
+    /**
+     * 修改供应商状态并激活账户
+     * @param accountUpdateInput
+     * @param request
+     * @return
+     */
+    @PutMapping("/updateStatus")
+    @ApiOperation(value = "修改供应商状态",notes = "修改供应商状态【负责人：陈化静】")
+    public Result updateStatus(@Valid @RequestBody AccountUpdateInput accountUpdateInput, HttpServletRequest request){
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        //验证是否登录, 判断登录用户是否是管理员
+        if(user == null || !Constant.ADMIN_STATUS.equals(user.getIsAdmin()) ){
+            return Result.fail("unauthorized access");
+        }
+        accountService.updateAccountStatus(accountUpdateInput);
+        return Result.success("供应商状态修改成功！");
+    }
+
 }

@@ -23,6 +23,12 @@ public class PurchaseItem {
      * 商品编号
      */
     private Long goodsId;
+
+    /**
+     * 商品条码
+     */
+    private String code69;
+
     /**
      * 商品数量
      */
@@ -79,6 +85,14 @@ public class PurchaseItem {
 
     public void setGoodsId(Long goodsId) {
         this.goodsId = goodsId;
+    }
+
+    public String getCode69() {
+        return code69;
+    }
+
+    public void setCode69(String code69) {
+        this.code69 = code69;
     }
 
     public Integer getGoodsNumber() {

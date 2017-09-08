@@ -17,5 +17,14 @@ public interface AppPurchaseDao {
      * @return List<AppPurchaseItemVo> 订单列表
      * @throws Exception 异常
      */
-    List<AppPurchasesVo> findOrderList(@Param("userId") BigInteger userId, @Param("orderStatus") Integer orderStatus) throws Exception;
+    List<AppPurchasesVo> findOrderList(@Param("userId") String userId, @Param("orderStatus") Integer orderStatus) throws Exception;
+
+    /**
+     * 根据订单ID查询订单列表
+     *
+     * @param orderId 订单ID
+     * @return List<AppPurchaseItemVo> 订单列表
+     * @throws Exception 异常
+     */
+    List<AppPurchasesVo> findOrderListByOrderId(@Param("orderId") String orderId) throws Exception;
 }
