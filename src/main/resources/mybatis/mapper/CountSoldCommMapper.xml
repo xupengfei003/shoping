@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="so.sao.shop.supplier.dao.CountSoldCommDao">
+    <!--统计已销售的商品数量-->
+    <select id="countSoldCommNum" parameterType="java.lang.String" resultType="java.lang.Integer">
+        SELECT COUNT(1)
+        FROM purchase_item item
+        LEFT JOIN purchase p ON p.order_id=item.order_id
+        WHERE item.goods_id = TRIM(#{goodsId})
+        AND p.order_status = 4
+    </select>
+</mapper>

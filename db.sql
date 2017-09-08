@@ -9,5 +9,6 @@ ALTER TABLE purchase_item ADD code69 VARCHAR(20) COMMENT '商品条码' AFTER go
 ALTER TABLE purchase ADD store_name VARCHAR(50) COMMENT '商户名称' AFTER store_id;
 /*订单表增加收货人性别*/
 ALTER TABLE purchase ADD order_receiver_sex INT(1) COMMENT '收货人性别 男:1，女:0' AFTER order_receiver_name;
+
 /*订单表中修改账户状态字段注释*/
 ALTER TABLE purchase MODIFY COLUMN `account_status` varchar(1) DEFAULT '0' COMMENT '账户状态（0:未统计;1:已统计;2:已结算）';
