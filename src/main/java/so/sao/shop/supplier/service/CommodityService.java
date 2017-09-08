@@ -135,5 +135,5 @@ public interface CommodityService {
      * @param accountStatus  供应商状态
      * @return
      */
-    void updateCommInvalidStatus(CommInvalidStutasInput commInvalidStutasInput, Integer accountStatus);
+    void updateCommInvalidStatus(Long supplierId, Integer accountStatus);
 }

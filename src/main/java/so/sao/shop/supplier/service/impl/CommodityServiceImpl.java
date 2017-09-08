@@ -956,16 +956,19 @@ public class CommodityServiceImpl implements CommodityService {
      * @return
      */
     @Override
-    public void updateCommInvalidStatus(CommInvalidStutasInput commInvalidStutasInput, Integer accountStatus) {
+    public void updateCommInvalidStatus(Long supplierId, Integer accountStatus) {
+
+        SupplierCommodity supplierCommodity = new SupplierCommodity();
+        supplierCommodity.setSupplierId(supplierId);
         //如果供应商被禁用，则商品失效
         if(accountStatus == CommConstant.ACCOUNT_INVALID_STATUS){
-            commInvalidStutasInput.setInvalidStatus(CommConstant.COMM_INVALID_STATUS);
+            supplierCommodity.setInvalidStatus(CommConstant.COMM_INVALID_STATUS);
         }
         if(accountStatus == CommConstant.ACCOUNT_ACTIVE_STATUS){
-            commInvalidStutasInput.setInvalidStatus(CommConstant.COMM_ACTIVE_STATUS);
+            supplierCommodity.setInvalidStatus(CommConstant.COMM_ACTIVE_STATUS);
         }
-        commInvalidStutasInput.setUpdatedAt(new Date());
-        supplierCommodityDao.updateInvalidStatus(commInvalidStutasInput);
+        supplierCommodity.setUpdatedAt(new Date());
+        supplierCommodityDao.updateInvalidStatus(supplierCommodity);
 
     }
 

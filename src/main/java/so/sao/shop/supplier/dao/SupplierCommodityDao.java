@@ -198,5 +198,5 @@ public interface SupplierCommodityDao {
      * 商品失效
      * @param
      */
-    void updateInvalidStatus(CommInvalidStutasInput commInvalidStutasInput);
+    void updateInvalidStatus(SupplierCommodity supplierCommodity);
 }
