@@ -17,12 +17,12 @@ import javax.annotation.Resource;
  */
 @RestController
 @RequestMapping("/order")
-@Api(description = "App订单详情类-所有接口")
+@Api(description = "统计商品销售量接口")
 public class CountReceivedOrderController {
     @Resource
     private CountSoldCommService countSoldCommService;
     @GetMapping(value = "/countOrderNum/{goodsId}")
-    @ApiOperation(value = "门店端获取订单列表", notes = "负责人【白治华】")
+    @ApiOperation(value = "获取已销售商品数量", notes = "负责人【白治华】")
     public Result countOrderNum(@PathVariable("goodsId") String goodsId) throws Exception{
         Integer countNum = countSoldCommService.countSoldCommNum(goodsId);
         if(countNum > 0){
