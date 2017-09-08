@@ -2,6 +2,7 @@ package so.sao.shop.supplier.pojo.input;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.hibernate.validator.constraints.NotEmpty;
+
 import javax.validation.constraints.Pattern;
 
 /**
@@ -13,19 +14,19 @@ public class OrderMoneyRecordInput {
     /**
      * 查询起始时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private String startTime;
 
     /**
      * 查询结束时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private String endTime;
 
     /**
      * 结算状态 0 待结算 1 已结算
      */
-    @Pattern(regexp="^[0-1]*$", message="结算状态错误")
+    @Pattern(regexp = "^[0-1]$", message = "结算状态错误")
     @NotEmpty(message = "状态不能为空")
     private String state;
 
