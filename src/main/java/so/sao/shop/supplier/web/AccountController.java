@@ -427,8 +427,7 @@ public class AccountController {
         if(user == null || !Constant.ADMIN_STATUS.equals(user.getIsAdmin()) ){
             return Result.fail("unauthorized access");
         }
-        accountService.updateAccountStatus(accountUpdateInput);
-        return Result.success("供应商状态修改成功！");
+        return accountService.updateAccountStatus(accountUpdateInput);
     }
 
 }

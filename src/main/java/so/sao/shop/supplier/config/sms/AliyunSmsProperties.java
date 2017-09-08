@@ -32,6 +32,30 @@ public class AliyunSmsProperties {
      * 短信模板(找回密码)
      */
     private String smsTemplateCode3;
+    /**
+     * 短信模板(合同剩余30天到期提醒)
+     */
+    private String smsTemplateCode4;
+    /**
+     * 短信模板(已经到期提醒)
+     */
+    private String smsTemplateCode5;
+
+    public String getSmsTemplateCode4() {
+        return smsTemplateCode4;
+    }
+
+    public void setSmsTemplateCode4(String smsTemplateCode4) {
+        this.smsTemplateCode4 = smsTemplateCode4;
+    }
+
+    public String getSmsTemplateCode5() {
+        return smsTemplateCode5;
+    }
+
+    public void setSmsTemplateCode5(String smsTemplateCode5) {
+        this.smsTemplateCode5 = smsTemplateCode5;
+    }
 
     public String getAccessKeyId() {
         return accessKeyId;
