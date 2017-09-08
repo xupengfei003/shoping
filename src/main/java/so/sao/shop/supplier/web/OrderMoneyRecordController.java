@@ -12,6 +12,7 @@ import so.sao.shop.supplier.domain.Account;
 import so.sao.shop.supplier.domain.User;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.OrderMoneyRecordInput;
+import so.sao.shop.supplier.pojo.input.OrderMoneyRecordRankInput;
 import so.sao.shop.supplier.pojo.output.OrderMoneyRecordOutput;
 import so.sao.shop.supplier.pojo.output.RecordToPurchaseOutput;
 import so.sao.shop.supplier.service.AccountService;
@@ -140,6 +141,7 @@ public class OrderMoneyRecordController {
 
     /**
      * 根据根据申请人账户查询满足结算时间条件的已结算/待结算明细，并根据pageNum和pageSize进行分页
+     *
      * @param pageNum
      * @param pageSize
      * @param request
@@ -148,7 +150,7 @@ public class OrderMoneyRecordController {
      */
     @ApiOperation(value = "根据账户ID查询已结算/待结算明细", notes = "根据账户ID查询已结算/待结算明细并分页【负责人：方洲】")
     @GetMapping(value = "/orderMoneyRecords")
-    public Result searchOrderMoneyRecords(Integer pageNum, Integer pageSize, HttpServletRequest request, @Valid OrderMoneyRecordInput put) throws Exception {
+    public Result searchOrderMoneyRecords(Integer pageNum, Integer pageSize, HttpServletRequest request, @Valid OrderMoneyRecordRankInput put) throws Exception {
         //获取用户
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //判断是否登陆
@@ -169,7 +171,7 @@ public class OrderMoneyRecordController {
         }
         // 查询数据
         Map<String, Object> map = orderMoneyRecordService.searchRecords(user.getAccountId(), put, pageNum, pageSize);
-        return Result.success(Constant.MessageConfig.MSG_SUCCESS,map);
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS, map);
     }
 
     /**

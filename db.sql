@@ -2,7 +2,7 @@ ALTER TABLE `ty_supplier`.`account`
   ADD COLUMN `contract_name` VARCHAR(255) NULL   COMMENT '合同文件名' AFTER `service_phone`		/* 复制栏位名称 */;
 
 /*增加商品是否失效字段*/
-ALTER TABLE supplier_commodity ADD invalid_status int(2) default 1 comment '商品是否失效：0 失效 ，1正常' after status;
+ALTER TABLE supplier_commodity ADD invalid_status int(2) DEFAULT 1 COMMENT '商品是否失效：0 失效 ，1正常' AFTER status;
 /*增加订单详情表-code69字段*/
 ALTER TABLE purchase_item ADD code69 VARCHAR(20) COMMENT '商品条码' AFTER goods_id;
 /*订单表增加商户名称*/
