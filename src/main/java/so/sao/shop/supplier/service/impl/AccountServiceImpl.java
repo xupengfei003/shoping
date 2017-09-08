@@ -421,7 +421,15 @@ public class AccountServiceImpl implements AccountService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void updateAccountStatus(AccountUpdateInput accountUpdateInput) {
+    public Result updateAccountStatus(AccountUpdateInput accountUpdateInput) {
+        //当前时间毫秒数
+        Long currentTime=System.currentTimeMillis();
+        //合同截止时间毫秒数
+        Long contractEndDate=accountDao.selectById(accountUpdateInput.getAccountId()).getContractEndDate().getTime();
+        Long Timedifference=contractEndDate-currentTime;
+        if(accountUpdateInput.getAccountStatus()==1&&Timedifference<=0){
+            return Result.fail("合同有效期已过期，请更新后启用");
+        }
         Account account = accountDao.selectById(accountUpdateInput.getAccountId());
         if (account != null) {
             //修改账户状态
@@ -440,8 +448,10 @@ public class AccountServiceImpl implements AccountService {
                                 Arrays.asList("phone","password"), Arrays.asList(accountUpdateInput.getAccountTel(),password), smsTemplateCode2);
                     }
                 });
+                return Result.success("供应商启用成功！");
             }
         }
+        return Result.success("更新成功！");
     }
 
 }

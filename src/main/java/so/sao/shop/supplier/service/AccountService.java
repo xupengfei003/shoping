@@ -128,6 +128,6 @@ public interface AccountService {
      * 修改供应商状态并激活账户
      * @param accountUpdateInput
      */
-    void updateAccountStatus(AccountUpdateInput accountUpdateInput);
+    Result updateAccountStatus(AccountUpdateInput accountUpdateInput);
 
 }
