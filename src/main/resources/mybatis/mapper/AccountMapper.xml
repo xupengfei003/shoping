@@ -789,4 +789,10 @@
         FROM account
         WHERE account_id = #{accountId}
   </select>
+  <!--根据供应商id更新供应商状态-->
+  <update id="updateAccountStatusById" parameterType="so.sao.shop.supplier.pojo.input.AccountUpdateInput">
+    UPDATE account
+    SET account_status = #{accountStatus}, update_date = #{updateDate}
+    WHERE account_id = #{accountId}
+  </update>
 </mapper>

@@ -124,6 +124,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                     PurchaseItem item = new PurchaseItem();
                     item.setGoodsAttribute(goodsAttribute);//商品属性
                     item.setGoodsId(goodsId);//商品ID
+                    item.setCode69(commOutput.getCode69()); //TODO 添加商品条码code69
                     item.setGoodsNumber(goodsNumber.intValue());//商品数量
                     BigDecimal price = commOutput.getPrice();//市场价
                     BigDecimal unitPrice = commOutput.getUnitPrice();//成本价
@@ -197,15 +198,15 @@ public class PurchaseServiceImpl implements PurchaseService {
      * 根据订单ID获取订单详情.
      *
      * @param orderId orderId
-     * @return PurchaseOutput
-     * @throws Exception
+     * @return PurchaseInfoVo
+     * @throws Exception Exception
      */
     @Override
     public PurchaseInfoVo findById(String orderId) throws Exception {
         PurchaseInfoVo purchaseInfoVo = new PurchaseInfoVo();
         Purchase purchase = purchaseDao.findById(orderId);
         if (purchase != null) {
-            //PurchaseInfoOutput 添加订单信息
+            //PurchaseInfoVo 添加订单信息
             purchaseInfoVo.setOrderId(purchase.getOrderId());
             purchaseInfoVo.setOrderReceiverName(purchase.getOrderReceiverName());
             purchaseInfoVo.setOrderReceiverMobile(purchase.getOrderReceiverMobile());
