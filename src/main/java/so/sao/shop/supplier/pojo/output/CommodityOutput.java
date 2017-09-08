@@ -144,6 +144,11 @@ public class CommodityOutput {
     private Date updatedAt;
 
     /**
+     * 是否失效 0失效，1正常
+     */
+    private int invalidStatus;
+
+    /**
      * 图片集合
      */
     private List<CommImgeVo> imgeList;
@@ -401,5 +406,13 @@ public class CommodityOutput {
 
     public void setUnitId(Long unitId) {
         this.unitId = unitId;
+    }
+
+    public int getInvalidStatus() {
+        return invalidStatus;
+    }
+
+    public void setInvalidStatus(int invalidStatus) {
+        this.invalidStatus = invalidStatus;
     }
 }

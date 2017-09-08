@@ -807,4 +807,36 @@
     SELECT account_id,contract_responsible_phone FROM account
     WHERE account_status = 1 AND DATE_FORMAT(contract_end_date,'%Y-%m-%d')=(DATE_FORMAT(NOW(),'%Y-%m-%d'))
   </select>
+
+  <!-- 根据accountId或providerName查询供应商信息-->
+  <select id="findAccounts" resultType="so.sao.shop.supplier.pojo.output.AccountOutput" >
+    SELECT
+    a.account_id AS accountId,
+    a.provider_name AS providerName,
+    a.responsible AS responsible,
+    a.responsible_phone AS responsiblePhone,
+    a.contract_end_date AS contractEndDate,
+    a.regist_address_province  AS registAddressProvince,
+    r.name AS registAddressProvinceName,
+    a.regist_address_city AS registAddressCity,
+    (SELECT NAME FROM sys_region r WHERE a.regist_address_city = r.sr_id) AS registAddressCityName,
+    a.regist_address_district AS registAddressDistrict,
+    (SELECT NAME FROM sys_region r WHERE a.regist_address_district = r.sr_id) AS registAddressDistrictName,
+    a.contract_register_address_province AS contractRegisterAddressProvince,
+    (SELECT NAME FROM sys_region r WHERE a.contract_register_address_province = r.sr_id) AS contractRegisterAddressProvinceName,
+    a.contract_register_address_city AS contractRegisterAddressCity,
+    (SELECT NAME FROM sys_region r WHERE a.contract_register_address_city = r.sr_id) AS contractRegisterAddressCityName,
+    a.contract_register_address_district AS contractRegisterAddressDistrict,
+    (SELECT NAME FROM sys_region r WHERE a.contract_register_address_district = r.sr_id) AS contractRegisterAddressDistrictName
+    FROM account a
+    LEFT JOIN sys_region r ON a.regist_address_province = r.sr_id
+    WHERE
+    a.account_status = 1
+    <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(providerName)">
+      AND a.provider_name LIKE '%${providerName}%'
+    </if>
+    <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(accountId)">
+      AND a.account_id =#{accountId}
+    </if>
+  </select>
 </mapper>
