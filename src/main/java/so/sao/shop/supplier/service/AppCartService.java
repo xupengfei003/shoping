@@ -50,8 +50,8 @@ public interface AppCartService {
      * @param cartitemId
      * @param commodity
      * @param number
-     * @return 库存数量
+     * @return
      */
-    Integer updateCartItem(Long cartitemId,Long commodity, Integer number);
+    AppCartItem updateCartItem(Long cartitemId,Long commodity, Integer number);
 
 }

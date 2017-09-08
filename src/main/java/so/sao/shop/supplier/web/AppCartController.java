@@ -60,9 +60,9 @@ public class AppCartController {
             return Result.fail(Constant.MessageConfig.MSG_FAILURE);
         }
 
-        Integer remaining = cartService.updateCartItem(cartitemId,commodityId,number);
-        logger.debug("【剩余数量为】 "+remaining);
-        return Result.success(Constant.MessageConfig.MSG_SUCCESS,remaining);
+        AppCartItem appCartItem= cartService.updateCartItem(cartitemId,commodityId,number);
+        logger.debug("【更新后的数据】 "+appCartItem);
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS,appCartItem);
     }
 
     /**
@@ -121,9 +121,9 @@ public class AppCartController {
     private Result convertBoolean(boolean flag){
         Result result = null;
         if(flag){
-            Result.success(Constant.MessageConfig.MSG_SUCCESS);
+            result = Result.success(Constant.MessageConfig.MSG_SUCCESS);
         }else{
-            Result.fail(Constant.MessageConfig.MSG_FAILURE);
+            result = Result.fail(Constant.MessageConfig.MSG_FAILURE);
         }
         return result;
     }

@@ -43,8 +43,7 @@ public interface AppCartItemDao {
     /**
      * 通过USERID,供应商id和产品id查找唯一记录
      * @param userId
-     * @param supplierId
      * @param commodityId
      */
-    List<AppCartItem> findExistsCartItem(@Param("user_id")Long userId, @Param("supplier_id")Long supplierId, @Param("commodity_id")Long commodityId);
+    List<AppCartItem> findExistsCartItem(@Param("user_id")Long userId,@Param("commodity_id")Long commodityId);
 }

@@ -96,8 +96,10 @@ public class AppCartItem {
      */
     private String unitName;
 
-
-
+    /**
+     * 是否还有库存
+     */
+    private boolean remaining;
 
     /**
      * 供应商对应的商品
@@ -111,6 +113,14 @@ public class AppCartItem {
      * 用户
      */
     private User user;
+
+    public boolean getRemaining() {
+        return remaining;
+    }
+
+    public void setRemaining(boolean remaining) {
+        this.remaining = remaining;
+    }
 
     public String getCommodityProperties() {
         return commodityProperties;
@@ -329,6 +339,7 @@ public class AppCartItem {
      */
     public void copySupplierCommodity(SupplierCommodity supplierCommodity) {
         if(supplierCommodity == null){
+            this.setInventory(null);//用于判断库存量
             return ;
         }
         this.setCommodityId(supplierCommodity.getId());
@@ -337,6 +348,7 @@ public class AppCartItem {
         this.setCommodityPrice(supplierCommodity.getUnitPrice());
         this.setSku(supplierCommodity.getSku());
         this.setSupplierId(supplierCommodity.getSupplierId());
+        this.setInventory(supplierCommodity.getInventory());
     }
 
     /**

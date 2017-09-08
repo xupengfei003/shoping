@@ -34,7 +34,6 @@
     <include refid="Base_Column_List" />
     from cart_item
     where user_id = #{user_id,jdbcType=BIGINT}
-    AND supplier_id = #{supplier_id,jdbcType=BIGINT}
     AND commodity_id = #{commodity_id,jdbcType=BIGINT}
   </select>
 
@@ -81,7 +80,7 @@
     delete from cart_item
     where id = #{id,jdbcType=BIGINT}
   </delete>
-  <insert id="insert" parameterType="com.sao.so.shop.domain.CartItem">
+  <insert id="insert" parameterType="so.sao.shop.supplier.domain.AppCartItem">
     insert into cart_item (id, user_id, supplier_id,
     supplier_name, commodity_id, commodity_price,
     commodity_name, commodity_pic, measure_spec_id,
@@ -95,7 +94,7 @@
     #{unitName,jdbcType=VARCHAR}, #{commodityProperties,jdbcType=VARCHAR}, #{createdAt,jdbcType=BIGINT},
     #{updatedAt,jdbcType=BIGINT}, #{count,jdbcType=INTEGER})
   </insert>
-  <insert id="insertSelective" parameterType="com.sao.so.shop.domain.CartItem">
+  <insert id="insertSelective" parameterType="so.sao.shop.supplier.domain.AppCartItem">
     insert into cart_item
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -204,7 +203,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.sao.so.shop.domain.CartItem">
+  <update id="updateByPrimaryKeySelective" parameterType="so.sao.shop.supplier.domain.AppCartItem">
     update cart_item
     <set>
       <if test="userId != null">
@@ -258,7 +257,7 @@
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.sao.so.shop.domain.CartItem">
+  <update id="updateByPrimaryKey" parameterType="so.sao.shop.supplier.domain.AppCartItem">
     update cart_item
     set user_id = #{userId,jdbcType=BIGINT},
       supplier_id = #{supplierId,jdbcType=BIGINT},

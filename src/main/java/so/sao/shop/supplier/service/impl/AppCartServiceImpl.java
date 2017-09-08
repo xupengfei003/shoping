@@ -33,12 +33,6 @@ public class AppCartServiceImpl implements AppCartService {
     @Autowired
     private SupplierCommodityDao supplierCommodityDao;
 
-
-    public static final Integer MORE_REMAINING = -1;//大于库存
-    public static final Integer EQUALS_REMAINING = 0;//等于库存
-
-
-
     @Override
     public boolean saveCartItem(AppCartItemInput appCartItemInput) {
 
@@ -55,7 +49,7 @@ public class AppCartServiceImpl implements AppCartService {
         appCartItem = convertToCartItem(appCartItemInput);
         appCartItem.setCreatedAt(new Date());
         //查询是否存在相同的商品
-        List<AppCartItem> existsAppCartItemLit = cartItemDao.findExistsCartItem(appCartItem.getUserId(), appCartItem.getSupplierId(), appCartItem.getCommodityId());
+        List<AppCartItem> existsAppCartItemLit = cartItemDao.findExistsCartItem(appCartItem.getUserId(),appCartItem.getCommodityId());
         logger.debug("【查询是否存在相同的商品】" + existsAppCartItemLit.size());
         if(existsAppCartItemLit !=null&& existsAppCartItemLit.size()>0){//如果存在，则更新商品数量
 
@@ -63,9 +57,10 @@ public class AppCartServiceImpl implements AppCartService {
             Integer updateNumber = existsAppCartItem.getCount()+ appCartItemInput.getCount();//需要更新的库存数量
             logger.debug("【需要更新的数量】" + updateNumber);
             //更新记录信息并返回商品库存信息
-            Integer remaining = updateCartItem(existsAppCartItem.getId(), existsAppCartItem.getCommodityId(),updateNumber);
-            logger.debug("【更新后库存余量】" + remaining);
-            return (remaining-updateNumber) >= 0 ? true : false;
+            AppCartItem updatedAppCartItem = updateCartItem(existsAppCartItem.getId(), existsAppCartItem.getCommodityId(),updateNumber);
+            logger.debug("【更新后商品信息】" + updatedAppCartItem);
+            logger.debug("【更新后库存余量】" + updatedAppCartItem.getInventory());
+            return updatedAppCartItem.getRemaining();
         }else{//如果不存在相同的商品
             //查询商品库存
             SupplierCommodity supplierCommodity = supplierCommodityDao.findOne(appCartItem.getCommodityId());
@@ -73,8 +68,8 @@ public class AppCartServiceImpl implements AppCartService {
             Double inventory = supplierCommodity.getInventory();
             appCartItem.copySupplierCommodity(supplierCommodity);
             appCartItem.copyCommodityOutput(commodityOutput);
-            //判断添加的数量是否超过商品库存
-            if((inventory.intValue()- appCartItem.getCount()) >= 0){
+            //判断是否还有库存
+            if(inventory.intValue() > 0){
                 logger.debug("【插入购物车信息】" + appCartItem);
                 return cartItemDao.insertSelective(appCartItem)>0?true:false;
             }else{
@@ -91,15 +86,26 @@ public class AppCartServiceImpl implements AppCartService {
     @Override
     public PageInfo<AppCartItem> findCartItemByUserId(Long userId, int pageNum, int pageSize) {
 
+        /**
+         * 业务逻辑：
+         * 1. 根据用户id查询出购物车表中的信息
+         * 2. 根据商品id去商品表中查询相应的商品信息
+         * 3. 如果购物车中的数量大于商品信息中的库存数量则
+         * 4. 若商品表链接获取失败，取购物车表中的商品缓存信息
+         */
+
         PageHelper.startPage(pageNum,pageSize);
         List<AppCartItem> list = cartItemDao.findCartItemByUserId(userId);
 
         for (int i = 0; i < list.size(); i++) {
             AppCartItem appCartItem = list.get(i);
-            Long cid =  appCartItem.getCommodityId();
-            //查询商品是否还有库存
-            appCartItem.setInventory(checkStore(cid).getInventory());
-            logger.debug("【插入购物车信息】" + appCartItem.getInventory());
+            //supplierCommodityDao没有提供批量查询的方法，这里后期会影响性能
+            SupplierCommodity supplierCommodity = supplierCommodityDao.findOne(appCartItem.getCommodityId());//
+            CommodityOutput commodityOutput = supplierCommodityDao.findDetail(appCartItem.getCommodityId());
+            appCartItem.copySupplierCommodity(supplierCommodity);
+            appCartItem.copyCommodityOutput(commodityOutput);
+            computeRemainig(appCartItem);
+            logger.debug("【购物车信息】" +appCartItem);
         }
         return new PageInfo<AppCartItem>(list);
     }
@@ -116,39 +122,28 @@ public class AppCartServiceImpl implements AppCartService {
     }
 
     @Override
-    public Integer updateCartItem(Long cartitemId,Long commodityId,Integer number) {
+    public AppCartItem updateCartItem(Long cartitemId,Long commodityId,Integer number) {
+        /**
+         * 业务逻辑
+         * 1. 根据商品id更新商品数量，同时更新购物车缓存信息
+         * 2. 返回更新后的信息
+         */
 
-        //判断库存余量
+        //根据商品id更新商品数量，同时更新购物车缓存信息
         SupplierCommodity supplierCommodity = supplierCommodityDao.findOne(commodityId);
         CommodityOutput commodityOutput = supplierCommodityDao.findDetail(commodityId);
+        AppCartItem appCartItem = cartItemDao.selectByPrimaryKey(cartitemId);
+        appCartItem.copySupplierCommodity(supplierCommodity);
+        appCartItem.copyCommodityOutput(commodityOutput);
 
-
-        Double inventory = supplierCommodity.getInventory();
-        logger.debug("【库存余量】" + inventory);
-        if(number == null || number.intValue() < 1){
-            return inventory.intValue();
-        }
-
-        if(inventory.doubleValue() > 0){//有库存
-            Integer remaining = inventory.intValue();
-            logger.debug("【更新的数量】" + number);
-            logger.debug("【剩余的库存数量】" + remaining);
-            if(number > remaining){//购物车更新数大于库存数
-                return MORE_REMAINING;
-            }
-            //购物车数量小于或等于库存数量，更新购物车数量
-            AppCartItem appCartItem = new AppCartItem();
-            appCartItem.setId(cartitemId);
+        //返回更新后的信息
+        if(number - appCartItem.getInventory()>= 0){//有库存
             appCartItem.setCount(number);
             appCartItem.setUpdatedAt(new Date());
-            appCartItem.copySupplierCommodity(supplierCommodity);
-            appCartItem.copyCommodityOutput(commodityOutput);
-            logger.debug("【更新的数据为】" + appCartItem);
             cartItemDao.updateByPrimaryKeySelective(appCartItem);
-            return remaining;
-        }else{
-            return MORE_REMAINING;
         }
+        computeRemainig(appCartItem);//计算是否有库存字段
+        return appCartItem;
     }
 
     /**
@@ -160,6 +155,22 @@ public class AppCartServiceImpl implements AppCartService {
         return supplierCommodityDao.findOne(cid);
     }
 
+    /**
+     * 计算库存判断字段
+     * @param appCartItem
+     */
+    private void computeRemainig(AppCartItem appCartItem){
+        if(appCartItem.getInventory() == null){
+            appCartItem.setRemaining(false);
+            return;
+        }
+
+        if(appCartItem.getCount()>appCartItem.getInventory()){
+            appCartItem.setRemaining(false);
+        }else{
+            appCartItem.setRemaining(true);
+        }
+    }
 
     /**
      * 转换对象
