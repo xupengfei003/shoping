@@ -3,7 +3,6 @@ package so.sao.shop.supplier.web;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import so.sao.shop.supplier.config.Constant;
@@ -13,6 +12,7 @@ import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.NotificationInput;
 import so.sao.shop.supplier.pojo.output.NotificationOutput;
 import so.sao.shop.supplier.service.NotificationService;
+import so.sao.shop.supplier.util.Ognl;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -32,16 +32,16 @@ public class NotificationController {
     /**
      * 管理员为每个供应商插入消息通知
      *
-     * @param request           request
+     * @param request request
      * @param notificationInput notificationInput
      * @return Result
      */
     @PostMapping("/createNotifi")
     @ApiOperation(value = "消息发送", notes = "消息发送")
-    public Result createNotifi(HttpServletRequest request, @Valid NotificationInput notificationInput) throws Exception {
+    public Result createNotifi(HttpServletRequest request, @RequestBody @Valid NotificationInput notificationInput) throws Exception {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //判断是否登陆
-        if (null == user) {
+        if (Ognl.isNull(user)) {
             return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
         //判断是否为管理员
@@ -67,11 +67,11 @@ public class NotificationController {
     public Result search(HttpServletRequest request, Integer pageNum, Integer pageSize, Integer notifiType) throws Exception {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //判断是否登陆
-        if (null == user) {
+        if (Ognl.isNull(user)) {
             return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
         //判断消息类型是否有值
-        if (null == notifiType) {
+        if (Ognl.isNull(notifiType)) {
             return Result.fail(Constant.MessageConfig.MSG_NOT_EMPTY);
         }
         List<Notification> dataList;
@@ -95,7 +95,7 @@ public class NotificationController {
     public Result getTotal(HttpServletRequest request) throws Exception {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //判断是否登陆
-        if (null == user) {
+        if (Ognl.isNull(user)) {
             return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
         int total = notificationService.getTotal(user.getAccountId());
@@ -116,11 +116,11 @@ public class NotificationController {
     public Result searchUnread(HttpServletRequest request, Integer notifiType, Integer count) throws Exception {
         //判断是否登陆
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
-        if (null == user) {
+        if (Ognl.isNull(user)) {
             return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
         //判断消息类型是否有值
-        if (null == notifiType) {
+        if (Ognl.isNull(notifiType)) {
             return Result.fail(Constant.MessageConfig.MSG_NOT_EMPTY);
         }
         List<Notification> dataList = notificationService.searchUnread(user.getAccountId(), notifiType, count);
@@ -138,7 +138,7 @@ public class NotificationController {
     public Result getNotificationById(HttpServletRequest request, @PathVariable Integer notifiId) throws Exception {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //判断是否登陆
-        if (null == user) {
+        if (Ognl.isNull(user)) {
             return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
         NotificationOutput notificationOutput = notificationService.getNotificationById(notifiId);
@@ -157,11 +157,11 @@ public class NotificationController {
     public Result deleteBySigin(HttpServletRequest request, String sigin) throws Exception {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //判断是否登陆
-        if (null == user) {
+        if (Ognl.isNull(user)) {
             return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
         //判断消息类型是否有值
-        if (null == sigin || "".equals(sigin)) {
+        if (Ognl.isEmpty(sigin)) {
             return Result.fail(Constant.MessageConfig.MSG_NOT_EMPTY);
         }
         //判断是否为管理员

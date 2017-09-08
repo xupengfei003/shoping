@@ -153,4 +153,29 @@ public class CommConstant {
      */
     public static final String FILE_NAME = "商品列表";
 
+    /**
+     * 商品失效状态
+     */
+    public static final int COMM_INVALID_STATUS = 0;
+
+    /**
+     * 商品正常状态
+     */
+    public static final int COMM_ACTIVE_STATUS = 1;
+
+    /**
+     * 供应商被激活
+     */
+    public static final int ACCOUNT_ACTIVE_STATUS = 1;
+
+    /**
+     * 供应商被停用
+     */
+    public static final int ACCOUNT_INVALID_STATUS = 2;
+
+    /**
+     * 供应商被删除
+     */
+    public static final int ACCOUNT_DELETE_STATUS = 0;
+
 }

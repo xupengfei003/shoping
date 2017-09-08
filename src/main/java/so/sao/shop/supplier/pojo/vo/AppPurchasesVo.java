@@ -14,10 +14,6 @@ public class AppPurchasesVo {
      */
     private String orderReceiverName;
     /**
-     * 收货人性别
-     */
-    private String orderReceiverSex;
-    /**
      * 收货人电话
      */
     private String orderReceiverMobile;
@@ -52,14 +48,6 @@ public class AppPurchasesVo {
 
     public void setOrderReceiverName(String orderReceiverName) {
         this.orderReceiverName = orderReceiverName;
-    }
-
-    public String getOrderReceiverSex() {
-        return orderReceiverSex;
-    }
-
-    public void setOrderReceiverSex(String orderReceiverSex) {
-        this.orderReceiverSex = orderReceiverSex;
     }
 
     public String getOrderReceiverMobile() {

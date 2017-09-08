@@ -10,8 +10,8 @@ import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.domain.User;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.*;
-import so.sao.shop.supplier.pojo.output.PurchaseInfoOutput;
 import so.sao.shop.supplier.pojo.output.PurchaseItemPrintOutput;
+import so.sao.shop.supplier.pojo.vo.PurchaseInfoVo;
 import so.sao.shop.supplier.pojo.vo.PurchasesVo;
 import so.sao.shop.supplier.service.PurchaseService;
 import so.sao.shop.supplier.util.DataCompare;
@@ -69,13 +69,13 @@ public class PurchaseController {
      * 根据订单ID获取订单详情
      *
      * @param orderId orderId
-     * @return PurchaseOutput
+     * @return Result
      */
     @RequestMapping(value = "/purchase/{orderId}", method = RequestMethod.GET)
     @ApiOperation(value = "获取订单详情", notes = "获取订单详情")
     public Result findById(@PathVariable String orderId) throws Exception {
-        PurchaseInfoOutput output = purchaseService.findById(orderId);
-        return Result.success(Constant.MessageConfig.MSG_SUCCESS, output);
+        PurchaseInfoVo purchaseInfoVo = purchaseService.findById(orderId);
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS, purchaseInfoVo);
     }
 
     /**
@@ -103,11 +103,12 @@ public class PurchaseController {
         //对比开始时间和结束时间
         if (restrictDate(dateList)) return Result.fail(Constant.MessageConfig.DateNOTLate);
         //对比开始金额和结束金额
-        if (DataCompare.compareMoney(purchaseSelectInput.getBeginMoney(),purchaseSelectInput.getEndMoney()))
+        if (DataCompare.compareMoney(purchaseSelectInput.getBeginMoney(), purchaseSelectInput.getEndMoney()))
             return Result.fail(Constant.MessageConfig.MoneyNOTLate);
         purchaseService.exportExcel(request, response, pageNum, pageSize, accountId, purchaseSelectInput);
         return Result.success(Constant.MessageConfig.MSG_SUCCESS);
     }
+
     /**
      * 查询全部订单列表
      *
@@ -146,7 +147,7 @@ public class PurchaseController {
         //对比开始时间和结束时间
         if (restrictDate(dateList)) return Result.fail(Constant.MessageConfig.DateNOTLate);
         //对比开始金额和结束金额
-        if (DataCompare.compareMoney(purchaseSelectInput.getBeginMoney(),purchaseSelectInput.getEndMoney()))
+        if (DataCompare.compareMoney(purchaseSelectInput.getBeginMoney(), purchaseSelectInput.getEndMoney()))
             return Result.fail(Constant.MessageConfig.MoneyNOTLate);
         //查询订单
         if (rows == null || rows <= 0) {
@@ -158,7 +159,6 @@ public class PurchaseController {
         PageInfo<PurchasesVo> pageInfo = purchaseService.searchOrders(pageNum, rows, purchaseSelectInput);
         return Result.success(Constant.MessageConfig.MSG_SUCCESS, pageInfo);
     }
-
 
     /**
      * 发货接口
@@ -291,40 +291,44 @@ public class PurchaseController {
 
     /**
      * 查询打印商品条目接口
-     *
-     * 根据订单编号查询打印页面的信息及订单对应的商品条目
-     * 1.验证参数合法性
-     * 2.查询打印信息
+     * <p>
+     * 根据订单编号查询打印页面的信息及订单对应的商品条目。
+     * 1.验证参数合法性；
+     * 2.查询打印信息。
      *
      * @param orderId 订单编号
-     * @return
+     * @return 返回一个Result对象
+     * @throws Exception 异常
      */
     @ApiOperation(value = "查询打印商品条目接口", notes = "根据订单编号查询打印页面的信息及订单对应的商品条目【负责人：杨恒乐】")
     @GetMapping("/searchPrintItems")
     public Result searchPrintItems(String orderId) throws Exception {
-        // 请求参数未传入orderId返回失败
-        if (Ognl.isEmpty(orderId)) { // 参数为空
-            return Result.fail(Constant.MessageConfig.MSG_NOT_EMPTY);
+        // 1.验证参数合法性
+        if (Ognl.isEmpty(orderId)) { // 参数为空,验证不通过
+            return Result.fail(Constant.MessageConfig.MSG_NOT_EMPTY); // 不允许为空
         }
+
+        // 2.查询打印信息
         PurchaseItemPrintOutput output = purchaseService.getPrintItems(orderId); // 打印页面信息封装的对象
         if (null == output) {
-            return Result.success(Constant.MessageConfig.MSG_NO_DATA);
+            return Result.success(Constant.MessageConfig.MSG_NO_DATA); // 暂无数据
         }
-        return Result.success(Constant.MessageConfig.MSG_SUCCESS, output);
+
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS, output); // 成功，返回数据
     }
 
     /**
-     * // FIXME: 2017/9/4 此接口优化时去掉，只保留service方法
      * 生成收货二维码接口
+     * <p>
+     * 根据订单编号生成二维码图片，并将二维码信息保存到数据库。
+     * 1.验证参数合法性；
+     * 2.生成二维码图片并保存到数据库。
      *
-     * 根据订单编号生成二维码图片，上传云端并将二维码信息保存到数据库
-     * 1.验证参数合法性
-     * 2.生成二维码图片并保存到数据库
-     *
-     * @param params 入参Map类型，key包含orderId，表示订单编号
-     * @return
+     * @param params Map封装入参键值对，包含orderId
+     * @return 返回一个Result对象
+     * @throws Exception 异常
      */
-    @ApiOperation(value = "生成收货二维码接口", notes = "生成收货二维码接口【负责人：杨恒乐】")
+    @ApiOperation(value = "生成收货二维码接口", notes = "根据订单编号生成收货二维码接口【负责人：杨恒乐】")
     @PostMapping("createReceivingQrcode")
     public Result createReceivingQrcode(@RequestBody Map params) throws Exception {
         String orderId = (String) params.get("orderId");
@@ -334,7 +338,7 @@ public class PurchaseController {
             return Result.fail(Constant.MessageConfig.MSG_NOT_EMPTY);
         }
 
-        // 2.生成二维码图片,上传云端并保存到数据库
+        // 2.生成二维码图片并保存到数据库
         purchaseService.createReceivingQrcode(orderId);
 
         return Result.success(Constant.MessageConfig.MSG_SUCCESS);
@@ -342,32 +346,38 @@ public class PurchaseController {
 
     /**
      * 扫码收货接口
-     * 根据订单编号验证订单，修改订单状态，并将二维码状态设置为失效
-     * 1.验证参数
-     * 2.确认收货
+     * <p>
+     * 根据订单编号验证订单，修改订单状态，并将二维码状态设置为失效。
+     * 1.验证参数合法性；
+     * 2.调用扫码收货方法。
      *
-     * @param params 入参Map类型，key包含orderId，表示订单编号
-     * @return
+     * @param params Map封装入参键值对，包含orderId
+     * @return 返回一个Result对象
+     * @throws Exception 异常
      */
     @ApiOperation(value = "扫码收货接口", notes = "根据订单编号验证订单，修改订单状态，并将二维码状态设置为失效【负责人：杨恒乐】")
     @PostMapping("/sweepReceiving")
     public Result sweepReceiving(@RequestBody Map params) throws Exception {
         String orderId = (String) params.get("orderId");
-        //判断订单状态
+        // 判断订单状态
         if (!verifyOrderStatus(orderId, Constant.OrderStatusConfig.RECEIVED)) {
             return Result.fail(Constant.MessageConfig.ORDER_STATUS_EERO);
         }
-        // 验证失败，验证参数的合法性
-        if (Ognl.isEmpty(orderId)) {  // 参数为空
-            return Result.fail(Constant.MessageConfig.MSG_NOT_EMPTY);
+
+        // 1.验证参数合法性
+        if (Ognl.isEmpty(orderId)) {
+            return Result.success(Constant.MessageConfig.MSG_NOT_EMPTY); // 不允许为空
         }
-        // 确认收货
+
+        // 2.调用扫码收货方法
         Map map = purchaseService.sweepReceiving(orderId);
         boolean flag = (boolean) map.get("flag");
-        if (flag) { // 成功
+        if (flag) { // 收货成功
             return Result.success(Constant.MessageConfig.MSG_SUCCESS);
         }
-        return Result.fail((String) map.get("message"));
+
+        return Result.fail((String) map.get("message")); // 收货失败，返回失败信息
+
     }
 
     /**
@@ -438,36 +448,45 @@ public class PurchaseController {
 
     /**
      * 实现退款逻辑
-     *
-     * 根据订单编号调用退款接口退款并修改订单状态
+     * <p>
+     * 根据订单编号调用退款接口退款并修改订单状态。
+     * 1.验证参数合法性；
+     * 2.调用退款方法。
      *
      * @param orderId 订单编号
-     * @return Result
-     * @throws Exception
+     * @return 返回一个Result对象
+     * @throws Exception 异常
      */
     @ApiOperation(value = "退款", notes = "根据订单编号调用退款接口退款并修改订单状态【负责人：杨恒乐】")
     @PostMapping("/refund/{orderId}")
     public Result refund(@PathVariable("orderId") String orderId) throws Exception {
-        //判断订单状态
-        if (!verifyOrderStatus(orderId, Constant.OrderStatusConfig.REFUNDED)) {
-            return Result.fail(Constant.MessageConfig.ORDER_STATUS_EERO);
-        }
+        // 1.验证参数合法性
         // 订单编号为空，返回
         if (Ognl.isEmpty(orderId)) {
             return Result.fail(Constant.MessageConfig.MSG_NOT_EMPTY); // 不允许为空
         }
+
+        // 判断订单状态
+        if (!verifyOrderStatus(orderId, Constant.OrderStatusConfig.REFUNDED)) {
+            return Result.fail(Constant.MessageConfig.ORDER_STATUS_EERO);
+        }
+
+        // 2.调用退款方法
         Map map = purchaseService.refundByOrderId(orderId);
         boolean flag = (boolean) map.get("flag");
         if (flag) { // 退款成功
             return Result.success(Constant.MessageConfig.MSG_SUCCESS);
-        } else { // 退款失败，返回失败原因
-            return Result.fail((String) map.get("message"));
         }
+
+        return Result.fail((String) map.get("message")); // 退款失败，返回失败原因
     }
 
     //验证订单状态
     private boolean verifyOrderStatus(String orderId, Integer orderStatus) {
         Integer getOrderStatus = purchaseService.findOrderStatus(orderId);
+        if(null != getOrderStatus){
+            return false;
+        }
         String status = Constant.OrderStatusRule.RULES[getOrderStatus - 1];
         return status.contains(String.valueOf(orderStatus));
     }
@@ -485,12 +504,12 @@ public class PurchaseController {
     private boolean restrictDate(List<String> dateList) throws ParseException {
         boolean flag = true;
         int i = 0;
-        while(flag){
+        while (flag) {
             if (DataCompare.compareDate(dateList.get(i), dateList.get(++i))) {
                 return flag;
             }
             i++;
-            if(i == 6){
+            if (i == 6) {
                 flag = false;
             }
         }
