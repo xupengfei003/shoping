@@ -176,7 +176,7 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
         List<Purchase> purchaseList = null;
         //1)、按自然月结算
         if ("1".equals(remittanceType)) {
-            updateLastSettDate = getFirstDayOfMonth();//设置上一次结帐时间为当前月1号
+            updateLastSettDate = firstDayOfMonth(currentDate);//设置上一次结帐时间为当前月1号
 
             //a)、获取当前时间与上次结算时间相差的月数
             int months = countMonths(lastSettlementDate, currentDate);
@@ -212,7 +212,7 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
             //f)、相差天数与固定结算时间取整，即判断几个周期未结算
             int tmpCountRemittanced = days / tmpRemittanced;
             if (tmpCountRemittanced >= 1) {
-                for (int j = 1; j <= tmpCountRemittanced; tmpCountRemittanced++) {
+                for (int j = 1; j <= tmpCountRemittanced; j++) {
                     //g)、获取上次结算时间加上固定结算时间j个周期之后的时间
                     Date tmpLastSettlementDate = addDays(lastSettlementDate, tmpRemittanced * j);
 
@@ -355,19 +355,6 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
     }
 
     /**
-     * 获取当前时间所在月的第一天时间
-     * @return
-     * @throws ParseException
-     */
-    public static Date getFirstDayOfMonth() throws ParseException {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        Calendar lastDate = Calendar.getInstance();
-        lastDate.set(Calendar.DATE, 1); //设为当前月的1号
-        Date date = sdf.parse(sdf.format(lastDate.getTime()) + " 00:00:00");
-        return date;
-    }
-
-    /**
      * 判断两个时间相差天数
      *   例如：2017-09-06 23:59:59 和 2017-09-07 00:01:00 相差1天
      * @param fDate 起始时间
@@ -407,8 +394,6 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
     public static Date firstDayOfMonth(Date date) {
         Calendar c = Calendar.getInstance();
         c.setTime(date);
-        int year = c.get(Calendar.YEAR);
-        int month = c.get(Calendar.MONTH);
         c.set(Calendar.DAY_OF_MONTH, 1);
         return c.getTime();
     }
