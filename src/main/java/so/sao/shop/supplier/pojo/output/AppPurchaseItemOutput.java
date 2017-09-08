@@ -1,5 +1,6 @@
 package so.sao.shop.supplier.pojo.output;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import so.sao.shop.supplier.pojo.vo.AppPurchaseItemVo;
 
 import java.util.Date;
@@ -32,6 +33,7 @@ public class AppPurchaseItemOutput {
     /**
      * 下单时
      */
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date orderCreateTime;
     /**
      * 供应商名称
