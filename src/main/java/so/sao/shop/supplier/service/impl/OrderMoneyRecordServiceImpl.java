@@ -184,10 +184,12 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
                     //b)、获取上次结算时间相差i个月之后的时间
                     Date tmpLastSettlementDate = addMonths(lastSettlementDate, i);
 
-                    //c)、获取指定时间上一个月内的订单数据
-                    purchaseList = purchaseDao.findPurchaseMonth(accountId, tmpLastSettlementDate);
+                    Date tmpFirstDayOfMonth = firstDayOfMonth(tmpLastSettlementDate);
 
-                    Date checkOutDate = addDays(tmpLastSettlementDate, tmpRemittanced - 1);//结账时间
+                    //c)、获取指定时间上一个月内的订单数据
+                    purchaseList = purchaseDao.findPurchaseMonth(accountId, tmpFirstDayOfMonth);
+
+                    Date checkOutDate = addDays(tmpFirstDayOfMonth, tmpRemittanced - 1);//结账时间
 
                     //d)、设置结算明细、结算明细与订单关联关系、待更新的订单、待更新的账户的值，并添加到对应的list
                     setValues(purchaseList, account, currentDate, orderMoneyRecordList, recordPurchaseList,
@@ -393,6 +395,21 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
         ca.add(Calendar.DATE, num);// num为增加的天数
         Date endDate = ca.getTime();
         return endDate;
+    }
+
+    /**
+     * 把指定时间设置为这个月的1号
+     *  如：2017-08-05 00:00:00  -> 2017-08-01 00:00:00
+     * @param date 指定时间
+     * @return
+     */
+    public static Date firstDayOfMonth(Date date) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        int year = c.get(Calendar.YEAR);
+        int month = c.get(Calendar.MONTH);
+        c.set(Calendar.DAY_OF_MONTH, 1);
+        return c.getTime();
     }
 
 
