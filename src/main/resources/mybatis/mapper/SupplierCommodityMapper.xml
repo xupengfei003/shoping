@@ -428,7 +428,7 @@
     </select>
 
     <!--商品失效-->
-    <update id="updateInvalidStatus" parameterType="so.sao.shop.supplier.pojo.input.CommInvalidStutasInput">
+    <update id="updateInvalidStatus" parameterType="so.sao.shop.supplier.domain.SupplierCommodity">
         UPDATE supplier_commodity
         SET invalid_status = #{invalidStatus} ,updated_at = #{updatedAt}
         WHERE supplier_id = #{supplierId}

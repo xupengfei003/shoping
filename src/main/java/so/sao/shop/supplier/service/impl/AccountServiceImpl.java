@@ -1,6 +1,5 @@
 package so.sao.shop.supplier.service.impl;
 
-import com.github.pagehelper.PageInfo;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.slf4j.Logger;
@@ -21,10 +20,9 @@ import so.sao.shop.supplier.dao.*;
 import so.sao.shop.supplier.domain.*;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.AccountInput;
+import so.sao.shop.supplier.pojo.input.AccountUpdateInput;
 import so.sao.shop.supplier.service.AccountService;
-import so.sao.shop.supplier.util.PageTool;
-import so.sao.shop.supplier.util.NumberUtil;
-import so.sao.shop.supplier.util.Ognl;
+import so.sao.shop.supplier.util.*;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -206,6 +204,8 @@ public class AccountServiceImpl implements AccountService {
             list.add(accMap);
             list.add(conMap);
             account.setAreaList(list);
+            //更新合同状态
+            updateContractStatus(account);
             return account;
         }
         return new Account();
@@ -219,7 +219,10 @@ public class AccountServiceImpl implements AccountService {
      */
     @Override
     public Account selectById0(Long accountId) {
-        return accountDao.selectById(accountId);
+        Account account = accountDao.selectById(accountId);
+        //更新合同状态
+        updateContractStatus(account);
+        return account;
     }
 
     /**
@@ -272,11 +275,35 @@ public class AccountServiceImpl implements AccountService {
      * @return 分页对象
      */
     @Override
-    public PageInfo searchAccount(AccountInput accountInput) {
+    public List<Account> searchAccount(AccountInput accountInput) {
         PageTool.startPage(accountInput.getPageNum(), accountInput.getPageSize());
         List<Account> accountList = accountDao.findPage(accountInput);
-        PageInfo pageInfo = new PageInfo(accountList);
-        return pageInfo;
+        for (Account account : accountList) {
+            //合同状态设置
+            account.setContractDate(DateUtil.getStringDate(account.getContractCreateDate()) +" 至 "+DateUtil.getStringDate(account.getContractEndDate()));
+            updateContractStatus(account);
+        }
+        return accountList;
+    }
+
+    /**
+     * 供应商列表和详情页面显示合同状态
+     * 正常状态:0 -只显示合同时间 / 即将过期:1 / 已过期:2
+     * @param account
+     * @return
+     */
+    private Account updateContractStatus(Account account){
+        if (account != null){
+            long endDate = account.getContractEndDate().getTime();
+            long currentDate = new Date().getTime();
+            long betweenDate = (endDate - currentDate) / (1000 * 60 * 60 * 24);
+            if (betweenDate < 0){
+                account.setContractStatus(2);
+            }else if(betweenDate >= 0 && betweenDate <= 30){
+                account.setContractStatus(1);
+            }
+        }
+        return account;
     }
 
     /**
@@ -295,9 +322,9 @@ public class AccountServiceImpl implements AccountService {
                 if (user1 == null) {
                     User user = new User();
                     user.setUsername(account.getContractResponsiblePhone());
-                    String password = smsService.getVerCode();
-                    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-                    user.setPassword(encoder.encode(password));
+//                    String password = smsService.getVerCode();
+//                    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+//                    user.setPassword(encoder.encode(password));
                     user.setLastPasswordResetDate(new Date());
                     user.setIsAdmin("0");
                     userDao.add(user);
@@ -307,12 +334,12 @@ public class AccountServiceImpl implements AccountService {
                     account.setUserId(user.getId());
                     account.setLastSettlementDate(new Date());
                     accountDao.insert(account);
-                    tpe.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            smsService.sendSms(Collections.singletonList(account.getContractResponsiblePhone()),Arrays.asList("phone","password"), Arrays.asList(account.getContractResponsiblePhone(),password), smsTemplateCode2);
-                        }
-                    });
+//                    tpe.execute(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            smsService.sendSms(Collections.singletonList(account.getContractResponsiblePhone()),Arrays.asList("phone","password"), Arrays.asList(account.getContractResponsiblePhone(),password), smsTemplateCode2);
+//                        }
+//                    });
                     return Result.success("用户和供应商添加成功！");
                 }
             }
@@ -386,4 +413,35 @@ public class AccountServiceImpl implements AccountService {
     public List<Account> findAccountList(Integer days, Date currentDate) {
         return accountDao.findAccountList(days, currentDate);
     }
+
+    /**
+     * 修改供应商状态并激活账户
+     * @param accountUpdateInput
+     * @return 返回修改状态
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void updateAccountStatus(AccountUpdateInput accountUpdateInput) {
+        Account account = accountDao.selectById(accountUpdateInput.getAccountId());
+        if (account != null) {
+            //修改账户状态
+            accountUpdateInput.setUpdateDate(new Date());
+            accountDao.updateAccountStatusById(accountUpdateInput);
+            //设置供应商登录密码
+            User user = userDao.findOne( account.getUserId());
+            if (user != null && StringUtil.isNull(user.getPassword())) {
+                String password = smsService.getVerCode();
+                userDao.updatePassword(account.getUserId(),new BCryptPasswordEncoder().encode(password), new Date());
+                //发送短信
+                tpe.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        smsService.sendSms(Collections.singletonList(accountUpdateInput.getAccountTel()),
+                                Arrays.asList("phone","password"), Arrays.asList(accountUpdateInput.getAccountTel(),password), smsTemplateCode2);
+                    }
+                });
+            }
+        }
+    }
+
 }
