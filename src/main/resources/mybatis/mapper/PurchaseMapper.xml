@@ -365,7 +365,7 @@
     <select id="findUncountedMoney" resultType="java.math.BigDecimal" parameterType="java.lang.Long">
         SELECT SUM(order_settleme_price)
         FROM purchase
-        WHERE store_id=#{storeId} AND order_status=4 AND account_status=0;
+        WHERE store_id=#{storeId} AND order_status=4 AND account_status &lt; 2;
     </select>
 
     <!-- 查询订单状态计算已完成订单总金额 -->
