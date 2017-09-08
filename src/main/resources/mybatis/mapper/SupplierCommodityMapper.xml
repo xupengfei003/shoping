@@ -21,6 +21,7 @@
         <result column="UPDATED_BY" property="updatedBy"/>
         <result column="UPDATED_AT" property="updatedAt"/>
         <result column="DELETED" property="deleted"/>
+        <result column="INVALID_STATUS" property="invalidStatus"/>
         <result column="STATUS" property="status"/>
         <result column="REMARK" property="remark"/>
         <result column="DESCRIPTION" property="description"/>
@@ -40,6 +41,7 @@
         sc.rule_val AS ruleVal,
         sc.inventory AS inventory,
         sc.status AS status,
+        sc.invalid_status AS invalidStatus,
         sc.price AS price,
         sc.unit_price AS unitPrice,
         sc.created_at AS createdAt,
@@ -424,5 +426,12 @@
           #{id}
         </foreach>
     </select>
+
+    <!--商品失效-->
+    <update id="updateInvalidStatus" parameterType="so.sao.shop.supplier.domain.SupplierCommodity">
+        UPDATE supplier_commodity
+        SET invalid_status = #{invalidStatus} ,updated_at = #{updatedAt}
+        WHERE supplier_id = #{supplierId}
+    </update>
 
 </mapper>

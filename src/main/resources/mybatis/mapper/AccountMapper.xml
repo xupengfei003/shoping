@@ -45,6 +45,7 @@
     <result column="contract_original_name" property="contractOriginalName" jdbcType="VARCHAR" />
     <result column="contract_original" property="contractOriginal" jdbcType="VARCHAR" />
     <result column="service_phone" property="servicePhone" jdbcType="VARCHAR" />
+    <result column="contract_name" property="contractName" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Base_Column_List" >
     account_id,
@@ -82,7 +83,8 @@
     sms_code,
     contract_original_name,
     contract_original,
-    service_phone
+    service_phone,
+    contract_name
   </sql>
 
   <!-- 查询出省市区汉字字段-->
@@ -145,7 +147,7 @@
        contract_register_address_province,contract_register_address_city,
        contract_register_address_district,
       contract_register_address_detail, upload_mode, 
-      sms_code,contract_original_name,contract_original,last_settlement_date,service_phone)
+      sms_code,contract_original_name,contract_original,last_settlement_date,service_phone,contract_name)
     values (#{accountId,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, #{providerName,jdbcType=VARCHAR}, 
       #{responsible,jdbcType=VARCHAR}, #{responsiblePhone,jdbcType=VARCHAR}, #{license,jdbcType=VARCHAR}, 
       #{licenseTimeCreate}, #{licenseTimeEnd}, #{businessType,jdbcType=VARCHAR},
@@ -160,7 +162,7 @@
       #{contractLicenseEnd},#{contractRegisterAddress,jdbcType=VARCHAR}, #{contractRegisterAddressProvince,jdbcType=VARCHAR},
       #{contractRegisterAddressCity,jdbcType=VARCHAR}, #{contractRegisterAddressDistrict,jdbcType=VARCHAR},
       #{contractRegisterAddressDetail,jdbcType=VARCHAR}, #{uploadMode,jdbcType=VARCHAR}, 
-      #{smsCode,jdbcType=VARCHAR},#{contractOriginalName,jdbcType=VARCHAR},#{contractOriginal,jdbcType=VARCHAR},#{lastSettlementDate},#{servicePhone})
+      #{smsCode,jdbcType=VARCHAR},#{contractOriginalName,jdbcType=VARCHAR},#{contractOriginal,jdbcType=VARCHAR},#{lastSettlementDate},#{servicePhone},#{contractName})
   </insert>
 
   <!-- <insert id="insertSelective" parameterType="so.sao.shop.supplier.domain.Account" >
@@ -582,7 +584,10 @@
       	contract_original = #{contractOriginal,jdbcType=VARCHAR},
       </if>
       <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(servicePhone)">
-        service_phone = #{servicePhone,jdbcType=VARCHAR}
+        service_phone = #{servicePhone,jdbcType=VARCHAR},
+      </if>
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(contractName)">
+        contract_name = #{contractName,jdbcType=VARCHAR}
       </if>
     </set>
     where account_id = #{accountId,jdbcType=BIGINT}
@@ -636,10 +641,10 @@
   <select id="findPage" resultMap="BaseResultMap" parameterType="so.sao.shop.supplier.pojo.input.AccountInput">
           SELECT a.contract_responsible,a.contract_create_date, a.account_id,a.user_id,a.create_date,a.provider_name, a.contract_end_date, a.contract_responsible_phone,p.name regist_address_province,
                   c.name regist_address_city,d.name regist_address_district  ,cp.name contract_register_address_province,cc.name contract_register_address_city,
-                  cd.name contract_register_address_district,  a.contract_register_address
+                  cd.name contract_register_address_district,  a.contract_register_address, account_status
             FROM account a,sys_region p, sys_region c, sys_region d, sys_region cp, sys_region cc, sys_region cd, user u
             <where>
-                    account_status = 1
+              (account_status = 1 OR account_status = 2)
               AND u.is_admin = 0
               AND a.user_id = u.user_id
               AND regist_address_province = p.sr_id
@@ -712,7 +717,7 @@
 
     <!-- 统计已入驻供应商数量总和 -->
   <select id="findAccountNumber" resultType="int">
-    select COUNT(provider_name) FROM account AS a ,user AS u WHERE account_status= 1 AND a.user_id = u.user_id AND u.is_admin = 0
+    select COUNT(provider_name) FROM account AS a ,user AS u WHERE (account_status= 1 OR account_status= 2) AND a.user_id = u.user_id AND u.is_admin = 0
   </select>
 
   <!--查询出当天要结算的供应商信息列表-->
@@ -784,4 +789,10 @@
         FROM account
         WHERE account_id = #{accountId}
   </select>
+  <!--根据供应商id更新供应商状态-->
+  <update id="updateAccountStatusById" parameterType="so.sao.shop.supplier.pojo.input.AccountUpdateInput">
+    UPDATE account
+    SET account_status = #{accountStatus}, update_date = #{updateDate}
+    WHERE account_id = #{accountId}
+  </update>
 </mapper>

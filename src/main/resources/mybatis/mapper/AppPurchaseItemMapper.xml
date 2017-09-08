@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="so.sao.shop.supplier.dao.AppPurchaseItemDao">
+    <!--App端查询全部订单详情-->
+    <resultMap id="AppGoodsAllList" type="so.sao.shop.supplier.pojo.vo.AppPurchaseItemVo">
+        <id column="details_id" property="detailsId"/>
+        <result column="goods_image" property="goodsImage"/>
+        <result column="goods_name" property="goodsName"/>
+        <result column="goods_unit_price" property="goodsUnitPrice"/>
+        <result column="goods_number" property="goodsNumber"/>
+        <result column="goods_tatol_price" property="goodsTatolPrice"/>
+    </resultMap>
+    <sql id="App_Goods_Column_List">
+        g.details_id, g.goods_image, g.goods_name, g.goods_unit_price, g.goods_number, g.goods_tatol_price
+    </sql>
+    <select id="findOrderItemList" parameterType="java.lang.String" resultMap="AppGoodsAllList">
+        SELECT
+        <include refid="App_Goods_Column_List"/>
+        FROM purchase_item g
+        JOIN purchase p
+        ON p.order_id = g.order_id
+        AND p.order_id = TRIM(#{orderId,jdbcType=VARCHAR})
+    </select>
+
+
+</mapper>

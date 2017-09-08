@@ -1,7 +1,8 @@
 package so.sao.shop.supplier.pojo.output;
 
-import so.sao.shop.supplier.pojo.BaseResult;
 import so.sao.shop.supplier.pojo.vo.PurchaseItemPrintVo;
+import so.sao.shop.supplier.util.NumberUtil;
+import so.sao.shop.supplier.util.StringUtil;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -76,11 +77,14 @@ public class PurchaseItemPrintOutput{
     private Integer qrcodeStatus;
 
     /**
+     * 订单状态
+     */
+    private Integer orderStatus;
+
+    /**
      * 商品明细列表
      */
     private List<PurchaseItemPrintVo> purchaseItemPrintVos;
-
-    private Integer orderStatus;
 
     public Integer getOrderStatus() {
         return orderStatus;
@@ -123,7 +127,7 @@ public class PurchaseItemPrintOutput{
     }
 
     public String getTotalPriceCN() {
-        return totalPriceCN;
+        return NumberUtil.number2CN(this.totalPrice);
     }
 
     public void setTotalPriceCN(String totalPriceCN) {
@@ -171,7 +175,7 @@ public class PurchaseItemPrintOutput{
     }
 
     public String getTotalPriceFormat() {
-        return totalPriceFormat;
+        return NumberUtil.number2Thousand(this.totalPrice);
     }
 
     public void setTotalPriceFormat(String totalPriceFormat) {
@@ -179,7 +183,7 @@ public class PurchaseItemPrintOutput{
     }
 
     public String getOrderCreateTimeStr() {
-        return orderCreateTimeStr;
+        return StringUtil.fomateData(this.orderCreateTime, "yyyy年MM月dd日");
     }
 
     public void setOrderCreateTimeStr(String orderCreateTimeStr) {
@@ -192,23 +196,5 @@ public class PurchaseItemPrintOutput{
 
     public void setProviderName(String providerName) {
         this.providerName = providerName;
-    }
-
-    @Override
-    public String toString() {
-        return "PurchaseItemPrintOutput{" +
-                "orderId='" + orderId + '\'' +
-                ", customer='" + customer + '\'' +
-                ", customerPhone='" + customerPhone + '\'' +
-                ", receivingAddress='" + receivingAddress + '\'' +
-                ", orderCreateTime=" + orderCreateTime +
-                ", orderCreateTimeStr='" + orderCreateTimeStr + '\'' +
-                ", totalPrice=" + totalPrice +
-                ", totalPriceFormat='" + totalPriceFormat + '\'' +
-                ", totalPriceCN='" + totalPriceCN + '\'' +
-                ", qrcodeUrl='" + qrcodeUrl + '\'' +
-                ", qrcodeStatus=" + qrcodeStatus +
-                ", purchaseItemPrintVos=" + purchaseItemPrintVos +
-                '}';
     }
 }

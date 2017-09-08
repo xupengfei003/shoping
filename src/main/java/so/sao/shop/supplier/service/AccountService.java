@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.springframework.web.multipart.MultipartFile;
 import so.sao.shop.supplier.pojo.input.AccountInput;
+import so.sao.shop.supplier.pojo.input.AccountUpdateInput;
 
 /**
  * Created by xujc on 2017/7/18.
@@ -92,7 +93,7 @@ public interface AccountService {
      * @param accountInput
      * @return 分页对象
      */
-	 PageInfo searchAccount(AccountInput accountInput);
+    List<Account> searchAccount(AccountInput accountInput);
 
 
     /**
@@ -122,5 +123,11 @@ public interface AccountService {
      * @return
      */
     List<Account> findAccountList(Integer days, Date currentDate);
+
+    /**
+     * 修改供应商状态并激活账户
+     * @param accountUpdateInput
+     */
+    void updateAccountStatus(AccountUpdateInput accountUpdateInput);
 
 }

@@ -24,6 +24,16 @@ public class DateUtil {
         }
         return dateFlag;
     }
+
+    /**
+     * 日期格式转化
+     * @return返回字符串格式 yyyy-MM-dd
+     */
+    public static String getStringDate(Date date) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        String dateString = formatter.format(date);
+        return dateString;
+    }
     /**
      * 获取现在时间
      *

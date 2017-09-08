@@ -60,6 +60,20 @@ public class Qrcode {
      */
     private Double height;
 
+    public Qrcode() {
+    }
+
+    public Qrcode(String qrcodeId, String foreignKey, String url, String content) {
+        this.qrcodeId = qrcodeId;
+        this.foreignKey = foreignKey;
+        this.url = url;
+        this.content = content;
+        this.createdAt = new Date();
+        this.status = 0;
+        this.width = 230d;
+        this.height = 230d;
+    }
+
     public String getQrcodeId() {
         return qrcodeId;
     }

@@ -3,6 +3,7 @@ package so.sao.shop.supplier.dao;
 import org.apache.ibatis.annotations.Param;
 import so.sao.shop.supplier.domain.Account;
 import so.sao.shop.supplier.pojo.input.AccountInput;
+import so.sao.shop.supplier.pojo.input.AccountUpdateInput;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -134,5 +135,11 @@ public interface AccountDao {
      * @return
      */
     int countByAccountId(Long accountId);
+    /**
+     * 根据账户ID修改供应商状态
+     * @param accountUpdateInput
+     * @return
+     */
+    void updateAccountStatusById(AccountUpdateInput accountUpdateInput);
 
 }

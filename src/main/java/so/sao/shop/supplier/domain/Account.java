@@ -210,6 +210,15 @@ public class Account {
     @Length(max = 255,message = "合同注册详细地址长度不能超过255")
 	private String contractRegisterAddressDetail;
 	/**
+	 * 合同日期
+	 */
+	private String contractDate;
+
+	/**
+	 * 合同状态(正常状态:0 /即将过期:1 /已过期:2)
+	 */
+	private int contractStatus;
+	/**
 	 * 上传方式 ，1单次，2批量
 	 */
 	private String uploadMode;
@@ -228,15 +237,22 @@ public class Account {
 	/**
 	 * 合同云端名称
 	 */
-	@NotEmpty(message = "合同云端名称")
-	@Length(max = 255,message = "合同云端名称长度不能超过255")
+	@NotEmpty(message = "上传合同名称")
+	@Length(max = 255,message = "上传合同名称长度不能超过255")
 	private String contractOriginalName;
 	/**
 	 * 合同云端地址
 	 */
-	@NotEmpty(message = "合同云端地址")
-	@Length(max = 255,message = "合同云端地址长度不能超过255")
+	@NotEmpty(message = "上传合同地址")
+	@Length(max = 255,message = "上传合同地址长度不能超过255")
 	private String contractOriginal;
+	
+	/**
+	 * 合同原文件名
+	 */
+	@NotEmpty(message = "上传合同地址")
+	@Length(max = 255,message = "上传合同地址长度不能超过255")
+	private String contractName;
 
 	/**
 	 * 上次结算时间
@@ -607,5 +623,28 @@ public class Account {
 	public void setLastSettlementDate(Date lastSettlementDate) {
 		this.lastSettlementDate = lastSettlementDate;
 	}
-    
+
+	public String getContractName() {
+		return contractName;
+	}
+
+	public void setContractName(String contractName) {
+		this.contractName = contractName;
+	}
+
+	public String getContractDate() {
+		return contractDate;
+	}
+
+	public void setContractDate(String contractDate) {
+		this.contractDate = contractDate;
+	}
+
+	public int getContractStatus() {
+		return contractStatus;
+	}
+
+	public void setContractStatus(int contractStatus) {
+		this.contractStatus = contractStatus;
+	}
 }

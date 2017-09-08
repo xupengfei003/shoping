@@ -12,10 +12,12 @@ import org.springframework.web.multipart.MultipartFile;
 import so.sao.shop.supplier.domain.*;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.AccountInput;
+import so.sao.shop.supplier.pojo.input.AccountUpdateInput;
 import so.sao.shop.supplier.service.*;
 import so.sao.shop.supplier.util.DownloadAzureFile;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.util.Ognl;
+import so.sao.shop.supplier.util.StringUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -236,7 +238,8 @@ public class AccountController {
         if(user==null || !user.getIsAdmin().equals(Constant.ADMIN_STATUS)){
             throw new RuntimeException("unauthorized access");
         }
-        return accountService.searchAccount(accountInput);
+        List<Account> accountList = accountService.searchAccount(accountInput);
+        return new PageInfo(accountList);
     }
 
     /**
@@ -310,7 +313,7 @@ public class AccountController {
     @GetMapping(value = "/sendCode")
     public Result sendCode(HttpServletRequest request) throws IOException {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
-        if(null==user){
+        if(null == user){
             return Result.fail("登录验证不通过");
         }
         String tel=user.getUsername();
@@ -327,10 +330,10 @@ public class AccountController {
     @GetMapping(value = "/verifySmsCode/{code}")
     public Result verifySmsCode(HttpServletRequest request, @PathVariable String code) {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
-        if(null==user){
+        if(null == user){
             return Result.fail("登录验证不通过");
         }
-        if(null==code||code==""){
+        if(StringUtil.isNull(code)){
             return Result.fail("验证码无效");
         }
         return authService.verifySmsCode(user, code);
@@ -347,7 +350,7 @@ public class AccountController {
     @PutMapping(value = "/updatePassword/{encodedPassword}")
     public Result updatePassword(HttpServletRequest request, @PathVariable String encodedPassword) throws IOException {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
-        if(null==user){
+        if(null == user){
             return Result.fail("登录验证不通过");
         }
         return authService.updatePassword(user.getId(), encodedPassword);
@@ -409,4 +412,23 @@ public class AccountController {
         }
         return DownloadAzureFile.downloadFile(downloadUrl, realFileName, request, response);
     }
+
+    /**
+     * 修改供应商状态并激活账户
+     * @param accountUpdateInput
+     * @param request
+     * @return
+     */
+    @PutMapping("/updateStatus")
+    @ApiOperation(value = "修改供应商状态",notes = "修改供应商状态【负责人：陈化静】")
+    public Result updateStatus(@Valid @RequestBody AccountUpdateInput accountUpdateInput, HttpServletRequest request){
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        //验证是否登录, 判断登录用户是否是管理员
+        if(user == null || !Constant.ADMIN_STATUS.equals(user.getIsAdmin()) ){
+            return Result.fail("unauthorized access");
+        }
+        accountService.updateAccountStatus(accountUpdateInput);
+        return Result.success("供应商状态修改成功！");
+    }
+
 }
