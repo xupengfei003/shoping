@@ -22,8 +22,6 @@ public class AppPurchaseItemServiceImpl implements AppPurchaseItemService {
     @Resource
     private AppPurchaseItemDao appPurchaseItemDao;
     @Resource
-    private PurchaseDao purchaseDao;
-    @Resource
     private AppPurchaseDao appPurchaseDao;
 
     /**
