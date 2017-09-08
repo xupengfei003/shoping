@@ -7,6 +7,7 @@
         <id column="details_id" property="detailsId"/>
         <result column="goods_attribute" property="goodsAttribute"/>
         <result column="goods_id" property="goodsId"/>
+        <result column="code69" property="code69"/>
         <result column="goods_number" property="goodsNumber"/>
         <result column="goods_unit_price" property="goodsUnitPrice"/>
         <result column="goods_tatol_price" property="goodsTatolPrice"/>
@@ -20,6 +21,7 @@
     <resultMap id="PurchaseItemList" type="so.sao.shop.supplier.pojo.vo.PurchaseItemVo">
         <result column="goods_attribute" property="goodsAttribute"/>
         <result column="goods_id" property="goodsId"/>
+        <result column="code69" property="code69"/>
         <result column="goods_number" property="goodsNumber"/>
         <result column="goods_tatol_price" property="goodsTatolPrice"/>
         <result column="goods_image" property="goodsImage"/>
@@ -40,7 +42,7 @@
     </resultMap>
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-    details_id AS detailsId, goods_attribute AS goodsAttribute, goods_id AS goodsId, goods_number AS goodsNumber, goods_unit_price AS goodsUnitPrice, goods_tatol_price AS goodsTatolPrice, goods_favourable AS goodsFavourable, goods_image AS goodsImage, goods_name AS goodsName, order_id AS orderId, store_id AS storeId, store_name AS storeName
+    details_id AS detailsId, goods_attribute AS goodsAttribute, goods_id AS goodsId, code69, goods_number AS goodsNumber, goods_unit_price AS goodsUnitPrice, goods_tatol_price AS goodsTatolPrice, goods_favourable AS goodsFavourable, goods_image AS goodsImage, goods_name AS goodsName, order_id AS orderId, store_id AS storeId, store_name AS storeName
   </sql>
 
     <!-- 根据订单ID查询订单明细 -->
@@ -50,6 +52,7 @@
         pi.goods_name,
         pi.goods_attribute,
         pi.goods_id,
+        pi.code69,
         pi.goods_number,
         pi.goods_tatol_price,
         pi.brand_name,
@@ -65,6 +68,7 @@
             (
                 goods_attribute,
                 goods_id,
+                code69,
                 goods_number,
                 goods_unit_price,
                 goods_tatol_price,
@@ -79,6 +83,7 @@
             (
                 #{item.goodsAttribute},
                 #{item.goodsId},
+                #{item.code69},
                 #{item.goodsNumber},
                 #{item.goodsUnitPrice},
                 #{item.goodsTatolPrice},
