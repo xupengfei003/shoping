@@ -22,8 +22,6 @@ public class AppPurchaseItemServiceImpl implements AppPurchaseItemService {
     @Resource
     private AppPurchaseItemDao appPurchaseItemDao;
     @Resource
-    private PurchaseDao purchaseDao;
-    @Resource
     private AppPurchaseDao appPurchaseDao;
 
     /**
@@ -34,20 +32,18 @@ public class AppPurchaseItemServiceImpl implements AppPurchaseItemService {
      * @throws Exception 异常
      */
     @Override
-    public List<AppPurchaseItemOutput> findOrderItemList(String orderId) throws Exception {
+    public AppPurchaseItemOutput findOrderItemList(String orderId) throws Exception {
         //查询详情信息
         List<AppPurchaseItemVo> appPurchaseItemVoList = appPurchaseItemDao.findOrderItemList(orderId);
         //查询订单信息
         List<AppPurchasesVo> appPurchasesVos = appPurchaseDao.findOrderListByOrderId(orderId);
-        List<AppPurchaseItemOutput> appPurchaseItemOutputs = new ArrayList<>();
         AppPurchaseItemOutput appPurchaseItemOutput = null;
         if(null != appPurchasesVos && appPurchasesVos.size()>0){
             appPurchaseItemOutput = BeanMapper.map(appPurchasesVos.get(0),AppPurchaseItemOutput.class);
         }
         if(null!=appPurchaseItemVoList && appPurchaseItemVoList.size()>0){
             appPurchaseItemOutput.setAppPurchaseItemVos(appPurchaseItemVoList);
-            appPurchaseItemOutputs.add(appPurchaseItemOutput);
         }
-        return appPurchaseItemOutputs;
+        return appPurchaseItemOutput;
     }
 }

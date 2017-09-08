@@ -26,11 +26,9 @@ public class AppPurchaseItemController {
     @GetMapping(value = "/appOrderItem/{orderId}")
     @ApiOperation(value = "门店端获取订单列表", notes = "负责人【白治华】")
     public Result findPurchaseItemByOrderId(@PathVariable("orderId") String orderId) throws Exception{
-        List<AppPurchaseItemOutput> appPurchaseItemOutputs = appPurchaseItemService.findOrderItemList(orderId);
-        if(null != appPurchaseItemOutputs && appPurchaseItemOutputs.size()>0){
-            return Result.success(Constant.MessageConfig.MSG_SUCCESS,appPurchaseItemOutputs);
-        } else if(appPurchaseItemOutputs.size() == 0){
-            return Result.success(Constant.MessageConfig.MSG_SUCCESS,null);
+        AppPurchaseItemOutput appPurchaseItemOutput = appPurchaseItemService.findOrderItemList(orderId);
+        if(null != appPurchaseItemOutput) {
+            return Result.success(Constant.MessageConfig.MSG_SUCCESS, appPurchaseItemOutput);
         }
         return Result.fail(Constant.MessageConfig.MSG_FAILURE);
     }

@@ -15,5 +15,5 @@ public interface AppPurchaseItemService {
      * @return List<AppPurchaseItemVo> 订单列表
      * @throws Exception 异常
      */
-    List<AppPurchaseItemOutput> findOrderItemList(String orderId) throws Exception;
+    AppPurchaseItemOutput findOrderItemList(String orderId) throws Exception;
 }

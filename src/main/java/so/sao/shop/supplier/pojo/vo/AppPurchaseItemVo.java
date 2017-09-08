@@ -8,10 +8,7 @@ import java.math.BigDecimal;
  * Created by acer on 2017/9/6.
  */
 public class AppPurchaseItemVo {
-    /**
-     * 详情编号
-     */
-    private String detailsId;
+
     /**
      * 商品图片
      */
@@ -36,14 +33,10 @@ public class AppPurchaseItemVo {
      * 商品总价
      */
     private String goodsTatolPrice;
-
-    public String getDetailsId() {
-        return detailsId;
-    }
-
-    public void setDetailsId(String detailsId) {
-        this.detailsId = detailsId;
-    }
+    /**
+     * 商品规格
+     */
+    private String goodsAttribute;
 
     public String getGoodsImage() {
         return goodsImage;
@@ -83,5 +76,13 @@ public class AppPurchaseItemVo {
 
     public void setGoodsTatolPrice(String goodsTatolPrice) {
         this.goodsTatolPrice = NumberUtil.number2Thousand(new BigDecimal(goodsTatolPrice));
+    }
+
+    public String getGoodsAttribute() {
+        return goodsAttribute;
+    }
+
+    public void setGoodsAttribute(String goodsAttribute) {
+        this.goodsAttribute = goodsAttribute;
     }
 }

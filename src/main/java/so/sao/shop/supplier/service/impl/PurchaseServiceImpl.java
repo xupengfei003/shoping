@@ -801,7 +801,9 @@ public class PurchaseServiceImpl implements PurchaseService {
         qrcodeList.removeIf(qrcode -> {
             return Ognl.isEmpty(qrcode.getUrl());
         });
-        qrcodeDao.saveQrcodes(qrcodeList);
+        if (qrcodeList.size() > 0) {
+            qrcodeDao.saveQrcodes(qrcodeList);
+        }
 
         // 5.删除本地缓存的二维码图片
         System.gc();
