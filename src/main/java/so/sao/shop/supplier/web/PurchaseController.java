@@ -359,14 +359,14 @@ public class PurchaseController {
     @PostMapping("/sweepReceiving")
     public Result sweepReceiving(@RequestBody Map params) throws Exception {
         String orderId = (String) params.get("orderId");
+        // 1.验证参数合法性
+        if (Ognl.isEmpty(orderId)) {
+            return Result.fail(Constant.MessageConfig.MSG_NOT_EMPTY); // 不允许为空
+        }
+
         // 判断订单状态
         if (!verifyOrderStatus(orderId, Constant.OrderStatusConfig.RECEIVED)) {
             return Result.fail(Constant.MessageConfig.ORDER_STATUS_EERO);
-        }
-
-        // 1.验证参数合法性
-        if (Ognl.isEmpty(orderId)) {
-            return Result.success(Constant.MessageConfig.MSG_NOT_EMPTY); // 不允许为空
         }
 
         // 2.调用扫码收货方法
@@ -461,7 +461,6 @@ public class PurchaseController {
     @PostMapping("/refund/{orderId}")
     public Result refund(@PathVariable("orderId") String orderId) throws Exception {
         // 1.验证参数合法性
-        // 订单编号为空，返回
         if (Ognl.isEmpty(orderId)) {
             return Result.fail(Constant.MessageConfig.MSG_NOT_EMPTY); // 不允许为空
         }
@@ -484,6 +483,9 @@ public class PurchaseController {
     //验证订单状态
     private boolean verifyOrderStatus(String orderId, Integer orderStatus) {
         Integer getOrderStatus = purchaseService.findOrderStatus(orderId);
+        if (null == getOrderStatus) {
+            return false;
+        }
         String status = Constant.OrderStatusRule.RULES[getOrderStatus - 1];
         return status.contains(String.valueOf(orderStatus));
     }

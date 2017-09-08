@@ -112,8 +112,9 @@ public interface PurchaseService {
     List<String> findOrderStatusByPayId(String payId);
 
     /**
-     * 根据订单查询订单打印页面信息
+     * 查询配送单信息
      * <p>
+     * 根据订单编号查询配送单页面的所有信息。
      * 1.查询订单信息；
      * 2.查询商品条目；
      * 3.将订单信息和商品条目封装到output对象；
@@ -126,16 +127,14 @@ public interface PurchaseService {
     PurchaseItemPrintOutput getPrintItems(String orderId) throws Exception;
 
     /**
-     * 根据订单编号生成收货二维码
+     * 生成单个收货二维码
      * <p>
-     * 如果订单已经存在二维码返回false，生成二维码失败返回false。
-     * 1.验证订单并判断订单编号是否存在关联的二维码；
+     * 根据订单编号实现二维码的生成，上传，保存到数据库。
+     * 1.验证订单,验证订单和二维码的关系；
      * 2.生成二维码图片。
-     *      2.1.拼接二维码内容；
-     *      2.2.生成二维码图片；
-     *      2.3.将二维码图片上传到云端；
-     *      2.4.将二维码信息保存到数据库；
-     *      2.5.删除本地图片。
+     * 3.将二维码图片上传到云端；
+     * 4.将二维码信息保存到数据库；
+     * 5.删除本地图片。
      *
      * @param orderId 订单编号
      * @throws Exception 异常
@@ -143,14 +142,17 @@ public interface PurchaseService {
     void createReceivingQrcode(String orderId) throws Exception;
 
     /**
-     * 扫描收货二维码
+     * 扫描二维码收货
      * <p>
-     * 1.验证是否可以扫码收货
-     * 2.将订单状态改为已收货
-     * 3.将二维码状态改为失效，并记录失效时间
+     * 根据订单编号实现收货逻辑。
+     * 1.验证是否可以扫码收货；
+     * 2.将订单状态改为已收货；
+     * 3.将二维码状态改为失效，并记录失效时间；
+     * 4.推送收货消息。
      *
      * @param orderId 订单编号
-     * @return map 封装结果 键flag的值为true表示成功，false表示失败，message的值表示文字描述
+     * @return 返回Map：flag：成功true|失败false,message:信息
+     * @throws Exception 异常
      */
     Map sweepReceiving(String orderId) throws Exception;
 
@@ -211,7 +213,7 @@ public interface PurchaseService {
      * 4.推送退款消息。
      *
      * @param orderId 订单编号
-     * @return 返回Map：flag：true|false,message:信息
+     * @return 返回Map：flag：成功true|失败false,message:信息
      * @throws Exception 异常
      */
     Map refundByOrderId(String orderId) throws Exception;
