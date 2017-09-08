@@ -47,6 +47,12 @@ public class SupplierCommodity {
      * 已上架 待上架 已下架
      */
     private int status;
+
+    /**
+     * 商品是否失效
+     * 0 失效  1正常
+     */
+    private int invalidStatus;
     /**
      * 计量规格ID
      */
@@ -266,5 +272,13 @@ public class SupplierCommodity {
 
     public void setUnitId(Long unitId) {
         this.unitId = unitId;
+    }
+
+    public int getInvalidStatus() {
+        return invalidStatus;
+    }
+
+    public void setInvalidStatus(int invalidStatus) {
+        this.invalidStatus = invalidStatus;
     }
 }
