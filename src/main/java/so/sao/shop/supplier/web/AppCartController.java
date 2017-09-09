@@ -53,9 +53,15 @@ public class AppCartController {
     @ApiOperation(value="更新购物车商品数量",notes = "更新购物车商品数量【负责人：王翼云】")
     @PutMapping(value="/cartitem/{cartitemid}")
     public Result updateCartItem(@PathVariable("cartitemid") Long cartitemId,
+                                 @RequestParam("commodityId")
                                  @NotNull(message = "物品id不能为空") Long commodityId,
                                  @NotNull(message = "更新数量不能为空")
+                                 @RequestParam("number")
                                  @Min(value = 1,message = "更新数量必须大于1") Integer number){
+        System.out.println(" [cartitemId]"+cartitemId);
+        System.out.println(" [commodityId]"+commodityId);
+        System.out.println(" [number]"+number);
+
         if(!checkUser()){
             return Result.fail(Constant.MessageConfig.MSG_FAILURE);
         }
@@ -75,6 +81,10 @@ public class AppCartController {
     @ApiOperation(value="根据用户id获取用户购物车信息",notes = "根据用户id获取用户购物车信息【负责人：王翼云】")
     @GetMapping(value ="/{userid}")
     public Result getCartItems(@PathVariable("userid") Long userid, @RequestParam("pageNum")int pageNum, @RequestParam("pageSize")int pageSize){
+        System.out.println(" [userid]"+userid);
+        System.out.println(" [pageNum]"+pageNum);
+        System.out.println(" [pageSize]"+pageSize);
+
         if(!checkUser()){
             return Result.fail(Constant.MessageConfig.MSG_FAILURE);
         }
@@ -92,11 +102,14 @@ public class AppCartController {
     @PostMapping(value ="/cartitem")
     public Result createCartItems(@RequestBody @Validated AppCartItemInput appCartItemInput){
         logger.debug("【传入的参数信息为】 "+ appCartItemInput.toString());
+        User user = (User)request.getAttribute(Constant.REQUEST_USER);
         if(!checkUser()){
+            logger.debug("【user info 1】 "+ user);
             return Result.fail(Constant.MessageConfig.MSG_FAILURE);
         }
-        User user = (User)request.getAttribute(Constant.REQUEST_USER);
+
         appCartItemInput.setUserId(user.getId());
+        logger.debug("【user info 2】 "+ user);
         return convertBoolean(cartService.saveCartItem(appCartItemInput));
     }
 

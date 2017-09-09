@@ -7,8 +7,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import so.sao.shop.supplier.dao.AccountDao;
 import so.sao.shop.supplier.dao.AppCartItemDao;
 import so.sao.shop.supplier.dao.SupplierCommodityDao;
+import so.sao.shop.supplier.domain.Account;
 import so.sao.shop.supplier.domain.AppCartItem;
 import so.sao.shop.supplier.domain.SupplierCommodity;
 import so.sao.shop.supplier.pojo.input.AppCartItemInput;
@@ -32,6 +34,9 @@ public class AppCartServiceImpl implements AppCartService {
 
     @Autowired
     private SupplierCommodityDao supplierCommodityDao;
+
+    @Autowired
+    private AccountDao accountDao;
 
     @Override
     public boolean saveCartItem(AppCartItemInput appCartItemInput) {
@@ -65,6 +70,8 @@ public class AppCartServiceImpl implements AppCartService {
             //查询商品库存
             SupplierCommodity supplierCommodity = supplierCommodityDao.findOne(appCartItem.getCommodityId());
             CommodityOutput commodityOutput = supplierCommodityDao.findDetail(appCartItem.getCommodityId());
+            Account account = accountDao.findAccountByUserId(appCartItem.getUserId());
+            appCartItem.setSupplierName(account.getProviderName());
             Double inventory = supplierCommodity.getInventory();
             appCartItem.copySupplierCommodity(supplierCommodity);
             appCartItem.copyCommodityOutput(commodityOutput);
@@ -102,6 +109,8 @@ public class AppCartServiceImpl implements AppCartService {
             //supplierCommodityDao没有提供批量查询的方法，这里后期会影响性能
             SupplierCommodity supplierCommodity = supplierCommodityDao.findOne(appCartItem.getCommodityId());//
             CommodityOutput commodityOutput = supplierCommodityDao.findDetail(appCartItem.getCommodityId());
+            Account account = accountDao.findAccountByUserId(appCartItem.getUserId());
+            appCartItem.setSupplierName(account.getProviderName());
             appCartItem.copySupplierCommodity(supplierCommodity);
             appCartItem.copyCommodityOutput(commodityOutput);
             computeRemainig(appCartItem);
@@ -133,16 +142,20 @@ public class AppCartServiceImpl implements AppCartService {
         SupplierCommodity supplierCommodity = supplierCommodityDao.findOne(commodityId);
         CommodityOutput commodityOutput = supplierCommodityDao.findDetail(commodityId);
         AppCartItem appCartItem = cartItemDao.selectByPrimaryKey(cartitemId);
+        Account account = accountDao.findAccountByUserId(appCartItem.getUserId());
+        appCartItem.setSupplierName(account.getProviderName());
         appCartItem.copySupplierCommodity(supplierCommodity);
         appCartItem.copyCommodityOutput(commodityOutput);
 
         //返回更新后的信息
-        if(number - appCartItem.getInventory()>= 0){//有库存
+        if(appCartItem.getInventory() - number >= 0){//有库存
             appCartItem.setCount(number);
             appCartItem.setUpdatedAt(new Date());
             cartItemDao.updateByPrimaryKeySelective(appCartItem);
+            computeRemainig(appCartItem);//计算是否有库存字段
+        }else{
+            appCartItem.setRemaining(false);
         }
-        computeRemainig(appCartItem);//计算是否有库存字段
         return appCartItem;
     }
 
