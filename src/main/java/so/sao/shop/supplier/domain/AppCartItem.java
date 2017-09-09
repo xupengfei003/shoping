@@ -101,19 +101,6 @@ public class AppCartItem {
      */
     private boolean remaining;
 
-    /**
-     * 供应商对应的商品
-     */
-    private SupplierCommodity supplierCommodity;
-    /**
-     * 商品
-     */
-    private Commodity commodity;
-    /**
-     * 用户
-     */
-    private User user;
-
     public boolean getRemaining() {
         return remaining;
     }
@@ -137,29 +124,7 @@ public class AppCartItem {
         this.commodityProperties = commodityProperties;
     }
 
-    public SupplierCommodity getSupplierCommodity() {
-        return supplierCommodity;
-    }
 
-    public void setSupplierCommodity(SupplierCommodity supplierCommodity) {
-        this.supplierCommodity = supplierCommodity;
-    }
-
-    public Commodity getCommodity() {
-        return commodity;
-    }
-
-    public void setCommodity(Commodity commodity) {
-        this.commodity = commodity;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
 
     public Long getId() {
         return id;
@@ -327,9 +292,7 @@ public class AppCartItem {
                 ", ruleVal='" + ruleVal + '\'' +
                 ", unitId=" + unitId +
                 ", unitName='" + unitName + '\'' +
-                ", supplierCommodity=" + supplierCommodity +
-                ", commodity=" + commodity +
-                ", user=" + user +
+
                 '}';
     }
 
@@ -356,7 +319,7 @@ public class AppCartItem {
      * @param commodityOutput
      */
     public void copyCommodityOutput(CommodityOutput commodityOutput) {
-        if(supplierCommodity == null){
+        if(commodityOutput == null){
             return ;
         }
         this.setMeasureSpecId(commodityOutput.getMeasureSpecId());
