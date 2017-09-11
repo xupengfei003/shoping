@@ -208,7 +208,8 @@ public interface PurchaseService {
      * 1.根据订单状态验证是否可以退款（仅已取消（7）和已拒收（5）状态的订单可以退款，其他状态不可以退款）；
      * 2.修改订单状态为退款，修改退款时间为当前时间；
      * 3.调用退款接口实现真正的退款；
-     * 4.推送退款消息。
+     * 4.修改库存；
+     * 5.推送退款消息。
      *
      * @param orderId 订单编号
      * @return 返回Map：flag：true|false,message:信息

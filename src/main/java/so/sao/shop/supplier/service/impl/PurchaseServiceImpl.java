@@ -31,6 +31,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -1094,7 +1095,8 @@ public class PurchaseServiceImpl implements PurchaseService {
      * 1.根据订单状态验证是否可以退款（仅已取消（7）和已拒收（5）状态的订单可以退款，其他状态不可以退款）；
      * 2.修改订单状态为退款，修改退款时间为当前时间；
      * 3.调用退款接口实现真正的退款；
-     * 4.推送退款消息。
+     * 4.修改库存；
+     * 5.推送退款消息。
      *
      * @param orderId 订单编号
      * @return 返回Map：flag：成功true|失败false,message:信息
@@ -1135,9 +1137,15 @@ public class PurchaseServiceImpl implements PurchaseService {
         // 退款失败抛异常，事务回滚
         System.out.println("调用退款接口实现真正的退款----------------------成功");
 
-        // 修改库存
+        // 4.修改库存
+        Map<BigInteger, BigDecimal> goodsInfo = new HashMap();
+        List<PurchaseItemVo> purchaseItemVos = purchaseItemDao.getOrderDetailByOId(orderId);
+        purchaseItemVos.forEach(item -> {
+            goodsInfo.put(BigInteger.valueOf(item.getGoodsId()), BigDecimal.valueOf(item.getGoodsNumber()));
+        });
+        supplierCommodityDao.updateInventoryByGoodsId(goodsInfo);
 
-        // 4.推送退款消息
+        // 5.推送退款消息
         pushNotification(orderId, Constant.OrderStatusConfig.REFUNDED);
 
         result.put("flag", true);
