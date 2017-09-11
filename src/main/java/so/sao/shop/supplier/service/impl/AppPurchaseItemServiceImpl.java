@@ -36,10 +36,10 @@ public class AppPurchaseItemServiceImpl implements AppPurchaseItemService {
         //查询详情信息
         List<AppPurchaseItemVo> appPurchaseItemVoList = appPurchaseItemDao.findOrderItemList(orderId);
         //查询订单信息
-        List<AppPurchasesVo> appPurchasesVos = appPurchaseDao.findOrderListByOrderId(orderId);
+        AppPurchasesVo appPurchasesVos = appPurchaseDao.findOrderListByOrderId(orderId);
         AppPurchaseItemOutput appPurchaseItemOutput = null;
-        if(null != appPurchasesVos && appPurchasesVos.size()>0){
-            appPurchaseItemOutput = BeanMapper.map(appPurchasesVos.get(0),AppPurchaseItemOutput.class);
+        if(null != appPurchasesVos){
+            appPurchaseItemOutput = BeanMapper.map(appPurchasesVos,AppPurchaseItemOutput.class);
         }
         if(null!=appPurchaseItemVoList && appPurchaseItemVoList.size()>0){
             appPurchaseItemOutput.setAppPurchaseItemVos(appPurchaseItemVoList);

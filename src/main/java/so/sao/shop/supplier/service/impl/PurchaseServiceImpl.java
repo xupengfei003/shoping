@@ -31,6 +31,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -1060,16 +1061,25 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void cancelOrder(CancelReasonInput cancelReasonInput) throws Exception {
+
         Integer orderStatus = purchaseDao.getOrderStatus(cancelReasonInput.getOrderId());
         Integer inputOrderStatus = Constant.OrderStatusConfig.CANCEL_ORDER;
-        if (orderStatus == Constant.OrderStatusConfig.PAYMENT)
+        if (orderStatus == Constant.OrderStatusConfig.PAYMENT){
             inputOrderStatus = Constant.OrderStatusConfig.PAYMENT_CANCEL_ORDER;
+            List<PurchaseItemVo> purchaseItemVoList = purchaseItemDao.getOrderDetailByOId(cancelReasonInput.getOrderId());
+            purchaseItemVoList.forEach(purchaseItemVo -> {
+                Map<BigInteger,BigDecimal> mapInput = new HashMap<>();
+                mapInput.put(BigInteger.valueOf(purchaseItemVo.getGoodsId()),BigDecimal.valueOf(purchaseItemVo.getGoodsNumber()));
+                supplierCommodityDao.updateInventoryByGoodsId(mapInput);
+            });
+        }
         Map<String, Object> map = new HashMap<>();
         map.put("orderId", cancelReasonInput.getOrderId());//订单编号
         map.put("cancelReason", cancelReasonInput.getCancelReason());//取消订单理由
         map.put("updatedAt", new Date());//更新时间
         map.put("orderStatus", inputOrderStatus);//订单状态 7-已付款已取消/8-待付款已取消
         purchaseDao.insertCancelMessage(map);
+
         //TODO 订单取消成功给该供应商推送一条消息
         pushNotification(cancelReasonInput.getOrderId(), inputOrderStatus);
     }
