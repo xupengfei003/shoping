@@ -940,24 +940,37 @@ public class PurchaseServiceImpl implements PurchaseService {
     /**
      * 添加拒收货信息
      * <p>
-     * 将拒收理由及相关图片保存
+     * 将拒收理由及相关图片保存，并修改二维码状态为失效。
      *
      * @param refuseOrderInput 封装了订单编号，拒收理由，拒收图片
      * @return Map 封装结果 键flag的值为true表示成功，false表示失败，message的值表示文字描述
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void refuseOrder(RefuseOrderInput refuseOrderInput) throws Exception {
         Map<String, Object> map = new HashMap<>();
-        map.put("orderId", refuseOrderInput.getOrderId());//订单编号
+        String orderId = refuseOrderInput.getOrderId();
+        map.put("orderId", orderId);//订单编号
         map.put("refuseReason", refuseOrderInput.getRefuseReason());//拒收理由
         map.put("refuseImgUrlA", refuseOrderInput.getRefuseImgUrlA());//拒收图片URL A
         map.put("refuseImgUrlB", refuseOrderInput.getRefuseImgUrlB());//拒收图片URL B
         map.put("refuseImgUrlC", refuseOrderInput.getRefuseImgUrlC());//拒收图片URL C
-        map.put("orderRefuseTime", new Date());//拒收时间
-        map.put("updatedAt", new Date());//更新时间
+        Date date = new Date();
+        map.put("orderRefuseTime", date);//拒收时间
+        map.put("updatedAt", date);//更新时间
         map.put("orderStatus", Constant.OrderStatusConfig.REJECT);//订单状态 5 拒收
         purchaseDao.insertRefuseMessage(map);
-        //TODO 订单拒收成功给该供应商推送一条消息
+
+        // 验证二维码是否存在，是否失效
+        PurchasePrintVo purchasePrintVo = purchaseDao.findPrintOrderInfo(orderId); // 查询订单和二维码信息
+        if (null == purchasePrintVo || null == purchasePrintVo.getQrcodeStatus()
+                || purchasePrintVo.getQrcodeStatus().equals(1)) { // 订单为null或二维码状态失效（1）
+            throw new Exception("二维码不存在或已经失效");
+        }
+        // 将二维码状态改为失效，并记录失效时间
+        qrcodeDao.updateStatus(orderId, 1, date, date); // status失效是1
+
+        // 订单拒收成功给该供应商推送一条消息
         pushNotification(refuseOrderInput.getOrderId(), Constant.OrderStatusConfig.REJECT);
     }
 
