@@ -219,26 +219,13 @@
   <!--根据结算明细id修改结算状态、更新时间、结算时间、待结算金额、已结算金额、流水号-->
   <update id="updateOrderMoneyRecord" parameterType="so.sao.shop.supplier.domain.OrderMoneyRecord">
     UPDATE order_money_record
-    <set>
-      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(state)">
-        state = #{state},
-      </if>
-      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(updatedAt)">
+    SET
+        state = '1',
         updated_at = #{updatedAt},
-      </if>
-      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(settledAt)">
         settled_at = #{settledAt},
-      </if>
-      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(totalMoney)">
         total_money = #{totalMoney},
-      </if>
-      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(settledAmount)">
         settled_amount = #{settledAmount},
-      </if>
-      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(serialNumber)">
-        serial_number = #{serialNumber},
-      </if>
-    </set>
+        serial_number = #{serialNumber}
     WHERE record_id = #{recordId}
   </update>
 
@@ -318,15 +305,4 @@
     WHERE user_id=#{accountId} AND state=0;
     </select>
 
-    <!--查询该结算明细对应的所有订单的结算金额之和-->
-    <select id="findOMRPurchaseTotalSettlemePrice" resultType="java.math.BigDecimal" parameterType="java.lang.String">
-        SELECT
-          sum(p.order_settleme_price)
-        FROM
-          order_money_record omr
-        LEFT JOIN record_purchase rp ON omr.record_id = rp.record_id
-        LEFT JOIN purchase p ON rp.order_id = p.order_id
-        WHERE
-          omr.record_id = #{recordId}
-    </select>
 </mapper>

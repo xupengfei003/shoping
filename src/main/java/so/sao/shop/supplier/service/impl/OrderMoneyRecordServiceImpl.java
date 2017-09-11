@@ -461,27 +461,25 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
      * 结算
      *
      * @param recordId 结算明细id
-     * @param state    结算状态
+     * @param serialNumber  流水号
      * @return
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean updateOrderMoneyRecordState(String recordId, String state, String serialNumber) throws Exception {
+    public boolean updateOrderMoneyRecordState(String recordId, String serialNumber) throws Exception {
 
         /*
          * 1.查找该recordId对应的OrderMoneyRecord实体
          *   a)如果实体为null，则返回false；
-         * 2.判断传入的state是否为"1"
-         *   b)如果等于1，则继续执行；
-         * 3.根据待结算金额，设置结算明细中要更新的属性值，更新结算明细数据
-         *   c)获取待结算金额；
-         *   d)设置要更新的属性值；
-         *   e)更新结算明细数据；
-         * 4.获取商户id，设置账户更新属性值，更新账户(Account)数据
-         *   f)设置Account中要更新的属性值；
-         *   g)更新账户(Account)数据；
-         * 5.更新结算明细金额对应订单中的账户状态、更新时间；
-         * 6.如果结算明细表、账户表、订单表同时更新成功，则设置flag为true；
+         * 2.根据待结算金额，设置结算明细中要更新的属性值，更新结算明细数据
+         *   b)获取待结算金额；
+         *   c)设置要更新的属性值；
+         *   d)更新结算明细数据；
+         * 3.获取商户id，设置账户更新属性值，更新账户(Account)数据
+         *   e)设置Account中要更新的属性值；
+         *   f)更新账户(Account)数据；
+         * 4.更新结算明细金额对应订单中的账户状态、更新时间；
+         * 5.如果结算明细表、账户表、订单表同时更新成功，则设置flag为true；
          */
         boolean flag = false;
 
@@ -493,46 +491,41 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
             return flag;
         }
 
-        //2.判断传入的state是否为"1"
-        //b)如果等于1，则继续执行
-        if ("1".equals(state)) {
-            //3.根据待结算金额，设置结算明细中要更新的属性值，更新结算明细数据
-            //c)获取待结算金额
-            BigDecimal tmpTotalAmount = orderMoneyRecord.getTotalMoney();
+        //2.根据待结算金额，设置结算明细中要更新的属性值，更新结算明细数据
+        //b)获取待结算金额
+        BigDecimal tmpTotalAmount = orderMoneyRecord.getTotalMoney();
 
-            //d)设置要更新的属性值
-            orderMoneyRecord.setRecordId(recordId);//结算明细id
-            orderMoneyRecord.setState(state);//结算状态
-            orderMoneyRecord.setUpdatedAt(new Date());//更新时间
-            orderMoneyRecord.setSettledAt(new Date());//结算时间
-            orderMoneyRecord.setTotalMoney(new BigDecimal("0.00"));//待结算金额
-            orderMoneyRecord.setSettledAmount(tmpTotalAmount);//已结算金额
-            orderMoneyRecord.setSerialNumber(serialNumber);//流水号
+        //c)设置要更新的属性值
+        orderMoneyRecord.setRecordId(recordId);//结算明细id
+        orderMoneyRecord.setUpdatedAt(new Date());//更新时间
+        orderMoneyRecord.setSettledAt(new Date());//结算时间
+        orderMoneyRecord.setTotalMoney(new BigDecimal("0.00"));//待结算金额
+        orderMoneyRecord.setSettledAmount(tmpTotalAmount);//已结算金额
+        orderMoneyRecord.setSerialNumber(serialNumber);//流水号
 
-            //e)更新结算明细数据
-            int modifyRecordNum = orderMoneyRecordDao.updateOrderMoneyRecord(orderMoneyRecord);
+        //d)更新结算明细数据
+        int modifyRecordNum = orderMoneyRecordDao.updateOrderMoneyRecord(orderMoneyRecord);
 
-            //4.获取账户id，设置账户更新属性值，更新账户(Account)数据
-            //f)设置Account中要更新的属性值
-            Long accountId = orderMoneyRecord.getUserId();//账户id
-            Account account = new Account();
-            account.setBalance(new BigDecimal("0.00"));
-            account.setUpdateDate(new Date());
-            account.setAccountId(accountId);
+        //3.获取账户id，设置账户更新属性值，更新账户(Account)数据
+        //e)设置Account中要更新的属性值
+        Long accountId = orderMoneyRecord.getUserId();//账户id
+        Account account = new Account();
+        account.setBalance(new BigDecimal("0.00"));
+        account.setUpdateDate(new Date());
+        account.setAccountId(accountId);
 
-            //g)更新账户(Account)数据
-            int modifyAccountNum = accountDao.updateAccountByUserId(account);
+        //f)更新账户(Account)数据
+        int modifyAccountNum = accountDao.updateAccountByUserId(account);
 
-            //5.更新结算明细金额对应订单中的账户状态、更新时间
-            Date updateDate = new Date();
-            int modifyPurchaseNum = purchaseDao.updateAccountStatus(recordId, updateDate);
+        //4.更新结算明细金额对应订单中的账户状态、更新时间
+        Date updateDate = new Date();
+        int modifyPurchaseNum = purchaseDao.updateAccountStatus(recordId, updateDate);
 
-            //6.如果结算明细表、账户表、订单表同时更新成功，则设置flag为true；
-            if (modifyRecordNum > 0 && modifyAccountNum > 0 && modifyPurchaseNum > 0) {
-                flag = true;
-            } else {
-                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly(); // 失败回滚
-            }
+        //5.如果结算明细表、账户表、订单表同时更新成功，则设置flag为true；
+        if (modifyRecordNum > 0 && modifyAccountNum > 0 && modifyPurchaseNum > 0) {
+            flag = true;
+        } else {
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly(); // 失败回滚
         }
         return flag;
     }
@@ -702,7 +695,7 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
 		 * 2.分页
 		 *   a).使用PageTool工具类开启分页；
 		 * 3.根据条件，查询结算明细所对应的订单列表信息；
-		 * 4.根据结算明细id，查询该结算明细id对应的所有订单的结算金额之和；
+		 * 4.根据结算明细id，查询该结算明细实体，根据结算状态获取待结算金额或结算金额；
 		 * 5.取得Purchase的分页信息；
 		 * 6.对象转换为PurchaseVo；
 		 * 7.新建PurchaseVo的分页信息PageInfo<PurchaseVo>，并设置分页信息；
@@ -719,11 +712,19 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
         //3.根据条件，查询结算明细所对应的订单列表信息
         List<Purchase> purchaseList = orderMoneyRecordDao.findPageOMRPurchase(recordId, orderId);
 
-        //4.根据结算明细id，查询该结算明细id对应的所有订单的结算金额之和
-        BigDecimal tmpTotalOrderRevenue = orderMoneyRecordDao.findOMRPurchaseTotalSettlemePrice(recordId);
+        //4.根据结算明细id，查询该结算明细实体，根据结算状态获取待结算金额或结算金额
+        BigDecimal tmpTotalOrderRevenue = new BigDecimal("0.00");
+        OrderMoneyRecord orderMoneyRecord = orderMoneyRecordDao.findOne(recordId);
+        if (null != orderMoneyRecord) {
+            String state = orderMoneyRecord.getState();
+            if (Ognl.isNotEmpty(state) && "0".equals(state)) {
+                tmpTotalOrderRevenue = orderMoneyRecord.getTotalMoney();
+            } else if (Ognl.isNotEmpty(state) && "1".equals(state)) {
+                tmpTotalOrderRevenue = orderMoneyRecord.getSettledAmount();
+            }
+        }
 
         if (null != purchaseList && !purchaseList.isEmpty()) {
-
             output = new RecordToPurchaseOutput();
 
             //5.取得Purchase的分页信息
@@ -742,11 +743,9 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
             pageInfoVo.setList(purchaseVoList);
 
             output.setPageInfo(pageInfoVo);
-
             //订单结算总额
             output.setTotalOrderRevenue(NumberUtil.number2Thousand(tmpTotalOrderRevenue));
         }
-
         //8.返回结果对象output
         return output;
     }
