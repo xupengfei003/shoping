@@ -178,6 +178,7 @@
         sc.updated_at AS updatedAt,
         sc.supplier_id AS supplierId,
         sc.status AS status,
+        sc.invalid_status AS invalidStatus,
         (SELECT NAME FROM comm_category cc WHERE cc.id = c.category_one_id) AS categoryOneName,
         (SELECT NAME FROM comm_category cc WHERE cc.id = c.category_two_id) AS categoryTwoName,
         (SELECT NAME FROM comm_category cc WHERE cc.id = c.category_three_id) AS categoryThreeName
@@ -230,7 +231,7 @@
             AND c.name LIKE CONCAT ('%',#{commName},'%')
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(status)">
-            AND sc.`status` = #{status}
+            AND sc.status = #{status}
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(minPrice) and @so.sao.shop.supplier.util.Ognl@isEmpty(maxPrice)">
             AND sc.price<![CDATA[ >= #{minPrice}]]>

@@ -1,8 +1,7 @@
 package so.sao.shop.supplier.dao;
 
 import org.apache.ibatis.annotations.Param;
-import so.sao.shop.supplier.pojo.output.CategoryOutput;
-import so.sao.shop.supplier.pojo.output.CommAppSeachOutput;
+import so.sao.shop.supplier.pojo.output.*;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -31,10 +30,28 @@ public interface CommAppDao {
      * @param code69
      * @return 返回供应商ID
      */
-    List<Long> searchSuppliersByCode69(String code69);
+    List<AccountOutput> searchSuppliersByCode69(@Param("code69")String code69);
 
-	/**
+    /**
      * 查询所有商品科属
      */
     List<CategoryOutput> searchCategories();
+
+    /**
+     * 模糊查询品牌名称
+     * @param name
+     * @return list集合(属性保护ID,name)
+     */
+    List<CommBrandOutput> findBrandName(@Param("name") String name);
+
+    /**
+     * 根据商品名称或分类或品牌ID查询商品信息
+     * @param commName 商品名称
+     * @param categoryOneId 一级分类id
+     * @param categoryTwoId 二级分类id
+     * @param categoryThreeId 三级分类id
+     * @param brandIds 品牌id集合
+     * @return 商品详情列表
+     */
+    List<CommAppSeachOutput> findCommodities(@Param("commName") String commName,@Param("categoryOneId") Long categoryOneId,@Param("categoryTwoId") Long categoryTwoId, @Param("categoryThreeId")Long categoryThreeId, @Param("ids")Long[] brandIds);
 }
