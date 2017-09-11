@@ -3,10 +3,7 @@ package so.sao.shop.supplier.web;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.domain.User;
 import so.sao.shop.supplier.pojo.Result;
@@ -47,7 +44,7 @@ public class OrderMoneyRecordController {
      *      2.1 未查找到结果
      *      2.2 查询成功，返回结果
      *
-     * @param pageNo  页码
+     * @param pageNum  页码
      * @param pageSize 每页条数
      * @param input    入参
      * @return
@@ -55,7 +52,7 @@ public class OrderMoneyRecordController {
      */
     @ApiOperation(value = "查询结算明细列表", notes = "查询结算明细列表【负责人:聂文超】")
     @GetMapping(value = "/search")
-    public Result search(Integer pageNo, Integer pageSize, OrderMoneyRecordInput input) throws Exception {
+    public Result search(Integer pageNum, Integer pageSize, OrderMoneyRecordInput input) throws Exception {
 
         //1.校验参数合法性
         //1.1 如果入参对象为null,则返回失败信息
@@ -82,7 +79,7 @@ public class OrderMoneyRecordController {
         }
 
         //2.查询结算明细列表
-        OrderMoneyRecordOutput output = orderMoneyRecordService.searchOrderMoneyRecords(pageNo, pageSize, input);
+        OrderMoneyRecordOutput output = orderMoneyRecordService.searchOrderMoneyRecords(pageNum, pageSize, input);
 
         //2.1 未查找到结果
         if (null == output) {
@@ -103,23 +100,24 @@ public class OrderMoneyRecordController {
      *      2.1 修改状态成功，返回信息
      *      2.2 修改状态失败，返回信息
      *
-     * @param recordId 结算明细id
-     * @param state    结算状态
+     * @param params Map封装入参键值对，包含recordId、serialNumber
      * @return
      * @throws Exception
      */
     @ApiOperation(value = "更新结算状态", notes = "更新结算状态【负责人:聂文超】")
     @PostMapping(value = "/orderMoneyRecord/updateState")
-    public Result updateState(String recordId, String state) throws Exception {
+    public Result updateState(@RequestBody Map params) throws Exception {
+        String recordId = (String) params.get("recordId");
+        String serialNumber = (String) params.get("serialNumber");
 
         //1.校验参数合法性
         //1.1 判断参数不为空
-        if (Ognl.isEmpty(recordId) || Ognl.isEmpty(state)) {
+        if (Ognl.isEmpty(recordId) || Ognl.isEmpty(serialNumber)) {
             return Result.fail(Constant.MessageConfig.MSG_NOT_EMPTY);
         }
 
         //2.修改结算状态
-        boolean flag = orderMoneyRecordService.updateOrderMoneyRecordState(recordId, state);
+        boolean flag = orderMoneyRecordService.updateOrderMoneyRecordState(recordId, serialNumber);
 
         //2.1 修改状态成功，返回信息
         if (flag) {
@@ -172,8 +170,7 @@ public class OrderMoneyRecordController {
      * 1.校验参数合法性
      *      1.1 判断recordId不为空
      * 2.查询结算明细id对应的订单列表
-     *      2.1 未查找到结果
-     *      2.2 查询成功，返回结果
+     *      2.1 查询成功，返回结果
      *
      * @param recordId 结算明细id
      * @param pageNum  页码
@@ -194,12 +191,7 @@ public class OrderMoneyRecordController {
         //2.查询结算明细id对应的订单列表
         RecordToPurchaseOutput output = orderMoneyRecordService.searchOMRPurchaseDetails(recordId, pageNum, pageSize, orderId);
 
-        //2.1 未查找到结果
-        if (null == output) {
-            return Result.success(Constant.MessageConfig.MSG_NO_DATA);
-        }
-
-        //2.2 查询成功，返回结果
+        //2.1 查询成功，返回结果
         return Result.success(Constant.MessageConfig.MSG_SUCCESS, output);
     }
 
