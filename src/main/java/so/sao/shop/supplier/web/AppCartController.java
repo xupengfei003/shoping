@@ -43,6 +43,9 @@ public class AppCartController {
     @ApiOperation(value="根据购物车记录ID删除购物车记录",notes = "根据购物车记录ID删除购物车记录【负责人：王翼云】")
     @DeleteMapping(value="/cartitem/{cartitemid}")
     public Result deleteCartItem(@PathVariable("cartitemid")Long cartitemId){
+        if(!checkUser()){
+            return Result.fail(Constant.MessageConfig.MSG_FAILURE);
+        }
         return convertBoolean(cartService.deleteCartItemById(cartitemId));
     }
     /**
