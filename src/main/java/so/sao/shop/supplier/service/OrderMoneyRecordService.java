@@ -36,10 +36,10 @@ public interface OrderMoneyRecordService {
     /**
      * 更新结算状态
      * @param recordId
-     * @param state
+     * @param serialNumber
      * @return
      */
-    boolean updateOrderMoneyRecordState(String recordId, String state) throws Exception;
+    boolean updateOrderMoneyRecordState(String recordId, String serialNumber) throws Exception;
 
     /**
      * 根据根据申请人账户ID查询满足结算时间条件的已结算/待结算明细，并根据pageNum和pageSize进行分页
