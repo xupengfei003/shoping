@@ -439,9 +439,8 @@
     <update id="updateInventoryByGoodsId" parameterType="java.util.Map">
         <foreach collection="map" item="count" index="goodsId" open="" close="" separator=";">
             update supplier_commodity
-            <set>
+            set
                 inventory = inventory + #{count}
-            </set>
             where id = #{goodsId}
             and   inventory >= -#{count}
         </foreach>
