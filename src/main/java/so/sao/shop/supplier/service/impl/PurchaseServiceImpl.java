@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.config.StorageConfig;
 import so.sao.shop.supplier.config.azure.AzureBlobService;
@@ -96,7 +97,6 @@ public class PurchaseServiceImpl implements PurchaseService {
                 //根据供应商商品ID获取商品信息
                 CommodityOutput commodityOutput = supplierCommodityDao.findDetail(goodsId);
                 //判断库存是否充足
-                //TODO 先判断库存小于购买数量
                 if (null != commodityOutput && purchaseItem.getGoodsNumber() > commodityOutput.getInventory()){
                     //提示信息
                     output.put("message","商品库存不足");
@@ -116,7 +116,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         List<Purchase> listPurchase = new ArrayList<>();
         List<PurchaseItem> listItem = new ArrayList<>();
         List<Notification> notificationList = new ArrayList<>();
-        Map<Long,BigDecimal> inventoryMap = new HashMap<>();//存储商品编号和剩余库存（原库存-购买数量）
+        Map<Long,BigDecimal> inventoryMap = new HashMap<>();//存储商品编号和购买数量
         //合并支付单号
         String payId = NumberGenerate.generateUuid();
         for (Long sId : set) {
@@ -141,7 +141,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                     item.setGoodsId(goodsId);//商品ID
                     item.setCode69(commOutput.getCode69()); //TODO 添加商品条码code69
                     item.setGoodsNumber(goodsNumber.intValue());//商品数量
-                    inventoryMap.put(commOutput.getId(),goodsNumber.negate());//记录该商品剩余库存
+                    inventoryMap.put(commOutput.getId(),goodsNumber.negate());//记录该商品购买数量
                     BigDecimal price = commOutput.getPrice();//市场价
                     BigDecimal unitPrice = commOutput.getUnitPrice();//成本价
                     item.setGoodsUnitPrice(price);
@@ -180,9 +180,10 @@ public class PurchaseServiceImpl implements PurchaseService {
             purchaseDate.setUpdatedAt(new Date());//更新时间
             listPurchase.add(purchaseDate);
             /*
-               1.将订单信息保存至订单表
-               2.将订单详情保存只订单详情
-               3.订单生成成功（返回订单ID，金额）
+               1.根据商品编号更改库存数量
+               2.将订单信息保存至订单表
+               3.将订单详情保存只订单详情
+               4.订单生成成功（返回订单ID，金额）
             */
             //给该供应商增加一条消息数据
             Notification notification = createNotification(sId, orderId, Constant.OrderStatusConfig.PAYMENT);
@@ -190,7 +191,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         }
         boolean flag = false;
         if (null != listPurchase && listPurchase.size() > 0 && null != listItem && listItem.size() > 0) {
-            // TODO 根据商品编号更改库存数量
+            //根据商品编号更改库存数量
             int count = supplierCommodityDao.updateInventoryByGoodsId(inventoryMap);
             if (count == 0){
                 output.put("message","商品库存不足");
@@ -209,6 +210,8 @@ public class PurchaseServiceImpl implements PurchaseService {
                     //计算所有订单总金额
                     totalMoney = totalMoney.add(obj.getOrderPrice());
                 }
+            }else{//保存订单失败，主动回滚
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();//主动回滚
             }
             if (flag){
                 output.put("status", Constant.CodeConfig.CODE_SUCCESS);
@@ -1134,6 +1137,14 @@ public class PurchaseServiceImpl implements PurchaseService {
         // TODO: 2017/8/31 调用退款接口实现真正的退款,退款失败返回失败信息
         // 退款失败抛异常，事务回滚
         System.out.println("调用退款接口实现真正的退款----------------------成功");
+
+        // 修改库存
+        Map<Long, BigDecimal> goodsInfo = new HashMap();
+        List<PurchaseItemVo> purchaseItemVos = purchaseItemDao.getOrderDetailByOId(orderId);
+        for (PurchaseItemVo purchaseItemVo:purchaseItemVos) {
+            goodsInfo.put(purchaseItemVo.getGoodsId(),BigDecimal.valueOf(purchaseItemVo.getGoodsNumber()));
+        }
+        supplierCommodityDao.updateInventoryByGoodsId(goodsInfo);
 
         // 4.推送退款消息
         pushNotification(orderId, Constant.OrderStatusConfig.REFUNDED);

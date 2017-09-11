@@ -437,13 +437,12 @@
 
     <!--根据商品编号更改商品库存-->
     <update id="updateInventoryByGoodsId" parameterType="java.util.Map">
-        <foreach collection="map" item="count" index="goodsId" open="" close="" separator=",">
+        <foreach collection="map" item="count" index="goodsId" open="" close="" separator=";">
             update supplier_commodity
-            <set>
+            set
                 inventory = inventory + #{count}
-            </set>
             where id = #{goodsId}
-            and   0 &lt;= inventory + #{count}
+            and   inventory >= -#{count}
         </foreach>
     </update>
 </mapper>
