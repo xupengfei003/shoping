@@ -598,6 +598,6 @@
         FROM purchase
         WHERE order_status = #{orderStatus}
         AND pay_status = 0
-        AND TIMESTAMPDIFF(SECOND,order_create_time,NOW()) >= 3600
+        AND TIMESTAMPDIFF(SECOND,order_create_time,NOW()) >= 3600 * 24
     </select>
 </mapper>
