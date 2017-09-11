@@ -55,7 +55,7 @@ public class AppCartServiceImpl implements AppCartService {
         appCartItem.setCreatedAt(new Date());
         //查询是否存在相同的商品
         List<AppCartItem> existsAppCartItemLit = cartItemDao.findExistsCartItem(appCartItem.getUserId(),appCartItem.getCommodityId());
-        logger.debug("【查询是否存在相同的商品】" + existsAppCartItemLit.size());
+        logger.debug("【查询是否存在相同的商品】"+(existsAppCartItemLit.size()>0?true:false) +"  "+ existsAppCartItemLit.size());
         if(existsAppCartItemLit !=null&& existsAppCartItemLit.size()>0){//如果存在，则更新商品数量
 
             AppCartItem existsAppCartItem = existsAppCartItemLit.get(0);
@@ -75,8 +75,9 @@ public class AppCartServiceImpl implements AppCartService {
             Double inventory = supplierCommodity.getInventory();
             appCartItem.copySupplierCommodity(supplierCommodity);
             appCartItem.copyCommodityOutput(commodityOutput);
+            computeRemainig(appCartItem);
             //判断是否还有库存
-            if(inventory.intValue() > 0){
+            if(appCartItem.getRemaining()){
                 logger.debug("【插入购物车信息】" + appCartItem);
                 return cartItemDao.insertSelective(appCartItem)>0?true:false;
             }else{
@@ -142,6 +143,9 @@ public class AppCartServiceImpl implements AppCartService {
         SupplierCommodity supplierCommodity = supplierCommodityDao.findOne(commodityId);
         CommodityOutput commodityOutput = supplierCommodityDao.findDetail(commodityId);
         AppCartItem appCartItem = cartItemDao.selectByPrimaryKey(cartitemId);
+        if(!appCartItem.getCommodityId().equals(commodityId)){
+            return null;
+        }
         Account account = accountDao.findAccountByUserId(appCartItem.getUserId());
         appCartItem.setSupplierName(account.getProviderName());
         appCartItem.copySupplierCommodity(supplierCommodity);

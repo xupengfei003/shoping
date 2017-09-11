@@ -2,6 +2,7 @@ package so.sao.shop.supplier.web;
 
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.ApiOperation;
+import org.reflections.ReflectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,9 +59,9 @@ public class AppCartController {
                                  @NotNull(message = "更新数量不能为空")
                                  @RequestParam("number")
                                  @Min(value = 1,message = "更新数量必须大于1") Integer number){
-        System.out.println(" [cartitemId]"+cartitemId);
-        System.out.println(" [commodityId]"+commodityId);
-        System.out.println(" [number]"+number);
+        System.out.println(" [cartitemId] " + cartitemId);
+        System.out.println(" [commodityId] " + commodityId);
+        System.out.println(" [number] " + number);
 
         if(!checkUser()){
             return Result.fail(Constant.MessageConfig.MSG_FAILURE);
@@ -68,7 +69,12 @@ public class AppCartController {
 
         AppCartItem appCartItem= cartService.updateCartItem(cartitemId,commodityId,number);
         logger.debug("【更新后的数据】 "+appCartItem);
-        return Result.success(Constant.MessageConfig.MSG_SUCCESS,appCartItem);
+        if(appCartItem != null && appCartItem.getRemaining()){
+            return Result.success(Constant.MessageConfig.MSG_SUCCESS,appCartItem);
+        }else{
+            return Result.fail(Constant.MessageConfig.MSG_FAILURE,appCartItem);
+        }
+
     }
 
     /**
@@ -81,10 +87,11 @@ public class AppCartController {
     @ApiOperation(value="根据用户id获取用户购物车信息",notes = "根据用户id获取用户购物车信息【负责人：王翼云】")
     @GetMapping(value ="/{userid}")
     public Result getCartItems(@PathVariable("userid") Long userid, @RequestParam("pageNum")int pageNum, @RequestParam("pageSize")int pageSize){
-        System.out.println(" [userid]"+userid);
-        System.out.println(" [pageNum]"+pageNum);
-        System.out.println(" [pageSize]"+pageSize);
-
+        System.out.println(" [userid] " + userid);
+        System.out.println(" [pageNum] " + pageNum);
+        System.out.println(" [pageSize] " + pageSize);
+        User user = (User)request.getAttribute(Constant.REQUEST_USER);
+        logger.debug("【当前用户id为】："+user+"  ;  【传入的用户ID为】："+userid);
         if(!checkUser()){
             return Result.fail(Constant.MessageConfig.MSG_FAILURE);
         }
@@ -101,6 +108,7 @@ public class AppCartController {
     @ApiOperation(value="向购物车添加商品",notes = "向购物车添加商品【负责人：王翼云】")
     @PostMapping(value ="/cartitem")
     public Result createCartItems(@RequestBody @Validated AppCartItemInput appCartItemInput){
+
         logger.debug("【传入的参数信息为】 "+ appCartItemInput.toString());
         User user = (User)request.getAttribute(Constant.REQUEST_USER);
         if(!checkUser()){

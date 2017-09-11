@@ -29,7 +29,7 @@ public class AppCartItemInput {
     /**
      * 价格
      */
-    @DecimalMin(value="0.01", message = "价格必须大于0")
+    @DecimalMin(value="0.01", message = "价格必须大于等于0.01")
     private BigDecimal commodityPrice;
 
     /**
