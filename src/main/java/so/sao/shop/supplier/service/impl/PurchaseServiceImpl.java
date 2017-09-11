@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.config.StorageConfig;
 import so.sao.shop.supplier.config.azure.AzureBlobService;
@@ -31,6 +32,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -938,24 +940,37 @@ public class PurchaseServiceImpl implements PurchaseService {
     /**
      * 添加拒收货信息
      * <p>
-     * 将拒收理由及相关图片保存
+     * 将拒收理由及相关图片保存，并修改二维码状态为失效。
      *
      * @param refuseOrderInput 封装了订单编号，拒收理由，拒收图片
      * @return Map 封装结果 键flag的值为true表示成功，false表示失败，message的值表示文字描述
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void refuseOrder(RefuseOrderInput refuseOrderInput) throws Exception {
         Map<String, Object> map = new HashMap<>();
-        map.put("orderId", refuseOrderInput.getOrderId());//订单编号
+        String orderId = refuseOrderInput.getOrderId();
+        map.put("orderId", orderId);//订单编号
         map.put("refuseReason", refuseOrderInput.getRefuseReason());//拒收理由
         map.put("refuseImgUrlA", refuseOrderInput.getRefuseImgUrlA());//拒收图片URL A
         map.put("refuseImgUrlB", refuseOrderInput.getRefuseImgUrlB());//拒收图片URL B
         map.put("refuseImgUrlC", refuseOrderInput.getRefuseImgUrlC());//拒收图片URL C
-        map.put("orderRefuseTime", new Date());//拒收时间
-        map.put("updatedAt", new Date());//更新时间
+        Date date = new Date();
+        map.put("orderRefuseTime", date);//拒收时间
+        map.put("updatedAt", date);//更新时间
         map.put("orderStatus", Constant.OrderStatusConfig.REJECT);//订单状态 5 拒收
         purchaseDao.insertRefuseMessage(map);
-        //TODO 订单拒收成功给该供应商推送一条消息
+
+        // 验证二维码是否存在，是否失效
+        PurchasePrintVo purchasePrintVo = purchaseDao.findPrintOrderInfo(orderId); // 查询订单和二维码信息
+        if (null == purchasePrintVo || null == purchasePrintVo.getQrcodeStatus()
+                || purchasePrintVo.getQrcodeStatus().equals(1)) { // 订单为null或二维码状态失效（1）
+            throw new Exception("二维码不存在或已经失效");
+        }
+        // 将二维码状态改为失效，并记录失效时间
+        qrcodeDao.updateStatus(orderId, 1, date, date); // status失效是1
+
+        // 订单拒收成功给该供应商推送一条消息
         pushNotification(refuseOrderInput.getOrderId(), Constant.OrderStatusConfig.REJECT);
     }
 
@@ -1060,16 +1075,25 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void cancelOrder(CancelReasonInput cancelReasonInput) throws Exception {
+
         Integer orderStatus = purchaseDao.getOrderStatus(cancelReasonInput.getOrderId());
         Integer inputOrderStatus = Constant.OrderStatusConfig.CANCEL_ORDER;
-        if (orderStatus == Constant.OrderStatusConfig.PAYMENT)
+        if (orderStatus == Constant.OrderStatusConfig.PAYMENT){
             inputOrderStatus = Constant.OrderStatusConfig.PAYMENT_CANCEL_ORDER;
+            List<PurchaseItemVo> purchaseItemVoList = purchaseItemDao.getOrderDetailByOId(cancelReasonInput.getOrderId());
+            purchaseItemVoList.forEach(purchaseItemVo -> {
+                Map<BigInteger,BigDecimal> mapInput = new HashMap<>();
+                mapInput.put(BigInteger.valueOf(purchaseItemVo.getGoodsId()),BigDecimal.valueOf(purchaseItemVo.getGoodsNumber()));
+                supplierCommodityDao.updateInventoryByGoodsId(mapInput);
+            });
+        }
         Map<String, Object> map = new HashMap<>();
         map.put("orderId", cancelReasonInput.getOrderId());//订单编号
         map.put("cancelReason", cancelReasonInput.getCancelReason());//取消订单理由
         map.put("updatedAt", new Date());//更新时间
         map.put("orderStatus", inputOrderStatus);//订单状态 7-已付款已取消/8-待付款已取消
         purchaseDao.insertCancelMessage(map);
+
         //TODO 订单取消成功给该供应商推送一条消息
         pushNotification(cancelReasonInput.getOrderId(), inputOrderStatus);
     }
@@ -1094,7 +1118,8 @@ public class PurchaseServiceImpl implements PurchaseService {
      * 1.根据订单状态验证是否可以退款（仅已取消（7）和已拒收（5）状态的订单可以退款，其他状态不可以退款）；
      * 2.修改订单状态为退款，修改退款时间为当前时间；
      * 3.调用退款接口实现真正的退款；
-     * 4.推送退款消息。
+     * 4.修改库存；
+     * 5.推送退款消息。
      *
      * @param orderId 订单编号
      * @return 返回Map：flag：成功true|失败false,message:信息
@@ -1135,7 +1160,21 @@ public class PurchaseServiceImpl implements PurchaseService {
         // 退款失败抛异常，事务回滚
         System.out.println("调用退款接口实现真正的退款----------------------成功");
 
-        // 4.推送退款消息
+        // 4.修改库存
+        Map<BigInteger, BigDecimal> goodsInfo = new HashMap();
+        List<PurchaseItemVo> purchaseItemVos = purchaseItemDao.getOrderDetailByOId(orderId);
+        purchaseItemVos.forEach(item -> {
+            goodsInfo.put(BigInteger.valueOf(item.getGoodsId()), BigDecimal.valueOf(item.getGoodsNumber()));
+        });
+        count = supplierCommodityDao.updateInventoryByGoodsId(goodsInfo);
+        if (count == 0) {
+            result.put("flag", false);
+            result.put("message", "退款失败");
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly(); // 是否回滚
+            return result;
+        }
+
+        // 5.推送退款消息
         pushNotification(orderId, Constant.OrderStatusConfig.REFUNDED);
 
         result.put("flag", true);
