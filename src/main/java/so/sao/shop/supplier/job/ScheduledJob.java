@@ -81,9 +81,7 @@ public class ScheduledJob {
                     CancelReasonInput cancelReasonInput = new CancelReasonInput();
                     for(String orderId : orderIdList){
                         cancelReasonInput.setOrderId(orderId);
-                        if(purchaseService.findOrderStatus(orderId) == 1){
-                            purchaseService.cancelOrder(cancelReasonInput);
-                        }
+                        purchaseService.cancelOrder(cancelReasonInput);
                     }
                 }
             }

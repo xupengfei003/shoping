@@ -12,7 +12,7 @@ public interface AppPurchaseItemService {
      * 根据订单ID查询订单详情
      *
      * @param orderId 订单ID
-     * @return List<AppPurchaseItemVo> 订单列表
+     * @return AppPurchaseItemVo 订单信息
      * @throws Exception 异常
      */
     AppPurchaseItemOutput findOrderItemList(String orderId) throws Exception;
