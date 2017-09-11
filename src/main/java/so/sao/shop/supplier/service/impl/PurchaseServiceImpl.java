@@ -1110,6 +1110,8 @@ public class PurchaseServiceImpl implements PurchaseService {
         // 退款失败抛异常，事务回滚
         System.out.println("调用退款接口实现真正的退款----------------------成功");
 
+        // 修改库存
+
         // 4.推送退款消息
         pushNotification(orderId, Constant.OrderStatusConfig.REFUNDED);
 
