@@ -703,7 +703,7 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
 		 */
 
         //1.创建返回的对象output
-        RecordToPurchaseOutput output = null;
+        RecordToPurchaseOutput output = new RecordToPurchaseOutput();
 
         //2.分页
         //a).使用PageTool工具类开启分页
@@ -724,9 +724,8 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
             }
         }
 
+        PageInfo<PurchaseVo> pageInfoVo = null;
         if (null != purchaseList && !purchaseList.isEmpty()) {
-            output = new RecordToPurchaseOutput();
-
             //5.取得Purchase的分页信息
             PageInfo<Purchase> pageInfo = new PageInfo<>(purchaseList);
 
@@ -734,18 +733,18 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
             List<PurchaseVo> purchaseVoList = convertPurchaseVo(purchaseList);
 
             //7.新建PurchaseVo的分页信息PageInfo<PurchaseVo>，并设置分页信息
-            PageInfo<PurchaseVo> pageInfoVo = new PageInfo<>();
+            pageInfoVo = new PageInfo<>();
             pageInfoVo.setPageNum(pageNum);
             pageInfoVo.setPageSize(pageSize);
             pageInfoVo.setTotal(pageInfo.getTotal());
             pageInfoVo.setPages(pageInfo.getPages());
             pageInfoVo.setSize(pageInfo.getSize());
             pageInfoVo.setList(purchaseVoList);
-
-            output.setPageInfo(pageInfoVo);
-            //订单结算总额
-            output.setTotalOrderRevenue(NumberUtil.number2Thousand(tmpTotalOrderRevenue));
         }
+        output.setPageInfo(pageInfoVo);
+        //订单结算总额
+        output.setTotalOrderRevenue(NumberUtil.number2Thousand(tmpTotalOrderRevenue));
+
         //8.返回结果对象output
         return output;
     }

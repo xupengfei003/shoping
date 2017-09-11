@@ -177,8 +177,7 @@ public class OrderMoneyRecordController {
      * 1.校验参数合法性
      *      1.1 判断recordId不为空
      * 2.查询结算明细id对应的订单列表
-     *      2.1 未查找到结果
-     *      2.2 查询成功，返回结果
+     *      2.1 查询成功，返回结果
      *
      * @param recordId 结算明细id
      * @param pageNum  页码
@@ -199,12 +198,7 @@ public class OrderMoneyRecordController {
         //2.查询结算明细id对应的订单列表
         RecordToPurchaseOutput output = orderMoneyRecordService.searchOMRPurchaseDetails(recordId, pageNum, pageSize, orderId);
 
-        //2.1 未查找到结果
-        if (null == output) {
-            return Result.success(Constant.MessageConfig.MSG_NO_DATA);
-        }
-
-        //2.2 查询成功，返回结果
+        //2.1 查询成功，返回结果
         return Result.success(Constant.MessageConfig.MSG_SUCCESS, output);
     }
 
