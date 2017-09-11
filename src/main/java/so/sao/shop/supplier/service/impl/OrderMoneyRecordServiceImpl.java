@@ -18,6 +18,7 @@ import so.sao.shop.supplier.domain.OrderMoneyRecord;
 import so.sao.shop.supplier.domain.Purchase;
 import so.sao.shop.supplier.domain.RecordPurchase;
 import so.sao.shop.supplier.pojo.input.OrderMoneyRecordInput;
+import so.sao.shop.supplier.pojo.input.OrderMoneyRecordRankInput;
 import so.sao.shop.supplier.pojo.output.OrderMoneyRecordOutput;
 import so.sao.shop.supplier.pojo.output.RecordToPurchaseOutput;
 import so.sao.shop.supplier.pojo.vo.AccountOrderMoneyRecordVO;
@@ -393,18 +394,44 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
      * @throws Exception
      */
     @Override
-    public Map<String, Object> searchRecords(Long accountId, OrderMoneyRecordInput put, Integer pageNum, Integer pageSize) throws Exception {
+    public Map<String, Object> searchRecords(Long accountId, OrderMoneyRecordRankInput put, Integer pageNum, Integer pageSize) throws Exception {
         /*
-            1.判断put中的状态码,若状态码为1,则进行已结算明细查询,若状态码为0,则进行待结算明细查询
+            1.确认排序字段及排序次序
+            2.判断put中的状态码,若状态码为1,则进行已结算明细查询,若状态码为0,则进行待结算明细查询
               1).计算该用户的已结算/待结算总金额
               2).根据申请人ID查询满足结算时间条件的已结算/待结算明细,若时间为null,则查询全部明细
-            2.若统计金额为null或为负，给其赋值0.00,正确数据则进行格式化
-            3.判断List是否为null及是否为空,若不为null和空，进行转换封装,若List为null或为空,PageInfo为null
+            3.若统计金额为null或为负，给其赋值0.00,正确数据则进行格式化
+            4.判断List是否为null及是否为空,若不为null和空，进行转换封装,若List为null或为空,PageInfo为null
               a.获取OrderMoneyRecord分页的PageInfo<OrderMoneyRecord>
               b.将orderMoneyRecordList转为orderMoneyRecordVoList
               c.生成OrderMoneyRecordVo分页的PageInfo<OrderMoneyRecordVo>
          */
-        // 1.判断put中的状态码,若状态码为1,则进行已结算明细查询,若状态码为0,则进行待结算明细查询
+        // 1.确认排序字段及排序次序
+        //确认排序字段（0 结账时间; 1 待结算金额; 2 结算时间; 3 结算金额）
+        switch (put.getSortName()) {
+            case "0":
+                put.setSortName("checkout_at"); //结账时间
+                break;
+            case "1":
+                put.setSortName("total_money"); //待结算金额
+                break;
+            case "2":
+                put.setSortName("settled_at");  //结算时间
+                break;
+            case "3":
+                put.setSortName("settled_amount"); //结算金额
+                break;
+        }
+        //确定排序次序（0 正序; 1 倒序）
+        switch (put.getSortType()) {
+            case "0":
+                put.setSortType("ASC");
+                break;
+            case "1":
+                put.setSortType("DESC");
+                break;
+        }
+        // 2.判断put中的状态码,若状态码为1,则进行已结算明细查询,若状态码为0,则进行待结算明细查询
         BigDecimal money = null;     //已结算/待结算总金额
         List<OrderMoneyRecord> oList = null;  //已结算/待结算明细集合
         if ("1".equals(put.getState())) {
@@ -413,7 +440,8 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
             // 根据申请人ID查询满足结算时间条件的已结算明细,若时间为null,则查询全部已结算明细
             PageTool.startPage(pageNum, pageSize);
             oList = orderMoneyRecordDao.findSettledPage(accountId, put);
-        } else if ("0".equals(put.getState())) {
+        }
+        if ("0".equals(put.getState())) {
             // 计算该用户的待结算总金额
             money = orderMoneyRecordDao.findTotalUnpaidMoney(accountId);
             // 根据申请人ID查询满足结算时间条件的待结算明细,若时间为null,则查询全部待结算明细

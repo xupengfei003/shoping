@@ -22,6 +22,7 @@ import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.AccountInput;
 import so.sao.shop.supplier.pojo.input.AccountUpdateInput;
 import so.sao.shop.supplier.service.AccountService;
+import so.sao.shop.supplier.service.CommodityService;
 import so.sao.shop.supplier.util.*;
 
 import java.math.BigDecimal;
@@ -86,6 +87,9 @@ public class AccountServiceImpl implements AccountService {
      */
     @Value("${shop.aliyun.sms.sms-template-code2}")
     String smsTemplateCode2;
+
+    @Autowired
+    private CommodityService commodityService;
 
     /**
      * 初始化银行信息
@@ -421,12 +425,22 @@ public class AccountServiceImpl implements AccountService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void updateAccountStatus(AccountUpdateInput accountUpdateInput) {
+    public Result updateAccountStatus(AccountUpdateInput accountUpdateInput) {
+        //当前时间毫秒数
+        Long currentTime=System.currentTimeMillis();
+        //合同截止时间毫秒数
+        Long contractEndDate=accountDao.selectById(accountUpdateInput.getAccountId()).getContractEndDate().getTime();
+        Long Timedifference=contractEndDate-currentTime;
+        if(accountUpdateInput.getAccountStatus()==1&&Timedifference<=0){
+            return Result.fail("合同有效期已过期，请更新后启用！");
+        }
         Account account = accountDao.selectById(accountUpdateInput.getAccountId());
         if (account != null) {
             //修改账户状态
             accountUpdateInput.setUpdateDate(new Date());
             accountDao.updateAccountStatusById(accountUpdateInput);
+            //修改商品状态
+            commodityService.updateCommInvalidStatus(accountUpdateInput.getAccountId() , accountUpdateInput.getAccountStatus());
             //设置供应商登录密码
             User user = userDao.findOne( account.getUserId());
             if (user != null && StringUtil.isNull(user.getPassword())) {
@@ -440,8 +454,29 @@ public class AccountServiceImpl implements AccountService {
                                 Arrays.asList("phone","password"), Arrays.asList(accountUpdateInput.getAccountTel(),password), smsTemplateCode2);
                     }
                 });
+                return Result.success("供应商启用成功！");
             }
+            return Result.success("更新成功！");
         }
+        return Result.fail("更新失败！");
+    }
+
+    /**
+     * 根据合同过期条件设置登录用户状态：正常:1 / 禁用:2
+     * @param userid
+     * @return
+     */
+    public Result getLoginUserStatus(Long userid) {
+        int userStatus = 1;
+        Account account = accountDao.findByUserId(userid);
+        if (account == null){
+            return Result.fail("此登录账户不是供应商");
+        }
+        //只对供应商做合同状态处理
+        updateContractStatus(account);
+        //只有合同状态为2（已过期）时供应商的登录状态为2-禁用
+        userStatus = account.getContractStatus()==0 ? 1:account.getContractStatus();
+        return Result.success("状态查询成功",userStatus);
     }
 
 }

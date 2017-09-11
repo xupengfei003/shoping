@@ -795,4 +795,16 @@
     SET account_status = #{accountStatus}, update_date = #{updateDate}
     WHERE account_id = #{accountId}
   </update>
+
+  <!--查询合同截止时间一个月前的供应商-->
+  <select id="findMonthAgo" resultMap="BaseResultMap">
+    SELECT account_id,contract_responsible_phone FROM account
+    WHERE account_status = 1 AND DATE_FORMAT(contract_end_date,'%Y-%m-%d')=(DATE_FORMAT(DATE_ADD(NOW(), INTERVAL 1 MONTH),'%Y-%m-%d'))
+  </select>
+
+  <!--查询合同已过期供应商-->
+  <select id="findContractEndDate" resultMap="BaseResultMap">
+    SELECT account_id,contract_responsible_phone FROM account
+    WHERE account_status = 1 AND DATE_FORMAT(contract_end_date,'%Y-%m-%d')=(DATE_FORMAT(DATE_ADD(NOW(), INTERVAL -1 DAY),'%Y-%m-%d'))
+  </select>
 </mapper>

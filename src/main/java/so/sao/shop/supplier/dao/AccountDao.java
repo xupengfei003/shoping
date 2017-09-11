@@ -141,5 +141,16 @@ public interface AccountDao {
      * @return
      */
     void updateAccountStatusById(AccountUpdateInput accountUpdateInput);
+    /**
+     *查询供应商合同截止时间一个月前的用户
+     * @return
+     */
+    List<Account> findMonthAgo();
+
+    /**
+     *查询合同到期的供应商
+     * @return
+     */
+    List<Account> findContractEndDate();
 
 }
