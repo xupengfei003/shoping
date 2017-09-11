@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.config.StorageConfig;
 import so.sao.shop.supplier.config.azure.AzureBlobService;
@@ -1143,7 +1144,13 @@ public class PurchaseServiceImpl implements PurchaseService {
         purchaseItemVos.forEach(item -> {
             goodsInfo.put(BigInteger.valueOf(item.getGoodsId()), BigDecimal.valueOf(item.getGoodsNumber()));
         });
-        supplierCommodityDao.updateInventoryByGoodsId(goodsInfo);
+        count = supplierCommodityDao.updateInventoryByGoodsId(goodsInfo);
+        if (count == 0) {
+            result.put("flag", false);
+            result.put("message", "退款失败");
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly(); // 是否回滚
+            return result;
+        }
 
         // 5.推送退款消息
         pushNotification(orderId, Constant.OrderStatusConfig.REFUNDED);
