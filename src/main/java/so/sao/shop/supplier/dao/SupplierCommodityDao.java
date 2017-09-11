@@ -10,6 +10,7 @@ import so.sao.shop.supplier.pojo.vo.SuppCommSearchVo;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by QuJunLong on 2017/7/18.
@@ -198,4 +199,12 @@ public interface SupplierCommodityDao {
      * @param
      */
     void updateInvalidStatus(SupplierCommodity supplierCommodity);
+
+    /**
+     * 根据map中的key（goodsId）、value（inventory）修改库存
+     *
+     * @param map
+     * @return
+     */
+     int updateInventoryByGoodsId(@Param("map")Map map);
 }

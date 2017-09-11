@@ -6,6 +6,7 @@
     <resultMap id="BaseResultMap" type="so.sao.shop.supplier.domain.Purchase">
         <id column="order_id" property="orderId"/>
         <result column="store_id" property="storeId"/>
+        <result column="store_name" property="storeName"></result>
         <result column="user_id" property="userId"/>
         <result column="user_name" property="userName"/>
         <result column="order_price" property="orderPrice"/>
@@ -166,6 +167,7 @@
         order_id,
         pay_id,
         store_id,
+        store_name,
         user_id,
         user_name,
         order_price,
@@ -184,6 +186,7 @@
             #{item.orderId},
             #{item.payId},
             #{item.storeId},
+            #{item.storeName},
             #{item.userId},
             #{item.userName},
             #{item.orderPrice},
@@ -337,12 +340,14 @@
     <resultMap id="accountUserMap" type="so.sao.shop.supplier.domain.Account">
         <id column="account_id" property="accountId"/>
         <result column="provider_name" property="providerName"/>
+        <result column="account_status" property="accountStatus"/>
     </resultMap>
     <!-- 根据商品ID查询供应商信息 -->
     <select id="findAccountById" resultMap="accountUserMap">
         SELECT
             account_id,
-            provider_name
+            provider_name,
+            account_status
         FROM
           account
         WHERE

@@ -62,7 +62,7 @@ public class PurchaseController {
             resultMap.put("totalMoney", resMap.get("totalMoney"));
             return Result.success(Constant.MessageConfig.MSG_SUCCESS, resultMap);
         }
-        return Result.fail(Constant.MessageConfig.MSG_FAILURE);
+        return Result.fail((String) resMap.get("message"));
     }
 
     /**
