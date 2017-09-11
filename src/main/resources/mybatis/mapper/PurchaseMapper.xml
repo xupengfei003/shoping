@@ -92,7 +92,7 @@
             <if test="purchaseSelectInput.orderStatus!=null">
                 AND order_status = TRIM(#{purchaseSelectInput.orderStatus})
             </if>-->
-            <if test="@so.sao.shop.supplier.util.Ognl@isEmpty(purchaseSelectInput.orderStatus)">
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.orderStatus)">
                 AND order_status = TRIM(#{purchaseSelectInput.orderStatus})
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.orderReceiverName) and
@@ -224,13 +224,16 @@
         <where>
             order_status != -1
 
-            <if test="@so.sao.shop.supplier.util.Ognl@isEmpty(orderStatus)">
+          <!--  <if test="@so.sao.shop.supplier.util.Ognl@isEmpty(orderStatus)">
                 AND (order_status != 7 || pay_status != 0)
             </if>
             <if test="orderStatus == 7">
                 AND pay_status != 0
             </if>
             <if test="orderStatus!=null">
+                AND order_status = TRIM(#{orderStatus})
+            </if>-->
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderStatus)">
                 AND order_status = TRIM(#{orderStatus})
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderReceiverName) and
