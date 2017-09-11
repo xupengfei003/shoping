@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import so.sao.shop.supplier.config.sms.SmsService;
 import so.sao.shop.supplier.dao.AccountDao;
 import so.sao.shop.supplier.dao.NotificationDao;
@@ -51,10 +52,11 @@ public class ContractScheduledService {
     @Autowired
     private NotificationDao notificationDao;
 
+    @Transactional(rollbackFor = Exception.class)
     public void contractScheduled(){
-        //合同剩余30天到期的供应商
+        //TODO 查询合同剩余30天到期的供应商
         List<Account> listInform = accountDao.findMonthAgo();
-        //合同已到期的供应商
+        //TODO 查询合同已到期的供应商
         List<Account> list = accountDao.findContractEndDate();
         int len = listInform.size();
         int len1 = list.size();
@@ -63,11 +65,12 @@ public class ContractScheduledService {
             String sigin = NumberGenerate.generateId(); //系统消息批次处理标记
             for (int i = 0; i < len; i++) {
                 Account account = listInform.get(i);
+                //TODO 发送短信通知
                 TopicMessage topicMessage = smsService.sendSms(Collections.singletonList(account.getContractResponsiblePhone()), Arrays.asList("phone","password"), Arrays.asList(account.getContractResponsiblePhone(),""), smsTemplateCode4);
                 if (topicMessage == null) {
                     logger.error(account.getContractResponsiblePhone() + "发送短信异常");
                 }
-                //TODO 给合同到期得供应商发消息
+                //TODO 给合同到期一个月前的供应商发系统消息
                 Notification notification = new Notification();
                 notification.setAccountId(account.getAccountId());
                 notification.setNotifiType(2);  //消息类型 0订单1系统
@@ -87,13 +90,14 @@ public class ContractScheduledService {
                 Account accountEnd = list.get(i);
                 accountUpdateInput.setAccountId(accountEnd.getAccountId());
                 accountUpdateInput.setAccountStatus(2);
-                //供应商合同过期自动禁用该供应商
+                //TODO 供应商合同过期自动禁用该供应商
                 accountService.updateAccountStatus(accountUpdateInput);
+                //TODO 发送短信通知
                 TopicMessage topicMessage1 = smsService.sendSms(Collections.singletonList(accountEnd.getContractResponsiblePhone()), Arrays.asList("phone","password"), Arrays.asList(accountEnd.getContractResponsiblePhone(),""), smsTemplateCode5);
                 if (topicMessage1 == null) {
                     logger.error(accountEnd.getContractResponsiblePhone() + "发送短信异常");
                 }
-                //TODO 给合同到期得供应商发消息
+                //TODO 给合同到期的供应商发系统消息
                 Notification notification = new Notification();
                 notification.setAccountId(accountEnd.getAccountId());
                 notification.setNotifiType(2);  //消息类型 0订单1系统

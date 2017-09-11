@@ -7,7 +7,7 @@ import so.sao.shop.supplier.service.impl.ContractScheduledService;
 
 /**
  * Created by taowang on 2017/9/7.
- * 设置定时器。每天执行检查合同过期和即将过期的用户。
+ * 设置定时器。每天执行给合同过期和即将过期的用户的用户发送短信通知。
  */
 @Component
 public class ContractScheduledJob {
@@ -18,7 +18,6 @@ public class ContractScheduledJob {
     //设定每天中午12点定时检查合同过期供应商
     @Scheduled(cron = "0 0 12 * * ?")
     public void ContractEnd(){
-
         Scheduled.contractScheduled();
     }
 }

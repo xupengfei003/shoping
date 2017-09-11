@@ -430,7 +430,9 @@ public class AccountServiceImpl implements AccountService {
         Long currentTime=System.currentTimeMillis();
         //合同截止时间毫秒数
         Long contractEndDate=accountDao.selectById(accountUpdateInput.getAccountId()).getContractEndDate().getTime();
+        //计算当前时间与合同截止时间差
         Long Timedifference=contractEndDate-currentTime;
+        //如果时间差小于等于0，此合同处于过期状态。
         if(accountUpdateInput.getAccountStatus()==1&&Timedifference<=0){
             return Result.fail("合同有效期已过期，请更新后启用！");
         }
@@ -441,7 +443,7 @@ public class AccountServiceImpl implements AccountService {
             accountDao.updateAccountStatusById(accountUpdateInput);
             //修改商品状态
             commodityService.updateCommInvalidStatus(accountUpdateInput.getAccountId() , accountUpdateInput.getAccountStatus());
-            //设置供应商登录密码
+            //判断密码是否存在，不存在系统设置供应商登录密码
             User user = userDao.findOne( account.getUserId());
             if (user != null && StringUtil.isNull(user.getPassword())) {
                 String password = smsService.getVerCode();
