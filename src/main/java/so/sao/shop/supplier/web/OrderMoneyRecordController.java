@@ -5,14 +5,12 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import so.sao.shop.supplier.config.Constant;
-import so.sao.shop.supplier.domain.Account;
 import so.sao.shop.supplier.domain.User;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.OrderMoneyRecordInput;
 import so.sao.shop.supplier.pojo.input.OrderMoneyRecordRankInput;
 import so.sao.shop.supplier.pojo.output.OrderMoneyRecordOutput;
 import so.sao.shop.supplier.pojo.output.RecordToPurchaseOutput;
-import so.sao.shop.supplier.service.AccountService;
 import so.sao.shop.supplier.service.OrderMoneyRecordService;
 import so.sao.shop.supplier.util.DataCompare;
 import so.sao.shop.supplier.util.DateUtil;
@@ -21,9 +19,6 @@ import so.sao.shop.supplier.util.Ognl;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -36,8 +31,6 @@ public class OrderMoneyRecordController {
 
     @Autowired
     private OrderMoneyRecordService orderMoneyRecordService;
-    @Autowired
-    private AccountService accountService;
 
     /**
      * 根据账期时间、结算状态查询结算明细列表
@@ -275,24 +268,6 @@ public class OrderMoneyRecordController {
     @GetMapping("/excel")
     public void exportExcel(HttpServletRequest request, HttpServletResponse response) throws Exception{
         orderMoneyRecordService.exportExcel(request,response);
-    }
-
-
-    /**
-     * 用于测试，调用接口触发定时任务，新增结算明细数据
-     * @throws Exception
-     */
-    @GetMapping("/job")
-    public void Job () throws Exception{
-        //获取当天是本月的第几天
-        Calendar calendar = Calendar.getInstance();
-        int days = calendar.get(Calendar.DAY_OF_MONTH);
-
-        //根据当天时间是本月的第几天和当前时间，查询当天要结算的商家信息列表
-        List<Account> accountList = accountService.findAccountList(days, new Date());
-        if (null != accountList && !accountList.isEmpty()) {
-            orderMoneyRecordService.saveOrderMoneyRecord(accountList);
-        }
     }
 
 }
