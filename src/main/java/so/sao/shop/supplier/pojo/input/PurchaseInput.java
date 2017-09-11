@@ -1,12 +1,9 @@
 package so.sao.shop.supplier.pojo.input;
 
-import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
 import so.sao.shop.supplier.pojo.vo.PurchaseItemVo;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
@@ -24,11 +21,13 @@ public class PurchaseInput {
      */
     @NotNull(message="门店ID不能为空")
     private Long userId;
+
     /**
      * 门店名称
      */
     @NotEmpty(message="门店名称不能为空")
     private String userName;
+
     /**
      * 收货人姓名
      */
@@ -108,4 +107,5 @@ public class PurchaseInput {
     public void setUserName(String userName) {
         this.userName = userName;
     }
+
 }
