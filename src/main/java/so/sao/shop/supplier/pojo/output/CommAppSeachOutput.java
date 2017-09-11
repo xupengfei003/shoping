@@ -22,11 +22,11 @@ public class CommAppSeachOutput {
      */
     private String sku;
     /**
-     * 商品编码
+     * 商品条码
      */
     private String code69;
     /**
-     * 商家编码
+     * 商品商家编码
      */
     private String code;
     /**
@@ -49,10 +49,19 @@ public class CommAppSeachOutput {
      * 计量规格名称
      */
     private String measureSpecName;
+
     /**
      * 规格值
      */
     private String ruleVal;
+    /**
+     * 市场价
+     */
+    private BigDecimal price;
+    /**
+     * 成本价
+     */
+    private BigDecimal unitPrice;
     /**
      * 库存
      */
@@ -68,6 +77,10 @@ public class CommAppSeachOutput {
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date updatedAt;
 
+    /**
+     *  是否失效，0-失效，1-正常
+     */
+    private int invalidStatus;
     public Long getId() {
         return id;
     }
@@ -178,5 +191,29 @@ public class CommAppSeachOutput {
 
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public int getInvalidStatus() {
+        return invalidStatus;
+    }
+
+    public void setInvalidStatus(int invalidStatus) {
+        this.invalidStatus = invalidStatus;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+
+    public BigDecimal getUnitPrice() {
+        return unitPrice;
+    }
+
+    public void setUnitPrice(BigDecimal unitPrice) {
+        this.unitPrice = unitPrice;
     }
 }

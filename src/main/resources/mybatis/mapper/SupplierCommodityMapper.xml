@@ -178,6 +178,7 @@
         sc.updated_at AS updatedAt,
         sc.supplier_id AS supplierId,
         sc.status AS status,
+        sc.invalid_status AS invalidStatus,
         (SELECT NAME FROM comm_category cc WHERE cc.id = c.category_one_id) AS categoryOneName,
         (SELECT NAME FROM comm_category cc WHERE cc.id = c.category_two_id) AS categoryTwoName,
         (SELECT NAME FROM comm_category cc WHERE cc.id = c.category_three_id) AS categoryThreeName
@@ -230,7 +231,7 @@
             AND c.name LIKE CONCAT ('%',#{commName},'%')
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(status)">
-            AND sc.`status` = #{status}
+            AND sc.status = #{status}
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(minPrice) and @so.sao.shop.supplier.util.Ognl@isEmpty(maxPrice)">
             AND sc.price<![CDATA[ >= #{minPrice}]]>
@@ -434,4 +435,15 @@
         WHERE supplier_id = #{supplierId}
     </update>
 
+    <!--根据商品编号更改商品库存-->
+    <update id="updateInventoryByGoodsId" parameterType="java.util.Map">
+        <foreach collection="map" item="count" index="goodsId" open="" close="" separator=",">
+            update supplier_commodity
+            <set>
+                inventory = inventory + #{count}
+            </set>
+            where id = #{goodsId}
+            and   0 &lt;= inventory + #{count}
+        </foreach>
+    </update>
 </mapper>
