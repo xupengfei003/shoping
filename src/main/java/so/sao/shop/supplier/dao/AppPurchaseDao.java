@@ -23,8 +23,8 @@ public interface AppPurchaseDao {
      * 根据订单ID查询订单列表
      *
      * @param orderId 订单ID
-     * @return List<AppPurchaseItemVo> 订单列表
+     * @return AppPurchaseItemVo 订单信息
      * @throws Exception 异常
      */
-    List<AppPurchasesVo> findOrderListByOrderId(@Param("orderId") String orderId) throws Exception;
+    AppPurchasesVo findOrderByOrderId(@Param("orderId") String orderId) throws Exception;
 }
