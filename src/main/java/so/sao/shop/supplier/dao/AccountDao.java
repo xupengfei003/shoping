@@ -4,6 +4,7 @@ import org.apache.ibatis.annotations.Param;
 import so.sao.shop.supplier.domain.Account;
 import so.sao.shop.supplier.pojo.input.AccountInput;
 import so.sao.shop.supplier.pojo.input.AccountUpdateInput;
+import so.sao.shop.supplier.pojo.output.AccountOutput;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -79,7 +80,7 @@ public interface AccountDao {
      */
     void updateUserBalance(Account account) throws Exception;
 
-    
+
     /**
      * 根据条件查询出相应供应商的信息
      * @param accountInput 入参对象
@@ -87,21 +88,21 @@ public interface AccountDao {
      */
     List<Account> findPage(AccountInput accountInput);
 
-	/**
+    /**
      * 将计算的总金额,更新为该商户id下的历史总收入
      * @param account
      * @param storeId 商户id
      */
     void updateUserPrice(@Param("account") BigDecimal account, @Param("storeId") Long storeId);
-    
+
     /**
      * 根据用户id查询供应商id
      * @param userId 用户id
      * @return 返回供应商id
      */
-    Long findAccountIdByUserId(Long userId); 
+    Long findAccountIdByUserId(Long userId);
 
-   /**
+    /**
      * 统计出当前供应商数量
      * @return 供应商数量
      */
@@ -135,22 +136,29 @@ public interface AccountDao {
      * @return
      */
     int countByAccountId(Long accountId);
+
     /**
-     * 根据账户ID修改供应商状态
-     * @param accountUpdateInput
-     * @return
-     */
-    void updateAccountStatusById(AccountUpdateInput accountUpdateInput);
-    /**
-     *查询供应商合同截止时间一个月前的用户
+     * 查询供应商合同截止时间一个月前的用户
      * @return
      */
     List<Account> findMonthAgo();
-
     /**
-     *查询合同到期的供应商
+     * 查询合同到期的供应商
      * @return
      */
     List<Account> findContractEndDate();
+    /**
+     * 根据账户ID修改供应商状态
+     * @return
+     */
+    void updateAccountStatusById(AccountUpdateInput accountUpdateInput);
 
+    /**
+     * 根据供应商ID或name查询供应商信息
+     * @param accountId
+     * @param providerName
+     * @return 供应商信息列表
+     */
+    List<AccountOutput> findAccounts(@Param("accountId")Long accountId, @Param("providerName")String providerName);
 }
+

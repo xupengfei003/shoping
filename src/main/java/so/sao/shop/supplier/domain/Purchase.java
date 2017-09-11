@@ -32,6 +32,11 @@ public class Purchase {
     private Long storeId;
 
     /**
+     * 商户名称
+     */
+    private String storeName;
+
+    /**
      * 店铺ID
      */
     private Long userId;
@@ -50,6 +55,7 @@ public class Purchase {
      * 订单结算金额
      */
     private BigDecimal orderSettlemePrice;
+
     /**
      * 收货人姓名
      */
@@ -448,5 +454,13 @@ public class Purchase {
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    public String getStoreName() {
+        return storeName;
+    }
+
+    public void setStoreName(String storeName) {
+        this.storeName = storeName;
     }
 }

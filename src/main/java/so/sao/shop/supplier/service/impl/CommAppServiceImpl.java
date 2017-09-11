@@ -3,13 +3,14 @@ package so.sao.shop.supplier.service.impl;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import so.sao.shop.supplier.dao.AccountDao;
 import so.sao.shop.supplier.dao.CommAppDao;
 import so.sao.shop.supplier.pojo.Result;
-import so.sao.shop.supplier.pojo.output.CategoryOutput;
+import so.sao.shop.supplier.pojo.output.*;
 import so.sao.shop.supplier.service.CommAppService;
 import so.sao.shop.supplier.util.DataCompare;
 import so.sao.shop.supplier.util.PageTool;
-import so.sao.shop.supplier.pojo.output.CommAppSeachOutput;
+
 import java.math.BigDecimal;
 
 import java.util.*;
@@ -19,6 +20,8 @@ public class CommAppServiceImpl implements CommAppService {
 
     @Autowired
     private CommAppDao commAppDao;
+    @Autowired
+    private AccountDao accountDao;
 
     /**
      * 根据查询条件查询商品详情
@@ -55,7 +58,7 @@ public class CommAppServiceImpl implements CommAppService {
      */
     @Override
     public Result searchSuppliers(String code69) {
-        List<Long> list = commAppDao.searchSuppliersByCode69(code69);
+        List<AccountOutput> list = commAppDao.searchSuppliersByCode69(code69);
         return Result.success("成功",list);
     }
 
@@ -68,5 +71,57 @@ public class CommAppServiceImpl implements CommAppService {
     public Result searchCategories() {
         List<CategoryOutput> categoryOutputs = commAppDao.searchCategories();
         return Result.success("查询商品科属成功",categoryOutputs);
+    }
+
+    /**
+     * 模糊查询品牌名
+     * @param name
+     * @return Result结果集(品牌的ID,name)
+     */
+    @Override
+    public Result getBrandName(String name) {
+        List<CommBrandOutput> brandNameList = commAppDao.findBrandName(name);
+        return Result.success("查询成功",brandNameList);
+    }
+
+    /**
+     * 根据供应商ID或名称查询供应商详情列表
+     * @param accountId 供应商ID
+     * @param providerName 供应商名称
+     * @param pageNum 当前页号
+     * @param pageSize 页面大小
+     * @return Result Result对象（供应商详情列表）
+     */
+    @Override
+    public Result getSuppliers(Long accountId, String providerName, Integer pageNum, Integer pageSize) {
+
+        //开始分页
+        PageTool.startPage(pageNum,pageSize);
+        List<AccountOutput> accountList  = accountDao.findAccounts(accountId, providerName);
+        PageInfo<AccountOutput> pageInfo = new PageInfo<AccountOutput>(accountList);
+        return Result.success("查询成功",pageInfo);
+    }
+
+
+
+    /**
+     * 根据商品名称或分类或品牌ID查询商品信息
+     * @param commName 商品名称
+     * @param categoryOneId 一级分类id
+     * @param categoryTwoId 二级分类id
+     * @param categoryThreeId 三级分类id
+     * @param brandIds 品牌集合
+     * @param pageNum 当前页码
+     * @param pageSize 页面大小
+     * @return
+     */
+    @Override
+    public Result getCommodities(String commName, Long categoryOneId, Long categoryTwoId, Long categoryThreeId, Long[] brandIds, Integer pageNum, Integer pageSize) {
+
+        //开始分页
+        PageTool.startPage(pageNum,pageSize);
+        List<CommAppSeachOutput> commList  = commAppDao.findCommodities(commName, categoryOneId, categoryTwoId, categoryThreeId, brandIds);
+        PageInfo<CommAppSeachOutput> pageInfo = new PageInfo<CommAppSeachOutput>(commList);
+        return Result.success("查询成功",pageInfo);
     }
 }
