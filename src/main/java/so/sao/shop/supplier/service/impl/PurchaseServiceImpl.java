@@ -51,6 +51,8 @@ public class PurchaseServiceImpl implements PurchaseService {
     private PurchaseItemDao purchaseItemDao;
     @Resource
     private CommodityService commodityService;
+    @Resource
+    private SupplierCommodityDao supplierCommodityDao;
     @Autowired
     private AccountDao accountDao;
     @Autowired
@@ -73,8 +75,8 @@ public class PurchaseServiceImpl implements PurchaseService {
      * @return
      */
     @Override
-    @Transactional
-    public Map<String, Object> savePurchase(PurchaseInput purchase) throws Exception {
+    @Transactional(rollbackFor = Exception.class)
+    public  Map<String, Object>  savePurchase(PurchaseInput purchase) throws Exception {
         Map<String, Object> output = new HashMap<>();
         output.put("status", Constant.CodeConfig.CODE_FAILURE);
         /*
@@ -91,17 +93,30 @@ public class PurchaseServiceImpl implements PurchaseService {
             //a.根据商品查出所有商户信息。
             Long goodsId = purchaseItem.getGoodsId();//商品ID
             if (null != goodsId) {
+                //根据供应商商品ID获取商品信息
+                CommodityOutput commodityOutput = supplierCommodityDao.findDetail(goodsId);
+                //判断库存是否充足
+                //TODO 先判断库存小于购买数量
+                if (null != commodityOutput && purchaseItem.getGoodsNumber() > commodityOutput.getInventory()){
+                    //提示信息
+                    output.put("message","商品库存不足");
+                    return output;
+                }
                 Account accountUser = purchaseDao.findAccountById(goodsId);
-                if (null != accountUser) {
+                if (null != accountUser && 1 != accountUser.getAccountStatus()){//商家账号为禁用或删除状态，不允许下单
+                    output.put("message","商家账号为禁用或删除状态，不允许下单");
+                    return output;
+                }else {
                     set.add(accountUser.getAccountId());
                 }
             }
         }
-        boolean flag = false;
+
         //b.循环商户ID生成订单
         List<Purchase> listPurchase = new ArrayList<>();
         List<PurchaseItem> listItem = new ArrayList<>();
         List<Notification> notificationList = new ArrayList<>();
+        Map<Long,BigDecimal> inventoryMap = new HashMap<>();//存储商品编号和剩余库存（原库存-购买数量）
         //合并支付单号
         String payId = NumberGenerate.generateUuid();
         for (Long sId : set) {
@@ -126,6 +141,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                     item.setGoodsId(goodsId);//商品ID
                     item.setCode69(commOutput.getCode69()); //TODO 添加商品条码code69
                     item.setGoodsNumber(goodsNumber.intValue());//商品数量
+                    inventoryMap.put(commOutput.getId(),goodsNumber.negate());//记录该商品剩余库存
                     BigDecimal price = commOutput.getPrice();//市场价
                     BigDecimal unitPrice = commOutput.getUnitPrice();//成本价
                     item.setGoodsUnitPrice(price);
@@ -149,6 +165,8 @@ public class PurchaseServiceImpl implements PurchaseService {
             purchaseDate.setOrderId(orderId);//订单ID
             purchaseDate.setPayId(payId);//合并支付单号
             purchaseDate.setStoreId(sId);//商户ID
+            Account account = accountDao.selectById(sId);//根据商户id查询商户信息得到商家名称
+            purchaseDate.setStoreName(account.getProviderName());//商家名称
             purchaseDate.setUserId(userId);//门店ID
             purchaseDate.setUserName(purchase.getUserName());//门店名称
             purchaseDate.setOrderReceiverName(orderReceiverName);//收货人姓名
@@ -170,7 +188,14 @@ public class PurchaseServiceImpl implements PurchaseService {
             Notification notification = createNotification(sId, orderId, Constant.OrderStatusConfig.PAYMENT);
             notificationList.add(notification);
         }
+        boolean flag = false;
         if (null != listPurchase && listPurchase.size() > 0 && null != listItem && listItem.size() > 0) {
+            // TODO 根据商品编号更改库存数量
+            int count = supplierCommodityDao.updateInventoryByGoodsId(inventoryMap);
+            if (count == 0){
+                output.put("message","商品库存不足");
+                return output;
+            }
             int result = purchaseDao.savePurchase(listPurchase);
             int resultSum = purchaseItemDao.savePurchaseItem(listItem);
             BigDecimal totalMoney = new BigDecimal(0);//所有订单实付总金额
@@ -185,7 +210,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                     totalMoney = totalMoney.add(obj.getOrderPrice());
                 }
             }
-            if (flag) {
+            if (flag){
                 output.put("status", Constant.CodeConfig.CODE_SUCCESS);
                 output.put("orderId", payId);
                 output.put("totalMoney", totalMoney);

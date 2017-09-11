@@ -13,9 +13,12 @@
         cu.name AS unitName,
         cms.name AS measureSpecName,
         sc.rule_val AS ruleVal,
+        sc.price AS price,
+        sc.unit_price AS unitPrice,
         sc.inventory AS inventory,
         sc.created_at AS createdAt,
-        sc.updated_at AS updatedAt
+        sc.updated_at AS updatedAt,
+        sc.invalid_status AS invalidStatus
     </sql>
 
     <!--多条件查询商品信息-->
@@ -35,6 +38,7 @@
         sc.code69 = c.code69
         AND sc.deleted = 0
         AND sc.status = 2
+        AND sc.invalid_status = 1
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierId)">
             AND sc.supplier_id = #{supplierId}
         </if>
@@ -67,21 +71,102 @@
         ORDER BY sc.updated_at DESC
     </select>
 
-    <!--通过code69查询供应商列表-->
-    <select id="searchSuppliersByCode69" parameterType="java.lang.String" resultType="java.lang.Long">
-        SELECT sc.supplier_Id
-        FROM supplier_commodity sc
-        WHERE
-        sc.code69 = #{code69}
-        AND sc.deleted = 0
-        AND sc.status = 2
-    </select>
-
     <!--查询所有商品科属-->
     <select id="searchCategories" resultType="so.sao.shop.supplier.pojo.output.CategoryOutput">
         SELECT
-         id,name,level
+        id,name,level,pid
         FROM comm_category
         WHERE deleted = 0
+    </select>
+    <!--模糊查询品牌名-->
+    <select id="findBrandName" parameterType="java.lang.String" resultType="so.sao.shop.supplier.pojo.output.CommBrandOutput">
+        SELECT
+        id,name
+        FROM comm_brand cb
+        WHERE
+        deleted = 0
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(name)">
+            AND cb.name LIKE '%${name}%'
+        </if>
+    </select>
+    <!--根据名称，分类，品牌Ids查询商品信息-->
+    <select id="findCommodities" resultType="so.sao.shop.supplier.pojo.output.CommAppSeachOutput">
+        SELECT
+        sc.id AS id,
+        sc.min_img AS minImg,
+        sc.sku AS sku,
+        c.code69 AS code69,
+        sc.code AS CODE,
+        c.origin_place AS originPlace,
+        cb.name AS brandName,
+        c.name AS commName,
+        cu.name AS unitName,
+        cms.name AS measureSpecName,
+        sc.rule_val AS ruleVal,
+        sc.price AS price,
+        sc.unit_price AS unitPrice,
+        sc.inventory AS inventory,
+        sc.created_at AS createdAt,
+        sc.updated_at AS updatedAt,
+        sc.invalid_status AS invalidStatus
+        FROM
+        supplier_commodity sc
+        LEFT JOIN comm_measure_spec cms ON sc.measure_spec_id = cms.id
+        LEFT JOIN comm_unit cu ON sc.unit_id=cu.id
+        LEFT JOIN commodity c ON c.code69=sc.code69
+        LEFT JOIN comm_brand cb ON c.brand_id=cb.id
+        LEFT JOIN comm_category cc1 ON c.category_one_id=cc1.id
+        LEFT JOIN comm_category cc2 ON c.category_two_id=cc2.id
+        LEFT JOIN comm_category cc3 ON c.category_three_id=cc3.id
+        WHERE sc.invalid_status = 1
+        AND sc.deleted = 0
+        AND sc.status = 2
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(commName)">
+            AND c.name LIKE '%${commName}%'
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(categoryOneId)">
+            AND c.category_one_id = #{categoryOneId}
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(categoryTwoId)">
+            AND c.category_two_id = #{categoryTwoId}
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(categoryThreeId)">
+            AND c.category_three_id = #{categoryThreeId}
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(ids)">
+            AND cb.id IN
+            <foreach collection="ids" open="(" close=")" separator="," item="id">
+                #{id}
+            </foreach>
+        </if>
+        ORDER BY sc.updated_at DESC
+    </select>
+
+    <!-- 根据Code69查询供应商信息-->
+    <select id="searchSuppliersByCode69" resultType="so.sao.shop.supplier.pojo.output.AccountOutput" >
+        SELECT
+        a.account_id AS accountId,
+        a.provider_name AS providerName,
+        a.responsible AS responsible,
+        a.responsible_phone AS responsiblePhone,
+        a.contract_end_date AS contractEndDate,
+        a.regist_address_province  AS registAddressProvince,
+        r.name AS registAddressProvinceName,
+        a.regist_address_city AS registAddressCity,
+        (SELECT NAME FROM sys_region r WHERE a.regist_address_city = r.sr_id) AS registAddressCityName,
+        a.regist_address_district AS registAddressDistrict,
+        (SELECT NAME FROM sys_region r WHERE a.regist_address_district = r.sr_id) AS registAddressDistrictName,
+        a.contract_register_address_province AS contractRegisterAddressProvince,
+        (SELECT NAME FROM sys_region r WHERE a.contract_register_address_province = r.sr_id) AS contractRegisterAddressProvinceName,
+        a.contract_register_address_city AS contractRegisterAddressCity,
+        (SELECT NAME FROM sys_region r WHERE a.contract_register_address_city = r.sr_id) AS contractRegisterAddressCityName,
+        a.contract_register_address_district AS contractRegisterAddressDistrict,
+        (SELECT NAME FROM sys_region r WHERE a.contract_register_address_district = r.sr_id) AS contractRegisterAddressDistrictName
+        FROM account a
+        LEFT JOIN sys_region r ON a.regist_address_province = r.sr_id
+        LEFT JOIN supplier_commodity sc ON sc.supplier_id =a.account_id
+        WHERE sc.deleted=0
+        AND sc.status =2
+        AND sc.code69 = #{code69}
     </select>
 </mapper>
