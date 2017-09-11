@@ -18,9 +18,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.config.sms.SmsService;
+import so.sao.shop.supplier.dao.AccountDao;
 import so.sao.shop.supplier.dao.UserDao;
+import so.sao.shop.supplier.domain.Account;
 import so.sao.shop.supplier.domain.User;
-import so.sao.shop.supplier.pojo.BaseResult;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.service.AuthService;
 import so.sao.shop.supplier.util.JwtTokenUtil;
@@ -48,6 +49,8 @@ public class AuthServiceImpl implements AuthService {
     private JwtTokenUtil jwtTokenUtil;
     private SmsService smsService;
     private RedisTemplate redisTemplate;
+    @Autowired
+    private AccountDao accountDao;
 
     /**
      * 验证码
@@ -83,9 +86,9 @@ public class AuthServiceImpl implements AuthService {
      * @throws IOException
      */
     public Result login(String username, String password) throws IOException {
-        UserDetails userDetails = null;
+        User userDetails = null;
         try {
-            userDetails = userDetailsService.loadUserByUsername(username);
+            userDetails = (User)userDetailsService.loadUserByUsername(username);
         }catch (UsernameNotFoundException e){
             return Result.fail("当前号码无效!");
         }
@@ -99,11 +102,22 @@ public class AuthServiceImpl implements AuthService {
             logger.debug("登陆异常:"+e.getMessage());
             return Result.fail("用户名或密码错误!");
         }
+        //如果登录用户是员工，则根据该员工对应的供应商状态设置它的登录状态: 正常:1 / 禁用:2
+        if (!Constant.ADMIN_STATUS.equals(userDetails.getIsAdmin())){
+            if (null == userDetails.getUserStatus()){
+                Account account = accountDao.selectByPrimaryKey(userDetails.getAccountId());
+                userDetails.setUserStatus(account.getAccountStatus().toString());
+            }
+            if (userDetails.getUserStatus().equals("0")){
+                userDetails.setUserStatus("1");
+            }
+        }
         //登陆后放入缓存,后续从redis取,登出时del
         redisTemplate.opsForHash().put(Constant.REDIS_LOGIN_KEY_PREFIX+userDetails.getUsername(),"user", userDetails);
         Map result = new HashMap();
         result.put("token", jwtTokenUtil.generateToken(userDetails));
         result.put("user",userDetails);
+
         return Result.success("", result);
     }
 
