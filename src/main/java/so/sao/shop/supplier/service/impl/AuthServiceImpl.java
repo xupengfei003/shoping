@@ -104,7 +104,7 @@ public class AuthServiceImpl implements AuthService {
             return Result.fail("用户名或密码错误!");
         }
         //如果登录用户是员工，则根据该员工对应的供应商状态设置它的登录状态: 正常:1 / 禁用:2
-        if (StringUtils.isNotBlank(userDetails.getUserStatus())){
+        if (StringUtil.isNull(userDetails.getUserStatus())){
             Account account = accountDao.selectByPrimaryKey(userDetails.getAccountId());
             userDetails.setUserStatus(account.getAccountStatus().toString());
         }
