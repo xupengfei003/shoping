@@ -43,7 +43,7 @@ public class AppCartController {
      * @return
      */
     @ApiOperation(value="根据购物车记录ID删除购物车记录",notes = "根据购物车记录ID删除购物车记录【负责人：王翼云】")
-    @DeleteMapping(value="/cartitem/{cartitemid}")
+    @GetMapping(value="/cartitem/d/{cartitemid}")
     public Result deleteCartItem(@PathVariable("cartitemid")Long cartitemId){
         if(!checkUser()){
             return Result.fail(Constant.MessageConfig.MSG_FAILURE);
@@ -57,7 +57,7 @@ public class AppCartController {
      * @return
      */
     @ApiOperation(value="更新购物车商品数量",notes = "更新购物车商品数量【负责人：王翼云】")
-    @PutMapping(value="/cartitem/{cartitemid}")
+    @PostMapping(value="/cartitem/u/{cartitemid}")
     public Result updateCartItem(@PathVariable("cartitemid") Long cartitemId,
                                  @RequestParam("commodityId")
                                  @NotNull(message = "物品id不能为空") Long commodityId,
@@ -106,6 +106,13 @@ public class AppCartController {
         return Result.success(Constant.MessageConfig.MSG_SUCCESS,appCartItemOuts);
     }
 
+    /**
+     * 根据用户id获取用户购物车信息，分页
+     * @param userid
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
     public Result getCartItems(@PathVariable("userid") Long userid,
                                @RequestParam("pageNum")
                                @Min(value=1)
@@ -124,6 +131,9 @@ public class AppCartController {
         if(!user.getId().equals(userid)){//如果传入的用户ID与登陆ID不同
             return Result.fail(Constant.MessageConfig.MSG_FAILURE);
         }
+        /**
+         *注意这里的数据格式 ==> PageInfo<AppCartItem>
+         */
         PageInfo<AppCartItem> pageInfo = cartService.findCartItemByUserId(user.getId(),pageNum,pageSize);
         logger.debug("【购物车信息】 "+pageInfo.toString());
         return Result.success(Constant.MessageConfig.MSG_SUCCESS,pageInfo);
