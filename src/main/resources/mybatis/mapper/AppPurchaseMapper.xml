@@ -27,7 +27,7 @@
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderStatusArr)">
             AND order_status IN
             <foreach collection="orderStatusArr" open="(" close=")" separator="," item="orderStatus" index="i">
-                TRIM(#{orderStatus})
+                #{orderStatus}
             </foreach>
         </if>
         AND user_id = TRIM(#{userId})
