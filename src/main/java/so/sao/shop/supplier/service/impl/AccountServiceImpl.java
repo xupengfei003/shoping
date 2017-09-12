@@ -447,7 +447,6 @@ public class AccountServiceImpl implements AccountService {
             //给用户发送密码短信
             String password = smsService.getVerCode();
             userDao.updatePassword(account.getUserId(),new BCryptPasswordEncoder().encode(password), new Date());
-            //发送短信
             tpe.execute(new Runnable() {
                 @Override
                 public void run() {
