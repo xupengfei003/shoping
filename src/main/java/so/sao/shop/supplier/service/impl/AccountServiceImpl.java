@@ -290,7 +290,6 @@ public class AccountServiceImpl implements AccountService {
         List<Account> accountList = accountDao.findPage(accountInput);
         for (Account account : accountList) {
             //合同状态设置
-            account.setContractDate(DateUtil.getStringDate(account.getContractCreateDate()) +" 至 "+DateUtil.getStringDate(account.getContractEndDate()));
             updateContractStatus(account);
         }
         return accountList;
