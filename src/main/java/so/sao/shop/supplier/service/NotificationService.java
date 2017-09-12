@@ -60,10 +60,11 @@ public interface NotificationService {
 
     /**
      * 消息跑马灯显示
+     * @param accountId accountId
      * @return String
      * @throws Exception Exception
      */
-    String marqueeShow() throws Exception;
+    String marqueeShow(Long accountId) throws Exception;
 
     /**
      * 查询未读消息列表(供应商操作)

@@ -28,7 +28,7 @@ public class AppPurchaseItemServiceImpl implements AppPurchaseItemService {
      * 根据订单ID查询订单详情
      *
      * @param orderId 订单ID
-     * @return List<AppPurchaseItemVo> 订单列表
+     * @return AppPurchaseItemVo 订单信息
      * @throws Exception 异常
      */
     @Override
@@ -36,10 +36,10 @@ public class AppPurchaseItemServiceImpl implements AppPurchaseItemService {
         //查询详情信息
         List<AppPurchaseItemVo> appPurchaseItemVoList = appPurchaseItemDao.findOrderItemList(orderId);
         //查询订单信息
-        List<AppPurchasesVo> appPurchasesVos = appPurchaseDao.findOrderListByOrderId(orderId);
+        AppPurchasesVo appPurchasesVos = appPurchaseDao.findOrderByOrderId(orderId);
         AppPurchaseItemOutput appPurchaseItemOutput = null;
-        if(null != appPurchasesVos && appPurchasesVos.size()>0){
-            appPurchaseItemOutput = BeanMapper.map(appPurchasesVos.get(0),AppPurchaseItemOutput.class);
+        if(null != appPurchasesVos){
+            appPurchaseItemOutput = BeanMapper.map(appPurchasesVos,AppPurchaseItemOutput.class);
         }
         if(null!=appPurchaseItemVoList && appPurchaseItemVoList.size()>0){
             appPurchaseItemOutput.setAppPurchaseItemVos(appPurchaseItemVoList);
