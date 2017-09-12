@@ -225,4 +225,11 @@ public interface PurchaseDao {
      * @throws Exception 异常
      */
     List<String> findOrderIdByOrderStatus(@Param("orderStatus") Integer orderStatus) throws Exception;
+
+    /**
+     * 批量更新订单的账户状态
+     * @param purchaseUpdateList
+     */
+    void updatePurchasesAccountStatusById(List<Purchase> purchaseUpdateList);
+
 }

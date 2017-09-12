@@ -30,7 +30,7 @@
         ORDER BY updated_at DESC
     </select>
 
-    <select id="findOrderListByOrderId" resultMap="AppOrderAllList" parameterType="java.lang.String">
+    <select id="findOrderByOrderId" resultMap="AppOrderAllList" parameterType="java.lang.String">
         SELECT
         <include refid="App_Order_Column_List"/>
         FROM purchase

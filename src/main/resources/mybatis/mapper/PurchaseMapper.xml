@@ -368,7 +368,7 @@
     <update id="updateAccountStatus">
         UPDATE record_purchase rp
         LEFT JOIN purchase p ON rp.order_id = p.order_id
-        SET p.account_status = 1, p.updated_at = #{updateDate}
+        SET p.account_status = '2', p.updated_at = #{updateDate}
         WHERE rp.record_id = #{recordId};
     </update>
 
@@ -552,8 +552,8 @@
         purchase
       WHERE
         order_status = 4 AND account_status = '0'
-      AND order_receive_time >= DATE_FORMAT(#{lastSettlementDate}, '%Y-%m-%d')
-      AND order_receive_time &lt; date_add(DATE_FORMAT(#{lastSettlementDate},'%Y-%m-%d'), INTERVAL #{remittanced} DAY)
+      AND order_receive_time >= date_sub(DATE_FORMAT(#{lastSettlementDate}, '%Y-%m-%d'), INTERVAL #{remittanced} DAY)
+      AND order_receive_time &lt; DATE_FORMAT(#{lastSettlementDate},'%Y-%m-%d')
       AND store_id = #{storeId};
     </select>
 
@@ -603,4 +603,13 @@
         AND pay_status = 0
         AND TIMESTAMPDIFF(SECOND,order_create_time,NOW()) >= 3600 * 24
     </select>
+
+    <!--批量更新订单的账户状态-->
+    <update id="updatePurchasesAccountStatusById" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+            UPDATE purchase
+            SET account_status = '1', updated_at = #{item.updatedAt}
+            WHERE order_id = #{item.orderId}
+        </foreach>
+    </update>
 </mapper>

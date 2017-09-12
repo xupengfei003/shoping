@@ -118,12 +118,4 @@ public interface OrderMoneyRecordDao {
      */
     BigDecimal findTotalUnpaidMoney(@Param("accountId") Long accountId) throws Exception;
 
-
-    /**
-     * 查询该结算明细对应的所有订单的结算金额之和
-     * @param recordId 结算明细id
-     * @return
-     */
-    BigDecimal findOMRPurchaseTotalSettlemePrice(@Param("recordId") String recordId);
-
 }
