@@ -329,7 +329,7 @@ public class PurchaseController {
      * @throws Exception 异常
      */
     @ApiOperation(value = "生成收货二维码接口", notes = "根据订单编号生成收货二维码接口【负责人：杨恒乐】")
-    @PostMapping("createReceivingQrcode")
+    @PostMapping("/createReceivingQrcode")
     public Result createReceivingQrcode(@RequestBody Map params) throws Exception {
         String orderId = (String) params.get("orderId");
 
@@ -447,7 +447,7 @@ public class PurchaseController {
     }
 
     /**
-     * 实现退款逻辑
+     * 退款接口
      * <p>
      * 根据订单编号调用退款接口退款并修改订单状态。
      * 1.验证参数合法性；
@@ -457,7 +457,7 @@ public class PurchaseController {
      * @return 返回一个Result对象
      * @throws Exception 异常
      */
-    @ApiOperation(value = "退款", notes = "根据订单编号调用退款接口退款并修改订单状态【负责人：杨恒乐】")
+    @ApiOperation(value = "退款接口", notes = "根据订单编号调用退款接口退款并修改订单状态【负责人：杨恒乐】")
     @PostMapping("/refund/{orderId}")
     public Result refund(@PathVariable("orderId") String orderId) throws Exception {
         // 1.验证参数合法性

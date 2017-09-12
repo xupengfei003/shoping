@@ -1173,7 +1173,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             goodsInfo.put(BigInteger.valueOf(item.getGoodsId()), BigDecimal.valueOf(item.getGoodsNumber()));
         });
         count = supplierCommodityDao.updateInventoryByGoodsId(goodsInfo);
-        if (count == 0) {
+        if (goodsInfo.size() > 0 && goodsInfo.size() == count) {
             result.put("flag", false);
             result.put("message", "退款失败");
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly(); // 是否回滚
