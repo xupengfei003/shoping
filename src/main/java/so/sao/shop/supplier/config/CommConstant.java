@@ -181,10 +181,5 @@ public class CommConstant {
      * 供应商未发送30天到期短信
      */
     public static final int ACCOUNT_NOSENDSMS_STATUS = 0;
-    /**
-     * 供应商已发送30天到期短信
-     */
-    public static final int ACCOUNT_SENDSMS_STATUS = 1;
-
 
 }

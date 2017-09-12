@@ -589,10 +589,10 @@
         service_phone = #{servicePhone,jdbcType=VARCHAR},
       </if>
       <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(contractName)">
-        contract_name = #{contractName,jdbcType=VARCHAR}
+        contract_name = #{contractName,jdbcType=VARCHAR},
       </if>
       <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(monthAgoType)">
-      sms_monthago_type = #{monthAgoType,jdbcType=INTEGER}
+        sms_monthago_type = #{monthAgoType,jdbcType=INTEGER}
       </if>
     </set>
     where account_id = #{accountId,jdbcType=BIGINT}
