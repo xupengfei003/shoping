@@ -159,6 +159,12 @@ public class AccountServiceImpl implements AccountService {
     	//修改供应商信息
         account.setUpdateDate(new Date());
         account.setCreateDate(null);
+        //获取供应商合同截止时间
+        Date contractEndDate = accountDao.selectById(account.getAccountId()).getContractEndDate();
+        //如果不相等则修改过合同时间，恢复短信状态为初始值。
+        if (!account.getContractEndDate().equals(contractEndDate)){
+            account.setMonthAgoType(CommConstant.ACCOUNT_NOSENDSMS_STATUS);
+        }
         accountDao.updateByPrimaryKeySelective(account);
         return Result.success("修改供应商和用户成功");
     }
@@ -284,7 +290,6 @@ public class AccountServiceImpl implements AccountService {
         List<Account> accountList = accountDao.findPage(accountInput);
         for (Account account : accountList) {
             //合同状态设置
-            account.setContractDate(DateUtil.getStringDate(account.getContractCreateDate()) +" 至 "+DateUtil.getStringDate(account.getContractEndDate()));
             updateContractStatus(account);
         }
         return accountList;
@@ -334,9 +339,10 @@ public class AccountServiceImpl implements AccountService {
                     userDao.add(user);
                     account.setCreateDate(new Date());
                     account.setUpdateDate(new Date());
-                    account.setAccountStatus(1);
+                    account.setAccountStatus(CommConstant.ACCOUNT_INVALID_STATUS);
                     account.setUserId(user.getId());
                     account.setLastSettlementDate(new Date());
+                    account.setMonthAgoType(CommConstant.ACCOUNT_NOSENDSMS_STATUS);
                     accountDao.insert(account);
 //                    tpe.execute(new Runnable() {
 //                        @Override
@@ -426,57 +432,32 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result updateAccountStatus(AccountUpdateInput accountUpdateInput) {
-        //当前时间毫秒数
-        Long currentTime=System.currentTimeMillis();
-        //合同截止时间毫秒数
-        Long contractEndDate=accountDao.selectById(accountUpdateInput.getAccountId()).getContractEndDate().getTime();
-        Long Timedifference=contractEndDate-currentTime;
-        if(accountUpdateInput.getAccountStatus()==1&&Timedifference<=0){
-            return Result.fail("合同有效期已过期，请更新后启用！");
-        }
         Account account = accountDao.selectById(accountUpdateInput.getAccountId());
         if (account != null) {
+            //判断合同是否到期，到期后无法启用供应商状态。
+            updateContractStatus(account);
+            if(accountUpdateInput.getAccountStatus()==1 && account.getContractStatus() == 2){
+                return Result.fail("合同有效期已过期，请更新后启用！");
+            }
             //修改账户状态
             accountUpdateInput.setUpdateDate(new Date());
             accountDao.updateAccountStatusById(accountUpdateInput);
             //修改商品状态
             commodityService.updateCommInvalidStatus(accountUpdateInput.getAccountId() , accountUpdateInput.getAccountStatus());
-            //设置供应商登录密码
-            User user = userDao.findOne( account.getUserId());
-            if (user != null && StringUtil.isNull(user.getPassword())) {
-                String password = smsService.getVerCode();
-                userDao.updatePassword(account.getUserId(),new BCryptPasswordEncoder().encode(password), new Date());
-                //发送短信
-                tpe.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        smsService.sendSms(Collections.singletonList(accountUpdateInput.getAccountTel()),
-                                Arrays.asList("phone","password"), Arrays.asList(accountUpdateInput.getAccountTel(),password), smsTemplateCode2);
-                    }
-                });
-                return Result.success("供应商启用成功！");
-            }
-            return Result.success("更新成功！");
+            //给用户发送密码短信
+            String password = smsService.getVerCode();
+            userDao.updatePassword(account.getUserId(),new BCryptPasswordEncoder().encode(password), new Date());
+            tpe.execute(new Runnable() {
+                @Override
+                public void run() {
+                    smsService.sendSms(Collections.singletonList(accountUpdateInput.getAccountTel()),
+                            Arrays.asList("phone","password"), Arrays.asList(accountUpdateInput.getAccountTel(),password), smsTemplateCode2);
+                }
+            });
+            return Result.success("供应商启用成功！");
         }
         return Result.fail("更新失败！");
-    }
 
-    /**
-     * 根据合同过期条件设置登录用户状态：正常:1 / 禁用:2
-     * @param userid
-     * @return
-     */
-    public Result getLoginUserStatus(Long userid) {
-        int userStatus = 1;
-        Account account = accountDao.findByUserId(userid);
-        if (account == null){
-            return Result.fail("此登录账户不是供应商");
-        }
-        //只对供应商做合同状态处理
-        updateContractStatus(account);
-        //只有合同状态为2（已过期）时供应商的登录状态为2-禁用
-        userStatus = account.getContractStatus()==0 ? 1:account.getContractStatus();
-        return Result.success("状态查询成功",userStatus);
     }
 
 }

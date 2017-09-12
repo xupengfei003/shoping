@@ -35,6 +35,10 @@ public class User implements UserDetails {
      * 1管理员，0供应商(一期暂时)
      */
     private String isAdmin;
+    /**
+     * 登录用户状态
+     */
+    private String userStatus;
 
     /**
      * 拥有的权限,SecurityUserDetailsService中初始化
@@ -143,5 +147,13 @@ public class User implements UserDetails {
 
     public void setAccountId(Long accountId) {
         this.accountId = accountId;
+    }
+
+    public String getUserStatus() {
+        return userStatus;
+    }
+
+    public void setUserStatus(String userStatus) {
+        this.userStatus = userStatus;
     }
 }
