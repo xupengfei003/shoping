@@ -89,7 +89,13 @@ public class AppCartController {
      */
     @ApiOperation(value="根据用户id获取用户购物车信息",notes = "根据用户id获取用户购物车信息【负责人：王翼云】")
     @GetMapping(value ="/{userid}")
-    public Result getCartItems(@PathVariable("userid") Long userid, @RequestParam("pageNum")int pageNum, @RequestParam("pageSize")int pageSize){
+    public Result getCartItems(@PathVariable("userid") Long userid,
+                               @RequestParam("pageNum")
+                               @Min(value=1)
+                               @NotNull int pageNum,
+                               @RequestParam("pageSize")
+                               @Min(value=1)
+                               @NotNull int pageSize){
         System.out.println(" [userid] " + userid);
         System.out.println(" [pageNum] " + pageNum);
         System.out.println(" [pageSize] " + pageSize);
@@ -98,7 +104,10 @@ public class AppCartController {
         if(!checkUser()){
             return Result.fail(Constant.MessageConfig.MSG_FAILURE);
         }
-        PageInfo<AppCartItem> pageInfo = cartService.findCartItemByUserId(userid,pageNum,pageSize);
+        if(!user.getId().equals(userid)){//如果传入的用户ID与登陆ID不同
+            return Result.fail(Constant.MessageConfig.MSG_FAILURE);
+        }
+        PageInfo<AppCartItem> pageInfo = cartService.findCartItemByUserId(user.getId(),pageNum,pageSize);
         logger.debug("【购物车信息】 "+pageInfo.toString());
         return Result.success(Constant.MessageConfig.MSG_SUCCESS,pageInfo);
     }
