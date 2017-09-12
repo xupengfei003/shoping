@@ -14,9 +14,12 @@ import so.sao.shop.supplier.domain.Account;
 import so.sao.shop.supplier.domain.AppCartItem;
 import so.sao.shop.supplier.domain.SupplierCommodity;
 import so.sao.shop.supplier.pojo.input.AppCartItemInput;
+import so.sao.shop.supplier.pojo.output.AppCartItemOut;
+import so.sao.shop.supplier.pojo.output.AppCartItemOutSub;
 import so.sao.shop.supplier.pojo.output.CommodityOutput;
 import so.sao.shop.supplier.service.AppCartService;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -161,6 +164,61 @@ public class AppCartServiceImpl implements AppCartService {
             appCartItem.setRemaining(false);
         }
         return appCartItem;
+    }
+
+
+    @Override
+    public List<AppCartItemOut> findCartItemsByUserId(Long userId) {
+        /**
+         * 业务逻辑：
+         * 1. 根据用户id查询出购物车表中的信息
+         * 2. 根据商品id去商品表中查询相应的商品信息
+         */
+        List<AppCartItem> list = cartItemDao.findCartItemByUserId(userId);
+        List<AppCartItemOut> appCartItemOuts = new ArrayList<>();
+        for (int i = 0; i < list.size(); i++) {
+            AppCartItem appCartItem = list.get(i);
+            //supplierCommodityDao没有提供批量查询的方法，这里后期会影响性能
+            SupplierCommodity supplierCommodity = supplierCommodityDao.findOne(appCartItem.getCommodityId());//
+            CommodityOutput commodityOutput = supplierCommodityDao.findDetail(appCartItem.getCommodityId());
+            Account account = accountDao.findAccountByUserId(appCartItem.getUserId());
+            appCartItem.setSupplierName(account.getProviderName());
+            appCartItem.copySupplierCommodity(supplierCommodity);
+            appCartItem.copyCommodityOutput(commodityOutput);
+            computeRemainig(appCartItem);
+            logger.debug("【购物车信息1】" +appCartItem);
+
+            //重新组装数据格式
+            AppCartItemOutSub appCartItemOutSub = new AppCartItemOutSub();
+            appCartItemOutSub.copyAppCartItem(appCartItem);
+            if(appCartItemOuts.size()>0){
+                for (int j = 0; j < appCartItemOuts.size(); j++) {
+                    AppCartItemOut aci = appCartItemOuts.get(j);
+                    if(appCartItem.getSupplierId().equals(aci.getSupplierId())){
+                        aci.getAppCartItems().add(appCartItemOutSub);
+                    }else{
+                        AppCartItemOut appCartItemOut = new AppCartItemOut();
+                        appCartItemOut.setSupplierId(appCartItem.getSupplierId());
+                        appCartItemOut.setSupplierName(appCartItem.getSupplierName());
+                        appCartItemOut.getAppCartItems().add(appCartItemOutSub);
+                        appCartItemOuts.add(appCartItemOut);
+                    }
+
+                }
+            }else{
+                AppCartItemOut appCartItemOut = new AppCartItemOut();
+                appCartItemOut.setSupplierId(appCartItem.getSupplierId());
+                appCartItemOut.setSupplierName(appCartItem.getSupplierName());
+                appCartItemOut.getAppCartItems().add(appCartItemOutSub);
+                appCartItemOuts.add(appCartItemOut);
+            }
+
+            logger.debug("【购物车信息2】" +appCartItemOuts);
+        }
+
+
+
+        return appCartItemOuts;
     }
 
     /**

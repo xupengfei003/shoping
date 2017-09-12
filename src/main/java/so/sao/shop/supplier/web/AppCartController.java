@@ -13,11 +13,13 @@ import so.sao.shop.supplier.domain.AppCartItem;
 import so.sao.shop.supplier.domain.User;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.AppCartItemInput;
+import so.sao.shop.supplier.pojo.output.AppCartItemOut;
 import so.sao.shop.supplier.service.AppCartService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
  * Created by wyy on 2017/7/17.
@@ -41,7 +43,7 @@ public class AppCartController {
      * @return
      */
     @ApiOperation(value="根据购物车记录ID删除购物车记录",notes = "根据购物车记录ID删除购物车记录【负责人：王翼云】")
-    @DeleteMapping(value="/cartitem/{cartitemid}")
+    @GetMapping(value="/cartitem/d/{cartitemid}")
     public Result deleteCartItem(@PathVariable("cartitemid")Long cartitemId){
         if(!checkUser()){
             return Result.fail(Constant.MessageConfig.MSG_FAILURE);
@@ -55,7 +57,7 @@ public class AppCartController {
      * @return
      */
     @ApiOperation(value="更新购物车商品数量",notes = "更新购物车商品数量【负责人：王翼云】")
-    @PutMapping(value="/cartitem/{cartitemid}")
+    @PostMapping(value="/cartitem/u/{cartitemid}")
     public Result updateCartItem(@PathVariable("cartitemid") Long cartitemId,
                                  @RequestParam("commodityId")
                                  @NotNull(message = "物品id不能为空") Long commodityId,
@@ -73,9 +75,9 @@ public class AppCartController {
         AppCartItem appCartItem= cartService.updateCartItem(cartitemId,commodityId,number);
         logger.debug("【更新后的数据】 "+appCartItem);
         if(appCartItem != null && appCartItem.getRemaining()){
-            return Result.success(Constant.MessageConfig.MSG_SUCCESS,appCartItem);
+            return Result.success(Constant.MessageConfig.MSG_SUCCESS);
         }else{
-            return Result.fail(Constant.MessageConfig.MSG_FAILURE,appCartItem);
+            return Result.fail(Constant.MessageConfig.MSG_FAILURE);
         }
 
     }
@@ -83,12 +85,34 @@ public class AppCartController {
     /**
      * 根据用户id获取用户购物车信息
      * @param userid
-     * @param pageNum
-     * @param pageSize
      * @return
      */
     @ApiOperation(value="根据用户id获取用户购物车信息",notes = "根据用户id获取用户购物车信息【负责人：王翼云】")
     @GetMapping(value ="/{userid}")
+    public Result getCartItemsByUser(@PathVariable("userid") Long userid){
+        logger.debug(" [userid] " + userid);
+
+        User user = (User)request.getAttribute(Constant.REQUEST_USER);
+        logger.debug("【当前用户id为】："+user+"  ;  【传入的用户ID为】："+userid);
+        if(!checkUser()){
+            return Result.fail(Constant.MessageConfig.MSG_FAILURE);
+        }
+        if(!user.getId().equals(userid)){//如果传入的用户ID与登陆ID不同
+            return Result.fail(Constant.MessageConfig.MSG_FAILURE);
+        }
+
+        List<AppCartItemOut> appCartItemOuts = cartService.findCartItemsByUserId(user.getId());
+//        logger.debug("【购物车信息】 "+appCartItemOut.toString());
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS,appCartItemOuts);
+    }
+
+    /**
+     * 根据用户id获取用户购物车信息，分页
+     * @param userid
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
     public Result getCartItems(@PathVariable("userid") Long userid,
                                @RequestParam("pageNum")
                                @Min(value=1)
@@ -107,6 +131,9 @@ public class AppCartController {
         if(!user.getId().equals(userid)){//如果传入的用户ID与登陆ID不同
             return Result.fail(Constant.MessageConfig.MSG_FAILURE);
         }
+        /**
+         *注意这里的数据格式 ==> PageInfo<AppCartItem>
+         */
         PageInfo<AppCartItem> pageInfo = cartService.findCartItemByUserId(user.getId(),pageNum,pageSize);
         logger.debug("【购物车信息】 "+pageInfo.toString());
         return Result.success(Constant.MessageConfig.MSG_SUCCESS,pageInfo);
