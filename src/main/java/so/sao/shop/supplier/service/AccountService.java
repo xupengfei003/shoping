@@ -130,10 +130,4 @@ public interface AccountService {
      */
     Result updateAccountStatus(AccountUpdateInput accountUpdateInput);
 
-    /**
-     * 根据合同状态设置用户登录状态
-     * @param username
-     * @return
-     */
-    Result getLoginUserStatus(Long username);
 }

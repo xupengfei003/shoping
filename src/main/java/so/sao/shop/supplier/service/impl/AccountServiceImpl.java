@@ -465,22 +465,4 @@ public class AccountServiceImpl implements AccountService {
 
     }
 
-    /**
-     * 根据合同过期条件设置登录用户状态：正常:1 / 禁用:2
-     * @param userid
-     * @return
-     */
-    public Result getLoginUserStatus(Long userid) {
-        int userStatus = 1;
-        Account account = accountDao.findByUserId(userid);
-        if (account == null){
-            return Result.fail("此登录账户不是供应商");
-        }
-        //只对供应商做合同状态处理
-        updateContractStatus(account);
-        //只有合同状态为2（已过期）时供应商的登录状态为2-禁用
-        userStatus = account.getContractStatus()==0 ? 1:account.getContractStatus();
-        return Result.success("状态查询成功",userStatus);
-    }
-
 }
