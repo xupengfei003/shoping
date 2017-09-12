@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import so.sao.shop.supplier.config.CommConstant;
 import so.sao.shop.supplier.config.sms.SmsService;
 import so.sao.shop.supplier.dao.AccountDao;
 import so.sao.shop.supplier.dao.NotificationDao;
@@ -39,7 +40,6 @@ public class ContractScheduledService {
      */
     @Value("${shop.aliyun.sms.sms-template-code4}")
     String smsTemplateCode4;
-
     /**
      * 合同到期
      */
@@ -48,62 +48,69 @@ public class ContractScheduledService {
 
     @Autowired
     private SmsService smsService;
+
     @Autowired
     private NotificationDao notificationDao;
 
     public void contractScheduled(){
-        //合同剩余30天到期的供应商
-        List<Account> listInform = accountDao.findMonthAgo();
-        //合同已到期的供应商
-        List<Account> list = accountDao.findContractEndDate();
-        int len = listInform.size();
-        int len1 = list.size();
-        if(listInform != null && len > 0) {
-            List<Notification> notificationList = new ArrayList<>();
-            String sigin = NumberGenerate.generateId(); //系统消息批次处理标记
-            for (int i = 0; i < len; i++) {
-                Account account = listInform.get(i);
-                TopicMessage topicMessage = smsService.sendSms(Collections.singletonList(account.getContractResponsiblePhone()), Arrays.asList("phone","password"), Arrays.asList(account.getContractResponsiblePhone(),""), smsTemplateCode4);
-                if (topicMessage == null) {
-                    logger.error(account.getContractResponsiblePhone() + "发送短信异常");
+            //查询合同剩余30天到期的供应商
+            List<Account> listInform = accountDao.findMonthAgo();
+            //查询合同已到期的供应商
+            List<Account> list = accountDao.findContractEndDate();
+            int len = listInform.size();
+            int len1 = list.size();
+            if (listInform != null && len > 0) {
+                List<Notification> notificationList = new ArrayList<>();
+                String sigin = NumberGenerate.generateId(); //系统消息批次处理标记
+                for (int i = 0; i < len; i++) {
+                    Account account = listInform.get(i);
+                    //发送短信通知
+                    TopicMessage topicMessage = smsService.sendSms(Collections.singletonList(account.getContractResponsiblePhone()), Arrays.asList("phone", "password"), Arrays.asList(account.getContractResponsiblePhone(), ""), smsTemplateCode4);
+                    if (topicMessage == null) {
+                        logger.error(account.getContractResponsiblePhone() + "发送短信异常");
+                    }
+                    //给合同到期的供应商发系统消息
+                    Notification notification=createNotification(account.getAccountId(),INFORM,sigin);
+                    notificationList.add(notification);
+                    //发送短信通知后修改发送短信状态为1，防止重复发送。
+                    accountDao.updateAccountSmsTypeById(account.getAccountId());
                 }
-                //TODO 给合同到期得供应商发消息
-                Notification notification = new Notification();
-                notification.setAccountId(account.getAccountId());
-                notification.setNotifiType(2);  //消息类型 0订单1系统
-                notification.setNotifiDetail(INFORM);   //消息内容
-                notification.setCreatedAt(new Date());
-                notification.setNotifiStatus(0);    //已读未读 0未读1已读
-                notification.setSigin(sigin);
-                notificationList.add(notification);
+                notificationDao.saveNotifications(notificationList);
             }
-            notificationDao.saveNotifications(notificationList);
-        }
-        if (list != null && len1 > 0) {
-            List<Notification> notificationList = new ArrayList<>();
-            String sigin = NumberGenerate.generateId(); //系统消息批次处理标记
-            AccountUpdateInput accountUpdateInput=new AccountUpdateInput();
-            for (int i = 0; i < len1; i++) {
-                Account accountEnd = list.get(i);
-                accountUpdateInput.setAccountId(accountEnd.getAccountId());
-                accountUpdateInput.setAccountStatus(2);
-                //供应商合同过期自动禁用该供应商
-                accountService.updateAccountStatus(accountUpdateInput);
-                TopicMessage topicMessage1 = smsService.sendSms(Collections.singletonList(accountEnd.getContractResponsiblePhone()), Arrays.asList("phone","password"), Arrays.asList(accountEnd.getContractResponsiblePhone(),""), smsTemplateCode5);
-                if (topicMessage1 == null) {
-                    logger.error(accountEnd.getContractResponsiblePhone() + "发送短信异常");
+
+            if (list != null && len1 > 0) {
+                List<Notification> notificationList = new ArrayList<>();
+                String sigin = NumberGenerate.generateId(); //系统消息批次处理标记
+                AccountUpdateInput accountUpdateInput = new AccountUpdateInput();
+                for (int i = 0; i < len1; i++) {
+                    Account accountEnd = list.get(i);
+                    accountUpdateInput.setAccountId(accountEnd.getAccountId());
+                    accountUpdateInput.setAccountStatus(CommConstant.ACCOUNT_INVALID_STATUS);
+                    //发送短信通知
+                    TopicMessage topicMessage1 = smsService.sendSms(Collections.singletonList(accountEnd.getContractResponsiblePhone()), Arrays.asList("phone", "password"), Arrays.asList(accountEnd.getContractResponsiblePhone(), ""), smsTemplateCode5);
+                    if (topicMessage1 == null) {
+                        logger.error(accountEnd.getContractResponsiblePhone() + "发送短信异常");
+                    }
+                    //给合同到期的供应商发系统消息
+                    Notification notification=createNotification(accountEnd.getAccountId(),ENDINFORM,sigin);
+                    notificationList.add(notification);
+                    //供应商合同过期自动禁用该供应商
+                    accountService.updateAccountStatus(accountUpdateInput);
                 }
-                //TODO 给合同到期得供应商发消息
-                Notification notification = new Notification();
-                notification.setAccountId(accountEnd.getAccountId());
-                notification.setNotifiType(2);  //消息类型 0订单1系统
-                notification.setNotifiDetail(ENDINFORM);   //消息内容
-                notification.setCreatedAt(new Date());
-                notification.setNotifiStatus(0);    //已读未读 0未读1已读
-                notification.setSigin(sigin);
-                notificationList.add(notification);
+                notificationDao.saveNotifications(notificationList);
             }
-            notificationDao.saveNotifications(notificationList);
-        }
+
+    }
+    public Notification createNotification(Long accountId,String info,String sigin){
+
+        //给合同到期一个月前的供应商发系统消息
+        Notification notification = new Notification();
+        notification.setAccountId(accountId);
+        notification.setNotifiType(2);  //消息类型 0订单1系统2到期提醒
+        notification.setNotifiDetail(info);   //消息内容
+        notification.setCreatedAt(new Date());
+        notification.setNotifiStatus(0);    //已读未读 0未读1已读
+        notification.setSigin(sigin);
+        return notification;
     }
 }

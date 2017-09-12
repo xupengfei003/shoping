@@ -8,7 +8,7 @@ import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Date;
 
-public class CartItemInput {
+public class AppCartItemInput {
 
 
     /**
@@ -29,7 +29,7 @@ public class CartItemInput {
     /**
      * 价格
      */
-    @DecimalMin(value="0.01", message = "价格必须大于0")
+    @DecimalMin(value="0.01", message = "价格必须大于等于0.01")
     private BigDecimal commodityPrice;
 
     /**
@@ -52,6 +52,7 @@ public class CartItemInput {
      * 数量
      */
     @Min(value=1,message = "不能小于1")
+    @NotNull(message = "数量不能为空")
     private Integer count;
 
 
@@ -126,5 +127,20 @@ public class CartItemInput {
 
     public void setCount(Integer count) {
         this.count = count;
+    }
+
+    @Override
+    public String toString() {
+        return "AppCartItemInput{" +
+                "userId=" + userId +
+                ", supplierId=" + supplierId +
+                ", commodityId=" + commodityId +
+                ", commodityPrice=" + commodityPrice +
+                ", commodityName='" + commodityName + '\'' +
+                ", supplierName='" + supplierName + '\'' +
+                ", commodityPic='" + commodityPic + '\'' +
+                ", commodityProperties='" + commodityProperties + '\'' +
+                ", count=" + count +
+                '}';
     }
 }
