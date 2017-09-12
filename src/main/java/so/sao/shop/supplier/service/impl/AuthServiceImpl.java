@@ -103,15 +103,14 @@ public class AuthServiceImpl implements AuthService {
             return Result.fail("用户名或密码错误!");
         }
         //如果登录用户是员工，则根据该员工对应的供应商状态设置它的登录状态: 正常:1 / 禁用:2
-        if (!Constant.ADMIN_STATUS.equals(userDetails.getIsAdmin())){
-            if (null == userDetails.getUserStatus()){
-                Account account = accountDao.selectByPrimaryKey(userDetails.getAccountId());
-                userDetails.setUserStatus(account.getAccountStatus().toString());
-            }
-            if (userDetails.getUserStatus().equals("0")){
-                userDetails.setUserStatus("1");
-            }
+        if (null == userDetails.getUserStatus()){
+            Account account = accountDao.selectByPrimaryKey(userDetails.getAccountId());
+            userDetails.setUserStatus(account.getAccountStatus().toString());
         }
+        if (userDetails.getUserStatus().equals("0")){
+            userDetails.setUserStatus("1");
+        }
+
         //登陆后放入缓存,后续从redis取,登出时del
         redisTemplate.opsForHash().put(Constant.REDIS_LOGIN_KEY_PREFIX+userDetails.getUsername(),"user", userDetails);
         Map result = new HashMap();
