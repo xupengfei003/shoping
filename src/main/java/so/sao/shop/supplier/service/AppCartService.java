@@ -3,6 +3,7 @@ package so.sao.shop.supplier.service;
 import com.github.pagehelper.PageInfo;
 import so.sao.shop.supplier.domain.AppCartItem;
 import so.sao.shop.supplier.pojo.input.AppCartItemInput;
+import so.sao.shop.supplier.pojo.output.AppCartItemOut;
 
 import java.util.List;
 
@@ -54,4 +55,10 @@ public interface AppCartService {
      */
     AppCartItem updateCartItem(Long cartitemId,Long commodity, Integer number);
 
+    /**
+     * 查询该用户下的所有信息
+     * @param id
+     * @return
+     */
+    List<AppCartItemOut> findCartItemsByUserId(Long userId);
 }

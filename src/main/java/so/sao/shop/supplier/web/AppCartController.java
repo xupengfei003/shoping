@@ -13,11 +13,13 @@ import so.sao.shop.supplier.domain.AppCartItem;
 import so.sao.shop.supplier.domain.User;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.AppCartItemInput;
+import so.sao.shop.supplier.pojo.output.AppCartItemOut;
 import so.sao.shop.supplier.service.AppCartService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
  * Created by wyy on 2017/7/17.
@@ -83,12 +85,27 @@ public class AppCartController {
     /**
      * 根据用户id获取用户购物车信息
      * @param userid
-     * @param pageNum
-     * @param pageSize
      * @return
      */
     @ApiOperation(value="根据用户id获取用户购物车信息",notes = "根据用户id获取用户购物车信息【负责人：王翼云】")
     @GetMapping(value ="/{userid}")
+    public Result getCartItemsByUser(@PathVariable("userid") Long userid){
+        logger.debug(" [userid] " + userid);
+
+        User user = (User)request.getAttribute(Constant.REQUEST_USER);
+        logger.debug("【当前用户id为】："+user+"  ;  【传入的用户ID为】："+userid);
+        if(!checkUser()){
+            return Result.fail(Constant.MessageConfig.MSG_FAILURE);
+        }
+        if(!user.getId().equals(userid)){//如果传入的用户ID与登陆ID不同
+            return Result.fail(Constant.MessageConfig.MSG_FAILURE);
+        }
+
+        List<AppCartItemOut> appCartItemOuts = cartService.findCartItemsByUserId(user.getId());
+//        logger.debug("【购物车信息】 "+appCartItemOut.toString());
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS,appCartItemOuts);
+    }
+
     public Result getCartItems(@PathVariable("userid") Long userid,
                                @RequestParam("pageNum")
                                @Min(value=1)
