@@ -34,7 +34,9 @@ public class AppPurchaseItemServiceImpl implements AppPurchaseItemService {
     @Override
     public AppPurchaseItemOutput findOrderItemList(String orderId) throws Exception {
         //查询详情信息
-        List<AppPurchaseItemVo> appPurchaseItemVoList = appPurchaseItemDao.findOrderItemList(orderId);
+        List<String> orderIdList = new ArrayList<>();
+        orderIdList.add(orderId);
+        List<AppPurchaseItemVo> appPurchaseItemVoList = appPurchaseItemDao.findOrderItemList(orderIdList);
         //查询订单信息
         AppPurchasesVo appPurchasesVos = appPurchaseDao.findOrderByOrderId(orderId);
         AppPurchaseItemOutput appPurchaseItemOutput = null;

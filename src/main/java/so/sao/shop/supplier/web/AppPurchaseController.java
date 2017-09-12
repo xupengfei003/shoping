@@ -33,9 +33,6 @@ public class AppPurchaseController {
         if (rows == null || rows <= 0) {
             rows = 5;
         }
-        if (pageNum == null || pageNum <= 0) {
-            pageNum = 1;
-        }
         PageInfo<AppPurchaseOutput> appPurchasesVoList = appPurchaseService.findOrderList(pageNum, rows, userId,orderStatus);
         return Result.success(Constant.MessageConfig.MSG_SUCCESS,appPurchasesVoList);
     }
