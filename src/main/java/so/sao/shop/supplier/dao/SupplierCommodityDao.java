@@ -88,24 +88,6 @@ public interface SupplierCommodityDao {
     int countById(@Param("id") Long id);
 
     /**
-     * 统计查询总记录数
-     * @param supplierId 供应商ID
-     * @param commCode69 商品编码
-     * @param sku SKU(商品ID)
-     * @param suppCommCode 商家商品编码
-     * @param commName 商品名称
-     * @param status 状态
-     * @param typeId 类型ID
-     * @param minPrice 价格（低）
-     * @param maxPrice 价格（高）
-     * @return 查询结果结合
-     */
-    Long countTotal(@Param("supplierId")Long supplierId, @Param("commCode69")String commCode69,@Param("sku") String sku,
-                    @Param("suppCommCode") String suppCommCode, @Param("commName") String commName, @Param("status")Integer status,
-                    @Param("typeId") Long typeId, @Param("minPrice") BigDecimal minPrice, @Param("maxPrice") BigDecimal maxPrice,
-                    @Param("beginCreateAt") Date beginCreateAt, @Param("endCreateAt") Date endCreateAt);
-
-    /**
      * 更新商品状态
      * @param id 商品ID
      * @param status 商品状态
@@ -149,17 +131,6 @@ public interface SupplierCommodityDao {
      */
     List<SuppCommSearchVo> findSimple(@Param("supplierId")Long supplierId, @Param("inputvalue")String inputvalue,
                                       @Param("beginCreateAt") Date beginCreateAt, @Param("endCreateAt") Date endCreateAt);
-
-    /**
-     * 统计查询总记录数
-     * @param supplierId 供应商ID
-     * @param inputvalue 输入值（商品条码/商品名称）
-     * @param beginCreateAt 创建时间（前）
-     * @param endCreateAt 创建时间（后）
-     * @return 统计总数
-     */
-    Long countTotalSimple(@Param("supplierId")Long supplierId, @Param("inputvalue")String inputvalue,
-                          @Param("beginCreateAt") Date beginCreateAt, @Param("endCreateAt") Date endCreateAt);
 
     /**
      * 根据商品标签ID查询未删除状态的供应商商品
