@@ -188,12 +188,24 @@ public class NotificationController {
     /**
      * 消息跑马灯显示
      *
+     * @param request request
      * @return Result
      */
     @GetMapping("/marqueeShow")
     @ApiOperation(value = "消息跑马灯显示", notes = "消息跑马灯显示")
-    public Result marqueeShow() throws Exception {
-        String show = notificationService.marqueeShow();
+    public Result marqueeShow(HttpServletRequest request) throws Exception {
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        Long accountId;
+        //判断是否登陆
+        if (Ognl.isNull(user)) {
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
+        }
+        if(!Constant.ADMIN_STATUS.equals(user.getIsAdmin())){
+            accountId = user.getAccountId();
+        } else {
+            accountId = null;
+        }
+        String show = notificationService.marqueeShow(accountId);
         return Result.success(Constant.MessageConfig.MSG_SUCCESS, show);
     }
 }
