@@ -448,28 +448,18 @@ public class AccountServiceImpl implements AccountService {
             return Result.fail("合同有效期已过期，请更新后启用！");
         }
         //判断启用还是禁用操作，并发送相应的短信提示
-        if(accountUpdateInput.getAccountStatus()==CommConstant.ACCOUNT_ACTIVE_STATUS){
-            String password = smsService.getVerCode();
-                userDao.updatePassword(account.getUserId(),new BCryptPasswordEncoder().encode(password), new Date());
-                //发送短信
-                tpe.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        smsService.sendSms(Collections.singletonList(accountUpdateInput.getAccountTel()),
-                                Arrays.asList("phone","password"), Arrays.asList(accountUpdateInput.getAccountTel(),password),smsTemplateCode2);
-                    }
-                });
-        }
+        String password = smsService.getVerCode();
+        userDao.updatePassword(account.getUserId(),new BCryptPasswordEncoder().encode(password), new Date());
+        tpe.execute(new Runnable() {
+            @Override
+            public void run() {
+                smsService.sendSms(Collections.singletonList(accountUpdateInput.getAccountTel()),
+                        Arrays.asList("phone","password"), Arrays.asList(accountUpdateInput.getAccountTel(),password),
+                        accountUpdateInput.getAccountStatus()==CommConstant.ACCOUNT_ACTIVE_STATUS?smsTemplateCode2:smsTemplateCode5);
+            }
+        });
+        //禁用供应商，修改商品状态
         if(accountUpdateInput.getAccountStatus()==CommConstant.ACCOUNT_INVALID_STATUS){
-            //发送短信
-            tpe.execute(new Runnable() {
-                @Override
-                public void run() {
-            smsService.sendSms(Collections.singletonList(accountUpdateInput.getAccountTel()),
-                    Arrays.asList("phone", "password"), Arrays.asList(accountUpdateInput.getAccountTel(), ""),smsTemplateCode5);
-                }
-            });
-            //修改商品状态
             commodityService.updateCommInvalidStatus(accountUpdateInput.getAccountId() , accountUpdateInput.getAccountStatus());
         }
         //修改账户状态
