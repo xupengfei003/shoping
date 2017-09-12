@@ -205,16 +205,18 @@ public class OrderMoneyRecord {
     }
 
     public static Object[] converData(OrderMoneyRecord orderMoneyRecord){
-        Object[] data = new Object[7];
+        Object[] data = new Object[8];
 
         if (null != orderMoneyRecord) {
             data[0] = orderMoneyRecord.getProviderName();//供应商名称
             if(orderMoneyRecord.getCheckoutAt() != null){//结账时间
-               data[1] = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss").format(orderMoneyRecord.getCheckoutAt());
+               data[1] = new SimpleDateFormat("yyyy-MM-dd").format(orderMoneyRecord.getCheckoutAt());
             }
             data[2] = orderMoneyRecord.getTotalMoney();//待结算金额（¥）
             data[3] = orderMoneyRecord.getSettledAmount();//已结算金额（¥）
-            data[4] = orderMoneyRecord.getSettledAt();//结算时间
+            if(orderMoneyRecord.getSettledAt() != null) {//结算时间
+                data[4] = new SimpleDateFormat("yyyy-MM-dd HH:mm").format(orderMoneyRecord.getSettledAt());
+            }
             switch (orderMoneyRecord.getState()){
                 case "0":
                     data[5] = "未结算";//结算状态
@@ -225,6 +227,7 @@ public class OrderMoneyRecord {
 
             }
             data[6] = orderMoneyRecord.getBankAccount();//供应商账户
+            data[7] = orderMoneyRecord.getSerialNumber();//银行流水号
         }
 
 
