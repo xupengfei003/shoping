@@ -445,8 +445,6 @@ public class CommodityServiceImpl implements CommodityService {
         Map<String,Long> map = new HashMap<>();
         //可删除商品ID集合
         TreeSet<Long> idList = new TreeSet<>();
-        //不可删除商品ID集合
-        TreeSet<Long> idNotList = new TreeSet<>();
         //不可删除商品商品编码集合
         for(long id : ids){
             //根据商品与供应商关系ID获取供应商商品对象
@@ -455,7 +453,7 @@ public class CommodityServiceImpl implements CommodityService {
                 map.put("supplierId", supplierCommodity.getSupplierId());
                 //商品需下架才可删除
                 if(supplierCommodity.getStatus() != CommConstant.COMM_ST_OFF_SHELVES){
-                    idNotList.add(id);
+                    return Result.fail("存在已上架或待上架商品，请重新选择！");
                 }else{
                     idList.add(id);
                 }
@@ -472,9 +470,6 @@ public class CommodityServiceImpl implements CommodityService {
                 supplierCommodityList.add(supplierCommodity[0]);
             });
             supplierCommodityDao.deleteByIds(supplierCommodityList);
-        }
-        if(idNotList.size() > 0){
-            return Result.fail("商品需下架才可删除", map);
         }
         return Result.success("删除商品成功", map);
     }
@@ -560,6 +555,9 @@ public class CommodityServiceImpl implements CommodityService {
         }
         List<SupplierCommodity> list = new ArrayList<>();
         for (SupplierCommodity supplierCommodity:supplierCommodityList) {
+            if(supplierCommodity.getStatus() == CommConstant.COMM_ST_NEW){
+                return Result.fail("存在待上架商品，请重新选择！");
+            }
             supplierCommodity.setStatus(CommConstant.COMM_ST_OFF_SHELVES);
             supplierCommodity.setUpdatedAt(new Date());
             list.add(supplierCommodity);
