@@ -430,20 +430,4 @@ public class AccountController {
         return accountService.updateAccountStatus(accountUpdateInput);
     }
 
-    /**
-     * 根据合同状态设置用户登录状态
-     * @param request
-     * @return
-     */
-    @GetMapping("/getLoginUserStatus")
-    @ApiOperation(value = "根据合同状态设置用户登录状态",notes = "根据合同状态设置用户登录状态【负责人：陈化静】")
-    public Result getLoginUserStatus(HttpServletRequest request){
-        User user = (User) request.getAttribute(Constant.REQUEST_USER);
-        //验证是否登录, 判断登录用户是否是管理员
-        if(user == null || Constant.ADMIN_STATUS.equals(user.getIsAdmin()) ){
-            return Result.fail("unauthorized access");
-        }
-        return accountService.getLoginUserStatus(user.getId());
-    }
-
 }
