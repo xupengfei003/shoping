@@ -775,7 +775,7 @@
   <update id="updateAccountLastSettlementDate" parameterType="java.util.List">
     <foreach collection="list" item="item" index="index" open="" close="" separator=";">
       UPDATE account
-      SET last_settlement_date = #{item.lastSettlementDate}
+      SET last_settlement_date = #{item.lastSettlementDate}, update_date = #{item.updateDate}
       WHERE account_id = #{item.accountId}
     </foreach>
   </update>
