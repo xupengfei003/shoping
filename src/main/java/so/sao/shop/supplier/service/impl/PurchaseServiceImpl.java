@@ -1088,7 +1088,10 @@ public class PurchaseServiceImpl implements PurchaseService {
             purchaseItemVoList.forEach(purchaseItemVo -> {
                 mapInput.put(BigInteger.valueOf(purchaseItemVo.getGoodsId()),BigDecimal.valueOf(purchaseItemVo.getGoodsNumber()));
             });
-            supplierCommodityDao.updateInventoryByGoodsId(mapInput);
+            int count = supplierCommodityDao.updateInventoryByGoodsId(mapInput);
+            if(count == 0 && mapInput.size() != count){
+                throw new Exception("更新仓库数量与实际不相符，取消失败！");
+            }
         }
         Map<String, Object> map = new HashMap<>();
         map.put("orderId", cancelReasonInput.getOrderId());//订单编号
