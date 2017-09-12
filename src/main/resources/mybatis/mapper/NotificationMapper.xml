@@ -25,24 +25,34 @@
         FROM notification
         WHERE notifi_id = #{notifiId,jdbcType=INTEGER}
     </select>
-    <!-- 查询所有消息通知 -->
-    <select id="search" resultMap="BaseResultMap">
+    <!-- 分页查询供应商消息列表 -->
+    <select id="searchSupplierNotifi" resultMap="BaseResultMap">
         SELECT
         <include refid="Base_Column_List"/>
         FROM
         notification
         <where>
             1=1
-            <if test="@so.sao.shop.supplier.util.Ognl@isNotNull(notifiType)">
-                AND notifi_type = #{notifiType,jdbcType=INTEGER}
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotNull(notifiType) and notifiType == 0">
+                AND notifi_type = 0
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotNull(notifiType) and notifiType != 0">
+                AND (notifi_type = 1 OR notifi_type = 2)
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotNull(accountId)">
                 AND account_id = #{accountId,jdbcType=BIGINT}
             </if>
-            <if test="@so.sao.shop.supplier.util.Ognl@isNull(accountId)">
-                GROUP BY sigin
-            </if>
         </where>
+        ORDER BY created_at DESC
+    </select>
+    <!-- 分页查询管理员消息列表 -->
+    <select id="searchAdminNotifi" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM
+        notification
+        WHERE notifi_type = 1
+        GROUP BY sigin
         ORDER BY created_at DESC
     </select>
     <!-- 查询未读消息列表 -->
@@ -63,7 +73,14 @@
         <include refid="Base_Column_List"/>
         FROM
         notification
-        GROUP BY sigin
+        <if test="@so.sao.shop.supplier.util.Ognl@isNull(accountId)">
+            WHERE notifi_type = 1
+            GROUP BY sigin
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotNull(accountId)">
+            WHERE (notifi_type = 1 OR notifi_type = 2)
+            AND account_id = #{accountId,jdbcType=BIGINT}
+        </if>
         ORDER BY created_at DESC LIMIT 1
     </select>
     <!-- 根据主键删除消息 -->
