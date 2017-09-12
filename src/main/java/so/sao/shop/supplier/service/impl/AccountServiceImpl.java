@@ -159,6 +159,12 @@ public class AccountServiceImpl implements AccountService {
     	//修改供应商信息
         account.setUpdateDate(new Date());
         account.setCreateDate(null);
+        //获取供应商合同截止时间
+        Date contractEndDate = accountDao.selectById(account.getAccountId()).getContractEndDate();
+        //如果不相等则修改过合同时间，恢复短信状态为初始值。
+        if (!account.getContractEndDate().equals(contractEndDate)){
+            account.setMonthAgoType(CommConstant.ACCOUNT_NOSENDSMS_STATUS);
+        }
         accountDao.updateByPrimaryKeySelective(account);
         return Result.success("修改供应商和用户成功");
     }
@@ -334,9 +340,10 @@ public class AccountServiceImpl implements AccountService {
                     userDao.add(user);
                     account.setCreateDate(new Date());
                     account.setUpdateDate(new Date());
-                    account.setAccountStatus(1);
+                    account.setAccountStatus(CommConstant.ACCOUNT_INVALID_STATUS);
                     account.setUserId(user.getId());
                     account.setLastSettlementDate(new Date());
+                    account.setMonthAgoType(CommConstant.ACCOUNT_NOSENDSMS_STATUS);
                     accountDao.insert(account);
 //                    tpe.execute(new Runnable() {
 //                        @Override
@@ -426,18 +433,13 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result updateAccountStatus(AccountUpdateInput accountUpdateInput) {
-        //当前时间毫秒数
-        Long currentTime=System.currentTimeMillis();
-        //合同截止时间毫秒数
-        Long contractEndDate=accountDao.selectById(accountUpdateInput.getAccountId()).getContractEndDate().getTime();
-        //计算当前时间与合同截止时间差
-        Long Timedifference=contractEndDate-currentTime;
-        //如果时间差小于等于0，此合同处于过期状态。
-        if(accountUpdateInput.getAccountStatus()==1&&Timedifference<=0){
-            return Result.fail("合同有效期已过期，请更新后启用！");
-        }
         Account account = accountDao.selectById(accountUpdateInput.getAccountId());
         if (account != null) {
+            //判断合同是否到期，到期后无法启用供应商状态。
+            updateContractStatus(account);
+            if(accountUpdateInput.getAccountStatus()==1 && account.getContractStatus() == 2){
+                return Result.fail("合同有效期已过期，请更新后启用！");
+            }
             //修改账户状态
             accountUpdateInput.setUpdateDate(new Date());
             accountDao.updateAccountStatusById(accountUpdateInput);
@@ -461,6 +463,7 @@ public class AccountServiceImpl implements AccountService {
             return Result.success("更新成功！");
         }
         return Result.fail("更新失败！");
+
     }
 
     /**

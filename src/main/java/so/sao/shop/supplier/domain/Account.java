@@ -262,6 +262,18 @@ public class Account {
 	 * 客服电话
 	 */
 	private String servicePhone;
+	/**
+	 * 合同到期30天发送短信标记
+	 */
+	private int monthAgoType;
+
+	public int getMonthAgoType() {
+		return monthAgoType;
+	}
+
+	public void setMonthAgoType(int monthAgoType) {
+		this.monthAgoType = monthAgoType;
+	}
 
 	public String getServicePhone() {
 		return servicePhone;
