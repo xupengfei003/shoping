@@ -1169,8 +1169,13 @@ public class PurchaseServiceImpl implements PurchaseService {
         purchaseItemVos.forEach(item -> {
             goodsInfo.put(BigInteger.valueOf(item.getGoodsId()), BigDecimal.valueOf(item.getGoodsNumber()));
         });
+        if (goodsInfo.size() == 0) {
+            result.put("flag", false);
+            result.put("message", "退款失败");
+            return result;
+        }
         count = supplierCommodityDao.updateInventoryByGoodsId(goodsInfo);
-        if (goodsInfo.size() > 0 && goodsInfo.size() == count) {
+        if (goodsInfo.size() != count) {
             result.put("flag", false);
             result.put("message", "退款失败");
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly(); // 是否回滚
