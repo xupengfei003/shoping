@@ -107,7 +107,7 @@ public class AuthServiceImpl implements AuthService {
             Account account = accountDao.selectByPrimaryKey(userDetails.getAccountId());
             userDetails.setUserStatus(account.getAccountStatus().toString());
         }
-        if (userDetails.getUserStatus().equals("0")){
+        if ("0".equals(userDetails.getUserStatus())){
             userDetails.setUserStatus("1");
         }
 
