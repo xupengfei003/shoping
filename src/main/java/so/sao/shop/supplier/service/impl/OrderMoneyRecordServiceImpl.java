@@ -576,6 +576,7 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
                 aormVo.setBankUserName(omr.getBankUserName()); //开户人姓名
                 aormVo.setBankName(omr.getBankName());  //开户行
                 aormVo.setBankNameBranch(omr.getBankNameBranch());  //开户支行
+                aormVo.setSerialNumber(omr.getSerialNumber());  //银行流水号
                 aormVo.setCheckoutAt(omr.getCheckoutAt() == null ? null : StringUtil.fomateData(omr.getCheckoutAt(), "yyyy-MM-dd"));//结账时间
                 aormVo.setTotalMoney(NumberUtil.number2Thousand(omr.getTotalMoney()));//待结算金额
                 aormVo.setSettledAmount(NumberUtil.number2Thousand(omr.getSettledAmount()));//已结算金额

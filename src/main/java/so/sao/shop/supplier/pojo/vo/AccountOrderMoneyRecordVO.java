@@ -51,6 +51,11 @@ public class AccountOrderMoneyRecordVO {
      */
     private String bankNameBranch;
 
+    /**
+     * 银行流水号
+     */
+    private String serialNumber;
+
     public String getRecordId() {
         return recordId;
     }
@@ -121,5 +126,13 @@ public class AccountOrderMoneyRecordVO {
 
     public void setBankNameBranch(String bankNameBranch) {
         this.bankNameBranch = bankNameBranch;
+    }
+
+    public String getSerialNumber() {
+        return serialNumber;
+    }
+
+    public void setSerialNumber(String serialNumber) {
+        this.serialNumber = serialNumber;
     }
 }
