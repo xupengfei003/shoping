@@ -36,7 +36,7 @@ public class CommodityController {
     public Result search(HttpServletRequest request, CommSearchInput commSearchInput) throws Exception {
 
         //供应商ID校验
-        CheckUtil.supplierIdCheck(request,commSearchInput.getSupplierId());
+        commSearchInput.setSupplierId(CheckUtil.supplierIdCheck(request,commSearchInput.getSupplierId()));
         return commodityService.searchCommodities(commSearchInput);
     }
 
@@ -45,7 +45,7 @@ public class CommodityController {
     public Result simpleSearch(HttpServletRequest request, CommSimpleSearchInput commSimpleSearchInput) throws Exception {
 
         //供应商ID校验
-        CheckUtil.supplierIdCheck(request,commSimpleSearchInput.getSupplierId());
+        commSimpleSearchInput.setSupplierId(CheckUtil.supplierIdCheck(request,commSimpleSearchInput.getSupplierId()));
         return commodityService.simpleSearchCommodities(commSimpleSearchInput);
     }
 
