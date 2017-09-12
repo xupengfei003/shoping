@@ -107,10 +107,6 @@ public class AuthServiceImpl implements AuthService {
             Account account = accountDao.selectByPrimaryKey(userDetails.getAccountId());
             userDetails.setUserStatus(account.getAccountStatus().toString());
         }
-        if ("0".equals(userDetails.getUserStatus())){
-            userDetails.setUserStatus("1");
-        }
-
         //登陆后放入缓存,后续从redis取,登出时del
         redisTemplate.opsForHash().put(Constant.REDIS_LOGIN_KEY_PREFIX+userDetails.getUsername(),"user", userDetails);
         Map result = new HashMap();
