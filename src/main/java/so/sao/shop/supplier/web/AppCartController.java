@@ -62,9 +62,9 @@ public class AppCartController {
                                  @NotNull(message = "更新数量不能为空")
                                  @RequestParam("number")
                                  @Min(value = 1,message = "更新数量必须大于1") Integer number){
-        System.out.println(" [cartitemId] " + cartitemId);
-        System.out.println(" [commodityId] " + commodityId);
-        System.out.println(" [number] " + number);
+        logger.debug(" [cartitemId] " + cartitemId);
+        logger.debug(" [commodityId] " + commodityId);
+        logger.debug(" [number] " + number);
 
         if(!checkUser()){
             return Result.fail(Constant.MessageConfig.MSG_FAILURE);
@@ -96,9 +96,9 @@ public class AppCartController {
                                @RequestParam("pageSize")
                                @Min(value=1)
                                @NotNull int pageSize){
-        System.out.println(" [userid] " + userid);
-        System.out.println(" [pageNum] " + pageNum);
-        System.out.println(" [pageSize] " + pageSize);
+        logger.debug(" [userid] " + userid);
+        logger.debug(" [pageNum] " + pageNum);
+        logger.debug(" [pageSize] " + pageSize);
         User user = (User)request.getAttribute(Constant.REQUEST_USER);
         logger.debug("【当前用户id为】："+user+"  ;  【传入的用户ID为】："+userid);
         if(!checkUser()){
