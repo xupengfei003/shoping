@@ -29,7 +29,7 @@ public class AppPurchaseController {
     private AppPurchaseService appPurchaseService;
     @GetMapping(value = "/appOrderList")
     @ApiOperation(value = "门店端获取订单列表", notes = "负责人【白治华】")
-    public Result appOrderList(Integer pageNum, Integer rows,String userId, Integer orderStatus) throws Exception{
+    public Result appOrderList(Integer pageNum, Integer rows,String userId, String orderStatus) throws Exception{
         if (rows == null || rows <= 0) {
             rows = 5;
         }
