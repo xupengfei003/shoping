@@ -1,8 +1,5 @@
 package so.sao.shop.supplier.pojo.vo;
 
-
-import java.math.BigDecimal;
-
 public class OrderMoneyRecordVo {
     /**
      * 结算明细id
@@ -43,6 +40,11 @@ public class OrderMoneyRecordVo {
      * 银行卡号
      */
     private String bankAccount;
+
+    /**
+     * 银行流水号
+     */
+    private String serialNumber;
 
     public String getRecordId() {
         return recordId;
@@ -106,5 +108,13 @@ public class OrderMoneyRecordVo {
 
     public void setBankAccount(String bankAccount) {
         this.bankAccount = bankAccount;
+    }
+
+    public String getSerialNumber() {
+        return serialNumber;
+    }
+
+    public void setSerialNumber(String serialNumber) {
+        this.serialNumber = serialNumber;
     }
 }

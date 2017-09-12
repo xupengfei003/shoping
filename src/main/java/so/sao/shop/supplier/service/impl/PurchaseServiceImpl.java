@@ -1084,11 +1084,14 @@ public class PurchaseServiceImpl implements PurchaseService {
             inputOrderStatus = Constant.OrderStatusConfig.PAYMENT_CANCEL_ORDER;
             List<PurchaseItemVo> purchaseItemVoList = purchaseItemDao.getOrderDetailByOId(cancelReasonInput.getOrderId());
            //更新仓库数量
+            Map<BigInteger,BigDecimal> mapInput = new HashMap<>();
             purchaseItemVoList.forEach(purchaseItemVo -> {
-                Map<BigInteger,BigDecimal> mapInput = new HashMap<>();
                 mapInput.put(BigInteger.valueOf(purchaseItemVo.getGoodsId()),BigDecimal.valueOf(purchaseItemVo.getGoodsNumber()));
-                supplierCommodityDao.updateInventoryByGoodsId(mapInput);
             });
+            int count = supplierCommodityDao.updateInventoryByGoodsId(mapInput);
+            if(count == 0){
+                throw new Exception("更新仓库数量与实际不相符，取消失败！");
+            }
         }
         Map<String, Object> map = new HashMap<>();
         map.put("orderId", cancelReasonInput.getOrderId());//订单编号
@@ -1170,7 +1173,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             goodsInfo.put(BigInteger.valueOf(item.getGoodsId()), BigDecimal.valueOf(item.getGoodsNumber()));
         });
         count = supplierCommodityDao.updateInventoryByGoodsId(goodsInfo);
-        if (count == 0) {
+        if (goodsInfo.size() > 0 && goodsInfo.size() == count) {
             result.put("flag", false);
             result.put("message", "退款失败");
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly(); // 是否回滚

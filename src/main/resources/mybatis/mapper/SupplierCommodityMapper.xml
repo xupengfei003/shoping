@@ -272,53 +272,6 @@
         from supplier_commodity where deleted = 0 AND id = #{id}
     </select>
 
-    <!--统计查询总记录数-->
-    <select id="countTotal" resultType="java.lang.Long">
-        SELECT
-        count(1)
-        FROM
-        supplier_commodity sc INNER JOIN (commodity c LEFT JOIN comm_brand cb on c.brand_id = cb.id) on sc.code69 = c.code69
-        LEFT JOIN comm_measure_spec cms on sc.measure_spec_id = cms.id LEFT JOIN comm_unit cu on sc.unit_id = cu.id
-        WHERE sc.deleted = 0
-        AND sc.supplier_id = #{supplierId}
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(commCode69)">
-            AND sc.code69 = #{commCode69}
-        </if>
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(sku)">
-            AND sc.sku = #{sku}
-        </if>
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(suppCommCode)">
-            AND sc.code = #{suppCommCode}
-        </if>
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(commName)">
-            AND c.name LIKE CONCAT ('%',#{commName},'%')
-        </if>
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(status)">
-            AND sc.`status` = #{status}
-        </if>
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(minPrice) and @so.sao.shop.supplier.util.Ognl@isEmpty(maxPrice)">
-            AND sc.price<![CDATA[ >= #{minPrice}]]>
-        </if>
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(maxPrice) and @so.sao.shop.supplier.util.Ognl@isEmpty(minPrice)">
-            AND  sc.price<![CDATA[<= #{maxPrice}]]>
-        </if>
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(minPrice) and @so.sao.shop.supplier.util.Ognl@isNotEmpty(maxPrice)">
-            AND sc.price BETWEEN #{minPrice} AND #{maxPrice}
-        </if>
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(typeId)">
-            AND c.category_one_id = #{typeId}
-        </if>
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(beginCreateAt) and @so.sao.shop.supplier.util.Ognl@isEmpty(endCreateAt)">
-            AND Date(sc.created_at)<![CDATA[ >= #{beginCreateAt}]]>
-        </if>
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(endCreateAt) and @so.sao.shop.supplier.util.Ognl@isEmpty(beginCreateAt)">
-            AND  Date(sc.created_at)<![CDATA[<= #{endCreateAt}]]>
-        </if>
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(beginCreateAt) and @so.sao.shop.supplier.util.Ognl@isNotEmpty(endCreateAt)">
-            AND Date(sc.created_at) BETWEEN #{beginCreateAt} AND #{endCreateAt}
-        </if>
-    </select>
-
     <!--获取商品状态-->
     <select id="findStatus" resultType="int">
         SELECT
@@ -376,30 +329,7 @@
         ORDER BY sc.updated_at DESC
     </select>
 
-    <!--统计简易查询总记录数-->
-    <select id="countTotalSimple" resultType="java.lang.Long">
-        SELECT
-        count(1)
-        FROM
-        supplier_commodity sc INNER JOIN (commodity c LEFT JOIN comm_brand cb on c.brand_id = cb.id) on sc.code69 = c.code69
-        LEFT JOIN comm_measure_spec cms on sc.measure_spec_id = cms.id LEFT JOIN comm_unit cu on sc.unit_id = cu.id
-        WHERE sc.deleted = 0
-        AND sc.supplier_id = #{supplierId}
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(inputvalue)">
-            AND (sc.code69 = #{inputvalue} OR c.name LIKE CONCAT ('%',#{inputvalue},'%'))
-        </if>
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(beginCreateAt) and @so.sao.shop.supplier.util.Ognl@isEmpty(endCreateAt)">
-            AND Date(sc.created_at)<![CDATA[ >= #{beginCreateAt}]]>
-        </if>
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(endCreateAt) and @so.sao.shop.supplier.util.Ognl@isEmpty(beginCreateAt)">
-            AND  Date(sc.created_at)<![CDATA[<= #{endCreateAt}]]>
-        </if>
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(beginCreateAt) and @so.sao.shop.supplier.util.Ognl@isNotEmpty(endCreateAt)">
-            AND Date(sc.created_at) BETWEEN #{beginCreateAt} AND #{endCreateAt}
-        </if>
-    </select>
-
-       <!--根据unitId查询商品单位是否被supplier_commodity使用-->
+    <!--根据unitId查询商品单位是否被supplier_commodity使用-->
     <select id="countByUnitId" resultType="int">
         select
         count(*)
