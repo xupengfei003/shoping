@@ -10,11 +10,20 @@ import java.util.List;
  */
 public interface AppPurchaseItemDao {
     /**
-     * 根据订单ID查询订单详情
+     * 根据订单ID列表查询订单详情
+     *
+     * @param orderIdList 订单ID列表
+     * @return List<AppPurchaseItemVo> 订单列表
+     * @throws Exception 异常
+     */
+    List<AppPurchaseItemVo> findOrderItemList(@Param("orderIdList") List<String> orderIdList) throws Exception;
+
+    /**
+     * 根据订单ID列表查询订单详情
      *
      * @param orderId 订单ID
      * @return List<AppPurchaseItemVo> 订单列表
      * @throws Exception 异常
      */
-    List<AppPurchaseItemVo> findOrderItemList(@Param("orderId") String orderId) throws Exception;
+    List<AppPurchaseItemVo> findOrderItemListByOrderId(@Param("orderId") String orderId) throws Exception;
 }

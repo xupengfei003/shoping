@@ -11,11 +11,12 @@
         <result column="order_receiver_mobile" property="orderReceiverMobile"/>
         <result column="order_address" property="orderAddress"/>
         <result column="order_price" property="orderPrice"/>
+        <result column="order_shipment_number" property="orderShipmentNumber"/>
     </resultMap>
 
     <sql id="App_Order_Column_List">
         order_id, order_create_time, store_name, order_status, order_receiver_name,
-        order_receiver_mobile, order_address,order_price
+        order_receiver_mobile, order_address,order_price,order_shipment_number
     </sql>
     <select id="findOrderList" resultMap="AppOrderAllList" parameterType="java.lang.Integer">
         SELECT
@@ -23,8 +24,11 @@
         FROM purchase
         WHERE
         order_status != -1
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderStatus)">
-            AND order_status = TRIM(#{orderStatus})
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderStatusArr)">
+            AND order_status IN
+            <foreach collection="orderStatusArr" open="(" close=")" separator="," item="orderStatus" index="i">
+                #{orderStatus}
+            </foreach>
         </if>
         AND user_id = TRIM(#{userId})
         ORDER BY updated_at DESC
@@ -39,6 +43,4 @@
         AND order_id = TRIM(#{orderId})
         ORDER BY updated_at DESC
     </select>
-
-
 </mapper>

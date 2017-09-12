@@ -30,6 +30,10 @@ public class AppPurchaseOutput {
      * 订单状态
      */
     private Short orderStatus;
+    /**
+     * 物流单号
+     */
+    private String orderShipmentNumber;
 
     /**
      * 商品信息
@@ -66,6 +70,14 @@ public class AppPurchaseOutput {
 
     public void setOrderStatus(Short orderStatus) {
         this.orderStatus = orderStatus;
+    }
+
+    public String getOrderShipmentNumber() {
+        return orderShipmentNumber;
+    }
+
+    public void setOrderShipmentNumber(String orderShipmentNumber) {
+        this.orderShipmentNumber = orderShipmentNumber;
     }
 
     public List<AppPurchaseItemVo> getAppPurchaseItemVos() {

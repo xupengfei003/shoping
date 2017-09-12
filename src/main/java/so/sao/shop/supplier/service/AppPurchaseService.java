@@ -19,5 +19,5 @@ public interface AppPurchaseService {
      * @return List<AppPurchasesVo> 订单列表
      * @throws Exception 异常
      */
-    PageInfo<AppPurchaseOutput> findOrderList(Integer pageNum, Integer rows, String userId, Integer orderStatus) throws Exception;
+    PageInfo<AppPurchaseOutput> findOrderList(Integer pageNum, Integer rows, String userId, String orderStatus) throws Exception;
 }
