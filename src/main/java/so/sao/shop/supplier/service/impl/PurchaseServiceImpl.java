@@ -1084,11 +1084,11 @@ public class PurchaseServiceImpl implements PurchaseService {
             inputOrderStatus = Constant.OrderStatusConfig.PAYMENT_CANCEL_ORDER;
             List<PurchaseItemVo> purchaseItemVoList = purchaseItemDao.getOrderDetailByOId(cancelReasonInput.getOrderId());
            //更新仓库数量
+            Map<BigInteger,BigDecimal> mapInput = new HashMap<>();
             purchaseItemVoList.forEach(purchaseItemVo -> {
-                Map<BigInteger,BigDecimal> mapInput = new HashMap<>();
                 mapInput.put(BigInteger.valueOf(purchaseItemVo.getGoodsId()),BigDecimal.valueOf(purchaseItemVo.getGoodsNumber()));
-                supplierCommodityDao.updateInventoryByGoodsId(mapInput);
             });
+            supplierCommodityDao.updateInventoryByGoodsId(mapInput);
         }
         Map<String, Object> map = new HashMap<>();
         map.put("orderId", cancelReasonInput.getOrderId());//订单编号

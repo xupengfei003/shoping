@@ -1,9 +1,7 @@
 package so.sao.shop.supplier.web;
 
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.web.bind.annotation.*;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.PayInput;
@@ -26,7 +24,15 @@ public class PayController {
     @Resource
     private PurchaseService purchaseService;
 
-    @RequestMapping(value = "/create", method = RequestMethod.POST)
+    /**
+     * 支付回调接口
+     *
+     * @param payInput 封装了回调参数
+     * @return Result 封装了结果
+     * @throws Exception 异常
+     */
+    @PostMapping(value = "/create")
+    @ApiOperation(value = "支付接口")
     public Result create(@RequestBody @Valid PayInput payInput) throws Exception {
         //验证订单状态格式
         List<String> orderIdList = purchaseService.findOrderStatusByPayId(payInput.getOrderId());//获取该支付ID下的所有订单ID
