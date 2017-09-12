@@ -25,6 +25,7 @@ import so.sao.shop.supplier.domain.User;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.service.AuthService;
 import so.sao.shop.supplier.util.JwtTokenUtil;
+import so.sao.shop.supplier.util.StringUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -103,7 +104,7 @@ public class AuthServiceImpl implements AuthService {
             return Result.fail("用户名或密码错误!");
         }
         //如果登录用户是员工，则根据该员工对应的供应商状态设置它的登录状态: 正常:1 / 禁用:2
-        if (null == userDetails.getUserStatus()){
+        if (StringUtil.isNull(userDetails.getUserStatus())){
             Account account = accountDao.selectByPrimaryKey(userDetails.getAccountId());
             userDetails.setUserStatus(account.getAccountStatus().toString());
         }
