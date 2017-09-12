@@ -13,6 +13,7 @@
     <sql id="App_Goods_Column_List">
        g.goods_image, g.goods_name, g.goods_unit_price, g.goods_number, g.goods_tatol_price, g.goods_attribute
     </sql>
+    <!--根据订单ID列表查询商品详情-->
     <select id="findOrderItemList" parameterType="java.util.List" resultMap="AppGoodsAllList">
         SELECT
         <include refid="App_Goods_Column_List"/>
@@ -23,6 +24,15 @@
         <foreach collection="orderIdList" item="orderId" open="(" close=")" separator="," index="i">
             #{orderId,jdbcType=VARCHAR}
         </foreach>
+    </select>
+    <!--根据订单ID查询商品详情-->
+    <select id="findOrderItemListByOrderId" parameterType="java.util.List" resultMap="AppGoodsAllList">
+        SELECT
+        <include refid="App_Goods_Column_List"/>
+        FROM purchase_item g
+        JOIN purchase p
+        ON p.order_id = g.order_id
+        AND p.order_id = TRIM(#{orderId,jdbcType=VARCHAR})
     </select>
 
 
