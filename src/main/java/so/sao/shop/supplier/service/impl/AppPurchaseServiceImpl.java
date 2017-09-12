@@ -38,27 +38,37 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
     public PageInfo<AppPurchaseOutput> findOrderList(Integer pageNum, Integer rows, String userId, String orderStatus) throws Exception {
         PageTool.startPage(pageNum,rows);
         //查询订单信息
-        Integer[] statusArr = null;
-        if(!StringUtils.isEmpty(orderStatus)){
-            String[] orderStatusArr = orderStatus.split(",");
-            statusArr = BeanMapper.mapArray(new Integer[orderStatusArr.length],orderStatusArr,Integer.class);
-        }
-        List<AppPurchasesVo> orderList = appPurchaseDao.findOrderList(userId,statusArr);
-        List<AppPurchaseOutput> appPurchaseOutputs = new ArrayList<>();
-        AppPurchaseOutput appPurchaseOutput = null;
-        PageInfo pageInfo = new PageInfo(orderList);
-        List<String> orderIdList = new ArrayList<>();
+        List<AppPurchasesVo> orderList = appPurchaseDao.findOrderList(userId,convertStringToInt(orderStatus));
+        AppPurchaseOutput appPurchaseOutput = null;//接收订单相关信息
+        PageInfo pageInfo = new PageInfo(orderList);//复制分页信息
+        List<String> orderIdList = new ArrayList<>();//接收订单编号
         if(null != orderList && orderList.size()>0){
             for(AppPurchasesVo appPurchasesVo : orderList){
                 orderIdList.add(appPurchasesVo.getOrderId());
                 appPurchaseOutput = BeanMapper.map(appPurchasesVo,AppPurchaseOutput.class);
             }
-            //查询详情信息
-            List<AppPurchaseItemVo> appPurchaseItemVoList = appPurchaseItemDao.findOrderItemList(orderIdList);
-            appPurchaseOutput.setAppPurchaseItemVos(appPurchaseItemVoList);
-            appPurchaseOutputs.add(appPurchaseOutput);
         }
+        List<AppPurchaseOutput> appPurchaseOutputs = getAppPurchaseOutputs(appPurchaseOutput, orderIdList);
         pageInfo.setList(appPurchaseOutputs);
         return pageInfo;
+    }
+
+    //查询详情信息
+    private List<AppPurchaseOutput> getAppPurchaseOutputs(AppPurchaseOutput appPurchaseOutput, List<String> orderIdList) throws Exception {
+        List<AppPurchaseItemVo> appPurchaseItemVoList = appPurchaseItemDao.findOrderItemList(orderIdList);
+        appPurchaseOutput.setAppPurchaseItemVos(appPurchaseItemVoList);
+        List<AppPurchaseOutput> appPurchaseOutputs = new ArrayList<>();//接收返回list
+        appPurchaseOutputs.add(appPurchaseOutput);
+        return appPurchaseOutputs;
+    }
+
+    //转换数据类型
+    private Integer[] convertStringToInt(String orderStatus){
+        Integer[] statusArr = null;
+        if(!StringUtils.isEmpty(orderStatus)){
+            String[] orderStatusArr = orderStatus.split(",");
+            statusArr = BeanMapper.mapArray(new Integer[orderStatusArr.length],orderStatusArr,Integer.class);
+        }
+        return statusArr;
     }
 }

@@ -26,7 +26,7 @@
         </foreach>
     </select>
     <!--根据订单ID查询商品详情-->
-    <select id="findOrderItemListByOrderId" parameterType="java.util.List" resultMap="AppGoodsAllList">
+    <select id="findOrderItemListByOrderId" parameterType="java.lang.String" resultMap="AppGoodsAllList">
         SELECT
         <include refid="App_Goods_Column_List"/>
         FROM purchase_item g
