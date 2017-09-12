@@ -88,8 +88,9 @@
     <update id="update">
         UPDATE commodity SET name=#{name},brand_id = #{brandId} WHERE id = #{id}
     </update>
-    <select id="findByIds" parameterType="Long[]" resultType="so.sao.shop.supplier.pojo.output.CommodityExportOutput">
+    <select id="findByIds" resultType="so.sao.shop.supplier.pojo.output.CommodityExportOutput">
         SELECT
+            sc.id AS id,
             IFNULL(sc.sku,'') AS sku,
             IFNULL(sc.code69,'') AS code69,
             IFNULL(cb.name,'') AS brandName,
@@ -110,9 +111,50 @@
             IFNULL(cc.market_time,'') AS marketTime
         FROM supplier_commodity sc INNER JOIN (commodity c LEFT JOIN comm_brand cb on c.brand_id = cb.id) on sc.code69 = c.code69
         LEFT JOIN comm_measure_spec cms on sc.measure_spec_id = cms.id LEFT JOIN comm_unit cu on sc.unit_id = cu.id  LEFT JOIN comm_tag ct on sc.tag_id = ct.id  LEFT JOIN commodity cc on sc.code69 = cc.code69
-        WHERE sc.id IN
-        <foreach collection="array" item="scId" index="index" open="(" close=")" separator=",">
-            #{scId}
-        </foreach>
+        WHERE sc.deleted = 0
+        AND sc.supplier_id = #{supplierId}
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(commCode69)">
+            AND sc.code69 = #{commCode69}
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(commCodeOrName)">
+            AND (sc.code69 = #{commCodeOrName}
+            OR c.name LIKE "%${commCodeOrName}%")
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(sku)">
+            AND sc.sku = #{sku}
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(suppCommCode)">
+            AND sc.code = #{suppCommCode}
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(commName)">
+            AND c.name LIKE "%${commName}%"
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(status)">
+            AND sc.`status` = #{status}
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(minPrice) and @so.sao.shop.supplier.util.Ognl@isEmpty(maxPrice)">
+            AND sc.price<![CDATA[ >= #{minPrice}]]>
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(maxPrice) and @so.sao.shop.supplier.util.Ognl@isEmpty(minPrice)">
+            AND  sc.price<![CDATA[<= #{maxPrice}]]>
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(minPrice) and @so.sao.shop.supplier.util.Ognl@isNotEmpty(maxPrice)">
+            AND sc.price BETWEEN #{minPrice}
+            AND #{maxPrice}
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(typeId)">
+            AND c.category_one_id = #{typeId}
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(beginCreateAt) and @so.sao.shop.supplier.util.Ognl@isEmpty(endCreateAt)">
+            AND Date(sc.created_at)<![CDATA[ >= #{beginCreateAt}]]>
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(endCreateAt) and @so.sao.shop.supplier.util.Ognl@isEmpty(beginCreateAt)">
+            AND  Date(sc.created_at)<![CDATA[<= #{endCreateAt}]]>
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(beginCreateAt) and @so.sao.shop.supplier.util.Ognl@isNotEmpty(endCreateAt)">
+            AND Date(sc.created_at) BETWEEN #{beginCreateAt}
+            AND #{endCreateAt}
+        </if>
+        ORDER BY sc.updated_at ,sc.id DESC
     </select>
 </mapper>
