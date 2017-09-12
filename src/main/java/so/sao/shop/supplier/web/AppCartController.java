@@ -75,9 +75,9 @@ public class AppCartController {
         AppCartItem appCartItem= cartService.updateCartItem(cartitemId,commodityId,number);
         logger.debug("【更新后的数据】 "+appCartItem);
         if(appCartItem != null && appCartItem.getRemaining()){
-            return Result.success(Constant.MessageConfig.MSG_SUCCESS,appCartItem);
+            return Result.success(Constant.MessageConfig.MSG_SUCCESS);
         }else{
-            return Result.fail(Constant.MessageConfig.MSG_FAILURE,appCartItem);
+            return Result.fail(Constant.MessageConfig.MSG_FAILURE);
         }
 
     }
