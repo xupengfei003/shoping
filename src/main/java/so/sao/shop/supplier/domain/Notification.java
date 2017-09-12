@@ -20,7 +20,7 @@ public class Notification {
     private Long accountId;
 
     /**
-     * 消息类型 0订单，1系统
+     * 消息类型 0订单，1系统，2合同消息
      */
     private Integer notifiType;
 

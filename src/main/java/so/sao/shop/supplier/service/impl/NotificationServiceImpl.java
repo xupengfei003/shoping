@@ -165,7 +165,7 @@ public class NotificationServiceImpl implements NotificationService {
         if (null != dataList && dataList.size() > 0) {
             dataList.forEach(notification -> {
                 String detail = notification.getNotifiDetail();
-                if(notification.getNotifiType() != 1){ //非系统消息 设定前端展示规则
+                if(notification.getNotifiType() == 0){ //订单消息 设定前端展示规则
                     if (null != detail && !"".equals(detail)) {
                         List<String> strings = Arrays.asList(detail.split(",")).stream().map(s -> s.trim()).collect(Collectors.toList());
                         if(null != strings && strings.size()>0){
