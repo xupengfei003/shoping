@@ -89,6 +89,7 @@
         <result column="settled_at" property="settledAt"/>
         <result column="state" property="state"/>
         <result column="bank_account" property="bankAccount"/>
+        <result column="serial_number" property="serialNumber"/>
     </resultMap>
 
     <!--根据指定时间、状态查询结算明细列表-->
@@ -102,7 +103,8 @@
         settled_amount,
         settled_at,
         state,
-        bank_account
+        bank_account,
+        serial_number
         FROM order_money_record
         <where>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(startTime)">
@@ -127,7 +129,8 @@
         settled_amount,
         settled_at,
         state,
-        bank_account
+        bank_account,
+        serial_number
         FROM order_money_record
         <where>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(startTime)">

@@ -230,6 +230,7 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
         Account updateAccount = new Account();
         updateAccount.setAccountId(accountId);
         updateAccount.setLastSettlementDate(updateLastSettDate);//上一次结帐日期
+        updateAccount.setUpdateDate(currentDate);
         accountUpdateList.add(updateAccount);
     }
 
@@ -539,7 +540,6 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
     private List<OrderMoneyRecordVo> convertOrderMoneyRecordVo(List<OrderMoneyRecord> list) throws Exception {
         //新建要返回的List<OrderMoneyRecordVo>
         List<OrderMoneyRecordVo> tmpList = new ArrayList<>();
-
         if (null != list && !list.isEmpty()) {
             for (OrderMoneyRecord omr : list) {
                 OrderMoneyRecordVo ormVo = new OrderMoneyRecordVo();
@@ -551,10 +551,10 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
                 ormVo.setSettledAt(omr.getSettledAt() == null ? "" : StringUtil.fomateData(omr.getSettledAt(), "yyyy-MM-dd HH:mm"));//结算时间
                 ormVo.setState(omr.getState());//结算状态
                 ormVo.setBankAccount(omr.getBankAccount());//供应商账户
+                ormVo.setSerialNumber(omr.getSerialNumber());//银行流水号
                 tmpList.add(ormVo);
             }
         }
-
         //返回转换之后的list
         return tmpList;
     }
@@ -823,7 +823,7 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
 //        File excelFile = null;
         try {
             int startPage, endPage;
-            String pageNum = request.getParameter("pageNo");
+            String pageNum = request.getParameter("pageNum");
             String pageSize = request.getParameter("pageSize");
             String startTime = request.getParameter("startTime");
             String endTime = request.getParameter("endTime");
@@ -890,7 +890,7 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
             //根据条件查询数据
             List<OrderMoneyRecord> records = orderMoneyRecordDao.findRecords(startTime, endTime, state, limits);
             List<Object[]> data = new ArrayList<>();
-            String[] titles = {"供应商名称", "结账时间", "待结算金额（¥）", "已结算金额（¥）", "结算时间", "结算状态", "供应商账户"};
+            String[] titles = {"供应商名称", "结账时间", "待结算金额（¥）", "已结算金额（¥）", "结算时间", "结算状态", "供应商账户", "银行流水号"};
             for (int i = 0; i < records.size(); i++) {//转换数据格式
                 Object[] o = OrderMoneyRecord.converData(records.get(i));
                 logger.debug("【数据 为】 ： " + Arrays.toString(o));
