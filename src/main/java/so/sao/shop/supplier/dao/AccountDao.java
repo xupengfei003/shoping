@@ -160,5 +160,11 @@ public interface AccountDao {
      * @return 供应商信息列表
      */
     List<AccountOutput> findAccounts(@Param("accountId")Long accountId, @Param("providerName")String providerName);
+
+    /**
+     * 根据供应商ID修改供应商合同剩余30天发送短信标记
+     * @param accountId
+     */
+    void updateAccountSmsTypeById(@Param("accountId")Long accountId);
 }
 
