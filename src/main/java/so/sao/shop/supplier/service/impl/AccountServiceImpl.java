@@ -444,22 +444,17 @@ public class AccountServiceImpl implements AccountService {
             accountDao.updateAccountStatusById(accountUpdateInput);
             //修改商品状态
             commodityService.updateCommInvalidStatus(accountUpdateInput.getAccountId() , accountUpdateInput.getAccountStatus());
-            //判断密码是否存在，不存在系统设置供应商登录密码
-            User user = userDao.findOne( account.getUserId());
-            if (user != null && StringUtil.isNull(user.getPassword())) {
-                String password = smsService.getVerCode();
-                userDao.updatePassword(account.getUserId(),new BCryptPasswordEncoder().encode(password), new Date());
-                //发送短信
-                tpe.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        smsService.sendSms(Collections.singletonList(accountUpdateInput.getAccountTel()),
-                                Arrays.asList("phone","password"), Arrays.asList(accountUpdateInput.getAccountTel(),password), smsTemplateCode2);
-                    }
-                });
-                return Result.success("供应商启用成功！");
-            }
-            return Result.success("更新成功！");
+            //给用户发送密码短信
+            String password = smsService.getVerCode();
+            userDao.updatePassword(account.getUserId(),new BCryptPasswordEncoder().encode(password), new Date());
+            tpe.execute(new Runnable() {
+                @Override
+                public void run() {
+                    smsService.sendSms(Collections.singletonList(accountUpdateInput.getAccountTel()),
+                            Arrays.asList("phone","password"), Arrays.asList(accountUpdateInput.getAccountTel(),password), smsTemplateCode2);
+                }
+            });
+            return Result.success("供应商启用成功！");
         }
         return Result.fail("更新失败！");
 
