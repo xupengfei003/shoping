@@ -46,6 +46,7 @@
     <result column="contract_original" property="contractOriginal" jdbcType="VARCHAR" />
     <result column="service_phone" property="servicePhone" jdbcType="VARCHAR" />
     <result column="contract_name" property="contractName" jdbcType="VARCHAR" />
+    <result column="sms_monthago_type" property="monthAgoType" jdbcType="INTEGER" />
   </resultMap>
   <sql id="Base_Column_List" >
     account_id,
@@ -147,7 +148,7 @@
        contract_register_address_province,contract_register_address_city,
        contract_register_address_district,
       contract_register_address_detail, upload_mode, 
-      sms_code,contract_original_name,contract_original,last_settlement_date,service_phone,contract_name)
+      sms_code,contract_original_name,contract_original,last_settlement_date,service_phone,contract_name,sms_monthago_type)
     values (#{accountId,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, #{providerName,jdbcType=VARCHAR}, 
       #{responsible,jdbcType=VARCHAR}, #{responsiblePhone,jdbcType=VARCHAR}, #{license,jdbcType=VARCHAR}, 
       #{licenseTimeCreate}, #{licenseTimeEnd}, #{businessType,jdbcType=VARCHAR},
@@ -162,7 +163,7 @@
       #{contractLicenseEnd},#{contractRegisterAddress,jdbcType=VARCHAR}, #{contractRegisterAddressProvince,jdbcType=VARCHAR},
       #{contractRegisterAddressCity,jdbcType=VARCHAR}, #{contractRegisterAddressDistrict,jdbcType=VARCHAR},
       #{contractRegisterAddressDetail,jdbcType=VARCHAR}, #{uploadMode,jdbcType=VARCHAR}, 
-      #{smsCode,jdbcType=VARCHAR},#{contractOriginalName,jdbcType=VARCHAR},#{contractOriginal,jdbcType=VARCHAR},#{lastSettlementDate},#{servicePhone},#{contractName})
+      #{smsCode,jdbcType=VARCHAR},#{contractOriginalName,jdbcType=VARCHAR},#{contractOriginal,jdbcType=VARCHAR},#{lastSettlementDate},#{servicePhone},#{contractName},#{monthAgoType})
   </insert>
 
   <!-- <insert id="insertSelective" parameterType="so.sao.shop.supplier.domain.Account" >
@@ -453,7 +454,8 @@
     contract_register_address_district = #{contractRegisterAddressDistrict,jdbcType=VARCHAR},
     contract_register_address_detail = #{contractRegisterAddressDetail,jdbcType=VARCHAR},
     upload_mode = #{uploadMode,jdbcType=VARCHAR},
-    sms_code = #{smsCode,jdbcType=VARCHAR}
+    sms_code = #{smsCode,jdbcType=VARCHAR},
+    sms_monthago_type = #{monthAgoType,jdbcType=INTEGER}
     where account_id = #{accountId,jdbcType=BIGINT}
   </update>
 
@@ -588,6 +590,9 @@
       </if>
       <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(contractName)">
         contract_name = #{contractName,jdbcType=VARCHAR}
+      </if>
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(monthAgoType)">
+      sms_monthago_type = #{monthAgoType,jdbcType=INTEGER}
       </if>
     </set>
     where account_id = #{accountId,jdbcType=BIGINT}
@@ -799,7 +804,7 @@
   <!--查询合同截止时间一个月前的供应商-->
   <select id="findMonthAgo" resultMap="BaseResultMap">
     SELECT account_id,contract_responsible_phone FROM account
-    WHERE account_status = 1 AND DATE_FORMAT(contract_end_date,'%Y-%m-%d')=(DATE_FORMAT(DATE_ADD(NOW(), INTERVAL 1 MONTH),'%Y-%m-%d'))
+    WHERE account_status = 1 AND sms_monthago_type = 0 AND DATE_FORMAT(contract_end_date,'%Y-%m-%d')=(DATE_FORMAT(DATE_ADD(NOW(), INTERVAL 1 MONTH),'%Y-%m-%d'))
   </select>
 
   <!--查询合同已过期供应商-->
@@ -839,4 +844,11 @@
       AND a.account_id =#{accountId}
     </if>
   </select>
+
+  <!-- 根据供应商ID修改供应商合同剩余30天发送短信标记-->
+  <update id="updateAccountSmsTypeById" parameterType="java.lang.Long">
+    UPDATE account
+    SET sms_monthago_type = 1
+    WHERE account_id = #{accountId}
+  </update>
 </mapper>

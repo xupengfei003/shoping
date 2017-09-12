@@ -209,10 +209,6 @@ public class Account {
 	@NotEmpty(message = "合同注册详细地址不能为空")
     @Length(max = 255,message = "合同注册详细地址长度不能超过255")
 	private String contractRegisterAddressDetail;
-	/**
-	 * 合同日期
-	 */
-	private String contractDate;
 
 	/**
 	 * 合同状态(正常状态:0 /即将过期:1 /已过期:2)
@@ -262,6 +258,18 @@ public class Account {
 	 * 客服电话
 	 */
 	private String servicePhone;
+	/**
+	 * 合同到期30天发送短信标记
+	 */
+	private int monthAgoType;
+
+	public int getMonthAgoType() {
+		return monthAgoType;
+	}
+
+	public void setMonthAgoType(int monthAgoType) {
+		this.monthAgoType = monthAgoType;
+	}
 
 	public String getServicePhone() {
 		return servicePhone;
@@ -630,14 +638,6 @@ public class Account {
 
 	public void setContractName(String contractName) {
 		this.contractName = contractName;
-	}
-
-	public String getContractDate() {
-		return contractDate;
-	}
-
-	public void setContractDate(String contractDate) {
-		this.contractDate = contractDate;
 	}
 
 	public int getContractStatus() {
