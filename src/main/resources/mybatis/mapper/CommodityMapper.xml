@@ -130,7 +130,7 @@
             AND c.name LIKE "%${commName}%"
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(status)">
-            AND sc.`status` = #{status}
+            AND sc.status = #{status}
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(minPrice) and @so.sao.shop.supplier.util.Ognl@isEmpty(maxPrice)">
             AND sc.price<![CDATA[ >= #{minPrice}]]>
