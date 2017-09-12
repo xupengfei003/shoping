@@ -24,8 +24,11 @@
         FROM purchase
         WHERE
         order_status != -1
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderStatus)">
-            AND order_status = TRIM(#{orderStatus})
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderStatusArr)">
+            AND order_status IN
+            <foreach collection="orderStatusArr" open="(" close=")" separator="," item="orderStatus" index="i">
+                TRIM(#{orderStatus})
+            </foreach>
         </if>
         AND user_id = TRIM(#{userId})
         ORDER BY updated_at DESC

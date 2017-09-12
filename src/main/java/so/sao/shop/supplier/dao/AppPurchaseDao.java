@@ -13,11 +13,11 @@ public interface AppPurchaseDao {
     /**
      * 根据订单状态查询订单列表
      *
-     * @param orderStatus 订单状态
+     * @param orderStatusArr 订单状态
      * @return List<AppPurchaseItemVo> 订单列表
      * @throws Exception 异常
      */
-    List<AppPurchasesVo> findOrderList(@Param("userId") String userId, @Param("orderStatus") Integer orderStatus) throws Exception;
+    List<AppPurchasesVo> findOrderList(@Param("userId") String userId, @Param("orderStatusArr") Integer[] orderStatusArr) throws Exception;
 
     /**
      * 根据订单ID查询订单列表

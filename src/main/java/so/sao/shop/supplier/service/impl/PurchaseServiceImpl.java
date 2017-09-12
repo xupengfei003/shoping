@@ -1089,7 +1089,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                 mapInput.put(BigInteger.valueOf(purchaseItemVo.getGoodsId()),BigDecimal.valueOf(purchaseItemVo.getGoodsNumber()));
             });
             int count = supplierCommodityDao.updateInventoryByGoodsId(mapInput);
-            if(count == 0 && mapInput.size() != count){
+            if(count == 0){
                 throw new Exception("更新仓库数量与实际不相符，取消失败！");
             }
         }
