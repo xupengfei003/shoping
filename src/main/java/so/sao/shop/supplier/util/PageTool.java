@@ -2,10 +2,8 @@ package so.sao.shop.supplier.util;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import org.apache.poi.ss.formula.functions.T;
 import so.sao.shop.supplier.config.CommConstant;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -25,24 +23,22 @@ public class PageTool {
     }
 
     /**
-     * 用法：对于查询结果直接分页
-     * @param o
-     * @param pageNum
-     * @param pageSize
+     * list 分页
+     * @param dataList
+     * @param pageNo 页码
+     * @param limit 每页条数
      * @return
      */
-    public static List<Object> getListByPageNum(List<Object> o, Integer pageNum , Integer pageSize ){
-        //得到全部列表
-        if(pageNum == null){
-            return o;
+    public List<?> getListByPage(List<?> dataList,Integer pageNo,Integer limit){
+        if(DataCompare.formatInteger(pageNo) > 0 && DataCompare.formatInteger(limit) > 0){
+            int totalcount = dataList.size();
+            int startInt = totalcount > (pageNo-1)*limit ? (pageNo-1)*limit : 99999999;
+            int endInt = totalcount > pageNo*limit ? pageNo*limit : totalcount;
+
+            if(startInt != 99999999 && dataList != null && dataList.size() > 0){
+                return dataList.subList(startInt,endInt);
+            }
         }
-        //得到区间列表
-        List<Object> returnPageList = new ArrayList<>();
-        int startRow ; // 开始条数
-        int endRow = pageNum * pageSize ; //结束条数
-        for( startRow = (pageNum-1) * pageSize +1 ; startRow <= endRow ; startRow++){
-            returnPageList.add(o.get(startRow));
-        }
-        return returnPageList;
+        return dataList;
     }
 }
