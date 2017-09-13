@@ -9,7 +9,6 @@ public class CancelReasonInput {
     /**
      * 取消原因
      */
-    @NotEmpty(message = "取消原因不能为空")
     private String cancelReason;
 
     /**

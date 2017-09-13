@@ -419,8 +419,7 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
 		 * 3.根据入参条件，查询结算明细列表；
 		 * 4.取得OrderMoneyRecord的分页信息；
 		 * 5.对象转换为OrderMoneyRecordVo；
-		 * 6.新建OrderMoneyRecordVo的分页信息PageInfo<OrderMoneyRecordVo>，并设置分页信息；
-		 * 7.返回结果对象output；
+		 * 6.返回结果对象output；
 		 */
 
         //1.创建返回的对象output
@@ -437,24 +436,17 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
             output = new OrderMoneyRecordOutput();
 
             //4.取得OrderMoneyRecord的分页信息
-            PageInfo<OrderMoneyRecord> pageInfo = new PageInfo<>(list);
+            PageInfo pageInfo = new PageInfo<>(list);
 
             //5.对象转换为OrderMoneyRecordVo
             List<OrderMoneyRecordVo> returnList = convertOrderMoneyRecordVo(list);
 
-            //6.新建OrderMoneyRecordVo的分页信息PageInfo<OrderMoneyRecordVo>，并设置分页信息
-            PageInfo<OrderMoneyRecordVo> pageInfoVo = new PageInfo<>();
-            pageInfoVo.setPageNum(pageNum);
-            pageInfoVo.setPageSize(pageSize);
-            pageInfoVo.setPages(pageInfo.getPages());
-            pageInfoVo.setTotal(pageInfo.getTotal());
-            pageInfoVo.setSize(pageInfo.getSize());
-            pageInfoVo.setList(returnList);
+            pageInfo.setList(returnList);
 
-            output.setPageInfo(pageInfoVo);
+            output.setPageInfo(pageInfo);
         }
 
-        //7.返回结果对象output
+        //6.返回结果对象output
         return output;
     }
 
@@ -576,6 +568,7 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
                 aormVo.setBankUserName(omr.getBankUserName()); //开户人姓名
                 aormVo.setBankName(omr.getBankName());  //开户行
                 aormVo.setBankNameBranch(omr.getBankNameBranch());  //开户支行
+                aormVo.setSerialNumber(omr.getSerialNumber());  //银行流水号
                 aormVo.setCheckoutAt(omr.getCheckoutAt() == null ? null : StringUtil.fomateData(omr.getCheckoutAt(), "yyyy-MM-dd"));//结账时间
                 aormVo.setTotalMoney(NumberUtil.number2Thousand(omr.getTotalMoney()));//待结算金额
                 aormVo.setSettledAmount(NumberUtil.number2Thousand(omr.getSettledAmount()));//已结算金额
@@ -659,22 +652,16 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
         Map<String, Object> map = new HashMap();
         map.put("money", moneyFormat);
         // 4.判断List是否为null及是否为空,若不为null和空，进行转换封装,若List为null或为空,PageInfo为null
-        PageInfo<AccountOrderMoneyRecordVO> pageInfoVo = null;
+        PageInfo pageInfo = null;
         if (Ognl.CollectionIsNotEmpty(oList)) {
             // a.获取分页的PageInfo
-            PageInfo<OrderMoneyRecord> pageInfo = new PageInfo<>(oList);
+            pageInfo = new PageInfo<>(oList);
             // b.将orderMoneyRecordList转为orderMoneyRecordVoList
             List<AccountOrderMoneyRecordVO> voList = transformOrderMoneyRecordVo(oList);
             // c.生成Vo分页的PageInfo
-            pageInfoVo = new PageInfo<>(voList);
-            pageInfoVo.setPageNum(pageNum);             // 当前页
-            pageInfoVo.setPageSize(pageSize);           // 每页条数
-            pageInfoVo.setList(voList);                 // List<AccountOrderMoneyRecordVO>
-            pageInfoVo.setTotal(pageInfo.getTotal());   // 总条数
-            pageInfoVo.setPages(pageInfo.getPages());   // 总页数
-            pageInfoVo.setSize(pageInfo.getSize());     // 当前页条数
+            pageInfo.setList(voList);
         }
-        map.put("pageInfo", pageInfoVo);
+        map.put("pageInfo", pageInfo);
         return map;
     }
 
@@ -698,8 +685,7 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
 		 * 4.根据结算明细id，查询该结算明细实体，根据结算状态获取待结算金额或结算金额；
 		 * 5.取得Purchase的分页信息；
 		 * 6.对象转换为PurchaseVo；
-		 * 7.新建PurchaseVo的分页信息PageInfo<PurchaseVo>，并设置分页信息；
-		 * 8.返回结果对象output；
+		 * 7.返回结果对象output；
 		 */
 
         //1.创建返回的对象output
@@ -724,24 +710,18 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
             }
         }
 
-        PageInfo<PurchaseVo> pageInfoVo = null;
+        PageInfo pageInfo = null;
         if (null != purchaseList && !purchaseList.isEmpty()) {
             //5.取得Purchase的分页信息
-            PageInfo<Purchase> pageInfo = new PageInfo<>(purchaseList);
+            pageInfo = new PageInfo<>(purchaseList);
 
             //6.对象转换为PurchaseVo
             List<PurchaseVo> purchaseVoList = convertPurchaseVo(purchaseList);
 
-            //7.新建PurchaseVo的分页信息PageInfo<PurchaseVo>，并设置分页信息
-            pageInfoVo = new PageInfo<>();
-            pageInfoVo.setPageNum(pageNum);
-            pageInfoVo.setPageSize(pageSize);
-            pageInfoVo.setTotal(pageInfo.getTotal());
-            pageInfoVo.setPages(pageInfo.getPages());
-            pageInfoVo.setSize(pageInfo.getSize());
-            pageInfoVo.setList(purchaseVoList);
+            pageInfo.setList(purchaseVoList);
         }
-        output.setPageInfo(pageInfoVo);
+
+        output.setPageInfo(pageInfo);
         //订单结算总额
         output.setTotalOrderRevenue(NumberUtil.number2Thousand(tmpTotalOrderRevenue));
 
@@ -822,7 +802,7 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
         XSSFWorkbook workbook = null;
 //        File excelFile = null;
         try {
-            int startPage, endPage;
+
             String pageNum = request.getParameter("pageNum");
             String pageSize = request.getParameter("pageSize");
             String startTime = request.getParameter("startTime");
@@ -835,20 +815,9 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
             logger.debug("【pageNum 】" + pageNum);
             logger.debug("【pageSize】" + pageSize);
             logger.debug("【state 】" + state);
+            //验证分页参数合法性
+            String limits = checkPageNumber(pageNum, pageSize);
 
-
-            //数据合法性验证
-            if (pageNum.split(",").length > 1) {
-                startPage = Integer.valueOf(pageNum.split(",")[0]).intValue();
-                endPage = Integer.valueOf(pageNum.split(",")[1]).intValue();
-                //参数不合法，抛出异常
-                if (startPage < 1 || endPage < 1 || (endPage - startPage) < 0) {
-                    throw new Exception();
-                }
-            } else {
-                startPage = Integer.valueOf(pageNum).intValue();
-                endPage = Integer.valueOf(pageNum).intValue();
-            }
 
             if (StringUtils.isEmpty(startTime) || StringUtils.isEmpty(endTime) || StringUtils.isEmpty(state)) {
                 throw new Exception();
@@ -864,10 +833,7 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
             //整理传参数据
             int year = Integer.valueOf(startTime.split("-")[0]).intValue();
             int month = Integer.valueOf(startTime.split("-")[1]).intValue();
-            int pageRange = endPage - startPage + 1;//页数范围
-            int offset = (startPage - 1) * Integer.valueOf(pageSize).intValue();//偏移量
-            int limit = pageRange * Integer.valueOf(pageSize).intValue();//总条数
-            String limits = offset + "," + limit;//分页条件
+
 
             int nextMonth = month == 12 ? 1 : month + 1;
             int nextYear = month == 12 ? year + 1 : year;
@@ -919,6 +885,43 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
                 workbook.close();
             }
         }
+    }
+
+    /**
+     * 验证分页参数合法性
+     * @param pageNum
+     * @param pageSize
+     * @return
+     * @throws Exception
+     */
+    private String checkPageNumber(String pageNum, String pageSize) throws Exception {
+
+        if(StringUtils.isEmpty(pageNum)){
+            return null;
+        }
+        //默认前10条
+        if(StringUtils.isEmpty(pageSize)){
+            pageSize = "10";
+        }
+
+        int startPage;
+        int endPage;//数据合法性验证
+
+        if (pageNum.split(",").length > 1) {
+            startPage = Integer.valueOf(pageNum.split(",")[0]).intValue();
+            endPage = Integer.valueOf(pageNum.split(",")[1]).intValue();
+            //参数不合法，抛出异常
+            if (startPage < 1 || endPage < 1 || (endPage - startPage) < 0) {
+                throw new Exception();
+            }
+        } else {
+            startPage = Integer.valueOf(pageNum).intValue();
+            endPage = Integer.valueOf(pageNum).intValue();
+        }
+        int pageRange = endPage - startPage + 1;//页数范围
+        int offset = (startPage - 1) * Integer.valueOf(pageSize).intValue();//偏移量
+        int limit = pageRange * Integer.valueOf(pageSize).intValue();//总条数
+        return offset + "," + limit;
     }
 
 }

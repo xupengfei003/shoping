@@ -1157,7 +1157,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         int count = purchaseDao.refundByOrderId(params); // 修改订单状态为退款，修改退款时间为当前时间
         if (count == 0) {
             result.put("flag", false);
-            result.put("message", "退款失败");
+            result.put("message", "退款失败（修改订单状态失败）");
             return result;
         }
 
@@ -1172,11 +1172,17 @@ public class PurchaseServiceImpl implements PurchaseService {
         purchaseItemVos.forEach(item -> {
             goodsInfo.put(BigInteger.valueOf(item.getGoodsId()), BigDecimal.valueOf(item.getGoodsNumber()));
         });
-        count = supplierCommodityDao.updateInventoryByGoodsId(goodsInfo);
-        if (goodsInfo.size() > 0 && goodsInfo.size() == count) {
+        if (goodsInfo.size() == 0) {
             result.put("flag", false);
-            result.put("message", "退款失败");
-            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly(); // 是否回滚
+            result.put("message", "退款失败（退款订单不存在）");
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly(); // 回滚
+            return result;
+        }
+        count = supplierCommodityDao.updateInventoryByGoodsId(goodsInfo);
+        if (count == 0) {
+            result.put("flag", false);
+            result.put("message", "退款失败（恢复库存失败）");
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly(); // 回滚
             return result;
         }
 

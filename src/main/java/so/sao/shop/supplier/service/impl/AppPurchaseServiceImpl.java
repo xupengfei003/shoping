@@ -49,18 +49,23 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
         }
         PageInfo pageInfo = new PageInfo(orderList);//复制分页信息
         List<AppPurchaseOutput> appPurchaseOutputs = new ArrayList<>();//接收返回list
+        List<AppPurchaseItemVo> appPurchaseItemVoList = getAllOrderItemList(orderIdList);//接收详情列表
         for (AppPurchasesVo appPurchasesVo : orderList) {
-            List<AppPurchaseItemVo> appPurchaseItemVoList = new ArrayList<>();//接收详情列表
+            List<AppPurchaseItemVo> appPurchaseItemVoListInner = new ArrayList<>();
             AppPurchaseOutput appPurchaseOutput;
+            int goodsAllNum = 0;//计算该订单下所有商品总数
             //合并返回结果
-            for (AppPurchaseItemVo appPurchaseItemVo : getAllOrderItemList(orderIdList)) {
+            for (AppPurchaseItemVo appPurchaseItemVo : appPurchaseItemVoList) {
                 if (appPurchaseItemVo.getOrderId().equals(appPurchasesVo.getOrderId())) {
-                    appPurchaseItemVoList.add(appPurchaseItemVo);
+                    appPurchaseItemVoListInner.add(appPurchaseItemVo);
+                    goodsAllNum += appPurchaseItemVo.getGoodsNumber();
                 }
             }
             appPurchaseOutput = BeanMapper.map(appPurchasesVo,AppPurchaseOutput.class);
-            appPurchaseOutput.setAppPurchaseItemVos(appPurchaseItemVoList);
+            appPurchaseOutput.setAppPurchaseItemVos(appPurchaseItemVoListInner);
+            appPurchaseOutput.setGoodsAllNum(goodsAllNum);
             appPurchaseOutputs.add(appPurchaseOutput);
+
         }
         pageInfo.setList(appPurchaseOutputs);
         return pageInfo;
@@ -68,8 +73,7 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
 
     //获取详情信息
     private List<AppPurchaseItemVo> getAllOrderItemList(List<String> orderIdList) throws Exception {
-        List<AppPurchaseItemVo> appPurchaseItemVoList = appPurchaseItemDao.findOrderItemList(orderIdList);
-        return appPurchaseItemVoList;
+        return appPurchaseItemDao.findOrderItemList(orderIdList);
     }
 
     //转换数据类型
