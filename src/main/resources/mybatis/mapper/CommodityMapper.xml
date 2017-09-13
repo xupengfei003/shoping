@@ -155,6 +155,6 @@
             AND Date(sc.created_at) BETWEEN #{beginCreateAt}
             AND #{endCreateAt}
         </if>
-        ORDER BY sc.updated_at ,sc.id DESC
+        ORDER BY sc.updated_at DESC ,sc.id DESC
     </select>
 </mapper>
