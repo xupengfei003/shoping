@@ -57,7 +57,7 @@ public class EmpController {
 	public Result create(HttpServletRequest request,@Valid @RequestBody Emp emp) throws Exception{
 		User user = (User) request.getAttribute(Constant.REQUEST_USER);
 		if(user == null) {
-            return Result.fail("请登录后再操作");
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
 		}
     	/**
     	 * 插入员工信息
@@ -78,7 +78,7 @@ public class EmpController {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //验证是否登录
         if (user == null) {
-            return Result.fail("请登录后再操作");
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }        
         empInput.setUserId(user.getId());
         return empService.serachEmp(empInput);
@@ -96,7 +96,7 @@ public class EmpController {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
       //验证是否登录
         if (user == null) {
-            return Result.fail("请登录后再操作");
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
         empUpdateInput.setUserId(user.getId());
         return empService.updateEmpStatus(empUpdateInput);
