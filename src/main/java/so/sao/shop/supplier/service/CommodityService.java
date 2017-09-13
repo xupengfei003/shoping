@@ -125,10 +125,12 @@ public interface CommodityService {
 
     /**
      * 批量导出
-     * @param ids
+     * @param request
+     * @param response
+     * @param commExportInput
      * @return
      */
-    Result exportExcel(HttpServletResponse response , Long[] ids);
+    Result exportExcel(HttpServletRequest request , HttpServletResponse response , CommExportInput commExportInput);
 
     /**
      * 根据供应商的激活状态更新商品的激活状态

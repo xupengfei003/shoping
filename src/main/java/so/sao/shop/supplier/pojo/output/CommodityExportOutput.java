@@ -11,6 +11,10 @@ public class CommodityExportOutput {
     /**
      * 商品id
      */
+    private Long id ;
+    /**
+     * 商品sku
+     */
     private String sku;
     /**
      * 商品编码
@@ -89,6 +93,14 @@ public class CommodityExportOutput {
      *  更新时间
      */
     private String updatedAt;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getTagName() {
         return tagName;
