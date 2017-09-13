@@ -10,6 +10,7 @@ import java.util.List;
  * Created by acer on 2017/9/7.
  */
 public class AppPurchaseOutput {
+
     /**
      * 订单ID
      */
@@ -34,6 +35,14 @@ public class AppPurchaseOutput {
      * 物流单号
      */
     private String orderShipmentNumber;
+    /**
+     * 订单合计（订单实付金额）
+     */
+    private String orderPrice;
+    /**
+     * 产品数量
+     */
+    private Integer goodsAllNum;
 
     /**
      * 商品信息
@@ -86,5 +95,21 @@ public class AppPurchaseOutput {
 
     public void setAppPurchaseItemVos(List<AppPurchaseItemVo> appPurchaseItemVos) {
         this.appPurchaseItemVos = appPurchaseItemVos;
+    }
+
+    public String getOrderPrice() {
+        return orderPrice;
+    }
+
+    public void setOrderPrice(String orderPrice) {
+        this.orderPrice = orderPrice;
+    }
+
+    public Integer getGoodsAllNum() {
+        return goodsAllNum;
+    }
+
+    public void setGoodsAllNum(Integer goodsAllNum) {
+        this.goodsAllNum = goodsAllNum;
     }
 }
