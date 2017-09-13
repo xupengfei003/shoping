@@ -448,20 +448,21 @@ public class AccountServiceImpl implements AccountService {
             return Result.fail("合同有效期已过期，请更新后启用！");
         }
         //判断启用还是禁用操作，并发送相应的短信提示
-        String password = smsService.getVerCode();
-        userDao.updatePassword(account.getUserId(),new BCryptPasswordEncoder().encode(password), new Date());
+        String password =smsService.getVerCode();
+        if (accountUpdateInput.getAccountStatus()==CommConstant.ACCOUNT_ACTIVE_STATUS) {
+            userDao.updatePassword(account.getUserId(), new BCryptPasswordEncoder().encode(password), new Date());
+        }else {
+            //禁用供应商，修改商品状态
+            commodityService.updateCommInvalidStatus(accountUpdateInput.getAccountId() , accountUpdateInput.getAccountStatus());
+        }
         tpe.execute(new Runnable() {
             @Override
             public void run() {
                 smsService.sendSms(Collections.singletonList(accountUpdateInput.getAccountTel()),
-                        Arrays.asList("phone","password"), Arrays.asList(accountUpdateInput.getAccountTel(),password),
+                        Arrays.asList("phone","password"),Arrays.asList(accountUpdateInput.getAccountTel(),password),
                         accountUpdateInput.getAccountStatus()==CommConstant.ACCOUNT_ACTIVE_STATUS?smsTemplateCode2:smsTemplateCode5);
             }
         });
-        //禁用供应商，修改商品状态
-        if(accountUpdateInput.getAccountStatus()==CommConstant.ACCOUNT_INVALID_STATUS){
-            commodityService.updateCommInvalidStatus(accountUpdateInput.getAccountId() , accountUpdateInput.getAccountStatus());
-        }
         //修改账户状态
         accountUpdateInput.setUpdateDate(new Date());
         accountDao.updateAccountStatusById(accountUpdateInput);

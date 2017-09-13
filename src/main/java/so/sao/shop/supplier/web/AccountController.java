@@ -408,7 +408,7 @@ public class AccountController {
     public Result download(@RequestParam String downloadUrl, @RequestParam String realFileName, HttpServletRequest request, HttpServletResponse response) throws Exception{
     	User user = (User) request.getAttribute(Constant.REQUEST_USER);
         if(user==null){
-        	return Result.fail("请登录后再操作");
+        	return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
         return DownloadAzureFile.downloadFile(downloadUrl, realFileName, request, response);
     }
@@ -425,7 +425,7 @@ public class AccountController {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //验证是否登录, 判断登录用户是否是管理员
         if(user == null || !Constant.ADMIN_STATUS.equals(user.getIsAdmin()) ){
-            return Result.fail("unauthorized access");
+            return Result.fail(Constant.MessageConfig.ADMIN_AUTHORITY_EERO);
         }
         return accountService.updateAccountStatus(accountUpdateInput);
     }
