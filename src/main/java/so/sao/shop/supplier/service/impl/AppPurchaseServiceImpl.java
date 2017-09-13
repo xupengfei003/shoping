@@ -26,40 +26,58 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
     private AppPurchaseDao appPurchaseDao;
     @Resource
     private AppPurchaseItemDao appPurchaseItemDao;
+
     /**
      * 根据订单状态查询订单列表
      *
-     * @param userId 用户ID
+     * @param userId      用户ID
      * @param orderStatus 订单状态
      * @return List<AppPurchasesVo> 订单列表
      * @throws Exception 异常
      */
     @Override
     public PageInfo<AppPurchaseOutput> findOrderList(Integer pageNum, Integer rows, String userId, String orderStatus) throws Exception {
-        PageTool.startPage(pageNum,rows);
+        PageTool.startPage(pageNum, rows);
         //查询订单信息
-        List<AppPurchasesVo> orderList = appPurchaseDao.findOrderList(userId,convertStringToInt(orderStatus));
-        AppPurchaseOutput appPurchaseOutput = null;//接收订单相关信息
+        List<AppPurchasesVo> orderList = appPurchaseDao.findOrderList(userId, convertStringToInt(orderStatus));
+        List<String> orderIdList = new ArrayList<>();//接收订单编号
+        if (null != orderList && orderList.size() > 0) {
+            //获取所有订单编号
+            for (AppPurchasesVo appPurchasesVo : orderList) {
+                orderIdList.add(appPurchasesVo.getOrderId());
+            }
+        }
         PageInfo pageInfo = new PageInfo(orderList);//复制分页信息
         List<AppPurchaseOutput> appPurchaseOutputs = new ArrayList<>();//接收返回list
-        if(null != orderList && orderList.size()>0){
-            for(AppPurchasesVo appPurchasesVo : orderList){
-                appPurchaseOutput = BeanMapper.map(appPurchasesVo,AppPurchaseOutput.class);
-                List<AppPurchaseItemVo> appPurchaseItemVoList = appPurchaseItemDao.findOrderItemListByOrderId(appPurchasesVo.getOrderId());
-                appPurchaseOutput.setAppPurchaseItemVos(appPurchaseItemVoList);
-                appPurchaseOutputs.add(appPurchaseOutput);
+        for (AppPurchasesVo appPurchasesVo : orderList) {
+            List<AppPurchaseItemVo> appPurchaseItemVoList = new ArrayList<>();//接收详情列表
+            AppPurchaseOutput appPurchaseOutput;
+            //合并返回结果
+            for (AppPurchaseItemVo appPurchaseItemVo : getAllOrderItemList(orderIdList)) {
+                if (appPurchaseItemVo.getOrderId().equals(appPurchasesVo.getOrderId())) {
+                    appPurchaseItemVoList.add(appPurchaseItemVo);
+                }
             }
+            appPurchaseOutput = BeanMapper.map(appPurchasesVo,AppPurchaseOutput.class);
+            appPurchaseOutput.setAppPurchaseItemVos(appPurchaseItemVoList);
+            appPurchaseOutputs.add(appPurchaseOutput);
         }
         pageInfo.setList(appPurchaseOutputs);
         return pageInfo;
     }
 
+    //获取详情信息
+    private List<AppPurchaseItemVo> getAllOrderItemList(List<String> orderIdList) throws Exception {
+        List<AppPurchaseItemVo> appPurchaseItemVoList = appPurchaseItemDao.findOrderItemList(orderIdList);
+        return appPurchaseItemVoList;
+    }
+
     //转换数据类型
-    private Integer[] convertStringToInt(String orderStatus){
+    private Integer[] convertStringToInt(String orderStatus) {
         Integer[] statusArr = null;
-        if(!StringUtils.isEmpty(orderStatus)){
+        if (!StringUtils.isEmpty(orderStatus)) {
             String[] orderStatusArr = orderStatus.split(",");
-            statusArr = BeanMapper.mapArray(new Integer[orderStatusArr.length],orderStatusArr,Integer.class);
+            statusArr = BeanMapper.mapArray(new Integer[orderStatusArr.length], orderStatusArr, Integer.class);
         }
         return statusArr;
     }
