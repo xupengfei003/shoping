@@ -254,7 +254,7 @@
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(beginCreateAt) and @so.sao.shop.supplier.util.Ognl@isNotEmpty(endCreateAt)">
             AND Date(sc.created_at) BETWEEN #{beginCreateAt} AND #{endCreateAt}
         </if>
-        ORDER BY sc.updated_at, sc.id DESC
+        ORDER BY sc.updated_at DESC , sc.id DESC
     </select>
 
     <!--根据id查询个数-->
@@ -326,7 +326,7 @@
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(beginCreateAt) and @so.sao.shop.supplier.util.Ognl@isNotEmpty(endCreateAt)">
             AND Date(sc.created_at) BETWEEN #{beginCreateAt} AND #{endCreateAt}
         </if>
-        ORDER BY sc.updated_at, sc.id DESC
+        ORDER BY sc.updated_at DESC , sc.id DESC
     </select>
 
     <!--根据unitId查询商品单位是否被supplier_commodity使用-->
