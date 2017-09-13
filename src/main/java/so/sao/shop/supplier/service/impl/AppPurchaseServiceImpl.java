@@ -50,10 +50,10 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
         PageInfo pageInfo = new PageInfo(orderList);//复制分页信息
         List<AppPurchaseOutput> appPurchaseOutputs = new ArrayList<>();//接收返回list
         List<AppPurchaseItemVo> appPurchaseItemVoList = getAllOrderItemList(orderIdList);//接收详情列表
-        int goodsAllNum = 0;//计算该订单下所有商品总数
         for (AppPurchasesVo appPurchasesVo : orderList) {
             List<AppPurchaseItemVo> appPurchaseItemVoListInner = new ArrayList<>();
             AppPurchaseOutput appPurchaseOutput;
+            int goodsAllNum = 0;//计算该订单下所有商品总数
             //合并返回结果
             for (AppPurchaseItemVo appPurchaseItemVo : appPurchaseItemVoList) {
                 if (appPurchaseItemVo.getOrderId().equals(appPurchasesVo.getOrderId())) {
@@ -65,6 +65,7 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
             appPurchaseOutput.setAppPurchaseItemVos(appPurchaseItemVoListInner);
             appPurchaseOutput.setGoodsAllNum(goodsAllNum);
             appPurchaseOutputs.add(appPurchaseOutput);
+
         }
         pageInfo.setList(appPurchaseOutputs);
         return pageInfo;
