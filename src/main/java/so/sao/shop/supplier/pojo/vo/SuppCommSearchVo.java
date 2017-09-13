@@ -65,6 +65,12 @@ public class SuppCommSearchVo {
     private int statusNum;
 
     /**
+     * 商品是否失效
+     * 0 失效  1正常
+     */
+    private int invalidStatus;
+
+    /**
      * 市场价
      */
     private String price;
@@ -83,6 +89,14 @@ public class SuppCommSearchVo {
      */
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date updatedAt;
+
+    public int getInvalidStatus() {
+        return invalidStatus;
+    }
+
+    public void setInvalidStatus(int invalidStatus) {
+        this.invalidStatus = invalidStatus;
+    }
 
     public Long getId() {
         return id;
