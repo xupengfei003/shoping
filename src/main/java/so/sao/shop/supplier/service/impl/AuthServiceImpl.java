@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 权限service
@@ -174,9 +175,10 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public Result sendCode(String phone) throws IOException {
         String code = smsService.getVerCode();
-        userDao.saveSmsCode(phone, code);
         TopicMessage topicMessage = smsService.sendSms(Collections.singletonList(phone),Collections.singletonList("code"), Collections.singletonList(code), smsTemplateCode1);
         if(topicMessage != null) {
+            //发送密码后设置key1小时后失效
+            redisTemplate.opsForValue().set(Constant.REDIS_SMSCODE_KEY_PREFIX+phone,code,1, TimeUnit.HOURS);
             return Result.success("发送成功");
         } else {
             return Result.fail("发送失败");
@@ -190,9 +192,9 @@ public class AuthServiceImpl implements AuthService {
      */
     @Override
     public Result verifySmsCode(User user, String code){
-        String SmsCode = userDao.findSmsCode(user.getId());
-        if(SmsCode!=null&&SmsCode.equals(code)){
-            userDao.saveSmsCode(user.getUsername(),"");
+        Object SmsCode = redisTemplate.opsForValue().get(Constant.REDIS_SMSCODE_KEY_PREFIX+user.getUsername());
+        //判断redis里的code是否存在并且与参数相同，不存在说明验证码失效
+        if(SmsCode!=null&&SmsCode.toString().equals(code)){
             return Result.success("验证通过");
         }else{
             return Result.fail("验证不通过");
