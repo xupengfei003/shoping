@@ -299,7 +299,7 @@ public class AccountController {
             String tel=user.getUsername();
             return Result.success("查询成功",tel);
         }else {
-            return Result.fail("获取用户登录信息异常");
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
     }
 
@@ -314,7 +314,7 @@ public class AccountController {
     public Result sendCode(HttpServletRequest request) throws IOException {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         if(null == user){
-            return Result.fail("登录验证不通过");
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
         String tel=user.getUsername();
         return authService.sendCode(tel);
@@ -331,7 +331,7 @@ public class AccountController {
     public Result verifySmsCode(HttpServletRequest request, @PathVariable String code) {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         if(null == user){
-            return Result.fail("登录验证不通过");
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
         if(StringUtil.isNull(code)){
             return Result.fail("验证码无效");
@@ -351,7 +351,7 @@ public class AccountController {
     public Result updatePassword(HttpServletRequest request, @PathVariable String encodedPassword) throws IOException {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         if(null == user){
-            return Result.fail("登录验证不通过");
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
         return authService.updatePassword(user.getId(), encodedPassword);
     }

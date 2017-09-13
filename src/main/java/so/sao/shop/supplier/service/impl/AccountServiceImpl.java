@@ -337,9 +337,6 @@ public class AccountServiceImpl implements AccountService {
                 if (user1 == null) {
                     User user = new User();
                     user.setUsername(account.getContractResponsiblePhone());
-//                    String password = smsService.getVerCode();
-//                    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-//                    user.setPassword(encoder.encode(password));
                     user.setLastPasswordResetDate(new Date());
                     user.setIsAdmin("0");
                     userDao.add(user);
@@ -350,12 +347,6 @@ public class AccountServiceImpl implements AccountService {
                     account.setLastSettlementDate(new Date());
                     account.setMonthAgoType(CommConstant.ACCOUNT_NOSENDSMS_STATUS);
                     accountDao.insert(account);
-//                    tpe.execute(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            smsService.sendSms(Collections.singletonList(account.getContractResponsiblePhone()),Arrays.asList("phone","password"), Arrays.asList(account.getContractResponsiblePhone(),password), smsTemplateCode2);
-//                        }
-//                    });
                     return Result.success("用户和供应商添加成功！");
                 }
             }
