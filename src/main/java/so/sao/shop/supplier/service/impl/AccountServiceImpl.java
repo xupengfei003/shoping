@@ -88,6 +88,12 @@ public class AccountServiceImpl implements AccountService {
     @Value("${shop.aliyun.sms.sms-template-code2}")
     String smsTemplateCode2;
 
+    /**
+     * 供应商禁用
+     */
+    @Value("${shop.aliyun.sms.sms-template-code5}")
+    String smsTemplateCode5;
+
     @Autowired
     private CommodityService commodityService;
 
@@ -433,31 +439,33 @@ public class AccountServiceImpl implements AccountService {
     @Transactional(rollbackFor = Exception.class)
     public Result updateAccountStatus(AccountUpdateInput accountUpdateInput) {
         Account account = accountDao.selectById(accountUpdateInput.getAccountId());
-        if (account != null) {
-            //判断合同是否到期，到期后无法启用供应商状态。
-            updateContractStatus(account);
-            if(accountUpdateInput.getAccountStatus()==1 && account.getContractStatus() == 2){
-                return Result.fail("合同有效期已过期，请更新后启用！");
-            }
-            //修改账户状态
-            accountUpdateInput.setUpdateDate(new Date());
-            accountDao.updateAccountStatusById(accountUpdateInput);
-            //修改商品状态
-            commodityService.updateCommInvalidStatus(accountUpdateInput.getAccountId() , accountUpdateInput.getAccountStatus());
-            //给用户发送密码短信
-            String password = smsService.getVerCode();
-            userDao.updatePassword(account.getUserId(),new BCryptPasswordEncoder().encode(password), new Date());
-            tpe.execute(new Runnable() {
-                @Override
-                public void run() {
-                    smsService.sendSms(Collections.singletonList(accountUpdateInput.getAccountTel()),
-                            Arrays.asList("phone","password"), Arrays.asList(accountUpdateInput.getAccountTel(),password), smsTemplateCode2);
-                }
-            });
-            return Result.success("供应商启用成功！");
+        if (account == null) {
+            return Result.fail("更新失败！");
         }
-        return Result.fail("更新失败！");
-
+        //判断合同是否到期，到期后无法启用供应商状态。
+        updateContractStatus(account);
+        if(accountUpdateInput.getAccountStatus()==CommConstant.ACCOUNT_ACTIVE_STATUS && account.getContractStatus() == 2){
+            return Result.fail("合同有效期已过期，请更新后启用！");
+        }
+        //判断启用还是禁用操作，并发送相应的短信提示
+        String password = smsService.getVerCode();
+        userDao.updatePassword(account.getUserId(),new BCryptPasswordEncoder().encode(password), new Date());
+        tpe.execute(new Runnable() {
+            @Override
+            public void run() {
+                smsService.sendSms(Collections.singletonList(accountUpdateInput.getAccountTel()),
+                        Arrays.asList("phone","password"), Arrays.asList(accountUpdateInput.getAccountTel(),password),
+                        accountUpdateInput.getAccountStatus()==CommConstant.ACCOUNT_ACTIVE_STATUS?smsTemplateCode2:smsTemplateCode5);
+            }
+        });
+        //禁用供应商，修改商品状态
+        if(accountUpdateInput.getAccountStatus()==CommConstant.ACCOUNT_INVALID_STATUS){
+            commodityService.updateCommInvalidStatus(accountUpdateInput.getAccountId() , accountUpdateInput.getAccountStatus());
+        }
+        //修改账户状态
+        accountUpdateInput.setUpdateDate(new Date());
+        accountDao.updateAccountStatusById(accountUpdateInput);
+        return Result.success("更新成功！");
     }
 
 }

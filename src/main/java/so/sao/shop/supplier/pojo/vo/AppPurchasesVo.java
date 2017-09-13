@@ -41,6 +41,10 @@ public class AppPurchasesVo {
      * 订单状态
      */
     private Integer orderStatus;
+    /**
+     * 物流单号
+     */
+    private String orderShipmentNumber;
 
     public String getOrderReceiverName() {
         return orderReceiverName;
@@ -104,5 +108,13 @@ public class AppPurchasesVo {
 
     public void setOrderStatus(Integer orderStatus) {
         this.orderStatus = orderStatus;
+    }
+
+    public String getOrderShipmentNumber() {
+        return orderShipmentNumber;
+    }
+
+    public void setOrderShipmentNumber(String orderShipmentNumber) {
+        this.orderShipmentNumber = orderShipmentNumber;
     }
 }
