@@ -49,17 +49,18 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
         }
         PageInfo pageInfo = new PageInfo(orderList);//复制分页信息
         List<AppPurchaseOutput> appPurchaseOutputs = new ArrayList<>();//接收返回list
+        List<AppPurchaseItemVo> appPurchaseItemVoList = getAllOrderItemList(orderIdList);//接收详情列表
         for (AppPurchasesVo appPurchasesVo : orderList) {
-            List<AppPurchaseItemVo> appPurchaseItemVoList = new ArrayList<>();//接收详情列表
+            List<AppPurchaseItemVo> appPurchaseItemVoListInner = new ArrayList<>();
             AppPurchaseOutput appPurchaseOutput;
             //合并返回结果
-            for (AppPurchaseItemVo appPurchaseItemVo : getAllOrderItemList(orderIdList)) {
+            for (AppPurchaseItemVo appPurchaseItemVo : appPurchaseItemVoList) {
                 if (appPurchaseItemVo.getOrderId().equals(appPurchasesVo.getOrderId())) {
-                    appPurchaseItemVoList.add(appPurchaseItemVo);
+                    appPurchaseItemVoListInner.add(appPurchaseItemVo);
                 }
             }
             appPurchaseOutput = BeanMapper.map(appPurchasesVo,AppPurchaseOutput.class);
-            appPurchaseOutput.setAppPurchaseItemVos(appPurchaseItemVoList);
+            appPurchaseOutput.setAppPurchaseItemVos(appPurchaseItemVoListInner);
             appPurchaseOutputs.add(appPurchaseOutput);
         }
         pageInfo.setList(appPurchaseOutputs);
