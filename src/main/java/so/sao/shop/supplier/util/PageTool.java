@@ -25,16 +25,15 @@ public class PageTool {
     /**
      * list 分页
      * @param dataList
-     * @param pageNo 页码
+     * @param fromPageNo 页码
      * @param limit 每页条数
      * @return
      */
-    public List<?> getListByPage(List<?> dataList,Integer pageNo,Integer limit){
-        if(DataCompare.formatInteger(pageNo) > 0 && DataCompare.formatInteger(limit) > 0){
+    public static List<?> getListByPage(List<?> dataList,Integer fromPageNo,Integer toPageNo,Integer limit){
+        if(DataCompare.formatInteger(fromPageNo) > 0 && DataCompare.formatInteger(limit) > 0){
             int totalcount = dataList.size();
-            int startInt = totalcount > (pageNo-1)*limit ? (pageNo-1)*limit : 99999999;
-            int endInt = totalcount > pageNo*limit ? pageNo*limit : totalcount;
-
+            int startInt = totalcount > (fromPageNo-1)*limit ? (fromPageNo-1)*limit : 99999999;
+            int endInt = totalcount > toPageNo*limit ? toPageNo*limit : totalcount;
             if(startInt != 99999999 && dataList != null && dataList.size() > 0){
                 return dataList.subList(startInt,endInt);
             }

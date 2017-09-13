@@ -5,12 +5,11 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import so.sao.shop.supplier.config.CommConstant;
+import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.pojo.BaseResult;
 import so.sao.shop.supplier.pojo.Result;
-import so.sao.shop.supplier.pojo.input.CommSearchInput;
-import so.sao.shop.supplier.pojo.input.CommSimpleSearchInput;
-import so.sao.shop.supplier.pojo.input.CommodityInput;
-import so.sao.shop.supplier.pojo.input.CommodityUpdateInput;
+import so.sao.shop.supplier.pojo.input.*;
 import so.sao.shop.supplier.service.CommodityService;
 import so.sao.shop.supplier.util.CheckUtil;
 
@@ -125,13 +124,16 @@ public class CommodityController {
        return commodityService.importExcel(excelFile, request, supplierId);
     }
 
-    @ApiOperation(value="导出商品信息到Excel模板", notes="【责任人：张瑞兵】")
+    @ApiOperation(value="高级查询结果导出商品信息到Excel模板", notes="【责任人：张瑞兵】")
     @GetMapping(value="/exportExcel")
-    public Result exportExcel(HttpServletResponse response , @RequestParam Long[] ids){
-        if(ids == null || ids.length == 0){
-            return Result.fail("请至少选择一个商品进行导出！");
-        }
-        return commodityService.exportExcel(response,ids);
+    public Result exportExcel(HttpServletRequest request , HttpServletResponse response , CommExportInput commExportInput) {
+        return  commodityService.exportExcel(request , response , commExportInput);
+    }
+
+    @ApiOperation(value="简单查询结果导出商品信息到Excel模板", notes="【责任人：张瑞兵】")
+    @GetMapping(value="/simpleExportExcel")
+    public Result simpleExportExcel(HttpServletRequest request , HttpServletResponse response , CommExportInput commExportInput) {
+        return  commodityService.exportExcel(request , response , commExportInput);
     }
 
 }
