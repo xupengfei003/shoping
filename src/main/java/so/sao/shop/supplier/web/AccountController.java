@@ -425,7 +425,7 @@ public class AccountController {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //验证是否登录, 判断登录用户是否是管理员
         if(user == null || !Constant.ADMIN_STATUS.equals(user.getIsAdmin()) ){
-            return Result.fail("unauthorized access");
+            return Result.fail(Constant.MessageConfig.ADMIN_AUTHORITY_EERO);
         }
         return accountService.updateAccountStatus(accountUpdateInput);
     }
