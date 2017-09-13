@@ -9,9 +9,10 @@
         <result column="goods_number" property="goodsNumber"/>
         <result column="goods_tatol_price" property="goodsTatolPrice"/>
         <result column="goods_attribute" property="goodsAttribute"/>
+        <result column="order_id" property="orderId"/>
     </resultMap>
     <sql id="App_Goods_Column_List">
-       g.goods_image, g.goods_name, g.goods_unit_price, g.goods_number, g.goods_tatol_price, g.goods_attribute
+       g.goods_image, g.goods_name, g.goods_unit_price, g.goods_number, g.goods_tatol_price, g.goods_attribute, p.order_id
     </sql>
     <!--根据订单ID列表查询商品详情-->
     <select id="findOrderItemList" parameterType="java.util.List" resultMap="AppGoodsAllList">
@@ -24,9 +25,10 @@
         <foreach collection="orderIdList" item="orderId" open="(" close=")" separator="," index="i">
             #{orderId,jdbcType=VARCHAR}
         </foreach>
+        ORDER BY p.updated_at DESC
     </select>
     <!--根据订单ID查询商品详情-->
-    <select id="findOrderItemListByOrderId" parameterType="java.util.List" resultMap="AppGoodsAllList">
+    <select id="findOrderItemListByOrderId" parameterType="java.lang.String" resultMap="AppGoodsAllList">
         SELECT
         <include refid="App_Goods_Column_List"/>
         FROM purchase_item g
@@ -34,6 +36,4 @@
         ON p.order_id = g.order_id
         AND p.order_id = TRIM(#{orderId,jdbcType=VARCHAR})
     </select>
-
-
 </mapper>
