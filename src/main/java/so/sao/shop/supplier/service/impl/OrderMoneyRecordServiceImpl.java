@@ -568,6 +568,7 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
                 aormVo.setBankUserName(omr.getBankUserName()); //开户人姓名
                 aormVo.setBankName(omr.getBankName());  //开户行
                 aormVo.setBankNameBranch(omr.getBankNameBranch());  //开户支行
+                aormVo.setSerialNumber(omr.getSerialNumber());  //银行流水号
                 aormVo.setCheckoutAt(omr.getCheckoutAt() == null ? null : StringUtil.fomateData(omr.getCheckoutAt(), "yyyy-MM-dd"));//结账时间
                 aormVo.setTotalMoney(NumberUtil.number2Thousand(omr.getTotalMoney()));//待结算金额
                 aormVo.setSettledAmount(NumberUtil.number2Thousand(omr.getSettledAmount()));//已结算金额
@@ -651,22 +652,16 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
         Map<String, Object> map = new HashMap();
         map.put("money", moneyFormat);
         // 4.判断List是否为null及是否为空,若不为null和空，进行转换封装,若List为null或为空,PageInfo为null
-        PageInfo<AccountOrderMoneyRecordVO> pageInfoVo = null;
+        PageInfo pageInfo = null;
         if (Ognl.CollectionIsNotEmpty(oList)) {
             // a.获取分页的PageInfo
-            PageInfo<OrderMoneyRecord> pageInfo = new PageInfo<>(oList);
+            pageInfo = new PageInfo<>(oList);
             // b.将orderMoneyRecordList转为orderMoneyRecordVoList
             List<AccountOrderMoneyRecordVO> voList = transformOrderMoneyRecordVo(oList);
             // c.生成Vo分页的PageInfo
-            pageInfoVo = new PageInfo<>(voList);
-            pageInfoVo.setPageNum(pageNum);             // 当前页
-            pageInfoVo.setPageSize(pageSize);           // 每页条数
-            pageInfoVo.setList(voList);                 // List<AccountOrderMoneyRecordVO>
-            pageInfoVo.setTotal(pageInfo.getTotal());   // 总条数
-            pageInfoVo.setPages(pageInfo.getPages());   // 总页数
-            pageInfoVo.setSize(pageInfo.getSize());     // 当前页条数
+            pageInfo.setList(voList);
         }
-        map.put("pageInfo", pageInfoVo);
+        map.put("pageInfo", pageInfo);
         return map;
     }
 

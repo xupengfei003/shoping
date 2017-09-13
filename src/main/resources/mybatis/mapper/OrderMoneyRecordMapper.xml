@@ -243,6 +243,7 @@
         settled_amount,
         bank_user_name,
         checkout_at,
+        serial_number,
         settled_at
         FROM order_money_record
         WHERE user_id=#{accountId} And state = 1
