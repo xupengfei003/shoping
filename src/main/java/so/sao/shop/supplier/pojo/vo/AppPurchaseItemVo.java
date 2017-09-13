@@ -37,6 +37,10 @@ public class AppPurchaseItemVo {
      * 商品规格
      */
     private String goodsAttribute;
+    /**
+     * 订单编号
+     */
+    private String orderId;
 
     public String getGoodsImage() {
         return goodsImage;
@@ -84,5 +88,13 @@ public class AppPurchaseItemVo {
 
     public void setGoodsAttribute(String goodsAttribute) {
         this.goodsAttribute = goodsAttribute;
+    }
+
+    public String getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(String orderId) {
+        this.orderId = orderId;
     }
 }

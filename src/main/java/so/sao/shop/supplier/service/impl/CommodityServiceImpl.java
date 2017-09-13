@@ -1,5 +1,6 @@
 package so.sao.shop.supplier.service.impl;
 
+import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +32,7 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 商品管理Service
@@ -928,24 +930,47 @@ public class CommodityServiceImpl implements CommodityService {
         return  filename;
     }
 
+    /**
+     * 商品批量导出
+     * @param request
+     * @param response
+     * @param commExportInput
+     * @return
+     */
     @Override
-    public  Result exportExcel(HttpServletResponse response , Long[] ids) {
-        POIExcelUtil poiExcelUtil = new POIExcelUtil();
-        List<Object[]> dataList = new ArrayList<>();
-        if(urlFile.isEmpty()) {
+    public Result exportExcel(HttpServletRequest request, HttpServletResponse response , CommExportInput commExportInput) {
+        //判断导出模板是否存在
+        if (urlFile.isEmpty()) {
             return Result.fail("指定模板文件不存在！");
         }
-        List<CommodityExportOutput> commodityList = commodityDao.findByIds(ids);
-        if(commodityList.size()>0 && commodityList != null) {
-            commodityList.forEach(commodity -> {
-                Object[] key = commodity.toString().split(",");
-                dataList.add(key);
-            });
-            poiExcelUtil.writeExcel(urlFile, dataList, CommConstant.POI_START_ROW, response, CommConstant.SHEET_NAME, CommConstant.FILE_NAME);
-            return Result.success("导出商品成功！");
+        List<Integer> pageNumList;
+        //获取区间列表
+        //用于导出区间列表
+        List<CommodityExportOutput> commodityList = commodityDao.findByIds(commExportInput);
+
+        if (commExportInput.getPageNum() != null && commExportInput.getPageNum().length() > 0
+                    && commExportInput.getPageSize() != null && commExportInput.getPageSize() >0) {
+            //将区间pageNum转化为list
+            pageNumList = Arrays.asList(commExportInput.getPageNum().toString().split(","))
+                            .stream().map(s -> Integer.parseInt(s.trim())).collect(Collectors.toList());
+            //获取区间页
+            if(pageNumList.size() > 1 ) {
+                commodityList = (List<CommodityExportOutput>)PageTool.getListByPage(commodityList, pageNumList.get(0), pageNumList.get(1), commExportInput.getPageSize());
+            }
+            //获取当前页列表
+            if(pageNumList.size() == 1){
+                commodityList = (List<CommodityExportOutput>) PageTool.getListByPage(commodityList, pageNumList.get(0), pageNumList.get(0), commExportInput.getPageSize());
+            }
         }
-        return Result.fail("暂无商品记录！");
+        List<Object[]> dataList = new ArrayList<>();
+        commodityList.forEach(commodityExportOutput -> {
+            Object[] key = commodityExportOutput.toString().split(",");
+            dataList.add(key);
+        });
+        POIExcelUtil.writeExcel(urlFile, dataList, CommConstant.POI_START_ROW, response, CommConstant.SHEET_NAME, CommConstant.FILE_NAME);
+        return Result.success("导出商品成功！");
     }
+
 
     /**
      * 根据供应商更新商品失效
