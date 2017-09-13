@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by acer on 2017/9/6.
+ * Created by bzh on 2017/9/6.
  */
 @Service
 public class AppPurchaseServiceImpl implements AppPurchaseService {
@@ -41,25 +41,17 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
         List<AppPurchasesVo> orderList = appPurchaseDao.findOrderList(userId,convertStringToInt(orderStatus));
         AppPurchaseOutput appPurchaseOutput = null;//接收订单相关信息
         PageInfo pageInfo = new PageInfo(orderList);//复制分页信息
-        List<String> orderIdList = new ArrayList<>();//接收订单编号
+        List<AppPurchaseOutput> appPurchaseOutputs = new ArrayList<>();//接收返回list
         if(null != orderList && orderList.size()>0){
             for(AppPurchasesVo appPurchasesVo : orderList){
-                orderIdList.add(appPurchasesVo.getOrderId());
                 appPurchaseOutput = BeanMapper.map(appPurchasesVo,AppPurchaseOutput.class);
+                List<AppPurchaseItemVo> appPurchaseItemVoList = appPurchaseItemDao.findOrderItemListByOrderId(appPurchasesVo.getOrderId());
+                appPurchaseOutput.setAppPurchaseItemVos(appPurchaseItemVoList);
+                appPurchaseOutputs.add(appPurchaseOutput);
             }
         }
-        List<AppPurchaseOutput> appPurchaseOutputs = getAppPurchaseOutputs(appPurchaseOutput, orderIdList);
         pageInfo.setList(appPurchaseOutputs);
         return pageInfo;
-    }
-
-    //查询详情信息
-    private List<AppPurchaseOutput> getAppPurchaseOutputs(AppPurchaseOutput appPurchaseOutput, List<String> orderIdList) throws Exception {
-        List<AppPurchaseItemVo> appPurchaseItemVoList = appPurchaseItemDao.findOrderItemList(orderIdList);
-        appPurchaseOutput.setAppPurchaseItemVos(appPurchaseItemVoList);
-        List<AppPurchaseOutput> appPurchaseOutputs = new ArrayList<>();//接收返回list
-        appPurchaseOutputs.add(appPurchaseOutput);
-        return appPurchaseOutputs;
     }
 
     //转换数据类型
