@@ -102,15 +102,14 @@ public class ContractScheduledService {
 
     }
     public Notification createNotification(Long accountId,String info,String sigin){
-
-        //给合同到期一个月前的供应商发系统消息
-        Notification notification = new Notification();
-        notification.setAccountId(accountId);
-        notification.setNotifiType(2);  //消息类型 0订单1系统2到期提醒
-        notification.setNotifiDetail(info);   //消息内容
-        notification.setCreatedAt(new Date());
-        notification.setNotifiStatus(0);    //已读未读 0未读1已读
-        notification.setSigin(sigin);
-        return notification;
+            //给合同到期一个月前的供应商发系统消息
+            Notification notification = new Notification();
+            notification.setAccountId(accountId);
+            notification.setNotifiType(2);  //消息类型 0订单1系统2到期提醒
+            notification.setNotifiDetail(info);   //消息内容
+            notification.setCreatedAt(new Date());
+            notification.setNotifiStatus(0);    //已读未读 0未读1已读
+            notification.setSigin(sigin);
+            return notification;
     }
 }
