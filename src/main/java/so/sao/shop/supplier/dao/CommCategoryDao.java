@@ -36,4 +36,17 @@ public interface CommCategoryDao {
      */
     List<CommCategory> find(@Param("pid")Long pid);
 
+    /**
+     * 查询商品类型集合
+     * @param name
+     * @return CommCategory
+     */
+    List<CommCategory> findOneByName(@Param("name")String name);
+
+    /**
+     * 查询商品类型
+     * @param id
+     * @return CommCategory
+     */
+    CommCategory findById(@Param("id")Long id);
 }

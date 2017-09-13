@@ -69,6 +69,11 @@ public class Commodity{
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date updatedAt;
 
+    /**
+     * 三级分类code码
+     */
+    private String categoryCode;
+
     public Long getId() {
         return id;
     }
@@ -179,5 +184,13 @@ public class Commodity{
 
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getCategoryCode() {
+        return categoryCode;
+    }
+
+    public void setCategoryCode(String categoryCode) {
+        this.categoryCode = categoryCode;
     }
 }
