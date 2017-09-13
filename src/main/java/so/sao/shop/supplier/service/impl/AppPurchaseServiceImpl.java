@@ -53,15 +53,19 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
         for (AppPurchasesVo appPurchasesVo : orderList) {
             List<AppPurchaseItemVo> appPurchaseItemVoListInner = new ArrayList<>();
             AppPurchaseOutput appPurchaseOutput;
+            int goodsAllNum = 0;//计算该订单下所有商品总数
             //合并返回结果
             for (AppPurchaseItemVo appPurchaseItemVo : appPurchaseItemVoList) {
                 if (appPurchaseItemVo.getOrderId().equals(appPurchasesVo.getOrderId())) {
                     appPurchaseItemVoListInner.add(appPurchaseItemVo);
+                    goodsAllNum += appPurchaseItemVo.getGoodsNumber();
                 }
             }
             appPurchaseOutput = BeanMapper.map(appPurchasesVo,AppPurchaseOutput.class);
             appPurchaseOutput.setAppPurchaseItemVos(appPurchaseItemVoListInner);
+            appPurchaseOutput.setGoodsAllNum(goodsAllNum);
             appPurchaseOutputs.add(appPurchaseOutput);
+
         }
         pageInfo.setList(appPurchaseOutputs);
         return pageInfo;
