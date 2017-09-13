@@ -69,8 +69,7 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
 
     //获取详情信息
     private List<AppPurchaseItemVo> getAllOrderItemList(List<String> orderIdList) throws Exception {
-        List<AppPurchaseItemVo> appPurchaseItemVoList = appPurchaseItemDao.findOrderItemList(orderIdList);
-        return appPurchaseItemVoList;
+        return appPurchaseItemDao.findOrderItemList(orderIdList);
     }
 
     //转换数据类型
