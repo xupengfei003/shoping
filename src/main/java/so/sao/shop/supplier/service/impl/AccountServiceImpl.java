@@ -310,7 +310,7 @@ public class AccountServiceImpl implements AccountService {
     private Account updateContractStatus(Account account){
         if (account != null){
             long endDate = account.getContractEndDate().getTime();
-            long currentDate = new Date().getTime();
+            long currentDate = DateUtil.stringToDate(DateUtil.getStringDate()).getTime();
             long betweenDate = (endDate - currentDate) / (1000 * 60 * 60 * 24);
             if (betweenDate <= 0){
                 account.setContractStatus(2);
