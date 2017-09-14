@@ -66,7 +66,7 @@ public class PayServiceImpl implements PayService {
         if (isSign(payInput)) {
             Map<String, Object> map = mergePaymentInfo(payInput);
             flag = payDao.updatePaymentByOrderId(map);
-            // 根据支付id，批量生成订单的二维码
+            // 根据支付id，成订单的二维码
             purchaseService.createReceivingQrcode(payInput.getOrderId());
             //TODO 为该供应商推送"待发货"消息通知
             String payId = payDao.findPayIdByOrderId(payInput.getOrderId());
