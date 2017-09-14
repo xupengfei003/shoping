@@ -221,16 +221,5 @@ public class LogisticsServiceImpl implements LogisticsService {
             return null;
         }
     }
-
-    public static void main(String[] args) throws IOException {
-        LogisticsServiceImpl logisticsService = new LogisticsServiceImpl();
-        String num = "3334270286803";
-//        num = "123";
-        ObjectMapper objectMapper = new ObjectMapper();
-        Result<Object> result = logisticsService.findLogisticInfo(num);
-        //JsonGenerator jsonGenerator = objectMapper.getJsonFactory().createJsonGenerator(System.out, JsonEncoding.UTF8);
-        //jsonGenerator.writeObject(result);
-        System.out.println("result:"+result.getData());
-    }
 }
 
