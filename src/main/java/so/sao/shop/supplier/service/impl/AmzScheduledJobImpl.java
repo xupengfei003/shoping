@@ -15,6 +15,7 @@ import so.sao.shop.supplier.pojo.vo.CommBlobUpload;
 import so.sao.shop.supplier.pojo.vo.CommImgeVo;
 import so.sao.shop.supplier.service.AmzScheduledJobService;
 import so.sao.shop.supplier.util.BeanMapper;
+import so.sao.shop.supplier.util.CommUtil;
 import so.sao.shop.supplier.util.FileUtil;
 import so.sao.shop.supplier.util.HttpRequestUtil;
 
@@ -64,12 +65,6 @@ public class AmzScheduledJobImpl implements AmzScheduledJobService {
     private Long SUPPLIER_ID;
 
     /**
-     * 本项目名称
-     */
-    @Value("${amz.jobs.project.name}")
-    private String PROJECT_NAME;
-
-    /**
      * 亚马劲数据对接
      * @return Result
      */
@@ -94,15 +89,12 @@ public class AmzScheduledJobImpl implements AmzScheduledJobService {
                 code69s.add(sc.getCode69());
                 code69Map.put(sc.getCode69(), sc.getId());
             }
-            //设置图片上传到的文件夹
-            String tempPath = getDownloadPath();
             //循环插入数据
-            code69s = insertAmaData(prodIds, code69s, code69Map, tempPath);
+            code69s = insertAmaData(prodIds, code69s, code69Map);
             //多余数据置为失效
             for(String code69 : code69s) {
                 supplierCommodityDao.updateInvalidStatusById(code69Map.get(code69), CommConstant.COMM_INVALID_STATUS, new Date());
             }
-            FileUtil.deleteDirectory(tempPath);
         }catch (Exception e){
             return Result.fail("数据导入异常", e);
         }
@@ -148,25 +140,6 @@ public class AmzScheduledJobImpl implements AmzScheduledJobService {
             }
         }
         return proListOutput;
-    }
-
-    /**
-     * 获取亚马劲图片下载路径
-     * @return
-     * @throws Exception
-     */
-    private String getDownloadPath() throws Exception{
-        //获取项目目录
-        URL save = Thread.currentThread().getContextClassLoader().getResource("");
-        String str = save.toString();
-        str = str.substring(6, str.length());
-        str = str.replaceAll("%20", " ");
-        //supplier 为项目名，应用到不同的项目中，这个需要修改！
-        int num = str.lastIndexOf(PROJECT_NAME);
-        str = str.substring(0, num + PROJECT_NAME.length());
-        //解决中文乱码和空格
-        str = java.net.URLDecoder.decode(str,"utf-8");
-        return str + "/images/";
     }
 
     /**
@@ -269,11 +242,10 @@ public class AmzScheduledJobImpl implements AmzScheduledJobService {
     /**
      * 获取图片信息
      * @param proInfoRespOutput
-     * @param tempPath
      * @return
      * @throws Exception
      */
-    private List<CommImgeVo> getCommImgeVos (ProInfoRespOutput proInfoRespOutput, String tempPath) throws Exception{
+    private List<CommImgeVo> getCommImgeVos (ProInfoRespOutput proInfoRespOutput) throws Exception{
         //获取图片信息
         List<ProInfoRespImagesOutput> proInfoRespImagesOutputs = proInfoRespOutput.getImages();
         List<String> urls = new ArrayList<>();
@@ -281,21 +253,17 @@ public class AmzScheduledJobImpl implements AmzScheduledJobService {
         for (ProInfoRespImagesOutput proInfoRespImagesOutput : proInfoRespImagesOutputs){
             urls.add(proInfoRespImagesOutput.getUrl());
         }
-        //下载图片获取图片名称集合
-        List<String> filesName = downloadNet(tempPath, urls);
         //上传图片
-        List<Result> results = azureBlobService.uploadFilesComm(tempPath, filesName);
+        Result result = azureBlobService.uploadFiles(urls);
         //根据上传结果获取上传的图片信息
-        for(Result resul : results){
-            if(resul.getCode() == 1){
-                List<CommBlobUpload> blobUploadEntities = (List<CommBlobUpload>)resul.getData();
-                blobUploadEntities.forEach(commBlobUpload->{
-                    CommImgeVo commImgeVo = BeanMapper.map(commBlobUpload, CommImgeVo.class);
-                    commImgeVo.setName(commBlobUpload.getFileName());
-                    commImgeVo.setThumbnailUrl(commBlobUpload.getMinImgUrl());
-                    commImgeVos.add(commImgeVo);
-                });
-            }
+        if(result.getCode() == 1){
+            List<CommBlobUpload> blobUploadEntities = (List<CommBlobUpload>)result.getData();
+            blobUploadEntities.forEach(commBlobUpload->{
+                CommImgeVo commImgeVo = BeanMapper.map(commBlobUpload, CommImgeVo.class);
+                commImgeVo.setName(commBlobUpload.getFileName());
+                commImgeVo.setThumbnailUrl(commBlobUpload.getMinImgUrl());
+                commImgeVos.add(commImgeVo);
+            });
         }
         return commImgeVos;
     }
@@ -304,11 +272,10 @@ public class AmzScheduledJobImpl implements AmzScheduledJobService {
      * 循环插入亚马劲数据
      * @param prodIds
      * @param code69s
-     * @param tempPath
      * @return
      * @throws Exception
      */
-    private List<String> insertAmaData(List<Long> prodIds, List<String> code69s,Map<String, Long> code69Map, String tempPath) throws Exception {
+    private List<String> insertAmaData(List<Long> prodIds, List<String> code69s,Map<String, Long> code69Map) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         //透云商品详情url
         String proInfoUrl = PRODUCT_INFO_URL;
@@ -336,7 +303,7 @@ public class AmzScheduledJobImpl implements AmzScheduledJobService {
             //商品条码
             String code69 = proInfoRespOutput.getBarcode();
             //获取图片信息
-            List<CommImgeVo> commImgeVos = getCommImgeVos(proInfoRespOutput, tempPath);
+            List<CommImgeVo> commImgeVos = getCommImgeVos(proInfoRespOutput);
             //公共图片集合
             List<TyCommImge> tyCommImgeList = new ArrayList<>();
             //设置图片信息
@@ -363,7 +330,7 @@ public class AmzScheduledJobImpl implements AmzScheduledJobService {
                     commodityDao.update(commodity);
                 }
                 //修改规格信息
-                String sku = createSku(commodity.getCategoryCode(), comm.getId(), SUPPLIER_ID);
+                String sku = CommUtil.createSku(commodity.getCategoryCode(), comm.getId(), SUPPLIER_ID);
                 sc.setSku(sku);
                 sc.setId(code69Map.get(code69));
                 supplierCommodityDao.updateAmz(sc);
@@ -387,7 +354,7 @@ public class AmzScheduledJobImpl implements AmzScheduledJobService {
                     commodity.setId(commo.getId());
                 }
                 //新增商品规格
-                String sku = createSku(commodity.getCategoryCode(), commodity.getId(), SUPPLIER_ID);
+                String sku = CommUtil.createSku(commodity.getCategoryCode(), commodity.getId(), SUPPLIER_ID);
                 sc.setSku(sku);
                 supplierCommodityDao.save(sc);
                 //拼装图片集合
@@ -412,61 +379,5 @@ public class AmzScheduledJobImpl implements AmzScheduledJobService {
         //图片批量新增
         commImgeDao.batchSave(commImgesIns);
         return code69s;
-    }
-
-    /**
-     * 文件下载
-     * @param tempPath
-     * @param urls
-     * @return
-     * @throws MalformedURLException
-     */
-    private List<String> downloadNet(String tempPath, List<String> urls) throws MalformedURLException {
-        // 下载网络文件
-        int bytesum = 0;
-        int byteread = 0;
-        List<String> filesName = new ArrayList<>();
-        //判断文件目录是否存在
-        File dir = new File(tempPath);
-        if (!dir.exists() && !dir.isDirectory()) {
-            dir.mkdir();
-        }
-        //循环下载图片并获取图片名称
-        for(String urlstr : urls) {
-            URL url = new URL(urlstr);
-            File file = new File(urlstr);
-            filesName.add(file.getName());
-            try {
-                URLConnection conn = url.openConnection();
-                InputStream inStream = conn.getInputStream();
-                FileOutputStream fs = new FileOutputStream(tempPath + file.getName());
-
-                byte[] buffer = new byte[1204];
-                while ((byteread = inStream.read(buffer)) != -1) {
-                    bytesum += byteread;
-                    fs.write(buffer, 0, byteread);
-                }
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return filesName;
-    }
-
-    /**
-     * 生成sku
-     * @param commCategoryCode 商品分类code码
-     * @param commId 商品Id
-     * @param supplierId 供应商Id
-     * @return sku
-     */
-    private String createSku(String commCategoryCode, Long commId, Long supplierId){
-        //前6位是商品分类，每级分类占两位,中间6位是商品表id自增(100000开始)
-        Long commIdCode = 100000 + commId;
-        //后面5位是供应商id字增(10000开始)
-        Long supplierIdCode = 10000 + supplierId;
-        return commCategoryCode + commIdCode.toString() + supplierIdCode.toString();
     }
 }
