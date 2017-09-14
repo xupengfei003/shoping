@@ -142,12 +142,7 @@ public class NotificationServiceImpl implements NotificationService {
      */
     @Override
     public String marqueeShow(Long accountId) throws Exception {
-        String show = "暂无系统消息通知";
-        List<Notification> notificationList = notificationDao.marqueeShow(accountId); //只查询系统消息
-        if (null != notificationList && notificationList.size() > 0) {
-            show = notificationList.get(0).getNotifiDetail();
-        }
-        return show;
+        return notificationDao.marqueeShow(accountId);
     }
 
     /**

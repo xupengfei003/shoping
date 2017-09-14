@@ -66,11 +66,10 @@
         ORDER BY created_at DESC
         LIMIT #{count,jdbcType=INTEGER}
     </select>
-
     <!-- 消息跑马灯显示 -->
-    <select id="marqueeShow" resultMap="BaseResultMap">
+    <select id="marqueeShow" resultType="java.lang.String">
         SELECT
-        <include refid="Base_Column_List"/>
+        notifi_detail
         FROM
         notification
         <if test="@so.sao.shop.supplier.util.Ognl@isNull(accountId)">
@@ -78,7 +77,7 @@
             GROUP BY sigin
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotNull(accountId)">
-            WHERE (notifi_type = 1 OR notifi_type = 2)
+            WHERE notifi_type in(1,2)
             AND account_id = #{accountId,jdbcType=BIGINT}
         </if>
         ORDER BY created_at DESC LIMIT 1
