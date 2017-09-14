@@ -169,11 +169,10 @@
         p.order_settleme_price,
         p.order_create_time
         FROM
-        order_money_record omr
-        LEFT JOIN record_purchase rp ON omr.record_id = rp.record_id
+          record_purchase rp
         LEFT JOIN purchase p ON rp.order_id = p.order_id
         WHERE
-        omr.record_id = #{recordId}
+        rp.record_id = #{recordId}
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderId)">
             AND p.order_id = #{orderId}
         </if>
