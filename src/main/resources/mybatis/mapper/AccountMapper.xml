@@ -801,7 +801,7 @@
     WHERE account_id = #{accountId}
   </update>
 
-  <!--查询合同截止时间一个月前的供应商-->
+  <!--查询合同截止时间30天前的供应商-->
   <select id="findMonthAgo" resultMap="BaseResultMap">
     SELECT account_id,contract_responsible_phone FROM account
     WHERE account_status = 1 AND sms_monthago_type = 0 AND DATE_FORMAT(contract_end_date,'%Y-%m-%d')=(DATE_FORMAT(DATE_ADD(NOW(), INTERVAL 30 DAY),'%Y-%m-%d'))
@@ -810,7 +810,7 @@
   <!--查询合同已过期供应商-->
   <select id="findContractEndDate" resultMap="BaseResultMap">
     SELECT account_id,contract_responsible_phone FROM account
-    WHERE account_status = 1 AND DATE_FORMAT(contract_end_date,'%Y-%m-%d')=(DATE_FORMAT(DATE_ADD(NOW(), INTERVAL -1 DAY),'%Y-%m-%d'))
+    WHERE account_status = 1 AND DATE_FORMAT(contract_end_date,'%Y-%m-%d')=DATE_FORMAT(NOW(),'%Y-%m-%d')
   </select>
 
   <!-- 根据accountId或providerName查询供应商信息-->

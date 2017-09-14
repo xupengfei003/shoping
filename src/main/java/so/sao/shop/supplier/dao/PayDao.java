@@ -5,16 +5,34 @@ import org.apache.ibatis.annotations.Param;
 import java.util.Map;
 
 /**
- * Created by acer on 2017/8/15.
+ * Created by bzh on 2017/8/15.
  */
 public interface PayDao {
     /**
-     * 保存支付信息
+     * 支付回调接口
      *
-     * @param payInput
-     * @return int
+     * @param payInput 封装了回调参数
+     * @return boolean
+     * @throws Exception 异常
+     */
+    boolean updatePaymentByPayId(@Param("payInput") Map<String, Object> payInput) throws Exception;
+
+    /**
+     * 支付回调接口(单订单支付)
+     *
+     * @param payInput 封装了回调参数,orderId为单个订单ID
+     * @return boolean
+     * @throws Exception 异常
+     */
+    boolean updatePaymentByOrderId(@Param("payInput") Map<String, Object> payInput) throws Exception;
+
+    /**
+     * 根据订单编号获取支付编号
+     *
+     * @param orderId
+     * @return
      * @throws Exception
      */
-    boolean save(@Param("payInput") Map<String, Object> payInput) throws Exception;
+    String findPayIdByOrderId(@Param("orderId") String orderId) throws Exception;
 
 }

@@ -1,5 +1,6 @@
 package so.sao.shop.supplier.web;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 import so.sao.shop.supplier.config.Constant;
@@ -17,6 +18,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/pay")
+@Api(description = "支付接口")
 public class PayController {
 
     @Resource
@@ -32,7 +34,7 @@ public class PayController {
      * @throws Exception 异常
      */
     @PostMapping(value = "/create")
-    @ApiOperation(value = "支付接口")
+    @ApiOperation(value = "支付接口",notes = "")
     public Result create(@RequestBody @Valid PayInput payInput) throws Exception {
         //验证订单状态格式
         List<String> orderIdList = purchaseService.findOrderStatusByPayId(payInput.getOrderId());//获取该支付ID下的所有订单ID
@@ -42,6 +44,26 @@ public class PayController {
             }
         }
         if (payService.updatePurchasePayment(payInput)) {
+            return Result.success(Constant.MessageConfig.MSG_SUCCESS);
+        }
+        return Result.success(Constant.MessageConfig.MSG_FAILURE);
+    }
+
+    /**
+     * 支付回调接口(单订单支付)
+     *
+     * @param payInput 封装了回调参数
+     * @return Result 封装了结果
+     * @throws Exception 异常
+     */
+    @PostMapping(value = "/createPaymentByOrderId")
+    @ApiOperation(value = "单订单支付接口",notes = "")
+    public Result createPaymentByOrderId(@RequestBody @Valid PayInput payInput) throws Exception{
+        //验证订单状态格式
+        if(!verifyOrderStatus(payInput.getOrderId(),Constant.OrderStatusConfig.PENDING_SHIP)){
+            return Result.fail(Constant.MessageConfig.ORDER_STATUS_EERO);
+        }
+        if (payService.updatePurchasePaymentByOrderId(payInput)) {
             return Result.success(Constant.MessageConfig.MSG_SUCCESS);
         }
         return Result.success(Constant.MessageConfig.MSG_FAILURE);
