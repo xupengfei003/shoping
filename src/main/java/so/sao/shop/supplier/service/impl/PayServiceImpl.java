@@ -41,7 +41,6 @@ public class PayServiceImpl implements PayService {
     public boolean updatePurchasePayment(PayInput payInput) throws Exception {
         boolean flagDao = false;
         if (isSign(payInput)) {
-            List<Purchase> purchaseList = purchaseDao.findByPayId(payInput.getOrderId());
             Map<String, Object> map = mergePaymentInfo(payInput);
             flagDao = payDao.updatePaymentByPayId(map);
             //TODO 为该供应商推送"待发货"消息通知
@@ -67,11 +66,12 @@ public class PayServiceImpl implements PayService {
         if (isSign(payInput)) {
             Map<String, Object> map = mergePaymentInfo(payInput);
             flag = payDao.updatePaymentByOrderId(map);
-            //TODO 为该供应商推送"待发货"消息通知
-            sendNotice(payInput);
             // 根据支付id，批量生成订单的二维码
             String payId = payDao.findPayIdByOrderId(payInput.getOrderId());
             purchaseService.createReceivingQrcodeByPayId(payId);
+            //TODO 为该供应商推送"待发货"消息通知
+            payInput.setOrderId(payId);
+            sendNotice(payInput);
         }
         return flag;
     }
