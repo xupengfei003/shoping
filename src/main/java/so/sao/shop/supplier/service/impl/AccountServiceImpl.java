@@ -314,7 +314,7 @@ public class AccountServiceImpl implements AccountService {
             long betweenDate = (endDate - currentDate) / (1000 * 60 * 60 * 24);
             if (betweenDate <= 0){
                 account.setContractStatus(2);
-            }else if(betweenDate == 30){
+            }else if(betweenDate > 0 && betweenDate <= 30){
                 account.setContractStatus(1);
             }
         }
