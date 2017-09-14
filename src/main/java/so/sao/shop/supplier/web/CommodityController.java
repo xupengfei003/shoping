@@ -126,13 +126,17 @@ public class CommodityController {
 
     @ApiOperation(value="高级查询结果导出商品信息到Excel模板", notes="【责任人：张瑞兵】")
     @GetMapping(value="/exportExcel")
-    public Result exportExcel(HttpServletRequest request , HttpServletResponse response , CommExportInput commExportInput) {
+    public Result exportExcel(HttpServletRequest request , HttpServletResponse response , CommExportInput commExportInput)throws Exception {
+        //校验供应商id
+        commExportInput.setSupplierId(CheckUtil.supplierIdCheck(request,commExportInput.getSupplierId()));
         return  commodityService.exportExcel(request , response , commExportInput);
     }
 
     @ApiOperation(value="简单查询结果导出商品信息到Excel模板", notes="【责任人：张瑞兵】")
     @GetMapping(value="/simpleExportExcel")
-    public Result simpleExportExcel(HttpServletRequest request , HttpServletResponse response , CommExportInput commExportInput) {
+    public Result simpleExportExcel(HttpServletRequest request , HttpServletResponse response , CommExportInput commExportInput)throws Exception {
+        //校验供应商id
+        commExportInput.setSupplierId(CheckUtil.supplierIdCheck(request,commExportInput.getSupplierId()));
         return  commodityService.exportExcel(request , response , commExportInput);
     }
 
