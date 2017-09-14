@@ -104,7 +104,7 @@ public interface PurchaseService {
     Integer findOrderStatus(String orderId);
 
     /**
-     * 根据支付ID获取订单状态
+     * 根据支付ID获取订单ID列表
      *
      * @param payId
      * @return
