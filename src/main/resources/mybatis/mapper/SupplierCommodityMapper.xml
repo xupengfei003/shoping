@@ -375,4 +375,49 @@
             and   inventory >= -#{count}
         </foreach>
     </update>
+
+    <!--获取商品信息-->
+    <select id="findBySupplierId" resultType="so.sao.shop.supplier.domain.SupplierCommodity">
+        SELECT
+        id,
+        sku,
+        remark,
+        description,
+        code,
+        code69,
+        rule_val AS ruleVal,
+        inventory,
+        min_img AS minImg,
+        price,
+        unit_price AS unitPrice,
+        created_at AS createdAt,
+        updated_at AS updatedAt,
+        supplier_id AS supplierId,
+        status
+        FROM supplier_commodity WHERE supplier_id = #{supplierId}
+    </select>
+
+    <!--商品失效-->
+    <update id="updateInvalidStatusById" parameterType="so.sao.shop.supplier.domain.SupplierCommodity">
+        UPDATE supplier_commodity
+        SET invalid_status = #{invalidStatus} ,updated_at = #{updatedAt}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 更新商品规格信息 -->
+    <update id="updateAmz">
+        UPDATE supplier_commodity SET
+        sku = #{sku},
+        supplier_id = #{supplierId},
+        code69 = #{code69},
+        price = #{price},
+        unit_price = #{unitPrice},
+        min_img = #{minImg},
+        updated_at = #{updatedAt},
+        updated_by = #{updatedBy},
+        remark = #{remark},
+        status = #{status},
+        invalid_status = #{invalidStatus}
+        WHERE id = #{id}
+    </update>
 </mapper>

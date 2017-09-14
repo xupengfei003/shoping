@@ -86,7 +86,15 @@
         )
     </insert>
     <update id="update">
-        UPDATE commodity SET name=#{name},brand_id = #{brandId} WHERE id = #{id}
+        UPDATE commodity SET
+          name = #{name},
+          code69 = #{code69},
+          category_one_id = #{categoryOneId},
+          category_two_id = #{categoryTwoId},
+          category_three_id = #{categoryThreeId},
+          updated_by = #{updatedBy},
+          updated_at = #{updatedAt}
+        WHERE id = #{id}
     </update>
     <select id="findByIds" resultType="so.sao.shop.supplier.pojo.output.CommodityExportOutput">
         SELECT

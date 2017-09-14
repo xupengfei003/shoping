@@ -67,6 +67,15 @@
         )
         </foreach>
     </insert>
+
+    <!--根据scId集合批量删除图片-->
+    <delete id="deleteByCode69s">
+        DELETE FROM ty_comm_imge
+        WHERE code69 IN
+        <foreach collection="code69s" item="code69" index="index" open="(" close=")" separator=",">
+            #{code69}
+        </foreach>
+    </delete>
 </mapper>
 
 

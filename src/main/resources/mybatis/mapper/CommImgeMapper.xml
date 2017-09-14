@@ -80,4 +80,13 @@
             #{id}
         </foreach>
     </delete>
+
+    <!--根据scId集合批量删除图片-->
+    <delete id="deleteByScIds">
+        DELETE FROM comm_imge
+        WHERE sc_id IN
+        <foreach collection="scIds" item="scId" index="index" open="(" close=")" separator=",">
+            #{scId}
+        </foreach>
+    </delete>
 </mapper>

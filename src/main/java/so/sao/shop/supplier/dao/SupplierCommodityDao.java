@@ -178,4 +178,26 @@ public interface SupplierCommodityDao {
      * @return
      */
      int updateInventoryByGoodsId(@Param("map")Map map);
+
+    /**
+     * 根据id更新失效状态
+     * @param id
+     * @param invalidStatus
+     * @return
+     */
+    void updateInvalidStatusById(@Param("id")long id, @Param("invalidStatus ") int invalidStatus, @Param("updatedAt ") Date updatedAt);
+
+    /**
+     * 根据supplierId获取规格列表
+     * @param supplierId
+     * @return int
+     */
+    List<SupplierCommodity> findBySupplierId(@Param("supplierId") Long supplierId);
+
+    /**
+     * 修改商品
+     * @param supplierCommodity 商品信息对象
+     * @return 修改结果
+     */
+    void updateAmz(SupplierCommodity supplierCommodity);
 }

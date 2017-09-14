@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import so.sao.shop.supplier.config.CommConstant;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.vo.CommBlobUpload;
+import so.sao.shop.supplier.util.HttpRequestUtil;
 import so.sao.shop.supplier.util.UUIDGenerator;
 import so.sao.shop.supplier.web.UploadController;
 
@@ -185,6 +186,67 @@ public class AzureBlobService {
         return Result.fail("文件上传异常");
     }
 
+
+    /**
+     * 多文件上传（商品图片）
+     * @param urls  图片url集合
+     * @return Result
+     */
+    public Result uploadFiles(List<String> urls) {
+        List<CommBlobUpload> blobUploadList = new ArrayList<>();
+        try {
+            CloudBlobContainer container = getBlobContainer(CommConstant.AZURE_CONTAINER.toLowerCase());
+            for (String url : urls) {
+                File file = new File(url);
+                InputStream fileInputStream = HttpRequestUtil.getInputStream(url);
+
+                //获取上传文件的名称及文件类型
+                CommBlobUpload commBlobUpload = new CommBlobUpload();
+                String fileName = file.getName();
+                String extensionName = StringUtils.substringAfter(fileName, ".");
+
+                //拼装blob的名称(新的图片文件名 =UUID+"."图片扩展名)
+                String newFileName = UUIDGenerator.getUUID() + "." + extensionName;
+                String preName = UploadController.getBlobPreName(extensionName, false).toLowerCase();//大图路径
+                String blobName = preName + newFileName;
+
+                //设置文件类型，并且上传到azure blob
+                BufferedImage sourceImg = ImageIO.read(fileInputStream);
+                BufferedImage bufferedImage = new BufferedImage(sourceImg.getWidth(), sourceImg.getHeight(), BufferedImage.TYPE_INT_RGB);
+                bufferedImage.createGraphics().drawImage(sourceImg.getScaledInstance(sourceImg.getWidth(), sourceImg.getHeight(), Image.SCALE_SMOOTH), 0, 0, null);
+                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                ImageIO.write(bufferedImage, extensionName, byteArrayOutputStream);
+                CloudBlockBlob blob = container.getBlockBlobReference(blobName);
+                blob.getProperties().setContentType(fileName.substring(fileName.lastIndexOf("."), fileName.length()));
+                InputStream stream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
+                blob.upload(stream, byteArrayOutputStream.toByteArray().length);
+
+                //生成缩略图，并上传至AzureStorage
+                BufferedImage img = new BufferedImage(CommConstant.THUMBNAIL_DEFAULT_WIDTH, CommConstant.THUMBNAIL_DEFAULT_HEIGHT, BufferedImage.TYPE_INT_RGB);
+                img.createGraphics().drawImage(sourceImg.getScaledInstance(CommConstant.THUMBNAIL_DEFAULT_WIDTH, CommConstant.THUMBNAIL_DEFAULT_HEIGHT, Image.SCALE_SMOOTH), 0, 0, null);
+                ByteArrayOutputStream thumbnailStream = new ByteArrayOutputStream();
+                ImageIO.write(img, CommConstant.IMAGE_JPG, thumbnailStream);
+                String thumbnailPreName = UploadController.getBlobPreName(extensionName, true).toLowerCase();
+                String blobThumbnail = thumbnailPreName + UUIDGenerator.getUUID() + CommConstant.IMG_FILE_JPG;
+                CloudBlockBlob thumbnailBlob = container.getBlockBlobReference(blobThumbnail);
+                thumbnailBlob.getProperties().setContentType(CommConstant.IMAGE_JPEG);
+                InputStream inputStream = new ByteArrayInputStream(thumbnailStream.toByteArray());
+                thumbnailBlob.upload(inputStream, thumbnailStream.toByteArray().length);
+
+                //将上传后的图片URL返
+                commBlobUpload.setFileName(fileName);
+                commBlobUpload.setUrl(blob.getUri().toString());
+                commBlobUpload.setMinImgUrl(thumbnailBlob.getUri().toString());
+                commBlobUpload.setType(extensionName);
+                commBlobUpload.setSize(sourceImg.getWidth() + "*" + sourceImg.getHeight());
+
+                blobUploadList.add(commBlobUpload);
+            }
+        } catch (URISyntaxException | StorageException | IOException e) {
+            return Result.fail("文件上传异常");
+        }
+        return Result.success("文件上传成功", blobUploadList);
+    }
 
     /**
      * 解压后上传文件

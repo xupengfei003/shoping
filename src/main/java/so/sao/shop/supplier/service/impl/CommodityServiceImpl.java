@@ -150,7 +150,7 @@ public class CommodityServiceImpl implements CommodityService {
             sc.setUpdatedBy(supplierId);
             sc.setCreatedAt(new Date());
             sc.setUpdatedAt(new Date());
-            String sku = createSku(commCategoryCode, commodity.getId(), supplierId);
+            String sku = CommUtil.createSku(commCategoryCode, commodity.getId(), supplierId);
             sc.setSku(sku);
             //若供应商被禁用，新增的商品是失效状态
             if(account.getAccountStatus()==CommConstant.ACCOUNT_INVALID_STATUS){
@@ -221,21 +221,6 @@ public class CommodityServiceImpl implements CommodityService {
         //拼装商品分类code码
         String commCategoryCode = commCategoryOne.getCode() + commCategoryTwo.getCode() + commCategoryThree.getCode();
         return Result.success("校验通过", commCategoryCode);
-    }
-
-    /**
-     * 生成sku
-     * @param commCategoryCode 商品分类code码
-     * @param commId 商品Id
-     * @param supplierId 供应商Id
-     * @return sku
-     */
-    private String createSku(String commCategoryCode, Long commId, Long supplierId){
-        //前6位是商品分类，每级分类占两位,中间6位是商品表id自增(100000开始)
-        Long commIdCode = 100000 + commId;
-        //后面5位是供应商id字增(10000开始)
-        Long supplierIdCode = 10000 + supplierId;
-        return commCategoryCode + commIdCode.toString() + supplierIdCode.toString();
     }
 
     /**

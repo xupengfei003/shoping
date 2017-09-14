@@ -10,6 +10,7 @@ import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.pojo.BaseResult;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.*;
+import so.sao.shop.supplier.service.AmzScheduledJobService;
 import so.sao.shop.supplier.service.CommodityService;
 import so.sao.shop.supplier.util.CheckUtil;
 
@@ -29,7 +30,7 @@ public class CommodityController {
 
     @Autowired
     private CommodityService commodityService;
-
+    
     @ApiOperation(value="查询供应商商品信息集合（高级搜索）", notes="根据参数返回符合条件的商品信息集合（高级搜索）【责任人：刘刚】")
     @GetMapping(value="/search")
     public Result search(HttpServletRequest request, CommSearchInput commSearchInput) throws Exception {
