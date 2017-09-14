@@ -105,7 +105,9 @@ public class CommAppServiceImpl implements CommAppService {
 
 
     /**
-     * 根据商品名称或分类或品牌ID查询商品信息
+     * 根据供应商ID或商品名称或分类或品牌ID查询商品信息
+     *
+     * @param supplierId 供应商id
      * @param commName 商品名称
      * @param categoryOneId 一级分类id
      * @param categoryTwoId 二级分类id
@@ -116,12 +118,12 @@ public class CommAppServiceImpl implements CommAppService {
      * @return
      */
     @Override
-    public Result getCommodities(String commName, Long categoryOneId, Long categoryTwoId, Long categoryThreeId, Long[] brandIds, Integer pageNum, Integer pageSize) {
+    public Result getCommodities(Long supplierId, String commName, Long categoryOneId, Long categoryTwoId, Long categoryThreeId, Long[] brandIds, Integer pageNum, Integer pageSize) {
 
         //开始分页
         PageTool.startPage(pageNum,pageSize);
-        List<CommAppSeachOutput> commList  = commAppDao.findCommodities(commName, categoryOneId, categoryTwoId, categoryThreeId, brandIds);
-        PageInfo<CommAppSeachOutput> pageInfo = new PageInfo<CommAppSeachOutput>(commList);
+        List<CommAppOutput> commList  = commAppDao.findCommodities(supplierId,commName, categoryOneId, categoryTwoId, categoryThreeId, brandIds);
+        PageInfo<CommAppOutput> pageInfo = new PageInfo<CommAppOutput>(commList);
         return Result.success("查询成功",pageInfo);
     }
 }
