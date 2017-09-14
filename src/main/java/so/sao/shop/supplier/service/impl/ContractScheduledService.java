@@ -102,7 +102,7 @@ public class ContractScheduledService {
 
     }
     public Notification createNotification(Long accountId,String info,String sigin){
-            //给合同到期一个月前的供应商发系统消息
+            //给合同到期30天前的供应商发系统消息
             Notification notification = new Notification();
             notification.setAccountId(accountId);
             notification.setNotifiType(2);  //消息类型 0订单1系统2到期提醒
