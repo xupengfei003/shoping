@@ -72,7 +72,7 @@ public interface NotificationDao {
      * @param accountId accountId
      * @return String
      */
-    List<Notification> marqueeShow(@Param("accountId") Long accountId);
+    String marqueeShow(@Param("accountId") Long accountId);
 
     /**
      * 查询未读消息列表
@@ -82,5 +82,4 @@ public interface NotificationDao {
      * @return List<Notification>
      */
     List<Notification> searchUnread(@Param("accountId") Long accountId, @Param("notifiType") Integer notifiType, @Param("count") Integer count);
-
 }
