@@ -31,10 +31,11 @@ public class PayServiceImpl implements PayService {
     private PurchaseService purchaseService;
 
     /**
-     * 保存支付信息
+     * 支付回调接口
      *
-     * @param payInput 输入实体
-     * @return int
+     * @param payInput 封装了回调参数
+     * @return Result 封装了结果
+     * @throws Exception 异常
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -50,7 +51,6 @@ public class PayServiceImpl implements PayService {
         }
         return flagDao;
     }
-
 
     /**
      * 支付回调接口(单订单支付)
