@@ -44,7 +44,7 @@
         id in (#{commCategoryOneId},#{commCategoryTwoId},#{commCategoryThreeId})
     </select>
 
-    <select id="findOneByName" resultType="so.sao.shop.supplier.domain.CommCategory">
+    <select id="findByName" resultType="so.sao.shop.supplier.domain.CommCategory">
         SELECT
         <include refid="baseColumns"/>
         FROM comm_category WHERE name = #{name}

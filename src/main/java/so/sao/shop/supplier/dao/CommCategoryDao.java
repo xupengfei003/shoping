@@ -41,7 +41,7 @@ public interface CommCategoryDao {
      * @param name
      * @return CommCategory
      */
-    List<CommCategory> findOneByName(@Param("name")String name);
+    List<CommCategory> findByName(@Param("name")String name);
 
     /**
      * 查询商品类型

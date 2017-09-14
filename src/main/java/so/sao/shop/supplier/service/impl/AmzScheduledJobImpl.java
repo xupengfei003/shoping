@@ -76,8 +76,6 @@ public class AmzScheduledJobImpl implements AmzScheduledJobService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result amzScheduledJob(){
-        //返回结果
-        Map<Long, Object> map = new HashMap<>();
         try {
             //获取亚马劲数据所有商品列表
             ProListOutput proListOutput = getAmzProductList();
@@ -102,13 +100,13 @@ public class AmzScheduledJobImpl implements AmzScheduledJobService {
             code69s = insertAmaData(prodIds, code69s, code69Map, tempPath);
             //多余数据置为失效
             for(String code69 : code69s) {
-                supplierCommodityDao.updateInvalidStatusById(code69Map.get(code69), 0, new Date());
+                supplierCommodityDao.updateInvalidStatusById(code69Map.get(code69), CommConstant.COMM_INVALID_STATUS, new Date());
             }
             FileUtil.deleteDirectory(tempPath);
         }catch (Exception e){
             return Result.fail("数据导入异常", e);
         }
-        return Result.success("数据导入成功", map);
+        return Result.success("数据导入成功");
     }
 
     /**
@@ -195,7 +193,7 @@ public class AmzScheduledJobImpl implements AmzScheduledJobService {
         String categoryThreeCode;
         //亚马劲商品分类名称
         String CatName = proInfoRespOutput.getCat_name();
-        List<CommCategory> commCategorys = commCategoryDao.findOneByName(CatName);
+        List<CommCategory> commCategorys = commCategoryDao.findByName(CatName);
         if(commCategorys.size() > 0){
             int flag = 0;
             for(CommCategory commCategory : commCategorys){
@@ -249,7 +247,7 @@ public class AmzScheduledJobImpl implements AmzScheduledJobService {
         sc.setUpdatedBy(SUPPLIER_ID);
         sc.setCreatedAt(new Date());
         sc.setUpdatedAt(new Date());
-        sc.setInvalidStatus(1);
+        sc.setInvalidStatus(CommConstant.COMM_ACTIVE_STATUS);
         //商品说明
         String remark;
         //获取商品说明
