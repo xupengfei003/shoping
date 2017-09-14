@@ -401,10 +401,14 @@ public class AmzScheduledJobImpl implements AmzScheduledJobService {
             }
             code69s.remove(code69);
         }
-        //批量删除公共图片
-        tyCommImagDao.deleteByCode69s(code69List);
-        //批量删除图片
-        commImgeDao.deleteByScIds(scIds);
+        if(code69List.size() > 0){
+            //批量删除公共图片
+            tyCommImagDao.deleteByCode69s(code69List);
+        }
+        if(scIds.size() > 0){
+            //批量删除图片
+            commImgeDao.deleteByScIds(scIds);
+        }
         //公共图片批量新增
         tyCommImagDao.batchSave(tyCommImgesIns);
         //图片批量新增
