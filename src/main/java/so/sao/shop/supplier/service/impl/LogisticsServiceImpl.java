@@ -16,10 +16,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import so.sao.shop.supplier.config.Constant;
+import so.sao.shop.supplier.dao.LogisticsDao;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.service.LogisticsService;
 import so.sao.shop.supplier.util.MD5Util;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.util.ArrayList;
@@ -34,7 +36,8 @@ import java.util.Map;
 public class LogisticsServiceImpl implements LogisticsService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    @Resource
+    private LogisticsDao logisticsDao;
     /**
      * 根据物流单好查询物流信息
      * @param num 物流单号
@@ -56,8 +59,12 @@ public class LogisticsServiceImpl implements LogisticsService {
             result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
             //转换json字符为对象
             ObjectMapper objectMapper = new ObjectMapper();
-            Object o = objectMapper.readValue(data,Object.class);
-            result.setData(o);
+            //Object o = objectMapper.readValue(data,Object.class);
+            Map<String,Object> map = objectMapper.readValue(data,Map.class);
+            String comStr = map.get("com").toString();
+            String companyName = logisticsDao.findCompanyNameByCom(comStr);
+            map.put("com",companyName);
+            result.setData(map);
         } catch (Exception e) {
             result.setCode(Constant.CodeConfig.CODE_SYSTEM_EXCEPTION);
             result.setMessage(Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
@@ -221,8 +228,9 @@ public class LogisticsServiceImpl implements LogisticsService {
 //        num = "123";
         ObjectMapper objectMapper = new ObjectMapper();
         Result<Object> result = logisticsService.findLogisticInfo(num);
-        JsonGenerator jsonGenerator = objectMapper.getJsonFactory().createJsonGenerator(System.out, JsonEncoding.UTF8);
-        jsonGenerator.writeObject(result);
-//        System.out.println(result);
+        //JsonGenerator jsonGenerator = objectMapper.getJsonFactory().createJsonGenerator(System.out, JsonEncoding.UTF8);
+        //jsonGenerator.writeObject(result);
+        System.out.println("result:"+result.getData());
     }
 }
+
