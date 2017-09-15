@@ -193,11 +193,16 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public Result verifySmsCode(User user, String code){
         Object SmsCode = redisTemplate.opsForValue().get(Constant.REDIS_SMSCODE_KEY_PREFIX+user.getUsername());
-        //判断redis里的code是否存在并且与参数相同，不存在说明验证码失效
-        if(SmsCode!=null&&SmsCode.toString().equals(code)){
-            return Result.success("验证通过");
-        }else{
-            return Result.fail("验证不通过");
+        //判断redis里的code是否存在不存在说明验证码失效
+        if(SmsCode != null){
+            //判断code是否与参数相同，相同则为正确验证码
+            if (SmsCode.toString().equals(code)){
+                return Result.success("验证通过");
+            }else {
+                return Result.fail("验证不通过");
+            }
+        }else {
+            return Result.fail("验证码已失效");
         }
     }
 

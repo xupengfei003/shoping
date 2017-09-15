@@ -89,8 +89,8 @@
             AND cb.name LIKE '%${name}%'
         </if>
     </select>
-    <!--根据名称，分类，品牌Ids查询商品信息-->
-    <select id="findCommodities" resultType="so.sao.shop.supplier.pojo.output.CommAppSeachOutput">
+    <!--根据供应商ID，商品名称，分类，品牌Ids查询商品信息-->
+    <select id="findCommodities" resultType="so.sao.shop.supplier.pojo.output.CommAppOutput">
         SELECT
         sc.id AS id,
         sc.min_img AS minImg,
@@ -106,6 +106,9 @@
         sc.price AS price,
         sc.unit_price AS unitPrice,
         sc.inventory AS inventory,
+        acc.provider_name AS providerName,
+        acc.contract_register_address_city AS contractRegisterAddressCity,
+        (SELECT NAME FROM sys_region r WHERE r.sr_id=acc.contract_register_address_city) AS contractRegisterAddressCityName,
         sc.created_at AS createdAt,
         sc.updated_at AS updatedAt,
         sc.invalid_status AS invalidStatus
@@ -118,9 +121,13 @@
         LEFT JOIN comm_category cc1 ON c.category_one_id=cc1.id
         LEFT JOIN comm_category cc2 ON c.category_two_id=cc2.id
         LEFT JOIN comm_category cc3 ON c.category_three_id=cc3.id
+        LEFT JOIN account acc ON acc.account_id=sc.supplier_id
         WHERE sc.invalid_status = 1
         AND sc.deleted = 0
         AND sc.status = 2
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierId)">
+            AND sc.supplier_id = #{supplierId}
+        </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(commName)">
             AND c.name LIKE '%${commName}%'
         </if>

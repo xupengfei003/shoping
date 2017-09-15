@@ -375,7 +375,6 @@ public class PurchaseServiceImpl implements PurchaseService {
         cell.setCellValue("支付流水号");
         cell.setCellStyle(style);
 
-        List<Purchase> purchaseList = new ArrayList<>();
         List<Purchase> orderList;
         List<Integer> pageNumList;
 
@@ -384,24 +383,17 @@ public class PurchaseServiceImpl implements PurchaseService {
             pageNumList = Arrays.asList(pageNum.split(",")).stream().map(s -> Integer.parseInt(s.trim())).collect(Collectors.toList());
             if (pageNumList.size() > 1) {
                 Collections.sort(pageNumList);
-                for (int i = pageNumList.get(0); i <= pageNumList.get(1); i++) {
-                    PageHelper.startPage(i, pageSize);
-                    orderList = purchaseDao.getOrderListByIds(purchaseSelectInput, accountId);
-                    purchaseList.addAll(orderList);
-                }
+                orderList = (List<Purchase>) PageTool.getListByPage(purchaseDao.getOrderListByIds(purchaseSelectInput, accountId), pageNumList.get(0), pageNumList.get(1), pageSize);
             } else { //获取当前页列表
-                PageTool.startPage(pageNumList.get(0), pageSize);
-                purchaseList = purchaseDao.getOrderListByIds(purchaseSelectInput, accountId);
+                orderList = (List<Purchase>) PageTool.getListByPage(purchaseDao.getOrderListByIds(purchaseSelectInput, accountId), pageNumList.get(0), pageNumList.get(0), pageSize);
             }
-
         } else { //查询全部列表
-            purchaseList = purchaseDao.getOrderListByIds(purchaseSelectInput, accountId);
+            orderList = purchaseDao.getOrderListByIds(purchaseSelectInput, accountId);
         }
-
         //向单元格里填充数据
         HSSFCell cellTemp = null;
-        for (int i = 0; i < purchaseList.size(); i++) {
-            Purchase purchase = purchaseList.get(i);
+        for (int i = 0; i < orderList.size(); i++) {
+            Purchase purchase = orderList.get(i);
             sheet.setColumnWidth(0, 20 * 256);
             row = sheet.createRow(i + 1);
             cellTemp = row.createCell(0);

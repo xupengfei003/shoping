@@ -182,4 +182,14 @@ public class CommConstant {
      */
     public static final int ACCOUNT_NOSENDSMS_STATUS = 0;
 
+    /**
+     * 食品保健食品一级大类id
+     */
+    public static final Long COMM_CATEGORY_ID = 1L;
+
+    /**
+     * 商品分类code码
+     */
+    public static final String COMM_CATEGORY_CODE = "010000";
+
 }

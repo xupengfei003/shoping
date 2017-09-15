@@ -44,10 +44,16 @@
         id in (#{commCategoryOneId},#{commCategoryTwoId},#{commCategoryThreeId})
     </select>
 
-    <select id="findOneByName" resultType="so.sao.shop.supplier.domain.CommCategory">
+    <select id="findByName" resultType="so.sao.shop.supplier.domain.CommCategory">
         SELECT
         <include refid="baseColumns"/>
         FROM comm_category WHERE name = #{name}
+    </select>
+
+    <select id="findById" resultType="so.sao.shop.supplier.domain.CommCategory">
+        SELECT
+        <include refid="baseColumns"/>
+        FROM comm_category WHERE id = #{id}
     </select>
 
     <!-- 根据商品 名称查询， 返回商品输出对象 -->
