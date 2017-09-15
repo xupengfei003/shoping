@@ -31,10 +31,11 @@ public class PayServiceImpl implements PayService {
     private PurchaseService purchaseService;
 
     /**
-     * 保存支付信息
+     * 支付回调接口
      *
-     * @param payInput 输入实体
-     * @return int
+     * @param payInput 封装了回调参数
+     * @return Result 封装了结果
+     * @throws Exception 异常
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -51,7 +52,6 @@ public class PayServiceImpl implements PayService {
         return flagDao;
     }
 
-
     /**
      * 支付回调接口(单订单支付)
      *
@@ -66,7 +66,7 @@ public class PayServiceImpl implements PayService {
         if (isSign(payInput)) {
             Map<String, Object> map = mergePaymentInfo(payInput);
             flag = payDao.updatePaymentByOrderId(map);
-            // 根据支付id，批量生成订单的二维码
+            // 根据订单id，成订单的二维码
             purchaseService.createReceivingQrcode(payInput.getOrderId());
             //TODO 为该供应商推送"待发货"消息通知
             String payId = payDao.findPayIdByOrderId(payInput.getOrderId());

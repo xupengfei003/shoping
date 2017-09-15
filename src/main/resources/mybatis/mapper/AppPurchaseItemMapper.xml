@@ -10,9 +10,10 @@
         <result column="goods_tatol_price" property="goodsTatolPrice"/>
         <result column="goods_attribute" property="goodsAttribute"/>
         <result column="order_id" property="orderId"/>
+        <result column="pay_id" property="payId"/>
     </resultMap>
     <sql id="App_Goods_Column_List">
-       g.goods_image, g.goods_name, g.goods_unit_price, g.goods_number, g.goods_tatol_price, g.goods_attribute, p.order_id
+       g.goods_image, g.goods_name, g.goods_unit_price, g.goods_number, g.goods_tatol_price, g.goods_attribute, p.order_id,p.pay_id
     </sql>
     <!--根据订单ID列表查询商品详情-->
     <select id="findOrderItemList" parameterType="java.util.List" resultMap="AppGoodsAllList">
@@ -35,5 +36,19 @@
         JOIN purchase p
         ON p.order_id = g.order_id
         AND p.order_id = TRIM(#{orderId,jdbcType=VARCHAR})
+    </select>
+    <!--根据合并支付ID列表查询商品详情-->
+    <select id="findOrderItemListByPayId" parameterType="java.util.List" resultMap="AppGoodsAllList">
+        SELECT
+        <include refid="App_Goods_Column_List"/>
+        FROM purchase_item g
+        JOIN purchase p
+        ON p.pay_id = g.pay_id
+        AND p.order_id = g.order_id
+        AND p.pay_id IN
+        <foreach collection="payIdList" item="payId" open="(" close=")" separator="," index="i">
+            #{payId,jdbcType=VARCHAR}
+        </foreach>
+        ORDER BY p.updated_at DESC
     </select>
 </mapper>

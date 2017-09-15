@@ -42,20 +42,26 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
         List<AppPurchasesVo> orderList = appPurchaseDao.findOrderList(userId, convertStringToInt(orderStatus));
         List<String> orderIdList = new ArrayList<>();//接收订单编号
         if (null != orderList && orderList.size() > 0) {
-            //获取所有订单编号
-            for (AppPurchasesVo appPurchasesVo : orderList) {
-                orderIdList.add(appPurchasesVo.getOrderId());
-            }
+            orderIdList = getId(orderStatus, orderList);
         }
         PageInfo pageInfo = new PageInfo(orderList);//复制分页信息
         List<AppPurchaseOutput> appPurchaseOutputs = new ArrayList<>();//接收返回list
-        List<AppPurchaseItemVo> appPurchaseItemVoList = getAllOrderItemList(orderIdList);//接收详情列表
+        List<AppPurchaseItemVo> appPurchaseItemVoList = getAllOrderItemList(orderIdList,orderStatus);//接收详情列表
         for (AppPurchasesVo appPurchasesVo : orderList) {
             List<AppPurchaseItemVo> appPurchaseItemVoListInner = new ArrayList<>();
             AppPurchaseOutput appPurchaseOutput;
             int goodsAllNum = 0;//计算该订单下所有商品总数
             //合并返回结果
             for (AppPurchaseItemVo appPurchaseItemVo : appPurchaseItemVoList) {
+                //订单状态为待付款
+                if("1".equals(orderStatus)){
+                    if (appPurchaseItemVo.getPayId().equals(appPurchasesVo.getPayId())) {
+                        appPurchaseItemVoListInner.add(appPurchaseItemVo);
+                        goodsAllNum += appPurchaseItemVo.getGoodsNumber();
+                    }
+                    continue;
+                }
+                //订单状态为其他
                 if (appPurchaseItemVo.getOrderId().equals(appPurchasesVo.getOrderId())) {
                     appPurchaseItemVoListInner.add(appPurchaseItemVo);
                     goodsAllNum += appPurchaseItemVo.getGoodsNumber();
@@ -71,8 +77,28 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
         return pageInfo;
     }
 
+    //获取ID（订单状态为待付款（1）获取的是payID,订单状态为其他则获取的是orderId）
+    private List<String> getId(String orderStatus, List<AppPurchasesVo> orderList) {
+        List<String> orderIdList = new ArrayList<>();
+        if("1".equals(orderStatus)){
+            //获取所有合并支付编号
+            for (AppPurchasesVo appPurchasesVo : orderList) {
+                orderIdList.add(appPurchasesVo.getPayId());
+            }
+            return orderIdList;
+        }
+        //获取所有订单编号
+        for (AppPurchasesVo appPurchasesVo : orderList) {
+            orderIdList.add(appPurchasesVo.getOrderId());
+        }
+        return orderIdList;
+    }
+
     //获取详情信息
-    private List<AppPurchaseItemVo> getAllOrderItemList(List<String> orderIdList) throws Exception {
+    private List<AppPurchaseItemVo> getAllOrderItemList(List<String> orderIdList,String orderStatus) throws Exception {
+        if("1".equals(orderStatus)){
+            return appPurchaseItemDao.findOrderItemListByPayId(orderIdList);
+        }
         return appPurchaseItemDao.findOrderItemList(orderIdList);
     }
 

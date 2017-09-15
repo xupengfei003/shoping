@@ -4,6 +4,7 @@ package so.sao.shop.supplier.service;
 import com.github.pagehelper.PageInfo;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.*;
+import so.sao.shop.supplier.pojo.output.OrderRefuseReasonOutput;
 import so.sao.shop.supplier.pojo.output.PurchaseItemPrintOutput;
 import so.sao.shop.supplier.pojo.vo.PurchaseInfoVo;
 import so.sao.shop.supplier.pojo.vo.PurchasesVo;
@@ -172,7 +173,7 @@ public interface PurchaseService {
      * @param orderId 订单ID
      * @return map 封装了所有订单拒收原因信息
      */
-    Map<String, Object> searchRefuseReasonByOrderId(String orderId) throws Exception;
+    OrderRefuseReasonOutput searchRefuseReasonByOrderId(String orderId) throws Exception;
 
     /**
      * 根据商家编号及查询条件（起始创建订单-结束创建订单时间/支付流水号/订单编号/收货人名称）查找所有相关订单记录(分页)
