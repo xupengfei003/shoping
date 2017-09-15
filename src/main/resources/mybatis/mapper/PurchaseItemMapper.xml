@@ -76,7 +76,8 @@
                 goods_image,
                 goods_name,
                 order_id,
-                brand_name
+                brand_name,
+                pay_id
             )
         VALUES
         <foreach collection ="list" item="item" index= "index" separator =",">
@@ -91,7 +92,8 @@
                 #{item.goodsImage},
                 #{item.goodsName},
                 #{item.orderId},
-                #{item.brandName}
+                #{item.brandName},
+                #{item.payId}
             )
         </foreach>
     </insert>

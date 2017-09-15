@@ -63,7 +63,9 @@ public class LogisticsServiceImpl implements LogisticsService {
             Map<String,Object> map = objectMapper.readValue(data,Map.class);
             String comStr = map.get("com").toString();
             String companyName = logisticsDao.findCompanyNameByCom(comStr);
-            map.put("com",companyName);
+            if (null != companyName){
+                map.put("com",companyName);
+            }
             result.setData(map);
         } catch (Exception e) {
             result.setCode(Constant.CodeConfig.CODE_SYSTEM_EXCEPTION);
@@ -221,5 +223,6 @@ public class LogisticsServiceImpl implements LogisticsService {
             return null;
         }
     }
+
 }
 

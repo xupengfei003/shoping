@@ -153,6 +153,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                     item.setGoodsName(commOutput.getName());//商品名称
                     item.setBrandName(commOutput.getBrandName());//品牌
                     item.setOrderId(orderId);//订单ID
+                    item.setPayId(payId);//合并支付ID
                     listItem.add(item);
                 }
             }

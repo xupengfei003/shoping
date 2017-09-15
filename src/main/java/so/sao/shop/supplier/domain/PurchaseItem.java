@@ -62,6 +62,11 @@ public class PurchaseItem {
      */
     private String brandName;
 
+    /**
+     * 合并支付ID
+     *
+     */
+    private String payId;
 
     public String getDetailsId() {
         return detailsId;
@@ -157,5 +162,13 @@ public class PurchaseItem {
 
     public void setBrandName(String brandName) {
         this.brandName = brandName;
+    }
+
+    public String getPayId() {
+        return payId;
+    }
+
+    public void setPayId(String payId) {
+        this.payId = payId;
     }
 }
