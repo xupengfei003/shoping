@@ -12,11 +12,12 @@
         <result column="order_address" property="orderAddress"/>
         <result column="order_price" property="orderPrice"/>
         <result column="order_shipment_number" property="orderShipmentNumber"/>
+        <result column="pay_id" property="payId"/>
     </resultMap>
 
     <sql id="App_Order_Column_List">
         order_id, order_create_time, store_name, order_status, order_receiver_name,
-        order_receiver_mobile, order_address,order_price,order_shipment_number
+        order_receiver_mobile, order_address,order_price,order_shipment_number,pay_id
     </sql>
     <select id="findOrderList" resultMap="AppOrderAllList" parameterType="java.lang.Integer">
         SELECT

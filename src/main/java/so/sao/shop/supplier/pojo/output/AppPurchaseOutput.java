@@ -15,6 +15,10 @@ public class AppPurchaseOutput {
      * 订单ID
      */
     private String orderId;
+    /**
+     * 合并支付编号
+     */
+    private String payId;
 
     /**
      * 下单时间
@@ -55,6 +59,14 @@ public class AppPurchaseOutput {
 
     public void setOrderId(String orderId) {
         this.orderId = orderId;
+    }
+
+    public String getPayId() {
+        return payId;
+    }
+
+    public void setPayId(String payId) {
+        this.payId = payId;
     }
 
     public Date getOrderCreateTime() {

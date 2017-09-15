@@ -41,6 +41,10 @@ public class AppPurchaseItemVo {
      * 订单编号
      */
     private String orderId;
+    /**
+     * 合并支付编号
+     */
+    private String payId;
 
     public String getGoodsImage() {
         return goodsImage;
@@ -96,5 +100,13 @@ public class AppPurchaseItemVo {
 
     public void setOrderId(String orderId) {
         this.orderId = orderId;
+    }
+
+    public String getPayId() {
+        return payId;
+    }
+
+    public void setPayId(String payId) {
+        this.payId = payId;
     }
 }

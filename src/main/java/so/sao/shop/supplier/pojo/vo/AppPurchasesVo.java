@@ -30,6 +30,10 @@ public class AppPurchasesVo {
      */
     private String orderId;
     /**
+     * 合并支付编号
+     */
+    private String payId;
+    /**
      * 下单时
      */
     private Date orderCreateTime;
@@ -84,6 +88,14 @@ public class AppPurchasesVo {
 
     public void setOrderId(String orderId) {
         this.orderId = orderId;
+    }
+
+    public String getPayId() {
+        return payId;
+    }
+
+    public void setPayId(String payId) {
+        this.payId = payId;
     }
 
     public Date getOrderCreateTime() {
