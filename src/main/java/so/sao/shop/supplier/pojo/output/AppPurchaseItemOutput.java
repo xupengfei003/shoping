@@ -48,6 +48,40 @@ public class AppPurchaseItemOutput {
      */
     private String orderShipmentNumber;
     /**
+     * 订单支付时间
+     */
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date orderPaymentTime;
+    /**
+     * 卖家拒绝时间
+     */
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date orderRefuseTime;
+    /**
+     * 退款时间
+     */
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date drawbackTime;
+    /**
+     * 发货时间
+     */
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date deliverGoodsTime;
+    /**
+     * 收货时间
+     */
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date orderReceiveTime;
+    /**
+     * 取消时间
+     */
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date orderCancelTime;
+    /**
+     * 支付流水号
+     */
+    private String orderPaymentNum;
+    /**
      * 商品信息
      */
     private List<AppPurchaseItemVo> appPurchaseItemVos;
@@ -130,5 +164,61 @@ public class AppPurchaseItemOutput {
 
     public void setAppPurchaseItemVos(List<AppPurchaseItemVo> appPurchaseItemVos) {
         this.appPurchaseItemVos = appPurchaseItemVos;
+    }
+
+    public Date getOrderPaymentTime() {
+        return orderPaymentTime;
+    }
+
+    public void setOrderPaymentTime(Date orderPaymentTime) {
+        this.orderPaymentTime = orderPaymentTime;
+    }
+
+    public Date getOrderRefuseTime() {
+        return orderRefuseTime;
+    }
+
+    public void setOrderRefuseTime(Date orderRefuseTime) {
+        this.orderRefuseTime = orderRefuseTime;
+    }
+
+    public Date getDrawbackTime() {
+        return drawbackTime;
+    }
+
+    public void setDrawbackTime(Date drawbackTime) {
+        this.drawbackTime = drawbackTime;
+    }
+
+    public Date getDeliverGoodsTime() {
+        return deliverGoodsTime;
+    }
+
+    public void setDeliverGoodsTime(Date deliverGoodsTime) {
+        this.deliverGoodsTime = deliverGoodsTime;
+    }
+
+    public Date getOrderReceiveTime() {
+        return orderReceiveTime;
+    }
+
+    public void setOrderReceiveTime(Date orderReceiveTime) {
+        this.orderReceiveTime = orderReceiveTime;
+    }
+
+    public Date getOrderCancelTime() {
+        return orderCancelTime;
+    }
+
+    public void setOrderCancelTime(Date orderCancelTime) {
+        this.orderCancelTime = orderCancelTime;
+    }
+
+    public String getOrderPaymentNum() {
+        return orderPaymentNum;
+    }
+
+    public void setOrderPaymentNum(String orderPaymentNum) {
+        this.orderPaymentNum = orderPaymentNum;
     }
 }
