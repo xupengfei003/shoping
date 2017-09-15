@@ -191,6 +191,16 @@ public class Purchase {
      * 支付状态
      */
     private Integer payStatus;
+    /**
+     * 发货时间
+     */
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date deliverGoodsTime;
+    /**
+     * 取消时间
+     */
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date orderCancelTime;
 
     public String getAccountStatus() {
         return accountStatus;
@@ -462,5 +472,21 @@ public class Purchase {
 
     public void setStoreName(String storeName) {
         this.storeName = storeName;
+    }
+
+    public Date getDeliverGoodsTime() {
+        return deliverGoodsTime;
+    }
+
+    public void setDeliverGoodsTime(Date deliverGoodsTime) {
+        this.deliverGoodsTime = deliverGoodsTime;
+    }
+
+    public Date getOrderCancelTime() {
+        return orderCancelTime;
+    }
+
+    public void setOrderCancelTime(Date orderCancelTime) {
+        this.orderCancelTime = orderCancelTime;
     }
 }

@@ -22,6 +22,7 @@
         <result column="order_refuse_reason" property="orderRefuseReason"/>
         <result column="order_refuse_time" property="orderRefuseTime"/>
         <result column="order_cancel_reason" property="orderCancelReason"/>
+        <result column="order_cancel_time" property="orderCancelTime"/>
         <result column="order_shipment_number" property="orderShipmentNumber"/>
         <result column="order_invoice" property="orderInvoice"/>
         <result column="order_status" property="orderStatus"/>
@@ -32,6 +33,7 @@
         <result column="order_refuse_imgC" property="orderRefuseImgC"/>
         <result column="order_receive_time" property="orderReceiveTime"/>
         <result column="pay_status" property="payStatus"/>
+        <result column="deliver_goods_time" property="deliverGoodsTime"/>
     </resultMap>
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
