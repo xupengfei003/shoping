@@ -82,7 +82,6 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
                 appPurchaseOutput.setOrderPrice(NumberUtil.number2Thousand(new BigDecimal(String.valueOf(goodsAllPrice))));
             }
             appPurchaseOutputs.add(appPurchaseOutput);
-
         }
         pageInfo.setList(appPurchaseOutputs);
         return pageInfo;
