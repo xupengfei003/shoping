@@ -374,10 +374,14 @@ public class AmzScheduledJobImpl implements AmzScheduledJobService {
             //批量删除图片
             commImgeDao.deleteByScIds(scIds);
         }
-        //公共图片批量新增
-        tyCommImagDao.batchSave(tyCommImgesIns);
-        //图片批量新增
-        commImgeDao.batchSave(commImgesIns);
+        if(tyCommImgesIns.size() > 0){
+            //公共图片批量新增
+            tyCommImagDao.batchSave(tyCommImgesIns);
+        }
+        if(commImgesIns.size() > 0){
+            //图片批量新增
+            commImgeDao.batchSave(commImgesIns);
+        }
         return code69s;
     }
 }
