@@ -494,9 +494,6 @@
         SET
         order_refuse_reason = #{map.refuseReason},
         order_refuse_time = #{map.orderRefuseTime},
-        order_refuse_imgA = #{map.refuseImgUrlA},
-        order_refuse_imgB = #{map.refuseImgUrlB},
-        order_refuse_imgC = #{map.refuseImgUrlC},
         order_status = #{map.orderStatus},
         updated_at = #{map.updatedAt}
         WHERE order_id = #{map.orderId}
