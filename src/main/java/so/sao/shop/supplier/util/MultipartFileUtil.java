@@ -19,13 +19,14 @@ public class MultipartFileUtil {
      * @return map 封装了图片相关信息
      */
     public static Map generateImage(String imgStr) throws Exception {
+        String resultStr = imgStr.substring(imgStr.lastIndexOf(",")+1);
         Map result = new HashMap(); // 封装返回结果
-        if (imgStr == null) {
+        if (resultStr == null) {
             return result;
         }
         BASE64Decoder decoder = new BASE64Decoder();
         //解密
-        byte[] b = decoder.decodeBuffer(imgStr);
+        byte[] b = decoder.decodeBuffer(resultStr);
         //处理数据
         for (int i = 0; i < b.length; ++i) {
             if (b[i] < 0) {
@@ -46,6 +47,5 @@ public class MultipartFileUtil {
         result.put("name", name); // 图片名称
         result.put("img", img); // 图片路径 + 名称
         return result;
-
     }
 }
