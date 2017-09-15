@@ -1,4 +1,4 @@
-package so.sao.shop.supplier.service.impl;
+package so.sao.shop.supplier.service.app.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import so.sao.shop.supplier.dao.AccountDao;
-import so.sao.shop.supplier.dao.AppCartItemDao;
+import so.sao.shop.supplier.dao.app.AppCartItemDao;
 import so.sao.shop.supplier.dao.SupplierCommodityDao;
 import so.sao.shop.supplier.domain.Account;
 import so.sao.shop.supplier.domain.AppCartItem;
@@ -17,7 +17,7 @@ import so.sao.shop.supplier.pojo.input.AppCartItemInput;
 import so.sao.shop.supplier.pojo.output.AppCartItemOut;
 import so.sao.shop.supplier.pojo.output.AppCartItemOutSub;
 import so.sao.shop.supplier.pojo.output.CommodityOutput;
-import so.sao.shop.supplier.service.AppCartService;
+import so.sao.shop.supplier.service.app.AppCartService;
 
 import java.util.ArrayList;
 import java.util.Date;

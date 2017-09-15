@@ -1,13 +1,13 @@
-package so.sao.shop.supplier.service.impl;
+package so.sao.shop.supplier.service.app.impl;
 
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import so.sao.shop.supplier.dao.AccountDao;
-import so.sao.shop.supplier.dao.CommAppDao;
+import so.sao.shop.supplier.dao.app.CommAppDao;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.output.*;
-import so.sao.shop.supplier.service.CommAppService;
+import so.sao.shop.supplier.service.app.CommAppService;
 import so.sao.shop.supplier.util.DataCompare;
 import so.sao.shop.supplier.util.PageTool;
 

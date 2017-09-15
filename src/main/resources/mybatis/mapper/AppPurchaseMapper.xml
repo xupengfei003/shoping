@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="so.sao.shop.supplier.dao.AppPurchaseDao">
+<mapper namespace="so.sao.shop.supplier.dao.app.AppPurchaseDao">
     <!--App端查询全部订单列表-->
     <resultMap id="AppOrderAllList" type="so.sao.shop.supplier.pojo.vo.AppPurchasesVo">
         <id column="order_id" property="orderId"/>
