@@ -203,7 +203,7 @@ public class AppCartServiceImpl implements AppCartService {
                         appCartItemOut.setSupplierName(appCartItem.getSupplierName());
                         appCartItemOut.getAppCartItems().add(appCartItemOutSub);
                         appCartItemOut.setList(pros);
-                        appCartItemOut.setIsSelectShop("false");
+                        appCartItemOut.setIsSelectShop(false);
                         appCartItemOuts.add(appCartItemOut);
 
                     }
@@ -215,7 +215,7 @@ public class AppCartServiceImpl implements AppCartService {
                 appCartItemOut.setSupplierName(appCartItem.getSupplierName());
                 appCartItemOut.getAppCartItems().add(appCartItemOutSub);
                 appCartItemOut.setList(pros);
-                appCartItemOut.setIsSelectShop("false");
+                appCartItemOut.setIsSelectShop(false);
                 appCartItemOuts.add(appCartItemOut);
             }
 

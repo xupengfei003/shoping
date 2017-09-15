@@ -26,7 +26,7 @@ public class AppCartItemOut {
     /**
      *当前店铺商品是否全选
      */
-    private String isSelectShop;
+    private Boolean isSelectShop;
 
     public String[] getList() {
         return list;
@@ -36,11 +36,11 @@ public class AppCartItemOut {
         this.list = list;
     }
 
-    public String getIsSelectShop() {
+    public Boolean getIsSelectShop() {
         return isSelectShop;
     }
 
-    public void setIsSelectShop(String isSelectShop) {
+    public void setIsSelectShop(Boolean isSelectShop) {
         this.isSelectShop = isSelectShop;
     }
 
