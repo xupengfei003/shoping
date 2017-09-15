@@ -1,4 +1,4 @@
-package so.sao.shop.supplier.service;
+package so.sao.shop.supplier.service.app;
 
 import so.sao.shop.supplier.pojo.Result;
 

@@ -31,16 +31,17 @@ public class AmzScheduledTask {
     @Scheduled(cron = "${amz.jobs.cron.day}")
     public void excuteStoreInfoDayJob() {
         Boolean lock = redisTemplate.opsForValue().setIfAbsent(Constant.REDIS_KEY_PREFIX + "AMZ_COUNT_BILLING_DETAILS", "1");
+        try {
+            if (null != lock && lock) {
+                logger.info("亚马劲数据同步【开始】，当前时间：" + DateUtil.getStringDate());//获取当前时间
 
-        if (null != lock && lock) {
-            logger.info("亚马劲数据同步【开始】，当前时间：" + DateUtil.getStringDate());//获取当前时间
+                amzScheduledJobService.amzScheduledJob();
 
-            amzScheduledJobService.amzScheduledJob();
-
-            logger.info("亚马劲数据同步【结束】，当前时间：" + DateUtil.getStringDate());//获取当前时间
+                logger.info("亚马劲数据同步【结束】，当前时间：" + DateUtil.getStringDate());//获取当前时间
+            }
+        }finally {
+            redisTemplate.delete(Constant.REDIS_KEY_PREFIX + "AMZ_COUNT_BILLING_DETAILS");
         }
-
-        redisTemplate.delete(Constant.REDIS_KEY_PREFIX + "AMZ_COUNT_BILLING_DETAILS");
     }
 
 }
