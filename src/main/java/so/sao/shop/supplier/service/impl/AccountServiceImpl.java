@@ -26,6 +26,7 @@ import so.sao.shop.supplier.service.CommodityService;
 import so.sao.shop.supplier.util.*;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -167,8 +168,11 @@ public class AccountServiceImpl implements AccountService {
         account.setCreateDate(null);
         //获取供应商合同截止时间
         Date contractEndDate = accountDao.selectById(account.getAccountId()).getContractEndDate();
+        //将日期转为"yyyy-MM-dd"格式字符串
+        String oldDate = DateUtil.getStringDate(contractEndDate);
+        String newDate = DateUtil.getStringDate(account.getContractEndDate());
         //如果不相等则修改过合同时间，恢复短信状态为初始值。
-        if (!account.getContractEndDate().equals(contractEndDate)){
+        if (!oldDate.equals(newDate)){
             account.setMonthAgoType(CommConstant.ACCOUNT_NOSENDSMS_STATUS);
         }
         accountDao.updateByPrimaryKeySelective(account);
