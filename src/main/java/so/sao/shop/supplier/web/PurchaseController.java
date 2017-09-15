@@ -10,6 +10,7 @@ import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.domain.User;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.*;
+import so.sao.shop.supplier.pojo.output.OrderRefuseReasonOutput;
 import so.sao.shop.supplier.pojo.output.PurchaseItemPrintOutput;
 import so.sao.shop.supplier.pojo.vo.PurchaseInfoVo;
 import so.sao.shop.supplier.pojo.vo.PurchasesVo;
@@ -406,8 +407,8 @@ public class PurchaseController {
     @ApiOperation("查看拒收理由接口")
     @GetMapping("/scanRefuseOrderReason/{orderId}")
     public Result scanRefuseOrderReason(@PathVariable("orderId") String orderId) throws Exception {
-        Map<String, Object> map = purchaseService.searchRefuseReasonByOrderId(orderId);
-        return Result.success(Constant.MessageConfig.MSG_SUCCESS, map);
+        OrderRefuseReasonOutput orderRefuseReasonOutput = purchaseService.searchRefuseReasonByOrderId(orderId);
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS, orderRefuseReasonOutput);
     }
 
     /**

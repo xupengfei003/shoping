@@ -8,8 +8,7 @@ import so.sao.shop.supplier.pojo.input.AccountPurchaseInput;
 import so.sao.shop.supplier.pojo.input.AccountPurchaseLowInput;
 import so.sao.shop.supplier.pojo.input.PurchaseSelectInput;
 import so.sao.shop.supplier.pojo.output.OrderRefuseReasonOutput;
-import so.sao.shop.supplier.pojo.vo.PurchasePrintVo;
-import so.sao.shop.supplier.pojo.vo.PurchasesVo;
+import so.sao.shop.supplier.pojo.vo.*;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -160,12 +159,27 @@ public interface PurchaseDao {
     void insertRefuseMessage(@Param("map") Map<String,Object> map) throws Exception;
 
     /**
+     * 添加拒收货信息(图片)
+     *
+     * @param map 封装了所有拒收相关的信息
+     * @param imgList 封装了所有图片相关的信息
+     * @return boolean 返回true则为成功，false为失败
+     */
+    void insertRefuseImg(@Param("map")  Map<String, Object> map,@Param("imgList") List<CommBlobUpload> imgList) throws Exception;
+    /**
      * 根据订单ID获取该订单的拒收原因
      *
      * @param orderId 订单ID
-     * @return OrderRefuseReasonOutput 封装了所有订单拒收原因信息
+     * @return OrderRefuseReasonVo 封装了所有订单拒收原因信息
      */
-    OrderRefuseReasonOutput findRefuseReasonByOrderId(@Param("orderId") String orderId) throws Exception;
+    OrderRefuseReasonVo findRefuseReasonByOrderId(@Param("orderId") String orderId) throws Exception;
+    /**
+     * 根据订单ID获取该订单的拒收图片
+     *
+     * @param orderId 订单ID
+     * @return OrderRefuseImageVo 封装了所有订单拒收原因信息
+     */
+    List<OrderRefuseImageVo> findRefuseImageByOrderId(@Param("orderId") String orderId) throws Exception;
 
     /**
      * 查询该商户下已完成且按自然月结算的订单列表

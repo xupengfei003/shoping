@@ -78,7 +78,7 @@ public class PurchaseServiceImpl implements PurchaseService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public  Map<String, Object>  savePurchase(PurchaseInput purchase) throws Exception {
+    public Map<String, Object> savePurchase(PurchaseInput purchase) throws Exception {
         Map<String, Object> output = new HashMap<>();
         output.put("status", Constant.CodeConfig.CODE_FAILURE);
         /*
@@ -98,16 +98,16 @@ public class PurchaseServiceImpl implements PurchaseService {
                 //根据供应商商品ID获取商品信息
                 CommodityOutput commodityOutput = supplierCommodityDao.findDetail(goodsId);
                 //判断库存是否充足
-                if (null != commodityOutput && purchaseItem.getGoodsNumber() > commodityOutput.getInventory()){
+                if (null != commodityOutput && purchaseItem.getGoodsNumber() > commodityOutput.getInventory()) {
                     //提示信息
-                    output.put("message","商品库存不足");
+                    output.put("message", "商品库存不足");
                     return output;
                 }
                 Account accountUser = purchaseDao.findAccountById(goodsId);
-                if (null != accountUser && 1 != accountUser.getAccountStatus()){//商家账号为禁用或删除状态，不允许下单
-                    output.put("message","商家账号为禁用或删除状态，不允许下单");
+                if (null != accountUser && 1 != accountUser.getAccountStatus()) {//商家账号为禁用或删除状态，不允许下单
+                    output.put("message", "商家账号为禁用或删除状态，不允许下单");
                     return output;
-                }else {
+                } else {
                     set.add(accountUser.getAccountId());
                 }
             }
@@ -117,7 +117,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         List<Purchase> listPurchase = new ArrayList<>();
         List<PurchaseItem> listItem = new ArrayList<>();
         List<Notification> notificationList = new ArrayList<>();
-        Map<Long,BigDecimal> inventoryMap = new HashMap<>();//存储商品编号和购买数量
+        Map<Long, BigDecimal> inventoryMap = new HashMap<>();//存储商品编号和购买数量
         //合并支付单号
         String payId = NumberGenerate.generateUuid();
         for (Long sId : set) {
@@ -142,7 +142,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                     item.setGoodsId(goodsId);//商品ID
                     item.setCode69(commOutput.getCode69()); //TODO 添加商品条码code69
                     item.setGoodsNumber(goodsNumber.intValue());//商品数量
-                    inventoryMap.put(commOutput.getId(),goodsNumber.negate());//记录该商品购买数量
+                    inventoryMap.put(commOutput.getId(), goodsNumber.negate());//记录该商品购买数量
                     BigDecimal price = commOutput.getPrice();//市场价
                     BigDecimal unitPrice = commOutput.getUnitPrice();//成本价
                     item.setGoodsUnitPrice(price);
@@ -194,8 +194,8 @@ public class PurchaseServiceImpl implements PurchaseService {
         if (null != listPurchase && listPurchase.size() > 0 && null != listItem && listItem.size() > 0) {
             //根据商品编号更改库存数量
             int count = supplierCommodityDao.updateInventoryByGoodsId(inventoryMap);
-            if (count == 0){
-                output.put("message","商品库存不足");
+            if (count == 0) {
+                output.put("message", "商品库存不足");
                 return output;
             }
             int result = purchaseDao.savePurchase(listPurchase);
@@ -211,10 +211,10 @@ public class PurchaseServiceImpl implements PurchaseService {
                     //计算所有订单总金额
                     totalMoney = totalMoney.add(obj.getOrderPrice());
                 }
-            }else{//保存订单失败，主动回滚
+            } else {//保存订单失败，主动回滚
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();//主动回滚
             }
-            if (flag){
+            if (flag) {
                 output.put("status", Constant.CodeConfig.CODE_SUCCESS);
                 output.put("orderId", payId);
                 output.put("totalMoney", totalMoney);
@@ -650,7 +650,7 @@ public class PurchaseServiceImpl implements PurchaseService {
      * @throws Exception 异常
      */
     @Override
-    public PurchaseItemPrintOutput getPrintItems(String orderId) throws Exception{
+    public PurchaseItemPrintOutput getPrintItems(String orderId) throws Exception {
         // 1.查询订单信息（客户、客户电话、收货地址、下单时间、合计）
         PurchasePrintVo purchasePrintVo = purchaseDao.findPrintOrderInfo(orderId);
 
@@ -783,7 +783,7 @@ public class PurchaseServiceImpl implements PurchaseService {
      * 2.批量生成二维码并存储二维码信息；
      * 3.批量上传到云端；
      * 4.批量插入数据库。
-
+     *
      * @param payId 支付id
      * @throws Exception 可能是订单异常
      */
@@ -848,12 +848,13 @@ public class PurchaseServiceImpl implements PurchaseService {
      * 3.上传成功的结果保存起来；
      * 4.上传失败的结果，如果尝试次数number大于等于0，重新上传；
      * 5.本次和下次上传成功的结果合并到list集合，返回。
+     *
      * @param path   本地路径
      * @param files  上传文件列表
      * @param number 尝试次数
      * @return 返回CommBlobUpload的集合List对象
      */
-    public List<CommBlobUpload> batchUploadPic(String path ,List<String> files, int number) {
+    public List<CommBlobUpload> batchUploadPic(String path, List<String> files, int number) {
         // 1.调用uploadFilesComm方法上传文件
         List<Result> uploadResult = azureBlobService.uploadFilesComm(path, files); // 上传图片
 
@@ -954,15 +955,16 @@ public class PurchaseServiceImpl implements PurchaseService {
         String orderId = refuseOrderInput.getOrderId();
         map.put("orderId", orderId);//订单编号
         map.put("refuseReason", refuseOrderInput.getRefuseReason());//拒收理由
-        map.put("refuseImgUrlA", refuseOrderInput.getRefuseImgUrlA());//拒收图片URL A
-        map.put("refuseImgUrlB", refuseOrderInput.getRefuseImgUrlB());//拒收图片URL B
-        map.put("refuseImgUrlC", refuseOrderInput.getRefuseImgUrlC());//拒收图片URL C
         Date date = new Date();
         map.put("orderRefuseTime", date);//拒收时间
         map.put("updatedAt", date);//更新时间
         map.put("orderStatus", Constant.OrderStatusConfig.REJECT);//订单状态 5 拒收
         purchaseDao.insertRefuseMessage(map);
-
+        List<CommBlobUpload> imgList = new ArrayList<>();
+        for(int i = 0;i<refuseOrderInput.getRefuseImg().size(); i++){
+            imgList.add(disposeImage(refuseOrderInput.getRefuseImg().get(i)));//拒收图片URL
+        }
+        purchaseDao.insertRefuseImg(map,imgList);
         // 验证二维码是否存在，是否失效
         PurchasePrintVo purchasePrintVo = purchaseDao.findPrintOrderInfo(orderId); // 查询订单和二维码信息
         if (null == purchasePrintVo || null == purchasePrintVo.getQrcodeStatus()
@@ -983,20 +985,22 @@ public class PurchaseServiceImpl implements PurchaseService {
      * @return map 封装了所有订单拒收原因信息
      */
     @Override
-    public Map<String, Object> searchRefuseReasonByOrderId(String orderId) throws Exception {
-        OrderRefuseReasonOutput orderRefuseReasonOutput = purchaseDao.findRefuseReasonByOrderId(orderId);
-        Map<String, Object> map = new HashMap<>();
-        map.put("refuseReason", Constant.MessageConfig.MSG_NO_DATA);
-        map.put("refuseImgUrl", null);
-        List<String> urlList = new ArrayList<>();
-        if (null != orderRefuseReasonOutput) {
-            urlList.add(orderRefuseReasonOutput.getRefuseImgUrlA());
-            urlList.add(orderRefuseReasonOutput.getRefuseImgUrlB());
-            urlList.add(orderRefuseReasonOutput.getRefuseImgUrlC());
-            map.put("refuseReason", orderRefuseReasonOutput.getRefuseReason());
-            map.put("refuseImgUrl", urlList);
+    public OrderRefuseReasonOutput searchRefuseReasonByOrderId(String orderId) throws Exception {
+        OrderRefuseReasonVo orderRefuseReasonVo = purchaseDao.findRefuseReasonByOrderId(orderId);//查出拒收原因信息
+        List<OrderRefuseImageVo> orderRefuseImageVoList = purchaseDao.findRefuseImageByOrderId(orderId);//查出拒收图片信息
+        OrderRefuseReasonOutput orderRefuseReasonOutput = new OrderRefuseReasonOutput();
+        orderRefuseReasonOutput.setRefuseReason(Constant.MessageConfig.MSG_NO_DATA);//如果没有数据则返回“暂无数据”
+        if (null != orderRefuseReasonVo) {
+            orderRefuseReasonOutput = BeanMapper.map(orderRefuseReasonVo,OrderRefuseReasonOutput.class);
         }
-        return map;
+        if(orderRefuseImageVoList.size()>0){
+            List<String> urlList = new ArrayList<>();
+            orderRefuseImageVoList.forEach(orderRefuseImageVo -> {
+                urlList.add(orderRefuseImageVo.getRefuseImgUrl());
+            });
+            orderRefuseReasonOutput.setRefuseImgUrl(urlList);
+        }
+        return orderRefuseReasonOutput;
     }
 
     //推送消息通知
@@ -1080,16 +1084,16 @@ public class PurchaseServiceImpl implements PurchaseService {
 
         Integer orderStatus = purchaseDao.getOrderStatus(cancelReasonInput.getOrderId());
         Integer inputOrderStatus = Constant.OrderStatusConfig.CANCEL_ORDER;
-        if (orderStatus == Constant.OrderStatusConfig.PAYMENT){
+        if (orderStatus == Constant.OrderStatusConfig.PAYMENT) {
             inputOrderStatus = Constant.OrderStatusConfig.PAYMENT_CANCEL_ORDER;
             List<PurchaseItemVo> purchaseItemVoList = purchaseItemDao.getOrderDetailByOId(cancelReasonInput.getOrderId());
-           //更新仓库数量
-            Map<BigInteger,BigDecimal> mapInput = new HashMap<>();
+            //更新仓库数量
+            Map<BigInteger, BigDecimal> mapInput = new HashMap<>();
             purchaseItemVoList.forEach(purchaseItemVo -> {
-                mapInput.put(BigInteger.valueOf(purchaseItemVo.getGoodsId()),BigDecimal.valueOf(purchaseItemVo.getGoodsNumber()));
+                mapInput.put(BigInteger.valueOf(purchaseItemVo.getGoodsId()), BigDecimal.valueOf(purchaseItemVo.getGoodsNumber()));
             });
             int count = supplierCommodityDao.updateInventoryByGoodsId(mapInput);
-            if(count == 0){
+            if (count == 0) {
                 throw new Exception("更新仓库数量与实际不相符，取消失败！");
             }
         }
@@ -1205,5 +1209,22 @@ public class PurchaseServiceImpl implements PurchaseService {
     public List<String> findOrderIdByOrderStatus(Integer orderStatus) throws Exception {
         List<String> orderIdList = purchaseDao.findOrderIdByOrderStatus(orderStatus);
         return orderIdList;
+    }
+
+    //图片处理
+    public CommBlobUpload disposeImage(String imgStr) throws Exception {
+        //base64转图片
+        Map<String, String> map = MultipartFileUtil.generateImage(imgStr); // 失败抛出异常
+        List<String> files = new ArrayList<>();
+        files.add(map.get("name"));
+        List<CommBlobUpload> blobUploadEntities = batchUploadPic(map.get("path"), files , 3);
+        if (blobUploadEntities.size() != 1) {
+            throw new Exception("上传图片到云端失败");
+        }
+        CommBlobUpload blobUpload = blobUploadEntities.get(0); // 云端返回的实体
+        //删除本地图片
+        System.gc();
+        FileUtil.deleteDirectory(map.get("path"));
+        return blobUpload;
     }
 }

@@ -501,23 +501,55 @@
         updated_at = #{map.updatedAt}
         WHERE order_id = #{map.orderId}
     </update>
-
+    <!--插入拒收图片-->
+    <insert id="insertRefuseImg" parameterType="java.util.List">
+        INSERT INTO refuse_order_img
+        (
+        order_id,
+        url,
+        min_img_url,
+        img_size,
+        file_name,
+        create_time
+        )
+        VALUES
+        <foreach collection="imgList" item="item" index="index" separator=",">
+            (
+            #{map.orderId},
+            #{item.Url},
+            #{item.minImgUrl},
+            #{item.size},
+            #{item.fileName},
+            #{map.updatedAt}
+            )
+        </foreach>
+    </insert>
     <!--根据订单编号查询拒收信息-->
-    <resultMap id="OrderRefuseReason" type="so.sao.shop.supplier.pojo.output.OrderRefuseReasonOutput">
-        <id column="order_refuse_reason" property="refuseReason"/>
-        <result column="order_refuse_imgA" property="refuseImgUrlA"/>
-        <result column="order_refuse_imgB" property="refuseImgUrlB"/>
-        <result column="order_refuse_imgC" property="refuseImgUrlC"/>
+    <resultMap id="OrderRefuseReason" type="so.sao.shop.supplier.pojo.vo.OrderRefuseReasonVo">
+        <result column="order_refuse_reason" property="refuseReason"/>
+        <result column="order_refuse_time" property="refuseTime"/>
     </resultMap>
-    <sql id="Order_Refuse_Reason">
-        order_refuse_reason, order_refuse_imgA, order_refuse_imgB, order_refuse_imgC
-    </sql>
     <select id="findRefuseReasonByOrderId" parameterType="java.lang.String" resultMap="OrderRefuseReason">
         SELECT
-        <include refid="Order_Refuse_Reason"/>
+        order_refuse_reason,
+        order_refuse_time
         FROM purchase
         WHERE order_id = #{orderId}
         AND order_status = 5
+    </select>
+    <!--根据订单编号查询拒收图片-->
+    <resultMap id="OrderRefuseImage" type="so.sao.shop.supplier.pojo.vo.OrderRefuseImageVo">
+        <result column="url" property="refuseImgUrl"/>
+        <result column="min_img_url" property="refuseMinImgUrl"/>
+        <result column="file_name" property="fileName"/>
+    </resultMap>
+    <select id="findRefuseImageByOrderId" parameterType="java.lang.String" resultMap="OrderRefuseImage">
+        SELECT
+        url,
+        min_img_url,
+        file_name
+        FROM refuse_order_img
+        WHERE order_id = #{orderId}
     </select>
 
     <!--查询该商户下已完成且按自然月结算订单列表信息-->
