@@ -15,6 +15,10 @@ public class RefuseOrderInput {
     @NotEmpty(message = "订单编号不能为空")
     private String orderId;
     /**
+     * 拒收类型
+     */
+    private String refuseType;
+    /**
      * 拒收理由
      */
     @NotEmpty(message = "拒收理由不能为空")
@@ -30,6 +34,14 @@ public class RefuseOrderInput {
 
     public void setOrderId(String orderId) {
         this.orderId = orderId;
+    }
+
+    public String getRefuseType() {
+        return refuseType;
+    }
+
+    public void setRefuseType(String refuseType) {
+        this.refuseType = refuseType;
     }
 
     public String getRefuseReason() {

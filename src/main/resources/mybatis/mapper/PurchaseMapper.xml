@@ -31,6 +31,8 @@
         <result column="order_receive_time" property="orderReceiveTime"/>
         <result column="pay_status" property="payStatus"/>
         <result column="deliver_goods_time" property="deliverGoodsTime"/>
+        <result column="cancel_type" property="cancelType"/>
+        <result column="refuse_type" property="refuseType"/>
     </resultMap>
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
@@ -493,6 +495,7 @@
         UPDATE purchase
         SET
         order_refuse_reason = #{map.refuseReason},
+        refuse_type = #{map.refuseType},
         order_refuse_time = #{map.orderRefuseTime},
         order_status = #{map.orderStatus},
         updated_at = #{map.updatedAt}
@@ -524,11 +527,13 @@
     <!--根据订单编号查询拒收信息-->
     <resultMap id="OrderRefuseReason" type="so.sao.shop.supplier.pojo.vo.OrderRefuseReasonVo">
         <result column="order_refuse_reason" property="refuseReason"/>
+        <result column="refuse_type" property="refuseType"/>
         <result column="order_refuse_time" property="refuseTime"/>
     </resultMap>
     <select id="findRefuseReasonByOrderId" parameterType="java.lang.String" resultMap="OrderRefuseReason">
         SELECT
         order_refuse_reason,
+        refuse_type,
         order_refuse_time
         FROM purchase
         WHERE order_id = #{orderId}
@@ -590,6 +595,7 @@
     <update id="insertCancelMessage" parameterType="java.util.Map">
         UPDATE purchase
         SET
+        cancel_type = #{cancelMap.cancelType},
         order_cancel_reason = #{cancelMap.cancelReason},
         order_status = #{cancelMap.orderStatus},
         order_cancel_time = #{cancelMap.updatedAt},

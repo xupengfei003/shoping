@@ -947,6 +947,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         Map<String, Object> map = new HashMap<>();
         String orderId = refuseOrderInput.getOrderId();
         map.put("orderId", orderId);//订单编号
+        map.put("refuseType", refuseOrderInput.getRefuseType());//拒收类型
         map.put("refuseReason", refuseOrderInput.getRefuseReason());//拒收理由
         Date date = new Date();
         map.put("orderRefuseTime", date);//拒收时间
@@ -1092,6 +1093,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         }
         Map<String, Object> map = new HashMap<>();
         map.put("orderId", cancelReasonInput.getOrderId());//订单编号
+        map.put("cancelType", cancelReasonInput.getCancelType());//取消类型
         map.put("cancelReason", cancelReasonInput.getCancelReason());//取消订单理由
         map.put("updatedAt", new Date());//更新时间
         map.put("orderStatus", inputOrderStatus);//订单状态 7-已付款已取消/8-待付款已取消

@@ -186,6 +186,14 @@ public class Purchase {
      */
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date orderCancelTime;
+    /**
+     * 取消类型
+     */
+    private String cancelType;
+    /**
+     * 拒收类型
+     */
+    private String refuseType;
 
     public String getAccountStatus() {
         return accountStatus;
@@ -449,5 +457,21 @@ public class Purchase {
 
     public void setOrderCancelTime(Date orderCancelTime) {
         this.orderCancelTime = orderCancelTime;
+    }
+
+    public String getCancelType() {
+        return cancelType;
+    }
+
+    public void setCancelType(String cancelType) {
+        this.cancelType = cancelType;
+    }
+
+    public String getRefuseType() {
+        return refuseType;
+    }
+
+    public void setRefuseType(String refuseType) {
+        this.refuseType = refuseType;
     }
 }

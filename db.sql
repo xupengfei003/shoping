@@ -50,6 +50,12 @@ ALTER TABLE purchase ADD order_cancel_time datetime COMMENT '取消订单完成�
 /*订单表增加发货时间*/
 ALTER TABLE purchase ADD deliver_goods_time datetime COMMENT '发货时间' AFTER refund_id;
 
+/*订单表增加拒收类型*/
+ALTER TABLE purchase ADD refuse_type VARCHAR(10) COMMENT '拒收类型' AFTER pay_status;
+
+/*订单表增加取消类型*/
+ALTER TABLE purchase ADD cancel_type VARCHAR(10) COMMENT '取消类型' AFTER order_refuse_time;
+
 /*创建拒收图片表*/
 DROP TABLE IF EXISTS `refuse_order_img`;
 CREATE TABLE `refuse_order_img` (
