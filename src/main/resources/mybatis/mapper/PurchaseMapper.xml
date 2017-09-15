@@ -31,6 +31,8 @@
         <result column="order_receive_time" property="orderReceiveTime"/>
         <result column="pay_status" property="payStatus"/>
         <result column="deliver_goods_time" property="deliverGoodsTime"/>
+        <result column="cancel_type" property="cancelType"/>
+        <result column="refuse_type" property="refuseType"/>
     </resultMap>
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
