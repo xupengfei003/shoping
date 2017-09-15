@@ -36,3 +36,29 @@ CREATE TABLE `cart_item` (
   `count` int(10) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8;
+
+
+/*删除purchase表中拒收图片*/
+ALTER TABLE `ty_supplier`.`purchase`
+  DROP COLUMN `order_refuse_imgA`,
+  DROP COLUMN `order_refuse_imgB`,
+  DROP COLUMN `order_refuse_imgC`;
+
+/*订单表增加取消时间*/
+ALTER TABLE purchase ADD order_cancel_time datetime COMMENT '取消订单完成时间' AFTER order_cancel_reason;
+
+/*订单表增加发货时间*/
+ALTER TABLE purchase ADD deliver_goods_time datetime COMMENT '发货时间' AFTER refund_id;
+
+/*创建拒收图片表*/
+DROP TABLE IF EXISTS `refuse_order_img`;
+CREATE TABLE `refuse_order_img` (
+  `refuse_id` int(10) NOT NULL AUTO_INCREMENT COMMENT '拒收图片ID',
+  `order_id` varchar(30) COLLATE utf8_bin DEFAULT NULL COMMENT '订单ID',
+  `url` varchar(500) COLLATE utf8_bin DEFAULT NULL COMMENT '图片url',
+  `min_img_url` varchar(500) COLLATE utf8_bin DEFAULT NULL COMMENT '缩略图url',
+  `img_size` varchar(50) COLLATE utf8_bin DEFAULT NULL COMMENT '图片尺寸',
+  `file_name` varchar(500) COLLATE utf8_bin DEFAULT NULL COMMENT '图片名称',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  PRIMARY KEY (`refuse_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;

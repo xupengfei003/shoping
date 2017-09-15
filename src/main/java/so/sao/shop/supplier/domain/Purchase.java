@@ -173,24 +173,19 @@ public class Purchase {
     private Date orderReceiveTime;
 
     /**
-     * 拒收信息图片1
-     */
-    private String orderRefuseImgA;
-
-    /**
-     * 拒收信息图片2
-     */
-    private String orderRefuseImgB;
-
-    /**
-     * 拒收信息图片3
-     */
-    private String orderRefuseImgC;
-
-    /**
      * 支付状态
      */
     private Integer payStatus;
+    /**
+     * 发货时间
+     */
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date deliverGoodsTime;
+    /**
+     * 取消时间
+     */
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date orderCancelTime;
 
     public String getAccountStatus() {
         return accountStatus;
@@ -408,30 +403,6 @@ public class Purchase {
         this.payId = payId;
     }
 
-    public String getOrderRefuseImgA() {
-        return orderRefuseImgA;
-    }
-
-    public void setOrderRefuseImgA(String orderRefuseImgA) {
-        this.orderRefuseImgA = orderRefuseImgA;
-    }
-
-    public String getOrderRefuseImgB() {
-        return orderRefuseImgB;
-    }
-
-    public void setOrderRefuseImgB(String orderRefuseImgB) {
-        this.orderRefuseImgB = orderRefuseImgB;
-    }
-
-    public String getOrderRefuseImgC() {
-        return orderRefuseImgC;
-    }
-
-    public void setOrderRefuseImgC(String orderRefuseImgC) {
-        this.orderRefuseImgC = orderRefuseImgC;
-    }
-
     public Date getOrderReceiveTime() {
         return orderReceiveTime;
     }
@@ -462,5 +433,21 @@ public class Purchase {
 
     public void setStoreName(String storeName) {
         this.storeName = storeName;
+    }
+
+    public Date getDeliverGoodsTime() {
+        return deliverGoodsTime;
+    }
+
+    public void setDeliverGoodsTime(Date deliverGoodsTime) {
+        this.deliverGoodsTime = deliverGoodsTime;
+    }
+
+    public Date getOrderCancelTime() {
+        return orderCancelTime;
+    }
+
+    public void setOrderCancelTime(Date orderCancelTime) {
+        this.orderCancelTime = orderCancelTime;
     }
 }
