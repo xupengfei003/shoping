@@ -28,9 +28,6 @@
         <result column="order_status" property="orderStatus"/>
         <result column="account_status" property="accountStatus"/>
         <result column="updated_at" property="updatedAt"/>
-        <result column="order_refuse_imgA" property="orderRefuseImgA"/>
-        <result column="order_refuse_imgB" property="orderRefuseImgB"/>
-        <result column="order_refuse_imgC" property="orderRefuseImgC"/>
         <result column="order_receive_time" property="orderReceiveTime"/>
         <result column="pay_status" property="payStatus"/>
         <result column="deliver_goods_time" property="deliverGoodsTime"/>

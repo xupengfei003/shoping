@@ -173,21 +173,6 @@ public class Purchase {
     private Date orderReceiveTime;
 
     /**
-     * 拒收信息图片1
-     */
-    private String orderRefuseImgA;
-
-    /**
-     * 拒收信息图片2
-     */
-    private String orderRefuseImgB;
-
-    /**
-     * 拒收信息图片3
-     */
-    private String orderRefuseImgC;
-
-    /**
      * 支付状态
      */
     private Integer payStatus;
@@ -416,30 +401,6 @@ public class Purchase {
 
     public void setPayId(String payId) {
         this.payId = payId;
-    }
-
-    public String getOrderRefuseImgA() {
-        return orderRefuseImgA;
-    }
-
-    public void setOrderRefuseImgA(String orderRefuseImgA) {
-        this.orderRefuseImgA = orderRefuseImgA;
-    }
-
-    public String getOrderRefuseImgB() {
-        return orderRefuseImgB;
-    }
-
-    public void setOrderRefuseImgB(String orderRefuseImgB) {
-        this.orderRefuseImgB = orderRefuseImgB;
-    }
-
-    public String getOrderRefuseImgC() {
-        return orderRefuseImgC;
-    }
-
-    public void setOrderRefuseImgC(String orderRefuseImgC) {
-        this.orderRefuseImgC = orderRefuseImgC;
     }
 
     public Date getOrderReceiveTime() {
