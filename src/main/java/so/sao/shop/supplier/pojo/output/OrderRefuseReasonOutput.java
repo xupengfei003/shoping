@@ -7,6 +7,10 @@ import java.util.List;
  */
 public class OrderRefuseReasonOutput {
     /**
+     * 拒收类型
+     */
+    private String refuseType;
+    /**
      * 拒收理由
      */
     private String refuseReason;
@@ -18,6 +22,14 @@ public class OrderRefuseReasonOutput {
      * 拒收图片列表
      */
     private List<String> refuseImgUrl;
+
+    public String getRefuseType() {
+        return refuseType;
+    }
+
+    public void setRefuseType(String refuseType) {
+        this.refuseType = refuseType;
+    }
 
     public String getRefuseReason() {
         return refuseReason;
