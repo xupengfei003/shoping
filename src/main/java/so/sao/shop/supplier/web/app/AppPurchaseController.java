@@ -1,4 +1,4 @@
-package so.sao.shop.supplier.web;
+package so.sao.shop.supplier.web.app;
 
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -7,16 +7,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import so.sao.shop.supplier.config.Constant;
-import so.sao.shop.supplier.domain.User;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.output.AppPurchaseOutput;
-import so.sao.shop.supplier.service.AppPurchaseService;
-import so.sao.shop.supplier.util.PageTool;
+import so.sao.shop.supplier.service.app.AppPurchaseService;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import java.math.BigInteger;
-import java.util.List;
 
 /**
  * Created by acer on 2017/9/6.

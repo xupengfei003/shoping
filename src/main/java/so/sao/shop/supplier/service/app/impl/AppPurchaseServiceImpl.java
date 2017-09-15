@@ -1,19 +1,18 @@
-package so.sao.shop.supplier.service.impl;
+package so.sao.shop.supplier.service.app.impl;
 
 import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import so.sao.shop.supplier.dao.AppPurchaseDao;
-import so.sao.shop.supplier.dao.AppPurchaseItemDao;
+import so.sao.shop.supplier.dao.app.AppPurchaseDao;
+import so.sao.shop.supplier.dao.app.AppPurchaseItemDao;
 import so.sao.shop.supplier.pojo.output.AppPurchaseOutput;
 import so.sao.shop.supplier.pojo.vo.AppPurchaseItemVo;
 import so.sao.shop.supplier.pojo.vo.AppPurchasesVo;
-import so.sao.shop.supplier.service.AppPurchaseService;
+import so.sao.shop.supplier.service.app.AppPurchaseService;
 import so.sao.shop.supplier.util.BeanMapper;
 import so.sao.shop.supplier.util.PageTool;
 
 import javax.annotation.Resource;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 

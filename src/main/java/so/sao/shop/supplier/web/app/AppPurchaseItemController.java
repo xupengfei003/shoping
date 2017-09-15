@@ -1,4 +1,4 @@
-package so.sao.shop.supplier.web;
+package so.sao.shop.supplier.web.app;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -9,10 +9,9 @@ import org.springframework.web.bind.annotation.RestController;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.output.AppPurchaseItemOutput;
-import so.sao.shop.supplier.service.AppPurchaseItemService;
+import so.sao.shop.supplier.service.app.AppPurchaseItemService;
 
 import javax.annotation.Resource;
-import java.util.List;
 
 /**
  * Created by acer on 2017/9/7.

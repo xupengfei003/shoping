@@ -1,17 +1,15 @@
-package so.sao.shop.supplier.service.impl;
+package so.sao.shop.supplier.service.app.impl;
 
 import org.springframework.stereotype.Service;
-import so.sao.shop.supplier.dao.AppPurchaseDao;
-import so.sao.shop.supplier.dao.AppPurchaseItemDao;
-import so.sao.shop.supplier.dao.PurchaseDao;
+import so.sao.shop.supplier.dao.app.AppPurchaseDao;
+import so.sao.shop.supplier.dao.app.AppPurchaseItemDao;
 import so.sao.shop.supplier.pojo.output.AppPurchaseItemOutput;
 import so.sao.shop.supplier.pojo.vo.AppPurchaseItemVo;
 import so.sao.shop.supplier.pojo.vo.AppPurchasesVo;
-import so.sao.shop.supplier.service.AppPurchaseItemService;
+import so.sao.shop.supplier.service.app.AppPurchaseItemService;
 import so.sao.shop.supplier.util.BeanMapper;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
