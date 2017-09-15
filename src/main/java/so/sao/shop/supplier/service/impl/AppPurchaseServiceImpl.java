@@ -53,7 +53,7 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
             List<AppPurchaseItemVo> appPurchaseItemVoListInner = new ArrayList<>();
             AppPurchaseOutput appPurchaseOutput;
             int goodsAllNum = 0;//计算该订单下所有商品总数
-            double goodsAllPrice = 0;//当查询订单状态为1时，计算该订单下所有商品总价
+            BigDecimal goodsAllPrice = new BigDecimal(0);//当查询订单状态为1时，计算该订单下所有商品总价
             //合并返回结果
             for (AppPurchaseItemVo appPurchaseItemVo : appPurchaseItemVoList) {
                 //订单状态为待付款
@@ -63,7 +63,9 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
                         //计算总数
                         goodsAllNum += appPurchaseItemVo.getGoodsNumber();
                         //计算总价
-                        goodsAllPrice += Double.valueOf(appPurchaseItemVo.getGoodsTatolPrice().replaceAll(",",""));
+                        BigDecimal goodsNum = new BigDecimal(appPurchaseItemVo.getGoodsNumber());
+                        String goodsUnit = appPurchaseItemVo.getGoodsUnitPrice().replaceAll(",","");
+                        goodsAllPrice = goodsAllPrice.add(goodsNum.multiply(new BigDecimal(goodsUnit)));
                     }
                     continue;
                 }
@@ -78,7 +80,7 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
             appPurchaseOutput.setAppPurchaseItemVos(appPurchaseItemVoListInner);
             appPurchaseOutput.setGoodsAllNum(goodsAllNum);
             //当查询订单状态为1时将计算后的总价赋值输出
-            if(goodsAllPrice > 0){
+            if(goodsAllPrice.intValue() > 0){
                 appPurchaseOutput.setOrderPrice(NumberUtil.number2Thousand(new BigDecimal(String.valueOf(goodsAllPrice))));
             }
             appPurchaseOutputs.add(appPurchaseOutput);
