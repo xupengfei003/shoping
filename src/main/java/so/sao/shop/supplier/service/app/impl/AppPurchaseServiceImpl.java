@@ -10,9 +10,11 @@ import so.sao.shop.supplier.pojo.vo.AppPurchaseItemVo;
 import so.sao.shop.supplier.pojo.vo.AppPurchasesVo;
 import so.sao.shop.supplier.service.app.AppPurchaseService;
 import so.sao.shop.supplier.util.BeanMapper;
+import so.sao.shop.supplier.util.NumberUtil;
 import so.sao.shop.supplier.util.PageTool;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,27 +52,37 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
             List<AppPurchaseItemVo> appPurchaseItemVoListInner = new ArrayList<>();
             AppPurchaseOutput appPurchaseOutput;
             int goodsAllNum = 0;//计算该订单下所有商品总数
+            BigDecimal goodsAllPrice = new BigDecimal(0);//当查询订单状态为1时，计算该订单下所有商品总价
             //合并返回结果
             for (AppPurchaseItemVo appPurchaseItemVo : appPurchaseItemVoList) {
                 //订单状态为待付款
                 if("1".equals(orderStatus)){
                     if (appPurchaseItemVo.getPayId().equals(appPurchasesVo.getPayId())) {
                         appPurchaseItemVoListInner.add(appPurchaseItemVo);
+                        //计算总数
                         goodsAllNum += appPurchaseItemVo.getGoodsNumber();
+                        //计算总价
+                        BigDecimal goodsNum = new BigDecimal(appPurchaseItemVo.getGoodsNumber());
+                        String goodsUnit = appPurchaseItemVo.getGoodsUnitPrice().replaceAll(",","");
+                        goodsAllPrice = goodsAllPrice.add(goodsNum.multiply(new BigDecimal(goodsUnit)));
                     }
                     continue;
                 }
                 //订单状态为其他
                 if (appPurchaseItemVo.getOrderId().equals(appPurchasesVo.getOrderId())) {
                     appPurchaseItemVoListInner.add(appPurchaseItemVo);
+                    //计算总数
                     goodsAllNum += appPurchaseItemVo.getGoodsNumber();
                 }
             }
             appPurchaseOutput = BeanMapper.map(appPurchasesVo,AppPurchaseOutput.class);
             appPurchaseOutput.setAppPurchaseItemVos(appPurchaseItemVoListInner);
             appPurchaseOutput.setGoodsAllNum(goodsAllNum);
+            //当查询订单状态为1时将计算后的总价赋值输出
+            if(goodsAllPrice.intValue() > 0){
+                appPurchaseOutput.setOrderPrice(NumberUtil.number2Thousand(new BigDecimal(String.valueOf(goodsAllPrice))));
+            }
             appPurchaseOutputs.add(appPurchaseOutput);
-
         }
         pageInfo.setList(appPurchaseOutputs);
         return pageInfo;
