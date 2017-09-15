@@ -191,6 +191,7 @@ public class AppCartServiceImpl implements AppCartService {
             //重新组装数据格式
             AppCartItemOutSub appCartItemOutSub = new AppCartItemOutSub();
             appCartItemOutSub.copyAppCartItem(appCartItem);
+            String[] pros =  new String[0];
             if(appCartItemOuts.size()>0){
                 for (int j = 0; j < appCartItemOuts.size(); j++) {
                     AppCartItemOut aci = appCartItemOuts.get(j);
@@ -201,7 +202,10 @@ public class AppCartServiceImpl implements AppCartService {
                         appCartItemOut.setSupplierId(appCartItem.getSupplierId());
                         appCartItemOut.setSupplierName(appCartItem.getSupplierName());
                         appCartItemOut.getAppCartItems().add(appCartItemOutSub);
+                        appCartItemOut.setList(pros);
+                        appCartItemOut.setIsSelectShop("false");
                         appCartItemOuts.add(appCartItemOut);
+
                     }
 
                 }
@@ -210,6 +214,8 @@ public class AppCartServiceImpl implements AppCartService {
                 appCartItemOut.setSupplierId(appCartItem.getSupplierId());
                 appCartItemOut.setSupplierName(appCartItem.getSupplierName());
                 appCartItemOut.getAppCartItems().add(appCartItemOutSub);
+                appCartItemOut.setList(pros);
+                appCartItemOut.setIsSelectShop("false");
                 appCartItemOuts.add(appCartItemOut);
             }
 

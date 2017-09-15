@@ -18,6 +18,31 @@ public class AppCartItemOut {
     private String supplierName;
 
     List<AppCartItemOutSub> appCartItems = new ArrayList<>();
+    /**
+     * 选中的店铺商品
+     */
+    private String[] list;
+
+    /**
+     *当前店铺商品是否全选
+     */
+    private String isSelectShop;
+
+    public String[] getList() {
+        return list;
+    }
+
+    public void setList(String[] list) {
+        this.list = list;
+    }
+
+    public String getIsSelectShop() {
+        return isSelectShop;
+    }
+
+    public void setIsSelectShop(String isSelectShop) {
+        this.isSelectShop = isSelectShop;
+    }
 
     public Long getSupplierId() {
         return supplierId;
