@@ -1,14 +1,11 @@
 package so.sao.shop.supplier.util;
 
-import so.sao.shop.supplier.pojo.vo.CommBlobUpload;
 import sun.misc.BASE64Decoder;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -16,11 +13,10 @@ import java.util.Map;
  */
 public class MultipartFileUtil {
     /**
+     * 将base64编码字符串转换为图片
+     *
      * @param imgStr base64编码字符串
-     * @return
-     * @Description: 将base64编码字符串转换为图片
-     * @Author:
-     * @CreateTime:
+     * @return map 封装了图片相关信息
      */
     public static Map generateImage(String imgStr) throws Exception {
         Map result = new HashMap(); // 封装返回结果
