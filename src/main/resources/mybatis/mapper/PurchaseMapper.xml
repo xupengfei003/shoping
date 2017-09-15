@@ -318,6 +318,7 @@
         UPDATE purchase
         SET
         order_status = #{orderStatus},
+        deliver_goods_time = #{updateDate},
         updated_at = #{updateDate},
         <if test="receiveMethod == 1">distributor_name = #{name},distributor_mobile = #{number},order_ship_method=1</if>
         <if test="receiveMethod == 2">logistics_company = #{name} ,order_shipment_number =
@@ -595,6 +596,7 @@
         SET
         order_cancel_reason = #{cancelMap.cancelReason},
         order_status = #{cancelMap.orderStatus},
+        order_cancel_time = #{cancelMap.updatedAt},
         updated_at = #{cancelMap.updatedAt}
         WHERE order_id = #{cancelMap.orderId}
     </update>
