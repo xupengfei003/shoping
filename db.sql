@@ -68,3 +68,94 @@ CREATE TABLE `refuse_order_img` (
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   PRIMARY KEY (`refuse_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+
+
+/*创建Banner表*/
+CREATE TABLE `banner` (
+ `id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
+ `file_name` VARCHAR(255) NULL DEFAULT NULL COMMENT '图片名称',
+ `min_img_url` VARCHAR(255) NULL DEFAULT NULL COMMENT '缩略图链接',
+ `url` VARCHAR(255) NULL DEFAULT NULL COMMENT '图片链接',
+ `location` CHAR(1) NULL DEFAULT NULL COMMENT '轮播位',
+ `on_shelves_time` DATETIME NULL DEFAULT NULL COMMENT '上架时间',
+ `off_shelf_time` DATETIME NULL DEFAULT NULL COMMENT '下架时间',
+ `status` CHAR(1) NULL DEFAULT NULL COMMENT '状态（0全部、1待发布、2已发布、3已下架、4已删除）',
+ `url_type` CHAR(1) NOT NULL COMMENT '0：链接：1：商品id：2：供应商id',
+ `url_value` VARCHAR(255) NOT NULL COMMENT 'url值',
+ `operator` VARCHAR(50) NULL DEFAULT NULL COMMENT '操作人',
+ `create_at` DATETIME NULL DEFAULT NULL COMMENT '创建时间',
+ `update_at` DATETIME NULL DEFAULT NULL COMMENT '更新时间',
+ PRIMARY KEY (`id`)
+)
+COMMENT='Banner数据表'
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB
+;
+
+/*创建key_words关键字表*/
+CREATE TABLE `key_word` (
+	`id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
+	`key_word_type` TINYINT(1) NULL DEFAULT NULL COMMENT '关键字类型，0-商品科属，1-商品名称，2-商品品牌（本期只用商品名称）',
+	`key_word_value` VARCHAR(20) NULL DEFAULT NULL COMMENT '关键字名称',
+	`operator` VARCHAR(50) NULL DEFAULT NULL COMMENT '操作人（登录的账号名）',
+	`create_at` DATETIME NULL DEFAULT NULL COMMENT '创建时间',
+	`update_at` DATETIME NULL DEFAULT NULL COMMENT '更新时间',
+	PRIMARY KEY (`id`)
+)
+COMMENT='关键字数据表'
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB
+;
+
+/*创建热门商品科属表*/
+CREATE TABLE `hot_category` (
+  `id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `min_img` VARCHAR(500) NULL DEFAULT NULL COMMENT '缩略图URL',
+  `category_one_id` BIGINT(20) NULL DEFAULT NULL COMMENT '一级分类id',
+  `category_one_name` VARCHAR(20) NULL DEFAULT NULL COMMENT '一级分类名称',
+  `category_two_id` BIGINT(20) NULL DEFAULT NULL COMMENT '二级分类id',
+  `category_two_name` VARCHAR(20) NULL DEFAULT NULL COMMENT '二级分类名称',
+  `category_three_id` BIGINT(20) NULL DEFAULT NULL COMMENT '三级分类id',
+  `category_three_name` VARCHAR(20) NULL DEFAULT NULL COMMENT '三级分类名称',
+  `sort` INT(1) NULL DEFAULT NULL COMMENT '排序',
+  `operator` VARCHAR(50) NULL DEFAULT NULL COMMENT '操作人（登录的账号名）',
+  `create_at` DATETIME NULL DEFAULT NULL COMMENT '创建时间',
+  `update_at` DATETIME NULL DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`)
+)
+  COMMENT='热门分类数据表'
+  COLLATE='utf8_general_ci'
+  ENGINE=InnoDB
+;
+/*创建热门商品表*/
+CREATE TABLE `hot_commodity` (
+  `id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `min_img` VARCHAR(500) NULL DEFAULT NULL COMMENT '缩略图URL',
+  `sku` VARCHAR(20) NULL DEFAULT NULL COMMENT 'sku/商品ID',
+  `code69` VARCHAR(20) NULL DEFAULT NULL COMMENT '商品编码',
+  `supplier_id` BIGINT(20) NULL DEFAULT NULL COMMENT '供应商ID',
+  `code` VARCHAR(50) NULL DEFAULT NULL COMMENT '商品商家编码',
+  `provider_name` VARCHAR(255) NULL DEFAULT NULL COMMENT '供应商名称',
+  `city_name` VARCHAR(100) NULL DEFAULT NULL COMMENT '合同注册地（市）',
+  `comm_brand_name` VARCHAR(255) NULL DEFAULT NULL COMMENT '商品品牌名称',
+  `comm_name` VARCHAR(255) NULL DEFAULT NULL COMMENT '商品名称',
+  `comm_unit_name` VARCHAR(64) NULL DEFAULT NULL COMMENT '商品单位名称',
+  `comm_measure_name` VARCHAR(64) NULL DEFAULT NULL COMMENT '计量规格名称',
+  `rule_val` VARCHAR(256) NULL DEFAULT NULL COMMENT '规格值',
+  `inventory` DECIMAL(11,2) NULL DEFAULT NULL COMMENT '库存',
+  `status` INT(2) NULL DEFAULT NULL COMMENT '商品状态',
+  `sort` INT(2) NULL DEFAULT NULL COMMENT '排序',
+  `operator` VARCHAR(50) NULL DEFAULT NULL COMMENT '操作人（登录的账号名）',
+  `create_at` DATETIME NULL DEFAULT NULL COMMENT '创建时间',
+  `update_at` DATETIME NULL DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`)
+)
+  COMMENT='热门商品数据表'
+  COLLATE='utf8_general_ci'
+  ENGINE=InnoDB
+;
+
+
+
+
