@@ -420,4 +420,15 @@
         invalid_status = #{invalidStatus}
         WHERE id = #{id}
     </update>
+
+    <!-- 更新供应商 商品表中min_img信息 -->
+    <update id="updateMinImg">
+        UPDATE supplier_commodity
+        SET
+        min_img = #{minImg},
+        updated_at = #{updatedAt},
+        updated_by = #{updatedBy}
+        WHERE id = #{scId}
+    </update>
+
 </mapper>

@@ -8,6 +8,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import so.sao.shop.supplier.config.CommConstant;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -25,40 +26,6 @@ public class ExcelReader {
     static private Row row;
     private static DecimalFormat df = new DecimalFormat("0");             //数字格式，防止长数字成为科学计数法形式，或者int变为double形式
 
-    /**
-     * @param fileName ：Excel 文件路径
-     * @return String[]
-     * @method ：readExcelTitle<br>
-     * @describe ：读取 Excel 文件<br>
-     * @author ：wanglongjie<br>
-     * @createDate ：2015年8月31日下午2:41:25 <br>
-     */
-    public static String[] readExcelTitle(String fileName, int titleRow) {
-        InputStream is;
-        try {
-            is = new FileInputStream(fileName);
-            String postfix = fileName.substring(fileName.lastIndexOf("."), fileName.length());
-            if (postfix.equals(".xls")) {
-                // 针对 2003 Excel 文件
-                wb = new HSSFWorkbook(new POIFSFileSystem(is));
-                sheet = wb.getSheetAt(0);
-            } else {
-                // 针对2007 Excel 文件
-                wb = new XSSFWorkbook(is);
-                sheet = wb.getSheetAt(0);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        sheet = wb.getSheetAt(0);
-        row = sheet.getRow(titleRow);// 获取第一行（约定第一行是标题行）
-        int colNum = row.getPhysicalNumberOfCells();// 获取行的列数
-        String[] titles = new String[colNum];
-        for (int i = 0; i < titles.length; i++) {
-            titles[i] = getCellFormatValue(row.getCell(i));
-        }
-        return titles;
-    }
 
     /**
      * @param fileName ：Excel 文件路径
@@ -68,12 +35,12 @@ public class ExcelReader {
      * @author ：wanglongjie<br>
      * @createDate ：2015年8月31日下午3:12:06 <br>
      */
-    public static Map<String, Map>  readExcelContent(String fileName, int contentStartRow) {
-        Map<String, Map>  maps=new HashMap<>();
+    public static Map<String, Object>  readExcelContent(String fileName, int contentStartRow) {
+        Map<String, Object> maps = new HashMap<>();
         //Excel中正确记录信息
-        Map<Integer,Map<String, String>> mapright = new HashMap<>();
+        Map<Integer, Map<String, String>> mapRight = new HashMap<>();
         //Excel中错误行号
-        Map<Integer,Map<String, String>> maperror = new HashMap<>();
+        List<Integer> errorRowList = new ArrayList<Integer>();
         Map<String, String> content = null;
         try {
             InputStream is;
@@ -94,35 +61,38 @@ public class ExcelReader {
         int rowNum = sheet.getLastRowNum();// 得到总行数
         row = sheet.getRow(contentStartRow - 1);//和title一样
         int colNum = row.getPhysicalNumberOfCells();
-        String titles[] = readExcelTitle(fileName, contentStartRow - 1);
+        // 批量上传模板表头名称
+        String[] titles = CommConstant.EXCEL_TITLES;
+
         // 正文内容应该从第二行开始,第一行为表头的标题
-        for (int i = contentStartRow; i <rowNum+1; i++) {
+        for (int i = contentStartRow; i < rowNum + 1; i++) {
             int j = 0;
             row = sheet.getRow(i);
             content = new LinkedHashMap<>();
-            if (row == null)
-            {
-                maperror.put(i+1,content);
+            if (row == null) {
+                errorRowList.add(i + 1);
                 continue;
             }
-                do {
-                    if(! ("商品标签".equals(titles[j]) ||  "商品产地".equals(titles[j])  ||  "企业名称".equals(titles[j])  || "上市时间".equals(titles[j]) )  ){
-                        if(getCellFormatValue(row.getCell(j)) == null || "".equals(getCellFormatValue(row.getCell(j)).trim())){
-                            maperror.put(i+1,content);
-                            content = null ;
-                            break;
-                        }
+            //获取表数据
+            do {
+                if (!("商品标签".equals(titles[j]) || "商品产地".equals(titles[j]) || "企业名称".equals(titles[j]) || "上市时间".equals(titles[j]))) {
+                    if ("".equals(getCellFormatValue(row.getCell(j)).trim())) {
+                        errorRowList.add(i + 1);
+                        content = null;
+                        break;
                     }
-                    content.put(titles[j], getCellFormatValue(row.getCell(j)).trim());
-                    j++;
-                } while (j < colNum);
+                }
+                content.put(titles[j], getCellFormatValue(row.getCell(j)).trim());
+                j++;
+            } while (j < colNum);
 
-            if(content != null){
-                mapright.put(i+1,content);
+
+            if (content != null) {
+                mapRight.put(i + 1, content);
             }
         }
-        maps.put("mapright",mapright);
-        maps.put("maperror",maperror);
+        maps.put("mapright", mapRight);
+        maps.put("maperror", errorRowList);
         return maps;
     }
 

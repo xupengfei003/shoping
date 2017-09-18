@@ -200,4 +200,16 @@ public interface SupplierCommodityDao {
      * @return 修改结果
      */
     void updateAmz(SupplierCommodity supplierCommodity);
+
+    /**
+     *更新SC 表中的缩略图 字段
+     * @param minImg
+     * @param updatedAt
+     * @param updatedBy
+     * @param scId
+     * @return
+     */
+    void updateMinImg(@Param("minImg")String minImg, @Param("updatedAt")Date updatedAt, @Param("updatedBy")Long updatedBy, @Param("scId") Long scId);
+
+
 }
