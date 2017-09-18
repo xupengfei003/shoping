@@ -179,7 +179,8 @@
         order_create_time,
         order_payment_method,
         order_status,
-        updated_at
+        updated_at,
+        order_postage
         )
         VALUES
         <foreach collection="list" item="item" index="index" separator=",">
@@ -198,7 +199,8 @@
             #{item.orderCreateTime},
             #{item.orderPaymentMethod},
             #{item.orderStatus},
-            #{item.updatedAt}
+            #{item.updatedAt},
+            #{item.orderPostage}
             )
         </foreach>
     </insert>

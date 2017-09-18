@@ -195,6 +195,12 @@ public class Purchase {
      */
     private String refuseType;
 
+    /**
+     *订单邮费
+     *
+     */
+    private BigDecimal orderPostage;
+
     public String getAccountStatus() {
         return accountStatus;
     }
@@ -473,5 +479,13 @@ public class Purchase {
 
     public void setRefuseType(String refuseType) {
         this.refuseType = refuseType;
+    }
+
+    public BigDecimal getOrderPostage() {
+        return orderPostage;
+    }
+
+    public void setOrderPostage(BigDecimal orderPostage) {
+        this.orderPostage = orderPostage;
     }
 }
