@@ -144,6 +144,7 @@ CREATE TABLE `hot_commodity` (
   `comm_measure_name` VARCHAR(64) NULL DEFAULT NULL COMMENT '计量规格名称',
   `rule_val` VARCHAR(256) NULL DEFAULT NULL COMMENT '规格值',
   `inventory` DECIMAL(11,2) NULL DEFAULT NULL COMMENT '库存',
+  `sales_volume` INT(11) NULL DEFAULT NULL COMMENT '销量',
   `status` INT(2) NULL DEFAULT NULL COMMENT '商品状态',
   `sort` INT(2) NULL DEFAULT NULL COMMENT '排序',
   `operator` VARCHAR(50) NULL DEFAULT NULL COMMENT '操作人（登录的账号名）',
@@ -155,6 +156,7 @@ CREATE TABLE `hot_commodity` (
   COLLATE='utf8_general_ci'
   ENGINE=InnoDB
 ;
+
 
 
 
