@@ -23,6 +23,7 @@ import so.sao.shop.supplier.pojo.output.CommodityInfoOutput;
 import so.sao.shop.supplier.pojo.output.CommodityOutput;
 import so.sao.shop.supplier.pojo.vo.*;
 import so.sao.shop.supplier.service.CommodityService;
+import so.sao.shop.supplier.service.CountSoldCommService;
 import so.sao.shop.supplier.util.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -68,6 +69,9 @@ public class CommodityServiceImpl implements CommodityService {
 
     @Autowired
     private AzureBlobService azureBlobService;
+
+    @Autowired
+    private CountSoldCommService countSoldCommService;
 
     @Value("${excel.tempaltepath}")
     private String urlFile;
@@ -317,7 +321,7 @@ public class CommodityServiceImpl implements CommodityService {
      * @return
      */
     @Override
-    public Result getCommodity(Long id) {
+    public Result getCommodity(Long id)  {
         //根据供应商商品ID获取商品信息
         CommodityOutput commodityOutput = supplierCommodityDao.findDetail(id);
         if(null != commodityOutput){
@@ -328,9 +332,20 @@ public class CommodityServiceImpl implements CommodityService {
                 CommImgeVo commImgeVo = BeanMapper.map(commImge, CommImgeVo.class);
                 commImgeVoList.add(commImgeVo);
             });
-            commodityOutput.setImgeList(commImgeVoList);
+            //获取销量
+            List<String> countSold= null;
+            try {
+                countSold = countSoldCommService.countSoldCommNum(new String[]{commodityOutput.getId().toString()});
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            //获取账户account对象
+            Account account=accountDao.selectById(commodityOutput.getSupplierId());
+            commodityOutput.setProviderName(account.getProviderName());  //将获取供应商名称放入出参
+            commodityOutput.setContractCity(account.getContractRegisterAddressCity());  //将获取供应商合同所在市放入出参
+            commodityOutput.setSalesNumber(Integer.valueOf(countSold.get(0)));     //将获取销量放入出参
+            commodityOutput.setImgeList(commImgeVoList);  //将获取图片信息放入出参
         }
-
         return Result.success("查询成功", commodityOutput);
     }
 
