@@ -1061,6 +1061,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             purchaseVo.setOrderPaymentTime(purchase.getOrderPaymentTime());//订单支付时间
             purchaseVo.setOrderPaymentMethod(purchase.getOrderPaymentMethod());//支付方式
             purchaseVo.setOrderPaymentNum(purchase.getOrderPaymentNum());//订单流水号
+            purchaseVo.setOrderPostage(NumberUtil.number2Thousand(purchase.getOrderPostage()));//运费金额
             purchaseVos.add(purchaseVo);//将转化后的数据添加到集合中
         }
         return purchaseVos;
