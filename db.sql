@@ -157,7 +157,38 @@ CREATE TABLE `hot_commodity` (
   ENGINE=InnoDB
 ;
 
+/*费用规则*/
+CREATE TABLE `freight_rules` (
+  `id` int(11) NOT NULL COMMENT '运费规则ID',
+  `supplier_id` bigint(20) NOT NULL COMMENT '供应商ID',
+  `rules_type` int(2) DEFAULT NULL COMMENT '规则类型:0-通用规则,1-配送地区物流费用规则',
+  `address_province` varchar(100) COLLATE utf8_bin DEFAULT NULL COMMENT '省',
+  `address_city` varchar(100) COLLATE utf8_bin DEFAULT NULL COMMENT '市',
+  `address_district` varchar(100) COLLATE utf8_bin DEFAULT NULL COMMENT '区',
+  `whether_shipping` int(2) DEFAULT NULL COMMENT '是否包邮:0-不包,1-包邮',
+  `send_amount` decimal(10,2) DEFAULT NULL COMMENT '起送金额',
+  `default_piece` int(11) DEFAULT NULL COMMENT '默认计件',
+  `excess_piece` int(11) DEFAULT NULL COMMENT '超量计件',
+  `default_amount` decimal(10,2) DEFAULT NULL COMMENT '运费基础金额',
+  `excess_amount` decimal(10,2) DEFAULT NULL COMMENT '运费增加金额',
+  `remark` varchar(100) COLLATE utf8_bin DEFAULT NULL COMMENT '备注',
+  `created_at` datetime DEFAULT NULL COMMENT '创建时间',
+  `update_at` datetime DEFAULT NULL COMMENT '更改时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
+/*配送范围*/
+CREATE TABLE `distribution_scope` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '配送范围ID',
+  `supplier_id` bigint(20) NOT NULL COMMENT '供应商ID',
+  `address_province` varchar(100) COLLATE utf8_bin DEFAULT NULL COMMENT '省',
+  `address_city` varchar(100) COLLATE utf8_bin DEFAULT NULL COMMENT '市',
+  `address_district` varchar(100) COLLATE utf8_bin DEFAULT NULL COMMENT '区',
+  `remark` varchar(100) COLLATE utf8_bin DEFAULT NULL COMMENT '配送范围备注',
+  `created_at` datetime NOT NULL COMMENT '创建时间',
+  `update_at` datetime DEFAULT NULL COMMENT '更改时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 
 
