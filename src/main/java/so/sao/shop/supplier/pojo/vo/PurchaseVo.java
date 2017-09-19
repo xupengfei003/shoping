@@ -32,6 +32,11 @@ public class PurchaseVo {
     private String orderSettlemePrice;
 
     /**
+     * 订单运费
+     */
+    private String orderPostage;
+
+    /**
      * 创建时间
      */
     private String orderCreateTime;
@@ -74,6 +79,14 @@ public class PurchaseVo {
 
     public void setOrderSettlemePrice(String orderSettlemePrice) {
         this.orderSettlemePrice = orderSettlemePrice;
+    }
+
+    public String getOrderPostage() {
+        return orderPostage;
+    }
+
+    public void setOrderPostage(String orderPostage) {
+        this.orderPostage = orderPostage;
     }
 
     public String getOrderCreateTime() {

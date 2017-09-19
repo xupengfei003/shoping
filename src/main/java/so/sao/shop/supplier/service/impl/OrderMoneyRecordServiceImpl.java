@@ -251,13 +251,12 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
         }
 
         String recordId = NumberGenerate.generateId();//生成结算明细id
-        BigDecimal tmpOrderSettlemePrice = new BigDecimal("0.00");
 
         //设置结算明细与订单关联数据、订单更新数据，并添加到对应的list中
-        tmpOrderSettlemePrice = setRecordPurchaseValues(purchaseList, recordPurchaseList, purchaseUpdateList, recordId);
+        Map<String, BigDecimal> tmpMap = setRecordPurchaseValues(purchaseList, recordPurchaseList, purchaseUpdateList, recordId);
 
         //设置该商户下结算明细的值，并添加到结算明细的orderMoneyRecordList
-        setOMRValues(recordId, account, tmpOrderSettlemePrice, currentDate, orderMoneyRecordList, checkOutDate);
+        setOMRValues(recordId, account, tmpMap, currentDate, orderMoneyRecordList, checkOutDate);
 
     }
 
@@ -266,19 +265,22 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
      * 设置结算明细数据，并添加到orderMoneyRecordList
      * @param recordId 结算明细id
      * @param account  供应商账户
-     * @param tmpOrderSettlemePrice 待结算金额
+     * @param map 订单总金额、运费总金额 键值对
      * @param currentDate 当前时间
      * @return
      */
-    public void setOMRValues(String recordId, Account account, BigDecimal tmpOrderSettlemePrice, Date currentDate,
+    public void setOMRValues(String recordId, Account account, Map<String, BigDecimal> map, Date currentDate,
                              List<OrderMoneyRecord> orderMoneyRecordList, Date checkOutDate) {
+
+        BigDecimal tmpOrderSettlemePrice = map.get("orderSettlemePrice");
+        BigDecimal tmpOrderPostage = map.get("orderPostage");
         OrderMoneyRecord omr = new OrderMoneyRecord();
         omr.setRecordId(recordId);
         omr.setUserId(account.getAccountId());// 账户id
         omr.setBankName(account.getBankName());// 开户行
         omr.setBankNameBranch("");// 开户支行
         omr.setBankAccount(account.getBankNum());// 银行卡号
-        omr.setTotalMoney(tmpOrderSettlemePrice);// 待结算金额
+        omr.setTotalMoney(tmpOrderSettlemePrice.add(tmpOrderPostage));// 待结算金额
         omr.setState("0");// 状态
         omr.setCreatedAt(currentDate);// 创建时间
         omr.setUpdatedAt(currentDate);// 更新时间
@@ -287,6 +289,8 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
         omr.setSettledAmount(new BigDecimal("0.00"));//已结算金额
         omr.setBankUserName(account.getBankUserName());//开户人姓名
         omr.setCheckoutAt(checkOutDate);//结账时间
+        omr.setPostageTotalAmount(tmpOrderPostage);//运费总金额
+        omr.setOrderTotalAmount(tmpOrderSettlemePrice);//订单总金额
         orderMoneyRecordList.add(omr);
     }
 
@@ -298,9 +302,11 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
      * @param recordId
      * @return 返回待结算金额
      */
-    public BigDecimal setRecordPurchaseValues(List<Purchase> purchaseList, List<RecordPurchase> recordPurchaseList,
+    public Map<String, BigDecimal> setRecordPurchaseValues(List<Purchase> purchaseList, List<RecordPurchase> recordPurchaseList,
                                         List<Purchase> purchaseUpdateList, String recordId) {
+        Map<String, BigDecimal> map = new HashMap<>();
         BigDecimal tmpOrderSettlemePrice = new BigDecimal("0.00");
+        BigDecimal tmpOrderPostage = new BigDecimal("0.00");
         for (Purchase purchase : purchaseList) {
             RecordPurchase recordPurchase = new RecordPurchase();
             recordPurchase.setRecordId(recordId);
@@ -311,13 +317,22 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
             if (null == orderSettlemePrice) {
                 orderSettlemePrice = new BigDecimal("0.00");
             }
-            //统计purchaseList订单列表的结算金额之和
+            //统计purchaseList订单列表的订单金额
             tmpOrderSettlemePrice = tmpOrderSettlemePrice.add(orderSettlemePrice);
+
+            BigDecimal orderPostage = purchase.getOrderPostage();//运费
+            if (null == orderPostage) {
+                orderPostage = new BigDecimal("0.00");
+            }
+            //统计purchaseList订单列表的运费金额
+            tmpOrderPostage = tmpOrderPostage.add(orderPostage);
 
             purchase.setUpdatedAt(new Date());
             purchaseUpdateList.add(purchase);//订单更新数据添加到purchaseUpdateList
         }
-        return tmpOrderSettlemePrice;
+        map.put("orderSettlemePrice", tmpOrderSettlemePrice);
+        map.put("orderPostage", tmpOrderPostage);
+        return map;
     }
 
 
@@ -544,6 +559,8 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
                 ormVo.setState(omr.getState());//结算状态
                 ormVo.setBankAccount(omr.getBankAccount());//供应商账户
                 ormVo.setSerialNumber(omr.getSerialNumber());//银行流水号
+                ormVo.setPostageTotalAmount(NumberUtil.number2Thousand(omr.getPostageTotalAmount()));//运费总金额
+                ormVo.setOrderTotalAmount(NumberUtil.number2Thousand(omr.getOrderTotalAmount()));//订单结算总金额
                 tmpList.add(ormVo);
             }
         }
@@ -574,6 +591,8 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
                 aormVo.setSettledAmount(NumberUtil.number2Thousand(omr.getSettledAmount()));//已结算金额
                 aormVo.setSettledAt(omr.getSettledAt() == null ? null : StringUtil.fomateData(omr.getSettledAt(), "yyyy-MM-dd HH:mm"));//结算时间
                 aormVo.setBankAccount(omr.getBankAccount());//银行卡号
+                aormVo.setPostageTotalAmount(NumberUtil.number2Thousand(omr.getPostageTotalAmount()));//运费总金额
+                aormVo.setOrderTotalAmount(NumberUtil.number2Thousand(omr.getOrderTotalAmount()));//订单总金额
                 tmpList.add(aormVo);
             }
         }
@@ -700,14 +719,11 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
 
         //4.根据结算明细id，查询该结算明细实体，根据结算状态获取待结算金额或结算金额
         BigDecimal tmpTotalOrderRevenue = new BigDecimal("0.00");
+        BigDecimal tmpTotalPostage = new BigDecimal("0.00");
         OrderMoneyRecord orderMoneyRecord = orderMoneyRecordDao.findOne(recordId);
         if (null != orderMoneyRecord) {
-            String state = orderMoneyRecord.getState();
-            if (Ognl.isNotEmpty(state) && "0".equals(state)) {
-                tmpTotalOrderRevenue = orderMoneyRecord.getTotalMoney();
-            } else if (Ognl.isNotEmpty(state) && "1".equals(state)) {
-                tmpTotalOrderRevenue = orderMoneyRecord.getSettledAmount();
-            }
+            tmpTotalOrderRevenue = orderMoneyRecord.getOrderTotalAmount();
+            tmpTotalPostage = orderMoneyRecord.getPostageTotalAmount();
         }
 
         PageInfo pageInfo = null;
@@ -724,6 +740,8 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
         output.setPageInfo(pageInfo);
         //订单结算总额
         output.setTotalOrderRevenue(NumberUtil.number2Thousand(tmpTotalOrderRevenue));
+        //订单运费总额
+        output.setTotalPostage(NumberUtil.number2Thousand(tmpTotalPostage));
 
         //8.返回结果对象output
         return output;
@@ -769,7 +787,6 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
     public List<PurchaseVo> convertPurchaseVo(List<Purchase> list) {
         //新建要返回的List<PurchaseVo>
         List<PurchaseVo> recordPurchaseVoList = new ArrayList<>();
-
         for (Purchase purchase : list) {
             PurchaseVo recordPurchaseVo = new PurchaseVo();
             recordPurchaseVo.setOrderId(purchase.getOrderId());//订单编号
@@ -777,10 +794,10 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
             recordPurchaseVo.setOrderReceiverMobile(purchase.getOrderReceiverMobile());//收货人电话
             recordPurchaseVo.setOrderPrice(NumberUtil.number2Thousand(purchase.getOrderPrice()));//订单金额
             recordPurchaseVo.setOrderSettlemePrice(NumberUtil.number2Thousand(purchase.getOrderSettlemePrice()));//结算金额
+            recordPurchaseVo.setOrderPostage(NumberUtil.number2Thousand(purchase.getOrderPostage()));//运费金额
             recordPurchaseVo.setOrderCreateTime(purchase.getOrderCreateTime() == null ? "" : StringUtil.fomateData(purchase.getOrderCreateTime(), "yyyy-MM-dd HH:mm:ss"));//订单创建时间
             recordPurchaseVoList.add(recordPurchaseVo);
         }
-
         //返回转换之后的list
         return recordPurchaseVoList;
     }
@@ -795,12 +812,7 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
     @Override
     public void exportExcel(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-
-        BufferedInputStream bis = null;
-        BufferedOutputStream bos = null;
-        FileInputStream fileInputStream = null;
         XSSFWorkbook workbook = null;
-//        File excelFile = null;
         try {
 
             String pageNum = request.getParameter("pageNum");
@@ -856,7 +868,7 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
             //根据条件查询数据
             List<OrderMoneyRecord> records = orderMoneyRecordDao.findRecords(startTime, endTime, state, limits);
             List<Object[]> data = new ArrayList<>();
-            String[] titles = {"供应商名称", "结账时间", "待结算金额（¥）", "已结算金额（¥）", "结算时间", "结算状态", "供应商账户", "银行流水号"};
+            String[] titles = {"供应商名称", "结账时间", "待结算金额（¥）", "已结算金额（¥）", "结算时间", "结算状态", "供应商账户", "银行流水号", "运费总金额", "订单总金额"};
             for (int i = 0; i < records.size(); i++) {//转换数据格式
                 Object[] o = OrderMoneyRecord.converData(records.get(i));
                 logger.debug("【数据 为】 ： " + Arrays.toString(o));
@@ -867,20 +879,8 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
             workbook = ExcelExportHelper.exportExcel(data, titles);
 //          输出excel
             workbook.write(out);
-            bos = new BufferedOutputStream(out);
-            byte[] buff = new byte[2048];
-            int bytesRead;
-            while (-1 != (bytesRead = bis.read(buff, 0, buff.length))) {
-                bos.write(buff, 0, bytesRead);
-            }
             logger.debug("【excel 输出中完毕】 ： ");
         } finally {
-            if (fileInputStream != null)
-                fileInputStream.close();
-            if (bis != null)
-                bis.close();
-            if (bos != null)
-                bos.close();
             if (workbook != null) {
                 workbook.close();
             }

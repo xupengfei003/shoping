@@ -381,14 +381,14 @@
 
     <!--根据商家id统计该账户名下订单状态（已完成）+ 账户状态（未结算）订单结算金额累计之和-->
     <select id="findUncountedMoney" resultType="java.math.BigDecimal" parameterType="java.lang.Long">
-        SELECT SUM(order_settleme_price)
+        SELECT SUM(order_settleme_price + order_postage)
         FROM purchase
         WHERE store_id=#{storeId} AND order_status=4 AND account_status &lt; 2;
     </select>
 
     <!-- 查询订单状态计算已完成订单总金额 -->
     <select id="findOrderStatus" resultType="java.math.BigDecimal" parameterType="java.lang.Long">
-        SELECT SUM(ORDER_SETTLEME_PRICE)
+        SELECT SUM(order_settleme_price + order_postage)
         FROM PURCHASE
         <where>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(storeId)">
@@ -401,7 +401,17 @@
     <!-- 分页条件检索账户管理下的订单明细 （高级查询）-->
     <select id="findPageByStoreId" resultMap="BaseResultMap">
         SELECT
-        ORDER_ID,ORDER_RECEIVER_NAME,ORDER_RECEIVER_MOBILE,ORDER_STATUS,ORDER_PRICE,ORDER_SETTLEME_PRICE,ORDER_CREATE_TIME,ORDER_PAYMENT_TIME,ORDER_PAYMENT_METHOD,ORDER_PAYMENT_NUM
+          ORDER_ID,
+          ORDER_RECEIVER_NAME,
+          ORDER_RECEIVER_MOBILE,
+          ORDER_STATUS,
+          ORDER_PRICE,
+          ORDER_SETTLEME_PRICE,
+          ORDER_CREATE_TIME,
+          ORDER_PAYMENT_TIME,
+          ORDER_PAYMENT_METHOD,
+          ORDER_PAYMENT_NUM,
+          ORDER_POSTAGE
         FROM PURCHASE
         WHERE STORE_ID = #{storeId,jdbcType=BIGINT}
         AND ORDER_STATUS=4
@@ -444,7 +454,17 @@
     <!-- 分页条件检索账户管理下的订单明细 （普通查询）-->
     <select id="findPageByStoreIdLow" resultMap="BaseResultMap">
         SELECT
-        ORDER_ID,ORDER_RECEIVER_NAME,ORDER_RECEIVER_MOBILE,ORDER_STATUS,ORDER_PRICE,ORDER_SETTLEME_PRICE,ORDER_CREATE_TIME,ORDER_PAYMENT_TIME,ORDER_PAYMENT_METHOD,ORDER_PAYMENT_NUM
+          ORDER_ID,
+          ORDER_RECEIVER_NAME,
+          ORDER_RECEIVER_MOBILE,
+          ORDER_STATUS,
+          ORDER_PRICE,
+          ORDER_SETTLEME_PRICE,
+          ORDER_CREATE_TIME,
+          ORDER_PAYMENT_TIME,
+          ORDER_PAYMENT_METHOD,
+          ORDER_PAYMENT_NUM,
+          ORDER_POSTAGE
         FROM PURCHASE
         WHERE STORE_ID = #{storeId,jdbcType=BIGINT}
         AND ORDER_STATUS = 4
@@ -564,7 +584,8 @@
         SELECT
           order_id,
           order_price,
-          order_settleme_price
+          order_settleme_price,
+          order_postage
         FROM
           purchase
         WHERE
@@ -579,6 +600,7 @@
         <id column="order_id" property="orderId"/>
         <result column="order_price" property="orderPrice"/>
         <result column="order_settleme_price" property="orderSettlemePrice"/>
+        <result column="order_postage" property="orderPostage"/>
     </resultMap>
 
     <!--查询该商户下已完成且按固定天数结算订单列表信息-->
@@ -586,7 +608,8 @@
       SELECT
         order_id,
         order_price,
-        order_settleme_price
+        order_settleme_price,
+        order_postage
       FROM
         purchase
       WHERE
