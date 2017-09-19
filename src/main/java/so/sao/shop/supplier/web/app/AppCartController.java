@@ -9,11 +9,13 @@ import org.springframework.web.bind.annotation.*;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.domain.AppCartItem;
 import so.sao.shop.supplier.pojo.Result;
+import so.sao.shop.supplier.pojo.output.AppCartItemOut;
 import so.sao.shop.supplier.service.app.AppCartService;
 import so.sao.shop.supplier.util.Ognl;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -92,11 +94,11 @@ public class AppCartController {
                                   @NotNull(message = "用户ID不能为空") Long userId ) throws Exception{
         // 插入数据
         Map<String,Object> map = cartService.saveCartItem(commodityId,number,userId);
-        // 获取更新后的数据
-        AppCartItem appCartItem = (AppCartItem)map.get("appCartItem");
         // 获取提示信息
         String msg = (String)map.get("msg");
-        if (Ognl.isNull(appCartItem)){
+        // 获取信息码
+        String code = (String)map.get("code");
+        if ("0".equals(code)){
             return Result.fail(msg);
         }else{
             return Result.success(msg);
@@ -104,111 +106,27 @@ public class AppCartController {
     }
 
 
-//    /**
-//     * 根据用户id获取用户购物车信息
-//     * @param userid
-//     * @return
-//     */
-//    @ApiOperation(value="根据用户id获取用户购物车信息",notes = "根据用户id获取用户购物车信息【负责人：王翼云】")
-//    @GetMapping(value ="/{userid}")
-//    public Result getCartItemsByUser(@PathVariable("userid") Long userid){
-//        logger.debug(" [userid] " + userid);
-//
-//        User user = (User)request.getAttribute(Constant.REQUEST_USER);
-//        logger.debug("【当前用户id为】："+user+"  ;  【传入的用户ID为】："+userid);
-//        if(!checkUser()){
-//            return Result.fail(Constant.MessageConfig.MSG_FAILURE);
-//        }
-//        if(!user.getId().equals(userid)){//如果传入的用户ID与登陆ID不同
-//            return Result.fail(Constant.MessageConfig.MSG_FAILURE);
-//        }
-//
-//        List<AppCartItemOut> appCartItemOuts = cartService.findCartItemsByUserId(user.getId());
-////        logger.debug("【购物车信息】 "+appCartItemOut.toString());
-//        return Result.success(Constant.MessageConfig.MSG_SUCCESS,appCartItemOuts);
-//    }
-//
-//    /**
-//     * 根据用户id获取用户购物车信息，分页
-//     * @param userid
-//     * @param pageNum
-//     * @param pageSize
-//     * @return
-//     */
-//    public Result getCartItems(@PathVariable("userid") Long userid,
-//                               @RequestParam("pageNum")
-//                               @Min(value=1)
-//                               @NotNull int pageNum,
-//                               @RequestParam("pageSize")
-//                               @Min(value=1)
-//                               @NotNull int pageSize){
-//        logger.debug(" [userid] " + userid);
-//        logger.debug(" [pageNum] " + pageNum);
-//        logger.debug(" [pageSize] " + pageSize);
-//        User user = (User)request.getAttribute(Constant.REQUEST_USER);
-//        logger.debug("【当前用户id为】："+user+"  ;  【传入的用户ID为】："+userid);
-//        if(!checkUser()){
-//            return Result.fail(Constant.MessageConfig.MSG_FAILURE);
-//        }
-//        if(!user.getId().equals(userid)){//如果传入的用户ID与登陆ID不同
-//            return Result.fail(Constant.MessageConfig.MSG_FAILURE);
-//        }
-//        /**
-//         *注意这里的数据格式 ==> PageInfo<AppCartItem>
-//         */
-//        PageInfo<AppCartItem> pageInfo = cartService.findCartItemByUserId(user.getId(),pageNum,pageSize);
-//        logger.debug("【购物车信息】 "+pageInfo.toString());
-//        return Result.success(Constant.MessageConfig.MSG_SUCCESS,pageInfo);
-//    }
-//
-//    /**
-//     * 向购物车添加纪录
-//     * @param appCartItemInput
-//     * @return
-//     */
-//    @ApiOperation(value="向购物车添加商品",notes = "向购物车添加商品【负责人：王翼云】")
-//    @PostMapping(value ="/cartitem")
-//    public Result createCartItems(@RequestBody @Validated AppCartItemInput appCartItemInput){
-//
-//        logger.debug("【传入的参数信息为】 "+ appCartItemInput.toString());
-//        User user = (User)request.getAttribute(Constant.REQUEST_USER);
-//        if(!checkUser()){
-//            logger.debug("【user info 1】 "+ user);
-//            return Result.fail(Constant.MessageConfig.MSG_FAILURE);
-//        }
-//
-//        appCartItemInput.setUserId(user.getId());
-//        logger.debug("【user info 2】 "+ user);
-//        return convertBoolean(cartService.saveCartItem(appCartItemInput));
-//    }
-//
-//    /**
-//     * 判断用户是否登陆
-//     * @return
-//     */
-//    private boolean checkUser() {
-//        User user = (User)request.getAttribute(Constant.REQUEST_USER);
-//        if(user == null){
-//            return false;
-//        }else{
-//            return true;
-//        }
-//    }
-//
-//    /**
-//     * 成功失败的数据格式
-//     * @param flag
-//     * @return
-//     */
-//    private Result convertBoolean(boolean flag){
-//        Result result = null;
-//        if(flag){
-//            result = Result.success(Constant.MessageConfig.MSG_SUCCESS);
-//        }else{
-//            result = Result.fail(Constant.MessageConfig.MSG_FAILURE);
-//        }
-//        return result;
-//    }
-
+    /**
+     * 根据用户id获取用户购物车信息
+     * @param userId
+     * @return
+     */
+    @ApiOperation(value="根据用户id获取用户购物车信息",notes = "根据用户id获取用户购物车信息【负责人：王翼云】")
+    @GetMapping(value ="/{userId}")
+    public Result getCartItemsByUser(@PathVariable("userId") Long userId) throws Exception{
+        // 查询数据
+        Map<String, Object> map = cartService.findCartItemsByUserId(userId);
+        // 获取信息码
+        String code = (String)map.get("code");
+        // 获取提示信息
+        String msg = (String)map.get("msg");
+        // 获取查询数据
+        List<AppCartItemOut> outList = (List<AppCartItemOut>)map.get("collection");
+        if ("1".equals(code)){
+            return Result.success(Constant.MessageConfig.MSG_SUCCESS,outList);
+        }else{
+            return Result.fail(msg,outList);
+        }
+    }
 }
 

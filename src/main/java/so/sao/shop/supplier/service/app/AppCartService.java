@@ -1,5 +1,8 @@
 package so.sao.shop.supplier.service.app;
 
+import so.sao.shop.supplier.pojo.output.AppCartItemOut;
+
+import java.util.List;
 import java.util.Map;
 
 
@@ -33,56 +36,15 @@ public interface AppCartService {
      * @param number
      * @param userId
      * @return
+     * @throws Exception
      */
     Map<String,Object> saveCartItem(Long commodityId, Integer number, Long userId) throws Exception;
 
-
-
-
-
-//
-//
-//    /**
-//     * 根据ID从购物车删除商品
-//     */
-//    public boolean deleteCartItemById(Long id);
-//
-//    /**
-//     * 根据用户ID查询购物车商品
-//     * @param userId
-//     * @param pageNum
-//     * @param pageSize
-//     * @return
-//     */
-//    public PageInfo<AppCartItem> findCartItemByUserId(Long userId, int pageNum, int pageSize);
-//
-//    /**
-//     * 根据商品ID查找信息
-//     * @param id
-//     * @return
-//     */
-//    public AppCartItem findOne(Long id);
-//
-//    /**
-//     * 根据id批量删除
-//     * @param cartitemIds
-//     * @return
-//     */
-//    boolean deleteCartItemsByIds(List<Long> cartitemIds);
-//
-//    /**
-//     * 修改购物车内商品的数量
-//     * @param cartitemId
-//     * @param commodity
-//     * @param number
-//     * @return
-//     */
-//    AppCartItem updateCartItem(Long cartitemId,Long commodity, Integer number);
-//
-//    /**
-//     * 查询该用户下的所有信息
-//     * @param userId
-//     * @return
-//     */
-//    List<AppCartItemOut> findCartItemsByUserId(Long userId);
+    /**
+     * 查询该用户下的所有购物车记录信息
+     * @param userId
+     * @return
+     * @throws Exception
+     */
+    Map<String, Object> findCartItemsByUserId(Long userId) throws Exception;
 }

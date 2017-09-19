@@ -8,12 +8,12 @@ import org.springframework.transaction.annotation.Transactional;
 import so.sao.shop.supplier.dao.*;
 import so.sao.shop.supplier.dao.app.AppCartItemDao;
 import so.sao.shop.supplier.domain.*;
+import so.sao.shop.supplier.pojo.output.AppCartItemOut;
+import so.sao.shop.supplier.pojo.vo.AppCartItemVo;
 import so.sao.shop.supplier.service.app.AppCartService;
 import so.sao.shop.supplier.util.Ognl;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by wyy on 2017/7/19.
@@ -155,6 +155,44 @@ public class AppCartServiceImpl implements AppCartService {
     }
 
     /**
+     * 将购物车记录转为购物车记录VO
+     * @param cartItem
+     * @return
+     * @throws Exception
+     */
+    private AppCartItemVo transformAppCartItemVo(AppCartItem cartItem,
+                                                 Date createTime,
+                                                 Date updateTime,
+                                                 Long userId,
+                                                 Long id,
+                                                 Integer count) throws Exception {
+        if (Ognl.isNull(cartItem)) {
+            return null;
+        }
+        //新建要返回的List<AppCartItemVo>
+        AppCartItemVo cartItemVo = new AppCartItemVo();
+        cartItemVo.setId(id);
+        cartItemVo.setSupplierId(cartItem.getSupplierId());
+        cartItemVo.setSupplierName(cartItem.getSupplierName());
+        cartItemVo.setCommodityId(cartItem.getCommodityId());
+        cartItemVo.setCommodityName(cartItem.getCommodityName());
+        cartItemVo.setCommodityPrice(cartItem.getCommodityPrice());
+        cartItemVo.setCommodityPic(cartItem.getCommodityPic());
+        cartItemVo.setMeasureSpecId(cartItem.getMeasureSpecId());
+        cartItemVo.setMeasureSpecName(cartItem.getMeasureSpecName());
+        cartItemVo.setRuleVal(cartItem.getRuleVal());
+        cartItemVo.setUnitId(cartItem.getUnitId());
+        cartItemVo.setUnitName(cartItem.getUnitName());
+        cartItemVo.setCommodityProperties(cartItem.getCommodityProperties());
+        cartItemVo.setCount(count);
+        cartItemVo.setCreatedAt(createTime);
+        cartItemVo.setUpdatedAt(updateTime);
+        cartItemVo.setUserId(userId);
+        //返回转换之后的list
+        return cartItemVo;
+    }
+
+    /**
      * 根据购物车记录ID从购物车删除商品
      * @param id
      * @return
@@ -179,14 +217,14 @@ public class AppCartServiceImpl implements AppCartService {
     @Transactional(rollbackFor = Exception.class)
     public Map<String,Object> updateCartItem(Long cartitemId, Integer number, Long userId) throws Exception{
         /*
-            1.根据购物车记录ID和userId查询购物车记录中的商品Id,若查询结果为null,则返回null
+            1.根据购物车记录ID和userId查询购物车记录中的商品Id,若查询结果为null,则返回失败
             2.根据商品的Id查询商品的相信信息,同时校验商品及供货商是否合法,返回符合要求的购物车信息
-            3.若返回的购物车信息为null,则返回null
+            3.若返回的code为0,则返回失败
             4.校验是否有库存,若有库存,进行更新,成功的话返回购物车记录
-            5.若库存不足，返回null
+            5.若库存不足，返回失败
          */
         Map<String,Object> map = new HashMap<>(); // 定义Map,用于保存提示信息及更新后的购物车记录
-        // 1.根据购物车记录ID和userId查询购物车记录中的商品Id,若查询结果为null,则返回null
+        // 1.根据购物车记录ID和userId查询购物车记录中的商品Id,若查询结果为null,则返回失败
         AppCartItem appCartItem = cartItemDao.selectByIdAndUserId(cartitemId,userId);
         if (Ognl.isNull(appCartItem)){
             map.put("code","0");
@@ -197,7 +235,7 @@ public class AppCartServiceImpl implements AppCartService {
         // 2.根据商品的Id查询商品的相信信息,同时校验商品及供货商是否合法,返回符合要求的购物车信息
         map = validateCommodity(appCartItem.getCommodityId());
         String code = (String)map.get("code");
-        // 3.若返回的code为0,则返回null
+        // 3.若返回的code为0,则返回失败
         if ("0".equals(code)){
             return map;
         }
@@ -216,7 +254,7 @@ public class AppCartServiceImpl implements AppCartService {
                 map.put("appCartItem",appCartItem);
             }
         }else{
-            // 5.若库存不足，返回null
+            // 5.若库存不足，返回失败
             map.put("code","0");
             map.put("msg","库存不足");
             map.put("appCartItem",appCartItem);
@@ -238,15 +276,17 @@ public class AppCartServiceImpl implements AppCartService {
             1.判断是否存在相同商品的购物车,若存在,进行更新
             2.若不存在,进行添加
               a.根据商品的Id查询商品的相信信息,同时校验商品及供货商是否合法,返回符合要求的购物车信息
-              b.若返回的购物车信息为null,则返回null
+              b.若返回的code为0,则返回失败
               c.校验是否有库存,若有库存,进行更新
-              d.若库存不足，返回null
+              d.若库存不足，返回失败
          */
         Map<String,Object> map = new HashMap<>(); // 定义Map,用于保存提示信息及要新增的购物车记录
         // 1.判断是否存在相同商品的购物车,若存在,进行更新
         AppCartItem appCartItem = cartItemDao.selectByCommodityId(commodityId,userId);
         if (Ognl.isNotNull(appCartItem)){
+            // 更新的数量等于固有数量加新添加数量
             Integer TotalNumber = appCartItem.getCount() + number;
+            // 调用更新接口
             map = updateCartItem(appCartItem.getId(), TotalNumber, userId);
             // 获取信息码
             String code = (String)map.get("code");
@@ -258,7 +298,7 @@ public class AppCartServiceImpl implements AppCartService {
             // a.根据商品的Id查询商品的相信信息,同时校验商品及供货商是否合法,返回符合要求的购物车信息
             map = validateCommodity(commodityId);
             String code = (String)map.get("code");
-            // b.若返回的code为0,则返回null
+            // b.若返回的code为0,则返回失败
             if ("0".equals(code)){
                 return map;
             }
@@ -276,7 +316,7 @@ public class AppCartServiceImpl implements AppCartService {
                     map.put("appCartItem",appCartItem);
                 }
             }else{
-                // d.若库存不足，返回null
+                // d.若库存不足，返回失败
                 map.put("code","0");
                 map.put("msg","库存不足");
                 map.put("appCartItem",appCartItem);
@@ -285,161 +325,143 @@ public class AppCartServiceImpl implements AppCartService {
         return map;
     }
 
+    /**
+     * 查询该用户下的所有购物车记录信息
+     * @param userId
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public Map<String, Object> findCartItemsByUserId(Long userId) throws Exception {
+        /*
+            1.查询个人购物车记录结合,若记录为null,返回暂无购物车记录
+            2.校验商品是否可继续出售并取出商品信息
+            3.校验库存
+            4.校验商品是否失效
+         */
+        Map<String,Object> map = new HashMap<>();           // 定义Map,用于保存提示信息及数据
+        List<AppCartItemOut> outList = new ArrayList<>();   // 要求格式的数据集合
+        // 1.查询个人购物车记录结合,若记录为null,返回暂无购物车记录
+        List<AppCartItem> list = cartItemDao.selectByUserId(userId);
+        if (!Ognl.CollectionIsNotEmpty(list)){
+            map.put("code","1");
+            map.put("msg","暂无购物车记录");
+            map.put("collection",null);
+        }
+        List<AppCartItemVo> voList = new ArrayList<>();     // 购物车转化成Vo的集合
+        for (AppCartItem appCartItems:list) {
+            // 取出查询的数据
+            int oldNumber = appCartItems.getCount();         // 购物车商品数量
+            Date creatTime = appCartItems.getCreatedAt();    // 购物车创建时间
+            Date uapdateTime = appCartItems.getUpdatedAt();  // 购物车修改时间
+            Long id = appCartItems.getId();                  // ID
+            // 2.校验商品是否可继续出售并取出商品信息
+            map = validateCommodity(appCartItems.getCommodityId());
+            // 获取信息码和购物车记录
+            String code = (String)map.get("code");
+            AppCartItem appCartItem = (AppCartItem)map.get("appCartItem");
+            if (Ognl.isNull(appCartItem)){
+                map.put("code","0");
+                map.put("msg","商品信息已经被删除");
+                map.put("collection",null);
+                return map;
+            }
+            // 转化为VO
+            AppCartItemVo cartItemVo = transformAppCartItemVo(appCartItem,creatTime,uapdateTime,userId,id,oldNumber);
+            // 3.校验库存
+            if(appCartItem.getInventory() - oldNumber >= 0) {
+                cartItemVo.setRemaining("1");       // 有库存
+            } else {
+                cartItemVo.setRemaining("0");       // 无库存
+            }
+            // 4.校验商品是否失效
+            if ("0".equals(code)){
+                cartItemVo.setIsUsable("0");        // 商品已经失效
+            } else {
+                cartItemVo.setIsUsable("1");        // 商品未失效
+            }
+            voList.add(cartItemVo);
+        }
+        // 5.转化格式输出
+        outList = transformAppCartItemOut(voList);
+        map.put("code","1");
+        map.put("collection",outList);
+        return map;
+    }
 
 
+    /**
+     * 将List<AppCartItemVo>转为List<AppCartItemOut>
+     * @param voList
+     * @return
+     */
+    private List<AppCartItemOut> transformAppCartItemOut (List<AppCartItemVo> voList){
+        if (Ognl.isNull(voList)){
+            return null;
+        }
+        // 新建输出对象的List
+        List<AppCartItemOut> outList = new ArrayList<>();
+        // 循环数据
+        for (AppCartItemVo vo : voList) {
+            // 当outList为null时
+            if (Ognl.CollectionIsNotEmpty(outList)) {
+                // 当outList不为null时
+                for (int i = 0 ,len = outList.size(); i < len; i++) {
+                    // 判断List<AppCartItemOut>中是否有supplierId,若有supplierId,返回这条记录,若无返回null
+                    AppCartItemOut ap = exsitSupplierId(vo.getSupplierId(), outList);
+                    if (Ognl.isNotNull(ap)) {
+                        ap.getAppCartItems().add(vo);
+                    } else {
+                        AppCartItemOut appCartItemOut = transformOut(vo);
+                        outList.add(appCartItemOut);
+                    }
+                }
+            } else {
+                AppCartItemOut appCartItemOut = transformOut(vo);
+                outList.add(appCartItemOut);
+            }
+        }
+        return outList;
+    }
 
+    /**
+     * 将AppCartItemVo对象转为AppCartItemOut对象
+     * @param vo
+     * @return
+     */
+    private AppCartItemOut transformOut (AppCartItemVo vo){
+        if (Ognl.isNull(vo)){
+            return null;
+        }
+        // 新建输出对象
+        AppCartItemOut appCartItemOut = new AppCartItemOut();
+        appCartItemOut.setSupplierId(vo.getSupplierId());
+        appCartItemOut.setSupplierName(vo.getSupplierName());
+        // 新建Vo的list
+        List<AppCartItemVo> list = new ArrayList<>();
+        list.add(vo);
+        appCartItemOut.setAppCartItems(list);
+        appCartItemOut.setList(new String[0]);
+        appCartItemOut.setIsSelectShop(false);
+        return appCartItemOut;
+    }
 
+    /**
+     * 判断List<AppCartItemOut>中是否有supplierId,若有supplierId,返回这条记录,若无返回null
+     * @param supplierId
+     * @param outList
+     * @return
+     */
+    private AppCartItemOut exsitSupplierId(Long supplierId, List<AppCartItemOut> outList) {
+        if (Ognl.isNull(outList)){
+            return null;
+        }
+        for (int i = 0; i < outList.size() ; i++) {
+            if(outList.get(i).getSupplierId().equals(supplierId)){
+                return outList.get(i);
+            }
+        }
+        return null;
+    }
 
-//
-//    @Override
-//    public PageInfo<AppCartItem> findCartItemByUserId(Long userId, int pageNum, int pageSize) {
-//
-//        /**
-//         * 业务逻辑：
-//         * 1. 根据用户id查询出购物车表中的信息
-//         * 2. 根据商品id去商品表中查询相应的商品信息
-//         * 3. 如果购物车中的数量大于商品信息中的库存数量则
-//         * 4. 若商品表链接获取失败，取购物车表中的商品缓存信息
-//         */
-//
-//        PageHelper.startPage(pageNum,pageSize);
-//        List<AppCartItem> list = cartItemDao.findCartItemByUserId(userId);
-//
-//        for (int i = 0; i < list.size(); i++) {
-//            AppCartItem appCartItem = list.get(i);
-//            //supplierCommodityDao没有提供批量查询的方法，这里后期会影响性能
-//            SupplierCommodity supplierCommodity = supplierCommodityDao.findOne(appCartItem.getCommodityId());//
-//            CommodityOutput commodityOutput = supplierCommodityDao.findDetail(appCartItem.getCommodityId());
-//            Account account = accountDao.findAccountByUserId(appCartItem.getUserId());
-//            appCartItem.setSupplierName(account.getProviderName());
-//            appCartItem.copySupplierCommodity(supplierCommodity);
-//            appCartItem.copyCommodityOutput(commodityOutput);
-//            computeRemainig(appCartItem);
-//            logger.debug("【购物车信息】" +appCartItem);
-//        }
-//        return new PageInfo<AppCartItem>(list);
-//    }
-//
-//    @Override
-//    public AppCartItem findOne(Long id) {
-//        return cartItemDao.findCartItemById(id);
-//    }
-//
-//
-//    @Override
-//    public boolean deleteCartItemsByIds(List<Long> cartitemIds) {
-//        return cartItemDao.deleteBatchByPrimaryKey(cartitemIds)>0?true:false;
-//    }
-//
-
-//
-//    @Override
-//    public List<AppCartItemOut> findCartItemsByUserId(Long userId) {
-//        /**
-//         * 业务逻辑：
-//         * 1. 根据用户id查询出购物车表中的信息
-//         * 2. 根据商品id去商品表中查询相应的商品信息
-//         */
-//        List<AppCartItem> list = cartItemDao.findCartItemByUserId(userId);
-//        List<AppCartItemOut> appCartItemOuts = new ArrayList<>();
-//        for (int i = 0; i < list.size(); i++) {
-//            AppCartItem appCartItem = list.get(i);
-//            //supplierCommodityDao没有提供批量查询的方法，这里后期会影响性能
-//            SupplierCommodity supplierCommodity = supplierCommodityDao.findOne(appCartItem.getCommodityId());//
-//            CommodityOutput commodityOutput = supplierCommodityDao.findDetail(appCartItem.getCommodityId());
-//            Account account = accountDao.findAccountByUserId(appCartItem.getUserId());
-//            appCartItem.setSupplierName(account.getProviderName());
-//            appCartItem.copySupplierCommodity(supplierCommodity);
-//            appCartItem.copyCommodityOutput(commodityOutput);
-//            computeRemainig(appCartItem);
-//            logger.debug("【购物车信息1】" +appCartItem);
-//
-//            //重新组装数据格式
-//            AppCartItemOutSub appCartItemOutSub = new AppCartItemOutSub();
-//            appCartItemOutSub.copyAppCartItem(appCartItem);
-//            String[] pros =  new String[0];
-//            if(appCartItemOuts.size()>0){
-//                for (int j = 0; j < appCartItemOuts.size(); j++) {
-//                    AppCartItemOut aci = appCartItemOuts.get(j);
-//                    if(appCartItem.getSupplierId().equals(aci.getSupplierId())){
-//                        aci.getAppCartItems().add(appCartItemOutSub);
-//                    }else{
-//                        AppCartItemOut appCartItemOut = new AppCartItemOut();
-//                        appCartItemOut.setSupplierId(appCartItem.getSupplierId());
-//                        appCartItemOut.setSupplierName(appCartItem.getSupplierName());
-//                        appCartItemOut.getAppCartItems().add(appCartItemOutSub);
-//                        appCartItemOut.setList(pros);
-//                        appCartItemOut.setIsSelectShop(false);
-//                        appCartItemOuts.add(appCartItemOut);
-//
-//                    }
-//
-//                }
-//            }else{
-//                AppCartItemOut appCartItemOut = new AppCartItemOut();
-//                appCartItemOut.setSupplierId(appCartItem.getSupplierId());
-//                appCartItemOut.setSupplierName(appCartItem.getSupplierName());
-//                appCartItemOut.getAppCartItems().add(appCartItemOutSub);
-//                appCartItemOut.setList(pros);
-//                appCartItemOut.setIsSelectShop(false);
-//                appCartItemOuts.add(appCartItemOut);
-//            }
-//
-//            logger.debug("【购物车信息2】" +appCartItemOuts);
-//        }
-//
-//
-//
-//        return appCartItemOuts;
-//    }
-//
-//    /**
-//     * 得到商品信息
-//     * @return
-//     * @param cid 商品id
-//     */
-//    private SupplierCommodity checkStore(Long cid) {
-//        return supplierCommodityDao.findOne(cid);
-//    }
-//
-//    /**
-//     * 计算库存判断字段
-//     * @param appCartItem
-//     */
-//    private void computeRemainig(AppCartItem appCartItem){
-//        if(appCartItem.getInventory() == null){
-//            appCartItem.setRemaining(false);
-//            return;
-//        }
-//
-//        if(appCartItem.getCount()>appCartItem.getInventory()){
-//            appCartItem.setRemaining(false);
-//        }else{
-//            appCartItem.setRemaining(true);
-//        }
-//    }
-//
-//    /**
-//     * 转换对象
-//     * @param appCartItemInput
-//     * @return
-//     */
-//    private AppCartItem convertToCartItem(AppCartItemInput appCartItemInput) {
-//        if(appCartItemInput ==null){
-//            return null;
-//        }
-//        AppCartItem appCartItem = new AppCartItem();
-//
-//        appCartItem.setUserId(appCartItemInput.getUserId());
-//        appCartItem.setSupplierId(appCartItemInput.getSupplierId());
-//        appCartItem.setSupplierName(appCartItemInput.getSupplierName());
-//
-//        appCartItem.setCommodityId(appCartItemInput.getCommodityId());
-//        appCartItem.setCommodityPrice(appCartItemInput.getCommodityPrice());
-//        appCartItem.setCommodityName(appCartItemInput.getCommodityName());
-//        appCartItem.setCommodityPic(appCartItemInput.getCommodityPic());
-//        appCartItem.setCommodityProperties(appCartItemInput.getCommodityProperties());
-//        appCartItem.setCount(appCartItemInput.getCount());
-//        return appCartItem;
-//    }
 }
