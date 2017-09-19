@@ -30,7 +30,11 @@ public class CountSoldCommServiceImpl implements CountSoldCommService {
         Random random = new Random();
         int resultNum = 0;
         for (String goodId : goodsIds){
-            resultNum = getResultNum(countNums, random, resultNum, goodId);
+            if(countNums.size() == 0){
+                resultNum = random.nextInt(51) + 50;
+            } else {
+                resultNum = getResultNum(countNums, random, resultNum, goodId);
+            }
             result.add(String.valueOf(resultNum));
         }
         return result;
