@@ -234,29 +234,6 @@ public class AppCartItemOutSub {
         this.remaining = remaining;
     }
 
-    @Override
-    public String toString() {
-        return "AppCartItemOutSub{" +
-                "id=" + id +
-                ", userId=" + userId +
-                ", commodityId=" + commodityId +
-                ", sku='" + sku + '\'' +
-                ", commodityPrice=" + commodityPrice +
-                ", commodityName='" + commodityName + '\'' +
-                ", commodityPic='" + commodityPic + '\'' +
-                ", count=" + count +
-                ", commodityProperties='" + commodityProperties + '\'' +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                ", inventory=" + inventory +
-                ", measureSpecId=" + measureSpecId +
-                ", measureSpecName='" + measureSpecName + '\'' +
-                ", ruleVal='" + ruleVal + '\'' +
-                ", unitId=" + unitId +
-                ", unitName='" + unitName + '\'' +
-                ", remaining=" + remaining +
-                '}';
-    }
 
     public void copyAppCartItem(AppCartItem appCartItem){
 
@@ -271,10 +248,10 @@ public class AppCartItemOutSub {
         this.setInventory(appCartItem.getInventory());
         this.setMeasureSpecId(appCartItem.getMeasureSpecId());
         this.setMeasureSpecName(appCartItem.getMeasureSpecName());
-        this.setRemaining(appCartItem.getRemaining());
+
         this.setInventory(appCartItem.getInventory());
         this.setRuleVal(appCartItem.getRuleVal());
-        this.setSku(appCartItem.getSku());
+
         this.setUnitId(appCartItem.getUnitId());
         this.setUnitName(appCartItem.getUnitName());
         this.setUpdatedAt(appCartItem.getUpdatedAt());

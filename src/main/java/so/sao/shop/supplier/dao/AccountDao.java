@@ -138,6 +138,15 @@ public interface AccountDao {
     int countByAccountId(Long accountId);
 
     /**
+     * 根据供应商ID查询供应商名称及状态
+     * @param accountId
+     * @return
+     * @throws Exception
+     */
+    Account findNameAndStatus (@Param("accountId") Long accountId) throws Exception;
+
+
+    /**
      * 查询供应商合同截止时间一个月前的用户
      * @return
      */
