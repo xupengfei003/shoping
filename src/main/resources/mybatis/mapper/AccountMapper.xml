@@ -845,7 +845,15 @@
     </if>
   </select>
 
-  <!-- 根据供应商ID修改供应商合同剩余30天发送短信标记-->
+  <!--根据供应商ID查询供应商名称及状态-->
+  <select id="findNameAndStatus" resultMap="BaseResultMap">
+    SELECT
+    provider_name,
+    account_status
+    FROM account WHERE account_id = #{accountId}
+  </select>
+
+    <!-- 根据供应商ID修改供应商合同剩余30天发送短信标记-->
   <update id="updateAccountSmsTypeById" parameterType="java.lang.Long">
     UPDATE account
     SET sms_monthago_type = 1

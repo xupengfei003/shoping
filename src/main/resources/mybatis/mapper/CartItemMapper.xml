@@ -13,7 +13,6 @@
     <result column="supplier_name" property="supplierName" jdbcType="VARCHAR" />
     <result column="created_at" property="createdAt"  />
     <result column="updated_at" property="updatedAt"  />
-
     <result column="measure_spec_id" property="measureSpecId"   jdbcType="BIGINT" />
     <result column="measure_spec_name" property="measureSpecName"  jdbcType="VARCHAR"  />
     <result column="rule_val" property="ruleVal"  jdbcType="VARCHAR"  />
@@ -21,11 +20,108 @@
     <result column="unit_name" property="unitName"  jdbcType="VARCHAR"  />
     <result column="count" property="count" jdbcType="INTEGER" />
   </resultMap>
+
   <sql id="Base_Column_List" >
     id, user_id, supplier_id, commodity_id, commodity_price, commodity_name, commodity_properties,
     commodity_pic, supplier_name, created_at, updated_at, count,
     measure_spec_id,measure_spec_name,rule_val,unit_id,unit_name
   </sql>
+
+  <!--根据购物车记录ID删除该记录-->
+  <delete id="deleteById" parameterType="java.lang.Long">
+    delete from cart_item
+    where id = #{id,jdbcType=BIGINT}
+    and user_id = #{userId,jdbcType=BIGINT}
+  </delete>
+
+  <!--根据购物车记录ID和userId查询购物车记录中的商品Id和供应商Id-->
+  <select id="selectByIdAndUserId" resultMap="BaseResultMap">
+    select
+    commodity_id
+    from cart_item
+    where id = #{cartitemId}
+    AND user_id = #{userId}
+  </select>
+
+  <!--根据购物车记录ID更新购物车商品数量-->
+  <update id="updateById" parameterType="so.sao.shop.supplier.domain.AppCartItem">
+    UPDATE cart_item
+    <set>
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(userId)">
+        user_id = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierId)">
+        supplier_id = #{supplierId,jdbcType=BIGINT},
+      </if>
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierName)">
+        supplier_name = #{supplierName,jdbcType=VARCHAR},
+      </if>
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(commodityId)">
+        commodity_id = #{commodityId,jdbcType=BIGINT},
+      </if>
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(commodityPrice)">
+        commodity_price = #{commodityPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(commodityName)">
+        commodity_name = #{commodityName,jdbcType=VARCHAR},
+      </if>
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(commodityPic)">
+        commodity_pic = #{commodityPic,jdbcType=VARCHAR},
+      </if>
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(measureSpecId)">
+        measure_spec_id = #{measureSpecId,jdbcType=BIGINT},
+      </if>
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(measureSpecName)">
+        measure_spec_name = #{measureSpecName,jdbcType=VARCHAR},
+      </if>
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(ruleVal)">
+        rule_val = #{ruleVal,jdbcType=VARCHAR},
+      </if>
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(unitId)">
+        unit_id = #{unitId,jdbcType=BIGINT},
+      </if>
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(unitName)">
+        unit_name = #{unitName,jdbcType=VARCHAR},
+      </if>
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(commodityProperties)">
+        commodity_properties = #{commodityProperties,jdbcType=VARCHAR},
+      </if>
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(updatedAt)">
+        updated_at = #{updatedAt,jdbcType=BIGINT},
+      </if>
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(count)">
+        count = #{count,jdbcType=INTEGER},
+      </if>
+    </set>
+    WHERE id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <!--根据商品ID和用户ID查询购物车记录中的购物车记录ID-->
+  <select id="selectByCommodityId" resultMap="BaseResultMap">
+    select
+    id,
+    count
+    from cart_item
+    where commodity_id = #{commodityId}
+    AND user_id = #{userId}
+  </select>
+
+  <!--给购物车表中插入一条记录-->
+  <insert id="insertOne" parameterType="so.sao.shop.supplier.domain.AppCartItem">
+    insert into cart_item (user_id, supplier_id,supplier_name, commodity_id, commodity_price,commodity_name,
+      commodity_pic, measure_spec_id,measure_spec_name, rule_val, unit_id,unit_name, commodity_properties,
+      created_at,count)
+    values (#{userId,jdbcType=BIGINT}, #{supplierId,jdbcType=BIGINT},
+      #{supplierName,jdbcType=VARCHAR}, #{commodityId,jdbcType=BIGINT}, #{commodityPrice,jdbcType=DECIMAL},
+      #{commodityName,jdbcType=VARCHAR}, #{commodityPic,jdbcType=VARCHAR}, #{measureSpecId,jdbcType=BIGINT},
+      #{measureSpecName,jdbcType=VARCHAR}, #{ruleVal,jdbcType=VARCHAR}, #{unitId,jdbcType=BIGINT},
+      #{unitName,jdbcType=VARCHAR}, #{commodityProperties,jdbcType=VARCHAR}, #{createdAt,jdbcType=BIGINT},
+      #{count,jdbcType=INTEGER})
+  </insert>
+
+
+
+
 
 
 
@@ -76,6 +172,7 @@
     from cart_item
     where id = #{id,jdbcType=BIGINT}
   </select>
+
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from cart_item
     where id = #{id,jdbcType=BIGINT}
@@ -203,6 +300,7 @@
       </if>
     </trim>
   </insert>
+
   <update id="updateByPrimaryKeySelective" parameterType="so.sao.shop.supplier.domain.AppCartItem">
     update cart_item
     <set>

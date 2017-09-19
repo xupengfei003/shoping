@@ -397,6 +397,25 @@
         FROM supplier_commodity WHERE supplier_id = #{supplierId}
     </select>
 
+    <!--根据商品ID查询购物车所需字段-->
+    <select id="findOneToCartItem" resultMap="BaseResultMap">
+        SELECT
+        id,
+        supplier_id,
+        price,
+        min_img,
+        measure_spec_id,
+        rule_val,
+        unit_id,
+        sku,
+        status,
+        invalid_status,
+        code69,
+        inventory
+        FROM supplier_commodity
+        WHERE id = #{id}
+    </select>
+
     <!--商品失效-->
     <update id="updateInvalidStatusById" parameterType="so.sao.shop.supplier.domain.SupplierCommodity">
         UPDATE supplier_commodity

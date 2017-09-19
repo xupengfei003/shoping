@@ -53,6 +53,14 @@ public interface CommodityDao {
     Commodity findCommInfoByCode69(@Param("code69")String code69);
 
     /**
+     * 根据code69 商品编码查询商品名称
+     * @param code69
+     * @return
+     * @throws Exception
+     */
+    Commodity findNameByCode69(@Param("code69")String code69) throws Exception;
+
+    /**
      * 查询商品信息集合
      * @param commodity
      * @return 查询结果结合

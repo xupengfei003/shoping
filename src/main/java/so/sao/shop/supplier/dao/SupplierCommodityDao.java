@@ -59,6 +59,13 @@ public interface SupplierCommodityDao {
     CommodityOutput findDetail(@Param("id")long id);
 
     /**
+     * 根据商品ID查询购物车所需字段
+     * @param id
+     * @return
+     */
+    SupplierCommodity findOneToCartItem (@Param("id")long id) throws Exception;
+
+    /**
      *
      * @param code69
      * @return
