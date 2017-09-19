@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="so.sao.shop.supplier.dao.FreightRulesDao">
+
+    <resultMap id="BaseResultMap" type="so.sao.shop.supplier.domain.FreightRules">
+        <id column="id" jdbcType="INTEGER" property="id" />
+
+        <result column="supplier_id" jdbcType="BIGINT" property="supplierId" />
+        <result column="rules_type" jdbcType="INTEGER" property="rulesType" />
+        <result column="address_province" jdbcType="VARCHAR" property="addressProvince" />
+        <result column="address_city" jdbcType="VARCHAR" property="addressCity" />
+        <result column="address_district" jdbcType="VARCHAR" property="addressDistrict" />
+        <result column="whether_shipping" jdbcType="INTEGER" property="whetherShipping" />
+        <result column="send_amount" jdbcType="DECIMAL" property="sendAmount" />
+        <result column="default_piece" jdbcType="INTEGER" property="defaultPiece" />
+        <result column="excess_piece" jdbcType="INTEGER" property="excessPiece" />
+        <result column="default_amount" jdbcType="DECIMAL" property="defaultAmount" />
+        <result column="excess_amount" jdbcType="DECIMAL" property="excessAmount" />
+        <result column="remark" jdbcType="VARCHAR" property="remark" />
+        <result column="created_at" jdbcType="TIMESTAMP" property="createdAt" />
+        <result column="update_at" jdbcType="TIMESTAMP" property="updateAt" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, supplier_id, rules_type, address_province, address_city, address_district, whether_shipping,
+        send_amount, default_piece, excess_piece, default_amount, excess_amount, remark,
+        created_at, update_at
+    </sql>
+    <insert id="insert" parameterType="so.sao.shop.supplier.domain.FreightRules">
+    insert into freight_rules (id, supplier_id, rules_type,
+      address_province, address_city, address_district,
+      whether_shipping, send_amount, default_piece,
+      excess_piece, default_amount, excess_amount,
+      remark, created_at, update_at
+      )
+    values (#{id,jdbcType=INTEGER}, #{supplierId,jdbcType=BIGINT}, #{rulesType,jdbcType=INTEGER},
+      #{addressProvince,jdbcType=VARCHAR}, #{addressCity,jdbcType=VARCHAR}, #{addressDistrict,jdbcType=VARCHAR},
+      #{whetherShipping,jdbcType=INTEGER}, #{sendAmount,jdbcType=DECIMAL}, #{defaultPiece,jdbcType=INTEGER},
+      #{excessPiece,jdbcType=INTEGER}, #{defaultAmount,jdbcType=DECIMAL}, #{excessAmount,jdbcType=DECIMAL},
+      #{remark,jdbcType=VARCHAR}, #{createdAt,jdbcType=TIMESTAMP}, #{updateAt,jdbcType=TIMESTAMP}
+      )
+  </insert>
+</mapper>
