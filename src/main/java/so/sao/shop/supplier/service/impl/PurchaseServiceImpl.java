@@ -180,6 +180,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             purchaseDate.setOrderCreateTime(new Date());//下单时间
             purchaseDate.setOrderStatus(Constant.OrderStatusConfig.PAYMENT);//订单状态 1待付款2代发货3已发货4已收货5已拒收6已退款
             purchaseDate.setUpdatedAt(new Date());//更新时间
+            // TODO 邮费计算
             listPurchase.add(purchaseDate);
             /*
                1.根据商品编号更改库存数量
