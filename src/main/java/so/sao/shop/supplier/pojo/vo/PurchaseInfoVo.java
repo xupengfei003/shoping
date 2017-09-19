@@ -94,6 +94,11 @@ public class PurchaseInfoVo {
     private String orderShipmentNumber;
 
     /**
+     * 订单邮费 (0:包邮，非零显示具体金额)
+     */
+    private String orderPostage;
+
+    /**
      * 订单明细列表
      */
     private List<PurchaseItemVo> purchaseItemVoList;
@@ -232,5 +237,13 @@ public class PurchaseInfoVo {
 
     public void setOrderAddress(String orderAddress) {
         this.orderAddress = orderAddress;
+    }
+
+    public String getOrderPostage() {
+        return orderPostage;
+    }
+
+    public void setOrderPostage(String orderPostage) {
+        this.orderPostage = orderPostage;
     }
 }

@@ -28,7 +28,18 @@ public class CommConstant {
      * 下架
      */
     public static final int COMM_ST_OFF_SHELVES = 3;
-
+    /**
+     * 上架待审核
+     */
+    public static final int COMM_ST_ON_SHELVES_AUDIT = 4;
+    /**
+     * 下架待审核
+     */
+    public static final int COMM_ST_OFF_SHELVES_AUDIT = 5;
+    /**
+     * 编辑待审核
+     */
+    public static final int COMM_EDIT_AUDIT = 6;
     /**
      * 商品一级分类pid
      */
