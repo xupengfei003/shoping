@@ -33,6 +33,7 @@
         <result column="deliver_goods_time" property="deliverGoodsTime"/>
         <result column="cancel_type" property="cancelType"/>
         <result column="refuse_type" property="refuseType"/>
+        <result column="order_postage" property="orderPostage"/>
     </resultMap>
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
@@ -59,7 +60,8 @@
 	distributor_name AS distributorName,
 	distributor_mobile AS distributorMobile,
 	logistics_company AS logisticsCompany,
-	pay_status AS payStatus
+	pay_status AS payStatus,
+	order_postage AS orderPostage
   </sql>
     <!-- 根据ID查询订单信息 -->
     <select id="findById" parameterType="java.lang.String" resultType="so.sao.shop.supplier.domain.Purchase">
@@ -216,9 +218,10 @@
         <result column="order_payment_method" property="orderPaymentMethod"/>
         <result column="order_payment_num" property="orderPaymentNum"/>
         <result column="updated_at" property="updateTime"/>
+        <result column="order_postage" property="orderPostage"/>
     </resultMap>
     <sql id="Order_Column_List">
-        order_id, order_receiver_name, order_receiver_mobile, order_create_time, order_price, order_status,order_payment_time, order_payment_method, order_payment_num,updated_at
+        order_id, order_receiver_name, order_receiver_mobile, order_create_time, order_price, order_status,order_payment_time, order_payment_method, order_payment_num,updated_at,order_postage
     </sql>
     <select id="findPage" resultMap="OrderAllList" parameterType="so.sao.shop.supplier.pojo.input.PurchaseSelectInput">
         SELECT

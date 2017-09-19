@@ -1,5 +1,7 @@
 package so.sao.shop.supplier.service;
 
+import java.util.List;
+
 /**
  * Created by acer on 2017/9/8.
  */
@@ -7,8 +9,8 @@ public interface CountSoldCommService {
     /**
      * 根据商品ID统计已销售商品数量
      *
-     * @param goodsId 商品ID
-     * @return Integer 统计数
+     * @param goodsIds 商品ID列表
+     * @return List<String> 统计数
      */
-    Integer countSoldCommNum(String goodsId) throws Exception ;
+    List<String> countSoldCommNum(String[] goodsIds) throws Exception ;
 }
