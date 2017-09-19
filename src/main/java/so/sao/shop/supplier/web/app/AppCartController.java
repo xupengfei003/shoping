@@ -7,11 +7,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import so.sao.shop.supplier.config.Constant;
-import so.sao.shop.supplier.domain.AppCartItem;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.output.AppCartItemOut;
 import so.sao.shop.supplier.service.app.AppCartService;
-import so.sao.shop.supplier.util.Ognl;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -33,74 +31,77 @@ public class AppCartController {
 
     /**
      * 根据购物车记录ID删除购物车记录
+     *
      * @param cartitemId
      * @param userId
      * @return
      * @throws Exception
      */
-    @ApiOperation(value="根据购物车ID删除购物车记录",notes = "根据购物车ID删除购物车记录")
-    @GetMapping(value="/cartitem/d/{cartitemId}")
-    public Result deleteCartItem(@PathVariable("cartitemId")Long cartitemId,
-                                 @NotNull(message = "用户ID不能为空") Long userId) throws Exception{
+    @ApiOperation(value = "根据购物车ID删除购物车记录", notes = "根据购物车ID删除购物车记录")
+    @GetMapping(value = "/cartitem/d/{cartitemId}")
+    public Result deleteCartItem(@PathVariable("cartitemId") Long cartitemId,
+                                 @NotNull(message = "用户ID不能为空") Long userId) throws Exception {
         // 删除购物车记录
-        Boolean flag = cartService.deleteCartItemById(cartitemId,userId);
+        Boolean flag = cartService.deleteCartItemById(cartitemId, userId);
         // 返回结果
-        if(flag){
+        if (flag) {
             return Result.success(Constant.MessageConfig.MSG_SUCCESS);
-        }else{
+        } else {
             return Result.fail(Constant.MessageConfig.MSG_FAILURE);
         }
     }
 
     /**
      * 更新购物车商品数量
+     *
      * @param cartitemId
      * @param number
      * @param userId
      * @return
      * @throws Exception
      */
-    @ApiOperation(value="更新购物车商品数量",notes = "更新购物车商品数量")
-    @PostMapping(value="/cartitem/u/{cartitemId}")
+    @ApiOperation(value = "更新购物车商品数量", notes = "更新购物车商品数量")
+    @PostMapping(value = "/cartitem/u/{cartitemId}")
     public Result updateCartItem(@PathVariable("cartitemId") Long cartitemId,
                                  @NotNull(message = "更新数量不能为空")
                                  @Pattern(regexp = "^[1-9][0-9]*$", message = "更新数量有误") Integer number,
-                                 @NotNull(message = "用户ID不能为空") Long userId ) throws Exception{
+                                 @NotNull(message = "用户ID不能为空") Long userId) throws Exception {
         // 更新数据
-        Map<String,Object> map = cartService.updateCartItem(cartitemId,number,userId);
+        Map<String, Object> map = cartService.updateCartItem(cartitemId, number, userId);
         // 获取提示信息
-        String msg = (String)map.get("msg");
+        String msg = (String) map.get("msg");
         // 获取信息码
-        String code = (String)map.get("code");
-        if ("0".equals(code)){
+        String code = (String) map.get("code");
+        if ("0".equals(code)) {
             return Result.fail(msg);
-        }else{
+        } else {
             return Result.success(msg);
         }
     }
 
     /**
      * 向购物车添加购物记录
+     *
      * @param number
      * @param userId
      * @return
      * @throws Exception
      */
-    @ApiOperation(value="向购物车添加购物记录",notes = "向购物车添加购物记录")
-    @PostMapping(value ="/cartitem")
+    @ApiOperation(value = "向购物车添加购物记录", notes = "向购物车添加购物记录")
+    @PostMapping(value = "/cartitem")
     public Result createCartItems(@NotNull(message = "商品ID不能为空") Long commodityId,
                                   @NotNull(message = "购物车添加商品数量不能为空")
                                   @Pattern(regexp = "^[1-9][0-9]*$", message = "购物车添加商品数量有误") Integer number,
-                                  @NotNull(message = "用户ID不能为空") Long userId ) throws Exception{
+                                  @NotNull(message = "用户ID不能为空") Long userId) throws Exception {
         // 插入数据
-        Map<String,Object> map = cartService.saveCartItem(commodityId,number,userId);
+        Map<String, Object> map = cartService.saveCartItem(commodityId, number, userId);
         // 获取提示信息
-        String msg = (String)map.get("msg");
+        String msg = (String) map.get("msg");
         // 获取信息码
-        String code = (String)map.get("code");
-        if ("0".equals(code)){
+        String code = (String) map.get("code");
+        if ("0".equals(code)) {
             return Result.fail(msg);
-        }else{
+        } else {
             return Result.success(msg);
         }
     }
@@ -108,24 +109,25 @@ public class AppCartController {
 
     /**
      * 根据用户id获取用户购物车信息
+     *
      * @param userId
      * @return
      */
-    @ApiOperation(value="根据用户id获取用户购物车信息",notes = "根据用户id获取用户购物车信息【负责人：王翼云】")
-    @GetMapping(value ="/{userId}")
-    public Result getCartItemsByUser(@PathVariable("userId") Long userId) throws Exception{
+    @ApiOperation(value = "根据用户id获取用户购物车信息", notes = "根据用户id获取用户购物车信息【负责人：王翼云】")
+    @GetMapping(value = "/{userId}")
+    public Result getCartItemsByUser(@PathVariable("userId") Long userId) throws Exception {
         // 查询数据
         Map<String, Object> map = cartService.findCartItemsByUserId(userId);
         // 获取信息码
-        String code = (String)map.get("code");
+        String code = (String) map.get("code");
         // 获取提示信息
-        String msg = (String)map.get("msg");
+        String msg = (String) map.get("msg");
         // 获取查询数据
-        List<AppCartItemOut> outList = (List<AppCartItemOut>)map.get("collection");
-        if ("1".equals(code)){
-            return Result.success(Constant.MessageConfig.MSG_SUCCESS,outList);
-        }else{
-            return Result.fail(msg,outList);
+        List<AppCartItemOut> outList = (List<AppCartItemOut>) map.get("collection");
+        if ("1".equals(code)) {
+            return Result.success(Constant.MessageConfig.MSG_SUCCESS, outList);
+        } else {
+            return Result.fail(msg, outList);
         }
     }
 }
