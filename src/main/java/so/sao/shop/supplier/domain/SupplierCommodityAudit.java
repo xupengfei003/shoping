@@ -2,7 +2,7 @@ package so.sao.shop.supplier.domain;
 
 import java.util.Date;
 
-public class supplierCommodityAudit {
+public class SupplierCommodityAudit {
 
     /**
      * id
