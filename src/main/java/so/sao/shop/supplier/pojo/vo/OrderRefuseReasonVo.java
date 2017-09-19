@@ -1,5 +1,9 @@
 package so.sao.shop.supplier.pojo.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.util.Date;
+
 /**
  * Created by acer on 2017/9/15.
  */
@@ -15,7 +19,8 @@ public class OrderRefuseReasonVo {
     /**
      * 拒收时间
      */
-    private String refuseTime;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date refuseTime;
 
     public String getRefuseType() {
         return refuseType;
@@ -33,11 +38,11 @@ public class OrderRefuseReasonVo {
         this.refuseReason = refuseReason;
     }
 
-    public String getRefuseTime() {
+    public Date getRefuseTime() {
         return refuseTime;
     }
 
-    public void setRefuseTime(String refuseTime) {
+    public void setRefuseTime(Date refuseTime) {
         this.refuseTime = refuseTime;
     }
 }
