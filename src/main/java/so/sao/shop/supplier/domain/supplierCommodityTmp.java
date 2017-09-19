@@ -1,19 +1,20 @@
 package so.sao.shop.supplier.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.math.BigDecimal;
 import java.util.Date;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+public class supplierCommodityTmp {
 
-/**
- * 供应商商品关系表
- * Created by QuJunLong on 2017/7/18.
- */
-public class SupplierCommodity {
     /**
      * ID
      */
     private Long id;
+    /**
+     * 商品审核表id
+     */
+    private Long scaId;
     /**
      * SKU
      */
@@ -39,15 +40,10 @@ public class SupplierCommodity {
      */
     private String remark;
     /**
-     * 商品介绍
-     */
-    private String description;
-    /**
      * 商品状态
      * 已上架 待上架 已下架
      */
     private int status;
-
     /**
      * 商品是否失效
      * 0 失效  1正常
@@ -117,6 +113,22 @@ public class SupplierCommodity {
         this.id = id;
     }
 
+    public Long getScaId() {
+        return scaId;
+    }
+
+    public void setScaId(Long scaId) {
+        this.scaId = scaId;
+    }
+
+    public String getSku() {
+        return sku;
+    }
+
+    public void setSku(String sku) {
+        this.sku = sku;
+    }
+
     public Long getSupplierId() {
         return supplierId;
     }
@@ -125,12 +137,108 @@ public class SupplierCommodity {
         this.supplierId = supplierId;
     }
 
+    public Long getTagId() {
+        return tagId;
+    }
+
+    public void setTagId(Long tagId) {
+        this.tagId = tagId;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public String getCode69() {
+        return code69;
+    }
+
+    public void setCode69(String code69) {
+        this.code69 = code69;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public int getInvalidStatus() {
+        return invalidStatus;
+    }
+
+    public void setInvalidStatus(int invalidStatus) {
+        this.invalidStatus = invalidStatus;
+    }
+
+    public Long getMeasureSpecId() {
+        return measureSpecId;
+    }
+
+    public void setMeasureSpecId(Long measureSpecId) {
+        this.measureSpecId = measureSpecId;
+    }
+
+    public String getRuleVal() {
+        return ruleVal;
+    }
+
+    public void setRuleVal(String ruleVal) {
+        this.ruleVal = ruleVal;
+    }
+
+    public Long getUnitId() {
+        return unitId;
+    }
+
+    public void setUnitId(Long unitId) {
+        this.unitId = unitId;
+    }
+
     public Double getInventory() {
         return inventory;
     }
 
     public void setInventory(Double inventory) {
         this.inventory = inventory;
+    }
+
+    public String getMinImg() {
+        return minImg;
+    }
+
+    public void setMinImg(String minImg) {
+        this.minImg = minImg;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+
+    public BigDecimal getUnitPrice() {
+        return unitPrice;
+    }
+
+    public void setUnitPrice(BigDecimal unitPrice) {
+        this.unitPrice = unitPrice;
     }
 
     public int getDeleted() {
@@ -171,118 +279,6 @@ public class SupplierCommodity {
 
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
-    }
-
-    public int getStatus() {
-        return status;
-    }
-
-    public void setStatus(int status) {
-        this.status = status;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getCode69() {
-        return code69;
-    }
-
-    public void setCode69(String code69) {
-        this.code69 = code69;
-    }
-
-    public String getRemark() {
-        return remark;
-    }
-
-    public void setRemark(String remark) {
-        this.remark = remark;
-    }
-
-    public String getRuleVal() {
-        return ruleVal;
-    }
-
-    public void setRuleVal(String ruleVal) {
-        this.ruleVal = ruleVal;
-    }
-
-    public String getMinImg() {
-        return minImg;
-    }
-
-    public void setMinImg(String minImg) {
-        this.minImg = minImg;
-    }
-
-    public String getSku() {
-        return sku;
-    }
-
-    public void setSku(String sku) {
-        this.sku = sku;
-    }
-
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public void setPrice(BigDecimal price) {
-        this.price = price;
-    }
-
-    public BigDecimal getUnitPrice() {
-        return unitPrice;
-    }
-
-    public void setUnitPrice(BigDecimal unitPrice) {
-        this.unitPrice = unitPrice;
-    }
-
-    public Long getTagId() {
-        return tagId;
-    }
-
-    public void setTagId(Long tagId) {
-        this.tagId = tagId;
-    }
-
-    public Long getMeasureSpecId() {
-        return measureSpecId;
-    }
-
-    public void setMeasureSpecId(Long measureSpecId) {
-        this.measureSpecId = measureSpecId;
-    }
-
-    public Long getUnitId() {
-        return unitId;
-    }
-
-    public void setUnitId(Long unitId) {
-        this.unitId = unitId;
-    }
-
-    public int getInvalidStatus() {
-        return invalidStatus;
-    }
-
-    public void setInvalidStatus(int invalidStatus) {
-        this.invalidStatus = invalidStatus;
     }
 
     public int getMinOrderQuantity() {
