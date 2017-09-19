@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="so.sao.shop.supplier.dao.SupplierCommodityAuditDao">
+
+    <resultMap id="BaseResultMap" type="so.sao.shop.supplier.domain.SupplierCommodityAudit">
+        <id column="ID" property="id"/>
+        <result column="SC_ID" property="scId"/>
+        <result column="SUPPLIER_ID" property="supplierId"/>
+        <result column="UPDATED_AT" property="updatedAt"/>
+        <result column="CREATED_AT" property="createdAt"/>
+        <result column="STATUS" property="status"/>
+        <result column="AUDIT_RESULT" property="auditResult"/>
+        <result column="AUDIT_flag" property="auditFlag"/>
+        <result column="AUDIT_BY" property="auditBy"/>
+        <result column="AUDIT_OPINION" property="auditOpinion"/>
+    </resultMap>
+
+    <!--新增供应商商品审核记录-->
+    <insert id="save" parameterType="so.sao.shop.supplier.domain.SupplierCommodityAudit">
+        insert into supplier_commodity_audit
+        (sc_id, supplier_id, created_at, status, audit_result, audit_flag)
+        values
+        (#{scId}, #{supplierId}, #{createdAt}, #{status}, #{auditResult}, #{auditFlag})
+    </insert>
+
+    <!--批量新增供应商商品审核记录-->
+    <insert id="saveBatch" parameterType="java.util.List">
+        insert into supplier_commodity_audit
+        (sc_id, supplier_id, created_at, status, audit_result, audit_flag)
+        values
+        <foreach collection="list" item="item" open="" close="" separator=",">
+          (#{item.scId}, #{item.supplierId}, #{item.createdAt}, #{item.status}, #{item.auditResult}, #{item.auditFlag})
+        </foreach>
+    </insert>
+
+    <!--根据scId和audit_flag判断该供应商商品是否已处于待审核状态-->
+    <select id="countByScidAndAuditFlag" resultType="int">
+        select
+        count(id) as num
+        from supplier_commodity_audit where audit_flag = 1 AND sc_id = #{1}
+    </select>
+
+    <!--根据scId数组和audit_flag判断该供应商商品数组中是否有已处于待审核状态的商品-->
+    <select id="countByScidArrayAndAuditFlag" resultType="int">
+        select
+        count(id) as num
+        from supplier_commodity_audit
+        where audit_flag = 1
+        AND sc_id IN
+        <foreach collection="ids" open="(" close=")" separator="," item="sc_id">
+          #{sc_id}
+        </foreach>
+    </select>
+</mapper>
