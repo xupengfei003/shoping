@@ -11,6 +11,9 @@ import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.service.CountSoldCommService;
 
 import javax.annotation.Resource;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by acer on 2017/9/8.
@@ -23,12 +26,11 @@ public class CountReceivedOrderController {
     private CountSoldCommService countSoldCommService;
     @GetMapping(value = "/countOrderNum/{goodsId}")
     @ApiOperation(value = "获取已销售商品数量", notes = "负责人【白治华】")
-    public Result countOrderNum(@PathVariable("goodsId") String goodsId) throws Exception{
-        Integer countNum = countSoldCommService.countSoldCommNum(goodsId);
-        if(countNum > 0){
-            return Result.success(Constant.MessageConfig.MSG_SUCCESS,countNum);
-        }
-        return Result.fail(Constant.MessageConfig.MSG_FAILURE);
+    public Result countOrderNum(@PathVariable("goodsId") String goodsIds) throws Exception{
+        String[] goodsIdArr = goodsIds.split(",");
+        List<String> countNum = countSoldCommService.countSoldCommNum(goodsIdArr);
+        Map<String,Object> resMap = new HashMap<>();
+        resMap.put("goodsCount",countNum);
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS,resMap);
     }
-
 }
