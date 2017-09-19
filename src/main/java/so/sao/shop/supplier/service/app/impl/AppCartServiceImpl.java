@@ -347,6 +347,7 @@ public class AppCartServiceImpl implements AppCartService {
             map.put("code","1");
             map.put("msg","暂无购物车记录");
             map.put("collection",null);
+            return map;
         }
         List<AppCartItemVo> voList = new ArrayList<>();     // 购物车转化成Vo的集合
         for (AppCartItem appCartItems:list) {
@@ -385,6 +386,7 @@ public class AppCartServiceImpl implements AppCartService {
         // 5.转化格式输出
         outList = transformAppCartItemOut(voList);
         map.put("code","1");
+        map.put("msg","成功");
         map.put("collection",outList);
         return map;
     }

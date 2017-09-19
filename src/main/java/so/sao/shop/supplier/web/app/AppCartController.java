@@ -125,7 +125,7 @@ public class AppCartController {
         // 获取查询数据
         List<AppCartItemOut> outList = (List<AppCartItemOut>) map.get("collection");
         if ("1".equals(code)) {
-            return Result.success(Constant.MessageConfig.MSG_SUCCESS, outList);
+            return Result.success(msg, outList);
         } else {
             return Result.fail(msg, outList);
         }
