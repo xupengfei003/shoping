@@ -330,7 +330,7 @@ public class CommodityServiceImpl implements CommodityService {
             });
             commodityOutput.setImgeList(commImgeVoList);
         }
-        System.out.println("演示");
+
         return Result.success("查询成功", commodityOutput);
     }
 
