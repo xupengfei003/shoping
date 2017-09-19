@@ -1,13 +1,10 @@
 package so.sao.shop.supplier.domain;
 
-import java.io.IOException;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import so.sao.shop.supplier.pojo.output.CommodityOutput;
+
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.Map;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
-import org.codehaus.jackson.map.ObjectMapper;
-import so.sao.shop.supplier.pojo.output.CommodityOutput;
 
 public class AppCartItem {
 
@@ -32,10 +29,7 @@ public class AppCartItem {
      * 商品id
      */
     private Long commodityId;
-    /**
-     * 商品sku
-     */
-    private String sku;
+
     /**
      * 价格
      */
@@ -56,7 +50,7 @@ public class AppCartItem {
     private Integer count;
 
     /**
-     * 商品属性
+     * sku
      */
     private String commodityProperties;
 
@@ -65,11 +59,13 @@ public class AppCartItem {
      */
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date createdAt;
+
     /**
      * 更新时间
      */
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date updatedAt;
+
     /**
      * 商品库存数量
      */
@@ -96,35 +92,13 @@ public class AppCartItem {
      */
     private String unitName;
 
-    /**
-     * 是否还有库存
-     */
-    private boolean remaining;
-
-    public boolean getRemaining() {
-        return remaining;
-    }
-
-    public void setRemaining(boolean remaining) {
-        this.remaining = remaining;
-    }
-
     public String getCommodityProperties() {
         return commodityProperties;
     }
 
     public void setCommodityProperties(String commodityProperties) {
-        //如果无法解析为json字符串则不存值
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            objectMapper.readValue(commodityProperties, Map.class);
-        } catch (IOException e) {
-            return;
-        }
         this.commodityProperties = commodityProperties;
     }
-
-
 
     public Long getId() {
         return id;
@@ -214,14 +188,6 @@ public class AppCartItem {
         this.count = count;
     }
 
-    public String getSku() {
-        return sku;
-    }
-
-    public void setSku(String sku) {
-        this.sku = sku;
-    }
-
     public Double getInventory() {
         return inventory;
     }
@@ -268,65 +234,5 @@ public class AppCartItem {
 
     public void setUnitName(String unitName) {
         this.unitName = unitName;
-    }
-
-    @Override
-    public String toString() {
-        return "AppCartItem{" +
-                "id=" + id +
-                ", userId=" + userId +
-                ", supplierId=" + supplierId +
-                ", supplierName='" + supplierName + '\'' +
-                ", commodityId=" + commodityId +
-                ", sku=" + sku +
-                ", commodityPrice=" + commodityPrice +
-                ", commodityName='" + commodityName + '\'' +
-                ", commodityPic='" + commodityPic + '\'' +
-                ", count=" + count +
-                ", commodityProperties='" + commodityProperties + '\'' +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                ", inventory=" + inventory +
-                ", measureSpecId=" + measureSpecId +
-                ", measureSpecName='" + measureSpecName + '\'' +
-                ", ruleVal='" + ruleVal + '\'' +
-                ", unitId=" + unitId +
-                ", unitName='" + unitName + '\'' +
-
-                '}';
-    }
-
-    /**
-     * 复制属性
-     * @param supplierCommodity
-     */
-    public void copySupplierCommodity(SupplierCommodity supplierCommodity) {
-        if(supplierCommodity == null){
-            this.setInventory(null);//用于判断库存量
-            return ;
-        }
-        this.setCommodityId(supplierCommodity.getId());
-        this.setCommodityName(supplierCommodity.getRemark());
-        this.setCommodityPic(supplierCommodity.getMinImg());
-        this.setCommodityPrice(supplierCommodity.getUnitPrice());
-        this.setSku(supplierCommodity.getSku());
-        this.setSupplierId(supplierCommodity.getSupplierId());
-        this.setInventory(supplierCommodity.getInventory());
-    }
-
-    /**
-     * 复制属性
-     * @param commodityOutput
-     */
-    public void copyCommodityOutput(CommodityOutput commodityOutput) {
-        if(commodityOutput == null){
-            return ;
-        }
-        this.setMeasureSpecId(commodityOutput.getMeasureSpecId());
-        this.setMeasureSpecName(commodityOutput.getMeasureSpecName());
-        this.setRuleVal(commodityOutput.getRuleVal());
-        this.setUnitId(commodityOutput.getUnitId());
-        this.setUnitName(commodityOutput.getUnitName());
-
     }
 }

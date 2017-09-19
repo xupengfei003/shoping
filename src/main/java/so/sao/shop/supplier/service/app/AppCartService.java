@@ -1,11 +1,7 @@
 package so.sao.shop.supplier.service.app;
 
-import com.github.pagehelper.PageInfo;
-import so.sao.shop.supplier.domain.AppCartItem;
-import so.sao.shop.supplier.pojo.input.AppCartItemInput;
-import so.sao.shop.supplier.pojo.output.AppCartItemOut;
+import java.util.Map;
 
-import java.util.List;
 
 /**
  * Created by wyy on 2017/7/18.
@@ -13,52 +9,80 @@ import java.util.List;
 public interface AppCartService {
 
     /**
-     * 添加商品到购物车
-     */
-    public boolean saveCartItem(AppCartItemInput appCartItemInput);
-
-
-    /**
-     * 根据ID从购物车删除商品
-     */
-    public boolean deleteCartItemById(Long id);
-
-    /**
-     * 根据用户ID查询购物车商品
-     * @param userId
-     * @param pageNum
-     * @param pageSize
-     * @return
-     */
-    public PageInfo<AppCartItem> findCartItemByUserId(Long userId, int pageNum, int pageSize);
-
-    /**
-     * 根据商品ID查找信息
+     * 根据购物车记录ID从购物车删除商品
      * @param id
      * @return
+     * @throws Exception
      */
-    public AppCartItem findOne(Long id);
-
-    /**
-     * 根据id批量删除
-     * @param cartitemIds
-     * @return
-     */
-    boolean deleteCartItemsByIds(List<Long> cartitemIds);
+    boolean deleteCartItemById(Long id,Long userId) throws Exception;
 
     /**
      * 修改购物车内商品的数量
      * @param cartitemId
-     * @param commodity
      * @param number
+     * @param userId
      * @return
+     * @throws Exception
      */
-    AppCartItem updateCartItem(Long cartitemId,Long commodity, Integer number);
+    Map<String,Object> updateCartItem(Long cartitemId, Integer number, Long userId) throws Exception;
+
 
     /**
-     * 查询该用户下的所有信息
-     * @param id
+     * 添加商品到购物车
+     * @param commodityId
+     * @param number
+     * @param userId
      * @return
      */
-    List<AppCartItemOut> findCartItemsByUserId(Long userId);
+    Map<String,Object> saveCartItem(Long commodityId, Integer number, Long userId) throws Exception;
+
+
+
+
+
+//
+//
+//    /**
+//     * 根据ID从购物车删除商品
+//     */
+//    public boolean deleteCartItemById(Long id);
+//
+//    /**
+//     * 根据用户ID查询购物车商品
+//     * @param userId
+//     * @param pageNum
+//     * @param pageSize
+//     * @return
+//     */
+//    public PageInfo<AppCartItem> findCartItemByUserId(Long userId, int pageNum, int pageSize);
+//
+//    /**
+//     * 根据商品ID查找信息
+//     * @param id
+//     * @return
+//     */
+//    public AppCartItem findOne(Long id);
+//
+//    /**
+//     * 根据id批量删除
+//     * @param cartitemIds
+//     * @return
+//     */
+//    boolean deleteCartItemsByIds(List<Long> cartitemIds);
+//
+//    /**
+//     * 修改购物车内商品的数量
+//     * @param cartitemId
+//     * @param commodity
+//     * @param number
+//     * @return
+//     */
+//    AppCartItem updateCartItem(Long cartitemId,Long commodity, Integer number);
+//
+//    /**
+//     * 查询该用户下的所有信息
+//     * @param userId
+//     * @return
+//     */
+//    List<AppCartItemOut> findCartItemsByUserId(Long userId);
 }

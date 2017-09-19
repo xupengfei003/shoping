@@ -165,4 +165,12 @@
         </if>
         ORDER BY sc.updated_at DESC ,sc.id DESC
     </select>
+
+    <!--根据code69 商品编码查询商品名称-->
+    <select id="findNameByCode69" resultType="so.sao.shop.supplier.domain.Commodity">
+        SELECT
+        name
+        FROM commodity
+        WHERE code69 = #{code69}
+    </select>
 </mapper>

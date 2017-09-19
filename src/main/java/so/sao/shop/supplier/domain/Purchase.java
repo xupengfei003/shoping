@@ -196,7 +196,7 @@ public class Purchase {
     private String refuseType;
 
     /**
-     *订单邮费
+     *订单邮费(0:包邮，非零显示具体金额)
      *
      */
     private BigDecimal orderPostage;
