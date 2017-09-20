@@ -111,4 +111,12 @@ public interface CommAppService {
   * @return
   */
  Result listCommodities(Long supplierId,String commName,Integer pageNum, Integer pageSize);
+
+ /**
+  * 根据商品名称模糊查询商品，返回商品列表
+  *
+  * @param goodsName 商品名称
+  * @return
+  */
+ Result getGoods(String goodsName);
 }
