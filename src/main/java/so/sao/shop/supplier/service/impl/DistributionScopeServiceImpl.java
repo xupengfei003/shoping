@@ -139,7 +139,7 @@ public class DistributionScopeServiceImpl implements DistributionScopeService {
          * 2.判断运费规则类型是否为1(配送规则)
          */
         Integer rules = accountDao.findRulesById(accountId);
-        if (null == rules && rules != 1){
+        if (null == rules || rules != 1){
             //删除配送范围某条记录
             distributionScopeDao.deleteByPrimaryKey(id);
             //删除配送规则某条记录

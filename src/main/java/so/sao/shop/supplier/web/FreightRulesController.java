@@ -47,12 +47,12 @@ public class FreightRulesController {
     @GetMapping("/queryAll")
     @ApiOperation(value = "分页获取供应商运费规则列表", notes = "分页获取供应商运费规则列表 【负责人：郑振海】")
     public Result queryAll(HttpServletRequest request, Integer pageNum, Integer pageSize, Integer rulesType) throws Exception {
-        /*User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //判断是否登陆
         if (Ognl.isNull(user)) {
             return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
-        }*/
-        List<FreightRules> dataList = freightRulesService.queryAll(262L, pageNum, pageSize,rulesType);
+        }
+        List<FreightRules> dataList = freightRulesService.queryAll(user.getAccountId(), pageNum, pageSize,rulesType);
         Map<String,Object> map = new HashMap<>();
         map.put("data",new PageInfo<>(dataList));
         Integer rules = accountService.findRulesById(262L);
@@ -100,13 +100,13 @@ public class FreightRulesController {
     @PostMapping("/insert")
     @ApiOperation(value = "新增通用运费规则" , notes = "新增通用运费规则")
     public Result insert(HttpServletRequest request,@RequestBody @Valid FreightRulesInput freightRulesInput){
-        /*User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //判断是否登陆
         if (Ognl.isNull(user)) {
             return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
-        }*/
+        }
         if (check(freightRulesInput)) {
-           return freightRulesService.insert(262L, freightRulesInput) == true ? Result.success(Constant.MessageConfig.MSG_SUCCESS) : Result.fail("通⽤物流费⽤规则只能添加⼀次!");
+           return freightRulesService.insert(user.getAccountId(), freightRulesInput) == true ? Result.success(Constant.MessageConfig.MSG_SUCCESS) : Result.fail("通⽤物流费⽤规则只能添加⼀次!");
         }else {
             return Result.fail(Constant.MessageConfig.MSG_NOT_EMPTY);
         }
@@ -120,9 +120,13 @@ public class FreightRulesController {
      */
     @PostMapping("/delete/{id}")
     @ApiOperation(value = "删除通用配送规则记录", notes = "删除通用配送规则记录")
-    public Result delete(@PathVariable Integer id) throws Exception {
-
-        return freightRulesService.deleteByPrimaryKey(id,262L) == true ? Result.success(Constant.MessageConfig.MSG_SUCCESS) : Result.fail(Constant.MessageConfig.MSG_FAILURE);
+    public Result delete(HttpServletRequest request,@PathVariable Integer id) throws Exception {
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        //判断是否登陆
+        if (Ognl.isNull(user)) {
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
+        }
+        return freightRulesService.deleteByPrimaryKey(id,user.getAccountId()) == true ? Result.success(Constant.MessageConfig.MSG_SUCCESS) : Result.fail(Constant.MessageConfig.MSG_FAILURE);
 
     }
     /**

@@ -102,11 +102,11 @@ public class DistributionScopeController {
     @PostMapping("/delete/{id}")
     @ApiOperation(value = "删除某条记录", notes = "删除某条记录")
     public Result delete(HttpServletRequest request,@PathVariable Integer id) throws Exception {
-       /* User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //判断是否登陆
         if (Ognl.isNull(user)) {
             return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
-        }*/
-        return distributionScopeService.delete(id,262L) == true ? Result.success(Constant.MessageConfig.MSG_SUCCESS) : Result.fail(Constant.MessageConfig.MSG_FAILURE);
+        }
+        return distributionScopeService.delete(id,user.getAccountId()) == true ? Result.success(Constant.MessageConfig.MSG_SUCCESS) : Result.fail(Constant.MessageConfig.MSG_FAILURE);
     }
 }
