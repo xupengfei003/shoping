@@ -85,6 +85,10 @@ public class AppPurchasesVo {
      * 支付流水号
      */
     private String orderPaymentNum;
+    /**
+     * 订单邮费 (0:包邮，非零显示具体金额)
+     */
+    private String orderPostage;
 
     public String getOrderReceiverName() {
         return orderReceiverName;
@@ -220,5 +224,13 @@ public class AppPurchasesVo {
 
     public void setOrderPaymentNum(String orderPaymentNum) {
         this.orderPaymentNum = orderPaymentNum;
+    }
+
+    public String getOrderPostage() {
+        return orderPostage;
+    }
+
+    public void setOrderPostage(String orderPostage) {
+        this.orderPostage = orderPostage;
     }
 }
