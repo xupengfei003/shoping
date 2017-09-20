@@ -699,6 +699,7 @@ public class CommodityServiceImpl implements CommodityService {
                 commodityImportOutput.setName(commodityBatchInput.getName());
                 commodityImportOutput.setRuleVal(commodityBatchInput.getCommodityList().get(0).getRuleVal());
                 commodityImportOutput.setInventory(commodityBatchInput.getCommodityList().get(0).getInventory());
+                commodityImportOutput.setMinOrderQuantity(commodityBatchInput.getCommodityList().get(0).getMinOrderQuantity());
                 commodityImportOutputList.add(commodityImportOutput);
             }
         }
@@ -854,7 +855,7 @@ public class CommodityServiceImpl implements CommodityService {
             String price = map.get("市场价");
             String inventory = map.get("库存");
             String unitName = map.get("包装单位");
-
+            String  minOrderQuantity = map.get("最小起订量");
             //通过code69,supplierId,deleted=0判断商品是否存在
             SupplierCommodity suppliercommodity = supplierCommodityDao.findSupplierCommodityInfo(code69, supplierId);
             if (null != suppliercommodity) {
@@ -944,6 +945,12 @@ public class CommodityServiceImpl implements CommodityService {
                 errorRowList.add(rowNum);
                 continue;
             }
+            if("".equals(minOrderQuantity)){
+                supplierCommodityVo.setMinOrderQuantity(1);
+            }else {
+                supplierCommodityVo.setMinOrderQuantity(Integer.parseInt(minOrderQuantity));
+            }
+
             commodityList.add(supplierCommodityVo);
             commodityBatchInput.setCommodityList(commodityList);
 
@@ -1185,6 +1192,95 @@ public class CommodityServiceImpl implements CommodityService {
             commodityImageVo.setScId(sc.getId());
         }
         return Result.success("校验通过", commodityImageVo);
+    }
+    public Result auditBatch(HttpServletRequest request , CommAuditInput commAuditInput){
+
+        Long [] ids=commAuditInput.getIds();
+        for(Long id:ids){
+            SupplierCommodityAudit supplierCommodityAudit=supplierCommodityAuditDao.findSupplierCommodityAuditById(id);
+            int status= supplierCommodityAudit.getStatus();
+            int auditResult =commAuditInput.getAuditResult();
+            String auditOpinion=commAuditInput.getAuditOpinion();
+            Long scId=supplierCommodityAudit.getScId();
+            SupplierCommodity supplierCommodity=supplierCommodityDao.findOne(scId);
+            if (CommConstant.COMM_EDIT_AUDIT == status){
+                //编辑待审核
+                if(CommConstant.AUDIT_NOT_PASS == auditResult){
+                    //审核未通过
+                    supplierCommodityDao.updateSupplierCommodityStatusById(scId,supplierCommodity.getStatus(),new Date());
+                    status=supplierCommodity.getStatus();
+
+                }else   if(CommConstant.AUDIT_PASS == auditResult){
+                    //审核通过 Tmp表覆盖 supplierCommodity 表  覆盖图片表
+
+                    supplierCommodityDao.updateSupplierCommodityStatusById(scId,CommConstant.COMM_ST_ON_SHELVES,new Date());
+
+                    SupplierCommodityTmp supplierCommodityTmp =supplierCommodityTmpDao.findSupplierCommodityTmpByScaId(id);
+
+                    if(null != supplierCommodity) {
+                        supplierCommodity = BeanMapper.map(supplierCommodityTmp, SupplierCommodity.class);
+
+                        supplierCommodityDao.update(supplierCommodity);
+                    }
+                    List <Long> scids= new ArrayList<Long>();
+                    scids.add(scId);
+
+
+                    List<CommImgeTmp> commImgeTmpList= commImgeTmpDao.findTmp(id);
+                    //保存图片
+                    List<CommImge> commImges = new ArrayList<>();
+                    commImgeTmpList.forEach(imgeVo->{
+                        CommImge imge = BeanMapper.map(imgeVo, CommImge.class);
+                        imge.setScId(scId);
+                        commImges.add(imge);
+                    });
+                    if(commImges.size()>0){
+                        commImgeDao.deleteByScIds(scids);
+                        commImgeDao.batchSave(commImges);
+                    }
+                    status=supplierCommodity.getStatus();
+
+                }
+
+            }else if (CommConstant.COMM_ST_ON_SHELVES_AUDIT == status){
+                //上架审核
+                if(CommConstant.AUDIT_NOT_PASS  == auditResult){
+                    //审核未通过
+                    supplierCommodityDao.updateSupplierCommodityStatusById(scId,supplierCommodity.getStatus(),new Date());
+                    status=supplierCommodity.getStatus();
+
+                }else   if(CommConstant.AUDIT_PASS  == auditResult){
+                    //审核通过
+                    supplierCommodityDao.updateSupplierCommodityStatusById(scId,CommConstant.COMM_ST_ON_SHELVES,new Date());
+                    status=CommConstant.COMM_ST_ON_SHELVES;
+                }
+
+            }else if (CommConstant.COMM_ST_OFF_SHELVES_AUDIT == status){
+                //下架审核
+                if(CommConstant.AUDIT_NOT_PASS  == auditResult){
+                    //审核未通过
+                    supplierCommodityDao.updateSupplierCommodityStatusById(scId,supplierCommodity.getStatus(),new Date());
+                    status=supplierCommodity.getStatus();
+
+                }else   if(CommConstant.AUDIT_PASS  == auditResult){
+                    //审核通过
+                    supplierCommodityDao.updateSupplierCommodityStatusById(scId,CommConstant.COMM_ST_OFF_SHELVES,new Date());
+                    status=CommConstant.COMM_ST_OFF_SHELVES;
+
+                }
+
+            }
+            //更新audit表
+            supplierCommodityAudit.setStatus(status);
+            supplierCommodityAudit.setAuditResult(commAuditInput.getAuditResult());
+            supplierCommodityAudit.setAuditOpinion(commAuditInput.getAuditOpinion());
+            supplierCommodityAudit.setAuditBy(commAuditInput.getUserId());
+            supplierCommodityAudit.setUpdatedAt(new Date());
+            supplierCommodityAuditDao.updateSupplierCommodityAuditById(supplierCommodityAudit);
+
+        }
+
+        return Result.success("成功");
     }
 
 }

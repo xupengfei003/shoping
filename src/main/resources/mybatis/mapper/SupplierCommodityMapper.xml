@@ -109,7 +109,8 @@
             updated_by = #{updatedBy},
             remark = #{remark},
             tag_id = #{tagId},
-            measure_spec_id = #{measureSpecId}
+            measure_spec_id = #{measureSpecId},
+            min_order_quantity = #{minOrderQuantity}
         WHERE id = #{id}
     </update>
     <delete id="deleteById">
@@ -496,4 +497,12 @@
 		</if>
 		ORDER BY sc.updated_at DESC
     </select>
+
+    <!--商品状态修改-->
+    <update id="updateSupplierCommodityStatusById" >
+        UPDATE supplier_commodity
+        SET status = #{status} ,updated_at = #{updatedAt}
+        WHERE id = #{id}
+    </update>
+
 </mapper>

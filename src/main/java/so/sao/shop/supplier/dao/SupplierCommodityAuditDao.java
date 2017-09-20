@@ -43,4 +43,17 @@ public interface SupplierCommodityAuditDao {
      */
     void updateAuditFlagByScId(@Param("scId") Long scId, @Param("auditFlag") int auditFlag);
 
+    /** 通过id 查询审核记录表
+     *
+     * @param id
+     * @return
+     */
+    SupplierCommodityAudit findSupplierCommodityAuditById(@Param("id") Long id);
+
+    /**
+     * 审核修改
+     * @param
+     */
+    void updateSupplierCommodityAuditById(SupplierCommodityAudit supplierCommodityAudit);
+
 }

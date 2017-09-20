@@ -51,4 +51,27 @@
         )
     </insert>
 
+    <!--获取商品编辑待审核数据表详情-->
+    <select id="findSupplierCommodityTmpByScaId" resultType="so.sao.shop.supplier.domain.SupplierCommodityTmp">
+        SELECT
+        id,
+        sca_id AS scaId,
+        sku,
+        remark,
+        code,
+        code69,
+        rule_val AS ruleVal,
+        inventory,
+        min_img AS minImg,
+        price,
+        unit_price AS unitPrice,
+        created_at AS createdAt,
+        updated_at AS updatedAt,
+        supplier_id AS supplierId,
+        status,
+        min_order_quantity AS minOrderQuantity
+        FROM supplier_commodity_tmp
+        WHERE  sca_id = #{id}
+    </select>
+
 </mapper>

@@ -138,4 +138,12 @@ public interface CommodityService {
      * @return
      */
     void updateCommInvalidStatus(Long supplierId, Integer accountStatus);
+
+    /**
+     * 批量审核
+     * @param request
+     * @param commAuditInput
+     * @return
+     */
+    Result auditBatch(HttpServletRequest request , CommAuditInput commAuditInput);
 }
