@@ -1,6 +1,7 @@
 package so.sao.shop.supplier.dao.app;
 
 import org.apache.ibatis.annotations.Param;
+import org.springframework.security.access.method.P;
 import so.sao.shop.supplier.pojo.output.*;
 import so.sao.shop.supplier.pojo.vo.CategoryVo;
 
@@ -88,5 +89,5 @@ public interface CommAppDao {
                                                          @Param("ids")Long[] brandIds,
                                                          @Param("orderPrice") String orderPrice);
 
-
+    List<CommodityOutput> listCommodities(@Param("supplierId") Long supplierId, @Param("commName") String commName);
 }

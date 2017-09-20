@@ -189,11 +189,11 @@ public class CommodityOutput {
         this.contractCity = contractCity;
     }
 
-    public int getSalesNumber() {
+    public Integer getSalesNumber() {
         return salesNumber;
     }
 
-    public void setSalesNumber(int salesNumber) {
+    public void setSalesNumber(Integer salesNumber) {
         this.salesNumber = salesNumber;
     }
 

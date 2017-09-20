@@ -97,7 +97,12 @@ public class CommAppController {
                                                     ,@RequestParam(required = false) Integer pageNum, @RequestParam(required = false) Integer pageSize){
         return commAppService.searchCommodities( categoryTwoId, categoryThreeId, brandIds, orderPrice, orderSalesNum, pageNum, pageSize);
     }
-
+    @ApiOperation(value = "根据供应商ID和商品名称查询供应商列表",notes = "根据供应商ID和商品名称查询供应商列表")
+    @GetMapping(value = "/listCommodities")
+    public Result listCommodity(@RequestParam(required = false) Long supplierId, @RequestParam(required = false) String commName,
+                                @RequestParam(required = false) Integer pageNum, @RequestParam(required = false) Integer pageSize){
+        return commAppService.listCommodities(supplierId,commName, pageNum, pageSize);
+    }
 
 
 
