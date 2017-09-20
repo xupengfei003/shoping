@@ -146,5 +146,16 @@ public class CommodityController {
         commExportInput.setSupplierId(CheckUtil.supplierIdCheck(request,commExportInput.getSupplierId()));
         return  commodityService.exportExcel(request , response , commExportInput);
     }
+    @ApiOperation(value="商品批量审核", notes="【责任人：【潘帅帅】")
+    @GetMapping(value="/audit/bulk")
+    public Result auditBatch(HttpServletRequest request , HttpServletResponse response , CommAuditInput commAuditInput)throws Exception {
+        //校验管理员
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        if (!Constant.ADMIN_STATUS.equals(user.getIsAdmin())){
+            return Result.fail("非管理员无操作权限！");
+        }
+
+        return  commodityService.auditBatch(request ,  commAuditInput);
+    }
 
 }

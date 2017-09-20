@@ -24,4 +24,16 @@
         </foreach>
     </insert>
 
+    <select id="findTmp" resultType="so.sao.shop.supplier.domain.CommImgeTmp">
+        SELECT
+        id,
+        sca_id AS  scaId,
+        name,
+        url,
+        type,
+        size,
+        thumbnail_url AS thumbnailUrl
+        FROM comm_imge_tmp WHERE sca_id = #{scaId}
+    </select>
+
 </mapper>

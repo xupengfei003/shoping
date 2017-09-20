@@ -3,6 +3,8 @@ package so.sao.shop.supplier.dao;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import so.sao.shop.supplier.domain.SupplierCommodity;
+import so.sao.shop.supplier.domain.SupplierCommodityAudit;
+import so.sao.shop.supplier.domain.SupplierCommodityTmp;
 import so.sao.shop.supplier.pojo.input.CommSearchInput;
 import so.sao.shop.supplier.pojo.output.CommodityBannerOut;
 import so.sao.shop.supplier.pojo.output.CommodityOutput;
@@ -228,4 +230,17 @@ public interface SupplierCommodityDao {
      * @return 轮播图商品信息列表
      */
     List<CommodityBannerOut> findCommByNameAndCategory(@Param("commodityName") String commodityName,@Param("categoryOneId") Long categoryOneId,@Param("categoryTwoId") Long categoryTwoId,@Param("categoryThreeId") Long categoryThreeId);
+
+
+    /**
+     * 根据id更新SupplierCommodity表 status状态
+     * @param id
+     * @param status
+     * @param updatedAt
+     * @return
+     */
+    void updateSupplierCommodityStatusById(@Param("id")Long id, @Param("status") int status, @Param("updatedAt") Date updatedAt);
+
+
+
 }

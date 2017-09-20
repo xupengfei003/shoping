@@ -116,7 +116,8 @@
             IFNULL(sc.updated_at,'') AS updatedAt,
             IFNULL(cc.company_name,'') AS companyName,
             IFNULL(cc.origin_place,'') AS originPlace,
-            IFNULL(cc.market_time,'') AS marketTime
+            IFNULL(cc.market_time,'') AS marketTime,
+            IFNULL(sc.min_order_quantity,'') AS minOrderQuantity
         FROM supplier_commodity sc INNER JOIN (commodity c LEFT JOIN comm_brand cb on c.brand_id = cb.id) on sc.code69 = c.code69
         LEFT JOIN comm_measure_spec cms on sc.measure_spec_id = cms.id LEFT JOIN comm_unit cu on sc.unit_id = cu.id  LEFT JOIN comm_tag ct on sc.tag_id = ct.id  LEFT JOIN commodity cc on sc.code69 = cc.code69
         WHERE sc.deleted = 0

@@ -77,4 +77,36 @@
         WHERE
         sc_id = #{scId}
     </update>
+
+
+    <!--获取审核商品详情-->
+    <select id="findSupplierCommodityAuditById" resultType="so.sao.shop.supplier.domain.SupplierCommodityAudit">
+        SELECT
+        id,
+        sc_id AS scId,
+        supplier_id AS supplierId,
+        updated_at AS updatedAt,
+        created_at AS createdAt,
+        status,
+        audit_result AS auditResult,
+        audit_flag AS auditFlag,
+        audit_by AS auditBy,
+        audit_opinion  AS auditOpinion
+        FROM supplier_commodity_audit sca
+        WHERE  sca.id = #{id}
+    </select>
+
+    <!--更新审核表-->
+    <update id="updateSupplierCommodityAuditById"  parameterType="so.sao.shop.supplier.domain.SupplierCommodityAudit">
+        UPDATE supplier_commodity_audit
+        SET
+        audit_result = #{auditResult},
+        audit_flag = #{auditFlag},
+        audit_by = #{auditBy},
+        audit_opinion = #{auditOpinion},
+        status = #{status},
+        updated_at = #{updatedAt},
+        audit_by = #{auditBy}
+        WHERE id = #{id}
+    </update>
 </mapper>
