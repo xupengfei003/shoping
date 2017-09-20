@@ -16,11 +16,27 @@
     </resultMap>
 
     <!--新增供应商商品审核记录-->
-    <insert id="save" parameterType="so.sao.shop.supplier.domain.SupplierCommodityAudit">
-        insert into supplier_commodity_audit
-        (sc_id, supplier_id, created_at, status, audit_result, audit_flag)
-        values
-        (#{scId}, #{supplierId}, #{createdAt}, #{status}, #{auditResult}, #{auditFlag})
+    <insert id="save" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO supplier_commodity_audit
+        (
+        sc_id,
+        supplier_id,
+        updated_at,
+        created_at,
+        status,
+        audit_result,
+        audit_flag
+        )
+        VALUES
+        (
+        #{scId},
+        #{supplierId},
+        #{updatedAt},
+        #{createdAt},
+        #{status},
+        #{auditResult},
+        #{auditFlag}
+        )
     </insert>
 
     <!--批量新增供应商商品审核记录-->
@@ -51,4 +67,14 @@
           #{sc_id}
         </foreach>
     </select>
+
+    <!--根据scId更新当前操作标记-->
+    <update id="updateAuditFlagByScId">
+        UPDATE
+        supplier_commodity_audit
+        SET
+        audit_flag = #{auditFlag}
+        WHERE
+        sc_id = #{scId}
+    </update>
 </mapper>

@@ -1,4 +1,188 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="so.sao.shop.supplier.dao.external.HotCommoditiesDao" >
+
+    <resultMap id="BaseResultMap" type="so.sao.shop.supplier.domain.external.HotCommodities">
+        <id column="ID" property="id"/>
+        <result column="SKU" property="sku"/>
+        <result column="SUPPLIER_ID" property="supplierId"/>
+        <result column="PROVIDER_NAME" property="providerName"/>
+        <result column="CITY_NAME" property="cityName"/>
+        <result column="COMM_BRAND_NAME" property="commBrandName"/>
+        <result column="COMM_NAME" property="commName"/>
+        <result column="COMM_UNIT_NAME" property="commUnitName"/>
+        <result column="COMM_MEASURE_NAME" property="commMeasureName"/>
+        <result column="CODE" property="code"/>
+        <result column="CODE69" property="code69"/>
+        <result column="RULE_VAL" property="ruleVal"/>
+        <result column="INVENTORY" property="inventory"/>
+        <result column="SALES_VOLUME" property="salesVolume"/>
+        <result column="MIN_IMG" property="minImg"/>
+        <result column="PRICE" property="price"/>
+        <result column="STATUS" property="status"/>
+        <result column="SORT" property="sort"/>
+        <result column="OPERATOR" property="operator"/>
+        <result column="CREATE_AT" property="createdAt"/>
+        <result column="UPDATE_AT" property="updatedAt"/>
+    </resultMap>
+
+    <sql id="searchColumns">
+        hc.ID ,
+        hc.SKU ,
+        hc.SUPPLIER_ID ,
+        hc.PROVIDER_NAME ,
+        hc.CITY_NAME ,
+        hc.COMM_BRAND_NAME ,
+        hc.COMM_NAME ,
+        hc.COMM_UNIT_NAME ,
+        hc.COMM_MEASURE_NAME ,
+        hc.CODE ,
+        hc.CODE69 ,
+        hc.RULE_VAL ,
+        hc.INVENTORY ,
+        hc.SALES_VOLUME ,
+        hc.MIN_IMG ,
+        hc.PRICE ,
+        hc.STATUS ,
+        hc.SORT ,
+        hc.OPERATOR ,
+        hc.CREATE_AT ,
+        hc.UPDATE_AT
+    </sql>
+
+    <sql id="searchCommColumns">
+        c.id AS id,
+        sc.min_img AS minImg,
+        sc.sku AS sku,
+        c.code69 AS code69,
+        sc.code AS code,
+        cb.name AS commBrandName,
+        c.name AS commName,
+        cu.name AS commUnitName,
+        cms.name AS commMeasureName,
+        sc.rule_val AS ruleVal,
+        sc.inventory AS inventory,
+        sc.status AS status,
+        sc.price AS price,
+        a.provider_name AS providerName,
+        r.name AS cityName,
+        sc.supplier_id AS supplierId,
+        sc.created_at AS createdAt,
+        sc.updated_at AS updatedAt
+    </sql>
+
+    <!--查询所有热门商品列表-->
+    <select id="findAll" resultMap="BaseResultMap">
+        SELECT
+              <include refid="searchColumns"/>
+        FROM  hot_commodity hc
+        LEFT JOIN (supplier_commodity sc LEFT JOIN  commodity c ON sc.code69 = c.code69) ON hc.sku = sc.sku
+        <where>
+            hc.STATUS = 2
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(inputvalue)">
+                AND (hc.code69 = #{inputvalue}
+                OR hc.comm_name LIKE "%${inputvalue}%")
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(categoryOneId)">
+                AND c.category_one_id = #{categoryOneId}
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(categoryTwoId)">
+                AND c.category_two_id =  #{categoryTwoId}
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(categoryThreeId)">
+                AND c.category_three_id = #{categoryThreeId}
+            </if>
+        </where>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(isSalesVolume)">
+            ORDER BY hc.SALES_VOLUME DESC
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(isSort)">
+            ORDER BY hc.sort
+        </if>
+    </select>
+    <!-- 查询商品列表-->
+    <select id="find" resultType="so.sao.shop.supplier.pojo.vo.AddHotCommVo">
+        SELECT
+              <include refid="searchCommColumns"/>
+        FROM supplier_commodity sc
+        INNER JOIN (commodity c LEFT JOIN comm_brand cb on c.brand_id = cb.id) on sc.code69 = c.code69
+        LEFT JOIN comm_measure_spec cms on sc.measure_spec_id = cms.id
+        LEFT JOIN comm_unit cu on sc.unit_id = cu.id
+        LEFT JOIN account a ON sc.supplier_id = a.account_id
+        LEFT JOIN sys_region r ON a.contract_register_address_city = r.sr_id
+        <where>
+            sc.deleted = 0
+            AND sc.status = 2
+            AND sc.invalid_status = 1
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(inputvalue)">
+                AND (c.code69 = #{inputvalue}
+                OR c.name LIKE "%${inputvalue}%")
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(categoryOneId)">
+                AND c.category_one_id = #{categoryOneId}
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(categoryTwoId)">
+                AND c.category_two_id =  #{categoryTwoId}
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(categoryThreeId)">
+                AND c.category_three_id = #{categoryThreeId}
+            </if>
+        </where>
+        ORDER BY sc.updated_at DESC
+    </select>
+
+    <!--删除hot_category数据表-->
+    <update id="truncateHotCommodity">
+        TRUNCATE hot_commodity
+    </update>
+
+    <!--批量保存热门商品-->
+    <insert id="saveAll" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
+        insert hot_commodity (
+            SKU ,
+            SUPPLIER_ID ,
+            PROVIDER_NAME ,
+            CITY_NAME ,
+            COMM_BRAND_NAME ,
+            COMM_NAME ,
+            COMM_UNIT_NAME ,
+            COMM_MEASURE_NAME ,
+            CODE ,
+            CODE69 ,
+            RULE_VAL ,
+            INVENTORY ,
+            SALES_VOLUME ,
+            MIN_IMG ,
+            PRICE ,
+            STATUS ,
+            SORT ,
+            OPERATOR ,
+            CREATE_AT ,
+            UPDATE_AT
+        )VALUES
+        <foreach collection ="list" item="data" index= "index" separator =",">
+            (
+            #{data.sku},
+            #{data.supplierId},
+            #{data.providerName},
+            #{data.cityName},
+            #{data.commBrandName},
+            #{data.commName},
+            #{data.commUnitName},
+            #{data.commMeasureName},
+            #{data.code},
+            #{data.code69},
+            #{data.ruleVal},
+            #{data.inventory},
+            #{data.salesVolume},
+            #{data.minImg},
+            #{data.price},
+            #{data.status},
+            #{data.sort},
+            #{data.operator},
+            #{data.createdAt},
+            #{data.updatedAt}
+            )
+        </foreach>
+    </insert>
 </mapper>

@@ -67,4 +67,43 @@ public interface CommAppService {
   * @return
   */
  Result getCommodities(Long supplierId, String commName, Long categoryOneId, Long categoryTwoId, Long categoryThreeId, Long[] brandIds, Integer pageNum, Integer pageSize);
+
+ /**
+ * 查询供应商主营分类
+  *
+  * @param supplierId 供应商ID
+ */
+ Result getMainCateGory(Long supplierId);
+
+
+ /**
+  * 根据科属的等级参数获取所有的2或3级科属
+  * @param level
+  * @return
+  */
+ Result getAllLevelTwoOrThreeCategories(Integer level);
+
+ /**
+  * 根据条件 获取所属类型下面的 商品的全部品牌
+  * @param categoryId
+  * @return
+  */
+ Result getAllBrands( Integer categoryId );
+
+ /**
+  * 根据动态条件(供应商ID/分类/品牌ids/排序条件)查询商品
+  * @param categoryTwoId
+  * @param categoryThreeId
+  * @param brandIds
+  * @param orderPrice
+  * @param orderSalesNum
+  * @param pageNum
+  * @param pageSize
+  * @return
+  */
+ Result searchCommodities(Long categoryTwoId,Long categoryThreeId,Long[] brandIds, String orderPrice, String orderSalesNum,Integer pageNum, Integer pageSize);
+
+
+
+
 }

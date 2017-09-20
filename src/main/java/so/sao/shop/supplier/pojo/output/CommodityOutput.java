@@ -24,6 +24,18 @@ public class CommodityOutput {
      */
     private Long supplierId;
     /**
+     * 供应商名称
+     */
+    private String providerName;
+    /**
+     * 供应商合同所在市
+     */
+    private String contractCity;
+    /**
+     * 销量
+     */
+    private Integer salesNumber;
+    /**
      * 品牌
      */
     private String brandName;
@@ -159,6 +171,30 @@ public class CommodityOutput {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getProviderName() {
+        return providerName;
+    }
+
+    public void setProviderName(String providerName) {
+        this.providerName = providerName;
+    }
+
+    public String getContractCity() {
+        return contractCity;
+    }
+
+    public void setContractCity(String contractCity) {
+        this.contractCity = contractCity;
+    }
+
+    public int getSalesNumber() {
+        return salesNumber;
+    }
+
+    public void setSalesNumber(int salesNumber) {
+        this.salesNumber = salesNumber;
     }
 
     public Long getSupplierId() {

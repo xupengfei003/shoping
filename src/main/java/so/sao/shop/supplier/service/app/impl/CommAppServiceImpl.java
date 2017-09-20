@@ -1,12 +1,16 @@
 package so.sao.shop.supplier.service.app.impl;
 
 import com.github.pagehelper.PageInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import so.sao.shop.supplier.dao.AccountDao;
 import so.sao.shop.supplier.dao.app.CommAppDao;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.output.*;
+import so.sao.shop.supplier.pojo.vo.CategoryVo;
+import so.sao.shop.supplier.service.CountSoldCommService;
 import so.sao.shop.supplier.service.app.CommAppService;
 import so.sao.shop.supplier.util.DataCompare;
 import so.sao.shop.supplier.util.PageTool;
@@ -22,6 +26,10 @@ public class CommAppServiceImpl implements CommAppService {
     private CommAppDao commAppDao;
     @Autowired
     private AccountDao accountDao;
+    @Autowired
+    private CountSoldCommService countSoldCommService;
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
      * 根据查询条件查询商品详情
@@ -126,4 +134,92 @@ public class CommAppServiceImpl implements CommAppService {
         PageInfo<CommAppOutput> pageInfo = new PageInfo<CommAppOutput>(commList);
         return Result.success("查询成功",pageInfo);
     }
+
+    /**
+     *
+     * @param supplierId 供应商ID
+     * @return
+     */
+    @Override
+    public Result getMainCateGory(Long supplierId) {
+        List<CategoryVo> categoryOutputs=commAppDao.findMainCateGory(supplierId);
+        return Result.success("查询成功",categoryOutputs);
+    }
+
+    /**
+     * 根据科属的等级参数获取所有的2或3级科属
+     * @param level
+     * @return
+     */
+    public Result getAllLevelTwoOrThreeCategories(Integer level){
+        List<CategoryOutput> categoryOutputList = commAppDao.findCategories(level);;
+        return Result.success("查询成功",categoryOutputList);
+    }
+
+    /**
+     *根据条件 获取所属类型下面的 商品的全部品牌
+     * @param categoryId
+     * @return
+     */
+    public Result getAllBrands( Integer categoryId ){
+        List<CommBrandOutput>  commBrandOutputList = commAppDao.findAllBrands( categoryId );
+        return  Result.success("成功",commBrandOutputList);
+    }
+
+    /**
+     * 根据动态条件(供应商ID/分类/品牌ids/排序条件)查询商品
+     * @param categoryTwoId
+     * @param categoryThreeId
+     * @param brandIds
+     * @param orderPrice
+     * @param orderSalesNum
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
+    public Result searchCommodities(Long categoryTwoId,Long categoryThreeId,Long[] brandIds, String  orderPrice, String orderSalesNum, Integer pageNum, Integer pageSize){
+        //开始分页
+        PageTool.startPage(pageNum,pageSize);
+        List<CommAppOutput> commAppOutputList = commAppDao.findCommoditiesByConditionOrder(categoryTwoId, categoryThreeId,
+                brandIds, orderPrice );
+        String [] ArrGoodIds = new String[commAppOutputList.size()];
+        try {
+            if( null != commAppOutputList && commAppOutputList.size() > 0 ){
+                for ( int i=0 ; i< commAppOutputList.size(); i++  ){
+                    ArrGoodIds [i] = commAppOutputList.get(i).getId() + "";
+                }
+                List<String> salesNum = countSoldCommService.countSoldCommNum( ArrGoodIds );
+                // 拿到对应商品id 的销量， 并且赋值给CommAppOutput的销量属性
+                for( int i =0; i< commAppOutputList.size(); i++ ){
+                    commAppOutputList.get(i).setSaleNum( Integer.valueOf( salesNum.get(i) ) );
+                }
+                // 判断 是否 指定 按照 销量 排序
+                if (null != orderSalesNum  &&  "orderSales".equalsIgnoreCase( orderSalesNum ) ){
+                    Collections.sort(commAppOutputList , new Comparator<CommAppOutput>(){
+                        public int compare(CommAppOutput commOne, CommAppOutput commTwo) {
+                            if( commOne.getSaleNum() < commTwo.getSaleNum() ){
+                                return 1;
+                            }
+                            if( commOne.getSaleNum() == commTwo.getSaleNum() ){
+                                return 0;
+                            }
+                            return -1;
+                        }
+                    });
+                }
+            }else {
+                return Result.fail("暂无数据");
+            }
+        }catch (Exception e){
+            logger.error("查询异常", e);
+            return  Result.fail("查询异常",commAppOutputList);
+        }
+        PageInfo<CommAppOutput> pageInfo = new PageInfo<CommAppOutput>(commAppOutputList);
+        return Result.success("查询成功",pageInfo);
+    }
+
+
+
+
+
 }
