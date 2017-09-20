@@ -194,4 +194,9 @@ CREATE TABLE `distribution_scope` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 
+/*结算明细列表增加字段*/
+ALTER TABLE order_money_record ADD postage_total_amount decimal(10,2) DEFAULT '0.00' COMMENT '运费总金额';
+ALTER TABLE order_money_record ADD order_total_amount decimal(10,2) DEFAULT '0.00' COMMENT '订单总金额';
+
+
 

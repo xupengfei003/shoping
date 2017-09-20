@@ -1,5 +1,7 @@
 package so.sao.shop.supplier.pojo.output;
 
+import so.sao.shop.supplier.pojo.vo.AppCartItemVo;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,12 +14,17 @@ public class AppCartItemOut {
      * 供应商ID
      */
     private Long supplierId;
+
     /**
      * 供应商名称
      */
     private String supplierName;
 
-    List<AppCartItemOutSub> appCartItems = new ArrayList<>();
+    /**
+     * 购物车记录Vo的集合
+     */
+    List<AppCartItemVo> appCartItems = new ArrayList<>();
+
     /**
      * 选中的店铺商品
      */
@@ -60,23 +67,11 @@ public class AppCartItemOut {
         this.supplierName = supplierName;
     }
 
-    public List<AppCartItemOutSub> getAppCartItems() {
+    public List<AppCartItemVo> getAppCartItems() {
         return appCartItems;
     }
 
-    public void setAppCartItems(List<AppCartItemOutSub> appCartItems) {
+    public void setAppCartItems(List<AppCartItemVo> appCartItems) {
         this.appCartItems = appCartItems;
     }
-
-
-    @Override
-    public String toString() {
-        return "AppCartItemOut{" +
-                "supplierId=" + supplierId +
-                ", supplierName='" + supplierName + '\'' +
-                ", appCartItems=" + appCartItems +
-                '}';
-    }
-
-
 }

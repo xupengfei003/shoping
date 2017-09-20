@@ -46,6 +46,16 @@ public class OrderMoneyRecordVo {
      */
     private String serialNumber;
 
+    /**
+     * 运费总金额
+     */
+    private String postageTotalAmount;
+
+    /**
+     * 订单总金额
+     */
+    private String orderTotalAmount;
+
     public String getRecordId() {
         return recordId;
     }
@@ -116,5 +126,21 @@ public class OrderMoneyRecordVo {
 
     public void setSerialNumber(String serialNumber) {
         this.serialNumber = serialNumber;
+    }
+
+    public String getPostageTotalAmount() {
+        return postageTotalAmount;
+    }
+
+    public void setPostageTotalAmount(String postageTotalAmount) {
+        this.postageTotalAmount = postageTotalAmount;
+    }
+
+    public String getOrderTotalAmount() {
+        return orderTotalAmount;
+    }
+
+    public void setOrderTotalAmount(String orderTotalAmount) {
+        this.orderTotalAmount = orderTotalAmount;
     }
 }
