@@ -1,127 +1,80 @@
-package so.sao.shop.supplier.domain.external;
+package so.sao.shop.supplier.pojo.input;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.ApiModelProperty;
+import org.hibernate.validator.constraints.NotBlank;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.validation.constraints.Min;
 import java.math.BigDecimal;
 import java.util.Date;
 
-public class HotCommodities {
+public class HotCommoditySaveInput {
 
-    /**
-     * ID
-     */
-    private Long id;
-
-    /**
-     * SKU
-     */
+    @ApiModelProperty(value = "sku")
     private String sku;
 
-    /**
-     * 供应商ID
-     */
+    @ApiModelProperty(value = "供应商ID")
     private Long supplierId;
 
-    /**
-     * 供应商名称
-     */
+    @ApiModelProperty(value = "供应商名称")
     private String providerName;
 
-    /**
-     * 缩略图
-     */
+    @ApiModelProperty(value = "缩略图")
     private String minImg;
 
-    /**
-     * 商家编码
-     */
+    @ApiModelProperty(value = "商家编码")
     private String code;
 
-    /**
-     * 商品编码
-     */
+    @ApiModelProperty(value = "商品编码")
     private String code69;
 
-    /**
-     *合同注册地（市）
-     */
+    @ApiModelProperty(value = "合同注册地（市）")
     private String cityName;
 
-    /**
-     *商品品牌名称
-     */
+    @ApiModelProperty(value = "商品品牌名称")
     private String commBrandName;
 
-    /**
-     * 商品名称
-     */
+    @ApiModelProperty(value = "商品名称")
     private String  commName;
 
-    /**
-     * 商品单位名称
-     */
+    @ApiModelProperty(value = "商品单位名称")
     private String commUnitName;
 
-    /**
-     * 计量规格名称
-     */
+    @ApiModelProperty(value = "计量规格名称")
     private String  commMeasureName;
 
-    /**
-     * 计量规格值
-     */
+    @ApiModelProperty(value = "计量规格值")
     private String ruleVal;
 
-    /**
-     * 库存
-     */
+    @ApiModelProperty(value = "库存")
+    @Min(value = 0, message = "库存不能小于0")
     private Double inventory;
 
-    /**
-     * 商品状态
-     * 已上架 待上架 已下架
-     */
-    private int status;
-
-    /**
-     * 市场价
-     */
+    @ApiModelProperty(value = "市场价")
+    @Min(value = 0, message = "市场价不能小于0")
     private BigDecimal price;
 
-    /**
-     * 顺序
-     */
+    @ApiModelProperty(value = "商品状态")
+    private int status;
+
+    @ApiModelProperty(value = "顺序")
     private int  sort;
 
-    /**
-     *操作人
-     */
+    @ApiModelProperty(value = "操作人")
     private String operator;
 
-    /**
-     *  更新时间
-     */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    /*@ApiModelProperty(value = "更新时间")
+    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date updatedAt;
 
-    /**
-     *  创建时间
-     */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
-    private Date createdAt;
+    @ApiModelProperty(value = "创建时间")
+    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    private Date createdAt;*/
 
-    /**
-     * 商品销量
-     */
+    @ApiModelProperty(value = "商品销量")
+    @Min(value = 0, message = "商品销量不能小于0")
     private int  salesVolume;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getSku() {
         return sku;
@@ -227,6 +180,14 @@ public class HotCommodities {
         this.inventory = inventory;
     }
 
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+
     public int getStatus() {
         return status;
     }
@@ -251,7 +212,15 @@ public class HotCommodities {
         this.operator = operator;
     }
 
-    public Date getUpdatedAt() {
+    public int getSalesVolume() {
+        return salesVolume;
+    }
+
+    public void setSalesVolume(int salesVolume) {
+        this.salesVolume = salesVolume;
+    }
+
+   /* public Date getUpdatedAt() {
         return updatedAt;
     }
 
@@ -265,28 +234,11 @@ public class HotCommodities {
 
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
-    }
-
-    public int getSalesVolume() {
-        return salesVolume;
-    }
-
-    public void setSalesVolume(int salesVolume) {
-        this.salesVolume = salesVolume;
-    }
-
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public void setPrice(BigDecimal price) {
-        this.price = price;
-    }
+    }*/
 
     @Override
     public String toString() {
         return
-                id + "," +
                 sku + "," +
                 supplierId +"," +
                 providerName + "," +
@@ -300,12 +252,12 @@ public class HotCommodities {
                 commMeasureName + "," +
                 ruleVal + "," +
                 inventory +"," +
-                price +","+
+                price +"," +
                 status +"," +
                 sort +"," +
                 operator + "," +
-                updatedAt +"," +
-                createdAt +"," +
+                /*updatedAt +","+
+                createdAt +","+*/
                 salesVolume;
 
     }
