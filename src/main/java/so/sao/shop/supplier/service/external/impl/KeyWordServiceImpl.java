@@ -23,28 +23,18 @@ public class KeyWordServiceImpl implements KeyWordService{
     @Autowired
     private KeyWordDao keyWordDao;
 
+    /**
+     * 添加关键字列表到数据库
+     * @param keyWords KeyWord对象集合
+     * @return
+     */
     @Override
     public Result saveKeyWord(List<KeyWord> keyWords) {
-     /*   //校验传入的集合是否为空
-        if (keyWords.isEmpty()) {
-           return Result.fail("添加热门分类为空");
-        }
-
-        //校验关键字名称是否重复
-        Set<String> set = new TreeSet<String>();
-        for (int i=0;i<keyWords.size();i++){
-            set.add(keyWords.get(i).getKeyWordValue());
-        }
-        if (keyWords.size()>set.size()){
-            return Result.fail("关键字重复");
-        }*/
-
         //入参合法性校验
         Result result = checkKeyWords(keyWords);
         if (null != result){
             return result;
         }
-
 
         //清空原数据表
         keyWordDao.delete();
@@ -60,6 +50,12 @@ public class KeyWordServiceImpl implements KeyWordService{
         return Result.success("添加关键字列表成功");
     }
 
+    /**
+     * 编辑关键字名称
+     * @param id keyWord表ID
+     * @param keyWordValue 关键字名称
+     * @return
+     */
     @Override
     public Result updateKeyWord(Long id, String keyWordValue) {
         int count = keyWordDao.countByKeyWordValue(keyWordValue);
@@ -72,6 +68,12 @@ public class KeyWordServiceImpl implements KeyWordService{
     }
 
 
+    /**
+     * 查看关键字列表
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
     @Override
     public Result searchKeyWords(Integer pageNum,Integer pageSize) {
 
@@ -82,7 +84,7 @@ public class KeyWordServiceImpl implements KeyWordService{
     }
 
     /**
-     * keyWords集合合法性校验
+     * 传入的keyWords集合合法性校验
      * @param keyWords
      * @return
      */
