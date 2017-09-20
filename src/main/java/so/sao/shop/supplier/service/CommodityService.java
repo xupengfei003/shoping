@@ -98,21 +98,21 @@ public interface CommodityService {
      * @param id
      * @return
      */
-    Result offShelves(Long id);
+    Result offShelves(Long id, boolean isAdmin);
 
     /**
      * 批量上架商品
      * @param ids
      * @return
      */
-    Result onShelvesBatch(Long[] ids);
+    Result onShelvesBatch(Long[] ids, boolean isAdmin);
 
     /**
      * 批量下架商品
      * @param ids
      * @return
      */
-    Result offShelvesBatch(Long[] ids);
+    Result offShelvesBatch(Long[] ids, boolean isAdmin);
 
 
     /**

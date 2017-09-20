@@ -42,26 +42,42 @@
     <!--批量新增供应商商品审核记录-->
     <insert id="saveBatch" parameterType="java.util.List">
         insert into supplier_commodity_audit
-        (sc_id, supplier_id, created_at, status, audit_result, audit_flag)
+        (
+        sc_id,
+        supplier_id,
+        created_at,
+        updated_at,
+        status,
+        audit_result,
+        audit_flag
+        )
         values
         <foreach collection="list" item="item" open="" close="" separator=",">
-          (#{item.scId}, #{item.supplierId}, #{item.createdAt}, #{item.status}, #{item.auditResult}, #{item.auditFlag})
+          (
+            #{item.scId},
+            #{item.supplierId},
+            #{item.createdAt},
+            #{item.updatedAt},
+            #{item.status},
+            #{item.auditResult},
+            #{item.auditFlag}
+          )
         </foreach>
     </insert>
 
-    <!--根据scId和audit_flag判断该供应商商品是否已处于待审核状态-->
-    <select id="countByScidAndAuditFlag" resultType="int">
+    <!--根据scId和audit_result判断该供应商商品是否已处于待审核状态-->
+    <select id="countByScidAndAuditResult" resultType="int">
         select
         count(id) as num
-        from supplier_commodity_audit where audit_flag = 1 AND sc_id = #{1}
+        from supplier_commodity_audit where audit_result = 2 AND sc_id = #{1}
     </select>
 
-    <!--根据scId数组和audit_flag判断该供应商商品数组中是否有已处于待审核状态的商品-->
-    <select id="countByScidArrayAndAuditFlag" resultType="int">
+    <!--根据scId数组和audit_result判断该供应商商品数组中是否有已处于待审核状态的商品-->
+    <select id="countByScidArrayAndAuditResult" resultType="int">
         select
         count(id) as num
         from supplier_commodity_audit
-        where audit_flag = 1
+        where audit_result = 2
         AND sc_id IN
         <foreach collection="ids" open="(" close=")" separator="," item="sc_id">
           #{sc_id}
@@ -78,6 +94,18 @@
         sc_id = #{scId}
     </update>
 
+    <!--根据scId更新当前操作标记-->
+    <update id="updateAuditFlagByList" parameterType="java.util.List">
+        UPDATE
+        supplier_commodity_audit
+        SET
+        audit_flag = #{auditFlag}
+        WHERE
+        sc_id IN
+        <foreach collection="list" open="(" close=")" separator="," item="item">
+            #{item.scId}
+        </foreach>
+    </update>
 
     <!--获取审核商品详情-->
     <select id="findSupplierCommodityAuditById" resultType="so.sao.shop.supplier.domain.SupplierCommodityAudit">
