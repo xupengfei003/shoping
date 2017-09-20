@@ -1,21 +1,10 @@
-package so.sao.shop.supplier.domain.external;
+package so.sao.shop.supplier.pojo.output;
 
 import java.util.Date;
 
-import javax.validation.constraints.NotNull;
-
-import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.NotBlank;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
-/**
- * <p>Title: Banner</p>
- * <p>Description: 轮播图</p>
- * <p>Company:透云-中软-西安项目组 </p>
- * @author tengfei.zhang
- * @date 2017年9月14日
- */
-public class Banner {
+
+public class BannerOut {
 	/**
 	 * 轮播图id
 	 */
@@ -23,37 +12,27 @@ public class Banner {
 	/**
 	 * 图片名称
 	 */
-	@NotBlank(message = "图片名称不能为空")
-	@Length(max = 255,message = "图片名称长度不能大于255")
 	private String fileName;
 	/**
 	 * 缩略图链接
 	 */
-	@NotBlank(message = "缩略图链接不能为空")
-	@Length(max = 255,message = "缩略图链接长度不能大于255")
 	private String minImgUrl;
 	/**
 	 * 图片链接
 	 */
-	@NotBlank(message = "图片链接不能为空")
-	@Length(max = 255,message = "图片链接长度不能大于255")
 	private String url;
 	/**
 	 * 轮播位
 	 */
-	@NotBlank(message = "轮播位置不能为空")
-	@Length(max = 1,message = "轮播位置只能传1/2/3")
 	private String location;
 	/**
 	 * 上架时间
 	 */
-	@NotNull(message = "上架时间不能为空")
 	@JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
 	private Date onShelvesTime;
 	/**
 	 * 下架时间
 	 */
-	@NotNull(message = "下架时间不能为空")
 	@JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
 	private Date offShelfTime;
 	/**
@@ -63,22 +42,15 @@ public class Banner {
 	/**
 	 * url类型：0：链接：1：商品id：2：供应商id
 	 */
-	@NotBlank(message = "跳转链接类型不能为空")
 	private String urlType;	
 	/**
 	 * 外部链接
 	 */
-	@NotBlank(message = "跳转链接不能为空")
 	private String urlValue;
 	/**
 	 * 操作人
 	 */
 	private String operator;
-	/**
-	 * 创建时间
-	 */
-	@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
-	private Date createAt;
 	/**
 	 * 更新时间
 	 */
@@ -150,12 +122,6 @@ public class Banner {
 	}
 	public void setOperator(String operator) {
 		this.operator = operator;
-	}
-	public Date getCreateAt() {
-		return createAt;
-	}
-	public void setCreateAt(Date createAt) {
-		this.createAt = createAt;
 	}
 	public Date getUpdateAt() {
 		return updateAt;

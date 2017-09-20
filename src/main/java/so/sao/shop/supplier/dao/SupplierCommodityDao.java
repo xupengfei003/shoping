@@ -4,6 +4,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import so.sao.shop.supplier.domain.SupplierCommodity;
 import so.sao.shop.supplier.pojo.input.CommSearchInput;
+import so.sao.shop.supplier.pojo.output.CommodityBannerOut;
 import so.sao.shop.supplier.pojo.output.CommodityOutput;
 import so.sao.shop.supplier.pojo.vo.SuppCommSearchVo;
 
@@ -218,5 +219,13 @@ public interface SupplierCommodityDao {
      */
     void updateMinImg(@Param("minImg")String minImg, @Param("updatedAt")Date updatedAt, @Param("updatedBy")Long updatedBy, @Param("scId") Long scId);
 
-
+    /**
+     * 根据商品名称商品类型查询商品信息
+     * @param commodityName 商品名称
+     * @param categoryOneId 商品类型一
+     * @param categoryTwoId 商品类型二
+     * @param categoryThreeId 商品类型三
+     * @return 轮播图商品信息列表
+     */
+    List<CommodityBannerOut> findCommByNameAndCategory(@Param("commodityName") String commodityName,@Param("categoryOneId") Long categoryOneId,@Param("categoryTwoId") Long categoryTwoId,@Param("categoryThreeId") Long categoryThreeId);
 }
