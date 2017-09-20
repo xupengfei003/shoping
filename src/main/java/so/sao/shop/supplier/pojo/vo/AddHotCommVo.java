@@ -1,12 +1,14 @@
-package so.sao.shop.supplier.domain.external;
+package so.sao.shop.supplier.pojo.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.math.BigDecimal;
 import java.util.Date;
 
-public class HotCommodities {
-
+/**
+ * Created by acer on 2017/9/19.
+ */
+public class AddHotCommVo  {
     /**
      * ID
      */
@@ -89,16 +91,6 @@ public class HotCommodities {
     private BigDecimal price;
 
     /**
-     * 顺序
-     */
-    private int  sort;
-
-    /**
-     *操作人
-     */
-    private String operator;
-
-    /**
      *  更新时间
      */
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
@@ -109,11 +101,6 @@ public class HotCommodities {
      */
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date createdAt;
-
-    /**
-     * 商品销量
-     */
-    private int  salesVolume;
 
     public Long getId() {
         return id;
@@ -235,20 +222,12 @@ public class HotCommodities {
         this.status = status;
     }
 
-    public int getSort() {
-        return sort;
+    public BigDecimal getPrice() {
+        return price;
     }
 
-    public void setSort(int sort) {
-        this.sort = sort;
-    }
-
-    public String getOperator() {
-        return operator;
-    }
-
-    public void setOperator(String operator) {
-        this.operator = operator;
+    public void setPrice(BigDecimal price) {
+        this.price = price;
     }
 
     public Date getUpdatedAt() {
@@ -265,22 +244,6 @@ public class HotCommodities {
 
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
-    }
-
-    public int getSalesVolume() {
-        return salesVolume;
-    }
-
-    public void setSalesVolume(int salesVolume) {
-        this.salesVolume = salesVolume;
-    }
-
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public void setPrice(BigDecimal price) {
-        this.price = price;
     }
 
     @Override
@@ -300,13 +263,9 @@ public class HotCommodities {
                 commMeasureName + "," +
                 ruleVal + "," +
                 inventory +"," +
-                price +","+
+                price + "," +
                 status +"," +
-                sort +"," +
-                operator + "," +
                 updatedAt +"," +
-                createdAt +"," +
-                salesVolume;
-
+                createdAt ;
     }
 }

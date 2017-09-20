@@ -1,11 +1,12 @@
-package so.sao.shop.supplier.domain.external;
+package so.sao.shop.supplier.pojo.output;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import so.sao.shop.supplier.config.CommConstant;
 
 import java.math.BigDecimal;
 import java.util.Date;
 
-public class HotCommodities {
+public class HotCommodityOutput {
 
     /**
      * ID
@@ -78,15 +79,20 @@ public class HotCommodities {
     private Double inventory;
 
     /**
+     * 市场价
+     */
+    private BigDecimal price;
+
+    /**
      * 商品状态
      * 已上架 待上架 已下架
      */
     private int status;
 
     /**
-     * 市场价
+     * 商品状态名
      */
-    private BigDecimal price;
+    private String statusName;
 
     /**
      * 顺序
@@ -235,6 +241,14 @@ public class HotCommodities {
         this.status = status;
     }
 
+    public String getStatusName() {
+        return this.statusName = CommConstant.getStatus(status);
+    }
+
+    public void setStatusName(String statusName) {
+        this.statusName = statusName;
+    }
+
     public int getSort() {
         return sort;
     }
@@ -302,6 +316,7 @@ public class HotCommodities {
                 inventory +"," +
                 price +","+
                 status +"," +
+                statusName +"," +
                 sort +"," +
                 operator + "," +
                 updatedAt +"," +
