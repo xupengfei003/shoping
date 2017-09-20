@@ -7,6 +7,7 @@ import so.sao.shop.supplier.pojo.vo.CategoryVo;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 public interface CommAppDao {
 
@@ -89,5 +90,19 @@ public interface CommAppDao {
                                                          @Param("ids")Long[] brandIds,
                                                          @Param("orderPrice") String orderPrice);
 
+    /**
+     *
+     * @param supplierId
+     * @param commName
+     * @return
+     */
     List<CommodityOutput> listCommodities(@Param("supplierId") Long supplierId, @Param("commName") String commName);
+    /**
+     * 根据商品名称模糊查询商品，返回商品列表
+     *
+     * @param goodsName 商品名称
+     * @return
+     */
+    List<Map> findGoodsByName(@Param("goodsName") String goodsName);
+
 }

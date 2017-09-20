@@ -103,7 +103,11 @@ public class CommAppController {
                                 @RequestParam(required = false) Integer pageNum, @RequestParam(required = false) Integer pageSize){
         return commAppService.listCommodities(supplierId,commName, pageNum, pageSize);
     }
-
+    @ApiOperation(value="查询商品", notes="根据商品名称模糊查询商品，返回商品列表")
+    @GetMapping(value="/getNames/{goodsName}")
+    public Result searchGoods(@PathVariable String goodsName){
+        return commAppService.getGoods(goodsName);
+    }
 
 
 

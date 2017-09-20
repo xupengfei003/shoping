@@ -258,9 +258,16 @@ public class CommAppServiceImpl implements CommAppService {
         return Result.success("查询成功",pageInfo);
     }
 
-
-
-
+    /**
+     * 根据商品名称模糊查询商品，返回商品列表
+     *
+     * @param goodsName 商品名称
+     * @return
+     */
+    @Override
+    public Result getGoods(String goodsName) {
+        return Result.success("查询成功", commAppDao.findGoodsByName(goodsName));
+    }
 
 
 }
