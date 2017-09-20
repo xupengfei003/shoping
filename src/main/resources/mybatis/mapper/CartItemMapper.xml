@@ -43,6 +43,19 @@
     AND user_id = #{userId}
   </select>
 
+  <!--根据购物车记录ID和userId批量查询购物车记录中的商品Id-->
+  <select id="findByIdAndUserIdBatch" parameterType="java.util.List" resultMap="BaseResultMap">
+    select
+    id,
+    user_id,
+    commodity_id
+    from cart_item
+    where
+    <foreach  open="(" close=")"  collection ="list" item="item" index= "index" separator =") or (">
+      id = #{item.cartitemId} and user_id = #{item.userId}
+    </foreach>
+  </select>
+
   <!--根据购物车记录ID更新购物车商品数量-->
   <update id="updateById" parameterType="so.sao.shop.supplier.domain.AppCartItem">
     UPDATE cart_item
@@ -94,6 +107,61 @@
       </if>
     </set>
     WHERE id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <!--根据购物车Id批量更新购物车商品数量-->
+  <update id="updateByIdBatch" parameterType="java.util.List">
+    <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+      update cart_item
+      <set>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(item.userId)">
+          user_id = #{item.userId},
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(item.supplierId)">
+          supplier_id = #{item.supplierId},
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(item.supplierName)">
+          supplier_name = #{item.supplierName},
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(item.commodityId)">
+          commodity_id = #{item.commodityId},
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(item.commodityPrice)">
+          commodity_price = #{item.commodityPrice},
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(item.commodityName)">
+          commodity_name = #{item.commodityName},
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(item.commodityPic)">
+          commodity_pic = #{item.commodityPic},
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(item.measureSpecId)">
+          measure_spec_id = #{item.measureSpecId},
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(item.measureSpecName)">
+          measure_spec_name = #{item.measureSpecName},
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(item.ruleVal)">
+          rule_val = #{item.ruleVal},
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(item.unitId)">
+          unit_id = #{item.unitId},
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(item.unitName)">
+          unit_name = #{item.unitName},
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(item.commodityProperties)">
+          commodity_properties = #{item.commodityProperties},
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(item.updatedAt)">
+          updated_at = #{item.updatedAt},
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(item.count)">
+          count = #{item.count},
+        </if>
+      </set>
+      where id = #{item.id}
+    </foreach>
   </update>
 
   <!--根据商品ID和用户ID查询购物车记录中的购物车记录ID-->

@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import so.sao.shop.supplier.dao.*;
 import so.sao.shop.supplier.dao.app.AppCartItemDao;
 import so.sao.shop.supplier.domain.*;
+import so.sao.shop.supplier.pojo.input.AppCartItemInput;
 import so.sao.shop.supplier.pojo.output.AppCartItemOut;
 import so.sao.shop.supplier.pojo.vo.AppCartItemVo;
 import so.sao.shop.supplier.service.app.AppCartService;
@@ -258,6 +259,85 @@ public class AppCartServiceImpl implements AppCartService {
             map.put("code","0");
             map.put("msg","库存不足");
             map.put("appCartItem",appCartItem);
+        }
+        return map;
+    }
+
+    /**
+     * 批量修改修改购物车内商品的数量
+     * @param inputList
+     * @return
+     * @throws Exception
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Map<String, Object> updateCartItemBatch(List<AppCartItemInput> inputList) throws Exception {
+        /*
+            1.根据购物车记录ID和userId查询购物车记录中的商品Id,若查询结果为null,则返回失败
+            2.若查询出集合的size和入参集合的size不等,说明更新数据有误,更新失败
+            3.根据商品的Id查询商品的相信信息,同时校验商品及供货商是否合法,返回符合要求的购物车信息
+            4.若返回的code为0,则返回失败
+            5.校验是否有库存,若有库存,进行更新
+            6.若库存不足，返回失败
+         */
+        Map<String,Object> map = new HashMap<>(); // 定义Map,用于保存提示信息及更新后的购物车记录
+        // 更新数据集合不能为空
+        if (!Ognl.CollectionIsNotEmpty(inputList)){
+            map.put("code","0");
+            map.put("msg","更新数据集合不能为空");
+            map.put("collection",null);
+            return map;
+        }
+        // 1.根据购物车记录ID和userId查询购物车记录中的商品Id,若查询结果为null,则返回失败
+        List<AppCartItem> cartItemList = cartItemDao.findByIdAndUserIdBatch(inputList);
+        // 若集合为null,说明没购物车记录,更新失败
+        if (!Ognl.CollectionIsNotEmpty(cartItemList)){
+            map.put("code","0");
+            map.put("msg","购物车记录不存在");
+            map.put("collection",null);
+            return map;
+        }
+        // 2.若查询出集合的size和入参集合的size不等,说明更新数据有误,更新失败
+        if (inputList.size() != cartItemList.size()){
+            map.put("code","0");
+            map.put("msg","更新数据有误");
+            map.put("collection",null);
+            return map;
+        }
+        List<AppCartItem> updateList = new ArrayList<>(); // 用于记录批量更新的完整购物车记录数据
+        // 3.根据商品的Id查询商品的相信信息,同时校验商品及供货商是否合法,返回符合要求的购物车信息
+        for (int i = 0; i < cartItemList.size(); i++) {
+            AppCartItem appCartItems = cartItemList.get(i);
+            map = validateCommodity(appCartItems.getCommodityId());
+            String code = (String)map.get("code");
+            // 4.若返回的code为0,则返回失败
+            if ("0".equals(code)){
+                map.put("appCartItem",null);
+                return map;
+            }
+            // 5.校验是否有库存,若有库存,进行更新
+            AppCartItem appCartItem = (AppCartItem)map.get("appCartItem");
+            int number = inputList.get(i).getNumber();
+            if(appCartItem.getInventory() - number >= 0){
+                appCartItem.setCount(number);                     // 商品数量
+                appCartItem.setUpdatedAt(new Date());             // 更新时间
+                appCartItem.setUserId(appCartItems.getUserId());  // 用户ID
+                appCartItem.setId(appCartItems.getId());          // 记录ID
+                updateList.add(appCartItem);
+            }else{
+                // 6.若库存不足，返回失败
+                map.put("code","0");
+                map.put("msg","库存不足");
+                map.put("collection",null);
+                return map;
+            }
+        }
+        // 更新数据,成功的话返回购物车记录
+        int num = cartItemDao.updateByIdBatch(updateList);
+        if (num > 0){
+            map.put("code","1");
+            map.put("msg","更新成功");
+            map.put("appCartItem",updateList);
         }
         return map;
     }
