@@ -4,7 +4,6 @@
 
     <resultMap id="BaseResultMap" type="so.sao.shop.supplier.domain.FreightRules">
         <id column="id" jdbcType="INTEGER" property="id" />
-        <result column="distribution_scope_id" javaType="Integer" property="distributionScopeId"></result>
         <result column="supplier_id" jdbcType="BIGINT" property="supplierId" />
         <result column="rules_type" jdbcType="INTEGER" property="rulesType" />
         <result column="address_province" jdbcType="VARCHAR" property="addressProvince" />
@@ -19,11 +18,12 @@
         <result column="remark" jdbcType="VARCHAR" property="remark" />
         <result column="created_at" jdbcType="TIMESTAMP" property="createdAt" />
         <result column="update_at" jdbcType="TIMESTAMP" property="updateAt" />
+        <result column="distribution_scope_id" javaType="INTEGER" property="distributionScopeId"/>
     </resultMap>
     <sql id="Base_Column_List">
         id, supplier_id, rules_type, address_province, address_city, address_district, whether_shipping,
         send_amount, default_piece, excess_piece, default_amount, excess_amount, remark,
-        created_at, update_at
+        created_at, update_at,distribution_scope_id
     </sql>
     <insert id="insert" parameterType="so.sao.shop.supplier.domain.FreightRules">
     insert into freight_rules (supplier_id, rules_type,
