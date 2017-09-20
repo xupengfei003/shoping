@@ -75,7 +75,7 @@ public interface CommAppDao {
     List<CategoryOutput> findCategories(@Param("level") Integer level );
 
     /**
-     *获取商品的全部品牌
+     *根据条件 获取所属类型下面的 商品的全部品牌
      * @return
      */
     List<CommBrandOutput> findAllBrands( @Param("categoryId") Integer categoryId );

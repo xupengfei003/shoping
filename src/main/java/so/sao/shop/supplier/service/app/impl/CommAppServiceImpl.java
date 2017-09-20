@@ -191,37 +191,36 @@ public class CommAppServiceImpl implements CommAppService {
         List<CommAppOutput> commAppOutputList = commAppDao.findCommoditiesByConditionOrder(categoryTwoId, categoryThreeId,
                 brandIds, orderPrice );
         String [] ArrGoodIds = new String[commAppOutputList.size()];
-        if( null != commAppOutputList && commAppOutputList.size() > 0 ){
-            for ( int i=0 ; i< commAppOutputList.size(); i++  ){
-                ArrGoodIds [i] = commAppOutputList.get(i).getId() + "";
-            }
-            List<String> salesNum = new ArrayList<String>();
-            try {
-                salesNum = countSoldCommService.countSoldCommNum( ArrGoodIds );
-            }catch (Exception e){
-                logger.error("销量查询异常", e);
-                return  Result.fail("销量查询异常",commAppOutputList);
-            }
-            // 拿到对应商品id 的销量， 并且赋值给CommAppOutput的销量属性
-            for( int i =0; i< commAppOutputList.size(); i++ ){
-                commAppOutputList.get(i).setSaleNum( Integer.valueOf( salesNum.get(i) ) );
-            }
-            // 判断 是否 指定 按照 销量 排序
-            if (null != orderSalesNum  &&  "orderSales".equalsIgnoreCase( orderSalesNum ) ){
-                Collections.sort(commAppOutputList , new Comparator<CommAppOutput>(){
-                    public int compare(CommAppOutput commOne, CommAppOutput commTwo) {
-                        if( commOne.getSaleNum() < commTwo.getSaleNum() ){
-                            return 1;
+        try {
+            if( null != commAppOutputList && commAppOutputList.size() > 0 ){
+                for ( int i=0 ; i< commAppOutputList.size(); i++  ){
+                    ArrGoodIds [i] = commAppOutputList.get(i).getId() + "";
+                }
+                List<String> salesNum = countSoldCommService.countSoldCommNum( ArrGoodIds );
+                // 拿到对应商品id 的销量， 并且赋值给CommAppOutput的销量属性
+                for( int i =0; i< commAppOutputList.size(); i++ ){
+                    commAppOutputList.get(i).setSaleNum( Integer.valueOf( salesNum.get(i) ) );
+                }
+                // 判断 是否 指定 按照 销量 排序
+                if (null != orderSalesNum  &&  "orderSales".equalsIgnoreCase( orderSalesNum ) ){
+                    Collections.sort(commAppOutputList , new Comparator<CommAppOutput>(){
+                        public int compare(CommAppOutput commOne, CommAppOutput commTwo) {
+                            if( commOne.getSaleNum() < commTwo.getSaleNum() ){
+                                return 1;
+                            }
+                            if( commOne.getSaleNum() == commTwo.getSaleNum() ){
+                                return 0;
+                            }
+                            return -1;
                         }
-                        if( commOne.getSaleNum() == commTwo.getSaleNum() ){
-                            return 0;
-                        }
-                        return -1;
-                    }
-                });
+                    });
+                }
+            }else {
+                return Result.fail("暂无数据");
             }
-        }else {
-            return Result.fail("暂无数据");
+        }catch (Exception e){
+            logger.error("查询异常", e);
+            return  Result.fail("查询异常",commAppOutputList);
         }
         PageInfo<CommAppOutput> pageInfo = new PageInfo<CommAppOutput>(commAppOutputList);
         return Result.success("查询成功",pageInfo);
@@ -258,6 +257,10 @@ public class CommAppServiceImpl implements CommAppService {
         PageInfo<CommAppOutput> pageInfo = new PageInfo(commodityOutputList);
         return Result.success("查询成功",pageInfo);
     }
+
+
+
+
 
 
 }

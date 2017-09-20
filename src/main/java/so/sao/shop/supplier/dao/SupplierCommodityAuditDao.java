@@ -38,4 +38,9 @@ public interface SupplierCommodityAuditDao {
      */
     int countByScidArrayAndAuditFlag(@Param("ids") Long[] scIds);
 
+    /**
+     * 更新
+     */
+    void updateAuditFlagByScId(@Param("scId") Long scId, @Param("auditFlag") int auditFlag);
+
 }

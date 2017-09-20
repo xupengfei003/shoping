@@ -176,12 +176,26 @@ public interface AccountDao {
      * @param accountId
      */
     void updateAccountSmsTypeById(@Param("accountId")Long accountId);
-    
+
     /**
      * 根据供应商名称查询供应商信息
      * @param providerName
      * @return 轮播图供应商查询信息
      */
     List<AccountBannerOut> findByProviderName(@Param("providerName")String providerName);
+
+    /**
+     * 根据AccountId查询供应商的物流运费规则
+     * @param accountId
+     * @return
+     */
+    Integer findRulesById (@Param("accountId")Long accountId);
+
+    /**
+     * 根据商户ID修改当前默认运费规则
+     * @param account
+     * @param freightRules
+     */
+    void updateRulesByFreightRules(@Param("accountId") Long account, @Param("freightRules") Integer freightRules);
 }
 

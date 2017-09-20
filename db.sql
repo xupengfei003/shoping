@@ -1,6 +1,8 @@
 ALTER TABLE `ty_supplier`.`account`   
   ADD COLUMN `contract_name` VARCHAR(255) NULL   COMMENT '合同文件名' AFTER `service_phone`		/* 复制栏位名称 */;
 
+/*key_word表增加sort字段*/
+ALTER TABLE key_word ADD sort int(2) COMMENT '排序' AFTER operator;
 /*增加商品是否失效字段*/
 ALTER TABLE supplier_commodity ADD invalid_status int(2) DEFAULT 1 COMMENT '商品是否失效：0 失效 ，1正常' AFTER status;
 /*增加订单详情表-code69字段*/
@@ -14,6 +16,9 @@ ALTER TABLE purchase MODIFY COLUMN `account_status` varchar(1) DEFAULT '0' COMME
 /*增加合同到期短信提醒状态字段*/
 ALTER TABLE `ty_supplier`.`account`
   ADD COLUMN `sms_monthago_type` INT(10) NULL  COMMENT '合同到期30天前短信发送标记,0：未发送，1：已发送' AFTER `service_phone`;
+/* 运费规则(0:通用规则 1:配送规则) */;
+ALTER TABLE `ty_supplier`.`account`
+  ADD COLUMN `freight_rules` INT(1) DEFAULT NULL COMMENT '运费规则(0:通用规则 1:配送规则)' AFTER `sms_monthago_type`		/* 运费规则(0:通用规则 1:配送规则) */;
 /*重建购物车表*/
 DROP TABLE IF EXISTS cart_item;
 CREATE TABLE `cart_item` (
@@ -179,6 +184,7 @@ CREATE TABLE `freight_rules` (
   `remark` varchar(100) COLLATE utf8_bin DEFAULT NULL COMMENT '备注',
   `created_at` datetime DEFAULT NULL COMMENT '创建时间',
   `update_at` datetime DEFAULT NULL COMMENT '更改时间',
+  `distribution_scope_id` int(11) DEFAULT NULL COMMENT '配送范围主键',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
