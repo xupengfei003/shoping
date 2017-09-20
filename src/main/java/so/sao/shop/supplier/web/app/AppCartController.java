@@ -40,8 +40,8 @@ public class AppCartController {
      * @throws Exception
      */
     @ApiOperation(value = "根据购物车ID删除购物车记录", notes = "根据购物车ID删除购物车记录")
-    @GetMapping(value = "/cartitem/d/{cartitemId}")
-    public Result deleteCartItem(@PathVariable("cartitemId") Long cartitemId,
+    @GetMapping(value = "/cartitem/delete")
+    public Result deleteCartItem(@NotNull(message = "购物车记录ID不能为空") Long cartitemId,
                                  @NotNull(message = "用户ID不能为空") Long userId) throws Exception {
         // 删除购物车记录
         Boolean flag = cartService.deleteCartItemById(cartitemId, userId);
@@ -61,7 +61,7 @@ public class AppCartController {
      * @throws Exception
      */
     @ApiOperation(value = "更新购物车商品数量", notes = "更新购物车商品数量")
-    @PostMapping(value = "/cartitem/u")
+    @PostMapping(value = "/cartitem/update")
     public Result updateCartItem(AppCartItemInput input) throws Exception {
         // 更新数据
         Map<String, Object> map = cartService.updateCartItem(input.getCartitemId(), input.getNumber(), input.getUserId());
@@ -77,7 +77,7 @@ public class AppCartController {
     }
 
     @ApiOperation(value = "批量更新购物车商品数量", notes = "批量更新购物车商品数量")
-    @PostMapping(value = "/cartitem/uBatch")
+    @PostMapping(value = "/cartitem/updateBatch")
     public Result updateCartItemBatch(@RequestBody List<AppCartItemInput> inputList) throws Exception {
         // 更新数据
         Map<String, Object> map = cartService.updateCartItemBatch(inputList);
@@ -101,7 +101,7 @@ public class AppCartController {
      * @throws Exception
      */
     @ApiOperation(value = "向购物车添加购物记录", notes = "向购物车添加购物记录")
-    @PostMapping(value = "/cartitem")
+    @PostMapping(value = "/cartitem/save")
     public Result createCartItems(@NotNull(message = "商品ID不能为空") Long commodityId,
                                   @NotNull(message = "购物车添加商品数量不能为空")
                                   @Pattern(regexp = "^[1-9][0-9]*$", message = "购物车添加商品数量有误") Integer number,
@@ -127,8 +127,8 @@ public class AppCartController {
      * @return
      */
     @ApiOperation(value = "根据用户id获取用户购物车信息", notes = "根据用户id获取用户购物车信息【负责人：王翼云】")
-    @GetMapping(value = "/{userId}")
-    public Result getCartItemsByUser(@PathVariable("userId") Long userId) throws Exception {
+    @GetMapping(value = "/cartitem/select")
+    public Result getCartItemsByUser(@NotNull(message = "用户ID不能为空") Long userId) throws Exception {
         // 查询数据
         Map<String, Object> map = cartService.findCartItemsByUserId(userId);
         // 获取信息码
