@@ -214,4 +214,28 @@ public class CommConstant {
      */
     public static final int THREAD_NUM = 200;
 
+    /**
+     * 审核结果-审核未通过
+     */
+    public static final int AUDIT_NOT_PASS = 0;
+
+    /**
+     * 审核结果-审核通过
+     */
+    public static final int AUDIT_PASS = 1;
+
+    /**
+     * 审核结果-待审核
+     */
+    public static final int UN_AUDIT = 2;
+
+    /**
+     * 审核标志-历史审核记录
+     */
+    public static final int AUDIT_RECORD = 0;
+
+    /**
+     * 审核标志-当前审核记录
+     */
+    public static final int CURRENT_AUDIT = 1;
 }

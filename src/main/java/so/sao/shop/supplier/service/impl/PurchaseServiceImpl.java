@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
+import org.springframework.util.StringUtils;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.config.StorageConfig;
 import so.sao.shop.supplier.config.azure.AzureBlobService;
@@ -238,6 +239,11 @@ public class PurchaseServiceImpl implements PurchaseService {
         Purchase purchase = purchaseDao.findById(orderId);
         if (purchase != null) {
             //PurchaseInfoVo 添加订单信息
+            if(!StringUtils.isEmpty(String.valueOf(purchase.getOrderPostage()))){
+                purchaseInfoVo.setOrderPostage("包邮");
+            } else {
+                purchaseInfoVo.setOrderPostage(NumberUtil.number2Thousand(purchase.getOrderPostage()));
+            }
             purchaseInfoVo.setOrderId(purchase.getOrderId());
             purchaseInfoVo.setOrderReceiverName(purchase.getOrderReceiverName());
             purchaseInfoVo.setOrderReceiverMobile(purchase.getOrderReceiverMobile());
@@ -283,6 +289,11 @@ public class PurchaseServiceImpl implements PurchaseService {
         List<PurchasesVo> orderList = purchaseDao.findPage(purchaseSelectInput);
         //转换金额为千分位
         for (PurchasesVo purchasesVo : orderList) {
+            if(StringUtils.isEmpty(purchasesVo.getOrderPostage()) || "0".equals(purchasesVo.getOrderPostage())){
+                purchasesVo.setOrderPostage("包邮");
+            } else {
+                purchasesVo.setOrderPostage(NumberUtil.number2Thousand(new BigDecimal(purchasesVo.getOrderPostage())));
+            }
             purchasesVo.setOrderPrice(NumberUtil.number2Thousand(new BigDecimal(purchasesVo.getOrderPrice())));
         }
         return new PageInfo<>(orderList);
@@ -982,7 +993,10 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Override
     public OrderRefuseReasonOutput searchRefuseReasonByOrderId(String orderId) throws Exception {
         OrderRefuseReasonVo orderRefuseReasonVo = purchaseDao.findRefuseReasonByOrderId(orderId);//查出拒收原因信息
-        List<OrderRefuseImageVo> orderRefuseImageVoList = purchaseDao.findRefuseImageByOrderId(orderId);//查出拒收图片信息
+        List<OrderRefuseImageVo> orderRefuseImageVoList = new ArrayList<>();
+        if(null != orderRefuseReasonVo){
+            orderRefuseImageVoList = purchaseDao.findRefuseImageByOrderId(orderId);//查出拒收图片信息
+        }
         OrderRefuseReasonOutput orderRefuseReasonOutput = new OrderRefuseReasonOutput();
         orderRefuseReasonOutput.setRefuseReason(Constant.MessageConfig.MSG_NO_DATA);//如果没有数据则返回“暂无数据”
         if (null != orderRefuseReasonVo) {
@@ -1061,6 +1075,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             purchaseVo.setOrderPaymentTime(purchase.getOrderPaymentTime());//订单支付时间
             purchaseVo.setOrderPaymentMethod(purchase.getOrderPaymentMethod());//支付方式
             purchaseVo.setOrderPaymentNum(purchase.getOrderPaymentNum());//订单流水号
+            purchaseVo.setOrderPostage(NumberUtil.number2Thousand(purchase.getOrderPostage()));//运费金额
             purchaseVos.add(purchaseVo);//将转化后的数据添加到集合中
         }
         return purchaseVos;
@@ -1089,7 +1104,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             });
             int count = supplierCommodityDao.updateInventoryByGoodsId(mapInput);
             if (count == 0) {
-                throw new Exception("更新仓库数量与实际不相符，取消失败！");
+                throw new Exception("取消失败（恢复库存失败）");
             }
         }
         Map<String, Object> map = new HashMap<>();

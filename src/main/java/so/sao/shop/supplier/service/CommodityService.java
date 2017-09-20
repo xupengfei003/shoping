@@ -34,7 +34,7 @@ public interface CommodityService {
      * @param commodityUpdateInput 商品信息对象
      * @return 修改结果
      */
-    Result updateCommodity(CommodityUpdateInput commodityUpdateInput, Long supplierId);
+    Result updateCommodity(CommodityUpdateInput commodityUpdateInput, Long supplierId, boolean isAdmin);
 
     /**
      * 根据供应商商品ID获取商品详细信息

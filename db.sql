@@ -59,6 +59,9 @@ ALTER TABLE purchase ADD refuse_type VARCHAR(10) COMMENT '拒收类型' AFTER pa
 /*订单表增加取消类型*/
 ALTER TABLE purchase ADD cancel_type VARCHAR(10) COMMENT '取消类型' AFTER order_refuse_time;
 
+/*订单表增加物流费用*/
+ALTER TABLE purchase ADD order_postage DECIMAL(10,2) COMMENT '订单邮费 (0:包邮，非零显示具体金额)' AFTER deliver_goods_time;
+
 /*创建拒收图片表*/
 DROP TABLE IF EXISTS `refuse_order_img`;
 CREATE TABLE `refuse_order_img` (
@@ -115,6 +118,7 @@ ENGINE=InnoDB
 CREATE TABLE `hot_category` (
   `id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
   `min_img` VARCHAR(500) NULL DEFAULT NULL COMMENT '缩略图URL',
+  `url` VARCHAR(500) NULL DEFAULT NULL COMMENT '原图URL',
   `category_one_id` BIGINT(20) NULL DEFAULT NULL COMMENT '一级分类id',
   `category_one_name` VARCHAR(20) NULL DEFAULT NULL COMMENT '一级分类名称',
   `category_two_id` BIGINT(20) NULL DEFAULT NULL COMMENT '二级分类id',
@@ -148,6 +152,7 @@ CREATE TABLE `hot_commodity` (
   `rule_val` VARCHAR(256) NULL DEFAULT NULL COMMENT '规格值',
   `inventory` DECIMAL(11,2) NULL DEFAULT NULL COMMENT '库存',
   `sales_volume` INT(11) NULL DEFAULT NULL COMMENT '销量',
+  `price` DECIMAL(11,2) NULL DEFAULT NULL COMMENT '市场价',
   `status` INT(2) NULL DEFAULT NULL COMMENT '商品状态',
   `sort` INT(2) NULL DEFAULT NULL COMMENT '排序',
   `operator` VARCHAR(50) NULL DEFAULT NULL COMMENT '操作人（登录的账号名）',
@@ -193,3 +198,11 @@ CREATE TABLE `distribution_scope` (
   `update_at` datetime DEFAULT NULL COMMENT '更改时间',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+
+/*结算明细列表增加字段*/
+ALTER TABLE order_money_record ADD postage_total_amount decimal(10,2) DEFAULT '0.00' COMMENT '运费总金额';
+ALTER TABLE order_money_record ADD order_total_amount decimal(10,2) DEFAULT '0.00' COMMENT '订单总金额';
+
+
+

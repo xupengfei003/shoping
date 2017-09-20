@@ -31,28 +31,54 @@ public class AppCartItem {
     private Long commodityId;
 
     /**
+     * 商品名称
+     */
+    private String commodityName;
+
+    /**
      * 价格
      */
     private BigDecimal commodityPrice;
 
-    /**
-     * 商品名称
-     */
-    private String commodityName;
     /**
      * 商品图片路径
      */
     private String commodityPic;
 
     /**
-     * 数量
+     * 计量规格ID
      */
-    private Integer count;
+    private Long measureSpecId;
+
+    /**
+     * 计量规格名称
+     */
+    private String measureSpecName;
+
+    /**
+     * 规格值
+     */
+    private String ruleVal;
+
+    /**
+     * 计量单位ID
+     */
+    private Long unitId;
+
+    /**
+     * 计量单位名称
+     */
+    private String unitName;
 
     /**
      * sku
      */
     private String commodityProperties;
+
+    /**
+     * 数量
+     */
+    private Integer count;
 
     /**
      * 创建时间
@@ -71,26 +97,6 @@ public class AppCartItem {
      */
     private Double inventory;
 
-    /**
-     * 计量规格ID
-     */
-    private Long measureSpecId;
-    /**
-     * 计量规格名称
-     */
-    private String measureSpecName;
-    /**
-     * 规格值
-     */
-    private String ruleVal;
-    /**
-     * 计量单位ID
-     */
-    private Long unitId;
-    /**
-     * 计量单位名称
-     */
-    private String unitName;
 
     public String getCommodityProperties() {
         return commodityProperties;

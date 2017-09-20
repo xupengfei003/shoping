@@ -18,6 +18,8 @@
         <result column="bank_user_name" property="bankUserName"/>
         <result column="checkout_at" property="checkoutAt"/>
         <result column="settled_at" property="settledAt"/>
+        <result column="postage_total_amount" property="postageTotalAmount"/>
+        <result column="order_total_amount" property="orderTotalAmount"/>
     </resultMap>
 
     <!-- 通用查询结果列 -->
@@ -36,7 +38,9 @@
     settled_amount,
     bank_user_name,
     checkout_at,
-    settled_at
+    settled_at,
+    postage_total_amount,
+    order_total_amount
   </sql>
 
     <!-- 批量添加结算明细 -->
@@ -56,7 +60,9 @@
         provider_name,
         settled_amount,
         bank_user_name,
-        checkout_at
+        checkout_at,
+        postage_total_amount,
+        order_total_amount
         )
         VALUES
         <foreach collection="list" item="item" index="index" separator=",">
@@ -74,7 +80,9 @@
             #{item.providerName},
             #{item.settledAmount},
             #{item.bankUserName},
-            #{item.checkoutAt}
+            #{item.checkoutAt},
+            #{item.postageTotalAmount},
+            #{item.orderTotalAmount}
             )
         </foreach>
     </insert>
@@ -90,6 +98,8 @@
         <result column="state" property="state"/>
         <result column="bank_account" property="bankAccount"/>
         <result column="serial_number" property="serialNumber"/>
+        <result column="postage_total_amount" property="postageTotalAmount"/>
+        <result column="order_total_amount" property="orderTotalAmount"/>
     </resultMap>
 
     <!--根据指定时间、状态查询结算明细列表-->
@@ -104,7 +114,9 @@
         settled_at,
         state,
         bank_account,
-        serial_number
+        serial_number,
+        postage_total_amount,
+        order_total_amount
         FROM order_money_record
         <where>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(startTime)">
@@ -130,7 +142,9 @@
         settled_at,
         state,
         bank_account,
-        serial_number
+        serial_number,
+        postage_total_amount,
+        order_total_amount
         FROM order_money_record
         <where>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(startTime)">
@@ -156,6 +170,7 @@
         <result column="order_receiver_mobile" property="orderReceiverMobile"/>
         <result column="order_price" property="orderPrice"/>
         <result column="order_settleme_price" property="orderSettlemePrice"/>
+        <result column="order_postage" property="orderPostage"/>
         <result column="order_create_time" property="orderCreateTime"/>
     </resultMap>
 
@@ -167,6 +182,7 @@
         p.order_receiver_mobile,
         p.order_price,
         p.order_settleme_price,
+        p.order_postage,
         p.order_create_time
         FROM
           record_purchase rp
@@ -178,17 +194,17 @@
         </if>
     </select>
 
-    <!--根据指定时间询已结算金额-->
+    <!--根据指定时间查询已结算金额-->
     <select id="settledAmount" resultType="java.math.BigDecimal">
         SELECT
         sum(settled_amount)
         FROM order_money_record
         <where>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(startTime)">
-                AND checkout_at >= TRIM(STR_TO_DATE(#{startTime},'%Y-%m-%d'))
+                AND settled_at >= TRIM(STR_TO_DATE(#{startTime},'%Y-%m-%d'))
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(endTime)">
-                AND checkout_at &lt; TRIM(DATE_ADD(STR_TO_DATE(#{endTime},'%Y-%m-%d'),INTERVAL 1 DAY))
+                AND settled_at &lt; TRIM(DATE_ADD(STR_TO_DATE(#{endTime},'%Y-%m-%d'),INTERVAL 1 DAY))
             </if>
             AND state = 1
         </where>
@@ -243,7 +259,9 @@
         bank_user_name,
         checkout_at,
         serial_number,
-        settled_at
+        settled_at,
+        postage_total_amount,
+        order_total_amount
         FROM order_money_record
         WHERE user_id=#{accountId} And state = 1
         <!--按条件检索数据-->
@@ -274,7 +292,9 @@
         settled_amount,
         bank_user_name,
         checkout_at,
-        settled_at
+        settled_at,
+        postage_total_amount,
+        order_total_amount
         FROM order_money_record
         WHERE user_id=#{accountId} And state = 0
         <!--按条件检索数据-->

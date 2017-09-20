@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import so.sao.shop.supplier.config.CommConstant;
 import so.sao.shop.supplier.config.Constant;
+import so.sao.shop.supplier.domain.User;
 import so.sao.shop.supplier.pojo.BaseResult;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.*;
@@ -74,7 +75,12 @@ public class CommodityController {
     public Result update(HttpServletRequest request, @Valid @RequestBody CommodityUpdateInput commodityUpdateInput, @RequestParam(required = false) Long supplierId) throws Exception {
         //校验供应商ID
         supplierId = CheckUtil.supplierIdCheck(request,supplierId);
-        return commodityService.updateCommodity(commodityUpdateInput, supplierId);
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        boolean isAdmin = false;
+        if (Constant.ADMIN_STATUS.equals(user.getIsAdmin())){
+            isAdmin = true;
+        }
+        return commodityService.updateCommodity(commodityUpdateInput, supplierId, isAdmin);
     }
 
     @ApiOperation(value="上架商品", notes="【负责人：张瑞兵】")

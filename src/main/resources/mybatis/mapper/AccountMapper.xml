@@ -860,6 +860,31 @@
     SET sms_monthago_type = 1
     WHERE account_id = #{accountId}
   </update>
+
+  <!-- 根据供应商名称查询供应商 -->
+  <select id="findByProviderName" resultType="so.sao.shop.supplier.pojo.output.AccountBannerOut">
+  	SELECT
+	  a.account_id AS accountId,
+	  a.provider_name AS providerName,
+	  a.contract_responsible AS responsible,
+	  a.contract_create_date AS createDate,
+	  a.contract_end_date AS endDate,
+	  a.contract_responsible_phone AS responsiblePhone,
+	  s1.name province,
+	  s2.name city,
+	  s3.name district
+	FROM
+	  account a,sys_region s1,sys_region s2,sys_region s3
+	 WHERE
+	  account_status = 1
+	 AND a.contract_register_address_province = s1.sr_id
+	 AND a.contract_register_address_city = s2.sr_id
+	 AND a.contract_register_address_district = s3.sr_id
+	 <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(providerName)">
+      	AND a.provider_name LIKE CONCAT ('%',#{providerName},'%')
+     </if>
+     ORDER BY a.update_date DESC
+  </select>
   <!--根据商户ID修改当前默认运费规则-->
   <update id="updateRulesByFreightRules">
     UPDATE

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="so.sao.shop.supplier.dao.SupplierCommodityTmpDao">
+
+    <!--新增-->
+    <insert id="save">
+        insert supplier_commodity_tmp (
+            supplier_id,
+            code,
+            code69,
+            inventory,
+            measure_spec_id,
+            rule_val,
+            unit_id,
+            price,
+            unit_price,
+            min_img,
+            created_at,
+            updated_at,
+            created_by,
+            updated_by,
+            deleted,
+            status,
+            remark,
+            tag_id,
+            sku,
+            min_order_quantity,
+            sca_id
+        )VALUES (
+            #{supplierId},
+            #{code},
+            #{code69},
+            #{inventory},
+            #{measureSpecId},
+            #{ruleVal},
+            #{unitId},
+            #{price},
+            #{unitPrice},
+            #{minImg},
+            #{createdAt},
+            #{updatedAt},
+            #{createdBy},
+            #{updatedBy},
+            #{deleted},
+            #{status},
+            #{remark},
+            #{tagId},
+            #{sku},
+            #{minOrderQuantity},
+            #{scaId}
+        )
+    </insert>
+
+</mapper>
