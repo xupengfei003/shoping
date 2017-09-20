@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,14 +24,17 @@ import java.util.List;
 @RestController
 @RequestMapping("/pay")
 public class PayController {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PayController.class);
+
     @Resource
     private PayService payService;
+    
     @Resource
     private PurchaseService purchaseService;
 
     @RequestMapping(value = "/create",method = RequestMethod.POST)
-    public Result create(@Valid PayInput payInput, BindingResult result, String sign) throws Exception {
+    public Result create(@RequestBody @Valid PayInput payInput, BindingResult result, String sign) throws Exception {
         Result output = new Result();
         //判断验证是否通过。true 未通过  false通过
         if (result.hasErrors()) {
