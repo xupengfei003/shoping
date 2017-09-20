@@ -57,9 +57,9 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
             //1.如果运费为0，则显示“包邮”
             //2.如果有运费，则输出实际金额的千分值
             if(StringUtils.isEmpty(appPurchasesVo.getOrderPostage()) || "0".equals(appPurchasesVo.getOrderPostage())){
-                appPurchasesVo.setOrderPostage("包邮");
+                appPurchasesVo.setOrderPostage(new BigDecimal(0));
             } else {
-                appPurchasesVo.setOrderPostage(NumberUtil.number2Thousand(new BigDecimal(appPurchasesVo.getOrderPostage())));
+                appPurchasesVo.setOrderPostage(appPurchasesVo.getOrderPostage());
             }
             List<AppPurchaseItemVo> appPurchaseItemVoListInner = new ArrayList<>();
             AppPurchaseOutput appPurchaseOutput;

@@ -3,7 +3,6 @@
 <mapper namespace="so.sao.shop.supplier.dao.app.AppPurchaseItemDao">
     <!--App端查询全部订单详情-->
     <resultMap id="AppGoodsAllList" type="so.sao.shop.supplier.pojo.vo.AppPurchaseItemVo">
-        <result column="goods_id" property="goodsId"/>
         <result column="goods_image" property="goodsImage"/>
         <result column="goods_name" property="goodsName"/>
         <result column="goods_unit_price" property="goodsUnitPrice"/>

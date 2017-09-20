@@ -25,7 +25,7 @@ public class AppPurchasesVo {
     /**
      * 订单合计（订单实付金额）
      */
-    private String orderPrice;
+    private BigDecimal orderPrice;
     /**
      * 订单编号
      */
@@ -86,9 +86,9 @@ public class AppPurchasesVo {
      */
     private String orderPaymentNum;
     /**
-     * 订单邮费 (0:包邮，非零显示具体金额)
+     * 订单邮费
      */
-    private String orderPostage;
+    private BigDecimal orderPostage;
 
     public String getOrderReceiverName() {
         return orderReceiverName;
@@ -114,12 +114,12 @@ public class AppPurchasesVo {
         this.orderAddress = orderAddress;
     }
 
-    public String getOrderPrice() {
+    public BigDecimal getOrderPrice() {
         return orderPrice;
     }
 
-    public void setOrderPrice(String orderPrice) {
-        this.orderPrice = NumberUtil.number2Thousand(new BigDecimal(orderPrice));
+    public void setOrderPrice(BigDecimal orderPrice) {
+        this.orderPrice = orderPrice;
     }
 
     public String getOrderId() {
@@ -226,11 +226,11 @@ public class AppPurchasesVo {
         this.orderPaymentNum = orderPaymentNum;
     }
 
-    public String getOrderPostage() {
+    public BigDecimal getOrderPostage() {
         return orderPostage;
     }
 
-    public void setOrderPostage(String orderPostage) {
+    public void setOrderPostage(BigDecimal orderPostage) {
         this.orderPostage = orderPostage;
     }
 }
