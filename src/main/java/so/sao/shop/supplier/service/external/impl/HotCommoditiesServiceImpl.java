@@ -106,9 +106,9 @@ public class HotCommoditiesServiceImpl implements HotCommoditiesService{
             String sku = hotCommoditySaveInput.getSku();
             skus.add(sku);
         });
-        /*if(skus.size()<hotCommoditySaveInputs.size()){
+        if(skus.size()<hotCommoditySaveInputs.size()){
             return Result.fail("热门商品列表不能重复！");
-        }*/
+        }
         if(hotCommoditySaveInputs.size()>30){
             return Result.fail("添加失败！添加的数量大于允许添加的数量");
         }
