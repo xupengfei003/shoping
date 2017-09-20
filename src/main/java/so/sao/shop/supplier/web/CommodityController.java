@@ -85,8 +85,13 @@ public class CommodityController {
 
     @ApiOperation(value="上架商品", notes="【负责人：张瑞兵】")
     @PutMapping(value="/onShelves/{id}")
-    public Result onShelves(@PathVariable long id){
-        return commodityService.onShelves(id);
+    public Result onShelves(HttpServletRequest request ,@PathVariable long id){
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        if(user == null){
+            return Result.fail(so.sao.shop.supplier.config.Constant.MessageConfig.MSG_USER_NOT_LOGIN);
+        }
+        String isAdmin=user.getIsAdmin();
+        return commodityService.onShelves(id,isAdmin);
     }
 
     @ApiOperation(value="批量商品上架", notes="【负责人：张瑞兵】")
@@ -183,6 +188,15 @@ public class CommodityController {
         }
 
         return  commodityService.auditBatch(request ,  commAuditInput);
+    }
+    @ApiOperation(value="查询商品审核列表", notes="【责任人：汪涛】")
+    @GetMapping(value="/findApproval")
+    public Result searchCommodityAudit(HttpServletRequest request, CommodityAuditInput commodityAuditInput){
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        if(user==null || !user.getIsAdmin().equals(Constant.ADMIN_STATUS)){
+            return Result.fail(so.sao.shop.supplier.config.Constant.MessageConfig.ADMIN_AUTHORITY_EERO);
+        }
+        return commodityService.serachCommodityAudit(commodityAuditInput);
     }
 
 }

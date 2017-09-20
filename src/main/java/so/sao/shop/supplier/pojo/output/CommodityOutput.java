@@ -164,6 +164,10 @@ public class CommodityOutput {
      * 图片集合
      */
     private List<CommImgeVo> imgeList;
+    /**
+     * 起订量
+     */
+    private int minOrderQuantity;
 
     public Long getId() {
         return id;
@@ -450,5 +454,13 @@ public class CommodityOutput {
 
     public void setInvalidStatus(int invalidStatus) {
         this.invalidStatus = invalidStatus;
+    }
+
+    public int getMinOrderQuantity() {
+        return minOrderQuantity;
+    }
+
+    public void setMinOrderQuantity(int minOrderQuantity) {
+        this.minOrderQuantity = minOrderQuantity;
     }
 }

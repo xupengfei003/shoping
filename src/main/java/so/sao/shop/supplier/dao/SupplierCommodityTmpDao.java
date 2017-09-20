@@ -3,6 +3,7 @@ package so.sao.shop.supplier.dao;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import so.sao.shop.supplier.domain.SupplierCommodityTmp;
+import so.sao.shop.supplier.pojo.output.CommodityOutput;
 
 @Mapper
 public interface SupplierCommodityTmpDao {
@@ -19,5 +20,11 @@ public interface SupplierCommodityTmpDao {
      * @return
      */
     SupplierCommodityTmp findSupplierCommodityTmpByScaId(@Param("id") Long id);
+	/**
+     * 根据审核数据id查询对应商品信息
+     * @param id 商品ID
+     * @return  商品信息对象
+     */
+    CommodityOutput findDetail(@Param("id")long id);
 
 }

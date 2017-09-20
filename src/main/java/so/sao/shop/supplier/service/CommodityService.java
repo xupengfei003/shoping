@@ -91,7 +91,7 @@ public interface CommodityService {
      * @param id
      * @return
      */
-    Result onShelves(Long id);
+    Result onShelves(Long id,String isAdmin);
 
     /**
      * 下架商品
@@ -138,6 +138,13 @@ public interface CommodityService {
      * @return
      */
     void updateCommInvalidStatus(Long supplierId, Integer accountStatus);
+	
+	/**
+     * 根据条件查询商品审核列表
+     * @param commodityAuditInput 查询条件
+     * @return 商品审核数据
+     */
+    Result< PageInfo> serachCommodityAudit(CommodityAuditInput commodityAuditInput);
 
     /**
      * 批量审核
