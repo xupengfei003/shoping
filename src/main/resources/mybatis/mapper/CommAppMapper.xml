@@ -282,14 +282,54 @@
         </if>
 
     </select>
-
-
-
-
-
-
-
-
+    <select id="listCommodities" resultType="so.sao.shop.supplier.pojo.output.CommodityOutput">
+        SELECT
+        sc.id AS id,
+        sc.supplier_id AS supplierId,
+        cb.name AS brandName,
+        c.category_one_id AS categoryOneId,
+        c.category_two_id AS categoryTwoId,
+        c.category_three_id AS categoryThreeId,
+        c.name AS name,
+        sc.remark AS remark,
+        sc.description AS description,
+        sc.code AS code,
+        sc.code69 AS code69,
+        c.origin_place AS originPlace,
+        c.company_name AS companyName,
+        c.market_time AS marketTime,
+        sc.tag_id AS tagId,
+        ct.name AS tagName,
+        sc.measure_spec_id AS measureSpecId,
+        cms.name AS measureSpecName,
+        sc.rule_val AS ruleVal,
+        sc.unit_id AS unitId,
+        cu.name AS unitName,
+        sc.inventory AS inventory,
+        sc.min_img AS minImg,
+        sc.price AS price,
+        sc.unit_price AS unitPrice,
+        sc.created_at AS createdAt,
+        sc.updated_at AS updatedAt,
+        sc.supplier_id AS supplierId,
+        sc.status AS status,
+        sc.invalid_status AS invalidStatus,
+        (SELECT NAME FROM comm_category cc WHERE cc.id = c.category_one_id) AS categoryOneName,
+        (SELECT NAME FROM comm_category cc WHERE cc.id = c.category_two_id) AS categoryTwoName,
+        (SELECT NAME FROM comm_category cc WHERE cc.id = c.category_three_id) AS categoryThreeName
+        FROM
+        supplier_commodity sc INNER JOIN (commodity c LEFT JOIN comm_brand cb ON c.brand_id = cb.id) ON sc.code69 = c.code69
+        LEFT JOIN comm_measure_spec cms ON sc.measure_spec_id = cms.id LEFT JOIN comm_unit cu ON sc.unit_id = cu.id LEFT JOIN comm_tag ct ON sc.tag_id = ct.id
+        <where>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierId)">
+                AND sc.supplier_id = #{supplierId}
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(commName)">
+                AND c.name LIKE CONCAT ('%',#{commName},'%')
+            </if>
+        </where>
+        ORDER BY sc.updated_at DESC , sc.id DESC
+    </select>
 
 
 </mapper>

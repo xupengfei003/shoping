@@ -6,12 +6,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import so.sao.shop.supplier.dao.AccountDao;
+import so.sao.shop.supplier.dao.CommImgeDao;
+import so.sao.shop.supplier.dao.SupplierCommodityDao;
 import so.sao.shop.supplier.dao.app.CommAppDao;
+import so.sao.shop.supplier.domain.Account;
+import so.sao.shop.supplier.domain.CommImge;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.output.*;
 import so.sao.shop.supplier.pojo.vo.CategoryVo;
+import so.sao.shop.supplier.pojo.vo.CommImgeVo;
 import so.sao.shop.supplier.service.CountSoldCommService;
 import so.sao.shop.supplier.service.app.CommAppService;
+import so.sao.shop.supplier.util.BeanMapper;
 import so.sao.shop.supplier.util.DataCompare;
 import so.sao.shop.supplier.util.PageTool;
 
@@ -28,6 +34,8 @@ public class CommAppServiceImpl implements CommAppService {
     private AccountDao accountDao;
     @Autowired
     private CountSoldCommService countSoldCommService;
+    @Autowired
+    private CommImgeDao commImgeDao;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -219,10 +227,37 @@ public class CommAppServiceImpl implements CommAppService {
         return Result.success("查询成功",pageInfo);
     }
 
-
-
-
-
+    @Override
+    public Result listCommodities(Long supplierId, String commName, Integer pageNum, Integer pageSize) {
+        //开始分页
+        PageTool.startPage(pageNum,pageSize);
+        List<CommodityOutput> commodityOutputList =commAppDao.listCommodities(supplierId,commName);
+        commodityOutputList.forEach(commodityOutput->{
+            List<CommImge> commImgeList = commImgeDao.find(commodityOutput.getId());
+            List<CommImgeVo> commImgeVoList = new ArrayList<>();
+            commImgeList.forEach(commImge->{
+                CommImgeVo commImgeVo = BeanMapper.map(commImge, CommImgeVo.class);
+                commImgeVoList.add(commImgeVo);
+            });
+            //获取销量
+            List<String> countSold= null;
+            try {
+                countSold = countSoldCommService.countSoldCommNum(new String[]{commodityOutput.getId().toString()});
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            //获取账户account对象
+            Account account=accountDao.selectById(commodityOutput.getSupplierId());
+            if (null!=account){
+                commodityOutput.setProviderName(account.getProviderName());  //将获取供应商名称放入出参
+                commodityOutput.setContractCity(account.getContractRegisterAddressCity());  //将获取供应商合同所在市放入出参
+                commodityOutput.setSalesNumber(Integer.valueOf(countSold.get(0)));     //将获取销量放入出参
+                commodityOutput.setImgeList(commImgeVoList);  //将获取图片信息放入出参
+            }
+        });
+        PageInfo<CommAppOutput> pageInfo = new PageInfo(commodityOutputList);
+        return Result.success("查询成功",pageInfo);
+    }
 
 
 }

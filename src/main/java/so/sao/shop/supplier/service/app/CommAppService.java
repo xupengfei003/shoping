@@ -104,6 +104,11 @@ public interface CommAppService {
  Result searchCommodities(Long categoryTwoId,Long categoryThreeId,Long[] brandIds, String orderPrice, String orderSalesNum,Integer pageNum, Integer pageSize);
 
 
-
-
+ /**
+  * 根据供应商ID和商品名称查询供应商列表
+  * @param supplierId 供应商ID
+  * @param commName   商品名称
+  * @return
+  */
+ Result listCommodities(Long supplierId,String commName,Integer pageNum, Integer pageSize);
 }
