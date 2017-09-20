@@ -85,7 +85,7 @@ public class HotCommoditiesServiceImpl implements HotCommoditiesService{
             addHotCommOutputs.get(i).setSalesVolume( Integer.valueOf( salesVolumes.get(i) ) );
         }
         PageInfo pageInfo = new PageInfo(addHotCommOutputs);
-        return Result.success("查询热门商品列表成功！", pageInfo);
+        return Result.success("查询商品列表成功！", pageInfo);
     }
 
     /**
