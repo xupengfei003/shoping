@@ -74,5 +74,33 @@ public class CommAppController {
     public Result getMainCategory (@RequestParam Long supplierId){
         return commAppService.getMainCateGory(supplierId);
     }
+
+
+
+    @ApiOperation(value="根据科属的等级参数获取所有的2或3级科属", notes="获取所有的2或3级科属【责任人：许鹏飞】")
+    @GetMapping(value="/searchTwoOrThreeLevelCommCategories")
+    public Result searchTwoOrThreeLevelCommCategories(@RequestParam(required = false) Integer level){
+        return commAppService.getAllLevelTwoOrThreeCategories(level);
+    }
+
+    @ApiOperation(value="查询商品的全部品牌", notes="获取一类或者二类商品的全部品牌【责任人：许鹏飞】")
+    @GetMapping(value="/getAllBrands")
+    public Result getAllBrands( @RequestParam(required = false) Integer categoryId){
+        return commAppService.getAllBrands( categoryId );
+    }
+
+    @ApiOperation(value="根据动态条件(供应商ID/分类/品牌ids/排序条件)查询商品", notes="动态条件查询商品【责任人：许鹏飞】")
+    @GetMapping(value="/searchCommoditiesByConditionOrder")
+    public Result searchCommoditiesByConditionOrder( @RequestParam(required = false) Long categoryTwoId,@RequestParam(required = false) Long categoryThreeId,
+                                                     @RequestParam(required = false) Long[] brandIds, @RequestParam(required = false) String orderPrice
+                                                    ,@RequestParam(required = false) String orderSalesNum
+                                                    ,@RequestParam(required = false) Integer pageNum, @RequestParam(required = false) Integer pageSize){
+        return commAppService.searchCommodities( categoryTwoId, categoryThreeId, brandIds, orderPrice, orderSalesNum, pageNum, pageSize);
+    }
+
+
+
+
+
 }
 

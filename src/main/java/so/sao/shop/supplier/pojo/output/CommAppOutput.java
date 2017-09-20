@@ -8,7 +8,7 @@ import java.util.Date;
 /**
  * Created by acer on 2017/9/13.
  */
-public class CommAppOutput {
+public class CommAppOutput{
     /**
      * ID
      */
@@ -97,6 +97,20 @@ public class CommAppOutput {
      *  是否失效，0-失效，1-正常
      */
     private int invalidStatus;
+
+    /**
+     * 商品销量
+     */
+    private  Integer saleNum;
+
+    public Integer getSaleNum() {
+        return saleNum;
+    }
+
+    public void setSaleNum(Integer saleNum) {
+        this.saleNum = saleNum;
+    }
+
     public Long getId() {
         return id;
     }
@@ -256,4 +270,5 @@ public class CommAppOutput {
     public void setProviderName(String providerName) {
         this.providerName = providerName;
     }
+
 }

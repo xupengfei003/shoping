@@ -90,5 +90,44 @@ public class Ognl {
     public static boolean CollectionIsNotEmpty(final Collection<?> coll){
         return CollectionUtils.isNotEmpty(coll);
     }
+
+
+    /**
+     * 判断参数是不是排序要求
+     * @param orderPrice
+     * @return
+     */
+    public  static boolean isDESC(String orderPrice){
+        if ( null != orderPrice &&  "DESC" .equalsIgnoreCase(orderPrice)){
+            return  true;
+        }
+        return false;
+    }
+
+
+    /**
+     * 判断参数是不是排序要求
+     * @param orderPrice
+     * @return
+     */
+    public  static boolean isASC(String orderPrice){
+        if (  null != orderPrice && "ASC" .equalsIgnoreCase(orderPrice)){
+            return  true;
+        }
+        return false;
+    }
+    /**
+     * 判断参数是不是排序要求
+     * @param orderPrice
+     * @return
+     */
+    public  static boolean isNotASCandDESC(String orderPrice){
+        if (  !("ASC" .equalsIgnoreCase(orderPrice)) && !("DESC" .equalsIgnoreCase(orderPrice)) ){
+            return  true;
+        }
+        return false;
+    }
+
+
 }
 

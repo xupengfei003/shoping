@@ -65,4 +65,28 @@ public interface CommAppDao {
      * @return   商品分类
      */
     List<CategoryVo> findMainCateGory(@Param("supplierId") Long supplierId);
+
+    /**
+     * 根据科属的等级参数获取所有的2或3级科属
+     * @param level
+     * @return
+     */
+    List<CategoryOutput> findCategories(@Param("level") Integer level );
+
+    /**
+     *获取商品的全部品牌
+     * @return
+     */
+    List<CommBrandOutput> findAllBrands( @Param("categoryId") Integer categoryId );
+
+    /**
+     * 根据动态条件(供应商ID/分类/品牌ids/排序条件)查询商品
+     * @param CommAppInput commAppInput
+     * @return
+     */
+    List<CommAppOutput> findCommoditiesByConditionOrder( @Param("categoryTwoId") Long categoryTwoId, @Param("categoryThreeId")Long categoryThreeId,
+                                                         @Param("ids")Long[] brandIds,
+                                                         @Param("orderPrice") String orderPrice);
+
+
 }
