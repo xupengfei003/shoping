@@ -12,15 +12,13 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import so.sao.shop.supplier.config.CommConstant;
+import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.config.azure.AzureBlobService;
 import so.sao.shop.supplier.dao.*;
 import so.sao.shop.supplier.domain.*;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.*;
-import so.sao.shop.supplier.pojo.output.CommodityExportOutput;
-import so.sao.shop.supplier.pojo.output.CommodityImportOutput;
-import so.sao.shop.supplier.pojo.output.CommodityInfoOutput;
-import so.sao.shop.supplier.pojo.output.CommodityOutput;
+import so.sao.shop.supplier.pojo.output.*;
 import so.sao.shop.supplier.pojo.vo.*;
 import so.sao.shop.supplier.service.CommodityService;
 import so.sao.shop.supplier.service.CountSoldCommService;
@@ -575,23 +573,48 @@ public class CommodityServiceImpl implements CommodityService {
 
     /**
      * 商品上架
-     * @param id
+     * @param id,isAdmin
      * @return
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Result onShelves(Long id) {
+    public Result onShelves(Long id,String isAdmin) {
         int count = supplierCommodityDao.countById(id);
+        //判断有无该商品记录
         if(count == 0){
             return Result.fail("该商品无记录！");
         }
-        SupplierCommodity supplierCommodity = new SupplierCommodity();
-        supplierCommodity.setId(id);
-        supplierCommodity.setStatus(CommConstant.COMM_ST_ON_SHELVES);
-        supplierCommodity.setUpdatedAt(new Date());
-        //上架操作
-        supplierCommodityDao.onOrOffShelves(supplierCommodity);
-        return Result.success("上架商品成功！");
+        SupplierCommodity supplierCommodity=supplierCommodityDao.findOne(id);
+        //判断配送范围和运费规则是否完整
+        Boolean flag=checkFreightRules(supplierCommodity.getSupplierId());
+        if(!flag){
+            return Result.fail("请先完善配送范围和运费规则");
+        }
+        //判断是否重复执行上架操作
+        if(supplierCommodity.getStatus()==CommConstant.COMM_ST_ON_SHELVES){
+            return Result.success("商品上架操作成功！");
+        }
+        //判断该商品是否处于审核中
+        int num = supplierCommodityAuditDao.countByScidAndAuditResult(id);
+        if (num>0){
+            return Result.fail("该商品已提交管理员审核，暂不能进行任何操作！");
+        }
+        //如果是管理员直接执行上架操作
+        if(isAdmin.equals(Constant.ADMIN_STATUS)){
+            SupplierCommodity supplierCommodity1 = new SupplierCommodity();
+            supplierCommodity1.setId(id);
+            supplierCommodity1.setStatus(CommConstant.COMM_ST_ON_SHELVES);
+            supplierCommodity1.setUpdatedAt(new Date());
+            //下架操作
+            supplierCommodityDao.onOrOffShelves(supplierCommodity1);
+            return Result.success("商品上架成功！");
+        }
+        //插入审核记录前，将以前的审核记录flag变为0
+        supplierCommodityAuditDao.updateAuditFlagByScId(id, CommConstant.AUDIT_RECORD);
+        SupplierCommodityAudit supplierCommodityAudit = makeSupplierCommodityAudit(supplierCommodity, CommConstant.COMM_ST_ON_SHELVES_AUDIT);
+        //执行上架申请操作
+        supplierCommodityAuditDao.save(supplierCommodityAudit);
+        return Result.success("上架商品需要管理员审核，审核通过后会自动上架，稍后查询商品列表审核结果");
     }
 
     /**
@@ -1425,6 +1448,74 @@ public class CommodityServiceImpl implements CommodityService {
         }
 
         return Result.success("成功");
+    }
+    /**
+     * 根据条件查询商品审核列表
+     * @param commodityAuditInput 查询条件
+     * @return 商品审核数据
+     */
+    @Override
+    public Result<PageInfo> serachCommodityAudit(CommodityAuditInput commodityAuditInput){
+        //分页
+        PageTool.startPage(commodityAuditInput.getPageNum(), commodityAuditInput.getPageSize());
+        //查询当前所有待审核数据集合
+        List<CommodityAuditinputVo> list = supplierCommodityAuditDao.findCommodityAudit(commodityAuditInput);
+        int len = list.size();
+        if (list!=null&&len>0){
+            //循环判断所有数据审核类型
+            for(int i=0;i<len;i++) {
+                //如果该条记录是编辑待审核状态，则查询编辑后的商品数据
+                if (list.get(i).getStatus() == CommConstant.COMM_EDIT_AUDIT) {
+                    //查询编辑待审核的商品数据
+                    Long id = list.get(i).getId();
+                    CommodityOutput commodity = supplierCommodityTmpDao.findDetail(id);
+                    CommodityAuditinputOutput commodityAuditinputOutput =new CommodityAuditinputOutput();
+                    if(commodity == null){
+                        list.set(i,null);
+                    }else {
+                        commodityAuditinputOutput = getAuditObject(commodityAuditinputOutput, commodity);
+                        list.get(i).setCommodityAuditinputOutput(commodityAuditinputOutput);
+                    }
+                } else {
+                    //如果不是编辑待审核状态，则查询原商品数据。
+                    Long scId = list.get(i).getScId();
+                    //查询上架下架数据
+                    CommodityOutput commodity = supplierCommodityDao.findDetail(scId);
+                    CommodityAuditinputOutput commodityAuditinputOutput =new CommodityAuditinputOutput();
+                    if(commodity == null){
+                        list.set(i,null);
+                    }else {
+                        commodityAuditinputOutput = getAuditObject(commodityAuditinputOutput, commodity);
+                        list.get(i).setCommodityAuditinputOutput(commodityAuditinputOutput);
+                    }
+                }
+            }
+            PageInfo pageInfo = new PageInfo(list);
+            return Result.success("查询成功",pageInfo);
+        }
+        return Result.fail("当前审核记录为空");
+    }
+
+    /**
+     * 封装商品详情CommodityAuditinputOutput类
+     * @param commodityAuditinputOutput
+     * @param commodity
+     * @return
+     */
+    public CommodityAuditinputOutput getAuditObject(CommodityAuditinputOutput commodityAuditinputOutput,CommodityOutput commodity){
+        commodityAuditinputOutput.setName(commodity.getName());
+        commodityAuditinputOutput.setCode(commodity.getCode());
+        commodityAuditinputOutput.setCode69(commodity.getCode69());
+        commodityAuditinputOutput.setMinImg(commodity.getMinImg());
+        commodityAuditinputOutput.setBrandName(commodity.getBrandName());
+        commodityAuditinputOutput.setUnitName(commodity.getUnitName());
+        commodityAuditinputOutput.setMeasureSpecName(commodity.getMeasureSpecName());
+        commodityAuditinputOutput.setRuleVal(commodity.getRuleVal());
+        commodityAuditinputOutput.setInventory(commodity.getInventory());
+        commodityAuditinputOutput.setMinOrderQuantity(commodity.getMinOrderQuantity());
+        commodityAuditinputOutput.setPrice(commodity.getPrice());
+        commodityAuditinputOutput.setUnitPrice(commodity.getUnitPrice());
+        return commodityAuditinputOutput;
     }
 
 }

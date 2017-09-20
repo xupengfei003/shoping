@@ -137,4 +137,25 @@
         audit_by = #{auditBy}
         WHERE id = #{id}
     </update>
+    <!-- 查询所有审核数据 -->
+    <select id="findCommodityAudit" resultType="so.sao.shop.supplier.pojo.vo.CommodityAuditinputVo">
+        SELECT
+        id as id,
+        sc_id as scId,
+        supplier_id as supplierId,
+        updated_at as updatedAt,
+        created_at as createdAt,
+        status ,
+        audit_result as auditResult
+        FROM supplier_commodity_audit
+        <where>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(status)">
+                AND status = #{status}
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(auditResult)">
+                AND audit_result = #{auditResult}
+            </if>
+        </where>
+        ORDER BY created_at asc
+    </select>
 </mapper>

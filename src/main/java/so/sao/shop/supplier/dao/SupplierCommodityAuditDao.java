@@ -3,6 +3,8 @@ package so.sao.shop.supplier.dao;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import so.sao.shop.supplier.domain.SupplierCommodityAudit;
+import so.sao.shop.supplier.pojo.input.CommodityAuditInput;
+import so.sao.shop.supplier.pojo.vo.CommodityAuditinputVo;
 
 import java.util.List;
 
@@ -60,5 +62,10 @@ public interface SupplierCommodityAuditDao {
      * @param
      */
     void updateSupplierCommodityAuditById(SupplierCommodityAudit supplierCommodityAudit);
+	/**
+     * 查询审核表所有数据
+     * @return 审核表数据
+     */
+    List<CommodityAuditinputVo> findCommodityAudit(CommodityAuditInput commodityAuditInput);
 
 }
