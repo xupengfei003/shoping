@@ -2,6 +2,7 @@ package so.sao.shop.supplier.dao.app;
 
 import org.apache.ibatis.annotations.Param;
 import so.sao.shop.supplier.pojo.output.*;
+import so.sao.shop.supplier.pojo.vo.CategoryVo;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -56,4 +57,12 @@ public interface CommAppDao {
      * @return 商品详情列表
      */
     List<CommAppOutput> findCommodities(@Param("supplierId")Long supplierId, @Param("commName") String commName, @Param("categoryOneId") Long categoryOneId, @Param("categoryTwoId") Long categoryTwoId, @Param("categoryThreeId") Long categoryThreeId, @Param("ids") Long[] brandIds);
+
+    /**
+     * 供应商主营分类
+     *
+     * @param supplierId 供应商
+     * @return   商品分类
+     */
+    List<CategoryVo> findMainCateGory(@Param("supplierId") Long supplierId);
 }

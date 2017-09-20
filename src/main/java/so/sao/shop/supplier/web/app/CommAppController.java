@@ -69,6 +69,10 @@ public class CommAppController {
                                  @RequestParam(required = false) Integer pageSize){
         return commAppService.getCommodities(supplierId,commName,categoryOneId,categoryTwoId,categoryThreeId,brandIds,pageNum,pageSize);
     }
-
+    @ApiOperation(value = "根据供应商ID查询主营商品" ,notes = "根据供应商ID查询主营商品")
+    @GetMapping(value = "/mainCategory")
+    public Result getMainCategory (@RequestParam Long supplierId){
+        return commAppService.getMainCateGory(supplierId);
+    }
 }
 
