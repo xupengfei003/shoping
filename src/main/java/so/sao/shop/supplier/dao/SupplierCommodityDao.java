@@ -120,13 +120,13 @@ public interface SupplierCommodityDao {
     boolean deleteById(@Param("id") long id, @Param("deleted") Boolean deleted, @Param("updatedAt")Date updatedBy);
 
     /**
-     * 上下架商品
+     * 上下架商品（仅限待上架商品的下架与管理员上下架操作）
      * @param supplierCommodity
      */
     void onOrOffShelves(SupplierCommodity supplierCommodity);
 
     /**
-     * 批量上下架商品
+     * 批量上下架商品（仅限待上架商品的批量下架与管理员批量上下架操作操作）
      * @param list
      */
     void onOrOffShelvesBatch(List<SupplierCommodity> list);

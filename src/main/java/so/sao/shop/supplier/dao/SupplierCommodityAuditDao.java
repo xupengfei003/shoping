@@ -27,21 +27,26 @@ public interface SupplierCommodityAuditDao {
     void saveBatch(List<SupplierCommodityAudit> list);
 
     /**
-     * 根据scId和audit_flag判断该供应商商品是否已处于待审核状态
+     * 根据scId和audit_result判断该供应商商品是否已处于待审核状态
      * @param scId 供应商商品ID
      */
-    int countByScidAndAuditFlag(Long scId);
+    int countByScidAndAuditResult(Long scId);
 
     /**
-     * 根据scId数组和audit_flag判断该供应商商品数组中是否已处于待审核状态
+     * 根据scId数组和audit_result判断该供应商商品数组中是否已处于待审核状态
      * @param scIds 供应商商品ID数组
      */
-    int countByScidArrayAndAuditFlag(@Param("ids") Long[] scIds);
+    int countByScidArrayAndAuditResult(@Param("ids") Long[] scIds);
 
     /**
      * 更新
      */
     void updateAuditFlagByScId(@Param("scId") Long scId, @Param("auditFlag") int auditFlag);
+	
+	/**
+     * 批量更新
+     */
+	void updateAuditFlagByList(@Param("list") List<SupplierCommodityAudit> list, @Param("auditFlag")int status);
 
     /** 通过id 查询审核记录表
      *
