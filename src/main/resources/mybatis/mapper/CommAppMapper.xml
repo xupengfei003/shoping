@@ -95,7 +95,7 @@
         sc.id AS id,
         sc.min_img AS minImg,
         sc.sku AS sku,
-        c.code69 AS code69,
+        sc.code69 AS code69,
         sc.code AS CODE,
         c.origin_place AS originPlace,
         cb.name AS brandName,
@@ -210,7 +210,7 @@
         ORDER BY updated_at DESC
     </select>
 
-    <!-- findAllBrands 获取商品的全部品牌  -->
+    <!-- findAllBrands 根据条件 获取所属类型下面的 商品的全部品牌  -->
     <select id="findAllBrands" parameterType="int"  resultType="so.sao.shop.supplier.pojo.output.CommBrandOutput">
         SELECT DISTINCT
         brand.id, brand.name

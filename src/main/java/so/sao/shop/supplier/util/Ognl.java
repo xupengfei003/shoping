@@ -93,7 +93,7 @@ public class Ognl {
 
 
     /**
-     * 判断参数是不是排序要求
+     *  SQL- 判断参数是不是排序要求
      * @param orderPrice
      * @return
      */
@@ -106,7 +106,7 @@ public class Ognl {
 
 
     /**
-     * 判断参数是不是排序要求
+     * SQL- 判断参数是不是排序要求
      * @param orderPrice
      * @return
      */
@@ -117,7 +117,7 @@ public class Ognl {
         return false;
     }
     /**
-     * 判断参数是不是排序要求
+     * SQL- 判断参数是不是排序要求
      * @param orderPrice
      * @return
      */
