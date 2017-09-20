@@ -1,6 +1,7 @@
 package so.sao.shop.supplier.service.impl;
 
 
+import org.apache.ibatis.annotations.Param;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +24,7 @@ import so.sao.shop.supplier.pojo.input.AccountInput;
 import so.sao.shop.supplier.pojo.input.AccountUpdateInput;
 import so.sao.shop.supplier.service.AccountService;
 import so.sao.shop.supplier.service.CommodityService;
+import so.sao.shop.supplier.service.FreightRulesService;
 import so.sao.shop.supplier.util.*;
 
 import java.math.BigDecimal;
@@ -98,6 +100,8 @@ public class AccountServiceImpl implements AccountService {
     @Autowired
     private CommodityService commodityService;
 
+    @Autowired
+    private FreightRulesDao freightRulesDao;
     /**
      * 初始化银行信息
      *
@@ -464,4 +468,37 @@ public class AccountServiceImpl implements AccountService {
         return Result.success("更新成功！");
     }
 
+    /**
+     * 根据AccountId查询供应商的物流运费规则
+     * @param accountId
+     * @return
+     */
+    @Override
+    public Integer findRulesById(Long accountId) {
+
+        return accountDao.findRulesById(accountId);
+    }
+    /**
+     * 根据商户ID修改当前默认运费规则
+     * @param account
+     * @param freightRules
+     */
+    public boolean updateRulesByFreightRules( Long account, Integer freightRules){
+        /**
+         * 1.获取所有配送规则记录
+         * 2.判断集合中是否匹配入参中的运费规则类型，匹配则修改并返回true,不匹配则返回false
+         */
+        List<FreightRules> list = freightRulesDao.queryAll(account,freightRules);
+        if (null == list || list.isEmpty()){
+            return false;
+        }else {
+            for (FreightRules freightRule:list) {
+                if (null == freightRule.getWhetherShipping()){
+                    return false;
+                }
+            }
+          accountDao.updateRulesByFreightRules(account,freightRules);
+          return true;
+        }
+    }
 }

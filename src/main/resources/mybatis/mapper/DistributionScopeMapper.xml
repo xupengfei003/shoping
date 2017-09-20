@@ -16,11 +16,11 @@
         update_at AS updateAt
     </sql>
     <!-- 增加配送范围 -->
-    <insert id="insert" parameterType="so.sao.shop.supplier.domain.DistributionScope">
-        INSERT INTO distribution_scope (id, supplier_id, address_province,
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="so.sao.shop.supplier.domain.DistributionScope">
+        INSERT INTO distribution_scope (supplier_id, address_province,
         address_city, address_district, remark,
         created_at, update_at)
-        VALUES (#{id,jdbcType=INTEGER}, #{supplierId,jdbcType=BIGINT}, #{addressProvince,jdbcType=VARCHAR},
+        VALUES (#{supplierId,jdbcType=BIGINT}, #{addressProvince,jdbcType=VARCHAR},
         #{addressCity,jdbcType=VARCHAR}, #{addressDistrict,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR},
         #{createdAt,jdbcType=TIMESTAMP}, #{updateAt,jdbcType=TIMESTAMP})
     </insert>

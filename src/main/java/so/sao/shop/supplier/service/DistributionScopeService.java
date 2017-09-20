@@ -37,14 +37,15 @@ public interface DistributionScopeService {
 
     /**
      * 更新某条配送范围信息
-     * @param distributionScope 配送范围实体
+     * @param id 配送范围ID
+     * @param distributionScopeInput 配送范围实体
      * @throws Exception Exception
      */
-    void update(DistributionScope distributionScope);
+    void update(Integer id,DistributionScopeInput distributionScopeInput);
     /**
      * 删除某条记录
      * @param id id
      * @throws Exception Exception
      */
-    void delete(Integer id) throws Exception;
+    boolean delete(Integer id,Long accountId) throws Exception;
 }
