@@ -263,6 +263,11 @@ public class Account {
 	 */
 	private int monthAgoType;
 
+	/**
+	 * 运费规则
+	 */
+	private int freightRules;
+
 	public int getMonthAgoType() {
 		return monthAgoType;
 	}
@@ -646,5 +651,13 @@ public class Account {
 
 	public void setContractStatus(int contractStatus) {
 		this.contractStatus = contractStatus;
+	}
+
+	public int getFreightRules() {
+		return freightRules;
+	}
+
+	public void setFreightRules(int freightRules) {
+		this.freightRules = freightRules;
 	}
 }

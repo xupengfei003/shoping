@@ -1,6 +1,7 @@
 package so.sao.shop.supplier.service;
 
 import com.github.pagehelper.PageInfo;
+import org.apache.ibatis.annotations.Param;
 import so.sao.shop.supplier.domain.Account;
 import so.sao.shop.supplier.domain.DictItem;
 import so.sao.shop.supplier.domain.User;
@@ -129,5 +130,19 @@ public interface AccountService {
      * @param accountUpdateInput
      */
     Result updateAccountStatus(AccountUpdateInput accountUpdateInput);
+
+    /**
+     * 根据AccountId查询供应商的物流运费规则
+     * @param accountId
+     * @return
+     */
+    Integer findRulesById (Long accountId);
+
+    /**
+     * 根据商户ID修改当前默认运费规则
+     * @param account
+     * @param freightRules
+     */
+    boolean updateRulesByFreightRules( Long account,Integer freightRules);
 
 }

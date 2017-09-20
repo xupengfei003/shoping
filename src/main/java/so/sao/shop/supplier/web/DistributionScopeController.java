@@ -22,7 +22,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/distributionscope")
-@Api(description = "配送范围-所有接口【负责人：郭兴业】")
+@Api(description = "配送范围-所有接口【负责人：郑振海】")
 public class DistributionScopeController {
     @Autowired
     DistributionScopeService distributionScopeService;
@@ -35,14 +35,14 @@ public class DistributionScopeController {
      * @throws Exception Exception
      */
     @PostMapping("/create")
-    @ApiOperation(value = "创建配送范围", notes = "创建配送范围")
+    @ApiOperation(value = "创建配送范围", notes = "创建配送范围 【负责人：郑振海】")
     public Result create(HttpServletRequest request, @RequestBody @Valid DistributionScopeInput distributionScopeInput) throws Exception {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //判断是否登陆
         if (Ognl.isNull(user)) {
             return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
-        //管理员给每个供应商添加消息通知
+        //增加配送范围
         distributionScopeService.createDistributionScope(user.getAccountId(), distributionScopeInput);
         return Result.success(Constant.MessageConfig.MSG_SUCCESS);
     }
@@ -56,14 +56,14 @@ public class DistributionScopeController {
      * @throws Exception Exception
      */
     @GetMapping("/queryAll")
-    @ApiOperation(value = "分页获取供应商配送范围列表", notes = "分页获取供应商配送范围列表")
+    @ApiOperation(value = "分页获取供应商配送范围列表", notes = "分页获取供应商配送范围列表 【负责人：郑振海】")
     public Result queryAll(HttpServletRequest request, Integer pageNum, Integer pageSize) throws Exception {
-        /*User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //判断是否登陆
         if (Ognl.isNull(user)) {
             return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
-        }*/
-        List<DistributionScope> dataList = distributionScopeService.queryAll(123456l, pageNum, pageSize);
+        }
+        List<DistributionScope> dataList = distributionScopeService.queryAll(user.getAccountId(), pageNum, pageSize);
         return Result.success(Constant.MessageConfig.MSG_SUCCESS, new PageInfo<>(dataList));
     }
 
@@ -82,15 +82,14 @@ public class DistributionScopeController {
 
     /**
      * 更新某条配送范围信息
-     * @param distributionScope 配送范围实体
+     * @param distributionScopeInput 配送范围实体
      * @return Result
      * @throws Exception Exception
-     * TODO 操作费用规则表
      */
     @PostMapping("/update/{id}")
     @ApiOperation(value = "更新某条配送范围信息", notes = "更新某条配送范围信息")
-    public Result update(@RequestBody DistributionScope distributionScope) throws Exception {
-        distributionScopeService.update(distributionScope);
+    public Result update(@PathVariable Integer id, @RequestBody @Valid DistributionScopeInput distributionScopeInput) throws Exception {
+        distributionScopeService.update(id,distributionScopeInput);
         return Result.success(Constant.MessageConfig.MSG_SUCCESS);
     }
 
@@ -99,12 +98,15 @@ public class DistributionScopeController {
      * @param id id
      * @return Result
      * @throws Exception Exception
-     * TODO 操作费用规则表
      */
     @PostMapping("/delete/{id}")
     @ApiOperation(value = "删除某条记录", notes = "删除某条记录")
-    public Result delete(@PathVariable Integer id) throws Exception {
-        distributionScopeService.delete(id);
-        return Result.success(Constant.MessageConfig.MSG_SUCCESS);
+    public Result delete(HttpServletRequest request,@PathVariable Integer id) throws Exception {
+       /* User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        //判断是否登陆
+        if (Ognl.isNull(user)) {
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
+        }*/
+        return distributionScopeService.delete(id,262L) == true ? Result.success(Constant.MessageConfig.MSG_SUCCESS) : Result.fail(Constant.MessageConfig.MSG_FAILURE);
     }
 }

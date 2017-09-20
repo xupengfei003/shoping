@@ -175,5 +175,19 @@ public interface AccountDao {
      * @param accountId
      */
     void updateAccountSmsTypeById(@Param("accountId")Long accountId);
+
+    /**
+     * 根据AccountId查询供应商的物流运费规则
+     * @param accountId
+     * @return
+     */
+    Integer findRulesById (@Param("accountId")Long accountId);
+
+    /**
+     * 根据商户ID修改当前默认运费规则
+     * @param account
+     * @param freightRules
+     */
+    void updateRulesByFreightRules(@Param("accountId") Long account, @Param("freightRules") Integer freightRules);
 }
 

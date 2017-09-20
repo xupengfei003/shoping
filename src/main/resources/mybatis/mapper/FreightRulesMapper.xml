@@ -4,7 +4,7 @@
 
     <resultMap id="BaseResultMap" type="so.sao.shop.supplier.domain.FreightRules">
         <id column="id" jdbcType="INTEGER" property="id" />
-
+        <result column="distribution_scope_id" javaType="Integer" property="distributionScopeId"></result>
         <result column="supplier_id" jdbcType="BIGINT" property="supplierId" />
         <result column="rules_type" jdbcType="INTEGER" property="rulesType" />
         <result column="address_province" jdbcType="VARCHAR" property="addressProvince" />
@@ -26,17 +26,94 @@
         created_at, update_at
     </sql>
     <insert id="insert" parameterType="so.sao.shop.supplier.domain.FreightRules">
-    insert into freight_rules (id, supplier_id, rules_type,
+    insert into freight_rules (supplier_id, rules_type,
       address_province, address_city, address_district,
       whether_shipping, send_amount, default_piece,
       excess_piece, default_amount, excess_amount,
-      remark, created_at, update_at
+      remark, created_at, update_at,distribution_scope_id
       )
-    values (#{id,jdbcType=INTEGER}, #{supplierId,jdbcType=BIGINT}, #{rulesType,jdbcType=INTEGER},
+    values (#{supplierId,jdbcType=BIGINT}, #{rulesType,jdbcType=INTEGER},
       #{addressProvince,jdbcType=VARCHAR}, #{addressCity,jdbcType=VARCHAR}, #{addressDistrict,jdbcType=VARCHAR},
       #{whetherShipping,jdbcType=INTEGER}, #{sendAmount,jdbcType=DECIMAL}, #{defaultPiece,jdbcType=INTEGER},
       #{excessPiece,jdbcType=INTEGER}, #{defaultAmount,jdbcType=DECIMAL}, #{excessAmount,jdbcType=DECIMAL},
-      #{remark,jdbcType=VARCHAR}, #{createdAt,jdbcType=TIMESTAMP}, #{updateAt,jdbcType=TIMESTAMP}
+      #{remark,jdbcType=VARCHAR}, #{createdAt,jdbcType=TIMESTAMP}, #{updateAt,jdbcType=TIMESTAMP},#{distributionScopeId,jdbcType=INTEGER}
       )
   </insert>
+    <update id="update" parameterType="so.sao.shop.supplier.domain.FreightRules">
+       update freight_rules
+        set
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(rulesType)">
+                rules_type = #{rulesType,jdbcType=INTEGER},
+            </if>
+            <!-- 修改配送范围-->
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(addressProvince)">
+                address_province = #{addressProvince,jdbcType=VARCHAR},
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(addressCity)">
+                address_city = #{addressCity,jdbcType=VARCHAR},
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(addressDistrict)">
+                address_district = #{addressDistrict,jdbcType=VARCHAR},
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(remark)">
+                remark = #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(updateAt)">
+                update_at = #{updateAt,jdbcType=TIMESTAMP},
+            </if>
+            <!--修改配送规则-->
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(defaultPiece)">
+                default_piece = #{defaultPiece,jdbcType=INTEGER},
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(defaultAmount)">
+                default_amount = #{defaultAmount,jdbcType=DECIMAL},
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(excessPiece)">
+                excess_piece = #{excessPiece,jdbcType=INTEGER},
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(excessAmount)">
+                excess_amount = #{excessAmount,jdbcType=DECIMAL},
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(sendAmount)">
+                send_amount = #{sendAmount,jdbcType=DECIMAL},
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(whetherShipping)">
+                whether_shipping = #{whetherShipping,jdbcType=INTEGER}
+            </if>
+        <where>
+            <choose>
+                <when test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(distributionScopeId)">
+                    distribution_scope_id = #{distributionScopeId,jdbcType=INTEGER}
+                </when>
+                <otherwise>
+                    id = #{id,jdbcType=INTEGER}
+                </otherwise>
+            </choose>
+        </where>
+
+    </update>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        delete from freight_rules
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+    <delete id="deleteByDistributionScopeId" parameterType="java.lang.Integer">
+        delete from freight_rules
+        where distribution_scope_id = #{distributionScopeId,jdbcType=INTEGER}
+    </delete>
+    <select id="queryAll" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM freight_rules
+        WHERE supplier_id = #{accountId,jdbcType=BIGINT}
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(rulesType)">
+            AND rules_type = #{rulesType,jdbcType=INTEGER}
+        </if>
+        ORDER BY created_at DESC
+    </select>
+    <select id="query" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM freight_rules
+        WHERE id = #{id,jdbcType=INTEGER}
+    </select>
 </mapper>
