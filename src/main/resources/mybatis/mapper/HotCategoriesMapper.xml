@@ -1,4 +1,42 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="so.sao.shop.supplier.dao.external.HotCategoriesDao" >
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="so.sao.shop.supplier.dao.external.HotCategoriesDao">
+  <resultMap id="BaseResultMap" type="so.sao.shop.supplier.domain.external.HotCategories">
+      <id column="ID" property="id"/>
+      <result column="MIN_IMG" property="minImg"/>
+      <result column="URL" property="url"/>
+      <result column="CATEGORY_ONE_ID" property="categoryOneId"/>
+      <result column="CATEGORY_ONE_NAME" property="categoryOneName"/>
+      <result column="CATEGORY_TWO_ID" property="categoryTwoId"/>
+      <result column="CATEGORY_TWO_NAME" property="categoryTwoName"/>
+      <result column="CATEGORY_THREE_ID" property="categoryThreeId"/>
+      <result column="CATEGORY_THREE_NAME" property="categoryThreeName"/>
+      <result column="SORT" property="sort"/>
+      <result column="OPERATOR" property="operator"/>
+      <result column="CREATE_AT" property="createAt"/>
+      <result column="UPDATE_AT" property="updateAt"/>
+  </resultMap>
+    <!--查询所有热门分类，按sort字段排序-->
+    <select id="find" resultMap="BaseResultMap">
+       SELECT
+       ID,MIN_IMG,URL,CATEGORY_ONE_ID,CATEGORY_ONE_NAME,CATEGORY_TWO_ID,CATEGORY_TWO_NAME,CATEGORY_THREE_ID,CATEGORY_THREE_NAME,SORT,OPERATOR,CREATE_AT,UPDATE_AT
+       FROM hot_category
+       ORDER BY SORT
+    </select>
+
+    <!--删除hot_category数据表-->
+    <update id="deleteHotCategoriesData">
+        TRUNCATE hot_category
+    </update>
+
+    <!--批量插入热门分类信息-->
+    <insert id="saveBatch" useGeneratedKeys="true" keyProperty="id">
+       INSERT INTO
+       hot_category(min_img,url,category_one_id,category_one_name,category_two_id,category_two_name,category_three_id,category_three_name,sort,operator,create_at,update_at)
+       VALUES
+        <foreach item="hotCategory" index="index" collection="hotCategories"  separator="," >
+            ( #{hotCategory.minImg},#{hotCategory.url},#{hotCategory.categoryOneId},#{hotCategory.categoryOneName},#{hotCategory.categoryTwoId},#{hotCategory.categoryTwoName},
+            #{hotCategory.categoryThreeId},#{hotCategory.categoryThreeName},#{hotCategory.sort},#{hotCategory.operator},#{hotCategory.createAt},#{hotCategory.updateAt})
+        </foreach>
+    </insert>
 </mapper>

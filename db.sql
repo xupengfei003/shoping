@@ -115,6 +115,7 @@ ENGINE=InnoDB
 CREATE TABLE `hot_category` (
   `id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
   `min_img` VARCHAR(500) NULL DEFAULT NULL COMMENT '缩略图URL',
+  `url` VARCHAR(500) NULL DEFAULT NULL COMMENT '原图URL',
   `category_one_id` BIGINT(20) NULL DEFAULT NULL COMMENT '一级分类id',
   `category_one_name` VARCHAR(20) NULL DEFAULT NULL COMMENT '一级分类名称',
   `category_two_id` BIGINT(20) NULL DEFAULT NULL COMMENT '二级分类id',
@@ -148,6 +149,7 @@ CREATE TABLE `hot_commodity` (
   `rule_val` VARCHAR(256) NULL DEFAULT NULL COMMENT '规格值',
   `inventory` DECIMAL(11,2) NULL DEFAULT NULL COMMENT '库存',
   `sales_volume` INT(11) NULL DEFAULT NULL COMMENT '销量',
+  `price` DECIMAL(11,2) NULL DEFAULT NULL COMMENT '市场价',
   `status` INT(2) NULL DEFAULT NULL COMMENT '商品状态',
   `sort` INT(2) NULL DEFAULT NULL COMMENT '排序',
   `operator` VARCHAR(50) NULL DEFAULT NULL COMMENT '操作人（登录的账号名）',
