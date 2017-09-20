@@ -1,4 +1,22 @@
 package so.sao.shop.supplier.dao.external;
 
-public class KeyWordDao {
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+import so.sao.shop.supplier.domain.external.KeyWord;
+
+import java.util.List;
+
+@Mapper
+public interface KeyWordDao {
+
+    void save( List<KeyWord> keyWords);
+
+    void update(@Param("id") Long id, @Param("keyWordValue") String keyWordValue);
+
+    List<KeyWord> findAll();
+
+    void delete();
+
+    int countByKeyWordValue(@Param("keyWordValue") String keyWordValue);
+
 }

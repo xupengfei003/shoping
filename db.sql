@@ -1,6 +1,8 @@
 ALTER TABLE `ty_supplier`.`account`   
   ADD COLUMN `contract_name` VARCHAR(255) NULL   COMMENT '合同文件名' AFTER `service_phone`		/* 复制栏位名称 */;
 
+/*key_word表增加sort字段*/
+ALTER TABLE key_word ADD sort int(2) COMMENT '排序' AFTER operator;
 /*增加商品是否失效字段*/
 ALTER TABLE supplier_commodity ADD invalid_status int(2) DEFAULT 1 COMMENT '商品是否失效：0 失效 ，1正常' AFTER status;
 /*增加订单详情表-code69字段*/
