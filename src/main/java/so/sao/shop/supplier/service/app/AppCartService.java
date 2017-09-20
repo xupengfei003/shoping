@@ -1,5 +1,8 @@
 package so.sao.shop.supplier.service.app;
 
+import so.sao.shop.supplier.pojo.input.AppCartItemInput;
+
+import java.util.List;
 import java.util.Map;
 
 
@@ -26,6 +29,13 @@ public interface AppCartService {
      */
     Map<String,Object> updateCartItem(Long cartitemId, Integer number, Long userId) throws Exception;
 
+    /**
+     * 批量修改修改购物车内商品的数量
+     * @param inputList
+     * @return
+     * @throws Exception
+     */
+    Map<String,Object> updateCartItemBatch(List<AppCartItemInput> inputList) throws Exception;
 
     /**
      * 添加商品到购物车

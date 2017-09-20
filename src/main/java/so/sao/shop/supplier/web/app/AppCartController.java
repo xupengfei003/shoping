@@ -8,11 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.pojo.Result;
+import so.sao.shop.supplier.pojo.input.AppCartItemInput;
 import so.sao.shop.supplier.pojo.output.AppCartItemOut;
 import so.sao.shop.supplier.service.app.AppCartService;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -54,20 +56,31 @@ public class AppCartController {
     /**
      * 更新购物车商品数量
      *
-     * @param cartitemId
-     * @param number
-     * @param userId
+     * @param input
      * @return
      * @throws Exception
      */
     @ApiOperation(value = "更新购物车商品数量", notes = "更新购物车商品数量")
-    @PostMapping(value = "/cartitem/u/{cartitemId}")
-    public Result updateCartItem(@PathVariable("cartitemId") Long cartitemId,
-                                 @NotNull(message = "更新数量不能为空")
-                                 @Pattern(regexp = "^[1-9][0-9]*$", message = "更新数量有误") Integer number,
-                                 @NotNull(message = "用户ID不能为空") Long userId) throws Exception {
+    @PostMapping(value = "/cartitem/u")
+    public Result updateCartItem(AppCartItemInput input) throws Exception {
         // 更新数据
-        Map<String, Object> map = cartService.updateCartItem(cartitemId, number, userId);
+        Map<String, Object> map = cartService.updateCartItem(input.getCartitemId(), input.getNumber(), input.getUserId());
+        // 获取提示信息
+        String msg = (String) map.get("msg");
+        // 获取信息码
+        String code = (String) map.get("code");
+        if ("0".equals(code)) {
+            return Result.fail(msg);
+        } else {
+            return Result.success(msg);
+        }
+    }
+
+    @ApiOperation(value = "批量更新购物车商品数量", notes = "批量更新购物车商品数量")
+    @PostMapping(value = "/cartitem/uBatch")
+    public Result updateCartItemBatch(@RequestBody List<AppCartItemInput> inputList) throws Exception {
+        // 更新数据
+        Map<String, Object> map = cartService.updateCartItemBatch(inputList);
         // 获取提示信息
         String msg = (String) map.get("msg");
         // 获取信息码

@@ -2,6 +2,7 @@ package so.sao.shop.supplier.dao.app;
 
 import org.apache.ibatis.annotations.Param;
 import so.sao.shop.supplier.domain.AppCartItem;
+import so.sao.shop.supplier.pojo.input.AppCartItemInput;
 
 import java.util.List;
 
@@ -26,12 +27,28 @@ public interface AppCartItemDao {
     AppCartItem selectByIdAndUserId(@Param("cartitemId") Long cartitemId, @Param("userId") Long userId) throws Exception;
 
     /**
+     * 根据购物车记录ID和userId批量查询购物车记录中的商品Id
+     * @param inputList
+     * @return
+     * @throws Exception
+     */
+    List<AppCartItem> findByIdAndUserIdBatch (List<AppCartItemInput> inputList) throws Exception;
+
+    /**
      * 根据购物车记录ID更新购物车商品数量
      *
      * @param appCartItem
      * @throws Exception
      */
     int updateById(AppCartItem appCartItem) throws Exception;
+
+    /**
+     * 根据购物车Id批量更新购物车商品数量
+     * @param updateList
+     * @return
+     * @throws Exception
+     */
+    int updateByIdBatch (List<AppCartItem> updateList) throws Exception;
 
     /**
      * 根据商品ID和用户ID查询购物车记录中的购物车记录ID
