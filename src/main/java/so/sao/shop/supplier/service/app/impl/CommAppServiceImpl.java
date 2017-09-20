@@ -7,6 +7,7 @@ import so.sao.shop.supplier.dao.AccountDao;
 import so.sao.shop.supplier.dao.app.CommAppDao;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.output.*;
+import so.sao.shop.supplier.pojo.vo.CategoryVo;
 import so.sao.shop.supplier.service.app.CommAppService;
 import so.sao.shop.supplier.util.DataCompare;
 import so.sao.shop.supplier.util.PageTool;
@@ -125,5 +126,16 @@ public class CommAppServiceImpl implements CommAppService {
         List<CommAppOutput> commList  = commAppDao.findCommodities(supplierId,commName, categoryOneId, categoryTwoId, categoryThreeId, brandIds);
         PageInfo<CommAppOutput> pageInfo = new PageInfo<CommAppOutput>(commList);
         return Result.success("查询成功",pageInfo);
+    }
+
+    /**
+     *
+     * @param supplierId 供应商ID
+     * @return
+     */
+    @Override
+    public Result getMainCateGory(Long supplierId) {
+        List<CategoryVo> categoryOutputs=commAppDao.findMainCateGory(supplierId);
+        return Result.success("查询成功",categoryOutputs);
     }
 }

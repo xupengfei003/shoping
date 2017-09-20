@@ -67,4 +67,12 @@ public interface CommAppService {
   * @return
   */
  Result getCommodities(Long supplierId, String commName, Long categoryOneId, Long categoryTwoId, Long categoryThreeId, Long[] brandIds, Integer pageNum, Integer pageSize);
+
+ /**
+ * 查询供应商主营分类
+  *
+  * @param supplierId 供应商ID
+ */
+ Result getMainCateGory(Long supplierId);
+
 }

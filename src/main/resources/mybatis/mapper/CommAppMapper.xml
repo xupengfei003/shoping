@@ -176,4 +176,27 @@
         AND sc.status =2
         AND sc.code69 = #{code69}
     </select>
+
+    <!-- 根据供应商ID查询主营分类-->
+    <select id="findMainCateGory" resultType="so.sao.shop.supplier.pojo.vo.CategoryVo">
+        SELECT DISTINCT
+          cate.id as id ,
+          cate.name as name
+        FROM
+         supplier_commodity sc,
+         (
+          SELECT
+           cc.id id,
+           cc. NAME NAME,
+           c.code69 code69
+          FROM
+           comm_category cc
+          LEFT JOIN commodity c ON c.category_three_id = cc.id
+          WHERE
+           cc. LEVEL = 3
+         ) cate
+        WHERE
+         sc.code69 = cate.code69
+        AND sc.supplier_id = #{supplierId}
+    </select>
 </mapper>
