@@ -73,6 +73,15 @@ public class CommodityServiceImpl implements CommodityService {
     @Autowired
     private CountSoldCommService countSoldCommService;
 
+    @Autowired
+    private SupplierCommodityTmpDao supplierCommodityTmpDao;
+
+    @Autowired
+    private SupplierCommodityAuditDao supplierCommodityAuditDao;
+
+    @Autowired
+    private CommImgeTmpDao commImgeTmpDao;
+
     @Value("${excel.tempaltepath}")
     private String urlFile;
 
@@ -87,6 +96,9 @@ public class CommodityServiceImpl implements CommodityService {
     public Result saveCommodity(@Valid CommodityInput commodityInput,Long supplierId){
         //获取当前供应商
         Account account = accountDao.selectByPrimaryKey(supplierId);
+        if(null == account){
+            return Result.fail("供应商不存在！");
+        }
         //验证请求体
         Result result = validateCommodityInput(commodityInput);
         if(result.getCode() == 0) return result;
@@ -267,51 +279,98 @@ public class CommodityServiceImpl implements CommodityService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Result updateCommodity(CommodityUpdateInput commodityUpdateInput, Long supplierId){
-        if(null != commodityUpdateInput.getTagId()){
-            //验证商品标签是否存在
-            int commTagNum = commTagDao.countById(commodityUpdateInput.getTagId());
-            if(commTagNum == 0){
-                return Result.fail("商品标签不存在！");
-            }
-        }
+    public Result updateCommodity(CommodityUpdateInput commodityUpdateInput, Long supplierId, boolean isAdmin){
         for (SupplierCommodityUpdateVo commodityVo : commodityUpdateInput.getCommodityList()) {
+            long id =  commodityVo.getId();
             //验证商品是否存在
-            int supplierCommodityNum = supplierCommodityDao.countById(commodityVo.getId());
+            int supplierCommodityNum = supplierCommodityDao.countById(id);
             if (supplierCommodityNum == 0) {
                 return Result.fail("商品不存在！");
             }
-            //验证包装单位是否存在
-            int commUnitNum = commUnitDao.countById(commodityVo.getUnitId());
-            if (commUnitNum == 0) {
-                return Result.fail("包装单位不存在！");
+            //验证商品是否在审核状态
+            int pendingNum = supplierCommodityAuditDao.countByScidAndAuditFlag(id);
+            if(pendingNum > 0){
+                return Result.fail("待审核状态下的商品,禁止操作！");
             }
-            //验证计量规格是否存在
-            int commMeasureSpecNum = commMeasureSpecDao.countById(commodityVo.getMeasureSpecId());
-            if (commMeasureSpecNum == 0) {
-                return Result.fail("计量规格不存在！");
+            //商品状态
+            int status = supplierCommodityDao.findStatus(id);
+            //如果商品状态是待上架或下架，或者上架状态并且是管理员操作，可以直接修改
+            if(status == CommConstant.COMM_ST_NEW || status == CommConstant.COMM_ST_OFF_SHELVES || (status == CommConstant.COMM_ST_ON_SHELVES && isAdmin)){
+                if(null != commodityUpdateInput.getTagId()){
+                    //验证商品标签是否存在
+                    int commTagNum = commTagDao.countById(commodityUpdateInput.getTagId());
+                    if(commTagNum == 0){
+                        return Result.fail("商品标签不存在！");
+                    }
+                }
+                //验证包装单位是否存在
+                int commUnitNum = commUnitDao.countById(commodityVo.getUnitId());
+                if (commUnitNum == 0) {
+                    return Result.fail("包装单位不存在！");
+                }
+                //验证计量规格是否存在
+                int commMeasureSpecNum = commMeasureSpecDao.countById(commodityVo.getMeasureSpecId());
+                if (commMeasureSpecNum == 0) {
+                    return Result.fail("计量规格不存在！");
+                }
+                //修改商品规格
+                SupplierCommodity sc = BeanMapper.map(commodityVo, SupplierCommodity.class);
+                sc.setRemark(commodityUpdateInput.getRemark());
+                sc.setTagId(commodityUpdateInput.getTagId());
+                sc.setUpdatedBy(supplierId);
+                sc.setUpdatedAt(new Date());
+                sc.setId(commodityVo.getId());
+                supplierCommodityDao.update(sc);
+                //清空原有大图数据信息
+                List<Long> ids = commImgeDao.findIdsByScId(sc.getId());
+                if (ids != null && ids.size() > 0) {
+                    commImgeDao.deleteByIds(ids);
+                }
+                //保存图片
+                List<CommImge> commImges = new ArrayList<>();
+                commodityVo.getImgeList().forEach(imgeVo->{
+                    CommImge imge = BeanMapper.map(imgeVo, CommImge.class);
+                    imge.setScId(sc.getId());
+                    commImges.add(imge);
+                });
+                commImgeDao.batchSave(commImges);
+            }else{
+                supplierCommodityAuditDao.updateAuditFlagByScId(commodityVo.getId(), CommConstant.AUDIT_RECORD);
+                //添加审核表数据
+                SupplierCommodityAudit sca = new SupplierCommodityAudit();
+                sca.setScId(commodityVo.getId());
+                sca.setSupplierId(supplierId);
+                sca.setCreatedAt(new Date());
+                sca.setUpdatedAt(new Date());
+                sca.setStatus(CommConstant.COMM_EDIT_AUDIT);
+                sca.setAuditResult(CommConstant.UN_AUDIT);
+                sca.setAuditFlag(CommConstant.CURRENT_AUDIT);
+                supplierCommodityAuditDao.save(sca);
+                //修改后数据保存
+                SupplierCommodityTmp sct = BeanMapper.map(commodityVo, SupplierCommodityTmp.class);
+                SupplierCommodity sc = supplierCommodityDao.findOne(commodityVo.getId());
+                sct.setCode69(sc.getCode69());
+                sct.setSku(sc.getSku());
+                sct.setRemark(commodityUpdateInput.getRemark());
+                sct.setTagId(commodityUpdateInput.getTagId());
+                sct.setCreatedAt(new Date());
+                sct.setUpdatedAt(new Date());
+                sct.setUpdatedBy(supplierId);
+                sct.setCreatedBy(supplierId);
+                sct.setId(commodityVo.getId());
+                sct.setScaId(sca.getId());
+                sct.setSupplierId(supplierId);
+                supplierCommodityTmpDao.save(sct);
+                //修改后图片数据保存
+                List<CommImgeTmp> commImgeTmps = new ArrayList<>();
+                commodityVo.getImgeList().forEach(imgeVo->{
+                    CommImgeTmp imge = BeanMapper.map(imgeVo, CommImgeTmp.class);
+                    imge.setScaId(sca.getId());
+                    commImgeTmps.add(imge);
+                });
+                commImgeTmpDao.batchSave(commImgeTmps);
+                return Result.success("已上架商品编辑提交时，需要管理员审核，审核通过后会自动上架，稍后注意查询商品列表审核结果。");
             }
-            //修改商品规格
-            SupplierCommodity sc = BeanMapper.map(commodityVo, SupplierCommodity.class);
-            sc.setRemark(commodityUpdateInput.getRemark());
-            sc.setTagId(commodityUpdateInput.getTagId());
-            sc.setUpdatedBy(supplierId);
-            sc.setUpdatedAt(new Date());
-            sc.setId(commodityVo.getId());
-            supplierCommodityDao.update(sc);
-            //清空原有大图数据信息
-            List<Long> ids = commImgeDao.findIdsByScId(sc.getId());
-            if (ids != null && ids.size() > 0) {
-                commImgeDao.deleteByIds(ids);
-            }
-            //保存图片
-            List<CommImge> commImges = new ArrayList<>();
-            commodityVo.getImgeList().forEach(imgeVo->{
-                CommImge imge = BeanMapper.map(imgeVo, CommImge.class);
-                imge.setScId(sc.getId());
-                commImges.add(imge);
-            });
-            commImgeDao.batchSave(commImges);
         }
         return Result.success("更新商品信息成功");
     }

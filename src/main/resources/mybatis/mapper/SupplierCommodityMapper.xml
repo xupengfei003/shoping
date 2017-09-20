@@ -68,7 +68,8 @@
             description,
             remark,
             tag_id,
-            sku
+            sku,
+            min_order_quantity
         )VALUES (
             #{supplierId},
             #{code},
@@ -89,7 +90,8 @@
             #{description},
             #{remark},
             #{tagId},
-            #{sku}
+            #{sku},
+            #{minOrderQuantity}
         )
     </insert>
 
@@ -205,7 +207,8 @@
         created_at AS createdAt,
         updated_at AS updatedAt,
         supplier_id AS supplierId,
-        status
+        status,
+        sku
         FROM supplier_commodity WHERE id = #{id}
     </select>
 
