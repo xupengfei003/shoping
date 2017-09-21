@@ -14,6 +14,7 @@ import so.sao.shop.supplier.service.PurchaseService;
 import so.sao.shop.supplier.util.MD5Util;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -74,6 +75,17 @@ public class PayServiceImpl implements PayService {
             sendNotice(payInput);
         }
         return flag;
+    }
+
+    /**
+     * 根据支付ID获取支付总金额
+     *
+     * @param payId 合并支付ID
+     * @return
+     */
+    @Override
+    public BigDecimal getPayOrderTotalPriceByPayId(String payId) {
+        return payDao.findPayOrderTotalPrice(payId);
     }
 
     //判断支付平台传来的串是否合法

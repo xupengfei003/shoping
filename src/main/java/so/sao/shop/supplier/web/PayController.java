@@ -2,6 +2,7 @@ package so.sao.shop.supplier.web;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.pojo.Result;
@@ -11,6 +12,7 @@ import so.sao.shop.supplier.service.PurchaseService;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -69,6 +71,21 @@ public class PayController {
         return Result.success(Constant.MessageConfig.MSG_FAILURE);
     }
 
+    /**
+     * 根据支付ID获取支付总金额
+     *
+     * @param orderId 合并支付ID
+     * @return Result 封装了结果
+     */
+    @GetMapping(value = "/getPayOrderTotalPrice/{orderId}")
+    @ApiOperation(value = "获取支付总金额",notes = "")
+    public Result getPayOrderTotalPriceByPayId(@PathVariable String orderId){
+        BigDecimal totalPrice = payService.getPayOrderTotalPriceByPayId(orderId);
+        if (null != totalPrice) {
+            return Result.success(Constant.MessageConfig.MSG_SUCCESS,totalPrice);
+        }
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS,0);
+    }
     //验证订单状态
     private boolean verifyOrderStatus(String orderId,Integer orderStatus) {
         Integer getOrderStatus = purchaseService.findOrderStatus(orderId);
