@@ -99,4 +99,12 @@ public interface CommAppDao {
      */
     List<Map> findGoodsByName(@Param("goodsName") String goodsName);
 
+    /**
+     * 查询商品
+     * @param id 商品ID
+     * @return  商品信息对象
+     */
+    CommodityOutput findDetail(@Param("id")long id);
+
+
 }

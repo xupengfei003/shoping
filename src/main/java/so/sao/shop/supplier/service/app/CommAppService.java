@@ -109,4 +109,11 @@ public interface CommAppService {
   * @return
   */
  Result getGoods(String goodsName);
+
+ /**
+  * 根据供应商商品ID获取商品详细信息
+  * @param id
+  * @return
+  */
+ Result getCommodity(Long id);
 }
