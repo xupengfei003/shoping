@@ -160,14 +160,15 @@ public class CommodityOutput {
      */
     private int invalidStatus;
 
+
+    /**
+     *  最小起订量
+     */
+    private int minOrderQuantity;
     /**
      * 图片集合
      */
     private List<CommImgeVo> imgeList;
-    /**
-     * 起订量
-     */
-    private int minOrderQuantity;
 
     public Long getId() {
         return id;

@@ -384,30 +384,37 @@ public class CommodityServiceImpl implements CommodityService {
      * @return
      */
     @Override
-    public Result getCommodity(Long id)  {
-        //根据供应商商品ID获取商品信息
-        CommodityOutput commodityOutput = supplierCommodityDao.findDetail(id);
-        if(null != commodityOutput){
-            //根据供应商商品ID获取图片列表信息
-            List<CommImge> commImgeList = commImgeDao.find(id);
-            List<CommImgeVo> commImgeVoList = new ArrayList<>();
-            commImgeList.forEach(commImge->{
-                CommImgeVo commImgeVo = BeanMapper.map(commImge, CommImgeVo.class);
-                commImgeVoList.add(commImgeVo);
-            });
-            //获取销量
-            List<String> countSold= null;
-            try {
-                countSold = countSoldCommService.countSoldCommNum(new String[]{commodityOutput.getId().toString()});
-            } catch (Exception e) {
-                e.printStackTrace();
+    public Result getCommodity(Long id) {
+        //根据商品的id查询出商品的状态
+        int status = supplierCommodityDao.findSupplierCommStatus(id);
+        //存放查询到的商品详细信息
+        CommodityOutput commodityOutput = null;
+        //如果是商品的状态是否是 6 (编辑待审核),则根据供应商商品ID获取编辑后的商品信息
+        if (status == CommConstant.COMM_EDIT_AUDIT){
+            commodityOutput = supplierCommodityDao.findDetailTmp(id);
+            if (null != commodityOutput){
+                //根据供应商商品ID获取图片列表信息
+                List<CommImge> commImgeList = commImgeDao.findTmp(id);
+                List<CommImgeVo> commImgeVoList = new ArrayList<>();
+                commImgeList.forEach(commImge->{
+                    CommImgeVo commImgeVo = BeanMapper.map(commImge, CommImgeVo.class);
+                    commImgeVoList.add(commImgeVo);
+                });
+                commodityOutput.setImgeList(commImgeVoList);
             }
-            //获取账户account对象
-            Account account=accountDao.selectById(commodityOutput.getSupplierId());
-            commodityOutput.setProviderName(account.getProviderName());  //将获取供应商名称放入出参
-            commodityOutput.setContractCity(account.getContractRegisterAddressCity());  //将获取供应商合同所在市放入出参
-            commodityOutput.setSalesNumber(Integer.valueOf(countSold.get(0)));     //将获取销量放入出参
-            commodityOutput.setImgeList(commImgeVoList);  //将获取图片信息放入出参
+        } else {
+            //状态是不是 6 (编辑待审核) 则根据供应商商品ID获取商品信息
+            commodityOutput = supplierCommodityDao.findDetail(id);
+            if(null != commodityOutput){
+                //根据供应商商品ID获取图片列表信息
+                List<CommImge> commImgeList = commImgeDao.find(id);
+                List<CommImgeVo> commImgeVoList = new ArrayList<>();
+                commImgeList.forEach(commImge->{
+                    CommImgeVo commImgeVo = BeanMapper.map(commImge, CommImgeVo.class);
+                    commImgeVoList.add(commImgeVo);
+                });
+                commodityOutput.setImgeList(commImgeVoList);
+            }
         }
         return Result.success("查询成功", commodityOutput);
     }
@@ -436,7 +443,7 @@ public class CommodityServiceImpl implements CommodityService {
         PageTool.startPage(commSimpleSearchInput.getPageNum(), commSimpleSearchInput.getPageSize());
         List<SuppCommSearchVo> respList = supplierCommodityDao.findSimple(commSimpleSearchInput.getSupplierId(), commSimpleSearchInput.getInputvalue(), beginCreateAt, endCreateAt);
         respList.forEach(suppCommSearchVo->{
-            int statusNum = Integer.parseInt(suppCommSearchVo.getStatus());
+            int statusNum = DataCompare.formatInteger(suppCommSearchVo.getStatus());
             suppCommSearchVo.setStatusNum(statusNum);
             suppCommSearchVo.setStatus(CommConstant.getStatus(statusNum));
             //转换金额为千分位
@@ -1502,7 +1509,7 @@ public class CommodityServiceImpl implements CommodityService {
      * @param commodity
      * @return
      */
-    public CommodityAuditinputOutput getAuditObject(CommodityAuditinputOutput commodityAuditinputOutput,CommodityOutput commodity){
+    public CommodityAuditinputOutput getAuditObject(CommodityAuditinputOutput commodityAuditinputOutput, CommodityOutput commodity){
         commodityAuditinputOutput.setName(commodity.getName());
         commodityAuditinputOutput.setCode(commodity.getCode());
         commodityAuditinputOutput.setCode69(commodity.getCode69());

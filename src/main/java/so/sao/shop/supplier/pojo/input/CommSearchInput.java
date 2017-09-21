@@ -66,6 +66,11 @@ public class CommSearchInput {
     private Date endCreateAt;
 
     /**
+     * auditResult 审核结果：0代表未通过，1代表通过
+     */
+    private Integer auditResult;
+
+    /**
      * 页数
      */
     private Integer pageNum;
@@ -161,6 +166,14 @@ public class CommSearchInput {
 
     public void setEndCreateAt(Date endCreateAt) {
         this.endCreateAt = endCreateAt;
+    }
+
+    public Integer getAuditResult() {
+        return auditResult;
+    }
+
+    public void setAuditResult(Integer auditResult) {
+        this.auditResult = auditResult;
     }
 
     public Integer getPageNum() {
