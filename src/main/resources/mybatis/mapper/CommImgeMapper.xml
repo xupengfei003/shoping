@@ -10,11 +10,25 @@
         size,
         thumbnail_url AS thumbnailUrl
     </sql>
-
+    <!--查询商品的图片信息-->
     <select id="find" resultType="so.sao.shop.supplier.domain.CommImge">
         SELECT
         <include refid="baseColumns"/>
         FROM comm_imge WHERE sc_id = #{scId}
+    </select>
+
+    <!--查询编辑后商品的图片信息-->
+    <select id="findTmp" resultType="so.sao.shop.supplier.domain.CommImge">
+        SELECT
+        id,
+        sca_id AS scaId,
+        name,
+        url,
+        type,
+        size,
+        thumbnail_url AS thumbnailUrl
+        FROM comm_imge_tmp
+        WHERE sca_id = #{scaId}
     </select>
 
     <!--根据scId查询图片id集合-->

@@ -62,6 +62,13 @@ public interface SupplierCommodityDao {
     CommodityOutput findDetail(@Param("id")long id);
 
     /**
+     * 查询编辑后的商品详情
+     * @param id
+     * @return
+     */
+    CommodityOutput findDetailTmp(@Param("id")long id);
+
+    /**
      * 根据商品ID查询购物车所需字段
      * @param id
      * @return
@@ -111,6 +118,14 @@ public interface SupplierCommodityDao {
      * @return 商品状态
      */
     int findStatus(@Param("id")long id);
+
+    /**
+     * 根据供应商商品ID查询商品状态
+     * @param id 商品id
+     * @return 商品状态
+     */
+    int findSupplierCommStatus(@Param("id")long id);
+
 
     /**
      * 删除商品
