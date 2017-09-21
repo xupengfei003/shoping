@@ -30,9 +30,9 @@ public class KeyWordController {
     }
     @ApiOperation(value="编辑关键字名称", notes="编辑关键字名称")
     @PutMapping(value="/update")
-    public Result update(@RequestParam Long id, @RequestParam String keyWordValue) {
+    public Result update(@RequestBody KeyWord keyWord) {
 
-        return keyWordService.updateKeyWord(id,keyWordValue);
+        return keyWordService.updateKeyWord(keyWord);
     }
     @ApiOperation(value="查询所有关键字", notes="查询所有关键字")
     @GetMapping(value="/searchAll")
