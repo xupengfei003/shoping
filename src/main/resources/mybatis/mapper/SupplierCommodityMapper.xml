@@ -459,7 +459,7 @@
 	<!-- 轮播图查询商品信息 -->
     <select id="findCommByNameAndCategory" resultType="so.sao.shop.supplier.pojo.output.CommodityBannerOut">
     	SELECT 
-		  sc.sku AS commodityId,
+		  sc.id AS commodityId,
 		  a.provider_name AS providerName,
 		  sc.min_img AS minImg,
 		  sc.code69 AS code69,
