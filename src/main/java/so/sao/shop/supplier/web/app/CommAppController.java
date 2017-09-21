@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import so.sao.shop.supplier.pojo.Result;
+import so.sao.shop.supplier.pojo.input.CommAppInput;
 import so.sao.shop.supplier.pojo.input.CommodityAppInput;
 import so.sao.shop.supplier.pojo.output.CommAppOutput;
 import so.sao.shop.supplier.service.app.CommAppService;
@@ -66,11 +67,8 @@ public class CommAppController {
 
     @ApiOperation(value="根据code69/供应商ID/商品名称/分类/品牌id查询商品详情", notes="根据供应商ID/商品名称/分类/品牌id查询商品详情")
     @GetMapping(value="/getCommodities")
-    public Result getCommodities(@RequestParam(required = false) String code69,@RequestParam(required = false) Long supplierId,@RequestParam(required = false) String commName,@RequestParam(required = false) Long categoryOneId,
-                                 @RequestParam(required = false) Long categoryTwoId,@RequestParam(required = false) Long categoryThreeId,
-                                 @RequestParam(required = false) Long[] brandIds, @RequestParam(required = false) Integer pageNum,
-                                 @RequestParam(required = false) Integer pageSize){
-        return commAppService.getCommodities(code69,supplierId,commName,categoryOneId,categoryTwoId,categoryThreeId,brandIds,pageNum,pageSize);
+    public Result getCommodities(CommAppInput commAppInput){
+        return commAppService.getCommodities(commAppInput);
     }
     @ApiOperation(value = "根据供应商ID查询主营商品" ,notes = "根据供应商ID查询主营商品")
     @GetMapping(value = "/mainCategory")

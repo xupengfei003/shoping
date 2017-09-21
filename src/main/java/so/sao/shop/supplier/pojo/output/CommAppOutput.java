@@ -18,10 +18,6 @@ public class CommAppOutput{
      */
     private String minImg;
     /**
-     * SKU(商品ID)
-     */
-    private String sku;
-    /**
      * 商品条码
      */
     private String code69;
@@ -130,14 +126,6 @@ public class CommAppOutput{
 
     public void setMinImg(String minImg) {
         this.minImg = minImg;
-    }
-
-    public String getSku() {
-        return sku;
-    }
-
-    public void setSku(String sku) {
-        this.sku = sku;
     }
 
     public String getCode69() {

@@ -11,6 +11,7 @@ import so.sao.shop.supplier.dao.app.CommAppDao;
 import so.sao.shop.supplier.domain.Account;
 import so.sao.shop.supplier.domain.CommImge;
 import so.sao.shop.supplier.pojo.Result;
+import so.sao.shop.supplier.pojo.input.CommAppInput;
 import so.sao.shop.supplier.pojo.input.CommodityAppInput;
 import so.sao.shop.supplier.pojo.output.*;
 import so.sao.shop.supplier.pojo.vo.CategoryVo;
@@ -136,11 +137,11 @@ public class CommAppServiceImpl implements CommAppService {
      * @return
      */
     @Override
-    public Result getCommodities(String code69, Long supplierId, String commName, Long categoryOneId, Long categoryTwoId, Long categoryThreeId, Long[] brandIds, Integer pageNum, Integer pageSize) {
+    public Result getCommodities(CommAppInput commAppInput) {
 
         //开始分页
-        PageTool.startPage(pageNum,pageSize);
-        List<CommAppOutput> commList  = commAppDao.findCommodities(code69,supplierId,commName, categoryOneId, categoryTwoId, categoryThreeId, brandIds);
+        PageTool.startPage(commAppInput.getPageNum(),commAppInput.getPageSize());
+        List<CommAppOutput> commList  = commAppDao.findCommodities(commAppInput);
         PageInfo<CommAppOutput> pageInfo = new PageInfo<CommAppOutput>(commList);
         return Result.success("查询成功",pageInfo);
     }
