@@ -3,6 +3,7 @@ package so.sao.shop.supplier.dao.external;
 import org.apache.ibatis.annotations.Param;
 import so.sao.shop.supplier.domain.external.HotCommodities;
 import so.sao.shop.supplier.pojo.input.HotCommoditySaveInput;
+import so.sao.shop.supplier.pojo.output.AddHotCommOutput;
 import so.sao.shop.supplier.pojo.vo.AddHotCommVo;
 
 import java.util.List;
@@ -31,8 +32,8 @@ public interface HotCommoditiesDao {
      * @param categoryThreeId 商品三级科属
      * @return
      */
-    List<AddHotCommVo> find(@Param("inputvalue")String inputvalue, @Param("categoryOneId")Long categoryOneId,
-                            @Param("categoryTwoId")Long categoryTwoId, @Param("categoryThreeId")Long categoryThreeId);
+    List<AddHotCommOutput> find(@Param("inputvalue")String inputvalue, @Param("categoryOneId")Long categoryOneId,
+                                @Param("categoryTwoId")Long categoryTwoId, @Param("categoryThreeId")Long categoryThreeId);
 
     /**
      * 保存所有热门商品

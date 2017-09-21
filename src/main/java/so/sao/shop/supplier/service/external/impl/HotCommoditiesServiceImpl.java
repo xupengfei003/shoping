@@ -11,8 +11,6 @@ import so.sao.shop.supplier.pojo.input.AddHotCommInput;
 import so.sao.shop.supplier.pojo.input.HotCommodityInput;
 import so.sao.shop.supplier.pojo.input.HotCommoditySaveInput;
 import so.sao.shop.supplier.pojo.output.AddHotCommOutput;
-import so.sao.shop.supplier.pojo.output.HotCommodityOutput;
-import so.sao.shop.supplier.pojo.vo.AddHotCommVo;
 import so.sao.shop.supplier.service.CountSoldCommService;
 import so.sao.shop.supplier.service.external.HotCommoditiesService;
 import so.sao.shop.supplier.util.BeanMapper;
@@ -27,6 +25,7 @@ public class HotCommoditiesServiceImpl implements HotCommoditiesService{
     private HotCommoditiesDao hotCommoditiesDao;
     @Autowired
     private CountSoldCommService countSoldCommService;
+
     /**
      * 查询所有热门商品列表
      *
@@ -47,12 +46,7 @@ public class HotCommoditiesServiceImpl implements HotCommoditiesService{
         PageTool.startPage(hotCommodityInput.getPageNum(), hotCommodityInput.getPageSize());
         List<HotCommodities> hotCommoditiesList =  hotCommoditiesDao.findAll(isSalesVolume, isSort, hotCommodityInput.getInputvalue(),
                     hotCommodityInput.getCategoryOneId(), hotCommodityInput.getCategoryTwoId(), hotCommodityInput.getCategoryThreeId());
-        List<HotCommodityOutput> hotCommodityOutputs = new ArrayList<>();
-        hotCommoditiesList.forEach(hotCommodities->{
-            HotCommodityOutput hotCommodityOutput = BeanMapper.map(hotCommodities, HotCommodityOutput.class);
-            hotCommodityOutputs.add(hotCommodityOutput);
-        });
-        PageInfo pageInfo = new PageInfo(hotCommodityOutputs);
+        PageInfo<HotCommodities> pageInfo = new PageInfo<HotCommodities>(hotCommoditiesList);
         return Result.success("查询热门商品列表成功！", pageInfo);
     }
 
@@ -66,19 +60,14 @@ public class HotCommoditiesServiceImpl implements HotCommoditiesService{
     public Result searchCommodities(AddHotCommInput addHotCommInput) {
 
         PageTool.startPage(addHotCommInput.getPageNum(), addHotCommInput.getPageSize());
-        List<AddHotCommVo> addHotCommVos =  hotCommoditiesDao.find( addHotCommInput.getInputvalue(),
+        List<AddHotCommOutput> addHotCommVos =  hotCommoditiesDao.find( addHotCommInput.getInputvalue(),
                 addHotCommInput.getCategoryOneId(), addHotCommInput.getCategoryTwoId(), addHotCommInput.getCategoryThreeId());
         if(addHotCommVos == null || addHotCommVos.size()==0)
             return Result.fail("暂无商品！");
-        List<AddHotCommOutput> addHotCommOutputs = new ArrayList<>();
-        addHotCommVos.forEach(addHotCommVo->{
-            AddHotCommOutput addHotCommOutput = BeanMapper.map(addHotCommVo, AddHotCommOutput.class);
-            addHotCommOutputs.add(addHotCommOutput);
-        });
         //统计商品销量
-        String [] ArrGoodIds = new String[addHotCommOutputs.size()];
-        for ( int i=0 ; i< addHotCommOutputs.size(); i++  ){
-            ArrGoodIds [i] = addHotCommOutputs.get(i).getId().toString();
+        String [] ArrGoodIds = new String[addHotCommVos.size()];
+        for ( int i=0 ; i< addHotCommVos.size(); i++  ){
+            ArrGoodIds [i] = addHotCommVos.get(i).getId().toString();
         }
 
         List<String> salesVolumes = null;
@@ -88,10 +77,10 @@ public class HotCommoditiesServiceImpl implements HotCommoditiesService{
             return Result.fail("销量统计异常！",e);
         }
 
-        for( int i =0; i< addHotCommOutputs.size(); i++ ){
-            addHotCommOutputs.get(i).setSalesVolume( Integer.valueOf( salesVolumes.get(i) ) );
+        for( int i =0; i< addHotCommVos.size(); i++ ){
+            addHotCommVos.get(i).setSalesVolume( Integer.valueOf( salesVolumes.get(i) ) );
         }
-        PageInfo pageInfo = new PageInfo(addHotCommOutputs);
+        PageInfo<AddHotCommOutput> pageInfo = new PageInfo<AddHotCommOutput>(addHotCommVos);
         return Result.success("查询商品列表成功！", pageInfo);
     }
 
