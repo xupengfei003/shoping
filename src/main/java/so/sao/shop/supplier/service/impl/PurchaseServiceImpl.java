@@ -975,10 +975,16 @@ public class PurchaseServiceImpl implements PurchaseService {
         map.put("orderStatus", Constant.OrderStatusConfig.REJECT);//订单状态 5 拒收
         purchaseDao.insertRefuseMessage(map);
         List<CommBlobUpload> imgList = new ArrayList<>();
-        for(int i = 0;i<refuseOrderInput.getRefuseImg().size(); i++){
-            imgList.add(disposeImage(refuseOrderInput.getRefuseImg().get(i)));//拒收图片URL
+        //1.如果拒收图片不传入，则不进行图片格式转换；
+        //2.如果没有拒收图片，则不存入数据库
+        if(refuseOrderInput.getRefuseImg().size()>0){
+            for(int i = 0;i<refuseOrderInput.getRefuseImg().size(); i++){
+                imgList.add(disposeImage(refuseOrderInput.getRefuseImg().get(i)));//拒收图片URL
+            }
         }
-        purchaseDao.insertRefuseImg(map,imgList);
+        if(imgList.size()>0){
+            purchaseDao.insertRefuseImg(map,imgList);
+        }
         // 验证二维码是否存在，是否失效
         PurchasePrintVo purchasePrintVo = purchaseDao.findPrintOrderInfo(orderId); // 查询订单和二维码信息
         if (null == purchasePrintVo || null == purchasePrintVo.getQrcodeStatus()
