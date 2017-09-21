@@ -52,13 +52,13 @@ public class CommAppController {
         return commAppService.getBrandName(name);
     }
 
-    @ApiOperation(value="根据id查询商品详情", notes="根据供应商商品表ID查询商品详情")
+    @ApiOperation(value="根据id查询商品详情", notes="根据供应商商品表ID查询商品详情 【责任人：巨江坤】")
     @GetMapping(value="/getCommodity/{id}")
     public Result getCommodity(@PathVariable Long id){
-        return commodityService.getCommodity(id);
+        return commAppService.getCommodity(id);
     }
 
-    @ApiOperation(value="根据供应商ID或名称查询供应商详情", notes="根据供应商ID或名称查询供应商详情")
+    @ApiOperation(value="根据供应商ID或名称查询供应商详情", notes="根据供应商ID或名称查询供应商详情 【责任人：巨江坤】")
     @GetMapping(value="/getSuppliers")
     public Result getSuppliers(@RequestParam(required = false) Long accountId,@RequestParam(required = false) String providerName,@RequestParam(required = false) Integer pageNum,
                                @RequestParam(required = false) Integer pageSize){
@@ -70,7 +70,7 @@ public class CommAppController {
     public Result getCommodities(CommAppInput commAppInput){
         return commAppService.getCommodities(commAppInput);
     }
-    @ApiOperation(value = "根据供应商ID查询主营商品" ,notes = "根据供应商ID查询主营商品")
+    @ApiOperation(value = "根据供应商ID查询主营商品" ,notes = "根据供应商ID查询主营商品 【责任人：巨江坤】")
     @GetMapping(value = "/mainCategory")
     public Result getMainCategory (@RequestParam Long supplierId){
         return commAppService.getMainCateGory(supplierId);
