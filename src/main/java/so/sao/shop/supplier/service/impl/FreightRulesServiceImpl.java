@@ -49,7 +49,18 @@ public class FreightRulesServiceImpl implements FreightRulesService {
             freightRules.setExcessAmount(freightRulesInput.getExcessAmount());//运费增加金额
             freightRules.setRemark(freightRulesInput.getRemark());//备注
             freightRulesDao.insert(freightRules);
-            // TODO
+            // TODO 判断配送规则是否填写完整， 若没有填写完整，则设为默认配送类型
+            List<FreightRules> freightRulesList = freightRulesDao.queryAll(accountId,1);
+            if (null == freightRulesList || freightRulesList.isEmpty()){
+                accountService.updateRulesByFreightRules(accountId,0);
+            }
+            if (null != freightRulesList){
+                for (FreightRules freightRule:freightRulesList) {
+                    if (null == freightRule.getWhetherShipping()){
+                        accountService.updateRulesByFreightRules(accountId,0);
+                    }
+                }
+            }
             return true;
         }
         return false;
