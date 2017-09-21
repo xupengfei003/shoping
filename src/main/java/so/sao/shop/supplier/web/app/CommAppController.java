@@ -94,6 +94,17 @@ public class CommAppController {
     public PageInfo<CommAppOutput> searchCommoditiesByConditionOrder(CommodityAppInput commodityAppInput){
         return commAppService.searchCommodities( commodityAppInput );
     }
+    @ApiOperation(value = "根据供应商ID和商品名称查询供应商列表",notes = "根据供应商ID和商品名称查询供应商列表")
+    @GetMapping(value = "/listCommodities")
+    public Result listCommodity(@RequestParam(required = false) Long supplierId, @RequestParam(required = false) String commName,
+                                @RequestParam(required = false) Integer pageNum, @RequestParam(required = false) Integer pageSize){
+        return commAppService.listCommodities(supplierId,commName, pageNum, pageSize);
+    }
+    @ApiOperation(value="查询商品", notes="根据商品名称模糊查询商品，返回商品列表")
+    @GetMapping(value="/getNames/{goodsName}")
+    public Result searchGoods(@PathVariable String goodsName){
+        return commAppService.getGoods(goodsName);
+    }
 
 
 
