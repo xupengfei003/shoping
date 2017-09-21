@@ -317,7 +317,7 @@ public class AppCartServiceImpl implements AppCartService {
             }
             // 5.校验是否有库存,若有库存,进行更新
             AppCartItem appCartItem = (AppCartItem)map.get("appCartItem");
-            int number = inputList.get(i).getNumber();
+            int number = Integer.valueOf(inputList.get(i).getNumber());
             if(appCartItem.getInventory() - number >= 0){
                 appCartItem.setCount(number);                     // 商品数量
                 appCartItem.setUpdatedAt(new Date());             // 更新时间
