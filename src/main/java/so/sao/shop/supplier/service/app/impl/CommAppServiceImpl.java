@@ -218,6 +218,14 @@ public class CommAppServiceImpl implements CommAppService {
         return pageInfo;
     }
 
+    /**
+     * 根据供应商ID和商品名称查询供应商列表
+     * @param supplierId 供应商ID
+     * @param commName   商品名称
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
     @Override
     public Result listCommodities(Long supplierId, String commName, Integer pageNum, Integer pageSize) {
         //开始分页
@@ -287,10 +295,14 @@ public class CommAppServiceImpl implements CommAppService {
             }
             //获取账户account对象
             Account account=accountDao.selectById(commodityOutput.getSupplierId());
+            if (null == account){
+                return Result.success("查询成功",commodityOutput);
+            }
             commodityOutput.setProviderName(account.getProviderName());  //将获取供应商名称放入出参
             commodityOutput.setContractCity(account.getContractRegisterAddressCity());  //将获取供应商合同所在市放入出参
             commodityOutput.setSalesNumber(Integer.valueOf(countSold.get(0)));     //将获取销量放入出参
             commodityOutput.setImgeList(commImgeVoList);  //将获取图片信息放入出参
+
         }
         return Result.success("查询成功", commodityOutput);
     }
