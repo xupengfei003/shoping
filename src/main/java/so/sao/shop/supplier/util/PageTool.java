@@ -12,13 +12,19 @@ import java.util.List;
 public class PageTool {
     /**
      * 用法:调用dao查询方法前调用即可分页
+     *  当pageNum和pageSize为0时为查询全部记录
      * @param pageNum
      * @param pageSize
      * @return
      */
     public static Page startPage(Integer pageNum, Integer pageSize){
-        pageNum = (pageNum==null || pageNum<1) ? CommConstant.PAGE_NUM_DEFAULT : pageNum;
-        pageSize = (pageSize==null || pageSize<1) ? CommConstant.PAGE_SIZE_DEFAULT : pageSize;
+        if (null != pageNum && pageNum == 0 && null != pageSize && pageSize == 0){
+
+        }else{
+            pageNum = (pageNum==null || pageNum<1) ? CommConstant.PAGE_NUM_DEFAULT : pageNum;
+            pageSize = (pageSize==null || pageSize<1) ? CommConstant.PAGE_SIZE_DEFAULT : pageSize;
+        }
+
         return PageHelper.startPage(pageNum, pageSize);
     }
 

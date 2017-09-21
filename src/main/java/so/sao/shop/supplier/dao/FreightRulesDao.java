@@ -17,7 +17,7 @@ public interface FreightRulesDao {
     void insert(FreightRules freightRules);
 
     /**
-     * 分页获取供应商配送规则列表
+     * 分页获取供应商配送规则列表（省市区为汉字）
      * @param accountId accountId
      * @param rulesType 配送规则类型
      */
@@ -48,5 +48,11 @@ public interface FreightRulesDao {
      */
     void deleteByDistributionScopeId(Integer distributionScopeId);
 
-
+    /**
+     * 分页获取供应商配送规则列表（省市区为code）
+     * @param accountId
+     * @param rules
+     * @return
+     */
+    List<FreightRules> queryAll0(@Param("accountId")Long accountId, @Param("rules")Integer rules);
 }
