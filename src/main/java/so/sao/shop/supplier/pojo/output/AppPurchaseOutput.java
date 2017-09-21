@@ -153,7 +153,7 @@ public class AppPurchaseOutput {
     }
 
     public void setOrderPrice(String orderPrice) {
-        this.orderPrice = NumberUtil.number2Thousand(new BigDecimal(orderPrice));
+        this.orderPrice = orderPrice;
     }
 
     public Integer getGoodsAllNum() {
