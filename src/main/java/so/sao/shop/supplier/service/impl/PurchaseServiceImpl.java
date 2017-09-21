@@ -188,7 +188,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             purchaseDate.setOrderStatus(Constant.OrderStatusConfig.PAYMENT);//订单状态 1待付款2代发货3已发货4已收货5已拒收6已退款
             purchaseDate.setUpdatedAt(new Date());//更新时间
             //邮费计算
-            Map map = this.getFreightRulesByAccountId(account.getAccountId(),totalMoney,totalNumber,purchase);
+            Map map = this.getFreightRulesByAccountId(account.getAccountId(),totalMoney,BigDecimal.valueOf(totalNumber.intValue()),purchase);
             if ((Integer)map.get("status") == 1){
                 purchaseDate.setOrderPostage((BigDecimal) map.get("totalMoney"));
             }else {
@@ -1315,7 +1315,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                     BigDecimal defaultAmount = freightRules.getDefaultAmount();
                     BigDecimal defaultPiece = BigDecimal.valueOf(freightRules.getDefaultPiece());
                     BigDecimal expenses = defaultAmount;//基础价格
-                    if (number.compareTo(freightRules.getSendAmount()) >= 0){//订单数量大于基础配送数量
+                    if (number.compareTo(BigDecimal.valueOf(freightRules.getDefaultPiece())) >= 0){//订单数量大于基础配送数量
                         BigDecimal excessPiece = BigDecimal.valueOf(freightRules.getExcessPiece());//超量配送数量
                         BigDecimal excessAmount = freightRules.getExcessAmount();//超量单位运费
                         BigDecimal excess = number.subtract(defaultPiece);//超出基础配送数量的部分
@@ -1344,13 +1344,13 @@ public class PurchaseServiceImpl implements PurchaseService {
         FreightRules rulesCity = null;
         FreightRules rulesProvince = null;
         for (FreightRules freightRules:freightRulesList) {
-            if (Long.valueOf(freightRules.getAddressDistrict()) .equals(purchaseInput.getDistrict())){//匹配区
+            if (freightRules.getAddressDistrict() .equals(purchaseInput.getDistrict())){//匹配区
                 return freightRules;
             }
-            if (Long.valueOf(freightRules.getAddressCity()).equals(purchaseInput.getCity())){//匹配市
+            if (freightRules.getAddressCity().equals(purchaseInput.getCity())){//匹配市
                 rulesCity = freightRules;
             }
-            if (Long.valueOf(freightRules.getAddressProvince()).equals( purchaseInput.getProvince())){//匹配省
+            if (freightRules.getAddressProvince().equals( purchaseInput.getProvince())){//匹配省
                 rulesProvince =  freightRules;
             }
         }
