@@ -123,17 +123,7 @@ public class CommAppServiceImpl implements CommAppService {
 
     /**
      * 根据供应商ID或商品名称或分类或品牌ID查询商品信息
-     *
-     *
-     * @param code69 商品条码
-     * @param supplierId 供应商id
-     * @param commName 商品名称
-     * @param categoryOneId 一级分类id
-     * @param categoryTwoId 二级分类id
-     * @param categoryThreeId 三级分类id
-     * @param brandIds 品牌集合
-     * @param pageNum 当前页码
-     * @param pageSize 页面大小
+     * @param commAppInput 入参
      * @return
      */
     @Override
