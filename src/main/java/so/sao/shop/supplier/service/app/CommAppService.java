@@ -2,6 +2,7 @@ package so.sao.shop.supplier.service.app;
 
 import com.github.pagehelper.PageInfo;
 import so.sao.shop.supplier.pojo.Result;
+import so.sao.shop.supplier.pojo.input.CommAppInput;
 import so.sao.shop.supplier.pojo.input.CommodityAppInput;
 import so.sao.shop.supplier.pojo.output.CommAppOutput;
 
@@ -57,19 +58,11 @@ public interface CommAppService {
  Result getSuppliers(Long accountId, String providerName, Integer pageNum, Integer pageSize);
 
  /**
-  * 根据供应商IDID或商品名称或商品分类或品牌ID查询商品信息
-  *
-  * @param supplierId 供应商ID
-  * @param commName 商品名称
-  * @param categoryOneId 一级分类id
-  * @param categoryTwoId 二级分类id
-  * @param categoryThreeId 三级分类id
-  * @param brandIds 品牌集合
-  * @param pageNum 当前页码
-  * @param pageSize 页面大小
+  * 根据code69或供应商ID或商品名称或商品分类或品牌ID查询商品信息
+  * @param commAppInput
   * @return
   */
- Result getCommodities(Long supplierId, String commName, Long categoryOneId, Long categoryTwoId, Long categoryThreeId, Long[] brandIds, Integer pageNum, Integer pageSize);
+ Result getCommodities(CommAppInput commAppInput);
 
  /**
  * 查询供应商主营分类
@@ -116,4 +109,11 @@ public interface CommAppService {
   * @return
   */
  Result getGoods(String goodsName);
+
+ /**
+  * 根据供应商商品ID获取商品详细信息
+  * @param id
+  * @return
+  */
+ Result getCommodity(Long id);
 }

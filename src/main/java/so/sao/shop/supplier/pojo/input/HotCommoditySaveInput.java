@@ -11,8 +11,8 @@ import java.util.Date;
 
 public class HotCommoditySaveInput {
 
-    @ApiModelProperty(value = "sku")
-    private String sku;
+    @ApiModelProperty(value = "商品id")
+    private String scId;
 
     @ApiModelProperty(value = "供应商ID")
     private Long supplierId;
@@ -64,24 +64,16 @@ public class HotCommoditySaveInput {
     @ApiModelProperty(value = "操作人")
     private String operator;
 
-    /*@ApiModelProperty(value = "更新时间")
-    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
-    private Date updatedAt;
-
-    @ApiModelProperty(value = "创建时间")
-    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
-    private Date createdAt;*/
-
     @ApiModelProperty(value = "商品销量")
     @Min(value = 0, message = "商品销量不能小于0")
     private int  salesVolume;
 
-    public String getSku() {
-        return sku;
+    public String getScId() {
+        return scId;
     }
 
-    public void setSku(String sku) {
-        this.sku = sku;
+    public void setScId(String scId) {
+        this.scId = scId;
     }
 
     public Long getSupplierId() {
@@ -220,26 +212,10 @@ public class HotCommoditySaveInput {
         this.salesVolume = salesVolume;
     }
 
-   /* public Date getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Date updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public Date getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Date createdAt) {
-        this.createdAt = createdAt;
-    }*/
-
     @Override
     public String toString() {
         return
-                sku + "," +
+                scId + "," +
                 supplierId +"," +
                 providerName + "," +
                 minImg + "," +
@@ -256,8 +232,6 @@ public class HotCommoditySaveInput {
                 status +"," +
                 sort +"," +
                 operator + "," +
-                /*updatedAt +","+
-                createdAt +","+*/
                 salesVolume;
 
     }

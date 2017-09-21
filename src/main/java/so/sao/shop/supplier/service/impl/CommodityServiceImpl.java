@@ -1370,11 +1370,14 @@ public class CommodityServiceImpl implements CommodityService {
     public Result auditBatch(HttpServletRequest request , CommAuditInput commAuditInput){
 
         Long [] ids=commAuditInput.getIds();
+        if(null==ids){
+            return Result.fail("失败");
+
+        }
         for(Long id:ids){
             SupplierCommodityAudit supplierCommodityAudit=supplierCommodityAuditDao.findSupplierCommodityAuditById(id);
             int status= supplierCommodityAudit.getStatus();
             int auditResult =commAuditInput.getAuditResult();
-            String auditOpinion=commAuditInput.getAuditOpinion();
             Long scId=supplierCommodityAudit.getScId();
             SupplierCommodity supplierCommodity=supplierCommodityDao.findOne(scId);
             if (CommConstant.COMM_EDIT_AUDIT == status){
@@ -1383,23 +1386,17 @@ public class CommodityServiceImpl implements CommodityService {
                     //审核未通过
                     supplierCommodityDao.updateSupplierCommodityStatusById(scId,supplierCommodity.getStatus(),new Date());
                     status=supplierCommodity.getStatus();
-
                 }else   if(CommConstant.AUDIT_PASS == auditResult){
                     //审核通过 Tmp表覆盖 supplierCommodity 表  覆盖图片表
-
                     supplierCommodityDao.updateSupplierCommodityStatusById(scId,CommConstant.COMM_ST_ON_SHELVES,new Date());
-
                     SupplierCommodityTmp supplierCommodityTmp =supplierCommodityTmpDao.findSupplierCommodityTmpByScaId(id);
 
                     if(null != supplierCommodity) {
                         supplierCommodity = BeanMapper.map(supplierCommodityTmp, SupplierCommodity.class);
-
                         supplierCommodityDao.update(supplierCommodity);
                     }
                     List <Long> scids= new ArrayList<Long>();
                     scids.add(scId);
-
-
                     List<CommImgeTmp> commImgeTmpList= commImgeTmpDao.findTmp(id);
                     //保存图片
                     List<CommImge> commImges = new ArrayList<>();
@@ -1413,7 +1410,6 @@ public class CommodityServiceImpl implements CommodityService {
                         commImgeDao.batchSave(commImges);
                     }
                     status=supplierCommodity.getStatus();
-
                 }
 
             }else if (CommConstant.COMM_ST_ON_SHELVES_AUDIT == status){
@@ -1435,12 +1431,10 @@ public class CommodityServiceImpl implements CommodityService {
                     //审核未通过
                     supplierCommodityDao.updateSupplierCommodityStatusById(scId,supplierCommodity.getStatus(),new Date());
                     status=supplierCommodity.getStatus();
-
                 }else   if(CommConstant.AUDIT_PASS  == auditResult){
                     //审核通过
                     supplierCommodityDao.updateSupplierCommodityStatusById(scId,CommConstant.COMM_ST_OFF_SHELVES,new Date());
                     status=CommConstant.COMM_ST_OFF_SHELVES;
-
                 }
 
             }

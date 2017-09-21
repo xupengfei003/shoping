@@ -44,7 +44,7 @@ CREATE TABLE `cart_item` (
 
 
 /*删除purchase表中拒收图片*/
-ALTER TABLE `ty_supplier`.`purchase`
+ALTER TABLE `purchase`
   DROP COLUMN `order_refuse_imgA`,
   DROP COLUMN `order_refuse_imgB`,
   DROP COLUMN `order_refuse_imgC`;
@@ -62,7 +62,7 @@ ALTER TABLE purchase ADD refuse_type VARCHAR(10) COMMENT '拒收类型' AFTER pa
 ALTER TABLE purchase ADD cancel_type VARCHAR(10) COMMENT '取消类型' AFTER order_refuse_time;
 
 /*订单表增加物流费用*/
-ALTER TABLE purchase ADD order_postage DECIMAL(10,2) COMMENT '订单邮费 (0:包邮，非零显示具体金额)' AFTER deliver_goods_time;
+ALTER TABLE purchase ADD order_postage DECIMAL(10,2) DEFAULT '0.00' COMMENT '订单邮费 (0:包邮，非零为具体金额)' AFTER deliver_goods_time;
 
 /*创建拒收图片表*/
 DROP TABLE IF EXISTS `refuse_order_img`;
@@ -141,7 +141,7 @@ CREATE TABLE `hot_category` (
 CREATE TABLE `hot_commodity` (
   `id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
   `min_img` VARCHAR(500) NULL DEFAULT NULL COMMENT '缩略图URL',
-  `sku` VARCHAR(20) NULL DEFAULT NULL COMMENT 'sku/商品ID',
+  `sc_id` VARCHAR(20) NULL DEFAULT NULL COMMENT '商品ID',
   `code69` VARCHAR(20) NULL DEFAULT NULL COMMENT '商品编码',
   `supplier_id` BIGINT(20) NULL DEFAULT NULL COMMENT '供应商ID',
   `code` VARCHAR(50) NULL DEFAULT NULL COMMENT '商品商家编码',
