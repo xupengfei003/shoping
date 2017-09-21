@@ -18,13 +18,13 @@ public class DistributionScopeInput {
     /**
      * 市
      */
-    @NotBlank(message = "市不能为空")
+    //@NotBlank(message = "市不能为空")
     private String addressCity;
 
     /**
      * 区
      */
-    @NotBlank(message = "区不能为空")
+    //@NotBlank(message = "区不能为空")
     private String addressDistrict;
 
     /**

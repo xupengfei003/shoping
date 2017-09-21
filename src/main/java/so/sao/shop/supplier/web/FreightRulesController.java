@@ -55,7 +55,7 @@ public class FreightRulesController {
         List<FreightRules> dataList = freightRulesService.queryAll(user.getAccountId(), pageNum, pageSize,rulesType);
         Map<String,Object> map = new HashMap<>();
         map.put("data",new PageInfo<>(dataList));
-        Integer rules = accountService.findRulesById(262L);
+        Integer rules = accountService.findRulesById(user.getAccountId());
         map.put("freightRules",rules);
         return Result.success(Constant.MessageConfig.MSG_SUCCESS, map);
     }
