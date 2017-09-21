@@ -558,8 +558,8 @@ public class CommodityServiceImpl implements CommodityService {
         }
         //判断供应商通用运费规则
         List<FreightRules> CommList = freightRulesDao.queryAll(supplierId,0);
-        if (CommList == null || CommList.size() == 0){
-            return false;
+        if (CommList != null && CommList.size() > 0){
+            return true;
         }
         //判断供应商按配送范围地区运费规则
         List<FreightRules> AreaList = freightRulesDao.queryAll(supplierId,1);
@@ -610,7 +610,7 @@ public class CommodityServiceImpl implements CommodityService {
             supplierCommodity1.setUpdatedAt(new Date());
             //下架操作
             supplierCommodityDao.onOrOffShelves(supplierCommodity1);
-            return Result.success("商品上架成功！");
+            return Result.success("商品上架操作成功！");
         }
         //插入审核记录前，将以前的审核记录flag变为0
         supplierCommodityAuditDao.updateAuditFlagByScId(id, CommConstant.AUDIT_RECORD);
@@ -1457,62 +1457,11 @@ public class CommodityServiceImpl implements CommodityService {
         PageTool.startPage(commodityAuditInput.getPageNum(), commodityAuditInput.getPageSize());
         //查询当前所有待审核数据集合
         List<CommodityAuditinputVo> list = supplierCommodityAuditDao.findCommodityAudit(commodityAuditInput);
-        int len = list.size();
-        if (list!=null&&len>0){
-            //循环判断所有数据审核类型
-            for(int i=0;i<len;i++) {
-                //如果该条记录是编辑待审核状态，则查询编辑后的商品数据
-                if (list.get(i).getStatus() == CommConstant.COMM_EDIT_AUDIT) {
-                    //查询编辑待审核的商品数据
-                    Long id = list.get(i).getId();
-                    CommodityOutput commodity = supplierCommodityTmpDao.findDetail(id);
-                    CommodityAuditinputOutput commodityAuditinputOutput =new CommodityAuditinputOutput();
-                    if(commodity == null){
-                        list.set(i,null);
-                    }else {
-                        commodityAuditinputOutput = getAuditObject(commodityAuditinputOutput, commodity);
-                        list.get(i).setCommodityAuditinputOutput(commodityAuditinputOutput);
-                    }
-                } else {
-                    //如果不是编辑待审核状态，则查询原商品数据。
-                    Long scId = list.get(i).getScId();
-                    //查询上架下架数据
-                    CommodityOutput commodity = supplierCommodityDao.findDetail(scId);
-                    CommodityAuditinputOutput commodityAuditinputOutput =new CommodityAuditinputOutput();
-                    if(commodity == null){
-                        list.set(i,null);
-                    }else {
-                        commodityAuditinputOutput = getAuditObject(commodityAuditinputOutput, commodity);
-                        list.get(i).setCommodityAuditinputOutput(commodityAuditinputOutput);
-                    }
-                }
-            }
+        if(list!=null&&list.size()>0) {
             PageInfo pageInfo = new PageInfo(list);
             return Result.success("查询成功",pageInfo);
         }
         return Result.fail("当前审核记录为空");
-    }
-
-    /**
-     * 封装商品详情CommodityAuditinputOutput类
-     * @param commodityAuditinputOutput
-     * @param commodity
-     * @return
-     */
-    public CommodityAuditinputOutput getAuditObject(CommodityAuditinputOutput commodityAuditinputOutput, CommodityOutput commodity){
-        commodityAuditinputOutput.setName(commodity.getName());
-        commodityAuditinputOutput.setCode(commodity.getCode());
-        commodityAuditinputOutput.setCode69(commodity.getCode69());
-        commodityAuditinputOutput.setMinImg(commodity.getMinImg());
-        commodityAuditinputOutput.setBrandName(commodity.getBrandName());
-        commodityAuditinputOutput.setUnitName(commodity.getUnitName());
-        commodityAuditinputOutput.setMeasureSpecName(commodity.getMeasureSpecName());
-        commodityAuditinputOutput.setRuleVal(commodity.getRuleVal());
-        commodityAuditinputOutput.setInventory(commodity.getInventory());
-        commodityAuditinputOutput.setMinOrderQuantity(commodity.getMinOrderQuantity());
-        commodityAuditinputOutput.setPrice(commodity.getPrice());
-        commodityAuditinputOutput.setUnitPrice(commodity.getUnitPrice());
-        return commodityAuditinputOutput;
     }
 
 }

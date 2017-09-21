@@ -115,6 +115,9 @@ public class CommAppServiceImpl implements CommAppService {
         //开始分页
         PageTool.startPage(pageNum,pageSize);
         List<AccountOutput> accountList  = accountDao.findAccounts(accountId, providerName);
+        if( null == accountList ||  accountList.size() <= 0 ){
+            return  Result.fail("暂无数据");
+        }
         PageInfo<AccountOutput> pageInfo = new PageInfo<AccountOutput>(accountList);
         return Result.success("查询成功",pageInfo);
     }
@@ -144,6 +147,9 @@ public class CommAppServiceImpl implements CommAppService {
     @Override
     public Result getMainCateGory(Long supplierId) {
         List<CategoryVo> categoryOutputs=commAppDao.findMainCateGory(supplierId);
+        if( null == categoryOutputs || categoryOutputs.size() <= 0 ){
+            return Result.fail("暂无数据");
+        }
         return Result.success("查询成功",categoryOutputs);
     }
 
@@ -266,7 +272,11 @@ public class CommAppServiceImpl implements CommAppService {
      */
     @Override
     public Result getGoods(String goodsName) {
-        return Result.success("查询成功", commAppDao.findGoodsByName(goodsName));
+        List<Map> goods = commAppDao.findGoodsByName(goodsName);
+        if( null == goods || goods.size() <= 0  ){
+            return Result.fail("暂无数据");
+        }
+        return Result.success("查询成功", goods );
     }
 
     /**
