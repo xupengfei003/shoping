@@ -84,7 +84,7 @@ public class PayController {
         if (null != totalPrice) {
             return Result.success(Constant.MessageConfig.MSG_SUCCESS,totalPrice);
         }
-        return Result.success(Constant.MessageConfig.MSG_SUCCESS,0);
+        return Result.fail(Constant.MessageConfig.MSG_SUCCESS,0);
     }
     //验证订单状态
     private boolean verifyOrderStatus(String orderId,Integer orderStatus) {
