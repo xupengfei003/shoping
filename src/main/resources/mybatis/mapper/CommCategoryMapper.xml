@@ -28,7 +28,7 @@
     <!--查询商品品类列表-->
     <select id="find" resultType="so.sao.shop.supplier.domain.CommCategory">
         SELECT
-        cy.id,cy.name
+        cy.id,cy.name ,cy.level, cy.pid
         FROM comm_category cy
         WHERE
         cy.pid=#{pid}

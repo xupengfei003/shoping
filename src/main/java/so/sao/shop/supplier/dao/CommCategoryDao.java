@@ -3,6 +3,7 @@ package so.sao.shop.supplier.dao;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import so.sao.shop.supplier.domain.CommCategory;
+import so.sao.shop.supplier.pojo.output.CategoryOutput;
 
 import java.util.List;
 
