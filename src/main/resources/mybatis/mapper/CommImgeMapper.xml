@@ -20,15 +20,17 @@
     <!--查询编辑后商品的图片信息-->
     <select id="findTmp" resultType="so.sao.shop.supplier.domain.CommImge">
         SELECT
-        id,
-        sca_id AS scaId,
-        name,
-        url,
-        type,
-        size,
-        thumbnail_url AS thumbnailUrl
-        FROM comm_imge_tmp
-        WHERE sca_id = #{scaId}
+             sitmp.id,
+             sca_id AS scaId,
+             name,
+             url,
+             type,
+             size,
+             thumbnail_url AS thumbnailUrl
+        FROM
+             comm_imge_tmp sitmp
+        LEFT JOIN supplier_commodity_audit sca ON sitmp.sca_id = sca.id
+        WHERE sca.sca_id = #{scaId}
     </select>
 
     <!--根据scId查询图片id集合-->
