@@ -47,6 +47,7 @@ public class FreightRulesServiceImpl implements FreightRulesService {
             freightRules.setDefaultAmount(freightRulesInput.getDefaultAmount());//运费基础金额
             freightRules.setExcessPiece(freightRulesInput.getExcessPiece());//超量计件
             freightRules.setExcessAmount(freightRulesInput.getExcessAmount());//运费增加金额
+            freightRules.setRemark(freightRulesInput.getRemark());//备注
             freightRulesDao.insert(freightRules);
             return true;
         }
