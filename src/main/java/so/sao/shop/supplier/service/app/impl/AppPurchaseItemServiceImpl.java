@@ -41,15 +41,16 @@ public class AppPurchaseItemServiceImpl implements AppPurchaseItemService {
         AppPurchaseItemOutput appPurchaseItemOutput = null;
         if(null != appPurchasesVos){
             appPurchaseItemOutput = BeanMapper.map(appPurchasesVos,AppPurchaseItemOutput.class);
+            //输出运费
+            //1.如果运费为0，则显示“包邮”
+            //2.如果有运费，则输出实际金额的千分值
+            if(appPurchasesVos.getOrderPostage().intValue() == 0){
+                appPurchaseItemOutput.setOrderPostage("包邮");
+            } else {
+                appPurchaseItemOutput.setOrderPostage(NumberUtil.number2Thousand(appPurchasesVos.getOrderPostage()));
+            }
         }
-        //输出运费
-        //1.如果运费为0，则显示“包邮”
-        //2.如果有运费，则输出实际金额的千分值
-        if(appPurchasesVos.getOrderPostage().intValue() == 0){
-            appPurchaseItemOutput.setOrderPostage("包邮");
-        } else {
-            appPurchaseItemOutput.setOrderPostage(NumberUtil.number2Thousand(appPurchasesVos.getOrderPostage()));
-        }
+
         if(null!=appPurchaseItemVoList && appPurchaseItemVoList.size()>0){
             appPurchaseItemOutput.setAppPurchaseItemVos(appPurchaseItemVoList);
         }
