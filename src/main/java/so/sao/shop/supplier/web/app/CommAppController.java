@@ -64,13 +64,13 @@ public class CommAppController {
         return commAppService.getSuppliers(accountId,providerName,pageNum,pageSize);
     }
 
-    @ApiOperation(value="根据供应商ID/商品名称/分类/品牌id查询商品详情", notes="根据供应商ID/商品名称/分类/品牌id查询商品详情")
+    @ApiOperation(value="根据code69/供应商ID/商品名称/分类/品牌id查询商品详情", notes="根据供应商ID/商品名称/分类/品牌id查询商品详情")
     @GetMapping(value="/getCommodities")
-    public Result getCommodities(@RequestParam(required = false) Long supplierId,@RequestParam(required = false) String commName,@RequestParam(required = false) Long categoryOneId,
+    public Result getCommodities(@RequestParam(required = false) String code69,@RequestParam(required = false) Long supplierId,@RequestParam(required = false) String commName,@RequestParam(required = false) Long categoryOneId,
                                  @RequestParam(required = false) Long categoryTwoId,@RequestParam(required = false) Long categoryThreeId,
                                  @RequestParam(required = false) Long[] brandIds, @RequestParam(required = false) Integer pageNum,
                                  @RequestParam(required = false) Integer pageSize){
-        return commAppService.getCommodities(supplierId,commName,categoryOneId,categoryTwoId,categoryThreeId,brandIds,pageNum,pageSize);
+        return commAppService.getCommodities(code69,supplierId,commName,categoryOneId,categoryTwoId,categoryThreeId,brandIds,pageNum,pageSize);
     }
     @ApiOperation(value = "根据供应商ID查询主营商品" ,notes = "根据供应商ID查询主营商品")
     @GetMapping(value = "/mainCategory")

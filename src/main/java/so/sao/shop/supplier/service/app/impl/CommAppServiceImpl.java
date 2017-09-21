@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import so.sao.shop.supplier.dao.AccountDao;
 import so.sao.shop.supplier.dao.CommImgeDao;
-import so.sao.shop.supplier.dao.SupplierCommodityDao;
 import so.sao.shop.supplier.dao.app.CommAppDao;
 import so.sao.shop.supplier.domain.Account;
 import so.sao.shop.supplier.domain.CommImge;
@@ -124,6 +123,8 @@ public class CommAppServiceImpl implements CommAppService {
     /**
      * 根据供应商ID或商品名称或分类或品牌ID查询商品信息
      *
+     *
+     * @param code69 商品条码
      * @param supplierId 供应商id
      * @param commName 商品名称
      * @param categoryOneId 一级分类id
@@ -135,11 +136,11 @@ public class CommAppServiceImpl implements CommAppService {
      * @return
      */
     @Override
-    public Result getCommodities(Long supplierId, String commName, Long categoryOneId, Long categoryTwoId, Long categoryThreeId, Long[] brandIds, Integer pageNum, Integer pageSize) {
+    public Result getCommodities(String code69, Long supplierId, String commName, Long categoryOneId, Long categoryTwoId, Long categoryThreeId, Long[] brandIds, Integer pageNum, Integer pageSize) {
 
         //开始分页
         PageTool.startPage(pageNum,pageSize);
-        List<CommAppOutput> commList  = commAppDao.findCommodities(supplierId,commName, categoryOneId, categoryTwoId, categoryThreeId, brandIds);
+        List<CommAppOutput> commList  = commAppDao.findCommodities(code69,supplierId,commName, categoryOneId, categoryTwoId, categoryThreeId, brandIds);
         PageInfo<CommAppOutput> pageInfo = new PageInfo<CommAppOutput>(commList);
         return Result.success("查询成功",pageInfo);
     }

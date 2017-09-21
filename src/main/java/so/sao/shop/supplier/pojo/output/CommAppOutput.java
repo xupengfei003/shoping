@@ -41,6 +41,11 @@ public class CommAppOutput{
      * 商品名称
      */
     private String commName;
+
+    /**
+     * 商品标签
+     */
+    private String tagName;
     /**
      * 商品单位名称
      */
@@ -271,4 +276,11 @@ public class CommAppOutput{
         this.providerName = providerName;
     }
 
+    public String getTagName() {
+        return tagName;
+    }
+
+    public void setTagName(String tagName) {
+        this.tagName = tagName;
+    }
 }

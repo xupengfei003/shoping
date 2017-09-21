@@ -89,18 +89,18 @@
             AND cb.name LIKE '%${name}%'
         </if>
     </select>
-    <!--根据供应商ID，商品名称，分类，品牌Ids查询商品信息-->
+    <!--根据code69,供应商ID，商品名称，分类，品牌Ids查询商品信息-->
     <select id="findCommodities" resultType="so.sao.shop.supplier.pojo.output.CommAppOutput">
         SELECT
         sc.id AS id,
         sc.min_img AS minImg,
-        sc.sku AS sku,
         sc.code69 AS code69,
         sc.code AS CODE,
         c.origin_place AS originPlace,
         cb.name AS brandName,
         c.name AS commName,
         cu.name AS unitName,
+        ct.name AS tagName,
         cms.name AS measureSpecName,
         sc.rule_val AS ruleVal,
         sc.price AS price,
@@ -115,6 +115,7 @@
         FROM
         supplier_commodity sc
         LEFT JOIN comm_measure_spec cms ON sc.measure_spec_id = cms.id
+        LEFT JOIN comm_tag ct ON sc.tag_id = ct.id
         LEFT JOIN comm_unit cu ON sc.unit_id=cu.id
         LEFT JOIN commodity c ON c.code69=sc.code69
         LEFT JOIN comm_brand cb ON c.brand_id=cb.id
@@ -125,6 +126,9 @@
         WHERE sc.invalid_status = 1
         AND sc.deleted = 0
         AND sc.status = 2
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(code69)">
+            AND sc.code69 = #{code69}
+        </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierId)">
             AND sc.supplier_id = #{supplierId}
         </if>
