@@ -101,7 +101,7 @@
         </if>
     </select>
     <!-- 查询商品列表-->
-    <select id="find" resultType="so.sao.shop.supplier.pojo.vo.AddHotCommVo">
+    <select id="find" resultType="so.sao.shop.supplier.pojo.output.AddHotCommOutput">
         SELECT
               <include refid="searchCommColumns"/>
         FROM supplier_commodity sc

@@ -139,23 +139,72 @@
     </update>
     <!-- 查询所有审核数据 -->
     <select id="findCommodityAudit" resultType="so.sao.shop.supplier.pojo.vo.CommodityAuditinputVo">
+        SELECT * FROM (
         SELECT
-        id as id,
-        sc_id as scId,
-        supplier_id as supplierId,
-        updated_at as updatedAt,
-        created_at as createdAt,
-        status ,
-        audit_result as auditResult
-        FROM supplier_commodity_audit
+        t1.id AS id,
+        sc.id AS scId,
+        sc.supplier_id AS supplierId,
+        sc.min_img AS minImg,
+        c.code69 AS code69,
+        sc.code AS code,
+        cb.name AS brandName,
+        c.name AS name,
+        cu.name AS unitName,
+        cms.name AS measureSpecName,
+        sc.rule_val AS ruleVal,
+        sc.inventory AS inventory,
+        sc.price AS price,
+        sc.unit_price AS unitPrice,
+        t1.created_at AS createdAt,
+        t1.updated_at AS updatedAt,
+        sc.min_order_quantity AS minOrderQuantity,
+        t1.audit_result AS auditResult,
+        t1.audit_opinion AS auditOpinion,
+        t1.status AS status
+        FROM `supplier_commodity` sc
+        RIGHT JOIN (SELECT * FROM `supplier_commodity_audit` t WHERE t.`status` != 6) t1
+        ON sc.`id` = t1.sc_id
+        INNER JOIN (commodity c LEFT JOIN comm_brand cb ON c.brand_id = cb.id) ON sc.code69 = c.code69
+        LEFT JOIN comm_measure_spec cms ON sc.measure_spec_id = cms.id
+        LEFT JOIN comm_unit cu ON sc.unit_id = cu.id
+        WHERE sc.`deleted` = 0
+        UNION
+        SELECT
+        t1.id AS id,
+        t1.sc_id AS scId,
+        t1.supplier_id AS supplierId,
+        sctmp.min_img AS minImg,
+        sctmp.code69 AS code69,
+        sctmp.code AS code,
+        cb.name AS brandName,
+        c.name AS name,
+        cu.name AS unitName,
+        cms.name AS measureSpecName,
+        sctmp.rule_val AS ruleVal,
+        sctmp.inventory AS inventory,
+        sctmp.price AS price,
+        sctmp.unit_price AS unitPrice,
+        t1.created_at AS createdAt,
+        t1.updated_at AS updatedAt,
+        sctmp.min_order_quantity AS minOrderQuantity,
+        t1.audit_result AS auditResult,
+        t1.audit_opinion AS auditOpinion,
+        t1.status AS status
+        FROM `supplier_commodity_tmp` sctmp
+        RIGHT JOIN (SELECT * FROM `supplier_commodity_audit` t WHERE t.`status` = 6) t1
+        ON sctmp.`sca_id` = t1.id
+        INNER JOIN (commodity c LEFT JOIN comm_brand cb ON c.brand_id = cb.id) ON sctmp.code69 = c.code69
+        LEFT JOIN comm_measure_spec cms ON sctmp.measure_spec_id = cms.id
+        LEFT JOIN comm_unit cu ON sctmp.unit_id = cu.id
+        ) t
         <where>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(status)">
-                AND status = #{status}
+                AND t.status = #{status}
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(auditResult)">
-                AND audit_result = #{auditResult}
+                AND t.auditResult = #{auditResult}
             </if>
         </where>
-        ORDER BY created_at asc
+        ORDER BY t.createdAt ASC
     </select>
 </mapper>

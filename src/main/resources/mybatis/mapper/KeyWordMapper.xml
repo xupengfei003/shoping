@@ -39,10 +39,15 @@
 
 
     <!--编辑关键字-->
-    <update id="update" >
-        UPDATE key_word SET key_word_value = #{keyWordValue}
+    <update id="update" parameterType="so.sao.shop.supplier.domain.external.KeyWord">
+        UPDATE key_word
+        SET
+        key_word_value = #{keyWordValue},
+        operator = #{operator},
+        update_at = #{updateAt}
         WHERE id = #{id}
     </update>
+
     <!--查询商品品类列表-->
     <select id="findAll" resultType="so.sao.shop.supplier.domain.external.KeyWord">
         SELECT

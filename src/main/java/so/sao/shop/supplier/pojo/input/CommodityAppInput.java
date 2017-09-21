@@ -1,15 +1,5 @@
 package so.sao.shop.supplier.pojo.input;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.NotBlank;
-import org.hibernate.validator.constraints.NotEmpty;
-import so.sao.shop.supplier.pojo.vo.SupplierCommodityVo;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import java.util.Date;
-import java.util.List;
 
 
 public class CommodityAppInput {

@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import so.sao.shop.supplier.dao.CommCategoryDao;
 import so.sao.shop.supplier.domain.CommCategory;
-import so.sao.shop.supplier.pojo.output.CommCategorySelectOutput;
+import so.sao.shop.supplier.pojo.output.CategoryOutput;
 import so.sao.shop.supplier.service.CommCategoryService;
 import so.sao.shop.supplier.util.BeanMapper;
 
@@ -27,15 +27,15 @@ public class CommCategoryServiceImpl implements CommCategoryService {
      * @return CommCategorySelectOutput
      */
     @Override
-    public List<CommCategorySelectOutput> searchCommCategory(Long pid) {
-        List<CommCategorySelectOutput> list = new ArrayList<>();
+    public List<CategoryOutput> searchCommCategory(Long pid) {
+        List<CategoryOutput> list = new ArrayList<>();
         //将CommCategory遍历添加到一个新数组里面，新数组存放需要的对象属性值
         List<CommCategory> tempList = commCategoryDao.find(pid);
         tempList.forEach( commCategory ->{
-            CommCategorySelectOutput commCategorySelectOutput = BeanMapper.map(commCategory , CommCategorySelectOutput.class);
+            CategoryOutput commCategorySelectOutput = BeanMapper.map(commCategory , CategoryOutput.class);
             list.add(commCategorySelectOutput);
         });
         return list;
-
     }
+
 }

@@ -1,6 +1,7 @@
 package so.sao.shop.supplier.domain.external;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import so.sao.shop.supplier.config.CommConstant;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -82,6 +83,11 @@ public class HotCommodities {
      * 已上架 待上架 已下架
      */
     private int status;
+
+    /**
+     * 商品状态名
+     */
+    private String statusName;
 
     /**
      * 市场价
@@ -283,6 +289,14 @@ public class HotCommodities {
         this.price = price;
     }
 
+    public String getStatusName() {
+        return this.statusName = CommConstant.getStatus(status);
+    }
+
+    public void setStatusName(String statusName) {
+        this.statusName = statusName;
+    }
+
     @Override
     public String toString() {
         return
@@ -302,6 +316,7 @@ public class HotCommodities {
                 inventory +"," +
                 price +","+
                 status +"," +
+                statusName +","+
                 sort +"," +
                 operator + "," +
                 updatedAt +"," +

@@ -94,6 +94,8 @@ public class SupplierCommodityVo {
      *
      * 最小起订量
      */
+    @Min(value=0)
+    @Max(value = 999)
     private  int minOrderQuantity;
 
     /**
