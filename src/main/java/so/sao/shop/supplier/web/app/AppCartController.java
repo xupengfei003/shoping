@@ -8,13 +8,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.pojo.Result;
+import so.sao.shop.supplier.pojo.input.AppCartItemBatchInput;
 import so.sao.shop.supplier.pojo.input.AppCartItemInput;
 import so.sao.shop.supplier.pojo.output.AppCartItemOut;
 import so.sao.shop.supplier.service.app.AppCartService;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -62,9 +63,10 @@ public class AppCartController {
      */
     @ApiOperation(value = "更新购物车商品数量", notes = "更新购物车商品数量")
     @PostMapping(value = "/cartitem/update")
-    public Result updateCartItem(AppCartItemInput input) throws Exception {
+    public Result updateCartItem(@RequestBody @Valid AppCartItemInput input) throws Exception {
+        Integer number = Integer.valueOf(input.getNumber());
         // 更新数据
-        Map<String, Object> map = cartService.updateCartItem(input.getCartitemId(), input.getNumber(), input.getUserId());
+        Map<String, Object> map = cartService.updateCartItem(input.getCartitemId(), number, input.getUserId());
         // 获取提示信息
         String msg = (String) map.get("msg");
         // 获取信息码
@@ -78,9 +80,10 @@ public class AppCartController {
 
     @ApiOperation(value = "批量更新购物车商品数量", notes = "批量更新购物车商品数量")
     @PostMapping(value = "/cartitem/updateBatch")
-    public Result updateCartItemBatch(@RequestBody List<AppCartItemInput> inputList) throws Exception {
+    public Result updateCartItemBatch(@RequestBody @Valid AppCartItemBatchInput inputList) throws Exception {
+        List<AppCartItemInput> list = inputList.getList();
         // 更新数据
-        Map<String, Object> map = cartService.updateCartItemBatch(inputList);
+        Map<String, Object> map = cartService.updateCartItemBatch(list);
         // 获取提示信息
         String msg = (String) map.get("msg");
         // 获取信息码
