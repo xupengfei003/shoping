@@ -1,6 +1,7 @@
 package so.sao.shop.supplier.domain.external;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import so.sao.shop.supplier.config.CommConstant;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -13,9 +14,9 @@ public class HotCommodities {
     private Long id;
 
     /**
-     * SKU
+     * 商品Ids
      */
-    private String sku;
+    private String scId;
 
     /**
      * 供应商ID
@@ -84,6 +85,11 @@ public class HotCommodities {
     private int status;
 
     /**
+     * 商品状态名
+     */
+    private String statusName;
+
+    /**
      * 市场价
      */
     private BigDecimal price;
@@ -123,12 +129,12 @@ public class HotCommodities {
         this.id = id;
     }
 
-    public String getSku() {
-        return sku;
+    public String getScId() {
+        return scId;
     }
 
-    public void setSku(String sku) {
-        this.sku = sku;
+    public void setScId(String scId) {
+        this.scId = scId;
     }
 
     public Long getSupplierId() {
@@ -283,11 +289,19 @@ public class HotCommodities {
         this.price = price;
     }
 
+    public String getStatusName() {
+        return this.statusName = CommConstant.getStatus(status);
+    }
+
+    public void setStatusName(String statusName) {
+        this.statusName = statusName;
+    }
+
     @Override
     public String toString() {
         return
                 id + "," +
-                sku + "," +
+                scId + "," +
                 supplierId +"," +
                 providerName + "," +
                 minImg + "," +
@@ -302,6 +316,7 @@ public class HotCommodities {
                 inventory +"," +
                 price +","+
                 status +"," +
+                statusName +","+
                 sort +"," +
                 operator + "," +
                 updatedAt +"," +

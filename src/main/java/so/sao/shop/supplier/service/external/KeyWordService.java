@@ -20,11 +20,10 @@ public interface KeyWordService {
 
     /**
      * 编辑关键字
-     * @param id keyWord表ID
-     * @param keyWordValue 关键字名称
+     * @param keyWord 关键字对象
      * @return 修改结果
      */
-    Result updateKeyWord(Long id, String keyWordValue);
+    Result updateKeyWord(KeyWord keyWord);
 
     /**
      * 查询所有关键字配置

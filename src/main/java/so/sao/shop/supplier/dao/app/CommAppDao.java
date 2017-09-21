@@ -1,11 +1,15 @@
 package so.sao.shop.supplier.dao.app;
 
 import org.apache.ibatis.annotations.Param;
+import org.springframework.security.access.method.P;
+import so.sao.shop.supplier.pojo.input.CommAppInput;
+import so.sao.shop.supplier.pojo.input.CommodityAppInput;
 import so.sao.shop.supplier.pojo.output.*;
 import so.sao.shop.supplier.pojo.vo.CategoryVo;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 public interface CommAppDao {
 
@@ -46,17 +50,11 @@ public interface CommAppDao {
     List<CommBrandOutput> findBrandName(@Param("name") String name);
 
     /**
-     * 根据供应商ID或商品名称或分类或品牌ID查询商品信息
-     *
-     * @param supplierId 供应商
-     * @param commName 商品名称
-     * @param categoryOneId 一级分类id
-     * @param categoryTwoId 二级分类id
-     * @param categoryThreeId 三级分类id
-     * @param brandIds 品牌id集合
+     * 根据code69或供应商ID或商品名称或分类或品牌ID查询商品信息
+     *@param commAppInput
      * @return 商品详情列表
      */
-    List<CommAppOutput> findCommodities(@Param("supplierId")Long supplierId, @Param("commName") String commName, @Param("categoryOneId") Long categoryOneId, @Param("categoryTwoId") Long categoryTwoId, @Param("categoryThreeId") Long categoryThreeId, @Param("ids") Long[] brandIds);
+    List<CommAppOutput> findCommodities(CommAppInput commAppInput);
 
     /**
      * 供应商主营分类
@@ -84,9 +82,29 @@ public interface CommAppDao {
      * @param CommAppInput commAppInput
      * @return
      */
-    List<CommAppOutput> findCommoditiesByConditionOrder( @Param("categoryTwoId") Long categoryTwoId, @Param("categoryThreeId")Long categoryThreeId,
-                                                         @Param("ids")Long[] brandIds,
-                                                         @Param("orderPrice") String orderPrice);
+    List<CommAppOutput> findCommoditiesByConditionOrder( CommodityAppInput commodityAppInput );
+
+    /**
+     *
+     * @param supplierId
+     * @param commName
+     * @return
+     */
+    List<CommodityOutput> listCommodities(@Param("supplierId") Long supplierId, @Param("commName") String commName);
+    /**
+     * 根据商品名称模糊查询商品，返回商品列表
+     *
+     * @param goodsName 商品名称
+     * @return
+     */
+    List<Map> findGoodsByName(@Param("goodsName") String goodsName);
+
+    /**
+     * 查询商品
+     * @param id 商品ID
+     * @return  商品信息对象
+     */
+    CommodityOutput findDetail(@Param("id")long id);
 
 
 }

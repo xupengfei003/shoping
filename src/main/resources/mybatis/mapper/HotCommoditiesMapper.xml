@@ -4,7 +4,7 @@
 
     <resultMap id="BaseResultMap" type="so.sao.shop.supplier.domain.external.HotCommodities">
         <id column="ID" property="id"/>
-        <result column="SKU" property="sku"/>
+        <result column="SC_ID" property="scId"/>
         <result column="SUPPLIER_ID" property="supplierId"/>
         <result column="PROVIDER_NAME" property="providerName"/>
         <result column="CITY_NAME" property="cityName"/>
@@ -28,7 +28,7 @@
 
     <sql id="searchColumns">
         hc.ID ,
-        hc.SKU ,
+        hc.sc_id ,
         hc.SUPPLIER_ID ,
         hc.PROVIDER_NAME ,
         hc.CITY_NAME ,
@@ -53,7 +53,7 @@
     <sql id="searchCommColumns">
         c.id AS id,
         sc.min_img AS minImg,
-        sc.sku AS sku,
+        sc.id AS scId,
         c.code69 AS code69,
         sc.code AS code,
         cb.name AS commBrandName,
@@ -76,7 +76,7 @@
         SELECT
               <include refid="searchColumns"/>
         FROM  hot_commodity hc
-        LEFT JOIN (supplier_commodity sc LEFT JOIN  commodity c ON sc.code69 = c.code69) ON hc.sku = sc.sku
+        LEFT JOIN (supplier_commodity sc LEFT JOIN  commodity c ON sc.code69 = c.code69) ON hc.sc_id = sc.id
         <where>
             hc.STATUS = 2
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(inputvalue)">
@@ -101,7 +101,7 @@
         </if>
     </select>
     <!-- 查询商品列表-->
-    <select id="find" resultType="so.sao.shop.supplier.pojo.vo.AddHotCommVo">
+    <select id="find" resultType="so.sao.shop.supplier.pojo.output.AddHotCommOutput">
         SELECT
               <include refid="searchCommColumns"/>
         FROM supplier_commodity sc
@@ -139,7 +139,7 @@
     <!--批量保存热门商品-->
     <insert id="saveAll" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
         insert hot_commodity (
-            SKU ,
+            SC_ID ,
             SUPPLIER_ID ,
             PROVIDER_NAME ,
             CITY_NAME ,
@@ -162,7 +162,7 @@
         )VALUES
         <foreach collection ="list" item="data" index= "index" separator =",">
             (
-            #{data.sku},
+            #{data.scId},
             #{data.supplierId},
             #{data.providerName},
             #{data.cityName},

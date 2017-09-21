@@ -138,7 +138,12 @@ public class BannerController {
 	 */
 	@ApiOperation(value = "批量删除轮播图",notes = "批量删除轮播图【负责人：张腾飞】")
 	@DeleteMapping("/deletebanners")
-	public Result deleteBanners(HttpServletRequest request,@RequestParam Long[] ids) {
-		return bannerService.deleteBanners(ids);
+	public Result deleteBanners(HttpServletRequest request,@RequestParam String ids) {
+		Long[] bannerIds = new Long[100];
+		String[] idss = ids.split(",");
+		for(int i=0;i<idss.length;i++) {
+			bannerIds[i] = Long.parseLong(idss[i]);
+		}
+		return bannerService.deleteBanners(bannerIds);
 	}
 }

@@ -440,9 +440,8 @@ public class AccountController {
     @ApiOperation(value = "根据商户ID修改当前默认运费规则",notes = "根据商户ID修改当前默认运费规则【负责人：郑振海】")
     public Result updateRulesByFreightRules(HttpServletRequest request,@RequestParam Integer freightRules){
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
-        //验证是否登录, 判断登录用户是否是管理员
-        if(user == null || !Constant.ADMIN_STATUS.equals(user.getIsAdmin()) ){
-            return Result.fail(Constant.MessageConfig.ADMIN_AUTHORITY_EERO);
+        if (null == user || Ognl.isEmpty(user.getAccountId())) {   //验证用户是否登陆
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
         return accountService.updateRulesByFreightRules(user.getAccountId(),freightRules) == true ? Result.success(Constant.MessageConfig.MSG_SUCCESS) : Result.fail("运费规则不完整或不存在！");
     }

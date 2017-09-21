@@ -160,10 +160,20 @@ public class CommodityOutput {
      */
     private int invalidStatus;
 
+
+    /**
+     *  最小起订量
+     */
+    private int minOrderQuantity;
     /**
      * 图片集合
      */
     private List<CommImgeVo> imgeList;
+
+    /**
+     * 审核意见
+     */
+    private String advice;
 
     public Long getId() {
         return id;
@@ -189,11 +199,11 @@ public class CommodityOutput {
         this.contractCity = contractCity;
     }
 
-    public int getSalesNumber() {
+    public Integer getSalesNumber() {
         return salesNumber;
     }
 
-    public void setSalesNumber(int salesNumber) {
+    public void setSalesNumber(Integer salesNumber) {
         this.salesNumber = salesNumber;
     }
 
@@ -450,5 +460,21 @@ public class CommodityOutput {
 
     public void setInvalidStatus(int invalidStatus) {
         this.invalidStatus = invalidStatus;
+    }
+
+    public int getMinOrderQuantity() {
+        return minOrderQuantity;
+    }
+
+    public void setMinOrderQuantity(int minOrderQuantity) {
+        this.minOrderQuantity = minOrderQuantity;
+    }
+
+    public String getAdvice() {
+        return advice;
+    }
+
+    public void setAdvice(String advice) {
+        this.advice = advice;
     }
 }

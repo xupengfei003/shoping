@@ -14,8 +14,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
-@RequestMapping("/comm/hotCommodities")
-@Api(description = "热门商品接口")
+@RequestMapping("/external/hotCommodities")
+@Api(description = "运维-热门商品接口")
 public class HotCommoditiesController {
 
     @Autowired
@@ -23,18 +23,19 @@ public class HotCommoditiesController {
 
     @ApiOperation(value="查询热门商品列表", notes="负责人：张瑞兵")
     @GetMapping(value="/searchAll")
-    public Result searchHotCommodity(HttpServletRequest request, HotCommodityInput hotCommodityInput) {
+    public Result searchHotCommodity( HotCommodityInput hotCommodityInput) {
         return hotCommoditiesService.searchHotCommodities(hotCommodityInput);
     }
 
     @ApiOperation(value="按条件查询所有的商品列表", notes="负责人：张瑞兵")
     @GetMapping(value="/searchCommodity")
-    public Result searchCommodity(HttpServletRequest request, AddHotCommInput addHotCommInput) {
+    public Result searchCommodity( AddHotCommInput addHotCommInput) {
         return hotCommoditiesService.searchCommodities(addHotCommInput);
     }
+
     @ApiOperation(value="保存所有热门商品", notes="负责人：张瑞兵")
     @PostMapping(value="/saveAll")
-    public Result saveAll(HttpServletRequest request, @RequestBody List<HotCommoditySaveInput> hotCommoditySaveInputs) {
+    public Result saveAll( @RequestBody List<HotCommoditySaveInput> hotCommoditySaveInputs) {
         return hotCommoditiesService.saveAllHotCommodity(hotCommoditySaveInputs);
     }
 

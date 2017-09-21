@@ -1,6 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="so.sao.shop.supplier.dao.SupplierCommodityTmpDao">
+<resultMap id="BaseResultMap" type="so.sao.shop.supplier.domain.SupplierCommodity">
+        <id column="ID" property="id"/>
+        <result column="SKU" property="sku"/>
+        <result column="SUPPLIER_ID" property="supplierId"/>
+        <result column="CODE" property="code"/>
+        <result column="CODE69" property="code69"/>
+        <result column="tag_id" property="tagId"/>
+        <result column="measure_spec_id" property="measureSpecId"/>
+        <result column="RULE_VAL" property="ruleVal"/>
+        <result column="INVENTORY" property="inventory"/>
+        <result column="unit_id" property="unitId"/>
+        <result column="MIN_IMG" property="minImg"/>
+        <result column="PRICE" property="price"/>
+        <result column="UNIT_PRICE" property="unitPrice"/>
+        <result column="CREATED_BY" property="createdBy"/>
+        <result column="CREATED_AT" property="createdAt"/>
+        <result column="UPDATED_BY" property="updatedBy"/>
+        <result column="UPDATED_AT" property="updatedAt"/>
+        <result column="DELETED" property="deleted"/>
+        <result column="INVALID_STATUS" property="invalidStatus"/>
+        <result column="STATUS" property="status"/>
+        <result column="REMARK" property="remark"/>
+        <result column="min_order_quantity" property="minOrderQuantity"/>
+	</resultMap>
 
     <!--新增-->
     <insert id="save">
@@ -23,9 +47,9 @@
             status,
             remark,
             tag_id,
-            sku,
             min_order_quantity,
-            sca_id
+            sca_id,
+            invalid_status
         )VALUES (
             #{supplierId},
             #{code},
@@ -45,10 +69,33 @@
             #{status},
             #{remark},
             #{tagId},
-            #{sku},
             #{minOrderQuantity},
-            #{scaId}
+            #{scaId},
+            #{invalidStatus}
         )
     </insert>
+
+    <!--获取商品编辑待审核数据表详情-->
+    <select id="findSupplierCommodityTmpByScaId" resultType="so.sao.shop.supplier.domain.SupplierCommodityTmp">
+        SELECT
+        id,
+        sca_id AS scaId,
+        sku,
+        remark,
+        code,
+        code69,
+        rule_val AS ruleVal,
+        inventory,
+        min_img AS minImg,
+        price,
+        unit_price AS unitPrice,
+        created_at AS createdAt,
+        updated_at AS updatedAt,
+        supplier_id AS supplierId,
+        status,
+        min_order_quantity AS minOrderQuantity
+        FROM supplier_commodity_tmp
+        WHERE  sca_id = #{id}
+    </select>
 
 </mapper>

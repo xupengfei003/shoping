@@ -42,26 +42,42 @@
     <!--批量新增供应商商品审核记录-->
     <insert id="saveBatch" parameterType="java.util.List">
         insert into supplier_commodity_audit
-        (sc_id, supplier_id, created_at, status, audit_result, audit_flag)
+        (
+        sc_id,
+        supplier_id,
+        created_at,
+        updated_at,
+        status,
+        audit_result,
+        audit_flag
+        )
         values
         <foreach collection="list" item="item" open="" close="" separator=",">
-          (#{item.scId}, #{item.supplierId}, #{item.createdAt}, #{item.status}, #{item.auditResult}, #{item.auditFlag})
+          (
+            #{item.scId},
+            #{item.supplierId},
+            #{item.createdAt},
+            #{item.updatedAt},
+            #{item.status},
+            #{item.auditResult},
+            #{item.auditFlag}
+          )
         </foreach>
     </insert>
 
-    <!--根据scId和audit_flag判断该供应商商品是否已处于待审核状态-->
-    <select id="countByScidAndAuditFlag" resultType="int">
+    <!--根据scId和audit_result判断该供应商商品是否已处于待审核状态-->
+    <select id="countByScidAndAuditResult" resultType="int">
         select
         count(id) as num
-        from supplier_commodity_audit where audit_flag = 1 AND sc_id = #{1}
+        from supplier_commodity_audit where audit_result = 2 AND sc_id = #{1}
     </select>
 
-    <!--根据scId数组和audit_flag判断该供应商商品数组中是否有已处于待审核状态的商品-->
-    <select id="countByScidArrayAndAuditFlag" resultType="int">
+    <!--根据scId数组和audit_result判断该供应商商品数组中是否有已处于待审核状态的商品-->
+    <select id="countByScidArrayAndAuditResult" resultType="int">
         select
         count(id) as num
         from supplier_commodity_audit
-        where audit_flag = 1
+        where audit_result = 2
         AND sc_id IN
         <foreach collection="ids" open="(" close=")" separator="," item="sc_id">
           #{sc_id}
@@ -77,4 +93,118 @@
         WHERE
         sc_id = #{scId}
     </update>
+
+    <!--根据scId更新当前操作标记-->
+    <update id="updateAuditFlagByList" parameterType="java.util.List">
+        UPDATE
+        supplier_commodity_audit
+        SET
+        audit_flag = #{auditFlag}
+        WHERE
+        sc_id IN
+        <foreach collection="list" open="(" close=")" separator="," item="item">
+            #{item.scId}
+        </foreach>
+    </update>
+
+    <!--获取审核商品详情-->
+    <select id="findSupplierCommodityAuditById" resultType="so.sao.shop.supplier.domain.SupplierCommodityAudit">
+        SELECT
+        id,
+        sc_id AS scId,
+        supplier_id AS supplierId,
+        updated_at AS updatedAt,
+        created_at AS createdAt,
+        status,
+        audit_result AS auditResult,
+        audit_flag AS auditFlag,
+        audit_by AS auditBy,
+        audit_opinion  AS auditOpinion
+        FROM supplier_commodity_audit sca
+        WHERE  sca.id = #{id}
+    </select>
+
+    <!--更新审核表-->
+    <update id="updateSupplierCommodityAuditById"  parameterType="so.sao.shop.supplier.domain.SupplierCommodityAudit">
+        UPDATE supplier_commodity_audit
+        SET
+        audit_result = #{auditResult},
+        audit_flag = #{auditFlag},
+        audit_by = #{auditBy},
+        audit_opinion = #{auditOpinion},
+        status = #{status},
+        updated_at = #{updatedAt},
+        audit_by = #{auditBy}
+        WHERE id = #{id}
+    </update>
+    <!-- 查询所有审核数据 -->
+    <select id="findCommodityAudit" resultType="so.sao.shop.supplier.pojo.vo.CommodityAuditinputVo">
+        SELECT * FROM (
+        SELECT
+        t1.id AS id,
+        sc.id AS scId,
+        sc.supplier_id AS supplierId,
+        sc.min_img AS minImg,
+        c.code69 AS code69,
+        sc.code AS code,
+        cb.name AS brandName,
+        c.name AS name,
+        cu.name AS unitName,
+        cms.name AS measureSpecName,
+        sc.rule_val AS ruleVal,
+        sc.inventory AS inventory,
+        sc.price AS price,
+        sc.unit_price AS unitPrice,
+        t1.created_at AS createdAt,
+        t1.updated_at AS updatedAt,
+        sc.min_order_quantity AS minOrderQuantity,
+        t1.audit_result AS auditResult,
+        t1.audit_opinion AS auditOpinion,
+        t1.status AS status
+        FROM `supplier_commodity` sc
+        RIGHT JOIN (SELECT * FROM `supplier_commodity_audit` t WHERE t.`status` != 6) t1
+        ON sc.`id` = t1.sc_id
+        INNER JOIN (commodity c LEFT JOIN comm_brand cb ON c.brand_id = cb.id) ON sc.code69 = c.code69
+        LEFT JOIN comm_measure_spec cms ON sc.measure_spec_id = cms.id
+        LEFT JOIN comm_unit cu ON sc.unit_id = cu.id
+        WHERE sc.`deleted` = 0
+        UNION
+        SELECT
+        t1.id AS id,
+        t1.sc_id AS scId,
+        t1.supplier_id AS supplierId,
+        sctmp.min_img AS minImg,
+        sctmp.code69 AS code69,
+        sctmp.code AS code,
+        cb.name AS brandName,
+        c.name AS name,
+        cu.name AS unitName,
+        cms.name AS measureSpecName,
+        sctmp.rule_val AS ruleVal,
+        sctmp.inventory AS inventory,
+        sctmp.price AS price,
+        sctmp.unit_price AS unitPrice,
+        t1.created_at AS createdAt,
+        t1.updated_at AS updatedAt,
+        sctmp.min_order_quantity AS minOrderQuantity,
+        t1.audit_result AS auditResult,
+        t1.audit_opinion AS auditOpinion,
+        t1.status AS status
+        FROM `supplier_commodity_tmp` sctmp
+        RIGHT JOIN (SELECT * FROM `supplier_commodity_audit` t WHERE t.`status` = 6) t1
+        ON sctmp.`sca_id` = t1.id
+        INNER JOIN (commodity c LEFT JOIN comm_brand cb ON c.brand_id = cb.id) ON sctmp.code69 = c.code69
+        LEFT JOIN comm_measure_spec cms ON sctmp.measure_spec_id = cms.id
+        LEFT JOIN comm_unit cu ON sctmp.unit_id = cu.id
+        ) t
+        <where>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(status)">
+                AND t.status = #{status}
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(auditResult)">
+                AND t.auditResult = #{auditResult}
+            </if>
+        </where>
+        ORDER BY t.createdAt ASC
+    </select>
 </mapper>

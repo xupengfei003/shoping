@@ -1,5 +1,7 @@
 package so.sao.shop.supplier.pojo.output;
 
+import so.sao.shop.supplier.config.CommConstant;
+
 /**
  * <p>Title: CommodityBannerOut</p>
  * <p>Description:轮播图商品列表返回值 </p>
@@ -127,7 +129,7 @@ public class CommodityBannerOut {
 		return status;
 	}
 	public void setStatus(String status) {
-		this.status = status;
+		this.status = CommConstant.getStatus(Integer.parseInt(status));
 	}
 	
 }

@@ -3,6 +3,8 @@ package so.sao.shop.supplier.dao;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import so.sao.shop.supplier.domain.SupplierCommodity;
+import so.sao.shop.supplier.domain.SupplierCommodityAudit;
+import so.sao.shop.supplier.domain.SupplierCommodityTmp;
 import so.sao.shop.supplier.pojo.input.CommSearchInput;
 import so.sao.shop.supplier.pojo.output.CommodityBannerOut;
 import so.sao.shop.supplier.pojo.output.CommodityOutput;
@@ -60,6 +62,13 @@ public interface SupplierCommodityDao {
     CommodityOutput findDetail(@Param("id")long id);
 
     /**
+     * 查询编辑后的商品详情
+     * @param id
+     * @return
+     */
+    CommodityOutput findDetailTmp(@Param("id")long id);
+
+    /**
      * 根据商品ID查询购物车所需字段
      * @param id
      * @return
@@ -111,6 +120,14 @@ public interface SupplierCommodityDao {
     int findStatus(@Param("id")long id);
 
     /**
+     * 根据供应商商品ID查询商品状态
+     * @param id 商品id
+     * @return 商品状态
+     */
+    int findSupplierCommStatus(@Param("id")long id);
+
+
+    /**
      * 删除商品
      * @param id 商品
      * @return 删除结果
@@ -118,13 +135,13 @@ public interface SupplierCommodityDao {
     boolean deleteById(@Param("id") long id, @Param("deleted") Boolean deleted, @Param("updatedAt")Date updatedBy);
 
     /**
-     * 上下架商品
+     * 上下架商品（仅限待上架商品的下架与管理员上下架操作）
      * @param supplierCommodity
      */
     void onOrOffShelves(SupplierCommodity supplierCommodity);
 
     /**
-     * 批量上下架商品
+     * 批量上下架商品（仅限待上架商品的批量下架与管理员批量上下架操作操作）
      * @param list
      */
     void onOrOffShelvesBatch(List<SupplierCommodity> list);
@@ -228,4 +245,17 @@ public interface SupplierCommodityDao {
      * @return 轮播图商品信息列表
      */
     List<CommodityBannerOut> findCommByNameAndCategory(@Param("commodityName") String commodityName,@Param("categoryOneId") Long categoryOneId,@Param("categoryTwoId") Long categoryTwoId,@Param("categoryThreeId") Long categoryThreeId);
+
+
+    /**
+     * 根据id更新SupplierCommodity表 status状态
+     * @param id
+     * @param status
+     * @param updatedAt
+     * @return
+     */
+    void updateSupplierCommodityStatusById(@Param("id")Long id, @Param("status") int status, @Param("updatedAt") Date updatedAt);
+
+
+
 }

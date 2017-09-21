@@ -48,7 +48,7 @@ public class HotCategoriesController {
      * @return
      */
     @ApiOperation(value="更换icon", notes="更换icon")
-    @PutMapping(value="/updateIcon")
+    @PostMapping(value="/updateIcon")
     public Result updateIcon(MultipartFile file){
 
         return hotCategoriesService.updateIcon(file);

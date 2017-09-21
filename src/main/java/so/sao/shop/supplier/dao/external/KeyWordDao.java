@@ -11,7 +11,7 @@ public interface KeyWordDao {
 
     void save( List<KeyWord> keyWords);
 
-    void update(@Param("id") Long id, @Param("keyWordValue") String keyWordValue);
+    void update(KeyWord keyWord);
 
     List<KeyWord> findAll();
 

@@ -1,10 +1,14 @@
 package so.sao.shop.supplier.pojo.input;
 
+import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
 import so.sao.shop.supplier.pojo.vo.PurchaseItemVo;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.util.List;
 
 /**
@@ -44,17 +48,31 @@ public class PurchaseInput {
     @NotEmpty(message="收货人地址不能为空")
     private String orderAddress;
     /**
-     * 支付方式
-     */
-    @NotNull(message="支付方式不能为空")
-    private Integer orderPaymentMethod;
-    /**
      * 订单详情信息
      */
     @NotNull(message="商品列表属性不能为空")
     @Valid
     private List<PurchaseItemVo> listPurchaseItem;
 
+    /**
+     * 省
+     */
+    @Pattern(regexp = "^.{0}$|^.{6}$",message = "省份code码为6位")
+    private String province;
+
+    /**
+     * 市
+     *
+     */
+    @Pattern(regexp = "^.{0}$|^.{6}$",message = "省份code码为6位")
+    private String city;
+
+    /**
+     * 区
+     *
+     */
+    @Pattern(regexp = "^.{0}$|^.{6}$",message = "省份code码为6位")
+    private String district;
 
     public Long getUserId() {
         return userId;
@@ -88,14 +106,6 @@ public class PurchaseInput {
         this.orderAddress = orderAddress;
     }
 
-    public Integer getOrderPaymentMethod() {
-        return orderPaymentMethod;
-    }
-
-    public void setOrderPaymentMethod(Integer orderPaymentMethod) {
-        this.orderPaymentMethod = orderPaymentMethod;
-    }
-
     public List<PurchaseItemVo> getListPurchaseItem() { return listPurchaseItem; }
 
     public void setListPurchaseItem(List<PurchaseItemVo> listPurchaseItem) { this.listPurchaseItem = listPurchaseItem; }
@@ -108,4 +118,27 @@ public class PurchaseInput {
         this.userName = userName;
     }
 
+    public String getProvince() {
+        return province;
+    }
+
+    public void setProvince(String province) {
+        this.province = province;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getDistrict() {
+        return district;
+    }
+
+    public void setDistrict(String district) {
+        this.district = district;
+    }
 }

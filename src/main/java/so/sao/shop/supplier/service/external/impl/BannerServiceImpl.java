@@ -234,6 +234,9 @@ public class BannerServiceImpl implements BannerService {
 	 */
 	@Override
 	public Result deleteBanners(Long[] ids) {
+		if(ids == null) {
+			return Result.fail("请选择要删除的轮播图");
+		}
 		for (long id : ids) {
 			BannerOut banner = bannerDao.findOne(id);
 			if("2".equals(banner.getStatus())) {

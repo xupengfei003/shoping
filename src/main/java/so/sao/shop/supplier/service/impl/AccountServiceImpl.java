@@ -480,6 +480,7 @@ public class AccountServiceImpl implements AccountService {
     }
     /**
      * 根据商户ID修改当前默认运费规则
+     * TODO 未完----默认设置
      * @param account
      * @param freightRules
      */
@@ -488,11 +489,11 @@ public class AccountServiceImpl implements AccountService {
          * 1.获取所有配送规则记录
          * 2.判断集合中是否匹配入参中的运费规则类型，匹配则修改并返回true,不匹配则返回false
          */
-        List<FreightRules> list = freightRulesDao.queryAll(account,freightRules);
-        if (null == list || list.isEmpty()){
+        List<FreightRules> firstList = freightRulesDao.queryAll(account,freightRules);
+        if (null == firstList || firstList.isEmpty()){
             return false;
         }else {
-            for (FreightRules freightRule:list) {
+            for (FreightRules freightRule:firstList) {
                 if (null == freightRule.getWhetherShipping()){
                     return false;
                 }

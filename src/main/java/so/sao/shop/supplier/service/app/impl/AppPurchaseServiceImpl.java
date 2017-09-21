@@ -53,6 +53,7 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
         List<AppPurchaseOutput> appPurchaseOutputs = new ArrayList<>();//接收返回list
         List<AppPurchaseItemVo> appPurchaseItemVoList = getAllOrderItemList(orderIdList,orderStatus);//接收详情列表
         for (AppPurchasesVo appPurchasesVo : orderList) {
+
             List<AppPurchaseItemVo> appPurchaseItemVoListInner = new ArrayList<>();
             AppPurchaseOutput appPurchaseOutput;
             int goodsAllNum = 0;//计算该订单下所有商品总数
@@ -82,6 +83,14 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
             appPurchaseOutput = BeanMapper.map(appPurchasesVo,AppPurchaseOutput.class);
             appPurchaseOutput.setAppPurchaseItemVos(appPurchaseItemVoListInner);
             appPurchaseOutput.setGoodsAllNum(goodsAllNum);
+            //输出运费
+            //1.如果运费为0，则显示“包邮”
+            //2.如果有运费，则输出实际金额的千分值
+            if(appPurchasesVo.getOrderPostage().intValue() == 0){
+                appPurchaseOutput.setOrderPostage("包邮");
+            } else {
+                appPurchaseOutput.setOrderPostage(NumberUtil.number2Thousand(appPurchasesVo.getOrderPostage()));
+            }
             //当查询订单状态为1时将计算后的总价赋值输出
             if(goodsAllPrice.intValue() > 0){
                 appPurchaseOutput.setOrderPrice(NumberUtil.number2Thousand(new BigDecimal(String.valueOf(goodsAllPrice))));

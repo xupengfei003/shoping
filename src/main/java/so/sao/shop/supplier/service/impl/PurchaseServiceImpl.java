@@ -70,7 +70,8 @@ public class PurchaseServiceImpl implements PurchaseService {
     private AzureBlobService azureBlobService; // azure blob存储相关
     @Resource
     private NotificationDao notificationDao;
-
+    @Resource
+    private FreightRulesDao freightRulesDao;//运费规则
     /**
      * 保存订单信息
      *
@@ -126,6 +127,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             String orderId = NumberGenerate.generateUuid();
             BigDecimal totalMoney = new BigDecimal(0);//订单总价计算
             BigDecimal orderSettlemePrice = new BigDecimal(0);//结算金额
+            BigDecimal totalNumber = new BigDecimal(0);//订单总数量
             for (PurchaseItemVo purchaseItem : listPurchaseItem) {
                 //根据商品ID查询商户ID
                 Long goodsId = purchaseItem.getGoodsId();//商品ID
@@ -133,15 +135,21 @@ public class PurchaseServiceImpl implements PurchaseService {
                 //判断当前商品是否属于该商户
                 if (null != accountUser && sId.equals(accountUser.getAccountId())) {
                     BigDecimal goodsNumber = new BigDecimal(purchaseItem.getGoodsNumber());//商品数量
+                    totalNumber = totalNumber.add(goodsNumber);//商品总数量
                     String goodsAttribute = purchaseItem.getGoodsAttribute();//商品属性
                     //查询商品信息
                     Result result = commodityService.getCommodity(goodsId);
                     CommodityOutput commOutput = (CommodityOutput) result.getData();
+                    //判断是否满足最小起订量
+                    if (!this.checkMinOrderQuantity(commOutput,goodsNumber)){
+                        output.put("message","存在商品不满足最小起订量");
+                        return output;
+                    }
                     //2.生成批量插入订单详情数据
                     PurchaseItem item = new PurchaseItem();
                     item.setGoodsAttribute(goodsAttribute);//商品属性
                     item.setGoodsId(goodsId);//商品ID
-                    item.setCode69(commOutput.getCode69()); //TODO 添加商品条码code69
+                    item.setCode69(commOutput.getCode69()); //添加商品条码code69
                     item.setGoodsNumber(goodsNumber.intValue());//商品数量
                     inventoryMap.put(commOutput.getId(), goodsNumber.negate());//记录该商品购买数量
                     BigDecimal price = commOutput.getPrice();//市场价
@@ -163,7 +171,6 @@ public class PurchaseServiceImpl implements PurchaseService {
             String orderReceiverName = purchase.getOrderReceiverName();//收货人姓名
             String orderReceiverMobile = purchase.getOrderReceiverMobile();//收货人电话
             String orderAddress = purchase.getOrderAddress();//收货人地址
-            Integer orderPaymentMethod = purchase.getOrderPaymentMethod();//支付方式
             Purchase purchaseDate = new Purchase();
             purchaseDate.setOrderId(orderId);//订单ID
             purchaseDate.setPayId(payId);//合并支付单号
@@ -175,13 +182,18 @@ public class PurchaseServiceImpl implements PurchaseService {
             purchaseDate.setOrderReceiverName(orderReceiverName);//收货人姓名
             purchaseDate.setOrderReceiverMobile(orderReceiverMobile);//收货人电话
             purchaseDate.setOrderAddress(orderAddress);//收货人地址
-            purchaseDate.setOrderPaymentMethod(orderPaymentMethod);//支付方式
             purchaseDate.setOrderPrice(totalMoney);//订单实付金额
             purchaseDate.setOrderSettlemePrice(orderSettlemePrice);//订单结算金额
             purchaseDate.setOrderCreateTime(new Date());//下单时间
             purchaseDate.setOrderStatus(Constant.OrderStatusConfig.PAYMENT);//订单状态 1待付款2代发货3已发货4已收货5已拒收6已退款
             purchaseDate.setUpdatedAt(new Date());//更新时间
-            // TODO 邮费计算
+            //邮费计算
+            Map map = this.getFreightRulesByAccountId(account.getAccountId(),totalMoney,BigDecimal.valueOf(totalNumber.intValue()),purchase);
+            if ((Integer)map.get("status") == 1){
+                purchaseDate.setOrderPostage((BigDecimal) map.get("totalMoney"));
+            }else {
+                return map;
+            }
             listPurchase.add(purchaseDate);
             /*
                1.根据商品编号更改库存数量
@@ -212,7 +224,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                 }
                 for (Purchase obj : listPurchase) {
                     //计算所有订单总金额
-                    totalMoney = totalMoney.add(obj.getOrderPrice());
+                    totalMoney = totalMoney.add(obj.getOrderPrice().add(obj.getOrderPostage()));
                 }
             } else {//保存订单失败，主动回滚
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();//主动回滚
@@ -967,10 +979,16 @@ public class PurchaseServiceImpl implements PurchaseService {
         map.put("orderStatus", Constant.OrderStatusConfig.REJECT);//订单状态 5 拒收
         purchaseDao.insertRefuseMessage(map);
         List<CommBlobUpload> imgList = new ArrayList<>();
-        for(int i = 0;i<refuseOrderInput.getRefuseImg().size(); i++){
-            imgList.add(disposeImage(refuseOrderInput.getRefuseImg().get(i)));//拒收图片URL
+        //1.如果拒收图片不传入，则不进行图片格式转换；
+        //2.如果没有拒收图片，则不存入数据库
+        if(refuseOrderInput.getRefuseImg().size()>0){
+            for(int i = 0;i<refuseOrderInput.getRefuseImg().size(); i++){
+                imgList.add(disposeImage(refuseOrderInput.getRefuseImg().get(i)));//拒收图片URL
+            }
         }
-        purchaseDao.insertRefuseImg(map,imgList);
+        if(imgList.size()>0){
+            purchaseDao.insertRefuseImg(map,imgList);
+        }
         // 验证二维码是否存在，是否失效
         PurchasePrintVo purchasePrintVo = purchaseDao.findPrintOrderInfo(orderId); // 查询订单和二维码信息
         if (null == purchasePrintVo || null == purchasePrintVo.getQrcodeStatus()
@@ -1237,5 +1255,128 @@ public class PurchaseServiceImpl implements PurchaseService {
         System.gc();
         FileUtil.deleteDirectory(map.get("path"));
         return blobUpload;
+    }
+
+    /**
+     * 根据商户ID获取运费
+     * @param accountId
+     * @param totalMoney  订单总金额
+     * @param number 订单总数量
+     * @return
+     */
+    private Map<String,Object> getFreightRulesByAccountId(Long accountId,BigDecimal totalMoney,BigDecimal number,PurchaseInput purchaseInput ){
+        /**
+         * 1.获取商户当前默认运费规则
+         * 2.并根据运费规则计算运费
+         */
+        Map<String ,Object> map = new HashMap<>();
+        map.put("status",0);
+        Integer rules = accountDao.findRulesById(accountId);//获取商户当前默认运费规则
+        if (null == rules){
+            map.put("message","商户没有设置配送运费规则");
+            return map;
+        }
+        if (0 == rules){//通用运费规则
+            List<FreightRules> freightRulesList = freightRulesDao.queryAll0(accountId,rules);//获取对应运费规则记录
+            if (null != freightRulesList && !freightRulesList.isEmpty()) {
+                return this.getexpenses(freightRulesList.get(0),totalMoney,number);
+            }
+        }
+        if (1 == rules){//配送运送规则
+            List<FreightRules> freightRulesList = freightRulesDao.queryAll0(accountId,rules);//获取对应运费规则记录
+            if (null != freightRulesList && !freightRulesList.isEmpty()){
+                FreightRules freightRules = this.matchAddress(purchaseInput,freightRulesList) ;//地址匹配的配送规则对象
+                //计算运费
+                return this.getexpenses(freightRules,totalMoney,number);
+            }
+        }
+        return map;//匹配失败
+    }
+
+    /**
+     * 运费计算
+     * @param freightRules 配送规则
+     * @param totalMoney 订单总金额
+     * @param number 订单总数量
+     * @return 运费及状态码
+     */
+    private Map<String,Object> getexpenses(FreightRules freightRules,BigDecimal totalMoney,BigDecimal number){
+            Map<String ,Object> map = new HashMap<>();
+            map.put("status",0);
+
+            if (null != freightRules && freightRules.getSendAmount().compareTo(totalMoney) <= 0 ){//判断当前订单金额是否满足最新起送金额
+                if (0 == freightRules.getWhetherShipping()){//包邮
+                    map.put("status",1);
+                    map.put("totalMoney",BigDecimal.valueOf(0));
+                    return map;
+                }
+                if (1 == freightRules.getWhetherShipping()){//不包邮
+                    //订单运费 =  基础单位运费 * 基础配送基数 + 超量单位运费 * 超量配送数量
+                    BigDecimal defaultAmount = freightRules.getDefaultAmount();
+                    BigDecimal defaultPiece = BigDecimal.valueOf(freightRules.getDefaultPiece());
+                    BigDecimal expenses = defaultAmount;//基础价格
+                    if (number.compareTo(BigDecimal.valueOf(freightRules.getDefaultPiece())) >= 0){//订单数量大于基础配送数量
+                        BigDecimal excessPiece = BigDecimal.valueOf(freightRules.getExcessPiece());//超量配送数量
+                        BigDecimal excessAmount = freightRules.getExcessAmount();//超量单位运费
+                        BigDecimal excess = number.subtract(defaultPiece);//超出基础配送数量的部分
+                        expenses = excess.remainder(excessPiece).compareTo(BigDecimal.valueOf(0)) == 0 ?
+                                expenses.add(excessAmount.multiply(excess.divide(excessPiece))) : expenses.add(excessAmount.multiply(excess.divide(excessPiece).add(BigDecimal.valueOf(1))));
+                    }
+                    map.put("status",1);
+                    map.put("totalMoney",expenses);
+                    return map;
+                }
+            }else {
+                map.put("message","当前订单存在不满足配送条件的商品");
+                return map;
+            }
+        map.put("message",Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
+        return map;
+        }
+
+    /**
+     * 地址匹配 ---配送范围与下单收货地址的匹配
+     * @param purchaseInput 下单入参
+     * @param freightRulesList 配送规则
+     * @return
+     */
+    private FreightRules matchAddress(PurchaseInput purchaseInput, List<FreightRules> freightRulesList) {
+        FreightRules rulesCity = null;
+        FreightRules rulesProvince = null;
+        for (FreightRules freightRules:freightRulesList) {
+            if (freightRules.getAddressDistrict() .equals(purchaseInput.getDistrict())){//匹配区
+                return freightRules;
+            }
+            if (freightRules.getAddressCity().equals(purchaseInput.getCity())){//匹配市
+                rulesCity = freightRules;
+            }
+            if (freightRules.getAddressProvince().equals( purchaseInput.getProvince())){//匹配省
+                rulesProvince =  freightRules;
+            }
+        }
+        if (null != rulesCity ){
+            return rulesCity;
+        }
+        if (null != rulesProvince ){
+            return rulesProvince;
+        }
+        return null;
+    }
+
+    /**
+     * 判断购买商品数量是否满足最小起定量
+     * @param commOutput 商品对象
+     * @param goodsNumber 购买商品的数量
+     * @return
+     */
+    private boolean checkMinOrderQuantity(CommodityOutput commOutput, BigDecimal goodsNumber){
+        if (null != commOutput && null != goodsNumber){
+            if (commOutput.getMinOrderQuantity() > goodsNumber.intValue()){
+                return false;
+            }else {
+                return true;
+            }
+        }
+        return false;
     }
 }
