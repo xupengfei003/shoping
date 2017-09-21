@@ -144,10 +144,10 @@
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(categoryThreeId)">
             AND c.category_three_id = #{categoryThreeId}
         </if>
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(ids)">
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(brandIds)">
             AND cb.id IN
-            <foreach collection="ids" open="(" close=")" separator="," item="id">
-                #{id}
+            <foreach collection="brandIds" open="(" close=")" separator="," item="brandId">
+                #{brandId}
             </foreach>
         </if>
         ORDER BY sc.updated_at DESC
