@@ -59,6 +59,8 @@ public interface CommAppService {
  /**
   * 根据供应商IDID或商品名称或商品分类或品牌ID查询商品信息
   *
+  *
+  * @param code69 商品条码
   * @param supplierId 供应商ID
   * @param commName 商品名称
   * @param categoryOneId 一级分类id
@@ -69,7 +71,7 @@ public interface CommAppService {
   * @param pageSize 页面大小
   * @return
   */
- Result getCommodities(Long supplierId, String commName, Long categoryOneId, Long categoryTwoId, Long categoryThreeId, Long[] brandIds, Integer pageNum, Integer pageSize);
+ Result getCommodities(String code69, Long supplierId, String commName, Long categoryOneId, Long categoryTwoId, Long categoryThreeId, Long[] brandIds, Integer pageNum, Integer pageSize);
 
  /**
  * 查询供应商主营分类

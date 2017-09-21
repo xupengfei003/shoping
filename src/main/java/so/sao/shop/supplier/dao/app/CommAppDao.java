@@ -49,8 +49,8 @@ public interface CommAppDao {
     List<CommBrandOutput> findBrandName(@Param("name") String name);
 
     /**
-     * 根据供应商ID或商品名称或分类或品牌ID查询商品信息
-     *
+     * 根据code69或供应商ID或商品名称或分类或品牌ID查询商品信息
+     *@param code69 商品条码
      * @param supplierId 供应商
      * @param commName 商品名称
      * @param categoryOneId 一级分类id
@@ -59,7 +59,7 @@ public interface CommAppDao {
      * @param brandIds 品牌id集合
      * @return 商品详情列表
      */
-    List<CommAppOutput> findCommodities(@Param("supplierId")Long supplierId, @Param("commName") String commName, @Param("categoryOneId") Long categoryOneId, @Param("categoryTwoId") Long categoryTwoId, @Param("categoryThreeId") Long categoryThreeId, @Param("ids") Long[] brandIds);
+    List<CommAppOutput> findCommodities(@Param("code69")String code69,@Param("supplierId")Long supplierId, @Param("commName") String commName, @Param("categoryOneId") Long categoryOneId, @Param("categoryTwoId") Long categoryTwoId, @Param("categoryThreeId") Long categoryThreeId, @Param("ids") Long[] brandIds);
 
     /**
      * 供应商主营分类
