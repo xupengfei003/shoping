@@ -30,4 +30,11 @@
         FROM purchase
         WHERE order_id = #{orderId}
     </select>
+
+    <select id="findPayOrderTotalPrice" parameterType="java.lang.String" resultType="java.math.BigDecimal">
+        SELECT
+        SUM(order_price + order_postage)
+        FROM purchase
+        WHERE pay_id = #{payId}
+    </select>
 </mapper>

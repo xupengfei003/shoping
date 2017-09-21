@@ -2,6 +2,8 @@ package so.sao.shop.supplier.service;
 
 import so.sao.shop.supplier.pojo.input.PayInput;
 
+import java.math.BigDecimal;
+
 /**
  * Created by acer on 2017/8/15.
  */
@@ -23,4 +25,12 @@ public interface PayService {
      * @throws Exception 异常
      */
     boolean updatePurchasePaymentByOrderId(PayInput payInput) throws Exception;
+
+    /**
+     * 根据支付ID获取支付总金额
+     *
+     * @param payId 合并支付ID
+     * @return
+     */
+    BigDecimal getPayOrderTotalPriceByPayId(String payId);
 }
