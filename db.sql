@@ -44,7 +44,7 @@ CREATE TABLE `cart_item` (
 
 
 /*删除purchase表中拒收图片*/
-ALTER TABLE `ty_supplier`.`purchase`
+ALTER TABLE `purchase`
   DROP COLUMN `order_refuse_imgA`,
   DROP COLUMN `order_refuse_imgB`,
   DROP COLUMN `order_refuse_imgC`;
