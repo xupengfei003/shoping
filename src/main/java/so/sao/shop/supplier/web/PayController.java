@@ -81,7 +81,10 @@ public class PayController {
     @ApiOperation(value = "获取支付总金额",notes = "")
     public Result getPayOrderTotalPriceByPayId(@PathVariable String orderId){
         BigDecimal totalPrice = payService.getPayOrderTotalPriceByPayId(orderId);
-        return Result.success(Constant.MessageConfig.MSG_SUCCESS,totalPrice);
+        if (null != totalPrice) {
+            return Result.success(Constant.MessageConfig.MSG_SUCCESS,totalPrice);
+        }
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS,0);
     }
     //验证订单状态
     private boolean verifyOrderStatus(String orderId,Integer orderStatus) {
