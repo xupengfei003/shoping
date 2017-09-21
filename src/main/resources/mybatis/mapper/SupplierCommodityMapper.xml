@@ -732,8 +732,8 @@
         SET status = #{status} ,updated_at = #{updatedAt}
         WHERE id = #{id}
     </update>
-
     <!--根据商品id查询很出当前商品的状态-->
+
     <select id="findSupplierCommStatus" resultType="int">
         SELECT  count(*) FROM supplier_commodity_audit sca
         LEFT JOIN supplier_commodity_tmp sctmp   ON sctmp.sca_id = sca.id

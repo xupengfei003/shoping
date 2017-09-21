@@ -386,7 +386,7 @@ public class CommodityServiceImpl implements CommodityService {
         //存放查询到的商品详细信息
         CommodityOutput commodityOutput = null;
         //如果是商品的状态是否是 6 (编辑待审核),则根据供应商商品ID获取编辑后的商品信息
-        if (status == CommConstant.COMM_EDIT_AUDIT){
+        if (status > 0){
             commodityOutput = supplierCommodityDao.findDetailTmp(id);
             if (null != commodityOutput){
                 //根据供应商商品ID获取图片列表信息
