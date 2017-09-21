@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
-@RequestMapping("/comm/hotCommodities")
+@RequestMapping("/external/hotCommodities")
 @Api(description = "运维-热门商品接口")
 public class HotCommoditiesController {
 
