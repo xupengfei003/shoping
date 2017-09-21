@@ -106,10 +106,8 @@ public class CommodityServiceImpl implements CommodityService {
         //验证请求体
         Result result = validateCommodityInput(commodityInput);
         if(result.getCode() == 0) return result;
-        //获取商品分类code码
-        String commCategoryCode = (String)result.getData();
         //验证品牌是否存在，不存在则新增
-        CommBrand brand = commBrandDao.findByName(commodityInput.getBrandName());
+        CommBrand brand = commBrandDao.findById(commodityInput.getBrandId());
         if (null == brand){
             brand = new CommBrand();
             brand.setCreatedAt(new Date());
@@ -172,8 +170,6 @@ public class CommodityServiceImpl implements CommodityService {
             sc.setUpdatedBy(supplierId);
             sc.setCreatedAt(new Date());
             sc.setUpdatedAt(new Date());
-            String sku = CommUtil.createSku(commCategoryCode, commodity.getId(), supplierId);
-            sc.setSku(sku);
             //若供应商被禁用，新增的商品是失效状态
             if(account.getAccountStatus()==CommConstant.ACCOUNT_INVALID_STATUS){
                 sc.setInvalidStatus(CommConstant.COMM_INVALID_STATUS);
@@ -240,9 +236,7 @@ public class CommodityServiceImpl implements CommodityService {
                 return Result.fail("商品标签不存在！");
             }
         }
-        //拼装商品分类code码
-        String commCategoryCode = commCategoryOne.getCode() + commCategoryTwo.getCode() + commCategoryThree.getCode();
-        return Result.success("校验通过", commCategoryCode);
+        return Result.success("校验通过");
     }
 
     /**
@@ -354,16 +348,18 @@ public class CommodityServiceImpl implements CommodityService {
                 SupplierCommodityTmp sct = BeanMapper.map(commodityVo, SupplierCommodityTmp.class);
                 SupplierCommodity sc = supplierCommodityDao.findOne(commodityVo.getId());
                 sct.setCode69(sc.getCode69());
-                sct.setSku(sc.getSku());
+                sct.setStatus(sc.getStatus());
+                sct.setDeleted(sc.getDeleted());
+                sct.setCreatedAt(sc.getCreatedAt());
+                sct.setUpdatedAt(sc.getUpdatedAt());
+                sct.setInvalidStatus(sc.getInvalidStatus());
                 sct.setRemark(commodityUpdateInput.getRemark());
                 sct.setTagId(commodityUpdateInput.getTagId());
-                sct.setCreatedAt(new Date());
-                sct.setUpdatedAt(new Date());
+                sct.setId(commodityVo.getId());
+                sct.setSupplierId(supplierId);
                 sct.setUpdatedBy(supplierId);
                 sct.setCreatedBy(supplierId);
-                sct.setId(commodityVo.getId());
                 sct.setScaId(sca.getId());
-                sct.setSupplierId(supplierId);
                 supplierCommodityTmpDao.save(sct);
                 //修改后图片数据保存
                 List<CommImgeTmp> commImgeTmps = new ArrayList<>();

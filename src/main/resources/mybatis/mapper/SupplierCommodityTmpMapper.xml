@@ -47,9 +47,9 @@
             status,
             remark,
             tag_id,
-            sku,
             min_order_quantity,
-            sca_id
+            sca_id,
+            invalid_status
         )VALUES (
             #{supplierId},
             #{code},
@@ -69,9 +69,9 @@
             #{status},
             #{remark},
             #{tagId},
-            #{sku},
             #{minOrderQuantity},
-            #{scaId}
+            #{scaId},
+            #{invalidStatus}
         )
     </insert>
 
