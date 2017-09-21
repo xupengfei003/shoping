@@ -439,9 +439,7 @@ public class CommodityServiceImpl implements CommodityService {
         PageTool.startPage(commSimpleSearchInput.getPageNum(), commSimpleSearchInput.getPageSize());
         List<SuppCommSearchVo> respList = supplierCommodityDao.findSimple(commSimpleSearchInput.getSupplierId(), commSimpleSearchInput.getInputvalue(), beginCreateAt, endCreateAt);
         respList.forEach(suppCommSearchVo->{
-            int statusNum = DataCompare.formatInteger(suppCommSearchVo.getStatus());
-            suppCommSearchVo.setStatusNum(statusNum);
-            suppCommSearchVo.setStatus(CommConstant.getStatus(statusNum));
+            suppCommSearchVo.setStatus(CommConstant.getStatus(suppCommSearchVo.getStatusNum()));
             //转换金额为千分位
             suppCommSearchVo.setUnitPrice(NumberUtil.number2ThousandFormat(suppCommSearchVo.getUnitPrice()));
             suppCommSearchVo.setPrice(NumberUtil.number2ThousandFormat(suppCommSearchVo.getPrice()));
@@ -470,9 +468,7 @@ public class CommodityServiceImpl implements CommodityService {
         PageTool.startPage(commSearchInput.getPageNum(), commSearchInput.getPageSize());
         List<SuppCommSearchVo> respList = supplierCommodityDao.find(commSearchInput);
         respList.forEach(suppCommSearchVo->{
-            int statusNum = DataCompare.formatInteger(suppCommSearchVo.getStatus());
-            suppCommSearchVo.setStatusNum(statusNum);
-            suppCommSearchVo.setStatus(CommConstant.getStatus(statusNum));
+            suppCommSearchVo.setStatus(CommConstant.getStatus(suppCommSearchVo.getStatusNum()));
             //转换金额为千分位
             suppCommSearchVo.setPrice(NumberUtil.number2ThousandFormat(suppCommSearchVo.getPrice()));
             suppCommSearchVo.setUnitPrice(NumberUtil.number2ThousandFormat(suppCommSearchVo.getUnitPrice()));

@@ -1,7 +1,6 @@
 package so.sao.shop.supplier.pojo.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import so.sao.shop.supplier.pojo.output.CommodityAuditinputOutput;
 
 import java.math.BigDecimal;
 import java.util.Date;

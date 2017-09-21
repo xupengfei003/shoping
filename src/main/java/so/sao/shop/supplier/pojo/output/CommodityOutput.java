@@ -170,6 +170,11 @@ public class CommodityOutput {
      */
     private List<CommImgeVo> imgeList;
 
+    /**
+     * 审核意见
+     */
+    private String advice;
+
     public Long getId() {
         return id;
     }
@@ -463,5 +468,13 @@ public class CommodityOutput {
 
     public void setMinOrderQuantity(int minOrderQuantity) {
         this.minOrderQuantity = minOrderQuantity;
+    }
+
+    public String getAdvice() {
+        return advice;
+    }
+
+    public void setAdvice(String advice) {
+        this.advice = advice;
     }
 }
