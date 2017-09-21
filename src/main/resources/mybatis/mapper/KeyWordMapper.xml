@@ -59,7 +59,7 @@
         create_at AS createAt,
         update_at AS updateAt
         FROM key_word
-        ORDER BY update_at
+        ORDER BY sort
     </select>
 
     <!--删除所有数据-->
