@@ -44,11 +44,6 @@ public class PurchaseInput {
     @NotEmpty(message="收货人地址不能为空")
     private String orderAddress;
     /**
-     * 支付方式
-     */
-    @NotNull(message="支付方式不能为空")
-    private Integer orderPaymentMethod;
-    /**
      * 订单详情信息
      */
     @NotNull(message="商品列表属性不能为空")
@@ -86,14 +81,6 @@ public class PurchaseInput {
 
     public void setOrderAddress(String orderAddress) {
         this.orderAddress = orderAddress;
-    }
-
-    public Integer getOrderPaymentMethod() {
-        return orderPaymentMethod;
-    }
-
-    public void setOrderPaymentMethod(Integer orderPaymentMethod) {
-        this.orderPaymentMethod = orderPaymentMethod;
     }
 
     public List<PurchaseItemVo> getListPurchaseItem() { return listPurchaseItem; }
