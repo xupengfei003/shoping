@@ -94,6 +94,12 @@ public class CommodityExportOutput {
      */
     private String updatedAt;
 
+    /**
+     *
+     * 最小起订量
+     */
+    private  int minOrderQuantity;
+
     public Long getId() {
         return id;
     }
@@ -246,27 +252,32 @@ public class CommodityExportOutput {
         this.statusName = CommConstant.getStatus(status);
     }
 
+    public int getMinOrderQuantity() {return minOrderQuantity;}
+
+    public void setMinOrderQuantity(int minOrderQuantity) {this.minOrderQuantity = minOrderQuantity;}
+
     @Override
     public String toString() {
         return
                 sku +
-            "," + code69 +
-            "," + brandName +
-            "," + tagName +
-            "," + commName  +
-            "," + supplierCode +
-            "," + unitName +
-            "," + measureSpecName +
-            "," + ruleValue +
-            "," + price +
-            "," + unitPrice +
-            "," + inventory +
-            "," + statusName +
-            "," + createdAt +
-            "," + updatedAt +
-            "," + companyName +
-            "," + originPlace +
-            "," + marketTime ;
+                        "," + code69 +
+                        "," + brandName +
+                        "," + tagName +
+                        "," + commName  +
+                        "," + supplierCode +
+                        "," + unitName +
+                        "," + measureSpecName +
+                        "," + ruleValue +
+                        "," + price +
+                        "," + unitPrice +
+                        "," + inventory +
+                        "," + statusName +
+                        "," + createdAt +
+                        "," + updatedAt +
+                        "," + companyName +
+                        "," + originPlace +
+                        "," + marketTime +
+                        "," + minOrderQuantity ;
 
     }
 }

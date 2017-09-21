@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="so.sao.shop.supplier.dao.SupplierCommodityTmpDao">
+<resultMap id="BaseResultMap" type="so.sao.shop.supplier.domain.SupplierCommodity">
+        <id column="ID" property="id"/>
+        <result column="SKU" property="sku"/>
+        <result column="SUPPLIER_ID" property="supplierId"/>
+        <result column="CODE" property="code"/>
+        <result column="CODE69" property="code69"/>
+        <result column="tag_id" property="tagId"/>
+        <result column="measure_spec_id" property="measureSpecId"/>
+        <result column="RULE_VAL" property="ruleVal"/>
+        <result column="INVENTORY" property="inventory"/>
+        <result column="unit_id" property="unitId"/>
+        <result column="MIN_IMG" property="minImg"/>
+        <result column="PRICE" property="price"/>
+        <result column="UNIT_PRICE" property="unitPrice"/>
+        <result column="CREATED_BY" property="createdBy"/>
+        <result column="CREATED_AT" property="createdAt"/>
+        <result column="UPDATED_BY" property="updatedBy"/>
+        <result column="UPDATED_AT" property="updatedAt"/>
+        <result column="DELETED" property="deleted"/>
+        <result column="INVALID_STATUS" property="invalidStatus"/>
+        <result column="STATUS" property="status"/>
+        <result column="REMARK" property="remark"/>
+        <result column="min_order_quantity" property="minOrderQuantity"/>
+	</resultMap>
+
+    <!--新增-->
+    <insert id="save">
+        insert supplier_commodity_tmp (
+            supplier_id,
+            code,
+            code69,
+            inventory,
+            measure_spec_id,
+            rule_val,
+            unit_id,
+            price,
+            unit_price,
+            min_img,
+            created_at,
+            updated_at,
+            created_by,
+            updated_by,
+            deleted,
+            status,
+            remark,
+            tag_id,
+            sku,
+            min_order_quantity,
+            sca_id
+        )VALUES (
+            #{supplierId},
+            #{code},
+            #{code69},
+            #{inventory},
+            #{measureSpecId},
+            #{ruleVal},
+            #{unitId},
+            #{price},
+            #{unitPrice},
+            #{minImg},
+            #{createdAt},
+            #{updatedAt},
+            #{createdBy},
+            #{updatedBy},
+            #{deleted},
+            #{status},
+            #{remark},
+            #{tagId},
+            #{sku},
+            #{minOrderQuantity},
+            #{scaId}
+        )
+    </insert>
+
+    <!--获取商品编辑待审核数据表详情-->
+    <select id="findSupplierCommodityTmpByScaId" resultType="so.sao.shop.supplier.domain.SupplierCommodityTmp">
+        SELECT
+        id,
+        sca_id AS scaId,
+        sku,
+        remark,
+        code,
+        code69,
+        rule_val AS ruleVal,
+        inventory,
+        min_img AS minImg,
+        price,
+        unit_price AS unitPrice,
+        created_at AS createdAt,
+        updated_at AS updatedAt,
+        supplier_id AS supplierId,
+        status,
+        min_order_quantity AS minOrderQuantity
+        FROM supplier_commodity_tmp
+        WHERE  sca_id = #{id}
+    </select>
+    
+    <!--根据商品id获取商品详情-->
+    <select id="findDetail" resultType="so.sao.shop.supplier.pojo.output.CommodityOutput">
+        SELECT
+        sc.id AS id,
+        sc.supplier_id AS supplierId,
+        cb.name AS brandName,
+        c.category_one_id AS categoryOneId,
+        c.category_two_id AS categoryTwoId,
+        c.category_three_id AS categoryThreeId,
+        c.name AS name,
+        sc.remark AS remark,
+        sc.code AS code,
+        sc.code69 AS code69,
+        c.origin_place AS originPlace,
+        c.company_name AS companyName,
+        c.market_time AS marketTime,
+        sc.tag_id AS tagId,
+        ct.name AS tagName,
+        sc.measure_spec_id AS measureSpecId,
+        cms.name AS measureSpecName,
+        sc.rule_val AS ruleVal,
+        sc.unit_id AS unitId,
+        cu.name AS unitName,
+        sc.inventory AS inventory,
+        sc.min_img AS minImg,
+        sc.price AS price,
+        sc.unit_price AS unitPrice,
+        sc.created_at AS createdAt,
+        sc.updated_at AS updatedAt,
+        sc.supplier_id AS supplierId,
+        sc.status AS status,
+        sc.invalid_status AS invalidStatus,
+        (SELECT NAME FROM comm_category cc WHERE cc.id = c.category_one_id) AS categoryOneName,
+        (SELECT NAME FROM comm_category cc WHERE cc.id = c.category_two_id) AS categoryTwoName,
+        (SELECT NAME FROM comm_category cc WHERE cc.id = c.category_three_id) AS categoryThreeName
+        FROM
+        supplier_commodity_tmp sc INNER JOIN (commodity c LEFT JOIN comm_brand cb ON c.brand_id = cb.id) ON sc.code69 = c.code69
+        LEFT JOIN comm_measure_spec cms ON sc.measure_spec_id = cms.id LEFT JOIN comm_unit cu ON sc.unit_id = cu.id LEFT JOIN comm_tag ct ON sc.tag_id = ct.id
+        WHERE sc.sca_id = #{id}
+    </select>
+
+</mapper>

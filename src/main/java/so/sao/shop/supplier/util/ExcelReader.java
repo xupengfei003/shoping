@@ -75,7 +75,7 @@ public class ExcelReader {
             }
             //获取表数据
             do {
-                if (!("商品标签".equals(titles[j]) || "商品产地".equals(titles[j]) || "企业名称".equals(titles[j]) || "上市时间".equals(titles[j]))) {
+                if (!("商品标签".equals(titles[j]) || "商品产地".equals(titles[j]) || "企业名称".equals(titles[j]) || "上市时间".equals(titles[j])|| "最小起订量".equals(titles[j]))) {
                     if ("".equals(getCellFormatValue(row.getCell(j)).trim())) {
                         errorRowList.add(i + 1);
                         content = null;

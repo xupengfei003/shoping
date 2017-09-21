@@ -68,7 +68,8 @@
             description,
             remark,
             tag_id,
-            sku
+            sku,
+            min_order_quantity
         )VALUES (
             #{supplierId},
             #{code},
@@ -89,7 +90,8 @@
             #{description},
             #{remark},
             #{tagId},
-            #{sku}
+            #{sku},
+            #{minOrderQuantity}
         )
     </insert>
 
@@ -107,7 +109,8 @@
             updated_by = #{updatedBy},
             remark = #{remark},
             tag_id = #{tagId},
-            measure_spec_id = #{measureSpecId}
+            measure_spec_id = #{measureSpecId},
+            min_order_quantity = #{minOrderQuantity}
         WHERE id = #{id}
     </update>
     <delete id="deleteById">
@@ -179,6 +182,7 @@
         sc.supplier_id AS supplierId,
         sc.status AS status,
         sc.invalid_status AS invalidStatus,
+        sc.min_order_quantity AS minOrderQuantity,
         (SELECT NAME FROM comm_category cc WHERE cc.id = c.category_one_id) AS categoryOneName,
         (SELECT NAME FROM comm_category cc WHERE cc.id = c.category_two_id) AS categoryTwoName,
         (SELECT NAME FROM comm_category cc WHERE cc.id = c.category_three_id) AS categoryThreeName
@@ -205,8 +209,9 @@
         created_at AS createdAt,
         updated_at AS updatedAt,
         supplier_id AS supplierId,
-        status
-        FROM supplier_commodity WHERE id = #{id}
+        status,
+        sku
+        FROM supplier_commodity WHERE id = #{id} and deleted = 0
     </select>
 
     <!--查询商品列表（高级搜索）-->
@@ -279,14 +284,14 @@
         FROM supplier_commodity WHERE id = #{id}
     </select>
 
-    <!--上下架商品-->
+    <!--上下架商品（仅限待上架商品的下架与管理员上下架操作）-->
     <update id="onOrOffShelves">
         UPDATE supplier_commodity
         SET updated_at = #{updatedAt},status = #{status}
         WHERE id = #{id}
     </update>
 
-    <!--批量上下架商品-->
+    <!--批量上下架商品（仅限待上架商品的批量下架与管理员批量上下架操作操作）-->
     <update id="onOrOffShelvesBatch">
         <foreach collection="list" separator=";" open=" " close=" " item="item">
             UPDATE supplier_commodity
@@ -348,7 +353,8 @@
     <select id="findSupplierCommodityByIds" resultMap="BaseResultMap">
         select
         id,
-        updated_at AS updatedAt,
+        supplier_id,
+        updated_at,
         status
         from supplier_commodity
         where deleted = 0
@@ -448,6 +454,57 @@
         updated_at = #{updatedAt},
         updated_by = #{updatedBy}
         WHERE id = #{scId}
+    </update>
+
+	<!-- 轮播图查询商品信息 -->
+    <select id="findCommByNameAndCategory" resultType="so.sao.shop.supplier.pojo.output.CommodityBannerOut">
+    	SELECT 
+		  sc.sku AS commodityId,
+		  a.provider_name AS providerName,
+		  sc.min_img AS minImg,
+		  sc.code69 AS code69,
+		  sc.code AS commodityCode,
+		  com.name AS brandName,
+		  c.name AS commodityName,
+		  cms.name AS specName,
+		  sc.rule_val AS ruleVal,
+		  cu.name AS unitName,
+		  sc.inventory AS inventory,
+		  sc.status AS status
+		FROM
+		  supplier_commodity sc 
+		  LEFT JOIN commodity c 
+		    ON sc.code69 = c.code69 
+		  LEFT JOIN comm_measure_spec cms 
+		    ON sc.measure_spec_id = cms.id 
+		  LEFT JOIN comm_unit cu 
+		    ON sc.unit_id = cu.id
+		  LEFT JOIN account a
+		    ON sc.supplier_id = a.account_id
+		  LEFT JOIN comm_brand com
+		    ON c.brand_id = com.id
+		WHERE sc.deleted = 0
+		AND sc.status = 2
+		<if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(commodityName)">
+			AND c.name like CONCAT ('%',#{commodityName},'%')
+		</if>
+		<if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(categoryOneId)">
+			AND c.category_one_id = #{categoryOneId}
+		</if>
+		<if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(categoryTwoId)">
+			AND c.category_two_id = #{categoryTwoId}
+		</if>
+		<if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(categoryThreeId)">
+			AND c.category_three_id = #{categoryThreeId}
+		</if>
+		ORDER BY sc.updated_at DESC
+    </select>
+
+    <!--商品状态修改-->
+    <update id="updateSupplierCommodityStatusById" >
+        UPDATE supplier_commodity
+        SET status = #{status} ,updated_at = #{updatedAt}
+        WHERE id = #{id}
     </update>
 
 </mapper>

@@ -24,6 +24,18 @@ public class CommodityOutput {
      */
     private Long supplierId;
     /**
+     * 供应商名称
+     */
+    private String providerName;
+    /**
+     * 供应商合同所在市
+     */
+    private String contractCity;
+    /**
+     * 销量
+     */
+    private Integer salesNumber;
+    /**
      * 品牌
      */
     private String brandName;
@@ -152,6 +164,10 @@ public class CommodityOutput {
      * 图片集合
      */
     private List<CommImgeVo> imgeList;
+    /**
+     * 起订量
+     */
+    private int minOrderQuantity;
 
     public Long getId() {
         return id;
@@ -159,6 +175,30 @@ public class CommodityOutput {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getProviderName() {
+        return providerName;
+    }
+
+    public void setProviderName(String providerName) {
+        this.providerName = providerName;
+    }
+
+    public String getContractCity() {
+        return contractCity;
+    }
+
+    public void setContractCity(String contractCity) {
+        this.contractCity = contractCity;
+    }
+
+    public Integer getSalesNumber() {
+        return salesNumber;
+    }
+
+    public void setSalesNumber(Integer salesNumber) {
+        this.salesNumber = salesNumber;
     }
 
     public Long getSupplierId() {
@@ -414,5 +454,13 @@ public class CommodityOutput {
 
     public void setInvalidStatus(int invalidStatus) {
         this.invalidStatus = invalidStatus;
+    }
+
+    public int getMinOrderQuantity() {
+        return minOrderQuantity;
+    }
+
+    public void setMinOrderQuantity(int minOrderQuantity) {
+        this.minOrderQuantity = minOrderQuantity;
     }
 }

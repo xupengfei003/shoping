@@ -66,6 +66,11 @@ public class AccountPurchaseVo {
      */
     private Integer orderPaymentMethod;
 
+    /**
+     * 邮费金额
+     */
+    private String orderPostage;
+
     public String getOrderId() {
         return orderId;
     }
@@ -146,6 +151,14 @@ public class AccountPurchaseVo {
         this.orderSettlemePrice = orderSettlemePrice;
     }
 
+    public String getOrderPostage() {
+        return orderPostage;
+    }
+
+    public void setOrderPostage(String orderPostage) {
+        this.orderPostage = orderPostage;
+    }
+
     @Override
     public String toString() {
         return "AccountPurchaseVo{" +
@@ -159,6 +172,7 @@ public class AccountPurchaseVo {
                 ", orderPaymentTime=" + orderPaymentTime +
                 ", orderPaymentNum='" + orderPaymentNum + '\'' +
                 ", orderPaymentMethod=" + orderPaymentMethod +
+                ", orderPostage=" + orderPostage +
                 '}';
     }
 }

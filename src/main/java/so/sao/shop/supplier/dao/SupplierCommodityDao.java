@@ -3,7 +3,10 @@ package so.sao.shop.supplier.dao;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import so.sao.shop.supplier.domain.SupplierCommodity;
+import so.sao.shop.supplier.domain.SupplierCommodityAudit;
+import so.sao.shop.supplier.domain.SupplierCommodityTmp;
 import so.sao.shop.supplier.pojo.input.CommSearchInput;
+import so.sao.shop.supplier.pojo.output.CommodityBannerOut;
 import so.sao.shop.supplier.pojo.output.CommodityOutput;
 import so.sao.shop.supplier.pojo.vo.SuppCommSearchVo;
 
@@ -117,13 +120,13 @@ public interface SupplierCommodityDao {
     boolean deleteById(@Param("id") long id, @Param("deleted") Boolean deleted, @Param("updatedAt")Date updatedBy);
 
     /**
-     * 上下架商品
+     * 上下架商品（仅限待上架商品的下架与管理员上下架操作）
      * @param supplierCommodity
      */
     void onOrOffShelves(SupplierCommodity supplierCommodity);
 
     /**
-     * 批量上下架商品
+     * 批量上下架商品（仅限待上架商品的批量下架与管理员批量上下架操作操作）
      * @param list
      */
     void onOrOffShelvesBatch(List<SupplierCommodity> list);
@@ -217,6 +220,27 @@ public interface SupplierCommodityDao {
      * @return
      */
     void updateMinImg(@Param("minImg")String minImg, @Param("updatedAt")Date updatedAt, @Param("updatedBy")Long updatedBy, @Param("scId") Long scId);
+
+    /**
+     * 根据商品名称商品类型查询商品信息
+     * @param commodityName 商品名称
+     * @param categoryOneId 商品类型一
+     * @param categoryTwoId 商品类型二
+     * @param categoryThreeId 商品类型三
+     * @return 轮播图商品信息列表
+     */
+    List<CommodityBannerOut> findCommByNameAndCategory(@Param("commodityName") String commodityName,@Param("categoryOneId") Long categoryOneId,@Param("categoryTwoId") Long categoryTwoId,@Param("categoryThreeId") Long categoryThreeId);
+
+
+    /**
+     * 根据id更新SupplierCommodity表 status状态
+     * @param id
+     * @param status
+     * @param updatedAt
+     * @return
+     */
+    void updateSupplierCommodityStatusById(@Param("id")Long id, @Param("status") int status, @Param("updatedAt") Date updatedAt);
+
 
 
 }

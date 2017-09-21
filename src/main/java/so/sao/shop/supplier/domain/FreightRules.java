@@ -87,6 +87,12 @@ public class FreightRules {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date updateAt;
 
+    /**
+     * 运费规则ID
+     *
+     */
+    private Integer distributionScopeId;
+
     public Integer getId() {
         return id;
     }
@@ -205,5 +211,13 @@ public class FreightRules {
 
     public void setUpdateAt(Date updateAt) {
         this.updateAt = updateAt;
+    }
+
+    public Integer getDistributionScopeId() {
+        return distributionScopeId;
+    }
+
+    public void setDistributionScopeId(Integer distributionScopeId) {
+        this.distributionScopeId = distributionScopeId;
     }
 }

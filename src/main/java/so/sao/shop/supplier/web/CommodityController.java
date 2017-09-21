@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import so.sao.shop.supplier.config.CommConstant;
 import so.sao.shop.supplier.config.Constant;
+import so.sao.shop.supplier.domain.User;
 import so.sao.shop.supplier.pojo.BaseResult;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.*;
@@ -74,31 +75,68 @@ public class CommodityController {
     public Result update(HttpServletRequest request, @Valid @RequestBody CommodityUpdateInput commodityUpdateInput, @RequestParam(required = false) Long supplierId) throws Exception {
         //校验供应商ID
         supplierId = CheckUtil.supplierIdCheck(request,supplierId);
-        return commodityService.updateCommodity(commodityUpdateInput, supplierId);
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        boolean isAdmin = false;
+        if (Constant.ADMIN_STATUS.equals(user.getIsAdmin())){
+            isAdmin = true;
+        }
+        return commodityService.updateCommodity(commodityUpdateInput, supplierId, isAdmin);
     }
 
     @ApiOperation(value="上架商品", notes="【负责人：张瑞兵】")
     @PutMapping(value="/onShelves/{id}")
-    public Result onShelves(@PathVariable long id){
-        return commodityService.onShelves(id);
+    public Result onShelves(HttpServletRequest request ,@PathVariable long id){
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        if(user == null){
+            return Result.fail(so.sao.shop.supplier.config.Constant.MessageConfig.MSG_USER_NOT_LOGIN);
+        }
+        String isAdmin=user.getIsAdmin();
+        return commodityService.onShelves(id,isAdmin);
     }
 
     @ApiOperation(value="批量商品上架", notes="【负责人：张瑞兵】")
     @PutMapping(value="/onShelves/batch")
-    public Result onShelvesBatch(@RequestParam Long[] ids){
-        return commodityService.onShelvesBatch(ids);
+    public Result onShelvesBatch(HttpServletRequest request, @RequestParam Long[] ids){
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        //判断是否非法登录
+        if (null == user) {
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
+        }
+        boolean isAdmin = false;
+        if (Constant.ADMIN_STATUS.equals(user.getIsAdmin())) {
+            isAdmin = true;
+        }
+        return commodityService.onShelvesBatch(ids, isAdmin);
     }
 
     @ApiOperation(value="下架商品", notes="【负责人：张瑞兵】")
     @PutMapping(value="/offShelves/{id}")
-    public Result offShelves(@PathVariable long id){
-        return commodityService.offShelves(id);
+    public Result offShelves(HttpServletRequest request, @PathVariable long id){
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        //判断是否非法登录
+        if (null == user) {
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
+        }
+        boolean isAdmin = false;
+        if (Constant.ADMIN_STATUS.equals(user.getIsAdmin())) {
+            isAdmin = true;
+        }
+        return commodityService.offShelves(id,isAdmin);
     }
 
     @ApiOperation(value="批量商品下架", notes="【负责人：张瑞兵】")
     @PutMapping(value="/offShelves/batch")
-    public Result offShelvesBatch(@RequestParam Long[] ids){
-        return commodityService.offShelvesBatch(ids);
+    public Result offShelvesBatch(HttpServletRequest request, @RequestParam Long[] ids){
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        //判断是否非法登录
+        if (null == user) {
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
+        }
+        boolean isAdmin = false;
+        if (Constant.ADMIN_STATUS.equals(user.getIsAdmin())) {
+            isAdmin = true;
+        }
+        return commodityService.offShelvesBatch(ids, isAdmin);
     }
 
     @ApiOperation(value="删除商品信息", notes="根据ID删除相应的商品【责任人：武凯江】")
@@ -139,6 +177,26 @@ public class CommodityController {
         //校验供应商id
         commExportInput.setSupplierId(CheckUtil.supplierIdCheck(request,commExportInput.getSupplierId()));
         return  commodityService.exportExcel(request , response , commExportInput);
+    }
+    @ApiOperation(value="商品批量审核", notes="【责任人：【潘帅帅】")
+    @GetMapping(value="/audit/bulk")
+    public Result auditBatch(HttpServletRequest request , HttpServletResponse response , CommAuditInput commAuditInput)throws Exception {
+        //校验管理员
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        if (!Constant.ADMIN_STATUS.equals(user.getIsAdmin())){
+            return Result.fail("非管理员无操作权限！");
+        }
+
+        return  commodityService.auditBatch(request ,  commAuditInput);
+    }
+    @ApiOperation(value="查询商品审核列表", notes="【责任人：汪涛】")
+    @GetMapping(value="/findApproval")
+    public Result searchCommodityAudit(HttpServletRequest request, CommodityAuditInput commodityAuditInput){
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        if(user==null || !user.getIsAdmin().equals(Constant.ADMIN_STATUS)){
+            return Result.fail(so.sao.shop.supplier.config.Constant.MessageConfig.ADMIN_AUTHORITY_EERO);
+        }
+        return commodityService.serachCommodityAudit(commodityAuditInput);
     }
 
 }

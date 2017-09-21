@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="so.sao.shop.supplier.dao.CommImgeTmpDao">
+
+    <!--批量新增图片-->
+    <insert id="batchSave" parameterType="java.util.List">
+        insert comm_imge_tmp (
+        sca_id,
+        name,
+        thumbnail_url,
+        url,
+        type,
+        size
+        )VALUES
+        <foreach collection ="list" item="data" index= "index" separator =",">
+            (
+            #{data.scaId},
+            #{data.name},
+            #{data.thumbnailUrl},
+            #{data.url},
+            #{data.type},
+            #{data.size}
+            )
+        </foreach>
+    </insert>
+
+    <select id="findTmp" resultType="so.sao.shop.supplier.domain.CommImgeTmp">
+        SELECT
+        id,
+        sca_id AS  scaId,
+        name,
+        url,
+        type,
+        size,
+        thumbnail_url AS thumbnailUrl
+        FROM comm_imge_tmp WHERE sca_id = #{scaId}
+    </select>
+
+</mapper>

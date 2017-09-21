@@ -207,11 +207,35 @@ public class CommConstant {
      * 批量上传模板表头名称
      *
      */
-    public static final String[] EXCEL_TITLES ={"商品条码","商品品牌","商品名称","商家编码","商品标签","商品产地","企业名称","上市时间","商品分类一级","商品分类二级","商品分类三级","商品描述","计量规格","商品规格值","图片","成本价","市场价","库存","包装单位"};
+    public static final String[] EXCEL_TITLES ={"商品条码","商品品牌","商品名称","商家编码","商品标签","商品产地","企业名称","上市时间","商品分类一级","商品分类二级","商品分类三级","商品描述","计量规格","商品规格值","图片","成本价","市场价","库存","包装单位","最小起订量"};
 
     /**
      * 批量上传： 每条线程执行的条数
      */
     public static final int THREAD_NUM = 200;
 
+    /**
+     * 审核结果-审核未通过
+     */
+    public static final int AUDIT_NOT_PASS = 0;
+
+    /**
+     * 审核结果-审核通过
+     */
+    public static final int AUDIT_PASS = 1;
+
+    /**
+     * 审核结果-待审核
+     */
+    public static final int UN_AUDIT = 2;
+
+    /**
+     * 审核标志-历史审核记录
+     */
+    public static final int AUDIT_RECORD = 0;
+
+    /**
+     * 审核标志-当前审核记录
+     */
+    public static final int CURRENT_AUDIT = 1;
 }
