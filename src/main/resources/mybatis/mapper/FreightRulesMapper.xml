@@ -102,8 +102,13 @@
     </delete>
     <select id="queryAll" resultMap="BaseResultMap">
         SELECT
-        <include refid="Base_Column_List" />
-        FROM freight_rules
+        id, supplier_id, rules_type, p.name address_province, c.name address_city, d.name address_district, whether_shipping,
+        send_amount, default_piece, excess_piece, default_amount, excess_amount, remark,
+        created_at, update_at,distribution_scope_id
+        FROM freight_rules f
+        LEFT JOIN sys_region p ON address_province = p.sr_id
+        LEFT JOIN sys_region c ON address_city = c.sr_id
+        LEFT JOIN sys_region d ON address_district = d.sr_id
         WHERE supplier_id = #{accountId,jdbcType=BIGINT}
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(rulesType)">
             AND rules_type = #{rulesType,jdbcType=INTEGER}
@@ -112,8 +117,13 @@
     </select>
     <select id="query" resultMap="BaseResultMap" parameterType="java.lang.Integer">
         SELECT
-        <include refid="Base_Column_List" />
-        FROM freight_rules
+        id, supplier_id, rules_type, p.name address_province, c.name address_city, d.name address_district, whether_shipping,
+        send_amount, default_piece, excess_piece, default_amount, excess_amount, remark,
+        created_at, update_at,distribution_scope_id
+        FROM freight_rules f
+        LEFT JOIN sys_region p ON address_province = p.sr_id
+        LEFT JOIN sys_region c ON address_city = c.sr_id
+        LEFT JOIN sys_region d ON address_district = d.sr_id
         WHERE id = #{id,jdbcType=INTEGER}
     </select>
 </mapper>

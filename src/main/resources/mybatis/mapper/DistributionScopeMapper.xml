@@ -37,18 +37,27 @@
         where id = #{id,jdbcType=INTEGER}
     </update>
     <!-- 获取供应商配送范围列表 -->
-    <select id="queryAll" resultType="so.sao.shop.supplier.domain.DistributionScope" parameterType="java.lang.Long">
+    <select id="queryAll" resultMap="BaseResultMap" parameterType="java.lang.Long">
         SELECT
-        <include refid="Base_Column_List" />
+        id, supplier_id, p.name address_province, c.name address_city, d.name address_district, remark, created_at,
+        update_at
         FROM distribution_scope
+        LEFT JOIN sys_region p ON address_province = p.sr_id
+        LEFT JOIN sys_region c ON address_city = c.sr_id
+        LEFT JOIN sys_region d ON address_district = d.sr_id
+        WHERE id = #{id,jdbcType=INTEGER}
         WHERE supplier_id = #{accountId,jdbcType=BIGINT}
         ORDER BY created_at DESC
     </select>
     <!-- 获取某条信息 -->
-    <select id="query" resultType="so.sao.shop.supplier.domain.DistributionScope" parameterType="java.lang.Integer">
+    <select id="query" resultMap="BaseResultMap" parameterType="java.lang.Integer">
         SELECT
-        <include refid="Base_Column_List" />
+        id, supplier_id, p.name address_province, c.name address_city, d.name address_district, remark, created_at,
+        update_at
         FROM distribution_scope
+        LEFT JOIN sys_region p ON address_province = p.sr_id
+        LEFT JOIN sys_region c ON address_city = c.sr_id
+        LEFT JOIN sys_region d ON address_district = d.sr_id
         WHERE id = #{id,jdbcType=INTEGER}
     </select>
     <!-- 删除一条信息 -->
