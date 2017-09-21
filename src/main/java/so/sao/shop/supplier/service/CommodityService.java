@@ -91,28 +91,28 @@ public interface CommodityService {
      * @param id
      * @return
      */
-    Result onShelves(Long id);
+    Result onShelves(Long id,String isAdmin);
 
     /**
      * 下架商品
      * @param id
      * @return
      */
-    Result offShelves(Long id);
+    Result offShelves(Long id, boolean isAdmin);
 
     /**
      * 批量上架商品
      * @param ids
      * @return
      */
-    Result onShelvesBatch(Long[] ids);
+    Result onShelvesBatch(Long[] ids, boolean isAdmin);
 
     /**
      * 批量下架商品
      * @param ids
      * @return
      */
-    Result offShelvesBatch(Long[] ids);
+    Result offShelvesBatch(Long[] ids, boolean isAdmin);
 
 
     /**
@@ -138,4 +138,19 @@ public interface CommodityService {
      * @return
      */
     void updateCommInvalidStatus(Long supplierId, Integer accountStatus);
+	
+	/**
+     * 根据条件查询商品审核列表
+     * @param commodityAuditInput 查询条件
+     * @return 商品审核数据
+     */
+    Result< PageInfo> serachCommodityAudit(CommodityAuditInput commodityAuditInput);
+
+    /**
+     * 批量审核
+     * @param request
+     * @param commAuditInput
+     * @return
+     */
+    Result auditBatch(HttpServletRequest request , CommAuditInput commAuditInput);
 }

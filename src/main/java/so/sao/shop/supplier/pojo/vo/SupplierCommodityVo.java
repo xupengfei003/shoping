@@ -91,6 +91,12 @@ public class SupplierCommodityVo {
     private BigDecimal unitPrice;
 
     /**
+     *
+     * 最小起订量
+     */
+    private  int minOrderQuantity;
+
+    /**
      * 图片集合
      */
     @NotEmpty(message = "图片不能为空")
@@ -192,4 +198,8 @@ public class SupplierCommodityVo {
     public void setUnitName(String unitName) {
         this.unitName = unitName;
     }
+
+    public int getMinOrderQuantity() {return minOrderQuantity;}
+
+    public void setMinOrderQuantity(int minOrderQuantity) {this.minOrderQuantity = minOrderQuantity;}
 }

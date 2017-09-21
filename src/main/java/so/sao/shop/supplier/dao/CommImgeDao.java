@@ -47,6 +47,13 @@ public interface CommImgeDao {
     List<CommImge> find(@Param("scId") Long scId);
 
     /**
+     * 查询编辑后的商品大图集合
+     * @param scaId 供应商商品Id
+     * @return 查询结果结合
+     */
+    List<CommImge> findTmp(@Param("scaId") Long scaId);
+
+    /**
      * 批量删除商品大图
      * @param ids 商品大图ID
      * @return 删除结果

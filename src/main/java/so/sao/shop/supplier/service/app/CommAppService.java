@@ -1,6 +1,9 @@
 package so.sao.shop.supplier.service.app;
 
+import com.github.pagehelper.PageInfo;
 import so.sao.shop.supplier.pojo.Result;
+import so.sao.shop.supplier.pojo.input.CommodityAppInput;
+import so.sao.shop.supplier.pojo.output.CommAppOutput;
 
 import java.math.BigDecimal;
 
@@ -92,18 +95,25 @@ public interface CommAppService {
 
  /**
   * 根据动态条件(供应商ID/分类/品牌ids/排序条件)查询商品
-  * @param categoryTwoId
-  * @param categoryThreeId
-  * @param brandIds
-  * @param orderPrice
-  * @param orderSalesNum
-  * @param pageNum
-  * @param pageSize
+  * @param commodityAppInput
   * @return
   */
- Result searchCommodities(Long categoryTwoId,Long categoryThreeId,Long[] brandIds, String orderPrice, String orderSalesNum,Integer pageNum, Integer pageSize);
+ PageInfo<CommAppOutput> searchCommodities(CommodityAppInput commodityAppInput);
 
 
+ /**
+  * 根据供应商ID和商品名称查询供应商列表
+  * @param supplierId 供应商ID
+  * @param commName   商品名称
+  * @return
+  */
+ Result listCommodities(Long supplierId,String commName,Integer pageNum, Integer pageSize);
 
-
+ /**
+  * 根据商品名称模糊查询商品，返回商品列表
+  *
+  * @param goodsName 商品名称
+  * @return
+  */
+ Result getGoods(String goodsName);
 }
