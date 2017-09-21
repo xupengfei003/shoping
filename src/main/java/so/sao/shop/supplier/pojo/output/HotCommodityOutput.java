@@ -14,9 +14,9 @@ public class HotCommodityOutput {
     private Long id;
 
     /**
-     * SKU
+     * 商品Id
      */
-    private String sku;
+    private String scId;
 
     /**
      * 供应商ID
@@ -129,12 +129,12 @@ public class HotCommodityOutput {
         this.id = id;
     }
 
-    public String getSku() {
-        return sku;
+    public String getScId() {
+        return scId;
     }
 
-    public void setSku(String sku) {
-        this.sku = sku;
+    public void setScId(String scId) {
+        this.scId = scId;
     }
 
     public Long getSupplierId() {
@@ -301,7 +301,7 @@ public class HotCommodityOutput {
     public String toString() {
         return
                 id + "," +
-                sku + "," +
+                scId + "," +
                 supplierId +"," +
                 providerName + "," +
                 minImg + "," +
