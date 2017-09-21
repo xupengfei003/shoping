@@ -286,6 +286,7 @@ public class CommAppServiceImpl implements CommAppService {
                 CommImgeVo commImgeVo = BeanMapper.map(commImge, CommImgeVo.class);
                 commImgeVoList.add(commImgeVo);
             });
+            commodityOutput.setImgeList(commImgeVoList);  //将获取图片信息放入出参
             //获取销量
             List<String> countSold= null;
             try {
@@ -301,7 +302,6 @@ public class CommAppServiceImpl implements CommAppService {
             commodityOutput.setProviderName(account.getProviderName());  //将获取供应商名称放入出参
             commodityOutput.setContractCity(account.getContractRegisterAddressCity());  //将获取供应商合同所在市放入出参
             commodityOutput.setSalesNumber(Integer.valueOf(countSold.get(0)));     //将获取销量放入出参
-            commodityOutput.setImgeList(commImgeVoList);  //将获取图片信息放入出参
 
         }
         return Result.success("查询成功", commodityOutput);
