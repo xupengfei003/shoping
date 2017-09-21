@@ -12,6 +12,7 @@ import so.sao.shop.supplier.dao.app.CommAppDao;
 import so.sao.shop.supplier.domain.Account;
 import so.sao.shop.supplier.domain.CommImge;
 import so.sao.shop.supplier.pojo.Result;
+import so.sao.shop.supplier.pojo.input.CommodityAppInput;
 import so.sao.shop.supplier.pojo.output.*;
 import so.sao.shop.supplier.pojo.vo.CategoryVo;
 import so.sao.shop.supplier.pojo.vo.CommImgeVo;
@@ -160,36 +161,35 @@ public class CommAppServiceImpl implements CommAppService {
      * @return
      */
     public Result getAllLevelTwoOrThreeCategories(Integer level){
-        List<CategoryOutput> categoryOutputList = commAppDao.findCategories(level);;
+        List<CategoryOutput> categoryOutputList = commAppDao.findCategories(level);
+        if( null == categoryOutputList || categoryOutputList.size() <= 0 ){
+            return Result.fail("没有数据");
+        }
         return Result.success("查询成功",categoryOutputList);
     }
 
     /**
-     *根据条件 获取商品的全部品牌
+     *根据条件 获取所属类型下面的 商品的全部品牌
      * @param categoryId
      * @return
      */
     public Result getAllBrands( Integer categoryId ){
         List<CommBrandOutput>  commBrandOutputList = commAppDao.findAllBrands( categoryId );
+        if( null == commBrandOutputList || commBrandOutputList.size() <= 0 ){
+            return Result.fail("没有数据");
+        }
         return  Result.success("成功",commBrandOutputList);
     }
 
     /**
      * 根据动态条件(供应商ID/分类/品牌ids/排序条件)查询商品
-     * @param categoryTwoId
-     * @param categoryThreeId
-     * @param brandIds
-     * @param orderPrice
-     * @param orderSalesNum
-     * @param pageNum
-     * @param pageSize
+     * @param commodityAppInput
      * @return
      */
-    public Result searchCommodities(Long categoryTwoId,Long categoryThreeId,Long[] brandIds, String  orderPrice, String orderSalesNum, Integer pageNum, Integer pageSize){
+    public PageInfo<CommAppOutput> searchCommodities(CommodityAppInput commodityAppInput){
         //开始分页
-        PageTool.startPage(pageNum,pageSize);
-        List<CommAppOutput> commAppOutputList = commAppDao.findCommoditiesByConditionOrder(categoryTwoId, categoryThreeId,
-                brandIds, orderPrice );
+        PageTool.startPage( commodityAppInput.getPageNum(),commodityAppInput.getPageSize() );
+        List<CommAppOutput> commAppOutputList = commAppDao.findCommoditiesByConditionOrder( commodityAppInput );
         String [] ArrGoodIds = new String[commAppOutputList.size()];
         try {
             if( null != commAppOutputList && commAppOutputList.size() > 0 ){
@@ -202,7 +202,7 @@ public class CommAppServiceImpl implements CommAppService {
                     commAppOutputList.get(i).setSaleNum( Integer.valueOf( salesNum.get(i) ) );
                 }
                 // 判断 是否 指定 按照 销量 排序
-                if (null != orderSalesNum  &&  "orderSales".equalsIgnoreCase( orderSalesNum ) ){
+                if (null != commodityAppInput.getOrderPriceOrSalesNum()  &&  "orderSales".equalsIgnoreCase( commodityAppInput.getOrderPriceOrSalesNum() ) ){
                     Collections.sort(commAppOutputList , new Comparator<CommAppOutput>(){
                         public int compare(CommAppOutput commOne, CommAppOutput commTwo) {
                             if( commOne.getSaleNum() < commTwo.getSaleNum() ){
@@ -216,14 +216,14 @@ public class CommAppServiceImpl implements CommAppService {
                     });
                 }
             }else {
-                return Result.fail("暂无数据");
+                commAppOutputList = new ArrayList<>();
             }
         }catch (Exception e){
             logger.error("查询异常", e);
-            return  Result.fail("查询异常",commAppOutputList);
+            commAppOutputList = new ArrayList<>();
         }
         PageInfo<CommAppOutput> pageInfo = new PageInfo<CommAppOutput>(commAppOutputList);
-        return Result.success("查询成功",pageInfo);
+        return pageInfo;
     }
 
     @Override

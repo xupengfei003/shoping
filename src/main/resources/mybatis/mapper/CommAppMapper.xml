@@ -224,7 +224,7 @@
     </select>
 
     <!-- findCommoditiesByConditionOrder 根据动态条件(供应商ID 分类 品牌ids 排序条件)查询商品 -->
-    <select id="findCommoditiesByConditionOrder" resultType="so.sao.shop.supplier.pojo.output.CommAppOutput">
+    <select id="findCommoditiesByConditionOrder"  resultType="so.sao.shop.supplier.pojo.output.CommAppOutput">
         SELECT DISTINCT
         sc.id AS id,
         sc.min_img AS minImg,
@@ -264,24 +264,26 @@
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(categoryThreeId)">
             AND comm.category_three_id = #{categoryThreeId}
         </if>
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(ids)">
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(brandIds)">
             AND cb.id IN
-            <foreach collection="ids" open="(" close=")" separator="," item="id">
+            <foreach collection="brandIds" open="(" close=")" separator="," item="id">
                 #{id}
             </foreach>
         </if>
 
-        <if test="@so.sao.shop.supplier.util.Ognl@isDESC(orderPrice)">
+        <if test="@so.sao.shop.supplier.util.Ognl@isDESC( orderPriceOrSalesNum )">
             ORDER BY sc.price DESC
         </if>
-        <if test="@so.sao.shop.supplier.util.Ognl@isASC(orderPrice)">
+        <if test="@so.sao.shop.supplier.util.Ognl@isASC( orderPriceOrSalesNum )">
             ORDER BY sc.price ASC
         </if>
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotASCandDESC(orderPrice)" >
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotASCandDESC( orderPriceOrSalesNum )" >
             ORDER BY sc.updated_at DESC
         </if>
 
     </select>
+
+
     <select id="listCommodities" resultType="so.sao.shop.supplier.pojo.output.CommodityOutput">
         SELECT
         sc.id AS id,
