@@ -51,15 +51,15 @@ public class AppPurchaseController {
     /**
      * 分页获取供应商运费规则列表
      * @param accountId accountId
-     * @param pageNum pageNum
-     * @param pageSize pageSize
+
      * @return Result
      * @throws Exception Exception
      */
     @GetMapping("/freightQueryAll")
     @ApiOperation(value = "分页获取供应商运费规则列表", notes = "分页获取供应商运费规则列表 【负责人：郑振海】")
-    public Result queryAll(Long accountId, Integer pageNum, Integer pageSize, Integer rulesType) throws Exception {
-        List<FreightRules> dataList = freightRulesService.queryAll(accountId, pageNum, pageSize,rulesType);
+    public Result queryAll(Long accountId,Integer rulesType) throws Exception {
+
+        List<FreightRules> dataList = freightRulesService.queryAll(accountId, 0, 0,rulesType);
         Map<String,Object> map = new HashMap<>();
         map.put("data",new PageInfo<>(dataList));
         Integer rules = accountService.findRulesById(accountId);
