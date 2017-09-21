@@ -35,10 +35,15 @@ public class HotCommoditiesServiceImpl implements HotCommoditiesService{
      */
     @Override
     public Result searchHotCommodities(HotCommodityInput hotCommodityInput) {
-        //自动排序
-        String isSalesVolume = hotCommodityInput.getSortord() == 0? Integer.toString(hotCommodityInput.getSortord()) : null;
-        //手动排序
-        String isSort = hotCommodityInput.getSortord() == 1? Integer.toString(hotCommodityInput.getSortord()) : null;
+
+        String isSalesVolume = null;
+        String isSort = null;
+        if(hotCommodityInput.getSortord() != null){
+            //自动排序
+            isSalesVolume = hotCommodityInput.getSortord() == 0? Integer.toString(hotCommodityInput.getSortord()) : null;
+            //手动排序
+            isSort = hotCommodityInput.getSortord() == 1? Integer.toString(hotCommodityInput.getSortord()) : null;
+        }
         PageTool.startPage(hotCommodityInput.getPageNum(), hotCommodityInput.getPageSize());
         List<HotCommodities> hotCommoditiesList =  hotCommoditiesDao.findAll(isSalesVolume, isSort, hotCommodityInput.getInputvalue(),
                     hotCommodityInput.getCategoryOneId(), hotCommodityInput.getCategoryTwoId(), hotCommodityInput.getCategoryThreeId());
@@ -75,12 +80,14 @@ public class HotCommoditiesServiceImpl implements HotCommoditiesService{
         for ( int i=0 ; i< addHotCommOutputs.size(); i++  ){
             ArrGoodIds [i] = addHotCommOutputs.get(i).getId().toString();
         }
+
         List<String> salesVolumes = null;
         try {
             salesVolumes = countSoldCommService.countSoldCommNum( ArrGoodIds );
         } catch (Exception e) {
             return Result.fail("销量统计异常！",e);
         }
+
         for( int i =0; i< addHotCommOutputs.size(); i++ ){
             addHotCommOutputs.get(i).setSalesVolume( Integer.valueOf( salesVolumes.get(i) ) );
         }
@@ -101,12 +108,12 @@ public class HotCommoditiesServiceImpl implements HotCommoditiesService{
             return Result.fail("热门商品列表不能为空！");
         }
         //验证热门商品列表不能重复
-        Set<String> skus = new TreeSet<>();
+        Set<String> scIds = new TreeSet<>();
         hotCommoditySaveInputs.forEach(hotCommoditySaveInput->{
-            String sku = hotCommoditySaveInput.getSku();
-            skus.add(sku);
+            String scId = hotCommoditySaveInput.getScId();
+            scIds.add(scId);
         });
-        if(skus.size()<hotCommoditySaveInputs.size()){
+        if(scIds.size()<hotCommoditySaveInputs.size()){
             return Result.fail("热门商品列表不能重复！");
         }
         if(hotCommoditySaveInputs.size()>30){
