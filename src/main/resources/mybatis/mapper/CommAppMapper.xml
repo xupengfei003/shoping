@@ -327,6 +327,8 @@
         supplier_commodity sc INNER JOIN (commodity c LEFT JOIN comm_brand cb ON c.brand_id = cb.id) ON sc.code69 = c.code69
         LEFT JOIN comm_measure_spec cms ON sc.measure_spec_id = cms.id LEFT JOIN comm_unit cu ON sc.unit_id = cu.id LEFT JOIN comm_tag ct ON sc.tag_id = ct.id
         <where>
+            sc.invalid_status = 1
+            AND sc.status = 2
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierId)">
                 AND sc.supplier_id = #{supplierId}
             </if>
@@ -389,7 +391,7 @@
         FROM
         supplier_commodity sc INNER JOIN (commodity c LEFT JOIN comm_brand cb ON c.brand_id = cb.id) ON sc.code69 = c.code69
         LEFT JOIN comm_measure_spec cms ON sc.measure_spec_id = cms.id LEFT JOIN comm_unit cu ON sc.unit_id = cu.id LEFT JOIN comm_tag ct ON sc.tag_id = ct.id
-        WHERE sc.id = #{id} and sc.invalid_status = 1
+        WHERE sc.id = #{id} and sc.invalid_status = 1 AND sc.status = 2
     </select>
 
 
