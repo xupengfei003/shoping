@@ -206,6 +206,9 @@ CREATE TABLE `distribution_scope` (
 ALTER TABLE order_money_record ADD postage_total_amount decimal(10,2) DEFAULT '0.00' COMMENT '运费总金额';
 ALTER TABLE order_money_record ADD order_total_amount decimal(10,2) DEFAULT '0.00' COMMENT '订单总金额';
 
+/*商品表增加字段*/
+ALTER TABLE supplier_commodity ADD min_order_quantity int(10) NULL  COMMENT '最小起订量';
+
 /*供应商与商品关系审核表*/
 CREATE TABLE `supplier_commodity_audit` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
@@ -248,5 +251,19 @@ CREATE TABLE `supplier_commodity_tmp` (
   `min_order_quantity` int(10) DEFAULT NULL COMMENT '最小起订量',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COMMENT='供应商与商品关系待审核数据表';
+
+/*增加商品图片表*/
+CREATE TABLE `comm_imge_tmp` (
+  `id` bigint(50) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `sca_id` bigint(50) DEFAULT NULL COMMENT '供应商商品审核表ID',
+  `name` varchar(500) DEFAULT NULL COMMENT '图片名称',
+  `url` varchar(500) DEFAULT NULL COMMENT '图片存储路径',
+  `type` varchar(50) DEFAULT NULL COMMENT '图片格式',
+  `size` varchar(50) DEFAULT NULL COMMENT '图片尺寸',
+  `created_at` datetime DEFAULT NULL COMMENT '上传时间',
+  `updated_at` datetime DEFAULT NULL COMMENT '更新时间',
+  `thumbnail_url` varchar(500) DEFAULT NULL COMMENT '缩略图url',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 COMMENT='商品图片表';
 
 
