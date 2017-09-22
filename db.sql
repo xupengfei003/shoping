@@ -219,7 +219,7 @@ CREATE TABLE `supplier_commodity_audit` (
   `audit_by` bigint(20) DEFAULT NULL COMMENT '审核人',
   `audit_opinion` varchar(200) DEFAULT NULL COMMENT '审核意见',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=61 DEFAULT CHARSET=utf8 COMMENT='供应商与商品关系审核表'
+) ENGINE=InnoDB AUTO_INCREMENT=61 DEFAULT CHARSET=utf8 COMMENT='供应商与商品关系审核表';
 
 /*增加商品编辑待审核临时数据表*/
 CREATE TABLE `supplier_commodity_tmp` (
@@ -247,5 +247,5 @@ CREATE TABLE `supplier_commodity_tmp` (
   `remark` text COMMENT '商品描述',
   `min_order_quantity` int(10) DEFAULT NULL COMMENT '最小起订量',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COMMENT='供应商与商品关系待审核数据表'
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COMMENT='供应商与商品关系待审核数据表';
 
