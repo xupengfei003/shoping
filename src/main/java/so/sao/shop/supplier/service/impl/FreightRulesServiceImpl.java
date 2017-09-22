@@ -194,15 +194,18 @@ public class FreightRulesServiceImpl implements FreightRulesService {
         FreightRules rulesCity = null;
         FreightRules rulesProvince = null;
         for (FreightRules freightRules:freightRulesList) {
-            if (freightRules.getAddressDistrict() .equals(district)){//匹配区
-                return freightRules;
+            if (null != freightRules.getWhetherShipping()){
+                if (freightRules.getAddressDistrict() .equals(district)){//匹配区
+                    return freightRules;
+                }
+                if (freightRules.getAddressCity().equals(city)){//匹配市
+                    rulesCity = freightRules;
+                }
+                if (freightRules.getAddressProvince().equals( province)){//匹配省
+                    rulesProvince =  freightRules;
+                }
             }
-            if (freightRules.getAddressCity().equals(city)){//匹配市
-                rulesCity = freightRules;
-            }
-            if (freightRules.getAddressProvince().equals( province)){//匹配省
-                rulesProvince =  freightRules;
-            }
+
         }
         if (null != rulesCity ){
             return rulesCity;
@@ -211,6 +214,12 @@ public class FreightRulesServiceImpl implements FreightRulesService {
             return rulesProvince;
         }
         return null;
+    }
+
+    @Override
+    public List<FreightRules> queryAll0(Long accountId, int rules) {
+
+        return freightRulesDao.queryAll0(accountId,rules);
     }
 
 
