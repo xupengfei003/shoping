@@ -249,6 +249,4 @@ CREATE TABLE `supplier_commodity_tmp` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COMMENT='供应商与商品关系待审核数据表';
 
-/*二维码表增加表示字段*/
-ALTER TABLE qrcode ADD flag VARCHAR (10)  COMMENT '二维码标识';
 
