@@ -121,10 +121,10 @@ public class PurchaseServiceImpl implements PurchaseService {
         List<Notification> notificationList = new ArrayList<>();
         Map<Long, BigDecimal> inventoryMap = new HashMap<>();//存储商品编号和购买数量
         //合并支付单号
-        String payId = NumberGenerate.generateUuid();
+        String payId = NumberGenerate.generateOrderId("yyMMddHHmmss");
         for (Long sId : set) {
             //生成订单编号
-            String orderId = NumberGenerate.generateUuid();
+            String orderId = NumberGenerate.generateOrderId("yyyyMMddHHmmss");
             BigDecimal totalMoney = new BigDecimal(0);//订单总价计算
             BigDecimal orderSettlemePrice = new BigDecimal(0);//结算金额
             BigDecimal totalNumber = new BigDecimal(0);//订单总数量
