@@ -515,4 +515,22 @@ public class PurchaseController {
         }
         return flag;
     }
+
+    /**
+     * 验证二维码
+     * <p>
+     * 根据订单编号和用户id验证用户的订单是否存在，存在返回二维码地址，否则返回失败地址
+     *
+     * @param orderId 订单编号
+     * @param userId 用户id
+     * @return
+     */
+    @ApiOperation(value = "验证二维码", notes = "根据订单编号和用户id验证用户的订单是否存在【负责人：杨恒乐】")
+    @GetMapping("/checkQrcode")
+    public Result checkQrcode(String orderId, String userId) {
+        if (Ognl.isEmpty(orderId) || Ognl.isEmpty(userId)) {
+            return Result.fail("订单编号和用户Id都不能为空");
+        }
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS, purchaseService.getReceiveUrl(orderId, userId));
+    }
 }

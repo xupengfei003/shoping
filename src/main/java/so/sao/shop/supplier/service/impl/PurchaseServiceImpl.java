@@ -66,6 +66,8 @@ public class PurchaseServiceImpl implements PurchaseService {
     StorageConfig storageConfig;//上传到云端的配置
     @Value("${qrcode.receive.url}")
     private String receiveUrl;  //收货二维码内容中的地址前缀
+    @Value("${qrcode.error.url}")
+    private String errorUrl; // 错误Url
     @Resource
     private AzureBlobService azureBlobService; // azure blob存储相关
     @Resource
@@ -788,7 +790,7 @@ public class PurchaseServiceImpl implements PurchaseService {
      * @return 二维码内容
      */
     public String configQrcodeContent(String orderId) {
-        return receiveUrl + "?orderId=" + orderId;
+        return "SH," + orderId;
     }
 
     /**
@@ -1378,5 +1380,21 @@ public class PurchaseServiceImpl implements PurchaseService {
             }
         }
         return false;
+    }
+
+    /**
+     * 根据订单编号和用户id验证用户的订单是否存在，存在返回二维码地址，否则返回失败地址
+     *
+     * @param orderId 订单编号
+     * @param userId 用户id
+     * @return url地址
+     */
+    @Override
+    public String getReceiveUrl(String orderId, String userId) {
+        List<Purchase> list = purchaseDao.findPurchaseByUserId(orderId, userId);
+        if (list.size() == 1) {
+            return receiveUrl;
+        }
+        return errorUrl;
     }
 }

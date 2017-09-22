@@ -206,5 +206,6 @@ CREATE TABLE `distribution_scope` (
 ALTER TABLE order_money_record ADD postage_total_amount decimal(10,2) DEFAULT '0.00' COMMENT '运费总金额';
 ALTER TABLE order_money_record ADD order_total_amount decimal(10,2) DEFAULT '0.00' COMMENT '订单总金额';
 
-
+/*二维码表增加表示字段*/
+ALTER TABLE qrcode ADD flag VARCHAR (10)  COMMENT '二维码标识';
 
