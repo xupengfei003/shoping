@@ -480,7 +480,6 @@ public class AccountServiceImpl implements AccountService {
     }
     /**
      * 根据商户ID修改当前默认运费规则
-     * TODO 未完----默认设置
      * @param account
      * @param freightRules
      */

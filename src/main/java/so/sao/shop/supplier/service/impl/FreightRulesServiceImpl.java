@@ -201,4 +201,35 @@ public class FreightRulesServiceImpl implements FreightRulesService {
        return 0;
     }
 
+
+    /**
+     * 地址匹配 ---配送范围与下单收货地址的匹配
+     * @param freightRulesList 配送规则
+     * @return
+     */
+    @Override
+    public FreightRules matchAddress(String province,String city,String district,List<FreightRules> freightRulesList) {
+        FreightRules rulesCity = null;
+        FreightRules rulesProvince = null;
+        for (FreightRules freightRules:freightRulesList) {
+            if (freightRules.getAddressDistrict() .equals(district)){//匹配区
+                return freightRules;
+            }
+            if (freightRules.getAddressCity().equals(city)){//匹配市
+                rulesCity = freightRules;
+            }
+            if (freightRules.getAddressProvince().equals( province)){//匹配省
+                rulesProvince =  freightRules;
+            }
+        }
+        if (null != rulesCity ){
+            return rulesCity;
+        }
+        if (null != rulesProvince ){
+            return rulesProvince;
+        }
+        return null;
+    }
+
+
 }

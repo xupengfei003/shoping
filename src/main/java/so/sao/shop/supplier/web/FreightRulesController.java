@@ -6,11 +6,10 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import so.sao.shop.supplier.config.Constant;
-import so.sao.shop.supplier.domain.DistributionScope;
+import so.sao.shop.supplier.domain.Account;
 import so.sao.shop.supplier.domain.FreightRules;
 import so.sao.shop.supplier.domain.User;
 import so.sao.shop.supplier.pojo.Result;
-import so.sao.shop.supplier.pojo.input.DistributionScopeInput;
 import so.sao.shop.supplier.pojo.input.FreightRulesInput;
 import so.sao.shop.supplier.service.AccountService;
 import so.sao.shop.supplier.service.FreightRulesService;
@@ -18,7 +17,6 @@ import so.sao.shop.supplier.util.Ognl;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
@@ -174,5 +172,25 @@ public class FreightRulesController {
             }
         }
         return true;
+    }
+
+    /**
+     * 查询配送规则
+     * @param userId
+     * @param provinceCode
+     * @param cityCode
+     * @param districtCode
+     * @return
+     */
+    @GetMapping("/getFreightRule")
+    public Result getFreightRule(Long userId,String provinceCode,String cityCode,String districtCode){
+        Account account = accountService.selectByUserId(userId);
+        List<FreightRules> list = freightRulesService.queryAll0(account.getAccountId(),1);
+        FreightRules freightRules = freightRulesService.matchAddress(provinceCode,cityCode,districtCode,list);
+        if(freightRules == null){
+            return Result.fail(Constant.MessageConfig.MSG_FAILURE);
+        }else{
+            return Result.success(Constant.MessageConfig.MSG_SUCCESS,freightRules);
+        }
     }
 }

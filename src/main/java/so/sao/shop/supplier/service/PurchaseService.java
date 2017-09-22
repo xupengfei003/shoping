@@ -2,6 +2,7 @@ package so.sao.shop.supplier.service;
 
 
 import com.github.pagehelper.PageInfo;
+import so.sao.shop.supplier.domain.FreightRules;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.*;
 import so.sao.shop.supplier.pojo.output.OrderRefuseReasonOutput;
@@ -236,5 +237,6 @@ public interface PurchaseService {
      * @throws Exception 异常
      */
     List<String> findOrderIdByOrderStatus(Integer orderStatus) throws Exception;
+
 
 }
