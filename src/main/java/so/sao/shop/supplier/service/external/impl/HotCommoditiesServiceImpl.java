@@ -67,7 +67,7 @@ public class HotCommoditiesServiceImpl implements HotCommoditiesService{
         //统计商品销量
         String [] ArrGoodIds = new String[addHotCommVos.size()];
         for ( int i=0 ; i< addHotCommVos.size(); i++  ){
-            ArrGoodIds [i] = addHotCommVos.get(i).getId().toString();
+            ArrGoodIds [i] = addHotCommVos.get(i).getScId().toString();
         }
 
         List<String> salesVolumes = null;
