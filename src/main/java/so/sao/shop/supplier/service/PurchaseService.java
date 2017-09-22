@@ -2,7 +2,6 @@ package so.sao.shop.supplier.service;
 
 
 import com.github.pagehelper.PageInfo;
-import so.sao.shop.supplier.domain.FreightRules;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.*;
 import so.sao.shop.supplier.pojo.output.OrderRefuseReasonOutput;
@@ -238,5 +237,12 @@ public interface PurchaseService {
      */
     List<String> findOrderIdByOrderStatus(Integer orderStatus) throws Exception;
 
-
+    /**
+     * 根据订单编号和用户id验证用户的订单是否存在，存在返回二维码地址，否则返回失败地址
+     *
+     * @param orderId 订单编号
+     * @param userId 用户id
+     * @return url地址
+     */
+    String getReceiveUrl(String orderId, String userId);
 }

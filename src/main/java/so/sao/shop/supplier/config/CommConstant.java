@@ -247,4 +247,16 @@ public class CommConstant {
      * 审核标志-当前审核记录
      */
     public static final int CURRENT_AUDIT = 1;
+
+    /**
+     * 批量导出模板表头名称
+     *
+     */
+    public static final String[] EXCEL_OUT_TITLES ={"商品条码","商品品牌","商品标签","商品名称","商品商家编码","包装单位","计量规格","规格值","市场价","成本价","库存量","商品状态","创建时间","更新时间","企业名称","商品产地","上市时间","最小起订量"};
+
+
+    /**
+     * 批量导出 每个工作表导出最大行数
+     */
+    public static final int MAX_ROWNUM = 600000;
 }

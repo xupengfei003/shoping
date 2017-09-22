@@ -47,4 +47,6 @@ public interface FreightRulesService {
 
 
     FreightRules matchAddress(String province,String city,String district,List<FreightRules> freightRulesList);
+
+    List<FreightRules> queryAll0(Long accountId, int rules);
 }

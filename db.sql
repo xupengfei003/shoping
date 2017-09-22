@@ -206,5 +206,47 @@ CREATE TABLE `distribution_scope` (
 ALTER TABLE order_money_record ADD postage_total_amount decimal(10,2) DEFAULT '0.00' COMMENT '运费总金额';
 ALTER TABLE order_money_record ADD order_total_amount decimal(10,2) DEFAULT '0.00' COMMENT '订单总金额';
 
+/*供应商与商品关系审核表*/
+CREATE TABLE `supplier_commodity_audit` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `sc_id` bigint(20) DEFAULT NULL COMMENT '供应商商品表id',
+  `supplier_id` bigint(20) DEFAULT NULL COMMENT '供应商ID',
+  `updated_at` datetime DEFAULT NULL COMMENT '审核时间',
+  `created_at` datetime DEFAULT NULL COMMENT '提交审核时间',
+  `status` int(8) DEFAULT '0' COMMENT '审核状态',
+  `audit_result` int(1) DEFAULT NULL COMMENT '审核结果：0代表未通过，1代表通过，2代表待审核',
+  `audit_flag` int(1) DEFAULT NULL COMMENT '1代表供应商当前审核记录',
+  `audit_by` bigint(20) DEFAULT NULL COMMENT '审核人',
+  `audit_opinion` varchar(200) DEFAULT NULL COMMENT '审核意见',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=61 DEFAULT CHARSET=utf8 COMMENT='供应商与商品关系审核表';
+
+/*增加商品编辑待审核临时数据表*/
+CREATE TABLE `supplier_commodity_tmp` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `sca_id` bigint(20) DEFAULT NULL COMMENT '供应商商品审批表id',
+  `sku` varchar(20) DEFAULT NULL COMMENT 'SKU',
+  `supplier_id` bigint(20) DEFAULT NULL COMMENT '供应商ID',
+  `code69` varchar(20) DEFAULT NULL COMMENT '商品条码',
+  `tag_id` bigint(20) DEFAULT NULL COMMENT '标签ID',
+  `code` varchar(50) DEFAULT NULL COMMENT '商家编码',
+  `measure_spec_id` bigint(20) DEFAULT NULL COMMENT '计量规格ID',
+  `rule_val` varchar(256) DEFAULT NULL COMMENT '规格值',
+  `inventory` decimal(11,2) DEFAULT NULL COMMENT '库存',
+  `unit_id` bigint(20) DEFAULT NULL COMMENT '计量单位ID',
+  `price` decimal(10,2) DEFAULT NULL COMMENT '市场价',
+  `unit_price` decimal(10,2) DEFAULT NULL COMMENT '成本价',
+  `min_img` varchar(500) DEFAULT NULL COMMENT '缩略图URL',
+  `created_at` datetime DEFAULT NULL COMMENT '创建人',
+  `updated_at` datetime DEFAULT NULL COMMENT '创建时间',
+  `created_by` bigint(20) DEFAULT NULL COMMENT '更新人',
+  `updated_by` bigint(20) DEFAULT NULL COMMENT '更新时间',
+  `deleted` int(1) DEFAULT '0' COMMENT '删除标记',
+  `status` int(8) DEFAULT '0' COMMENT '商品状态',
+  `invalid_status` int(2) DEFAULT '1' COMMENT '商品是否失效：0--失效 ，1--正常',
+  `remark` text COMMENT '商品描述',
+  `min_order_quantity` int(10) DEFAULT NULL COMMENT '最小起订量',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COMMENT='供应商与商品关系待审核数据表';
 
 
