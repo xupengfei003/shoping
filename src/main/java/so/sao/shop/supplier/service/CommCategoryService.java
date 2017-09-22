@@ -1,6 +1,6 @@
 package so.sao.shop.supplier.service;
 
-import so.sao.shop.supplier.pojo.output.CommCategorySelectOutput;
+import so.sao.shop.supplier.pojo.output.CategoryOutput;
 
 import java.util.List;
 
@@ -14,5 +14,5 @@ public interface CommCategoryService {
      * @param pid
      * @return CommCategorySelectOutput
      */
-    List<CommCategorySelectOutput> searchCommCategory(Long pid);
+    List<CategoryOutput> searchCommCategory(Long pid);
 }

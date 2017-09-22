@@ -12,7 +12,7 @@
         <result column="update_at" jdbcType="TIMESTAMP" property="updateAt" />
     </resultMap>
     <sql id="Base_Column_List">
-        id, supplier_id AS supplierId, address_province AS addressProvince, address_city AS addressCity, address_district AS addressDistrict, remark, created_at AS createdAt,
+        id, supplier_id , address_province, address_city , address_district , remark, created_at,
         update_at AS updateAt
     </sql>
     <!-- 增加配送范围 -->
@@ -45,19 +45,14 @@
         LEFT JOIN sys_region p ON address_province = p.sr_id
         LEFT JOIN sys_region c ON address_city = c.sr_id
         LEFT JOIN sys_region d ON address_district = d.sr_id
-        WHERE id = #{id,jdbcType=INTEGER}
         WHERE supplier_id = #{accountId,jdbcType=BIGINT}
         ORDER BY created_at DESC
     </select>
     <!-- 获取某条信息 -->
     <select id="query" resultMap="BaseResultMap" parameterType="java.lang.Integer">
         SELECT
-        id, supplier_id, p.name address_province, c.name address_city, d.name address_district, remark, created_at,
-        update_at
+        <include refid="Base_Column_List"/>
         FROM distribution_scope
-        LEFT JOIN sys_region p ON address_province = p.sr_id
-        LEFT JOIN sys_region c ON address_city = c.sr_id
-        LEFT JOIN sys_region d ON address_district = d.sr_id
         WHERE id = #{id,jdbcType=INTEGER}
     </select>
     <!-- 删除一条信息 -->

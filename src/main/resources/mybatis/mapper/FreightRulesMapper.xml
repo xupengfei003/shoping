@@ -59,7 +59,7 @@
                 remark = #{remark,jdbcType=VARCHAR},
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(updateAt)">
-                update_at = #{updateAt,jdbcType=TIMESTAMP},
+                update_at = #{updateAt,jdbcType=TIMESTAMP}
             </if>
             <!--修改配送规则-->
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(defaultPiece)">
@@ -125,5 +125,16 @@
         LEFT JOIN sys_region c ON address_city = c.sr_id
         LEFT JOIN sys_region d ON address_district = d.sr_id
         WHERE id = #{id,jdbcType=INTEGER}
+    </select>
+
+    <select id="queryAll0" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM freight_rules
+        WHERE supplier_id = #{accountId,jdbcType=BIGINT}
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(rules)">
+            AND rules_type = #{rules,jdbcType=INTEGER}
+        </if>
+        ORDER BY created_at DESC
     </select>
 </mapper>

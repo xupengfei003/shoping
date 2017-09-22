@@ -32,6 +32,11 @@ public class CommodityInput {
     private String brandName;
 
     /**
+     * 品牌id
+     */
+    private Long brandId;
+
+    /**
      * 一级类型Id
      */
     @NotNull(message = "商品科属一级类型不能为空")
@@ -199,5 +204,13 @@ public class CommodityInput {
 
     public void setTagName(String tagName) {
         this.tagName = tagName;
+    }
+
+    public Long getBrandId() {
+        return brandId;
+    }
+
+    public void setBrandId(Long brandId) {
+        this.brandId = brandId;
     }
 }

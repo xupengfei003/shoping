@@ -115,6 +115,9 @@ public class CommAppServiceImpl implements CommAppService {
         //开始分页
         PageTool.startPage(pageNum,pageSize);
         List<AccountOutput> accountList  = accountDao.findAccounts(accountId, providerName);
+        if( null == accountList ||  accountList.size() <= 0 ){
+            return  Result.fail("暂无数据");
+        }
         PageInfo<AccountOutput> pageInfo = new PageInfo<AccountOutput>(accountList);
         return Result.success("查询成功",pageInfo);
     }
@@ -144,6 +147,9 @@ public class CommAppServiceImpl implements CommAppService {
     @Override
     public Result getMainCateGory(Long supplierId) {
         List<CategoryVo> categoryOutputs=commAppDao.findMainCateGory(supplierId);
+        if( null == categoryOutputs || categoryOutputs.size() <= 0 ){
+            return Result.fail("暂无数据");
+        }
         return Result.success("查询成功",categoryOutputs);
     }
 
@@ -218,6 +224,14 @@ public class CommAppServiceImpl implements CommAppService {
         return pageInfo;
     }
 
+    /**
+     * 根据供应商ID和商品名称查询供应商列表
+     * @param supplierId 供应商ID
+     * @param commName   商品名称
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
     @Override
     public Result listCommodities(Long supplierId, String commName, Integer pageNum, Integer pageSize) {
         //开始分页
@@ -258,7 +272,11 @@ public class CommAppServiceImpl implements CommAppService {
      */
     @Override
     public Result getGoods(String goodsName) {
-        return Result.success("查询成功", commAppDao.findGoodsByName(goodsName));
+        List<Map> goods = commAppDao.findGoodsByName(goodsName);
+        if( null == goods || goods.size() <= 0  ){
+            return Result.fail("暂无数据");
+        }
+        return Result.success("查询成功", goods );
     }
 
     /**
@@ -278,6 +296,7 @@ public class CommAppServiceImpl implements CommAppService {
                 CommImgeVo commImgeVo = BeanMapper.map(commImge, CommImgeVo.class);
                 commImgeVoList.add(commImgeVo);
             });
+            commodityOutput.setImgeList(commImgeVoList);  //将获取图片信息放入出参
             //获取销量
             List<String> countSold= null;
             try {
@@ -287,10 +306,13 @@ public class CommAppServiceImpl implements CommAppService {
             }
             //获取账户account对象
             Account account=accountDao.selectById(commodityOutput.getSupplierId());
+            if (null == account){
+                return Result.success("查询成功",commodityOutput);
+            }
             commodityOutput.setProviderName(account.getProviderName());  //将获取供应商名称放入出参
             commodityOutput.setContractCity(account.getContractRegisterAddressCity());  //将获取供应商合同所在市放入出参
             commodityOutput.setSalesNumber(Integer.valueOf(countSold.get(0)));     //将获取销量放入出参
-            commodityOutput.setImgeList(commImgeVoList);  //将获取图片信息放入出参
+
         }
         return Result.success("查询成功", commodityOutput);
     }
