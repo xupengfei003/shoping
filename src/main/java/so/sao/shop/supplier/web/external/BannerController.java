@@ -1,8 +1,12 @@
 package so.sao.shop.supplier.web.external;
 
+import java.util.Base64;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -10,7 +14,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import io.swagger.annotations.Api;
@@ -41,11 +44,17 @@ public class BannerController {
 	 * @param request
 	 * @param multipartFile 轮播图图片
 	 * @return 上传结果
+	 * @throws Exception 
 	 */
 	@ApiOperation(value = "添加图片",notes = "添加图片【负责人：张腾飞】")
     @PostMapping("/uploadimage")
-	public Result uploadImage(HttpServletRequest request,@RequestPart("file") MultipartFile multipartFile) {
-		return bannerService.uploadImage(multipartFile);
+	public Result uploadImage(HttpServletRequest request,@RequestBody Map<String,Object> fileObj) throws Exception {
+		String fileName = (String) fileObj.get("fileName");
+		String fileBytes =  (String) fileObj.get("fileBytes");
+		byte[] filebyte = Base64.getDecoder().decode(fileBytes);
+        MultipartFile multipartFile = new MockMultipartFile(fileName,fileName, "image/jpeg", filebyte);
+        Result result = bannerService.uploadImage(multipartFile);
+		return result;
 	}
 	
 	/**
@@ -139,8 +148,8 @@ public class BannerController {
 	@ApiOperation(value = "批量删除轮播图",notes = "批量删除轮播图【负责人：张腾飞】")
 	@DeleteMapping("/deletebanners")
 	public Result deleteBanners(HttpServletRequest request,@RequestParam String ids) {
-		Long[] bannerIds = new Long[100];
 		String[] idss = ids.split(",");
+		Long[] bannerIds = new Long[idss.length];
 		for(int i=0;i<idss.length;i++) {
 			bannerIds[i] = Long.parseLong(idss[i]);
 		}

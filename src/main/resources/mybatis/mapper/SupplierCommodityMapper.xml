@@ -301,7 +301,8 @@
             created_at AS createdAt,
             updated_at AS updatedAt,
             min_order_quantity AS minOrderQuantity,
-            audit_result AS auditResult
+            audit_result AS auditResult,
+            audit_opinion AS auditOpinion
         FROM (
             SELECT
                 sc.id,
@@ -324,7 +325,8 @@
                 sc.created_at,
                 sc.updated_at,
                 sc.min_order_quantity,
-                t1.audit_result
+                t1.audit_result,
+                t1.audit_opinion
             FROM
                 supplier_commodity sc
             LEFT JOIN (
@@ -356,7 +358,8 @@
                 sctmp.unit_price,
                 sctmp.created_at,
                 sctmp.min_order_quantity,
-                t1.audit_result
+                t1.audit_result,
+                t1.audit_opinion
             FROM supplier_commodity_tmp sctmp
             LEFT JOIN (
             SELECT <include refid="audit"/>
@@ -478,7 +481,8 @@
             created_at AS createdAt,
             updated_at AS updatedAt,
             min_order_quantity AS minOrderQuantity,
-            audit_result AS auditResult
+            audit_result AS auditResult,
+            audit_opinion AS auditOpinion
         FROM (
         SELECT
             sc.id,
@@ -500,7 +504,8 @@
             sc.created_at,
             sc.updated_at,
             sc.min_order_quantity,
-            t1.audit_result
+            t1.audit_result,
+            t1.audit_opinion
         FROM supplier_commodity sc
         LEFT JOIN (
         SELECT
@@ -532,7 +537,8 @@
             sctmp.unit_price,
             sctmp.created_at,
             sctmp.min_order_quantity,
-            t1.audit_result
+            t1.audit_result,
+            t1.audit_opinion
         FROM supplier_commodity_tmp sctmp
         LEFT JOIN (
         SELECT

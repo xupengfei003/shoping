@@ -7,9 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import so.sao.shop.supplier.dao.AccountDao;
 import so.sao.shop.supplier.dao.CommImgeDao;
+import so.sao.shop.supplier.dao.FreightRulesDao;
 import so.sao.shop.supplier.dao.app.CommAppDao;
 import so.sao.shop.supplier.domain.Account;
 import so.sao.shop.supplier.domain.CommImge;
+import so.sao.shop.supplier.domain.FreightRules;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.CommAppInput;
 import so.sao.shop.supplier.pojo.input.CommodityAppInput;
@@ -37,6 +39,8 @@ public class CommAppServiceImpl implements CommAppService {
     private CountSoldCommService countSoldCommService;
     @Autowired
     private CommImgeDao commImgeDao;
+    @Autowired
+    private FreightRulesDao freightRulesDao;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -296,6 +300,8 @@ public class CommAppServiceImpl implements CommAppService {
                 CommImgeVo commImgeVo = BeanMapper.map(commImge, CommImgeVo.class);
                 commImgeVoList.add(commImgeVo);
             });
+            List<FreightRules> freightRulesList = freightRulesDao.queryAll(commodityOutput.getSupplierId(),null);
+            commodityOutput.setFreightRulesList(freightRulesList);
             commodityOutput.setImgeList(commImgeVoList);  //将获取图片信息放入出参
             //获取销量
             List<String> countSold= null;
