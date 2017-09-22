@@ -1,5 +1,7 @@
 package so.sao.shop.supplier.alipay;
 
+import java.math.BigDecimal;
+
 /**
  * @author gxy on 2017/9/15.
  */
@@ -7,7 +9,7 @@ public class AlipayRefundInfo {
 
     private String out_trade_no;    //订单支付时传入的商户订单号,不能和 trade_no同时为空
     private String trade_no;        //支付宝交易号，和商户订单号不能同时为空
-    private Double refund_amount;   //需要退款的金额，该金额不能大于订单金额,单位为元，支持两位小数
+    private BigDecimal refund_amount;   //需要退款的金额，该金额不能大于订单金额,单位为元，支持两位小数
     private String refund_reason;   //退款原因
     private String out_request_no;  //标识一次退款请求，同一笔交易多次退款需要保证唯一，如需部分退款，则此参数必传
     private String operator_id; //商户的操作员编号
@@ -30,11 +32,11 @@ public class AlipayRefundInfo {
         this.trade_no = trade_no;
     }
 
-    public Double getRefund_amount() {
+    public BigDecimal getRefund_amount() {
         return refund_amount;
     }
 
-    public void setRefund_amount(Double refund_amount) {
+    public void setRefund_amount(BigDecimal refund_amount) {
         this.refund_amount = refund_amount;
     }
 
