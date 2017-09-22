@@ -1,6 +1,7 @@
 package so.sao.shop.supplier.pojo.output;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import so.sao.shop.supplier.domain.FreightRules;
 import so.sao.shop.supplier.pojo.vo.CommImgeVo;
 
 import java.math.BigDecimal;
@@ -174,6 +175,19 @@ public class CommodityOutput {
      * 审核意见
      */
     private String advice;
+
+    /**
+     *
+     */
+    private List<FreightRules> freightRulesList;
+
+    public List<FreightRules> getFreightRulesList() {
+        return freightRulesList;
+    }
+
+    public void setFreightRulesList(List<FreightRules> freightRulesList) {
+        this.freightRulesList = freightRulesList;
+    }
 
     public Long getId() {
         return id;
