@@ -17,7 +17,7 @@ public class AppCartItemInput {
      */
     @NotNull(message = "更新数量不能为空")
     @Pattern(regexp = "^[1-9][0-9]*$", message = "更新数量有误")
-    private Integer number;
+    private String number;
 
     /**
      * 用户ID
@@ -33,11 +33,11 @@ public class AppCartItemInput {
         this.cartitemId = cartitemId;
     }
 
-    public Integer getNumber() {
+    public String getNumber() {
         return number;
     }
 
-    public void setNumber(Integer number) {
+    public void setNumber(String number) {
         this.number = number;
     }
 
