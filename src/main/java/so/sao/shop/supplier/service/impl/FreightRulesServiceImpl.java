@@ -1,7 +1,9 @@
 package so.sao.shop.supplier.service.impl;
 
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import so.sao.shop.supplier.dao.AccountDao;
 import so.sao.shop.supplier.dao.FreightRulesDao;
 import so.sao.shop.supplier.domain.FreightRules;
@@ -31,6 +33,7 @@ public class FreightRulesServiceImpl implements FreightRulesService {
      * @param freightRulesInput 配送规则
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean insert(Long accountId,FreightRulesInput freightRulesInput) {
         /**
          * 1.查询通用规则记录是否存在，不存在返回false，存在则插入并返回true
@@ -83,6 +86,21 @@ public class FreightRulesServiceImpl implements FreightRulesService {
     }
 
     /**
+     * 分页获取供应商配送规则列表（省市区为code）
+     * @param accountId
+     * @param rules
+     * @return
+     */
+    @Override
+    public List<FreightRules> queryAll0(@Param("accountId")Long accountId, @Param("rules")Integer rules){
+        /**
+         * 1.设置分页
+         * 2.根据商户ID及配送规则类型查询集合
+         */
+        return freightRulesDao.queryAll(accountId,rules);
+    }
+
+    /**
      * 获取单个配送规则
      * @param id id
      * @return
@@ -98,6 +116,7 @@ public class FreightRulesServiceImpl implements FreightRulesService {
      * @param freightRulesInput
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean update(Long accountId,Integer id,FreightRulesInput freightRulesInput) {
         /**
          * 1.判断配送规则入参对象中的配送规则类型是否为0(通用规则) ,若为0查询通用规则及配送规则ID是否匹配，匹配可修改
@@ -169,9 +188,9 @@ public class FreightRulesServiceImpl implements FreightRulesService {
      */
     @Override
     public int count(Long accountId) {
-       List<FreightRules> commonFreightRulesList = freightRulesDao.queryAll(accountId,0);
-       List<FreightRules> dispatchingFreightRulesList = freightRulesDao.queryAll(accountId,1);
-       if (null != commonFreightRulesList && !commonFreightRulesList.isEmpty() && null != dispatchingFreightRulesList){
+       List<FreightRules> commonFreightRulesList = freightRulesDao.queryAll(accountId,0);//通用规则
+       List<FreightRules> dispatchingFreightRulesList = freightRulesDao.queryAll(accountId,1);//配送规则
+       if (null != commonFreightRulesList && !commonFreightRulesList.isEmpty() && null != dispatchingFreightRulesList && !dispatchingFreightRulesList.isEmpty()){
            for (FreightRules freightRules:dispatchingFreightRulesList) {
                if (null == freightRules.getWhetherShipping()){
                    return 0;

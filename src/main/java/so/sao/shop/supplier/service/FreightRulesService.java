@@ -1,5 +1,6 @@
 package so.sao.shop.supplier.service;
 
+import org.apache.ibatis.annotations.Param;
 import so.sao.shop.supplier.domain.FreightRules;
 import so.sao.shop.supplier.pojo.input.FreightRulesInput;
 
@@ -43,4 +44,12 @@ public interface FreightRulesService {
     boolean deleteByPrimaryKey(Integer id,Long accountId);
 
     int count(Long accountId);
+
+    /**
+     * 分页获取供应商配送规则列表（省市区为code）
+     * @param accountId
+     * @param rules
+     * @return
+     */
+    List<FreightRules> queryAll0(@Param("accountId")Long accountId, @Param("rules")Integer rules);
 }
