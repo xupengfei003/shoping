@@ -57,6 +57,8 @@ public class FreightRulesController {
         map.put("data",new PageInfo<>(dataList));
         Integer rules = accountService.findRulesById(user.getAccountId());
         map.put("freightRules",rules);
+        int isAll = freightRulesService.count(user.getAccountId());
+        map.put("isAll",isAll);
         return Result.success(Constant.MessageConfig.MSG_SUCCESS, map);
     }
 
@@ -81,11 +83,14 @@ public class FreightRulesController {
      */
     @PostMapping("/update/{id}")
     @ApiOperation(value = "更新某条运费规则", notes = "更新某条运费规则 【负责人：郑振海】")
-    public Result update(@PathVariable Integer id, @RequestBody @Valid FreightRulesInput freightRulesInput) throws Exception {
-       boolean flag;
-        if (flag = check(freightRulesInput)){
-            System.out.println(flag);
-            return  freightRulesService.update(id,freightRulesInput) == true ?  Result.success(Constant.MessageConfig.MSG_SUCCESS) :  Result.fail(Constant.MessageConfig.MSG_FAILURE);
+    public Result update(HttpServletRequest request,@PathVariable Integer id, @RequestBody @Valid FreightRulesInput freightRulesInput) throws Exception {
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        //判断是否登陆
+        if (Ognl.isNull(user)) {
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
+        }
+        if (check(freightRulesInput)){
+            return  freightRulesService.update(user.getAccountId(),id,freightRulesInput) == true ?  Result.success(Constant.MessageConfig.MSG_SUCCESS) :  Result.fail(Constant.MessageConfig.MSG_FAILURE);
         }else {
             return Result.fail(Constant.MessageConfig.MSG_NOT_EMPTY);
         }

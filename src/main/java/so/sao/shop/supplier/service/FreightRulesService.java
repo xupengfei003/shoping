@@ -34,7 +34,7 @@ public interface FreightRulesService {
      * @param id 配送规则ID
      * @param freightRulesInput
      */
-    boolean update(Integer id,FreightRulesInput freightRulesInput);
+    boolean update(Long accountId,Integer id,FreightRulesInput freightRulesInput);
 
     /**
      *  删除通用配送规则记录
@@ -42,4 +42,5 @@ public interface FreightRulesService {
      */
     boolean deleteByPrimaryKey(Integer id,Long accountId);
 
+    int count(Long accountId);
 }

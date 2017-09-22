@@ -58,9 +58,6 @@
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(remark)">
                 remark = #{remark,jdbcType=VARCHAR},
             </if>
-            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(updateAt)">
-                update_at = #{updateAt,jdbcType=TIMESTAMP}
-            </if>
             <!--修改配送规则-->
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(defaultPiece)">
                 default_piece = #{defaultPiece,jdbcType=INTEGER},
@@ -78,7 +75,10 @@
                 send_amount = #{sendAmount,jdbcType=DECIMAL},
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(whetherShipping)">
-                whether_shipping = #{whetherShipping,jdbcType=INTEGER}
+                whether_shipping = #{whetherShipping,jdbcType=INTEGER},
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(updateAt)">
+                update_at = #{updateAt,jdbcType=TIMESTAMP}
             </if>
         <where>
             <choose>

@@ -98,7 +98,7 @@ public class FreightRulesServiceImpl implements FreightRulesService {
      * @param freightRulesInput
      */
     @Override
-    public boolean update(Integer id,FreightRulesInput freightRulesInput) {
+    public boolean update(Long accountId,Integer id,FreightRulesInput freightRulesInput) {
         /**
          * 1.判断配送规则入参对象中的配送规则类型是否为0(通用规则) ,若为0查询通用规则及配送规则ID是否匹配，匹配可修改
          * 2.修改配送规则记录
@@ -112,6 +112,7 @@ public class FreightRulesServiceImpl implements FreightRulesService {
             freightRules.setId(id);
             freightRules.setUpdateAt(new Date());
             freightRulesDao.update(freightRules);
+            this.updateAccountRulesType(accountId);
             return true;
         }else {
             return false;
@@ -119,6 +120,30 @@ public class FreightRulesServiceImpl implements FreightRulesService {
 
 
     }
+
+    /**
+     * 更换商户默认配送规则类型
+     * @param accountId
+     */
+    private void updateAccountRulesType(Long accountId) {
+        List<FreightRules>  commonList = freightRulesDao.queryAll(accountId,0);//通用规则
+        List<FreightRules>  dispatchingList = freightRulesDao.queryAll(accountId,1);//配送规则
+        boolean flag = false;
+        if (null != dispatchingList && !dispatchingList.isEmpty()){
+            for (FreightRules feightRules:dispatchingList) {
+                if (null == feightRules.getWhetherShipping()){
+                    flag = true;
+                    break;
+                }
+            }
+        }
+        if (null != commonList && !commonList.isEmpty()){
+            flag = true;
+        }
+        if (!flag){
+            accountService.updateRulesByFreightRules(accountId,1);
+        }
+;    }
 
     /**
      *  删除通用配送规则记录
@@ -133,6 +158,28 @@ public class FreightRulesServiceImpl implements FreightRulesService {
             return true;
         }
         return false;
+    }
+
+    /**
+     * 获取完整的配送规则种类数量
+     *  返回0 表示有一种规则或都没有
+     *  返回1 表示两种规则都有
+     * @param accountId
+     * @return
+     */
+    @Override
+    public int count(Long accountId) {
+       List<FreightRules> commonFreightRulesList = freightRulesDao.queryAll(accountId,0);
+       List<FreightRules> dispatchingFreightRulesList = freightRulesDao.queryAll(accountId,1);
+       if (null != commonFreightRulesList && !commonFreightRulesList.isEmpty() && null != dispatchingFreightRulesList){
+           for (FreightRules freightRules:dispatchingFreightRulesList) {
+               if (null == freightRules.getWhetherShipping()){
+                   return 0;
+               }
+           }
+           return 1;
+       }
+       return 0;
     }
 
 }

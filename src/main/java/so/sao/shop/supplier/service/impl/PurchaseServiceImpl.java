@@ -142,7 +142,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                     CommodityOutput commOutput = (CommodityOutput) result.getData();
                     //判断是否满足最小起订量
                     if (!this.checkMinOrderQuantity(commOutput,goodsNumber)){
-                        output.put("message","存在商品不满足最小起订量");
+                        output.put("message",commOutput.getName()+"商品不满足最小起订量");
                         return output;
                     }
                     //2.生成批量插入订单详情数据
@@ -1327,7 +1327,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                     return map;
                 }
             }else {
-                map.put("message","当前订单存在不满足配送条件的商品");
+                map.put("message","当前订单不满足商户最小起送金额");
                 return map;
             }
         map.put("message",Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
