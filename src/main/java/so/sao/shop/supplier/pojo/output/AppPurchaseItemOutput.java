@@ -2,6 +2,7 @@ package so.sao.shop.supplier.pojo.output;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import so.sao.shop.supplier.pojo.vo.AppPurchaseItemVo;
+import so.sao.shop.supplier.util.NumberUtil;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -26,7 +27,7 @@ public class AppPurchaseItemOutput {
     /**
      * 订单合计（订单实付金额）
      */
-    private BigDecimal orderPrice;
+    private String orderPrice;
     /**
      * 订单编号
      */
@@ -85,7 +86,7 @@ public class AppPurchaseItemOutput {
     /**
      * 订单邮费 (0:包邮，非零显示具体金额)
      */
-    private BigDecimal orderPostage;
+    private String orderPostage;
     /**
      * 商品信息
      */
@@ -115,12 +116,12 @@ public class AppPurchaseItemOutput {
         this.orderAddress = orderAddress;
     }
 
-    public BigDecimal getOrderPrice() {
+    public String getOrderPrice() {
         return orderPrice;
     }
 
-    public void setOrderPrice(BigDecimal orderPrice) {
-        this.orderPrice = orderPrice;
+    public void setOrderPrice(String orderPrice) {
+        this.orderPrice = NumberUtil.number2Thousand(new BigDecimal(orderPrice));
     }
 
     public String getOrderId() {
@@ -227,11 +228,11 @@ public class AppPurchaseItemOutput {
         this.orderPaymentNum = orderPaymentNum;
     }
 
-    public BigDecimal getOrderPostage() {
+    public String getOrderPostage() {
         return orderPostage;
     }
 
-    public void setOrderPostage(BigDecimal orderPostage) {
+    public void setOrderPostage(String orderPostage) {
         this.orderPostage = orderPostage;
     }
 }

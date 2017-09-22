@@ -8,13 +8,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.pojo.Result;
+import so.sao.shop.supplier.pojo.input.AppCartItemBatchInput;
 import so.sao.shop.supplier.pojo.input.AppCartItemInput;
+import so.sao.shop.supplier.pojo.input.AppCartItemSaveInput;
 import so.sao.shop.supplier.pojo.output.AppCartItemOut;
 import so.sao.shop.supplier.service.app.AppCartService;
+import so.sao.shop.supplier.util.Ognl;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import java.util.ArrayList;
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
 
@@ -41,8 +42,13 @@ public class AppCartController {
      */
     @ApiOperation(value = "根据购物车ID删除购物车记录", notes = "根据购物车ID删除购物车记录")
     @GetMapping(value = "/cartitem/delete")
-    public Result deleteCartItem(@NotNull(message = "购物车记录ID不能为空") Long cartitemId,
-                                 @NotNull(message = "用户ID不能为空") Long userId) throws Exception {
+    public Result deleteCartItem(Long cartitemId, Long userId) throws Exception {
+        if (Ognl.isNull(cartitemId)) {
+            return Result.fail("购物车记录ID不能为空");
+        }
+        if (Ognl.isNull(userId)) {
+            return Result.fail("用户ID不能为空");
+        }
         // 删除购物车记录
         Boolean flag = cartService.deleteCartItemById(cartitemId, userId);
         // 返回结果
@@ -62,9 +68,10 @@ public class AppCartController {
      */
     @ApiOperation(value = "更新购物车商品数量", notes = "更新购物车商品数量")
     @PostMapping(value = "/cartitem/update")
-    public Result updateCartItem(AppCartItemInput input) throws Exception {
+    public Result updateCartItem(@RequestBody @Valid AppCartItemInput input) throws Exception {
+        Integer number = Integer.valueOf(input.getNumber());
         // 更新数据
-        Map<String, Object> map = cartService.updateCartItem(input.getCartitemId(), input.getNumber(), input.getUserId());
+        Map<String, Object> map = cartService.updateCartItem(input.getCartitemId(), number, input.getUserId());
         // 获取提示信息
         String msg = (String) map.get("msg");
         // 获取信息码
@@ -78,9 +85,10 @@ public class AppCartController {
 
     @ApiOperation(value = "批量更新购物车商品数量", notes = "批量更新购物车商品数量")
     @PostMapping(value = "/cartitem/updateBatch")
-    public Result updateCartItemBatch(@RequestBody List<AppCartItemInput> inputList) throws Exception {
+    public Result updateCartItemBatch(@RequestBody @Valid AppCartItemBatchInput inputList) throws Exception {
+        List<AppCartItemInput> list = inputList.getList();
         // 更新数据
-        Map<String, Object> map = cartService.updateCartItemBatch(inputList);
+        Map<String, Object> map = cartService.updateCartItemBatch(list);
         // 获取提示信息
         String msg = (String) map.get("msg");
         // 获取信息码
@@ -95,19 +103,17 @@ public class AppCartController {
     /**
      * 向购物车添加购物记录
      *
-     * @param number
-     * @param userId
+     * @param input
      * @return
      * @throws Exception
      */
     @ApiOperation(value = "向购物车添加购物记录", notes = "向购物车添加购物记录")
     @PostMapping(value = "/cartitem/save")
-    public Result createCartItems(@NotNull(message = "商品ID不能为空") Long commodityId,
-                                  @NotNull(message = "购物车添加商品数量不能为空")
-                                  @Pattern(regexp = "^[1-9][0-9]*$", message = "购物车添加商品数量有误") Integer number,
-                                  @NotNull(message = "用户ID不能为空") Long userId) throws Exception {
+    public Result createCartItems(@RequestBody @Valid AppCartItemSaveInput input) throws Exception {
+        // 转化为Integer
+        Integer newNumber = Integer.valueOf(input.getNumber());
         // 插入数据
-        Map<String, Object> map = cartService.saveCartItem(commodityId, number, userId);
+        Map<String, Object> map = cartService.saveCartItem(input.getCommodityId(), newNumber, input.getUserId());
         // 获取提示信息
         String msg = (String) map.get("msg");
         // 获取信息码
@@ -128,7 +134,10 @@ public class AppCartController {
      */
     @ApiOperation(value = "根据用户id获取用户购物车信息", notes = "根据用户id获取用户购物车信息【负责人：王翼云】")
     @GetMapping(value = "/cartitem/select")
-    public Result getCartItemsByUser(@NotNull(message = "用户ID不能为空") Long userId) throws Exception {
+    public Result getCartItemsByUser(Long userId) throws Exception {
+        if (Ognl.isNull(userId)) {
+            return Result.fail("用户ID不能为空");
+        }
         // 查询数据
         Map<String, Object> map = cartService.findCartItemsByUserId(userId);
         // 获取信息码

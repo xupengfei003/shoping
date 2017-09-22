@@ -3,20 +3,22 @@ package so.sao.shop.supplier.pojo.input;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
-public class AppCartItemInput {
-
-
-    /**
-     * 购物车ID
-     */
-    @NotNull(message = "购物车记录ID不能为空")
-    private Long cartitemId;
+/**
+ * Created by fangzhou on 2017/9/22.
+ */
+public class AppCartItemSaveInput {
 
     /**
-     * 更新购物车中商品的数量
+     * 加入购物车的商品ID
      */
-    @NotNull(message = "更新数量不能为空")
-    @Pattern(regexp = "^[1-9][0-9]*$", message = "更新数量有误")
+    @NotNull(message = "加入购物车的商品ID不能为空")
+    private Long commodityId;
+
+    /**
+     * 加入购物车中商品的数量
+     */
+    @NotNull(message = "加入商品数量不能为空")
+    @Pattern(regexp = "^[1-9][0-9]*$", message = "加入商品数量有误")
     private String number;
 
     /**
@@ -25,12 +27,12 @@ public class AppCartItemInput {
     @NotNull(message = "用户ID不能为空")
     private Long userId;
 
-    public Long getCartitemId() {
-        return cartitemId;
+    public Long getCommodityId() {
+        return commodityId;
     }
 
-    public void setCartitemId(Long cartitemId) {
-        this.cartitemId = cartitemId;
+    public void setCommodityId(Long commodityId) {
+        this.commodityId = commodityId;
     }
 
     public String getNumber() {

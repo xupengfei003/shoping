@@ -1,5 +1,7 @@
 package so.sao.shop.supplier.pojo.input;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
@@ -15,13 +17,15 @@ public class FreightRulesInput {
     /**
      * 规则类型:0-通用规则,1-配送地区物流费用规则
      */
-    @NotNull
+    @Min(value = 0,message = "规则类型错误")
+    @Max(value = 1,message = "规则类型错误")
     private Integer rulesType;
 
     /**
      * 是否包邮:0-不包,1-包邮
      */
-    @NotNull
+    @Min(value = 0,message = "包邮类型错误")
+    @Max(value = 1,message = "包邮类型错误")
     private Integer whetherShipping;
 
     /**

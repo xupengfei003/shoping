@@ -2,7 +2,9 @@ package so.sao.shop.supplier.pojo.output;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import so.sao.shop.supplier.pojo.vo.AppPurchaseItemVo;
+import so.sao.shop.supplier.util.NumberUtil;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 

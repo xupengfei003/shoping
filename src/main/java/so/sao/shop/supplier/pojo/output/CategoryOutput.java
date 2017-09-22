@@ -5,7 +5,7 @@ public class CategoryOutput {
     /**
      * id
      */
-    private long id;
+    private Long id;
     /**
      * 分类名称
      */

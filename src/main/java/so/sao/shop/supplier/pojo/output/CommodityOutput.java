@@ -1,6 +1,7 @@
 package so.sao.shop.supplier.pojo.output;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import so.sao.shop.supplier.domain.FreightRules;
 import so.sao.shop.supplier.pojo.vo.CommImgeVo;
 
 import java.math.BigDecimal;
@@ -169,6 +170,24 @@ public class CommodityOutput {
      * 图片集合
      */
     private List<CommImgeVo> imgeList;
+
+    /**
+     * 审核意见
+     */
+    private String advice;
+
+    /**
+     * 商品运费规则
+     */
+    private List<FreightRules> freightRulesList;
+
+    public List<FreightRules> getFreightRulesList() {
+        return freightRulesList;
+    }
+
+    public void setFreightRulesList(List<FreightRules> freightRulesList) {
+        this.freightRulesList = freightRulesList;
+    }
 
     public Long getId() {
         return id;
@@ -463,5 +482,13 @@ public class CommodityOutput {
 
     public void setMinOrderQuantity(int minOrderQuantity) {
         this.minOrderQuantity = minOrderQuantity;
+    }
+
+    public String getAdvice() {
+        return advice;
+    }
+
+    public void setAdvice(String advice) {
+        this.advice = advice;
     }
 }

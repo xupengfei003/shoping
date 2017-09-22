@@ -137,7 +137,6 @@ public class POIExcelUtil {
 		for(Iterator cellIt = fromRow.cellIterator(); cellIt.hasNext(); ) {
 			Cell tmpCell = (Cell) cellIt.next();
 			Cell newCell = toRow.createCell(tmpCell.getColumnIndex());
-			copyCell(wb, tmpCell, newCell);
 		}
 		Sheet worksheet = fromRow.getSheet();
 		for(int i = 0; i < worksheet.getNumMergedRegions(); i++) {

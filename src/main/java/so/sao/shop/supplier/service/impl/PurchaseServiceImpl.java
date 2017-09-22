@@ -21,6 +21,7 @@ import so.sao.shop.supplier.pojo.output.OrderRefuseReasonOutput;
 import so.sao.shop.supplier.pojo.output.PurchaseItemPrintOutput;
 import so.sao.shop.supplier.pojo.vo.*;
 import so.sao.shop.supplier.service.CommodityService;
+import so.sao.shop.supplier.service.FreightRulesService;
 import so.sao.shop.supplier.service.PurchaseService;
 import so.sao.shop.supplier.service.QrcodeService;
 import so.sao.shop.supplier.util.*;
@@ -72,6 +73,8 @@ public class PurchaseServiceImpl implements PurchaseService {
     private NotificationDao notificationDao;
     @Resource
     private FreightRulesDao freightRulesDao;//运费规则
+    @Resource
+    private FreightRulesService freightRulesService;
     /**
      * 保存订单信息
      *
@@ -121,10 +124,10 @@ public class PurchaseServiceImpl implements PurchaseService {
         List<Notification> notificationList = new ArrayList<>();
         Map<Long, BigDecimal> inventoryMap = new HashMap<>();//存储商品编号和购买数量
         //合并支付单号
-        String payId = NumberGenerate.generateUuid();
+        String payId = NumberGenerate.generateOrderId("yyMMddHHmmss");
         for (Long sId : set) {
             //生成订单编号
-            String orderId = NumberGenerate.generateUuid();
+            String orderId = NumberGenerate.generateOrderId("yyyyMMddHHmmss");
             BigDecimal totalMoney = new BigDecimal(0);//订单总价计算
             BigDecimal orderSettlemePrice = new BigDecimal(0);//结算金额
             BigDecimal totalNumber = new BigDecimal(0);//订单总数量
@@ -140,6 +143,11 @@ public class PurchaseServiceImpl implements PurchaseService {
                     //查询商品信息
                     Result result = commodityService.getCommodity(goodsId);
                     CommodityOutput commOutput = (CommodityOutput) result.getData();
+                    //判断是否满足最小起订量
+                    if (!this.checkMinOrderQuantity(commOutput,goodsNumber)){
+                        output.put("message",commOutput.getName()+"商品不满足最小起订量");
+                        return output;
+                    }
                     //2.生成批量插入订单详情数据
                     PurchaseItem item = new PurchaseItem();
                     item.setGoodsAttribute(goodsAttribute);//商品属性
@@ -182,12 +190,11 @@ public class PurchaseServiceImpl implements PurchaseService {
             purchaseDate.setOrderCreateTime(new Date());//下单时间
             purchaseDate.setOrderStatus(Constant.OrderStatusConfig.PAYMENT);//订单状态 1待付款2代发货3已发货4已收货5已拒收6已退款
             purchaseDate.setUpdatedAt(new Date());//更新时间
-            // TODO 邮费计算
-            Map map = this.getFreightRulesByAccountId(account.getAccountId(),totalMoney,totalNumber,orderAddress);
+            //邮费计算
+            Map map = this.getFreightRulesByAccountId(account.getAccountId(),totalMoney,BigDecimal.valueOf(totalNumber.intValue()),purchase);
             if ((Integer)map.get("status") == 1){
                 purchaseDate.setOrderPostage((BigDecimal) map.get("totalMoney"));
             }else {
-                map.put("message","无匹配配送地区");
                 return map;
             }
             listPurchase.add(purchaseDate);
@@ -975,10 +982,16 @@ public class PurchaseServiceImpl implements PurchaseService {
         map.put("orderStatus", Constant.OrderStatusConfig.REJECT);//订单状态 5 拒收
         purchaseDao.insertRefuseMessage(map);
         List<CommBlobUpload> imgList = new ArrayList<>();
-        for(int i = 0;i<refuseOrderInput.getRefuseImg().size(); i++){
-            imgList.add(disposeImage(refuseOrderInput.getRefuseImg().get(i)));//拒收图片URL
+        //1.如果拒收图片不传入，则不进行图片格式转换；
+        //2.如果没有拒收图片，则不存入数据库
+        if(refuseOrderInput.getRefuseImg().size()>0){
+            for(int i = 0;i<refuseOrderInput.getRefuseImg().size(); i++){
+                imgList.add(disposeImage(refuseOrderInput.getRefuseImg().get(i)));//拒收图片URL
+            }
         }
-        purchaseDao.insertRefuseImg(map,imgList);
+        if(imgList.size()>0){
+            purchaseDao.insertRefuseImg(map,imgList);
+        }
         // 验证二维码是否存在，是否失效
         PurchasePrintVo purchasePrintVo = purchaseDao.findPrintOrderInfo(orderId); // 查询订单和二维码信息
         if (null == purchasePrintVo || null == purchasePrintVo.getQrcodeStatus()
@@ -1254,7 +1267,7 @@ public class PurchaseServiceImpl implements PurchaseService {
      * @param number 订单总数量
      * @return
      */
-    private Map<String,Object> getFreightRulesByAccountId(Long accountId,BigDecimal totalMoney,BigDecimal number,String adress ){
+    private Map<String,Object> getFreightRulesByAccountId(Long accountId,BigDecimal totalMoney,BigDecimal number,PurchaseInput purchaseInput ){
         /**
          * 1.获取商户当前默认运费规则
          * 2.并根据运费规则计算运费
@@ -1263,33 +1276,38 @@ public class PurchaseServiceImpl implements PurchaseService {
         map.put("status",0);
         Integer rules = accountDao.findRulesById(accountId);//获取商户当前默认运费规则
         if (null == rules){
+            map.put("message","商户没有设置配送运费规则");
             return map;
         }
         if (0 == rules){//通用运费规则
-            List<FreightRules> freightRulesList = freightRulesDao.queryAll(accountId,rules);//获取对应运费规则记录
+            List<FreightRules> freightRulesList = freightRulesDao.queryAll0(accountId,rules);//获取对应运费规则记录
             if (null != freightRulesList && !freightRulesList.isEmpty()) {
                 return this.getexpenses(freightRulesList.get(0),totalMoney,number);
             }
         }
         if (1 == rules){//配送运送规则
-            List<FreightRules> freightRulesList = freightRulesDao.queryAll(accountId,rules);//获取对应运费规则记录
+            List<FreightRules> freightRulesList = freightRulesDao.queryAll0(accountId,rules);//获取对应运费规则记录
             if (null != freightRulesList && !freightRulesList.isEmpty()){
-                for (FreightRules freightRules:freightRulesList) {//收货地址与配送地区匹配
-                    String rulesAddress = freightRules.getAddressProvince() + freightRules.getAddressCity() + freightRules.getAddressDistrict();//配送地址
-                    if (adress.contains(rulesAddress)){//匹配成功
-                        return this.getexpenses(freightRules,totalMoney,number);
-                    }
-                }
-                return map;//匹配失败
+                FreightRules freightRules = freightRulesService.matchAddress(purchaseInput.getProvince(),purchaseInput.getCity(),purchaseInput.getDistrict(),freightRulesList) ;//地址匹配的配送规则对象
+                //计算运费
+                return this.getexpenses(freightRules,totalMoney,number);
             }
         }
         return map;//匹配失败
     }
+
+    /**
+     * 运费计算
+     * @param freightRules 配送规则
+     * @param totalMoney 订单总金额
+     * @param number 订单总数量
+     * @return 运费及状态码
+     */
     private Map<String,Object> getexpenses(FreightRules freightRules,BigDecimal totalMoney,BigDecimal number){
             Map<String ,Object> map = new HashMap<>();
             map.put("status",0);
 
-            if (null != freightRules && freightRules.getSendAmount().compareTo(totalMoney) <= 0){//判断当前订单金额是否满足最新起送金额
+            if (null != freightRules && freightRules.getSendAmount().compareTo(totalMoney) <= 0 ){//判断当前订单金额是否满足最新起送金额
                 if (0 == freightRules.getWhetherShipping()){//包邮
                     map.put("status",1);
                     map.put("totalMoney",BigDecimal.valueOf(0));
@@ -1299,15 +1317,12 @@ public class PurchaseServiceImpl implements PurchaseService {
                     //订单运费 =  基础单位运费 * 基础配送基数 + 超量单位运费 * 超量配送数量
                     BigDecimal defaultAmount = freightRules.getDefaultAmount();
                     BigDecimal defaultPiece = BigDecimal.valueOf(freightRules.getDefaultPiece());
-                    BigDecimal expenses = null;//运费
-                    //基础价格
-                    expenses = defaultAmount.multiply(defaultPiece);
-                    if (number.compareTo(defaultPiece) > 0){//订单数量大于基础配送数量
+                    BigDecimal expenses = defaultAmount;//基础价格
+                    if (number.compareTo(BigDecimal.valueOf(freightRules.getDefaultPiece())) >= 0){//订单数量大于基础配送数量
                         BigDecimal excessPiece = BigDecimal.valueOf(freightRules.getExcessPiece());//超量配送数量
                         BigDecimal excessAmount = freightRules.getExcessAmount();//超量单位运费
                         BigDecimal excess = number.subtract(defaultPiece);//超出基础配送数量的部分
-
-                        expenses = excess.remainder(excessPiece).equals(0) ?
+                        expenses = excess.remainder(excessPiece).compareTo(BigDecimal.valueOf(0)) == 0 ?
                                 expenses.add(excessAmount.multiply(excess.divide(excessPiece))) : expenses.add(excessAmount.multiply(excess.divide(excessPiece).add(BigDecimal.valueOf(1))));
                     }
                     map.put("status",1);
@@ -1315,8 +1330,27 @@ public class PurchaseServiceImpl implements PurchaseService {
                     return map;
                 }
             }else {
+                map.put("message","当前订单不满足商户最小起送金额");
                 return map;
             }
+        map.put("message",Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
         return map;
         }
+
+    /**
+     * 判断购买商品数量是否满足最小起定量
+     * @param commOutput 商品对象
+     * @param goodsNumber 购买商品的数量
+     * @return
+     */
+    private boolean checkMinOrderQuantity(CommodityOutput commOutput, BigDecimal goodsNumber){
+        if (null != commOutput && null != goodsNumber){
+            if (commOutput.getMinOrderQuantity() > goodsNumber.intValue()){
+                return false;
+            }else {
+                return true;
+            }
+        }
+        return false;
+    }
 }

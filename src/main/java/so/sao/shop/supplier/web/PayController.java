@@ -48,7 +48,7 @@ public class PayController {
         if (payService.updatePurchasePayment(payInput)) {
             return Result.success(Constant.MessageConfig.MSG_SUCCESS);
         }
-        return Result.success(Constant.MessageConfig.MSG_FAILURE);
+        return Result.fail(Constant.MessageConfig.MSG_FAILURE);
     }
 
     /**
@@ -68,7 +68,7 @@ public class PayController {
         if (payService.updatePurchasePaymentByOrderId(payInput)) {
             return Result.success(Constant.MessageConfig.MSG_SUCCESS);
         }
-        return Result.success(Constant.MessageConfig.MSG_FAILURE);
+        return Result.fail(Constant.MessageConfig.MSG_FAILURE);
     }
 
     /**
@@ -84,7 +84,7 @@ public class PayController {
         if (null != totalPrice) {
             return Result.success(Constant.MessageConfig.MSG_SUCCESS,totalPrice);
         }
-        return Result.success(Constant.MessageConfig.MSG_SUCCESS,0);
+        return Result.fail(Constant.MessageConfig.MSG_SUCCESS,0);
     }
     //验证订单状态
     private boolean verifyOrderStatus(String orderId,Integer orderStatus) {

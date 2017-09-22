@@ -42,44 +42,25 @@
     <update id="update" parameterType="so.sao.shop.supplier.domain.FreightRules">
        update freight_rules
         set
-            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(rulesType)">
-                rules_type = #{rulesType,jdbcType=INTEGER},
-            </if>
             <!-- 修改配送范围-->
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(addressProvince)">
                 address_province = #{addressProvince,jdbcType=VARCHAR},
-            </if>
-            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(addressCity)">
                 address_city = #{addressCity,jdbcType=VARCHAR},
-            </if>
-            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(addressDistrict)">
                 address_district = #{addressDistrict,jdbcType=VARCHAR},
             </if>
-            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(remark)">
-                remark = #{remark,jdbcType=VARCHAR},
-            </if>
-            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(updateAt)">
-                update_at = #{updateAt,jdbcType=TIMESTAMP},
-            </if>
+
             <!--修改配送规则-->
-            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(defaultPiece)">
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(rulesType)">
+                rules_type = #{rulesType,jdbcType=INTEGER},
+                whether_shipping = #{whetherShipping,jdbcType=INTEGER},
                 default_piece = #{defaultPiece,jdbcType=INTEGER},
-            </if>
-            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(defaultAmount)">
                 default_amount = #{defaultAmount,jdbcType=DECIMAL},
-            </if>
-            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(excessPiece)">
                 excess_piece = #{excessPiece,jdbcType=INTEGER},
-            </if>
-            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(excessAmount)">
                 excess_amount = #{excessAmount,jdbcType=DECIMAL},
-            </if>
-            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(sendAmount)">
                 send_amount = #{sendAmount,jdbcType=DECIMAL},
             </if>
-            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(whetherShipping)">
-                whether_shipping = #{whetherShipping,jdbcType=INTEGER}
-            </if>
+                remark = #{remark,jdbcType=VARCHAR},
+                update_at = #{updateAt,jdbcType=TIMESTAMP}
         <where>
             <choose>
                 <when test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(distributionScopeId)">
@@ -125,5 +106,16 @@
         LEFT JOIN sys_region c ON address_city = c.sr_id
         LEFT JOIN sys_region d ON address_district = d.sr_id
         WHERE id = #{id,jdbcType=INTEGER}
+    </select>
+
+    <select id="queryAll0" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM freight_rules
+        WHERE supplier_id = #{accountId,jdbcType=BIGINT}
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(rules)">
+            AND rules_type = #{rules,jdbcType=INTEGER}
+        </if>
+        ORDER BY created_at DESC
     </select>
 </mapper>

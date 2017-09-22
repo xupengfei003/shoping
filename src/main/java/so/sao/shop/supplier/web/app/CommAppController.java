@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import so.sao.shop.supplier.pojo.Result;
+import so.sao.shop.supplier.pojo.input.CommAppInput;
 import so.sao.shop.supplier.pojo.input.CommodityAppInput;
 import so.sao.shop.supplier.pojo.output.CommAppOutput;
 import so.sao.shop.supplier.service.app.CommAppService;
@@ -51,28 +52,25 @@ public class CommAppController {
         return commAppService.getBrandName(name);
     }
 
-    @ApiOperation(value="根据id查询商品详情", notes="根据供应商商品表ID查询商品详情")
+    @ApiOperation(value="根据id查询商品详情", notes="根据供应商商品表ID查询商品详情 【责任人：巨江坤】")
     @GetMapping(value="/getCommodity/{id}")
     public Result getCommodity(@PathVariable Long id){
-        return commodityService.getCommodity(id);
+        return commAppService.getCommodity(id);
     }
 
-    @ApiOperation(value="根据供应商ID或名称查询供应商详情", notes="根据供应商ID或名称查询供应商详情")
+    @ApiOperation(value="根据供应商ID或名称查询供应商详情", notes="根据供应商ID或名称查询供应商详情 【责任人：巨江坤】")
     @GetMapping(value="/getSuppliers")
     public Result getSuppliers(@RequestParam(required = false) Long accountId,@RequestParam(required = false) String providerName,@RequestParam(required = false) Integer pageNum,
                                @RequestParam(required = false) Integer pageSize){
         return commAppService.getSuppliers(accountId,providerName,pageNum,pageSize);
     }
 
-    @ApiOperation(value="根据供应商ID/商品名称/分类/品牌id查询商品详情", notes="根据供应商ID/商品名称/分类/品牌id查询商品详情")
+    @ApiOperation(value="根据code69/供应商ID/商品名称/分类/品牌id查询商品详情", notes="根据供应商ID/商品名称/分类/品牌id查询商品详情")
     @GetMapping(value="/getCommodities")
-    public Result getCommodities(@RequestParam(required = false) Long supplierId,@RequestParam(required = false) String commName,@RequestParam(required = false) Long categoryOneId,
-                                 @RequestParam(required = false) Long categoryTwoId,@RequestParam(required = false) Long categoryThreeId,
-                                 @RequestParam(required = false) Long[] brandIds, @RequestParam(required = false) Integer pageNum,
-                                 @RequestParam(required = false) Integer pageSize){
-        return commAppService.getCommodities(supplierId,commName,categoryOneId,categoryTwoId,categoryThreeId,brandIds,pageNum,pageSize);
+    public Result getCommodities(CommAppInput commAppInput){
+        return commAppService.getCommodities(commAppInput);
     }
-    @ApiOperation(value = "根据供应商ID查询主营商品" ,notes = "根据供应商ID查询主营商品")
+    @ApiOperation(value = "根据供应商ID查询主营商品" ,notes = "根据供应商ID查询主营商品 【责任人：巨江坤】")
     @GetMapping(value = "/mainCategory")
     public Result getMainCategory (@RequestParam Long supplierId){
         return commAppService.getMainCateGory(supplierId);
@@ -93,8 +91,19 @@ public class CommAppController {
 
     @ApiOperation(value="根据动态条件(供应商ID/分类/品牌ids/排序条件)查询商品", notes="动态条件查询商品【责任人：许鹏飞】")
     @GetMapping(value="/searchCommoditiesByConditionOrder")
-    public PageInfo<CommAppOutput> searchCommoditiesByConditionOrder(CommodityAppInput commodityAppInput){
+    public PageInfo<CommAppOutput> searchCommoditiesByConditionOrder( CommodityAppInput commodityAppInput){
         return commAppService.searchCommodities( commodityAppInput );
+    }
+    @ApiOperation(value = "根据供应商ID和商品名称查询供应商列表",notes = "根据供应商ID和商品名称查询供应商列表")
+    @GetMapping(value = "/listCommodities")
+    public Result listCommodity(@RequestParam(required = false) Long supplierId, @RequestParam(required = false) String commName,
+                                @RequestParam(required = false) Integer pageNum, @RequestParam(required = false) Integer pageSize){
+        return commAppService.listCommodities(supplierId,commName, pageNum, pageSize);
+    }
+    @ApiOperation(value="查询商品", notes="根据商品名称模糊查询商品，返回商品列表")
+    @GetMapping(value="/getNames/{goodsName}")
+    public Result searchGoods(@PathVariable String goodsName){
+        return commAppService.getGoods(goodsName);
     }
 
 

@@ -7,11 +7,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import so.sao.shop.supplier.dao.AccountDao;
 import so.sao.shop.supplier.dao.CommImgeDao;
-import so.sao.shop.supplier.dao.SupplierCommodityDao;
+import so.sao.shop.supplier.dao.FreightRulesDao;
 import so.sao.shop.supplier.dao.app.CommAppDao;
 import so.sao.shop.supplier.domain.Account;
 import so.sao.shop.supplier.domain.CommImge;
+import so.sao.shop.supplier.domain.FreightRules;
 import so.sao.shop.supplier.pojo.Result;
+import so.sao.shop.supplier.pojo.input.CommAppInput;
 import so.sao.shop.supplier.pojo.input.CommodityAppInput;
 import so.sao.shop.supplier.pojo.output.*;
 import so.sao.shop.supplier.pojo.vo.CategoryVo;
@@ -37,6 +39,8 @@ public class CommAppServiceImpl implements CommAppService {
     private CountSoldCommService countSoldCommService;
     @Autowired
     private CommImgeDao commImgeDao;
+    @Autowired
+    private FreightRulesDao freightRulesDao;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -115,6 +119,9 @@ public class CommAppServiceImpl implements CommAppService {
         //开始分页
         PageTool.startPage(pageNum,pageSize);
         List<AccountOutput> accountList  = accountDao.findAccounts(accountId, providerName);
+        if( null == accountList ||  accountList.size() <= 0 ){
+            return  Result.fail("暂无数据");
+        }
         PageInfo<AccountOutput> pageInfo = new PageInfo<AccountOutput>(accountList);
         return Result.success("查询成功",pageInfo);
     }
@@ -123,23 +130,15 @@ public class CommAppServiceImpl implements CommAppService {
 
     /**
      * 根据供应商ID或商品名称或分类或品牌ID查询商品信息
-     *
-     * @param supplierId 供应商id
-     * @param commName 商品名称
-     * @param categoryOneId 一级分类id
-     * @param categoryTwoId 二级分类id
-     * @param categoryThreeId 三级分类id
-     * @param brandIds 品牌集合
-     * @param pageNum 当前页码
-     * @param pageSize 页面大小
+     * @param commAppInput 入参
      * @return
      */
     @Override
-    public Result getCommodities(Long supplierId, String commName, Long categoryOneId, Long categoryTwoId, Long categoryThreeId, Long[] brandIds, Integer pageNum, Integer pageSize) {
+    public Result getCommodities(CommAppInput commAppInput) {
 
         //开始分页
-        PageTool.startPage(pageNum,pageSize);
-        List<CommAppOutput> commList  = commAppDao.findCommodities(supplierId,commName, categoryOneId, categoryTwoId, categoryThreeId, brandIds);
+        PageTool.startPage(commAppInput.getPageNum(),commAppInput.getPageSize());
+        List<CommAppOutput> commList  = commAppDao.findCommodities(commAppInput);
         PageInfo<CommAppOutput> pageInfo = new PageInfo<CommAppOutput>(commList);
         return Result.success("查询成功",pageInfo);
     }
@@ -152,6 +151,9 @@ public class CommAppServiceImpl implements CommAppService {
     @Override
     public Result getMainCateGory(Long supplierId) {
         List<CategoryVo> categoryOutputs=commAppDao.findMainCateGory(supplierId);
+        if( null == categoryOutputs || categoryOutputs.size() <= 0 ){
+            return Result.fail("暂无数据");
+        }
         return Result.success("查询成功",categoryOutputs);
     }
 
@@ -226,6 +228,14 @@ public class CommAppServiceImpl implements CommAppService {
         return pageInfo;
     }
 
+    /**
+     * 根据供应商ID和商品名称查询供应商列表
+     * @param supplierId 供应商ID
+     * @param commName   商品名称
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
     @Override
     public Result listCommodities(Long supplierId, String commName, Integer pageNum, Integer pageSize) {
         //开始分页
@@ -266,7 +276,51 @@ public class CommAppServiceImpl implements CommAppService {
      */
     @Override
     public Result getGoods(String goodsName) {
-        return Result.success("查询成功", commAppDao.findGoodsByName(goodsName));
+        List<Map> goods = commAppDao.findGoodsByName(goodsName);
+        if( null == goods || goods.size() <= 0  ){
+            return Result.fail("暂无数据");
+        }
+        return Result.success("查询成功", goods );
+    }
+
+    /**
+     * 根据供应商商品ID获取商品详情
+     * @param id
+     * @return
+     */
+    @Override
+    public Result getCommodity(Long id)  {
+        //根据供应商商品ID获取商品信息
+        CommodityOutput commodityOutput = commAppDao.findDetail(id);
+        if(null != commodityOutput){
+            //根据供应商商品ID获取图片列表信息
+            List<CommImge> commImgeList = commImgeDao.find(id);
+            List<CommImgeVo> commImgeVoList = new ArrayList<>();
+            commImgeList.forEach(commImge->{
+                CommImgeVo commImgeVo = BeanMapper.map(commImge, CommImgeVo.class);
+                commImgeVoList.add(commImgeVo);
+            });
+            List<FreightRules> freightRulesList = freightRulesDao.queryAll(commodityOutput.getSupplierId(),null);
+            commodityOutput.setFreightRulesList(freightRulesList);
+            commodityOutput.setImgeList(commImgeVoList);  //将获取图片信息放入出参
+            //获取销量
+            List<String> countSold= null;
+            try {
+                countSold = countSoldCommService.countSoldCommNum(new String[]{commodityOutput.getId().toString()});
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            //获取账户account对象
+            Account account=accountDao.selectById(commodityOutput.getSupplierId());
+            if (null == account){
+                return Result.success("查询成功",commodityOutput);
+            }
+            commodityOutput.setProviderName(account.getProviderName());  //将获取供应商名称放入出参
+            commodityOutput.setContractCity(account.getContractRegisterAddressCity());  //将获取供应商合同所在市放入出参
+            commodityOutput.setSalesNumber(Integer.valueOf(countSold.get(0)));     //将获取销量放入出参
+
+        }
+        return Result.success("查询成功", commodityOutput);
     }
 
 

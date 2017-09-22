@@ -66,6 +66,15 @@ public class CommConstant {
             case CommConstant.COMM_ST_OFF_SHELVES:
                 st="下架";
                 break;
+            case CommConstant.COMM_ST_ON_SHELVES_AUDIT:
+                st="上架待审核";
+                break;
+            case CommConstant.COMM_ST_OFF_SHELVES_AUDIT:
+                st="下架待审核";
+                break;
+            case CommConstant.COMM_EDIT_AUDIT:
+                st="编辑待审核";
+                break;
         }
         return st;
     }

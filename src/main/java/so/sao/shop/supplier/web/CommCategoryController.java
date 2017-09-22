@@ -4,8 +4,10 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-import so.sao.shop.supplier.pojo.output.CommCategorySelectOutput;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import so.sao.shop.supplier.pojo.output.CategoryOutput;
 import so.sao.shop.supplier.service.CommCategoryService;
 
 import java.util.List;
@@ -25,7 +27,7 @@ public class CommCategoryController {
     @ApiOperation(value="查询商品品类集合", notes="【责任人：张瑞兵】")
     @ApiImplicitParam(name = "pid",value = "pid",required=false,paramType = "query", dataType = "Long")
     @GetMapping(value="/searchCommCategory")
-    public List<CommCategorySelectOutput> search(Long pid){
+    public List<CategoryOutput> search(Long pid){
         return commCategoryService.searchCommCategory(pid);
     }
 

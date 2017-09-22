@@ -52,17 +52,17 @@ public class KeyWordServiceImpl implements KeyWordService{
 
     /**
      * 编辑关键字名称
-     * @param id keyWord表ID
-     * @param keyWordValue 关键字名称
+     * @param keyWord 关键字
      * @return
      */
     @Override
-    public Result updateKeyWord(Long id, String keyWordValue) {
-        int count = keyWordDao.countByKeyWordValue(keyWordValue);
+    public Result updateKeyWord(KeyWord keyWord) {
+        int count = keyWordDao.countByKeyWordValue(keyWord.getKeyWordValue());
         if(count>0){
             return Result.fail("关键词名称已存在！");
         } else {
-            keyWordDao.update(id, keyWordValue);
+            keyWord.setUpdateAt(new Date());
+            keyWordDao.update(keyWord);
             return Result.success("编辑关键词名称成功！");
         }
     }

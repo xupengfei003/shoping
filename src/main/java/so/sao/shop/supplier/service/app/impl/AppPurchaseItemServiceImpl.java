@@ -38,18 +38,19 @@ public class AppPurchaseItemServiceImpl implements AppPurchaseItemService {
         List<AppPurchaseItemVo> appPurchaseItemVoList = appPurchaseItemDao.findOrderItemListByOrderId(orderId);
         //查询订单信息
         AppPurchasesVo appPurchasesVos = appPurchaseDao.findOrderByOrderId(orderId);
-        //输出运费
-        //1.如果运费为0，则显示“包邮”
-        //2.如果有运费，则输出实际金额的千分值
-        if(StringUtils.isEmpty(appPurchasesVos.getOrderPostage()) || "0".equals(appPurchasesVos.getOrderPostage())){
-            appPurchasesVos.setOrderPostage(new BigDecimal(0));
-        } else {
-            appPurchasesVos.setOrderPostage(appPurchasesVos.getOrderPostage());
-        }
         AppPurchaseItemOutput appPurchaseItemOutput = null;
         if(null != appPurchasesVos){
             appPurchaseItemOutput = BeanMapper.map(appPurchasesVos,AppPurchaseItemOutput.class);
+            //输出运费
+            //1.如果运费为0，则显示“包邮”
+            //2.如果有运费，则输出实际金额的千分值
+            if(appPurchasesVos.getOrderPostage().intValue() == 0){
+                appPurchaseItemOutput.setOrderPostage("包邮");
+            } else {
+                appPurchaseItemOutput.setOrderPostage(NumberUtil.number2Thousand(appPurchasesVos.getOrderPostage()));
+            }
         }
+
         if(null!=appPurchaseItemVoList && appPurchaseItemVoList.size()>0){
             appPurchaseItemOutput.setAppPurchaseItemVos(appPurchaseItemVoList);
         }
