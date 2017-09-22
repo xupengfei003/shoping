@@ -45,14 +45,6 @@ public interface FreightRulesService {
 
     int count(Long accountId);
 
-    /**
-     * 分页获取供应商配送规则列表（省市区为code）
-     * @param accountId
-     * @param rules
-     * @return
-     */
-    List<FreightRules> queryAll0(@Param("accountId")Long accountId, @Param("rules")Integer rules);
-
 
     FreightRules matchAddress(String province,String city,String district,List<FreightRules> freightRulesList);
 }

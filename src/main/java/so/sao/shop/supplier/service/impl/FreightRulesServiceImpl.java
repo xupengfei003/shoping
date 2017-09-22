@@ -1,10 +1,8 @@
 package so.sao.shop.supplier.service.impl;
 
-import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import so.sao.shop.supplier.dao.AccountDao;
 import so.sao.shop.supplier.dao.FreightRulesDao;
 import so.sao.shop.supplier.domain.FreightRules;
 import so.sao.shop.supplier.pojo.input.FreightRulesInput;
@@ -13,7 +11,6 @@ import so.sao.shop.supplier.service.FreightRulesService;
 import so.sao.shop.supplier.util.BeanMapper;
 import so.sao.shop.supplier.util.PageTool;
 
-import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -83,21 +80,6 @@ public class FreightRulesServiceImpl implements FreightRulesService {
          */
         PageTool.startPage(pageNum,pageSize);
         return freightRulesDao.queryAll(accountId,rulesType);
-    }
-
-    /**
-     * 分页获取供应商配送规则列表（省市区为code）
-     * @param accountId
-     * @param rules
-     * @return
-     */
-    @Override
-    public List<FreightRules> queryAll0(@Param("accountId")Long accountId, @Param("rules")Integer rules){
-        /**
-         * 1.设置分页
-         * 2.根据商户ID及配送规则类型查询集合
-         */
-        return freightRulesDao.queryAll(accountId,rules);
     }
 
     /**

@@ -61,30 +61,6 @@ public class FreightRulesController {
     }
 
     /**
-     * 分页获取供应商运费规则列表(返回code)
-     * @param request request
-     * @return Result
-     * @throws Exception Exception
-     */
-    @GetMapping("/queryAll0")
-    @ApiOperation(value = "分页获取供应商运费规则列表", notes = "分页获取供应商运费规则列表 【负责人：郑振海】")
-    public Result queryAll0(HttpServletRequest request, Integer rulesType) throws Exception {
-        User user = (User) request.getAttribute(Constant.REQUEST_USER);
-        //判断是否登陆
-        if (Ognl.isNull(user)) {
-            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
-        }
-        List<FreightRules> dataList = freightRulesService.queryAll0(user.getAccountId(),rulesType);
-        Map<String,Object> map = new HashMap<>();
-        map.put("data",new PageInfo<>(dataList));
-        Integer rules = accountService.findRulesById(user.getAccountId());
-        map.put("freightRules",rules);
-        int isAll = freightRulesService.count(user.getAccountId());
-        map.put("isAll",isAll);
-        return Result.success(Constant.MessageConfig.MSG_SUCCESS, map);
-    }
-
-    /**
      * 获取单个运费规则
      * @param id id
      * @return Result
