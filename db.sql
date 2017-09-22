@@ -249,3 +249,4 @@ CREATE TABLE `supplier_commodity_tmp` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COMMENT='供应商与商品关系待审核数据表';
 
+

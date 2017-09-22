@@ -246,4 +246,12 @@ public interface PurchaseDao {
      */
     void updatePurchasesAccountStatusById(List<Purchase> purchaseUpdateList);
 
+    /**
+     * 根据订单编号和用户id查询订单
+     *
+     * @param orderId 订单编号
+     * @param userId 用户id
+     * @return 订单列表
+     */
+    List<Purchase> findPurchaseByUserId(@Param("orderId") String orderId, @Param("userId") String userId);
 }
