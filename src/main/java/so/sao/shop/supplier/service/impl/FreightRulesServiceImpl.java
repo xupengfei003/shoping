@@ -213,5 +213,11 @@ public class FreightRulesServiceImpl implements FreightRulesService {
         return null;
     }
 
+    @Override
+    public List<FreightRules> queryAll0(Long accountId, int rules) {
+
+        return freightRulesDao.queryAll0(accountId,rules);
+    }
+
 
 }
