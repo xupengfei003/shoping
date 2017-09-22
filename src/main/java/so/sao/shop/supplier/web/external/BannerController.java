@@ -42,19 +42,18 @@ public class BannerController {
 	/**
 	 * 添加图片
 	 * @param request
-	 * @param multipartFile 轮播图图片
 	 * @return 上传结果
 	 * @throws Exception 
 	 */
 	@ApiOperation(value = "添加图片",notes = "添加图片【负责人：张腾飞】")
     @PostMapping("/uploadimage")
 	public Result uploadImage(HttpServletRequest request,@RequestBody Map<String,Object> fileObj) throws Exception {
-		String fileName = (String) fileObj.get("fileName");
-		String fileBytes =  (String) fileObj.get("fileBytes");
-		byte[] filebyte = Base64.getDecoder().decode(fileBytes);
-        MultipartFile multipartFile = new MockMultipartFile(fileName,fileName, "image/jpeg", filebyte);
-        Result result = bannerService.uploadImage(multipartFile);
-		return result;
+//		String fileName = (String) fileObj.get("fileName");
+//		String fileBytes =  (String) fileObj.get("fileBytes");
+//		byte[] filebyte = Base64.getDecoder().decode(fileBytes);
+//        MultipartFile multipartFile = new  MockMultipartFile(fileName,fileName, "image/jpeg", filebyte);
+//        Result result = bannerService.uploadImage(multipartFile);
+		return null;
 	}
 	
 	/**

@@ -129,10 +129,6 @@ public class BannerServiceImpl implements BannerService {
 				return Result.fail("此供应商已经停用或删除，请更换供应商或更改跳转方式");
 			}
 		}
-		//判断轮播图状态
-		if("2".equals(banner.getStatus())) {
-			return Result.fail("不能编辑已上架的轮播图");
-		}
 		//判断上下架时间间隔
 		if((banner.getOffShelfTime().getTime() - banner.getOnShelvesTime().getTime())/(1000*3600*24)<1) {
 			return Result.fail("上下架时间必须间隔至少一天");
