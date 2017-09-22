@@ -195,13 +195,16 @@ public class FreightRulesServiceImpl implements FreightRulesService {
         FreightRules rulesProvince = null;
         for (FreightRules freightRules:freightRulesList) {
             if (null != freightRules.getWhetherShipping()){
-                if (freightRules.getAddressDistrict() .equals(district)){//匹配区
+                String dbDistrict = freightRules.getAddressDistrict();
+                String dbCity = freightRules.getAddressCity();
+                String dbProvince = freightRules.getAddressProvince();
+                if (null != dbDistrict && dbDistrict .equals(district)){//匹配区
                     return freightRules;
                 }
-                if (freightRules.getAddressCity().equals(city)){//匹配市
+                if (null != dbCity && dbCity.equals(city)){//匹配市
                     rulesCity = freightRules;
                 }
-                if (freightRules.getAddressProvince().equals( province)){//匹配省
+                if (null != dbProvince && dbProvince.equals( province)){//匹配省
                     rulesProvince =  freightRules;
                 }
             }

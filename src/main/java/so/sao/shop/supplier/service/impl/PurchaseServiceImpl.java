@@ -1307,7 +1307,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             Map<String ,Object> map = new HashMap<>();
             map.put("status",0);
 
-            if (null != freightRules && freightRules.getSendAmount().compareTo(totalMoney) <= 0 ){//判断当前订单金额是否满足最新起送金额
+            if (null != freightRules && (null ==freightRules.getSendAmount() || freightRules.getSendAmount().compareTo(totalMoney) <= 0 )){//判断当前订单金额是否满足最起送金额
                 if (0 == freightRules.getWhetherShipping()){//包邮
                     map.put("status",1);
                     map.put("totalMoney",BigDecimal.valueOf(0));

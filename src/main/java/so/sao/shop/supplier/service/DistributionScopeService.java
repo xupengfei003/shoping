@@ -15,7 +15,7 @@ public interface DistributionScopeService {
      * @param distributionScopeInput 配送范围信息
      * @throws Exception Exception
      */
-    void createDistributionScope(Long accountId, DistributionScopeInput distributionScopeInput) throws Exception;
+    boolean createDistributionScope(Long accountId, DistributionScopeInput distributionScopeInput) throws Exception;
 
     /**
      * 分页获取供应商配送范围列表
