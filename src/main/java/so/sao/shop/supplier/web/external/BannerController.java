@@ -42,7 +42,6 @@ public class BannerController {
 	/**
 	 * 添加图片
 	 * @param request
-	 * @param multipartFile 轮播图图片
 	 * @return 上传结果
 	 * @throws Exception 
 	 */
@@ -52,7 +51,7 @@ public class BannerController {
 		String fileName = (String) fileObj.get("fileName");
 		String fileBytes =  (String) fileObj.get("fileBytes");
 		byte[] filebyte = Base64.getDecoder().decode(fileBytes);
-        MultipartFile multipartFile = new MockMultipartFile(fileName,fileName, "image/jpeg", filebyte);
+        MultipartFile multipartFile = new  MockMultipartFile(fileName,fileName, "image/jpeg", filebyte);
         Result result = bannerService.uploadImage(multipartFile);
 		return result;
 	}
