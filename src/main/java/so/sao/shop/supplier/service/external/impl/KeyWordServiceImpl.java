@@ -9,10 +9,7 @@ import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.service.external.KeyWordService;
 import so.sao.shop.supplier.util.PageTool;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * 搜素关键字Service实现类
@@ -91,18 +88,24 @@ public class KeyWordServiceImpl implements KeyWordService{
     public Result checkKeyWords(List<KeyWord> keyWords){
         //校验传入的集合是否为空
         if (keyWords.isEmpty()) {
-            return Result.fail("添加热门分类为空");
+            return Result.fail("关键字列表为空");
         } else {
+            List<String> keyVuls = new ArrayList<>();
+            for(KeyWord k : keyWords){
+                if(k.getKeyWordValue()!=null){
+                    keyVuls.add(k.getKeyWordValue());
+                }
+            }
             //校验关键字名称是否重复
             Set<String> set = new TreeSet<String>();
-            for (int i=0;i<keyWords.size();i++){
-                set.add(keyWords.get(i).getKeyWordValue());
+            for (int i=0;i<keyVuls.size();i++){
+                set.add(keyVuls.get(i));
             }
-            if (keyWords.size()>set.size()){
+            if (keyVuls.size()>set.size()){
                 return Result.fail("关键字重复");
             }
-            return null;
         }
+        return null;
     }
 
 }
