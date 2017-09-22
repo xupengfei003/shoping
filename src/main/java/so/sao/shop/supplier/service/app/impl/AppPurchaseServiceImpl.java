@@ -82,6 +82,7 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
             }
             appPurchaseOutput = BeanMapper.map(appPurchasesVo,AppPurchaseOutput.class);
             appPurchaseOutput.setAppPurchaseItemVos(appPurchaseItemVoListInner);
+            appPurchaseOutput.setOrderPrice(NumberUtil.number2Thousand(appPurchasesVo.getOrderPrice()));
             appPurchaseOutput.setGoodsAllNum(goodsAllNum);
             //输出运费
             //1.如果运费为0，则显示“包邮”
@@ -93,7 +94,7 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
             }
             //当查询订单状态为1时将计算后的总价赋值输出
             if(goodsAllPrice.intValue() > 0){
-                appPurchaseOutput.setOrderPrice(NumberUtil.number2Thousand(new BigDecimal(String.valueOf(goodsAllPrice))));
+                appPurchaseOutput.setOrderPrice(NumberUtil.number2Thousand(goodsAllPrice));
             }
             appPurchaseOutputs.add(appPurchaseOutput);
         }
