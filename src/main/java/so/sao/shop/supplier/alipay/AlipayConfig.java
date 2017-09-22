@@ -39,4 +39,6 @@ public class AlipayConfig {
     public static String input_charset = "utf-8";   //字符编码格式
     //支付宝公钥
     public static String ali_public_key = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAh1BW9frgeJn38zG6LoWizYDGrfpZ4AuGFK21WajBTdz3lZ2zZsh1QhPqqBknYoLzEAL8nixnTVn0D20rXaQgh53n1TG9TGWlrZ0II2rA+KaEBmDy9yfUk1J7Ozsp/bEOddLN5tw/VXz7ous7rfDiQ7PKo++rapWJ8k5z/bfl6SPOZPftrUNHDgFscLUhtsI8vX0aCFSwB8mGUniCGQjxTMyv8G5ARfDyju7Iwf7TIrNkANex7WpTBM23CC5ikpG4lIb6Mhfmyyez7PSWqXpylyTZ4B8+kEKc4JLroay0suY2KmwFe9IY+/5Ni86niy/RMOvj4FZjBH5fozep4YsCmwIDAQAB";
+
+    public static String format = "json";
 }
