@@ -2,7 +2,7 @@ package so.sao.shop.supplier.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import so.sao.shop.supplier.dao.AccountDao;
+import org.springframework.transaction.annotation.Transactional;
 import so.sao.shop.supplier.dao.FreightRulesDao;
 import so.sao.shop.supplier.domain.FreightRules;
 import so.sao.shop.supplier.pojo.input.FreightRulesInput;
@@ -11,7 +11,6 @@ import so.sao.shop.supplier.service.FreightRulesService;
 import so.sao.shop.supplier.util.BeanMapper;
 import so.sao.shop.supplier.util.PageTool;
 
-import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -31,6 +30,7 @@ public class FreightRulesServiceImpl implements FreightRulesService {
      * @param freightRulesInput 配送规则
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean insert(Long accountId,FreightRulesInput freightRulesInput) {
         /**
          * 1.查询通用规则记录是否存在，不存在返回false，存在则插入并返回true
@@ -98,7 +98,8 @@ public class FreightRulesServiceImpl implements FreightRulesService {
      * @param freightRulesInput
      */
     @Override
-    public boolean update(Integer id,FreightRulesInput freightRulesInput) {
+    @Transactional(rollbackFor = Exception.class)
+    public boolean update(Long accountId,Integer id,FreightRulesInput freightRulesInput) {
         /**
          * 1.判断配送规则入参对象中的配送规则类型是否为0(通用规则) ,若为0查询通用规则及配送规则ID是否匹配，匹配可修改
          * 2.修改配送规则记录
@@ -112,6 +113,7 @@ public class FreightRulesServiceImpl implements FreightRulesService {
             freightRules.setId(id);
             freightRules.setUpdateAt(new Date());
             freightRulesDao.update(freightRules);
+            this.updateAccountRulesType(accountId);
             return true;
         }else {
             return false;
@@ -119,6 +121,30 @@ public class FreightRulesServiceImpl implements FreightRulesService {
 
 
     }
+
+    /**
+     * 更换商户默认配送规则类型
+     * @param accountId
+     */
+    private void updateAccountRulesType(Long accountId) {
+        List<FreightRules>  commonList = freightRulesDao.queryAll(accountId,0);//通用规则
+        List<FreightRules>  dispatchingList = freightRulesDao.queryAll(accountId,1);//配送规则
+        boolean flag = false;
+        if (null != dispatchingList && !dispatchingList.isEmpty()){
+            for (FreightRules feightRules:dispatchingList) {
+                if (null == feightRules.getWhetherShipping()){
+                    flag = true;
+                    break;
+                }
+            }
+        }
+        if (null != commonList && !commonList.isEmpty()){
+            flag = true;
+        }
+        if (!flag){
+            accountService.updateRulesByFreightRules(accountId,1);
+        }
+;    }
 
     /**
      *  删除通用配送规则记录
@@ -134,5 +160,67 @@ public class FreightRulesServiceImpl implements FreightRulesService {
         }
         return false;
     }
+
+    /**
+     * 获取完整的配送规则种类数量
+     *  返回0 表示有一种规则或都没有
+     *  返回1 表示两种规则都有
+     * @param accountId
+     * @return
+     */
+    @Override
+    public int count(Long accountId) {
+       List<FreightRules> commonFreightRulesList = freightRulesDao.queryAll(accountId,0);//通用规则
+       List<FreightRules> dispatchingFreightRulesList = freightRulesDao.queryAll(accountId,1);//配送规则
+       if (null != commonFreightRulesList && !commonFreightRulesList.isEmpty() && null != dispatchingFreightRulesList && !dispatchingFreightRulesList.isEmpty()){
+           for (FreightRules freightRules:dispatchingFreightRulesList) {
+               if (null == freightRules.getWhetherShipping()){
+                   return 0;
+               }
+           }
+           return 1;
+       }
+       return 0;
+    }
+
+
+    /**
+     * 地址匹配 ---配送范围与下单收货地址的匹配
+     * @param freightRulesList 配送规则
+     * @return
+     */
+    @Override
+    public FreightRules matchAddress(String province,String city,String district,List<FreightRules> freightRulesList) {
+        FreightRules rulesCity = null;
+        FreightRules rulesProvince = null;
+        for (FreightRules freightRules:freightRulesList) {
+            if (null != freightRules.getWhetherShipping()){
+                if (freightRules.getAddressDistrict() .equals(district)){//匹配区
+                    return freightRules;
+                }
+                if (freightRules.getAddressCity().equals(city)){//匹配市
+                    rulesCity = freightRules;
+                }
+                if (freightRules.getAddressProvince().equals( province)){//匹配省
+                    rulesProvince =  freightRules;
+                }
+            }
+
+        }
+        if (null != rulesCity ){
+            return rulesCity;
+        }
+        if (null != rulesProvince ){
+            return rulesProvince;
+        }
+        return null;
+    }
+
+    @Override
+    public List<FreightRules> queryAll0(Long accountId, int rules) {
+
+        return freightRulesDao.queryAll0(accountId,rules);
+    }
+
 
 }

@@ -21,6 +21,7 @@ import so.sao.shop.supplier.pojo.output.OrderRefuseReasonOutput;
 import so.sao.shop.supplier.pojo.output.PurchaseItemPrintOutput;
 import so.sao.shop.supplier.pojo.vo.*;
 import so.sao.shop.supplier.service.CommodityService;
+import so.sao.shop.supplier.service.FreightRulesService;
 import so.sao.shop.supplier.service.PurchaseService;
 import so.sao.shop.supplier.service.QrcodeService;
 import so.sao.shop.supplier.util.*;
@@ -74,6 +75,8 @@ public class PurchaseServiceImpl implements PurchaseService {
     private NotificationDao notificationDao;
     @Resource
     private FreightRulesDao freightRulesDao;//运费规则
+    @Resource
+    private FreightRulesService freightRulesService;
     /**
      * 保存订单信息
      *
@@ -144,7 +147,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                     CommodityOutput commOutput = (CommodityOutput) result.getData();
                     //判断是否满足最小起订量
                     if (!this.checkMinOrderQuantity(commOutput,goodsNumber)){
-                        output.put("message","存在商品不满足最小起订量");
+                        output.put("message",commOutput.getName()+"商品不满足最小起订量");
                         return output;
                     }
                     //2.生成批量插入订单详情数据
@@ -1287,7 +1290,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         if (1 == rules){//配送运送规则
             List<FreightRules> freightRulesList = freightRulesDao.queryAll0(accountId,rules);//获取对应运费规则记录
             if (null != freightRulesList && !freightRulesList.isEmpty()){
-                FreightRules freightRules = this.matchAddress(purchaseInput,freightRulesList) ;//地址匹配的配送规则对象
+                FreightRules freightRules = freightRulesService.matchAddress(purchaseInput.getProvince(),purchaseInput.getCity(),purchaseInput.getDistrict(),freightRulesList) ;//地址匹配的配送规则对象
                 //计算运费
                 return this.getexpenses(freightRules,totalMoney,number);
             }
@@ -1329,41 +1332,12 @@ public class PurchaseServiceImpl implements PurchaseService {
                     return map;
                 }
             }else {
-                map.put("message","当前订单存在不满足配送条件的商品");
+                map.put("message","当前订单不满足商户最小起送金额");
                 return map;
             }
         map.put("message",Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
         return map;
         }
-
-    /**
-     * 地址匹配 ---配送范围与下单收货地址的匹配
-     * @param purchaseInput 下单入参
-     * @param freightRulesList 配送规则
-     * @return
-     */
-    private FreightRules matchAddress(PurchaseInput purchaseInput, List<FreightRules> freightRulesList) {
-        FreightRules rulesCity = null;
-        FreightRules rulesProvince = null;
-        for (FreightRules freightRules:freightRulesList) {
-            if (freightRules.getAddressDistrict() .equals(purchaseInput.getDistrict())){//匹配区
-                return freightRules;
-            }
-            if (freightRules.getAddressCity().equals(purchaseInput.getCity())){//匹配市
-                rulesCity = freightRules;
-            }
-            if (freightRules.getAddressProvince().equals( purchaseInput.getProvince())){//匹配省
-                rulesProvince =  freightRules;
-            }
-        }
-        if (null != rulesCity ){
-            return rulesCity;
-        }
-        if (null != rulesProvince ){
-            return rulesProvince;
-        }
-        return null;
-    }
 
     /**
      * 判断购买商品数量是否满足最小起定量
