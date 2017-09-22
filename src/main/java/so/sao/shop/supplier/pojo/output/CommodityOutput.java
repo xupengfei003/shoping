@@ -177,7 +177,7 @@ public class CommodityOutput {
     private String advice;
 
     /**
-     *
+     * 商品运费规则
      */
     private List<FreightRules> freightRulesList;
 
