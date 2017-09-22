@@ -1022,17 +1022,29 @@ public class CommodityServiceImpl implements CommodityService {
             String inventory = map.get("库存");
             String unitName = map.get("包装单位");
             String  minOrderQuantity = map.get("最小起订量");
-            //通过code69,supplierId,deleted=0判断商品是否存在
-            SupplierCommodity suppliercommodity = supplierCommodityDao.findSupplierCommodityInfo(code69, supplierId);
-            if (null != suppliercommodity) {
+            String regexnum ="^[0-9]*$";
+            String regex ="^[A-Za-z0-9]*$";
+            if(code69.matches(regexnum)){
+                //通过code69,supplierId,deleted=0判断商品是否存在
+                SupplierCommodity suppliercommodity = supplierCommodityDao.findSupplierCommodityInfo(code69, supplierId);
+                if (null != suppliercommodity) {
+                    errorRowList.add(rowNum);
+                    continue;
+                }else {
+                    supplierCommodityVo.setCode69(code69);
+                }
+            } else {
                 errorRowList.add(rowNum);
                 continue;
-            } else {
-                supplierCommodityVo.setCode69(code69);
             }
             commodityBatchInput.setBrandName(brand);
             commodityBatchInput.setName(name);
-            supplierCommodityVo.setCode(code);
+            if(code.matches(regex)){
+                supplierCommodityVo.setCode(code);
+            }else {
+                errorRowList.add(rowNum);
+                continue;
+            }
 
             if ( null != mapTag.get(tag) ) {
                 commodityBatchInput.setTagId(mapTag.get(tag));
@@ -1245,7 +1257,7 @@ public class CommodityServiceImpl implements CommodityService {
             Object[] key = commodityExportOutput.toString().split(",");
             dataList.add(key);
         });
-        POIExcelUtil.writeExcel(urlFile, dataList, CommConstant.POI_START_ROW, response, CommConstant.SHEET_NAME, CommConstant.FILE_NAME);
+        POIExcelUtil.writeOutExcel(urlFile, dataList, CommConstant.POI_START_ROW, response, CommConstant.SHEET_NAME, CommConstant.FILE_NAME);
         return Result.success("导出商品成功！");
     }
 
@@ -1368,6 +1380,10 @@ public class CommodityServiceImpl implements CommodityService {
         }
         for(Long id:ids){
             SupplierCommodityAudit supplierCommodityAudit=supplierCommodityAuditDao.findSupplierCommodityAuditById(id);
+            if(null ==  supplierCommodityAudit ){
+                continue;
+            }
+
             int status= supplierCommodityAudit.getStatus();
             int auditResult =commAuditInput.getAuditResult();
             Long scId=supplierCommodityAudit.getScId();

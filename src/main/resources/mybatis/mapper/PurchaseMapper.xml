@@ -676,4 +676,12 @@
             WHERE order_id = #{item.orderId}
         </foreach>
     </update>
+
+    <!--根据订单编号和用户id查询订单-->
+    <select id="findPurchaseByUserId" resultType="so.sao.shop.supplier.domain.Purchase">
+        select
+        <include refid="Base_Column_List"/>
+        from purchase
+        where order_id = #{orderId,jdbcType=VARCHAR} AND user_id = #{userId}
+    </select>
 </mapper>

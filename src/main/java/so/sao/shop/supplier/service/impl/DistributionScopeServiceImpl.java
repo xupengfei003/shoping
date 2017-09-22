@@ -96,6 +96,7 @@ public class DistributionScopeServiceImpl implements DistributionScopeService {
      * @throws Exception Exception
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void update(Integer id,DistributionScopeInput distributionScopeInput) {
         /**
          * 1.更改配送范围记录
@@ -133,6 +134,7 @@ public class DistributionScopeServiceImpl implements DistributionScopeService {
      * @param id id
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean delete(Integer id,Long accountId) throws Exception {
         /**
          * 1.根据商户ID查询当前商户默认运费规则类型
