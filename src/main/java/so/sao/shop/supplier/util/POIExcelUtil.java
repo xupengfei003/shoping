@@ -8,8 +8,11 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
+import so.sao.shop.supplier.config.CommConstant;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
@@ -34,34 +37,59 @@ public class POIExcelUtil {
 	 * @param sheetName	sheet名字
 	 * @param fileName	导出的文件名
 	 */
-	public static void writeExcel(String urlFile, List<Object[]> dataList, int startRow, HttpServletResponse response,
-								  String sheetName ,String fileName) {
+	public static void writeOutExcel(String urlFile, List<Object[]> dataList, int startRow, HttpServletResponse response,
+									 String sheetName ,String fileName) {
+
 		try {
-			HSSFWorkbook wb = new HSSFWorkbook(getInputStream(urlFile));
-			HSSFSheet sheet = wb.getSheetAt(0);
-			wb.setSheetName(0, sheetName);
+			XSSFWorkbook workbook1 =new XSSFWorkbook(getInputStream(urlFile));
+			//内存中只创建100个对象，写临时文件，当超过100条，就将内存中不用的对象释放。
+			SXSSFWorkbook wb = new SXSSFWorkbook(workbook1, 100);
+			Sheet sheet = null;     //工作表对象
+			Row nRow = null;        //行对象
+			Cell nCell = null;      //列对象
+			int rowNo = 0;      //总行号
+			int pageRowNo = startRow;  //页行号
 			for (Object[] o : dataList) {
-				//先得到指定样式的行
-				HSSFRow row = sheet.getRow(startRow);
-				row.setHeightInPoints(20);
-				for (int i = 0; i < o.length; i++) {
-					HSSFCell cell = row.getCell(i);
-					fillCellValue(cell, o[i]);
+
+
+				if(rowNo% CommConstant.MAX_ROWNUM==0){
+					if(rowNo != 0){
+						sheet = wb.createSheet(sheetName+(rowNo/ CommConstant.MAX_ROWNUM));//建立新的sheet对象
+					}else {
+						sheet = wb.getSheetAt(rowNo/ CommConstant.MAX_ROWNUM);        //动态指定当前的工作表
+					}
+
+
+					if(rowNo != 0){
+						nRow = sheet.createRow(0);    //新建行对象
+						nRow.setHeightInPoints(20);
+						// 标题赋值
+						for (int i = 0; i < CommConstant.EXCEL_OUT_TITLES.length; i++) {
+							nCell = nRow.createCell(i);
+							sheet.setColumnWidth((short) i, (short) 6060);
+							CellStyle newStyle = wb.createCellStyle();
+							newStyle.setFillForegroundColor(IndexedColors.SKY_BLUE.getIndex());
+							newStyle.setFillPattern(CellStyle.SOLID_FOREGROUND);
+							nCell.setCellStyle(newStyle);
+							fillCellValue(nCell, CommConstant.EXCEL_OUT_TITLES[i]);
+
+						}
+					}
+					pageRowNo = startRow; //每当新建了工作表就将当前工作表的行号重置为0
 				}
-				startRow = startRow + 1;
-				//copy上一行，保持格子样式和上一行一致
-				HSSFRow nextRow = sheet.createRow(startRow);
-				copyRow(wb, row, nextRow);
+				rowNo++;
+				nRow = sheet.createRow(pageRowNo++);    //新建行对象
+				nRow.setHeightInPoints(20);
+
+			for (int i = 0; i < o.length; i++) {
+					nCell = nRow.createCell(i);
+					fillCellValue(nCell, o[i]);
+				  }
 			}
-			/**
-			 * 清空没用的row
-			 */
-			for(int i=startRow; i<=sheet.getLastRowNum(); i++) {
-				sheet.removeRow(sheet.getRow(i));
-			}
+
 			//输出excel
 			response.setHeader("content-disposition", String.format("attachment;filename*=utf-8'zh_cn'%s",
-					URLEncoder.encode(fileName+".xls", "utf-8")));
+					URLEncoder.encode(fileName+".xlsx", "utf-8")));
 			OutputStream toClient = new BufferedOutputStream(response.getOutputStream());
 			response.setContentType("application/octet-stream");
 			wb.write(toClient);
@@ -72,6 +100,31 @@ public class POIExcelUtil {
 					+ dataList + "]. ", ex);
 		}
 	}
+
+	/**
+	 * 填充单元格
+	 * @param cell
+	 * @param val
+	 */
+	private static void fillCellValue(Cell cell, Object val) {
+		try{
+			if(val!=null) {
+				if(val instanceof Double) {
+					cell.setCellValue((Double)val);
+				} else if(val instanceof BigDecimal) {
+					cell.setCellValue(((BigDecimal)val).doubleValue());
+				} else if(val instanceof Integer) {
+					cell.setCellValue((Integer)val);
+				} else {
+					cell.setCellValue(val+"");
+				}
+			}
+		} catch (Exception ex) {
+			logger.error("写入单元格数据失败: [Row: " + cell.getRowIndex() + "; Cell: " + cell.getColumnIndex() + " | data: "
+					+ val + "]. ErrorMsg: " , ex);
+		}
+	}
+
 
 	/**
      * 得到模板

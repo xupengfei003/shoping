@@ -46,7 +46,6 @@ public class PurchaseController {
     @Resource
     private PurchaseService purchaseService;
 
-
     /**
      * 保存订单
      *
@@ -448,7 +447,7 @@ public class PurchaseController {
         return Result.success(Constant.MessageConfig.MSG_SUCCESS, Constant.MessageConfig.MSG_NO_DATA);
     }
 
-    /**
+/*    *//**
      * 退款接口
      * <p>
      * 根据订单编号调用退款接口退款并修改订单状态。
@@ -517,5 +516,21 @@ public class PurchaseController {
         return flag;
     }
 
-
+    /**
+     * 验证二维码
+     * <p>
+     * 根据订单编号和用户id验证用户的订单是否存在，存在返回二维码地址，否则返回失败地址
+     *
+     * @param orderId 订单编号
+     * @param userId 用户id
+     * @return
+     */
+    @ApiOperation(value = "验证二维码", notes = "根据订单编号和用户id验证用户的订单是否存在【负责人：杨恒乐】")
+    @GetMapping("/checkQrcode")
+    public Result checkQrcode(String orderId, String userId) {
+        if (Ognl.isEmpty(orderId) || Ognl.isEmpty(userId)) {
+            return Result.fail("订单编号和用户Id都不能为空");
+        }
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS, purchaseService.getReceiveUrl(orderId, userId));
+    }
 }
