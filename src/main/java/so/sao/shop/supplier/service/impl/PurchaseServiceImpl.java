@@ -1,7 +1,12 @@
 package so.sao.shop.supplier.service.impl;
 
+import com.alipay.api.AlipayClient;
+import com.alipay.api.DefaultAlipayClient;
+import com.alipay.api.request.AlipayTradeRefundRequest;
+import com.alipay.api.response.AlipayTradeRefundResponse;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,6 +14,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.util.StringUtils;
+import so.sao.shop.supplier.alipay.AlipayConfig;
+import so.sao.shop.supplier.alipay.AlipayRefundInfo;
+import so.sao.shop.supplier.alipay.AlipayRefundUtil;
+import so.sao.shop.supplier.alipay.JsonUtils;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.config.StorageConfig;
 import so.sao.shop.supplier.config.azure.AzureBlobService;
@@ -67,6 +76,8 @@ public class PurchaseServiceImpl implements PurchaseService {
     StorageConfig storageConfig;//上传到云端的配置
     @Value("${qrcode.receive.url}")
     private String receiveUrl;  //收货二维码内容中的地址前缀
+    @Value("${qrcode.error.url}")
+    private String errorUrl; // 错误Url
     @Resource
     private AzureBlobService azureBlobService; // azure blob存储相关
     @Resource
@@ -254,7 +265,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         Purchase purchase = purchaseDao.findById(orderId);
         if (purchase != null) {
             //PurchaseInfoVo 添加订单信息
-            if(!StringUtils.isEmpty(String.valueOf(purchase.getOrderPostage()))){
+            if(purchase.getOrderPostage().compareTo(new BigDecimal(0)) == 0){
                 purchaseInfoVo.setOrderPostage("包邮");
             } else {
                 purchaseInfoVo.setOrderPostage(NumberUtil.number2Thousand(purchase.getOrderPostage()));
@@ -304,7 +315,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         List<PurchasesVo> orderList = purchaseDao.findPage(purchaseSelectInput);
         //转换金额为千分位
         for (PurchasesVo purchasesVo : orderList) {
-            if(StringUtils.isEmpty(purchasesVo.getOrderPostage()) || "0".equals(purchasesVo.getOrderPostage())){
+            if(StringUtils.isEmpty(purchasesVo.getOrderPostage()) || "0.00".equals(purchasesVo.getOrderPostage())){
                 purchasesVo.setOrderPostage("包邮");
             } else {
                 purchasesVo.setOrderPostage(NumberUtil.number2Thousand(new BigDecimal(purchasesVo.getOrderPostage())));
@@ -791,7 +802,7 @@ public class PurchaseServiceImpl implements PurchaseService {
      * @return 二维码内容
      */
     public String configQrcodeContent(String orderId) {
-        return receiveUrl + "?orderId=" + orderId;
+        return "SH," + orderId;
     }
 
     /**
@@ -1158,8 +1169,8 @@ public class PurchaseServiceImpl implements PurchaseService {
      * <p>
      * 根据订单编号验证订单、修改订单状态、调用退款接口、推送退款消息。
      * 1.根据订单状态验证是否可以退款（仅已取消（7）和已拒收（5）状态的订单可以退款，其他状态不可以退款）；
-     * 2.修改订单状态为退款，修改退款时间为当前时间；
-     * 3.调用退款接口实现真正的退款；
+     * 2.调用退款接口实现真正的退款；
+     * 3.修改订单状态为退款，修改退款时间为当前时间；
      * 4.修改库存；
      * 5.推送退款消息。
      *
@@ -1169,64 +1180,65 @@ public class PurchaseServiceImpl implements PurchaseService {
      */
     @Transactional(rollbackFor = Exception.class)
     public Map refundByOrderId(String orderId) throws Exception {
+        Map result = new HashMap();
         // 1.根据订单状态验证是否可以退款
-        Integer orderStatus = purchaseDao.getOrderStatus(orderId); // 订单状态
+        Purchase purchase = purchaseDao.findById(orderId);
+        Integer orderStatus = purchase.getOrderStatus(); // 订单状态
 
         // 仅已取消（7）和已拒收（5）状态的订单可以退款，其他状态不可以退款
         boolean canRefund = null == orderStatus // 订单状态不存在
                 || Constant.OrderStatusConfig.CANCEL_ORDER.equals(orderStatus) // 已取消（7）
                 || Constant.OrderStatusConfig.REJECT.equals(orderStatus); // 已拒收（5）
-        Map result = new HashMap();
         if (!canRefund) { // 已取消或已拒收不可以退款
             result.put("flag", false);
             result.put("message", "仅已取消和已拒收状态的订单可以退款，其他状态不可以退款");
             return result;
         }
-
-        // 2.修改订单状态为退款，修改退款时间为当前时间
-        Map params = new HashMap();
-        params.put("orderId", orderId);
-        params.put("orderStatus", Constant.OrderStatusConfig.REFUNDED); // 已退款
-        Date now = new Date();
-        params.put("drawbackTime", now); // 退款时间
-        params.put("updatedAt", now); // 更新时间
-        int count = purchaseDao.refundByOrderId(params); // 修改订单状态为退款，修改退款时间为当前时间
-        if (count == 0) {
-            result.put("flag", false);
-            result.put("message", "退款失败（修改订单状态失败）");
-            return result;
-        }
-
-        // 3.调用退款接口实现真正的退款
+        // 2.调用支付宝退款接口实现真正的退款
         // TODO: 2017/8/31 调用退款接口实现真正的退款,退款失败返回失败信息
-        // 退款失败抛异常，事务回滚
-        System.out.println("调用退款接口实现真正的退款----------------------成功");
+        String refundMsg = AlipayRefundUtil.alipayRefundRequest(purchase.getOrderId(), purchase.getPayId(), purchase.getOrderPaymentNum(), purchase.getOrderPrice());
+        if("SUCCESS".equals(refundMsg)){
+            // 3.修改订单状态为退款，修改退款时间为当前时间
+            Map params = new HashMap();
+            params.put("orderId", orderId);
+            params.put("orderStatus", Constant.OrderStatusConfig.REFUNDED); // 已退款
+            Date now = new Date();
+            params.put("drawbackTime", now); // 退款时间
+            params.put("updatedAt", now); // 更新时间
+            int count = purchaseDao.refundByOrderId(params); // 修改订单状态为退款，修改退款时间为当前时间
+            if (count == 0) {
+                result.put("flag", false);
+                result.put("message", "退款失败（修改订单状态失败）");
+                return result;
+            }
+            // 4.修改库存
+            Map<BigInteger, BigDecimal> goodsInfo = new HashMap();
+            List<PurchaseItemVo> purchaseItemVos = purchaseItemDao.getOrderDetailByOId(orderId);
+            purchaseItemVos.forEach(item -> {
+                goodsInfo.put(BigInteger.valueOf(item.getGoodsId()), BigDecimal.valueOf(item.getGoodsNumber()));
+            });
+            if (goodsInfo.size() == 0) {
+                result.put("flag", false);
+                result.put("message", "退款失败（退款订单不存在）");
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly(); // 回滚
+                return result;
+            }
+            count = supplierCommodityDao.updateInventoryByGoodsId(goodsInfo);
+            if (count == 0) {
+                result.put("flag", false);
+                result.put("message", "退款失败（恢复库存失败）");
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly(); // 回滚
+                return result;
+            }
+            // 5.推送退款消息
+            pushNotification(orderId, Constant.OrderStatusConfig.REFUNDED);
+            result.put("flag", true);
 
-        // 4.修改库存
-        Map<BigInteger, BigDecimal> goodsInfo = new HashMap();
-        List<PurchaseItemVo> purchaseItemVos = purchaseItemDao.getOrderDetailByOId(orderId);
-        purchaseItemVos.forEach(item -> {
-            goodsInfo.put(BigInteger.valueOf(item.getGoodsId()), BigDecimal.valueOf(item.getGoodsNumber()));
-        });
-        if (goodsInfo.size() == 0) {
+        } else {
             result.put("flag", false);
-            result.put("message", "退款失败（退款订单不存在）");
-            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly(); // 回滚
+            result.put("message", "调用支付宝API退款失败");
             return result;
         }
-        count = supplierCommodityDao.updateInventoryByGoodsId(goodsInfo);
-        if (count == 0) {
-            result.put("flag", false);
-            result.put("message", "退款失败（恢复库存失败）");
-            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly(); // 回滚
-            return result;
-        }
-
-        // 5.推送退款消息
-        pushNotification(orderId, Constant.OrderStatusConfig.REFUNDED);
-
-        result.put("flag", true);
-
         return result;
     }
 
@@ -1352,5 +1364,21 @@ public class PurchaseServiceImpl implements PurchaseService {
             }
         }
         return false;
+    }
+
+    /**
+     * 根据订单编号和用户id验证用户的订单是否存在，存在返回二维码地址，否则返回失败地址
+     *
+     * @param orderId 订单编号
+     * @param userId 用户id
+     * @return url地址
+     */
+    @Override
+    public String getReceiveUrl(String orderId, String userId) {
+        List<Purchase> list = purchaseDao.findPurchaseByUserId(orderId, userId);
+        if (list.size() == 1) {
+            return receiveUrl;
+        }
+        return errorUrl;
     }
 }

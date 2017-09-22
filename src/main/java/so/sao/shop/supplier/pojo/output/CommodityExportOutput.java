@@ -259,8 +259,7 @@ public class CommodityExportOutput {
     @Override
     public String toString() {
         return
-                sku +
-                        "," + code69 +
+                 code69 +
                         "," + brandName +
                         "," + tagName +
                         "," + commName  +

@@ -80,6 +80,9 @@ public class CommAppServiceImpl implements CommAppService {
     @Override
     public Result searchSuppliers(String code69) {
         List<AccountOutput> list = commAppDao.searchSuppliersByCode69(code69);
+        if(null == list || list.size()<=0){
+            return  Result.fail("暂无数据");
+        }
         return Result.success("成功",list);
     }
 
