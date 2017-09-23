@@ -178,7 +178,7 @@
             ct.name AS tagName,
             sc.rule_val,
             sc.inventory,
-            sc.status,
+            t1.status,
             sc.invalid_status,
             sc.price,
             sc.unit_price,
