@@ -3,7 +3,10 @@ package so.sao.shop.supplier.pojo.input;
 
 
 public class CommodityAppInput {
-
+    /**
+     * supplierId
+     */
+    private Long supplierId;
     /**
      * 品牌id
      */
@@ -81,5 +84,13 @@ public class CommodityAppInput {
 
     public void setOrderPriceOrSalesNum(String orderPriceOrSalesNum) {
         this.orderPriceOrSalesNum = orderPriceOrSalesNum;
+    }
+
+    public Long getSupplierId() {
+        return supplierId;
+    }
+
+    public void setSupplierId(Long supplierId) {
+        this.supplierId = supplierId;
     }
 }

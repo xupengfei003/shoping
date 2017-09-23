@@ -91,8 +91,8 @@ public class CommAppController {
 
     @ApiOperation(value="根据动态条件(供应商ID/分类/品牌ids/排序条件)查询商品", notes="动态条件查询商品【责任人：许鹏飞】")
     @GetMapping(value="/searchCommoditiesByConditionOrder")
-    public PageInfo<CommAppOutput> searchCommoditiesByConditionOrder( @RequestParam(required = false) Long supplierId, CommodityAppInput commodityAppInput){
-        return commAppService.searchCommodities( supplierId, commodityAppInput );
+    public PageInfo<CommAppOutput> searchCommoditiesByConditionOrder( CommodityAppInput commodityAppInput){
+        return commAppService.searchCommodities( commodityAppInput );
     }
     @ApiOperation(value = "根据供应商ID和商品名称查询供应商列表",notes = "根据供应商ID和商品名称查询供应商列表")
     @GetMapping(value = "/listCommodities")

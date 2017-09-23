@@ -194,10 +194,10 @@ public class CommAppServiceImpl implements CommAppService {
      * @param commodityAppInput
      * @return
      */
-    public PageInfo<CommAppOutput> searchCommodities(Long supplierId, CommodityAppInput commodityAppInput){
+    public PageInfo<CommAppOutput> searchCommodities( CommodityAppInput commodityAppInput){
         //开始分页
         PageTool.startPage( commodityAppInput.getPageNum(),commodityAppInput.getPageSize() );
-        List<CommAppOutput> commAppOutputList = commAppDao.findCommoditiesByConditionOrder( supplierId, commodityAppInput );
+        List<CommAppOutput> commAppOutputList = commAppDao.findCommoditiesByConditionOrder( commodityAppInput );
         String [] ArrGoodIds = new String[commAppOutputList.size()];
         try {
             if( null != commAppOutputList && commAppOutputList.size() > 0 ){
