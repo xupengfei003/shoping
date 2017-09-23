@@ -77,21 +77,21 @@ public interface CommAppService {
   * @param level
   * @return
   */
- Result getAllLevelTwoOrThreeCategories(Integer level);
+ Result getAllLevelTwoOrThreeCategories( Long supplierId, Integer level);
 
  /**
   * 根据条件 获取所属类型下面的 商品的全部品牌
   * @param categoryId
   * @return
   */
- Result getAllBrands( Integer categoryId );
+ Result getAllBrands(Long supplierId,  Integer categoryId );
 
  /**
   * 根据动态条件(供应商ID/分类/品牌ids/排序条件)查询商品
   * @param commodityAppInput
   * @return
   */
- PageInfo<CommAppOutput> searchCommodities(CommodityAppInput commodityAppInput);
+ PageInfo<CommAppOutput> searchCommodities( Long supplierId, CommodityAppInput commodityAppInput);
 
 
  /**
