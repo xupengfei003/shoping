@@ -82,7 +82,7 @@ public interface CommAppDao {
      * @param CommAppInput commAppInput
      * @return
      */
-    List<CommAppOutput> findCommoditiesByConditionOrder( @Param("supplierId") Long supplierId,  @Param("commodityAppInput") CommodityAppInput commodityAppInput );
+    List<CommAppOutput> findCommoditiesByConditionOrder( CommodityAppInput commodityAppInput );
 
     /**
      *

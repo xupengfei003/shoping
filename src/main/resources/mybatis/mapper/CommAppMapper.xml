@@ -282,26 +282,26 @@
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierId)">
             AND sc.supplier_id = #{supplierId}
         </if>
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(commodityAppInput.categoryTwoId)">
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(categoryTwoId)">
             AND comm.category_two_id = #{categoryTwoId}
         </if>
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(commodityAppInput.categoryThreeId)">
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(categoryThreeId)">
             AND comm.category_three_id = #{categoryThreeId}
         </if>
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(commodityAppInput.brandIds)">
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(brandIds)">
             AND cb.id IN
-            <foreach collection="commodityAppInput.brandIds" open="(" close=")" separator="," item="id">
+            <foreach collection="brandIds" open="(" close=")" separator="," item="id">
                 #{id}
             </foreach>
         </if>
 
-        <if test="@so.sao.shop.supplier.util.Ognl@isDESC( commodityAppInput.orderPriceOrSalesNum )">
+        <if test="@so.sao.shop.supplier.util.Ognl@isDESC(orderPriceOrSalesNum )">
             ORDER BY sc.price DESC
         </if>
-        <if test="@so.sao.shop.supplier.util.Ognl@isASC( commodityAppInput.orderPriceOrSalesNum )">
+        <if test="@so.sao.shop.supplier.util.Ognl@isASC(orderPriceOrSalesNum )">
             ORDER BY sc.price ASC
         </if>
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotASCandDESC( commodityAppInput.orderPriceOrSalesNum )" >
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotASCandDESC(orderPriceOrSalesNum )" >
             ORDER BY sc.updated_at DESC
         </if>
     </select>

@@ -91,7 +91,7 @@ public interface CommAppService {
   * @param commodityAppInput
   * @return
   */
- PageInfo<CommAppOutput> searchCommodities( Long supplierId, CommodityAppInput commodityAppInput);
+ PageInfo<CommAppOutput> searchCommodities( CommodityAppInput commodityAppInput);
 
 
  /**
