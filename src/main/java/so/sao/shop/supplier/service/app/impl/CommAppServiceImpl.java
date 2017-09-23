@@ -110,18 +110,21 @@ public class CommAppServiceImpl implements CommAppService {
 
     /**
      * 根据供应商ID或名称查询供应商详情列表
-     * @param accountId 供应商ID
+     * @param userId 供应商ID
      * @param providerName 供应商名称
      * @param pageNum 当前页号
      * @param pageSize 页面大小
      * @return Result Result对象（供应商详情列表）
      */
     @Override
-    public Result getSuppliers(Long accountId, String providerName, Integer pageNum, Integer pageSize) {
-
+    public Result getSuppliers(Long userId, String providerName, Integer pageNum, Integer pageSize) {
+        Account account = accountDao.findAccountByUserId(userId);
+        if( null == account  ){
+            return  Result.fail("暂无数据");
+        }
         //开始分页
         PageTool.startPage(pageNum,pageSize);
-        List<AccountOutput> accountList  = accountDao.findAccounts(accountId, providerName);
+        List<AccountOutput> accountList  = accountDao.findAccounts(account.getAccountId(), providerName);
         if( null == accountList ||  accountList.size() <= 0 ){
             return  Result.fail("暂无数据");
         }
