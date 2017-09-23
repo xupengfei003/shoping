@@ -502,6 +502,8 @@ public class AppCartServiceImpl implements AppCartService {
         }
         // 5.转化格式输出
         outList = groupById(voList);
+        Integer totalNumber = voList.size();
+        map.put("totalNumber",totalNumber);
         map.put("code", "1");
         map.put("msg", "成功");
         map.put("collection", outList);
