@@ -30,7 +30,7 @@
         FROM
              comm_imge_tmp sitmp
         LEFT JOIN supplier_commodity_audit sca ON sitmp.sca_id = sca.id
-        WHERE sca.sca_id = #{scaId}
+        WHERE sitmp.sca_id = #{scaId}
     </select>
 
     <!--根据scId查询图片id集合-->
