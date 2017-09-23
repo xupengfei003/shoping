@@ -31,6 +31,13 @@ public interface FreightRulesDao {
     FreightRules query(Integer id);
 
     /**
+     * 根据配送范围Id获取单条配送规则信息
+     * @param dsId 配送范围Id
+     * @return FreightRules
+     */
+    FreightRules queryByDsId(Integer dsId);
+
+    /**
      * 更新某条配送范围信息
      * @param freightRules
      */
