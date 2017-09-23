@@ -57,7 +57,7 @@ public class AppPurchaseController {
      */
     @GetMapping("/freightQueryAll")
     @ApiOperation(value = "分页获取供应商运费规则列表", notes = "分页获取供应商运费规则列表 【负责人：郑振海】")
-    public Result queryAll(Long userId,Integer rulesType) throws Exception {
+    public Result queryAll(Long userId ,Integer rulesType) throws Exception {
         Long accountId = accountService.selectByUserId(userId).getAccountId();
         if(accountId == null){
             Result.fail(Constant.MessageConfig.MSG_FAILURE);
