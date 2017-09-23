@@ -107,6 +107,13 @@
         LEFT JOIN sys_region d ON address_district = d.sr_id
         WHERE id = #{id,jdbcType=INTEGER}
     </select>
+    <!-- 根据配送范围Id获取单条配送规则信息 -->
+    <select id="queryByDsId" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM freight_rules
+        WHERE distribution_scope_id = #{dsId,jdbcType=INTEGER}
+    </select>
 
     <select id="queryAll0" resultMap="BaseResultMap">
         SELECT

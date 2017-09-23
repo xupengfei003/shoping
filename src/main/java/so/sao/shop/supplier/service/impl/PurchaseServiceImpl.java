@@ -1194,9 +1194,15 @@ public class PurchaseServiceImpl implements PurchaseService {
             result.put("message", "仅已取消和已拒收状态的订单可以退款，其他状态不可以退款");
             return result;
         }
+        BigDecimal amount = new BigDecimal(0);
+        if (orderStatus == Constant.OrderStatusConfig.REJECT) { //已拒收 只退订单金额
+            amount = purchase.getOrderPrice();
+        } else if (orderStatus == Constant.OrderStatusConfig.CANCEL_ORDER){ //已取消 订单金额+运费
+            amount = purchase.getOrderPrice().add(purchase.getOrderPostage());
+        }
         // 2.调用支付宝退款接口实现真正的退款
         // TODO: 2017/8/31 调用退款接口实现真正的退款,退款失败返回失败信息
-        String refundMsg = AlipayRefundUtil.alipayRefundRequest(purchase.getOrderId(), purchase.getPayId(), purchase.getOrderPaymentNum(), purchase.getOrderPrice());
+        String refundMsg = AlipayRefundUtil.alipayRefundRequest(purchase.getOrderId(), purchase.getPayId(), purchase.getOrderPaymentNum(), amount);
         if("SUCCESS".equals(refundMsg)){
             // 3.修改订单状态为退款，修改退款时间为当前时间
             Map params = new HashMap();
