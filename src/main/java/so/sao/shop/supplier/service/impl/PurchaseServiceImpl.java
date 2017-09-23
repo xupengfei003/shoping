@@ -265,7 +265,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         Purchase purchase = purchaseDao.findById(orderId);
         if (purchase != null) {
             //PurchaseInfoVo 添加订单信息
-            if(!StringUtils.isEmpty(String.valueOf(purchase.getOrderPostage()))){
+            if(purchase.getOrderPostage().compareTo(new BigDecimal(0)) == 0){
                 purchaseInfoVo.setOrderPostage("包邮");
             } else {
                 purchaseInfoVo.setOrderPostage(NumberUtil.number2Thousand(purchase.getOrderPostage()));
@@ -315,7 +315,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         List<PurchasesVo> orderList = purchaseDao.findPage(purchaseSelectInput);
         //转换金额为千分位
         for (PurchasesVo purchasesVo : orderList) {
-            if(StringUtils.isEmpty(purchasesVo.getOrderPostage()) || "0".equals(purchasesVo.getOrderPostage())){
+            if(StringUtils.isEmpty(purchasesVo.getOrderPostage()) || "0.00".equals(purchasesVo.getOrderPostage())){
                 purchasesVo.setOrderPostage("包邮");
             } else {
                 purchasesVo.setOrderPostage(NumberUtil.number2Thousand(new BigDecimal(purchasesVo.getOrderPostage())));

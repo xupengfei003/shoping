@@ -44,7 +44,7 @@ public class AppPurchaseItemServiceImpl implements AppPurchaseItemService {
             //输出运费
             //1.如果运费为0，则显示“包邮”
             //2.如果有运费，则输出实际金额的千分值
-            if(appPurchasesVos.getOrderPostage().intValue() == 0){
+            if(appPurchasesVos.getOrderPostage().compareTo(new BigDecimal(0)) == 0){
                 appPurchaseItemOutput.setOrderPostage("包邮");
             } else {
                 appPurchaseItemOutput.setOrderPostage(NumberUtil.number2Thousand(appPurchasesVos.getOrderPostage()));
