@@ -16,6 +16,7 @@ import so.sao.shop.supplier.service.app.AppCartService;
 import so.sao.shop.supplier.util.Ognl;
 
 import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -145,11 +146,18 @@ public class AppCartController {
         // 获取提示信息
         String msg = (String) map.get("msg");
         // 获取查询数据
-        List<AppCartItemOut> outList = (List<AppCartItemOut>) map.get("collection");
+        List<AppCartItemOut> outList = (List<AppCartItemOut>) map.get("collection"); //购物车列表
+        Integer number = (Integer) map.get("totalNumber");  // 购物车总数
+        if (Ognl.isNull(number)){
+            number = 0;
+        }
+        Map<String, Object> dataMap = new HashMap<>();
+        dataMap.put("totalNumber",number);
+        dataMap.put("collection",outList);
         if ("1".equals(code)) {
-            return Result.success(msg, outList);
+            return Result.success(msg, dataMap);
         } else {
-            return Result.fail(msg, outList);
+            return Result.fail(msg, dataMap);
         }
     }
 }
