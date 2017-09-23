@@ -79,20 +79,20 @@ public class CommAppController {
 
     @ApiOperation(value="根据科属的等级参数获取所有的2或3级科属", notes="获取所有的2或3级科属【责任人：许鹏飞】")
     @GetMapping(value="/searchTwoOrThreeLevelCommCategories")
-    public Result searchTwoOrThreeLevelCommCategories(@RequestParam(required = true) Integer level){
-        return commAppService.getAllLevelTwoOrThreeCategories(level);
+    public Result searchTwoOrThreeLevelCommCategories(@RequestParam(required = false) Long supplierId, @RequestParam(required = true) Integer level){
+        return commAppService.getAllLevelTwoOrThreeCategories( supplierId,level );
     }
 
     @ApiOperation(value="查询商品的全部品牌", notes="获取一类或者二类商品的全部品牌【责任人：许鹏飞】")
     @GetMapping(value="/getAllBrands")
-    public Result getAllBrands( @RequestParam(required = false) Integer categoryId){
-        return commAppService.getAllBrands( categoryId );
+    public Result getAllBrands( @RequestParam(required = false) Long supplierId, @RequestParam(required = false) Integer categoryId){
+        return commAppService.getAllBrands( supplierId, categoryId );
     }
 
     @ApiOperation(value="根据动态条件(供应商ID/分类/品牌ids/排序条件)查询商品", notes="动态条件查询商品【责任人：许鹏飞】")
     @GetMapping(value="/searchCommoditiesByConditionOrder")
-    public PageInfo<CommAppOutput> searchCommoditiesByConditionOrder( CommodityAppInput commodityAppInput){
-        return commAppService.searchCommodities( commodityAppInput );
+    public PageInfo<CommAppOutput> searchCommoditiesByConditionOrder( @RequestParam(required = false) Long supplierId, CommodityAppInput commodityAppInput){
+        return commAppService.searchCommodities( supplierId, commodityAppInput );
     }
     @ApiOperation(value = "根据供应商ID和商品名称查询供应商列表",notes = "根据供应商ID和商品名称查询供应商列表")
     @GetMapping(value = "/listCommodities")

@@ -165,8 +165,8 @@ public class CommAppServiceImpl implements CommAppService {
      * @param level
      * @return
      */
-    public Result getAllLevelTwoOrThreeCategories(Integer level){
-        List<CategoryOutput> categoryOutputList = commAppDao.findCategories(level);
+    public Result getAllLevelTwoOrThreeCategories( Long supplierId, Integer level){
+        List<CategoryOutput> categoryOutputList = commAppDao.findCategories(supplierId, level);
         if( null == categoryOutputList || categoryOutputList.size() <= 0 ){
             return Result.fail("没有数据");
         }
@@ -178,8 +178,8 @@ public class CommAppServiceImpl implements CommAppService {
      * @param categoryId
      * @return
      */
-    public Result getAllBrands( Integer categoryId ){
-        List<CommBrandOutput>  commBrandOutputList = commAppDao.findAllBrands( categoryId );
+    public Result getAllBrands(Long supplierId, Integer categoryId ){
+        List<CommBrandOutput>  commBrandOutputList = commAppDao.findAllBrands( supplierId,categoryId );
         if( null == commBrandOutputList || commBrandOutputList.size() <= 0 ){
             return Result.fail("没有数据");
         }
@@ -191,10 +191,10 @@ public class CommAppServiceImpl implements CommAppService {
      * @param commodityAppInput
      * @return
      */
-    public PageInfo<CommAppOutput> searchCommodities(CommodityAppInput commodityAppInput){
+    public PageInfo<CommAppOutput> searchCommodities(Long supplierId, CommodityAppInput commodityAppInput){
         //开始分页
         PageTool.startPage( commodityAppInput.getPageNum(),commodityAppInput.getPageSize() );
-        List<CommAppOutput> commAppOutputList = commAppDao.findCommoditiesByConditionOrder( commodityAppInput );
+        List<CommAppOutput> commAppOutputList = commAppDao.findCommoditiesByConditionOrder( supplierId, commodityAppInput );
         String [] ArrGoodIds = new String[commAppOutputList.size()];
         try {
             if( null != commAppOutputList && commAppOutputList.size() > 0 ){

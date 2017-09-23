@@ -14,6 +14,10 @@ public class CommAppOutput{
      */
     private Long id;
     /**
+     * supplierId
+     */
+    private Long supplierId;
+    /**
      * 缩略图
      */
     private String minImg;
@@ -270,5 +274,13 @@ public class CommAppOutput{
 
     public void setTagName(String tagName) {
         this.tagName = tagName;
+    }
+
+    public Long getSupplierId() {
+        return supplierId;
+    }
+
+    public void setSupplierId(Long supplierId) {
+        this.supplierId = supplierId;
     }
 }
