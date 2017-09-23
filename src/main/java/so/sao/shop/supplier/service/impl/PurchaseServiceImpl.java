@@ -1377,7 +1377,7 @@ public class PurchaseServiceImpl implements PurchaseService {
     public String getReceiveUrl(String orderId, String userId) {
         List<Purchase> list = purchaseDao.findPurchaseByUserId(orderId, userId);
         if (list.size() == 1) {
-            return receiveUrl;
+            return receiveUrl + "?orderId=" + orderId;
         }
         return errorUrl;
     }
