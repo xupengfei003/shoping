@@ -52,6 +52,9 @@ public class AppPurchaseItemServiceImpl implements AppPurchaseItemService {
         AppPurchaseItemOutput appPurchaseItemOutput = null;
         if(null != appPurchasesVos){
             appPurchaseItemOutput = BeanMapper.map(appPurchasesVos,AppPurchaseItemOutput.class);
+            if(appPurchasesVos.getOrderStatus() == 1){
+                appPurchaseItemOutput.setOrderId(appPurchasesVos.getPayId());
+            }
             //输出运费
             //1.如果运费为0，则显示“包邮”
             //2.如果有运费，则输出实际金额的千分值
