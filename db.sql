@@ -169,7 +169,7 @@ CREATE TABLE `hot_commodity` (
 
 /*费用规则*/
 CREATE TABLE `freight_rules` (
-  `id` int(11) NOT NULL COMMENT '运费规则ID',
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '运费规则ID',
   `supplier_id` bigint(20) NOT NULL COMMENT '供应商ID',
   `rules_type` int(2) DEFAULT NULL COMMENT '规则类型:0-通用规则,1-配送地区物流费用规则',
   `address_province` varchar(100) COLLATE utf8_bin DEFAULT NULL COMMENT '省',

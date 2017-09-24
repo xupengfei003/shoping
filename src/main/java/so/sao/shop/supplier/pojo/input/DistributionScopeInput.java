@@ -2,6 +2,7 @@ package so.sao.shop.supplier.pojo.input;
 
 import org.hibernate.validator.constraints.NotBlank;
 
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 /**
@@ -13,25 +14,28 @@ public class DistributionScopeInput {
      * 省
      */
     @NotBlank(message = "省不能为空")
+    @Pattern(regexp = "^.{0}$|^.{6}$",message = "省份code码为6位")
     private String addressProvince;
 
     /**
      * 市
      */
     //@NotBlank(message = "市不能为空")
+    @Pattern(regexp = "^.{0}$|^.{6}$",message = "市code码为6位")
     private String addressCity;
 
     /**
      * 区
      */
     //@NotBlank(message = "区不能为空")
+    @Pattern(regexp = "^.{0}$|^.{6}$",message = "区code码为6位")
     private String addressDistrict;
 
     /**
      * 描述
      */
 //    @NotBlank(message = "备注不能为空")
-    @Size(max = 100, min = 1, message = "备注字数不能超过100")
+    @Size(max = 100, message = "备注字数不能超过100")
     private String remark;
 
     public String getAddressProvince() {

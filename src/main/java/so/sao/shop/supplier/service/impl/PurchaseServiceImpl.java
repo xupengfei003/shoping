@@ -1307,6 +1307,10 @@ public class PurchaseServiceImpl implements PurchaseService {
             List<FreightRules> freightRulesList = freightRulesDao.queryAll0(accountId,rules);//获取对应运费规则记录
             if (null != freightRulesList && !freightRulesList.isEmpty()){
                 FreightRules freightRules = freightRulesService.matchAddress(purchaseInput.getProvince(),purchaseInput.getCity(),purchaseInput.getDistrict(),freightRulesList) ;//地址匹配的配送规则对象
+                if (Ognl.isEmpty(freightRules)){
+                    map.put("message","不在配送范围内");
+                    return map;
+                }
                 //计算运费
                 return this.getexpenses(freightRules,totalMoney,number);
             }
@@ -1340,8 +1344,12 @@ public class PurchaseServiceImpl implements PurchaseService {
                         BigDecimal excessPiece = BigDecimal.valueOf(freightRules.getExcessPiece());//超量配送数量
                         BigDecimal excessAmount = freightRules.getExcessAmount();//超量单位运费
                         BigDecimal excess = number.subtract(defaultPiece);//超出基础配送数量的部分
-                        expenses = excess.remainder(excessPiece).compareTo(BigDecimal.valueOf(0)) == 0 ?
-                                expenses.add(excessAmount.multiply(excess.divide(excessPiece))) : expenses.add(excessAmount.multiply(excess.divide(excessPiece).add(BigDecimal.valueOf(1))));
+                        if (excess.compareTo(excessPiece) <= 0 ){//判断订单超出基础配送数量部分是否超出超量配送数量
+                            expenses = expenses.add(excessAmount);
+                        }else{
+                            expenses = excess.remainder(excessPiece).compareTo(BigDecimal.valueOf(0)) == 0 ?
+                                    expenses.add(excessAmount.multiply(excess.divide(excessPiece))) : expenses.add(excessAmount.multiply(excessPiece.divide(excess).add(BigDecimal.valueOf(1))));
+                        }
                     }
                     map.put("status",1);
                     map.put("totalMoney",expenses);

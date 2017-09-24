@@ -62,4 +62,5 @@ public interface FreightRulesDao {
      * @return
      */
     List<FreightRules> queryAll0(@Param("accountId")Long accountId, @Param("rules")Integer rules);
+
 }

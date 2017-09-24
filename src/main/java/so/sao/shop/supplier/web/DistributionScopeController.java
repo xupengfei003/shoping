@@ -43,7 +43,10 @@ public class DistributionScopeController {
             return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
         //增加配送范围
-        distributionScopeService.createDistributionScope(user.getAccountId(), distributionScopeInput);
+        boolean isCreate = distributionScopeService.createDistributionScope(user.getAccountId(), distributionScopeInput);
+        if (!isCreate){
+            return Result.fail("该配送范围已存在或添加失败!");
+        }
         return Result.success(Constant.MessageConfig.MSG_SUCCESS);
     }
 
@@ -107,6 +110,6 @@ public class DistributionScopeController {
         if (Ognl.isNull(user)) {
             return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
-        return distributionScopeService.delete(id,user.getAccountId()) == true ? Result.success(Constant.MessageConfig.MSG_SUCCESS) : Result.fail(Constant.MessageConfig.MSG_FAILURE);
+        return distributionScopeService.delete(id,user.getAccountId()) == true ? Result.success(Constant.MessageConfig.MSG_SUCCESS) : Result.fail("配送规则正在使用中!");
     }
 }

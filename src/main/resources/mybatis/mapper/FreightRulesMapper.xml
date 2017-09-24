@@ -25,6 +25,7 @@
         send_amount, default_piece, excess_piece, default_amount, excess_amount, remark,
         created_at, update_at,distribution_scope_id
     </sql>
+    <!--创建配送规则-->
     <insert id="insert" parameterType="so.sao.shop.supplier.domain.FreightRules">
     insert into freight_rules (supplier_id, rules_type,
       address_province, address_city, address_district,
@@ -39,6 +40,7 @@
       #{remark,jdbcType=VARCHAR}, #{createdAt,jdbcType=TIMESTAMP}, #{updateAt,jdbcType=TIMESTAMP},#{distributionScopeId,jdbcType=INTEGER}
       )
   </insert>
+    <!--修改配送规则记录信息-->
     <update id="update" parameterType="so.sao.shop.supplier.domain.FreightRules">
        update freight_rules
         set
@@ -73,6 +75,7 @@
         </where>
 
     </update>
+    <!--根据配送规则ID删除记录-->
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
         delete from freight_rules
         where id = #{id,jdbcType=INTEGER}
@@ -81,6 +84,7 @@
         delete from freight_rules
         where distribution_scope_id = #{distributionScopeId,jdbcType=INTEGER}
     </delete>
+    <!--查询所有配送规则-->
     <select id="queryAll" resultMap="BaseResultMap">
         SELECT
         id, supplier_id, rules_type, p.name address_province, c.name address_city, d.name address_district, whether_shipping,
@@ -96,6 +100,7 @@
         </if>
         ORDER BY created_at DESC
     </select>
+    <!--根据配送规则ID查询记录-->
     <select id="query" resultMap="BaseResultMap" parameterType="java.lang.Integer">
         SELECT
         id, supplier_id, rules_type, p.name address_province, c.name address_city, d.name address_district, whether_shipping,
