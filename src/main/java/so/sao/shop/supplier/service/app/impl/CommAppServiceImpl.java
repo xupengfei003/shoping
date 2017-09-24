@@ -140,12 +140,19 @@ public class CommAppServiceImpl implements CommAppService {
      * @return
      */
     @Override
-    public Result getCommodities(CommAppInput commAppInput) {
+    public Result getCommodities(CommAppInput commAppInput) throws Exception {
 
         //开始分页
         PageTool.startPage(commAppInput.getPageNum(),commAppInput.getPageSize());
         List<CommAppOutput> commList  = commAppDao.findCommodities(commAppInput);
-        PageInfo<CommAppOutput> pageInfo = new PageInfo<CommAppOutput>(commList);
+        Map<String,String> saleMap = new HashMap<>();
+        for (int i = 0; i < commList.size(); i++) {
+            CommAppOutput commAppOutput = commList.get(i);
+            String goodsId = commAppOutput.getId().toString();
+            List<String> countSold = countSoldCommService.countSoldCommNum(new String[]{goodsId});
+            commAppOutput.setSaleNum(Integer.valueOf(countSold.get(0)));
+        }
+        PageInfo<CommAppOutput> pageInfo = new PageInfo(commList);
         return Result.success("查询成功",pageInfo);
     }
 
