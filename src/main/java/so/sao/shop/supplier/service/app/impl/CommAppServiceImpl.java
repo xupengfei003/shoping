@@ -110,18 +110,21 @@ public class CommAppServiceImpl implements CommAppService {
 
     /**
      * 根据供应商ID或名称查询供应商详情列表
-     * @param accountId 供应商ID
+     * @param userId 供应商ID
      * @param providerName 供应商名称
      * @param pageNum 当前页号
      * @param pageSize 页面大小
      * @return Result Result对象（供应商详情列表）
      */
     @Override
-    public Result getSuppliers(Long accountId, String providerName, Integer pageNum, Integer pageSize) {
-
+    public Result getSuppliers(Long userId, String providerName, Integer pageNum, Integer pageSize) {
+        Account account = accountDao.findAccountByUserId(userId);
+        if( null == account  ){
+            return  Result.fail("暂无数据");
+        }
         //开始分页
         PageTool.startPage(pageNum,pageSize);
-        List<AccountOutput> accountList  = accountDao.findAccounts(accountId, providerName);
+        List<AccountOutput> accountList  = accountDao.findAccounts(account.getAccountId(), providerName);
         if( null == accountList ||  accountList.size() <= 0 ){
             return  Result.fail("暂无数据");
         }
@@ -165,8 +168,8 @@ public class CommAppServiceImpl implements CommAppService {
      * @param level
      * @return
      */
-    public Result getAllLevelTwoOrThreeCategories(Integer level){
-        List<CategoryOutput> categoryOutputList = commAppDao.findCategories(level);
+    public Result getAllLevelTwoOrThreeCategories( Long supplierId, Integer level){
+        List<CategoryOutput> categoryOutputList = commAppDao.findCategories(supplierId, level);
         if( null == categoryOutputList || categoryOutputList.size() <= 0 ){
             return Result.fail("没有数据");
         }
@@ -178,8 +181,8 @@ public class CommAppServiceImpl implements CommAppService {
      * @param categoryId
      * @return
      */
-    public Result getAllBrands( Integer categoryId ){
-        List<CommBrandOutput>  commBrandOutputList = commAppDao.findAllBrands( categoryId );
+    public Result getAllBrands(Long supplierId, Integer categoryId ){
+        List<CommBrandOutput>  commBrandOutputList = commAppDao.findAllBrands( supplierId,categoryId );
         if( null == commBrandOutputList || commBrandOutputList.size() <= 0 ){
             return Result.fail("没有数据");
         }
@@ -191,7 +194,7 @@ public class CommAppServiceImpl implements CommAppService {
      * @param commodityAppInput
      * @return
      */
-    public PageInfo<CommAppOutput> searchCommodities(CommodityAppInput commodityAppInput){
+    public PageInfo<CommAppOutput> searchCommodities( CommodityAppInput commodityAppInput){
         //开始分页
         PageTool.startPage( commodityAppInput.getPageNum(),commodityAppInput.getPageSize() );
         List<CommAppOutput> commAppOutputList = commAppDao.findCommoditiesByConditionOrder( commodityAppInput );

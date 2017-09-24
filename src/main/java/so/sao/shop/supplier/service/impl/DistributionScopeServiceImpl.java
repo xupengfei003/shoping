@@ -129,12 +129,12 @@ public class DistributionScopeServiceImpl implements DistributionScopeService {
             distributionScopeDao.update(ds);//更改配送范围记录
 
             //更新配送规则中相关信息
-            FreightRules freightRules = new FreightRules();
+            FreightRules freightRules = freightRulesDao.queryByDsId(id);
             freightRules.setAddressProvince(province);//设置省
             freightRules.setAddressCity(city);//设置市
             freightRules.setAddressDistrict(addressDistrict);//设置区
             freightRules.setUpdateAt(date);//设置更新时间
-            freightRules.setRemark(remart);//设置备注
+//            freightRules.setRemark(remart);//设置备注
             freightRules.setDistributionScopeId(ds.getId());//设置关联配送范围ID
             freightRulesDao.update(freightRules);//更改配送规则中相关记录信息
         }

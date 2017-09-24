@@ -22,6 +22,10 @@ public class CommodityAuditinputVo {
      */
     private Long supplierId;
     /**
+     * 供应商名称
+     */
+    private String supplierName;
+    /**
      * 商品名称
      */
     private String name;
@@ -251,5 +255,13 @@ public class CommodityAuditinputVo {
 
     public void setAuditOpinion(String auditOpinion) {
         this.auditOpinion = auditOpinion;
+    }
+
+    public String getSupplierName() {
+        return supplierName;
+    }
+
+    public void setSupplierName(String supplierName) {
+        this.supplierName = supplierName;
     }
 }

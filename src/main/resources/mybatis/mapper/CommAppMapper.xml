@@ -207,20 +207,35 @@
 
     <!--findCategories根据科属的等级参数获取所有的2或3级科属    -->
     <select id="findCategories" parameterType="int" resultType="so.sao.shop.supplier.pojo.output.CategoryOutput">
-        SELECT
-        id,name,level,pid
-        FROM comm_category
-        WHERE deleted = 0 AND level = #{level}
-        ORDER BY updated_at DESC
+        SELECT DISTINCT
+        cc.id, cc.name, cc.level, cc.pid
+        FROM comm_category cc, commodity comm
+        WHERE
+        cc.level = #{level}
+        AND ( cc.id = comm.category_two_id OR cc.id = comm.category_three_id )
+        AND comm.code69
+        IN
+        (SELECT sc.code69 FROM supplier_commodity sc
+          WHERE
+          sc.`status`=2 AND sc.invalid_status=1
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierId)">
+            AND sc.supplier_id = #{ supplierId }
+        </if>  )
+        ORDER BY cc.updated_at DESC
     </select>
 
     <!-- findAllBrands 根据条件 获取所属类型下面的 商品的全部品牌  -->
     <select id="findAllBrands" parameterType="int"  resultType="so.sao.shop.supplier.pojo.output.CommBrandOutput">
-        SELECT DISTINCT
-        brand.id, brand.name
-        FROM comm_brand brand ,commodity comm
-        WHERE  brand.deleted = 0
+        SELECT DISTINCT brand.id, brand.name
+        FROM comm_brand brand , commodity comm, supplier_commodity sc
+        WHERE
+        sc.invalid_status = 1
+        AND sc.status = 2
         AND comm.brand_id = brand.id
+        AND  sc.code69 = comm.code69
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierId)">
+            AND sc.supplier_id = #{ supplierId }
+        </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(categoryId)">
             AND ( comm.category_two_id = #{categoryId}  OR  comm.category_three_id = #{categoryId} )
         </if>
@@ -231,6 +246,7 @@
     <select id="findCommoditiesByConditionOrder"  resultType="so.sao.shop.supplier.pojo.output.CommAppOutput">
         SELECT DISTINCT
         sc.id AS id,
+        sc.supplier_id AS supplierId,
         sc.min_img AS minImg,
         sc.sku AS sku,
         sc.code69 AS code69,
@@ -239,6 +255,7 @@
         cb.name AS brandName,
         comm.name AS commName,
         cu.name AS unitName,
+        tag.name AS tagName,
         cms.name AS measureSpecName,
         sc.rule_val AS ruleVal,
         sc.price AS price,
@@ -254,14 +271,17 @@
         supplier_commodity sc
         LEFT JOIN comm_measure_spec cms ON sc.measure_spec_id = cms.id
         LEFT JOIN comm_unit cu ON sc.unit_id = cu.id
+        LEFT JOIN comm_tag tag ON sc.tag_id = tag.id
         LEFT JOIN commodity comm ON comm.code69 = sc.code69
         LEFT JOIN comm_brand cb ON comm.brand_id = cb.id
         LEFT JOIN comm_category cc2 ON comm.category_two_id = cc2.id
         LEFT JOIN comm_category cc3 ON comm.category_three_id = cc3.id
         LEFT JOIN account acc ON acc.account_id = sc.supplier_id
         WHERE sc.invalid_status = 1
-        AND sc.deleted = 0
         AND sc.status = 2
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierId)">
+            AND sc.supplier_id = #{supplierId}
+        </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(categoryTwoId)">
             AND comm.category_two_id = #{categoryTwoId}
         </if>
@@ -275,16 +295,15 @@
             </foreach>
         </if>
 
-        <if test="@so.sao.shop.supplier.util.Ognl@isDESC( orderPriceOrSalesNum )">
+        <if test="@so.sao.shop.supplier.util.Ognl@isDESC(orderPriceOrSalesNum )">
             ORDER BY sc.price DESC
         </if>
-        <if test="@so.sao.shop.supplier.util.Ognl@isASC( orderPriceOrSalesNum )">
+        <if test="@so.sao.shop.supplier.util.Ognl@isASC(orderPriceOrSalesNum )">
             ORDER BY sc.price ASC
         </if>
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotASCandDESC( orderPriceOrSalesNum )" >
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotASCandDESC(orderPriceOrSalesNum )" >
             ORDER BY sc.updated_at DESC
         </if>
-
     </select>
 
 

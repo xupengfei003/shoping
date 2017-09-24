@@ -143,7 +143,8 @@
         SELECT
         t1.id AS id,
         sc.id AS scId,
-        sc.supplier_id AS supplierId,
+        t1.supplier_id AS supplierId,
+        a.provider_name AS supplierName,
         sc.min_img AS minImg,
         c.code69 AS code69,
         sc.code AS code,
@@ -164,6 +165,7 @@
         FROM `supplier_commodity` sc
         RIGHT JOIN (SELECT * FROM `supplier_commodity_audit` t WHERE t.`status` != 6) t1
         ON sc.`id` = t1.sc_id
+        INNER JOIN account a ON t1.supplier_id=a.account_id
         INNER JOIN (commodity c LEFT JOIN comm_brand cb ON c.brand_id = cb.id) ON sc.code69 = c.code69
         LEFT JOIN comm_measure_spec cms ON sc.measure_spec_id = cms.id
         LEFT JOIN comm_unit cu ON sc.unit_id = cu.id
@@ -173,6 +175,7 @@
         t1.id AS id,
         t1.sc_id AS scId,
         t1.supplier_id AS supplierId,
+        a.provider_name AS supplierName,
         sctmp.min_img AS minImg,
         sctmp.code69 AS code69,
         sctmp.code AS code,
@@ -193,6 +196,7 @@
         FROM `supplier_commodity_tmp` sctmp
         RIGHT JOIN (SELECT * FROM `supplier_commodity_audit` t WHERE t.`status` = 6) t1
         ON sctmp.`sca_id` = t1.id
+        INNER JOIN account a ON t1.supplier_id=a.account_id
         INNER JOIN (commodity c LEFT JOIN comm_brand cb ON c.brand_id = cb.id) ON sctmp.code69 = c.code69
         LEFT JOIN comm_measure_spec cms ON sctmp.measure_spec_id = cms.id
         LEFT JOIN comm_unit cu ON sctmp.unit_id = cu.id

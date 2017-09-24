@@ -69,13 +69,13 @@ public interface CommAppDao {
      * @param level
      * @return
      */
-    List<CategoryOutput> findCategories(@Param("level") Integer level );
+    List<CategoryOutput> findCategories( @Param("supplierId") Long supplierId, @Param("level") Integer level );
 
     /**
      *根据条件 获取所属类型下面的 商品的全部品牌
      * @return
      */
-    List<CommBrandOutput> findAllBrands( @Param("categoryId") Integer categoryId );
+    List<CommBrandOutput> findAllBrands( @Param("supplierId") Long supplierId, @Param("categoryId") Integer categoryId );
 
     /**
      * 根据动态条件(供应商ID/分类/品牌ids/排序条件)查询商品

@@ -501,13 +501,14 @@ public class AppCartServiceImpl implements AppCartService {
             voList.add(cartItemVo);
         }
         // 5.转化格式输出
-        outList = transformAppCartItemOut(voList);
+        outList = groupById(voList);
+        Integer totalNumber = voList.size();
+        map.put("totalNumber",totalNumber);
         map.put("code", "1");
         map.put("msg", "成功");
         map.put("collection", outList);
         return map;
     }
-
 
     /**
      * 将List<AppCartItemVo>转为List<AppCartItemOut>
@@ -515,75 +516,65 @@ public class AppCartServiceImpl implements AppCartService {
      * @param voList
      * @return
      */
-    private List<AppCartItemOut> transformAppCartItemOut(List<AppCartItemVo> voList) {
+    public List<AppCartItemOut> groupById(List<AppCartItemVo> voList) {
         if (Ognl.isNull(voList)) {
             return null;
         }
-        // 新建输出对象的List
-        List<AppCartItemOut> outList = new ArrayList<>();
-        // 循环数据
+        // 按照Id分别将供应商名称和供应商名下List分组
+        Map<Long, List<AppCartItemVo>> map = new HashMap<>();
+        Map<Long, String> nameMap = new HashMap<>();
         for (AppCartItemVo vo : voList) {
-            // 当outList为null时
-            if (Ognl.CollectionIsNotEmpty(outList)) {
-                // 当outList不为null时
-                for (int i = 0, len = outList.size(); i < len; i++) {
-                    // 判断List<AppCartItemOut>中是否有supplierId,若有supplierId,返回这条记录,若无返回null
-                    AppCartItemOut ap = exsitSupplierId(vo.getSupplierId(), outList);
-                    if (Ognl.isNotNull(ap)) {
-                        ap.getAppCartItems().add(vo);
-                    } else {
-                        AppCartItemOut appCartItemOut = transformOut(vo);
-                        outList.add(appCartItemOut);
-                    }
-                }
+            Long key = vo.getSupplierId();
+            if (Ognl.isNull(map.get(key))) {
+                List<AppCartItemVo> list = new ArrayList<>();
+                list.add(vo);
+                map.put(key, list);
             } else {
-                AppCartItemOut appCartItemOut = transformOut(vo);
-                outList.add(appCartItemOut);
+                List<AppCartItemVo> list = map.get(key);
+                list.add(vo);
+                map.put(key, list);
             }
+            String name = vo.getSupplierName();
+            nameMap.put(key, name);
+        }
+        // 组装数据
+        List<AppCartItemOut> outList = new ArrayList<>();
+        for (AppCartItemVo vo : voList) {
+            // 判断输出List里面是否已存在该供应商ID,若存在,跳过此次循环
+            Long key = vo.getSupplierId();
+            if (exsitKey(key, outList)) {
+                continue;
+            }
+            AppCartItemOut out = new AppCartItemOut();
+            String name = nameMap.get(key);
+            List<AppCartItemVo> list = map.get(key);
+            out.setSupplierId(key);
+            out.setSupplierName(name);
+            out.setAppCartItems(list);
+            out.setList(new String[0]);
+            out.setIsSelectShop(false);
+            outList.add(out);
         }
         return outList;
     }
 
     /**
-     * 将AppCartItemVo对象转为AppCartItemOut对象
+     * 判断List<AppCartItemOut>中是否有supplierId
      *
-     * @param vo
-     * @return
-     */
-    private AppCartItemOut transformOut(AppCartItemVo vo) {
-        if (Ognl.isNull(vo)) {
-            return null;
-        }
-        // 新建输出对象
-        AppCartItemOut appCartItemOut = new AppCartItemOut();
-        appCartItemOut.setSupplierId(vo.getSupplierId());
-        appCartItemOut.setSupplierName(vo.getSupplierName());
-        // 新建Vo的list
-        List<AppCartItemVo> list = new ArrayList<>();
-        list.add(vo);
-        appCartItemOut.setAppCartItems(list);
-        appCartItemOut.setList(new String[0]);
-        appCartItemOut.setIsSelectShop(false);
-        return appCartItemOut;
-    }
-
-    /**
-     * 判断List<AppCartItemOut>中是否有supplierId,若有supplierId,返回这条记录,若无返回null
-     *
-     * @param supplierId
+     * @param key
      * @param outList
      * @return
      */
-    private AppCartItemOut exsitSupplierId(Long supplierId, List<AppCartItemOut> outList) {
+    private Boolean exsitKey(Long key, List<AppCartItemOut> outList) {
         if (Ognl.isNull(outList)) {
-            return null;
+            return false;
         }
         for (int i = 0; i < outList.size(); i++) {
-            if (outList.get(i).getSupplierId().equals(supplierId)) {
-                return outList.get(i);
+            if (outList.get(i).getSupplierId().equals(key)) {
+                return true;
             }
         }
-        return null;
+        return false;
     }
 
 }

@@ -399,7 +399,7 @@ public class CommodityServiceImpl implements CommodityService {
                 commodityOutput.setImgeList(commImgeVoList);
             }
         } else {
-            //状态是不是 6 (编辑待审核) 则根据供应商商品ID获取商品信息
+            //状态不是 6 (编辑待审核) 则根据供应商商品ID获取商品信息
             commodityOutput = supplierCommodityDao.findDetail(id);
             if(null != commodityOutput){
                 //根据供应商商品ID获取图片列表信息

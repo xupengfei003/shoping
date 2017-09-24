@@ -265,7 +265,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         Purchase purchase = purchaseDao.findById(orderId);
         if (purchase != null) {
             //PurchaseInfoVo 添加订单信息
-            if(!StringUtils.isEmpty(String.valueOf(purchase.getOrderPostage()))){
+            if(purchase.getOrderPostage().compareTo(new BigDecimal(0)) == 0){
                 purchaseInfoVo.setOrderPostage("包邮");
             } else {
                 purchaseInfoVo.setOrderPostage(NumberUtil.number2Thousand(purchase.getOrderPostage()));
@@ -315,7 +315,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         List<PurchasesVo> orderList = purchaseDao.findPage(purchaseSelectInput);
         //转换金额为千分位
         for (PurchasesVo purchasesVo : orderList) {
-            if(StringUtils.isEmpty(purchasesVo.getOrderPostage()) || "0".equals(purchasesVo.getOrderPostage())){
+            if(StringUtils.isEmpty(purchasesVo.getOrderPostage()) || "0.00".equals(purchasesVo.getOrderPostage())){
                 purchasesVo.setOrderPostage("包邮");
             } else {
                 purchasesVo.setOrderPostage(NumberUtil.number2Thousand(new BigDecimal(purchasesVo.getOrderPostage())));
@@ -1194,9 +1194,15 @@ public class PurchaseServiceImpl implements PurchaseService {
             result.put("message", "仅已取消和已拒收状态的订单可以退款，其他状态不可以退款");
             return result;
         }
+        BigDecimal amount = new BigDecimal(0);
+        if (orderStatus == Constant.OrderStatusConfig.REJECT) { //已拒收 只退订单金额
+            amount = purchase.getOrderPrice();
+        } else if (orderStatus == Constant.OrderStatusConfig.CANCEL_ORDER){ //已取消 订单金额+运费
+            amount = purchase.getOrderPrice().add(purchase.getOrderPostage());
+        }
         // 2.调用支付宝退款接口实现真正的退款
         // TODO: 2017/8/31 调用退款接口实现真正的退款,退款失败返回失败信息
-        String refundMsg = AlipayRefundUtil.alipayRefundRequest(purchase.getOrderId(), purchase.getPayId(), purchase.getOrderPaymentNum(), purchase.getOrderPrice());
+        String refundMsg = AlipayRefundUtil.alipayRefundRequest(purchase.getOrderId(), purchase.getPayId(), purchase.getOrderPaymentNum(), amount);
         if("SUCCESS".equals(refundMsg)){
             // 3.修改订单状态为退款，修改退款时间为当前时间
             Map params = new HashMap();
@@ -1377,7 +1383,7 @@ public class PurchaseServiceImpl implements PurchaseService {
     public String getReceiveUrl(String orderId, String userId) {
         List<Purchase> list = purchaseDao.findPurchaseByUserId(orderId, userId);
         if (list.size() == 1) {
-            return receiveUrl;
+            return receiveUrl + "?orderId=" + orderId;
         }
         return errorUrl;
     }
