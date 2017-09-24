@@ -21,7 +21,7 @@
         <result column="order_cancel_time" property="orderCancelTime"/>
         <result column="order_payment_num" property="orderPaymentNum"/>
         <result column="order_postage" property="orderPostage"/>
-        <result column="user_id" property="userId"/>
+        <result column="user_id" property="supplierId"/>
     </resultMap>
 
     <sql id="App_Order_Column_List">
