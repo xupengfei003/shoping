@@ -13,6 +13,7 @@ import so.sao.shop.supplier.util.NumberUtil;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -35,9 +36,19 @@ public class AppPurchaseItemServiceImpl implements AppPurchaseItemService {
     @Override
     public AppPurchaseItemOutput findOrderItemList(String orderId) throws Exception {
         //查询详情信息
-        List<AppPurchaseItemVo> appPurchaseItemVoList = appPurchaseItemDao.findOrderItemListByOrderId(orderId);
+//        List<AppPurchaseItemVo> appPurchaseItemVoList = appPurchaseItemDao.findOrderItemListByOrderId(orderId);
         //查询订单信息
         AppPurchasesVo appPurchasesVos = appPurchaseDao.findOrderByOrderId(orderId);
+        //根据合并支付ID查询所有订单
+        List<AppPurchasesVo> appPurchasesVoList = appPurchaseDao.findOrderByPayId(appPurchasesVos.getPayId());
+        //获取订单ID集合
+        List<String> orderIdList = new ArrayList<>();
+        for(AppPurchasesVo appPurchasesVo : appPurchasesVoList){
+            orderIdList.add(appPurchasesVo.getOrderId());
+        }
+        //根据订单ID列表查询订单详情
+        List<AppPurchaseItemVo> appPurchaseItemVoList = appPurchaseItemDao.findOrderItemList(orderIdList);
+
         AppPurchaseItemOutput appPurchaseItemOutput = null;
         if(null != appPurchasesVos){
             appPurchaseItemOutput = BeanMapper.map(appPurchasesVos,AppPurchaseItemOutput.class);
@@ -52,6 +63,13 @@ public class AppPurchaseItemServiceImpl implements AppPurchaseItemService {
         }
 
         if(null!=appPurchaseItemVoList && appPurchaseItemVoList.size()>0){
+            //将订单信息赋值给详情
+            for(AppPurchaseItemVo appPurchaseItemVo : appPurchaseItemVoList){
+                appPurchaseItemVo.setStoreName(appPurchasesVos.getStoreName());
+                appPurchaseItemVo.setStoreId(appPurchasesVos.getStoreId());
+                appPurchaseItemVo.setUserId(appPurchasesVos.getUserId());
+                appPurchaseItemVo.setUserName(appPurchasesVos.getUserName());
+            }
             appPurchaseItemOutput.setAppPurchaseItemVos(appPurchaseItemVoList);
         }
         return appPurchaseItemOutput;

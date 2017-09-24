@@ -31,7 +31,7 @@ public class AppPurchaseOutput {
     /**
      * 供应商名称
      */
-    private String storeName;
+//    private String storeName;
 
     /**
      * 订单状态
@@ -116,13 +116,13 @@ public class AppPurchaseOutput {
         this.orderCreateTime = orderCreateTime;
     }
 
-    public String getStoreName() {
+    /*public String getStoreName() {
         return storeName;
     }
 
     public void setStoreName(String storeName) {
         this.storeName = storeName;
-    }
+    }*/
 
     public Short getOrderStatus() {
         return orderStatus;

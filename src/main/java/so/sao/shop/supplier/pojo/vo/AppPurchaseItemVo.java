@@ -8,6 +8,23 @@ import java.math.BigDecimal;
  * Created by acer on 2017/9/6.
  */
 public class AppPurchaseItemVo {
+    /**
+     * 商户ID
+     */
+    private String storeId;
+    /**
+     * 供应商名称
+     */
+    private String storeName;
+
+    /**
+     * 门店ID
+     */
+    private String userId;
+    /**
+     * 门店名称
+     */
+    private String userName;
 
     /**
      * 商品ID
@@ -49,6 +66,14 @@ public class AppPurchaseItemVo {
      * 合并支付编号
      */
     private String payId;
+
+    public String getStoreName() {
+        return storeName;
+    }
+
+    public void setStoreName(String storeName) {
+        this.storeName = storeName;
+    }
 
     public String getGoodsId() {
         return goodsId;
@@ -120,5 +145,29 @@ public class AppPurchaseItemVo {
 
     public void setPayId(String payId) {
         this.payId = payId;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public String getStoreId() {
+        return storeId;
+    }
+
+    public void setStoreId(String storeId) {
+        this.storeId = storeId;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 }
