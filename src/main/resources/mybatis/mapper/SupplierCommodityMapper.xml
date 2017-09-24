@@ -255,7 +255,7 @@
          LEFT JOIN comm_unit cu ON sctmp.unit_id = cu.id
          LEFT JOIN comm_tag ct ON sctmp.tag_id = ct.id
          LEFT JOIN supplier_commodity_audit sca ON sctmp.sca_id = sca.id
-             WHERE sctmp.id = #{id}
+             WHERE sca.sc_id = #{id}
     </select>
 
     <!--获取商品信息-->
@@ -282,28 +282,6 @@
 
     <!--查询商品列表（高级搜索）-->
     <select id="find" resultType="so.sao.shop.supplier.pojo.vo.SuppCommSearchVo">
-        SELECT
-            id AS id,
-            min_img AS minImg,
-            supplier_id ,
-            code69 AS code69,
-            CODE AS CODE,
-            brandName,
-            commName,
-            unitName,
-            measureSpecName,
-            rule_val AS ruleVal,
-            inventory AS inventory,
-            STATUS AS statusNum,
-            invalid_status AS invalidStatus,
-            price AS price,
-            unit_price AS unitPrice,
-            created_at AS createdAt,
-            updated_at AS updatedAt,
-            min_order_quantity AS minOrderQuantity,
-            audit_result AS auditResult,
-            audit_opinion AS auditOpinion
-         FROM (
             SELECT
                 t1.sc_id AS id,
                 sctmp.supplier_id,
