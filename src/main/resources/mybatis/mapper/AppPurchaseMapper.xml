@@ -21,13 +21,14 @@
         <result column="order_cancel_time" property="orderCancelTime"/>
         <result column="order_payment_num" property="orderPaymentNum"/>
         <result column="order_postage" property="orderPostage"/>
+        <result column="user_id" property="supplierId"/>
     </resultMap>
 
     <sql id="App_Order_Column_List">
         order_id, order_create_time, store_name, order_status, order_receiver_name,
         order_receiver_mobile, order_address,order_price,order_shipment_number,pay_id,
         order_payment_time,order_refuse_time,drawback_time,deliver_goods_time,order_receive_time,
-        order_cancel_time,order_payment_num,order_postage
+        order_cancel_time,order_payment_num,order_postage,user_id
     </sql>
     <select id="findOrderList" resultMap="AppOrderAllList" parameterType="java.lang.Integer">
         SELECT

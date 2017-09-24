@@ -3,6 +3,7 @@
 <mapper namespace="so.sao.shop.supplier.dao.app.AppPurchaseItemDao">
     <!--App端查询全部订单详情-->
     <resultMap id="AppGoodsAllList" type="so.sao.shop.supplier.pojo.vo.AppPurchaseItemVo">
+        <id column="goods_id" property="goodsId"/>
         <result column="goods_image" property="goodsImage"/>
         <result column="goods_name" property="goodsName"/>
         <result column="goods_unit_price" property="goodsUnitPrice"/>
@@ -13,7 +14,7 @@
         <result column="pay_id" property="payId"/>
     </resultMap>
     <sql id="App_Goods_Column_List">
-       g.goods_image, g.goods_name, g.goods_unit_price, g.goods_number, g.goods_tatol_price, g.goods_attribute, p.order_id,p.pay_id
+       g.goods_id, g.goods_image, g.goods_name, g.goods_unit_price, g.goods_number, g.goods_tatol_price, g.goods_attribute, p.order_id,p.pay_id
     </sql>
     <!--根据订单ID列表查询商品详情-->
     <select id="findOrderItemList" parameterType="java.util.List" resultMap="AppGoodsAllList">

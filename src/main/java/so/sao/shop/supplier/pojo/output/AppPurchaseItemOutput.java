@@ -88,6 +88,10 @@ public class AppPurchaseItemOutput {
      */
     private String orderPostage;
     /**
+     * 门店ID
+     */
+    private String supplierId;
+    /**
      * 商品信息
      */
     private List<AppPurchaseItemVo> appPurchaseItemVos;
@@ -226,6 +230,14 @@ public class AppPurchaseItemOutput {
 
     public void setOrderPaymentNum(String orderPaymentNum) {
         this.orderPaymentNum = orderPaymentNum;
+    }
+
+    public String getSupplierId() {
+        return supplierId;
+    }
+
+    public void setSupplierId(String supplierId) {
+        this.supplierId = supplierId;
     }
 
     public String getOrderPostage() {

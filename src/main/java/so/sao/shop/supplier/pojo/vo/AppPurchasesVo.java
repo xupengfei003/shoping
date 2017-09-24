@@ -89,6 +89,10 @@ public class AppPurchasesVo {
      * 订单邮费
      */
     private BigDecimal orderPostage;
+    /**
+     * 门店ID
+     */
+    private String supplierId;
 
     public String getOrderReceiverName() {
         return orderReceiverName;
@@ -232,5 +236,13 @@ public class AppPurchasesVo {
 
     public void setOrderPostage(BigDecimal orderPostage) {
         this.orderPostage = orderPostage;
+    }
+
+    public String getSupplierId() {
+        return supplierId;
+    }
+
+    public void setSupplierId(String supplierId) {
+        this.supplierId = supplierId;
     }
 }

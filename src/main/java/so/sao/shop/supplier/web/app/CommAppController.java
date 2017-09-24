@@ -67,7 +67,7 @@ public class CommAppController {
 
     @ApiOperation(value="根据code69/供应商ID/商品名称/分类/品牌id查询商品详情", notes="根据供应商ID/商品名称/分类/品牌id查询商品详情")
     @GetMapping(value="/getCommodities")
-    public Result getCommodities(CommAppInput commAppInput){
+    public Result getCommodities(CommAppInput commAppInput) throws Exception {
         return commAppService.getCommodities(commAppInput);
     }
     @ApiOperation(value = "根据供应商ID查询主营商品" ,notes = "根据供应商ID查询主营商品 【责任人：巨江坤】")

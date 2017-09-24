@@ -94,6 +94,7 @@
         SELECT
         sc.id AS id,
         sc.min_img AS minImg,
+        sc.supplier_Id AS supplierId,
         sc.code69 AS code69,
         sc.code AS CODE,
         c.origin_place AS originPlace,
@@ -201,7 +202,7 @@
          ) cate
         WHERE
          sc.code69 = cate.code69
-        AND sc.supplier_id = #{supplierId}
+        AND sc.supplier_id = #{supplierId} and sc.invalid_status = 1 AND sc.status = 2
     </select>
 
 
