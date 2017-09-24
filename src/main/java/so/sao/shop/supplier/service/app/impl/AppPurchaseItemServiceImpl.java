@@ -63,13 +63,19 @@ public class AppPurchaseItemServiceImpl implements AppPurchaseItemService {
         }
 
         if(null!=appPurchaseItemVoList && appPurchaseItemVoList.size()>0){
-            //将订单信息赋值给详情
+            BigDecimal goodsAllPrice = new BigDecimal(0);//当查询订单状态为1时，计算该订单下所有商品总价
             for(AppPurchaseItemVo appPurchaseItemVo : appPurchaseItemVoList){
+                //计算总价
+                BigDecimal goodsNum = new BigDecimal(appPurchaseItemVo.getGoodsNumber());
+                String goodsUnit = appPurchaseItemVo.getGoodsUnitPrice().replaceAll(",","");
+                goodsAllPrice = goodsAllPrice.add(goodsNum.multiply(new BigDecimal(goodsUnit)));
+                //将订单信息赋值给详情
                 appPurchaseItemVo.setStoreName(appPurchasesVos.getStoreName());
                 appPurchaseItemVo.setStoreId(appPurchasesVos.getStoreId());
                 appPurchaseItemVo.setUserId(appPurchasesVos.getUserId());
                 appPurchaseItemVo.setUserName(appPurchasesVos.getUserName());
             }
+            appPurchaseItemOutput.setOrderPrice(String.valueOf(goodsAllPrice));
             appPurchaseItemOutput.setAppPurchaseItemVos(appPurchaseItemVoList);
         }
         return appPurchaseItemOutput;
