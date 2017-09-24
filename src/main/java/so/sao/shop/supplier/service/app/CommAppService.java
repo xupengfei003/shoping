@@ -62,7 +62,7 @@ public interface CommAppService {
   * @param commAppInput
   * @return
   */
- Result getCommodities(CommAppInput commAppInput);
+ Result getCommodities(CommAppInput commAppInput) throws  Exception;
 
  /**
  * 查询供应商主营分类

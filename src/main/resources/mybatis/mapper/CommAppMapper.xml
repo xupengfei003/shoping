@@ -201,7 +201,7 @@
          ) cate
         WHERE
          sc.code69 = cate.code69
-        AND sc.supplier_id = #{supplierId}
+        AND sc.supplier_id = #{supplierId} and sc.invalid_status = 1 AND sc.status = 2
     </select>
 
 
