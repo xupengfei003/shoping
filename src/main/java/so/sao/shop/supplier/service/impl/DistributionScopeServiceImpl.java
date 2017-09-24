@@ -10,6 +10,7 @@ import so.sao.shop.supplier.domain.DistributionScope;
 import so.sao.shop.supplier.domain.FreightRules;
 import so.sao.shop.supplier.pojo.input.DistributionScopeInput;
 import so.sao.shop.supplier.service.DistributionScopeService;
+import so.sao.shop.supplier.service.FreightRulesService;
 import so.sao.shop.supplier.util.Ognl;
 import so.sao.shop.supplier.util.PageTool;
 
@@ -28,6 +29,8 @@ public class DistributionScopeServiceImpl implements DistributionScopeService {
     FreightRulesDao freightRulesDao;
     @Autowired
     AccountDao accountDao;
+    @Autowired
+    FreightRulesService freightRulesService;
     /**
      * 增加配送范围
      * @param accountId 供应商ID
@@ -36,11 +39,16 @@ public class DistributionScopeServiceImpl implements DistributionScopeService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void createDistributionScope(Long accountId, DistributionScopeInput distributionScopeInput) throws Exception {
+    public boolean createDistributionScope(Long accountId, DistributionScopeInput distributionScopeInput) throws Exception {
         /**
          * 1.新增配送范围
          * 2.获取到上一步新增配送范围记录的主键,新增配送规则
          */
+        //先根据区查询是否存在该区的配送范围，如果有添加失败，提示已添加
+        FreightRules freightRule = distributionScopeDao.selectFreightRulesByCode(distributionScopeInput.getAddressProvince(),distributionScopeInput.getAddressCity(),distributionScopeInput.getAddressDistrict());
+        if (null != freightRule){
+            return false;
+        }
         DistributionScope distributionScope = new DistributionScope();
         distributionScope.setSupplierId(accountId);
         distributionScope.setAddressProvince(distributionScopeInput.getAddressProvince());
@@ -60,7 +68,9 @@ public class DistributionScopeServiceImpl implements DistributionScopeService {
             freightRules.setDistributionScopeId(distributionScope.getId()); //配送规则ID
             //新增配送规则
             freightRulesDao.insert(freightRules);
+            return true;
         }
+        return false;
     }
 
     /**
@@ -138,7 +148,7 @@ public class DistributionScopeServiceImpl implements DistributionScopeService {
     public boolean delete(Integer id,Long accountId) throws Exception {
         /**
          * 1.根据商户ID查询当前商户默认运费规则类型
-         * 2.判断运费规则类型是否为1(配送规则)
+         * 2.判断商户默认运费规则类型是否为1(配送规则)
          */
         Integer rules = accountDao.findRulesById(accountId);
         if (null == rules || rules != 1){

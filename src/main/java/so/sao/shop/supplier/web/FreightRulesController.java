@@ -88,7 +88,7 @@ public class FreightRulesController {
             return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
         if (check(freightRulesInput)){
-            return  freightRulesService.update(user.getAccountId(),id,freightRulesInput) == true ?  Result.success(Constant.MessageConfig.MSG_SUCCESS) :  Result.fail(Constant.MessageConfig.MSG_FAILURE);
+            return  freightRulesService.update(user.getAccountId(),id,freightRulesInput) == true ?  Result.success(Constant.MessageConfig.MSG_SUCCESS) :  Result.fail(Constant.MessageConfig.MSG_NOT_EMPTY);
         }else {
             return Result.fail(Constant.MessageConfig.MSG_NOT_EMPTY);
         }

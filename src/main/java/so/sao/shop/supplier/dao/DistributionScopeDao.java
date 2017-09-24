@@ -1,7 +1,9 @@
 package so.sao.shop.supplier.dao;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import so.sao.shop.supplier.domain.DistributionScope;
+import so.sao.shop.supplier.domain.FreightRules;
 
 import java.util.List;
 
@@ -37,4 +39,12 @@ public interface DistributionScopeDao {
      * @param id
      */
     void deleteByPrimaryKey(Integer id);
+    /**
+     * 根据省市区code码获取对应记录
+     * @param addressProvince
+     * @param addressCity
+     * @param addressDistrict
+     * @return
+     */
+    FreightRules selectFreightRulesByCode(@Param("addressProvince") String addressProvince,@Param("addressCity") String addressCity,@Param("addressDistrict") String addressDistrict);
 }

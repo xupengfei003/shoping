@@ -9,6 +9,7 @@ import so.sao.shop.supplier.pojo.input.FreightRulesInput;
 import so.sao.shop.supplier.service.AccountService;
 import so.sao.shop.supplier.service.FreightRulesService;
 import so.sao.shop.supplier.util.BeanMapper;
+import so.sao.shop.supplier.util.Ognl;
 import so.sao.shop.supplier.util.PageTool;
 
 import java.util.Date;
@@ -110,7 +111,7 @@ public class FreightRulesServiceImpl implements FreightRulesService {
         }
         if (freightRulesInput.getRulesType() == freightRules.getRulesType()){//入参中的配送规则类型和查出来的配送规则类型是否匹配
             freightRules = BeanMapper.map(freightRulesInput,freightRules.getClass());
-            freightRules.setId(id);
+            freightRules.setId(freightRules.getId());
             freightRules.setUpdateAt(new Date());
             freightRulesDao.update(freightRules);
             this.updateAccountRulesType(accountId);
@@ -195,13 +196,16 @@ public class FreightRulesServiceImpl implements FreightRulesService {
         FreightRules rulesProvince = null;
         for (FreightRules freightRules:freightRulesList) {
             if (null != freightRules.getWhetherShipping()){
-                if (freightRules.getAddressDistrict() .equals(district)){//匹配区
+                String dbDistrict = freightRules.getAddressDistrict();
+                String dbCity = freightRules.getAddressCity();
+                String dbProvince = freightRules.getAddressProvince();
+                if (Ognl.isNotEmpty(dbDistrict) && dbDistrict .equals(district)){//匹配区
                     return freightRules;
                 }
-                if (freightRules.getAddressCity().equals(city)){//匹配市
+                if (Ognl.isNotEmpty(dbCity) && dbCity.equals(city)){//匹配市
                     rulesCity = freightRules;
                 }
-                if (freightRules.getAddressProvince().equals( province)){//匹配省
+                if (Ognl.isNotEmpty(dbProvince) && dbProvince.equals( province)){//匹配省
                     rulesProvince =  freightRules;
                 }
             }

@@ -55,6 +55,18 @@
         FROM distribution_scope
         WHERE id = #{id,jdbcType=INTEGER}
     </select>
+    <!--根据省市区code码获取对应记录-->
+    <select id="selectFreightRulesByCode" resultType="so.sao.shop.supplier.domain.FreightRules">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM distribution_scope
+        WHERE
+        address_province = #{addressProvince,jdbcType=VARCHAR}
+        AND
+        address_city = #{addressCity,jdbcType=VARCHAR}
+        AND
+        address_district = #{addressDistrict,jdbcType=VARCHAR}
+    </select>
     <!-- 删除一条信息 -->
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
         delete from distribution_scope
