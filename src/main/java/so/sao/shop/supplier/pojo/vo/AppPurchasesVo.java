@@ -92,7 +92,15 @@ public class AppPurchasesVo {
     /**
      * 门店ID
      */
-    private String supplierId;
+    private String userId;
+    /**
+     * 门店名称
+     */
+    private String userName;
+    /**
+     * 商户ID
+     */
+    private String storeId;
 
     public String getOrderReceiverName() {
         return orderReceiverName;
@@ -238,11 +246,27 @@ public class AppPurchasesVo {
         this.orderPostage = orderPostage;
     }
 
-    public String getSupplierId() {
-        return supplierId;
+    public String getUserId() {
+        return userId;
     }
 
-    public void setSupplierId(String supplierId) {
-        this.supplierId = supplierId;
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public String getStoreId() {
+        return storeId;
+    }
+
+    public void setStoreId(String storeId) {
+        this.storeId = storeId;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 }

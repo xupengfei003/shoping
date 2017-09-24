@@ -60,6 +60,11 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
             BigDecimal goodsAllPrice = new BigDecimal(0);//当查询订单状态为1时，计算该订单下所有商品总价
             //合并返回结果
             for (AppPurchaseItemVo appPurchaseItemVo : appPurchaseItemVoList) {
+                //赋值给详情
+                appPurchaseItemVo.setStoreName(appPurchasesVo.getStoreName());
+                appPurchaseItemVo.setStoreId(appPurchasesVo.getStoreId());
+                appPurchaseItemVo.setUserId(appPurchasesVo.getUserId());
+                appPurchaseItemVo.setUserName(appPurchasesVo.getUserName());
                 //订单状态为待付款
                 if("1".equals(orderStatus)){
                     if (appPurchaseItemVo.getPayId().equals(appPurchasesVo.getPayId())) {
