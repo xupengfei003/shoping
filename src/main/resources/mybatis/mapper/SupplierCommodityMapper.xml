@@ -282,28 +282,50 @@
 
     <!--查询商品列表（高级搜索）-->
     <select id="find" resultType="so.sao.shop.supplier.pojo.vo.SuppCommSearchVo">
-            SELECT
-                t1.sc_id AS id,
-                sctmp.supplier_id,
-                sctmp.min_img,
-                sctmp.code69,
-                sctmp.code,
-                cb.name AS brandName,
-                c.name AS commName,
-                c.category_one_id AS categoryOneId,
-                cu.name AS unitName,
-                cms.name AS measureSpecName,
-                sctmp.rule_val,
-                sctmp.inventory,
-                t1.status AS status,
-                sctmp.invalid_status,
-                sctmp.price,
-                sctmp.unit_price,
-                t1.updated_at,
-                sctmp.created_at,
-                sctmp.min_order_quantity,
-                t1.audit_result,
-                t1.audit_opinion
+        SELECT
+             id AS id,
+             min_img AS minImg,
+             supplier_id,
+             code69 AS code69,
+             CODE AS CODE,
+             brandName,
+             commName,
+             unitName,
+             measureSpecName,
+             rule_val AS ruleVal,
+             inventory AS inventory,
+             status AS statusNum,
+             invalid_status AS invalidStatus,
+             price AS price,
+             unit_price AS unitPrice,
+             created_at AS createdAt,
+             updated_at AS updatedAt,
+             min_order_quantity AS minOrderQuantity,
+             audit_result AS auditResult,
+             audit_opinion AS auditOpinion
+         FROM (
+             SELECT
+                  t1.sc_id AS id,
+                  sctmp.supplier_id,
+                  sctmp.min_img,
+                  sctmp.code69,
+                  sctmp.code,
+                  cb.name AS brandName,
+                  c.name AS commName,
+                  c.category_one_id AS categoryOneId,
+                  cu.name AS unitName,
+                  cms.name AS measureSpecName,
+                  sctmp.rule_val,
+                  sctmp.inventory,
+                  t1.status AS status,
+                  sctmp.invalid_status,
+                  sctmp.price,
+                  sctmp.unit_price,
+                  t1.updated_at,
+                  sctmp.created_at,
+                  sctmp.min_order_quantity,
+                  t1.audit_result,
+                  t1.audit_opinion
             FROM
                 supplier_commodity_tmp sctmp
             INNER JOIN (
