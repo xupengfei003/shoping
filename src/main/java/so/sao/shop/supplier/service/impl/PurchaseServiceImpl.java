@@ -1340,7 +1340,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                     BigDecimal defaultAmount = freightRules.getDefaultAmount();
                     BigDecimal defaultPiece = BigDecimal.valueOf(freightRules.getDefaultPiece());
                     BigDecimal expenses = defaultAmount;//基础价格
-                    if (number.compareTo(BigDecimal.valueOf(freightRules.getDefaultPiece())) >= 0){//订单数量大于基础配送数量
+                    if (number.compareTo(BigDecimal.valueOf(freightRules.getDefaultPiece())) > 0){//订单数量大于基础配送数量
                         BigDecimal excessPiece = BigDecimal.valueOf(freightRules.getExcessPiece());//超量配送数量
                         BigDecimal excessAmount = freightRules.getExcessAmount();//超量单位运费
                         BigDecimal excess = number.subtract(defaultPiece);//超出基础配送数量的部分
@@ -1348,7 +1348,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                             expenses = expenses.add(excessAmount);
                         }else{
                             expenses = excess.remainder(excessPiece).compareTo(BigDecimal.valueOf(0)) == 0 ?
-                                    expenses.add(excessAmount.multiply(excess.divide(excessPiece))) : expenses.add(excessAmount.multiply(excessPiece.divide(excess).add(BigDecimal.valueOf(1))));
+                                    expenses.add(excessAmount.multiply(excess.divideToIntegralValue(excessPiece))) : expenses.add(excessAmount.multiply(excess.divideToIntegralValue(excessPiece).add(BigDecimal.valueOf(1))));
                         }
                     }
                     map.put("status",1);
