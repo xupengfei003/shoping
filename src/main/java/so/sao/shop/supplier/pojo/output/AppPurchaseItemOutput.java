@@ -39,8 +39,8 @@ public class AppPurchaseItemOutput {
     private Date orderCreateTime;
     /**
      * 供应商名称
-     */
-    private String storeName;
+     *//*
+    private String storeName;*/
     /**
      * 订单状态
      */
@@ -90,7 +90,7 @@ public class AppPurchaseItemOutput {
     /**
      * 门店ID
      */
-    private String supplierId;
+//    private String supplierId;
     /**
      * 商品信息
      */
@@ -144,13 +144,13 @@ public class AppPurchaseItemOutput {
         this.orderCreateTime = orderCreateTime;
     }
 
-    public String getStoreName() {
+  /*  public String getStoreName() {
         return storeName;
     }
 
     public void setStoreName(String storeName) {
         this.storeName = storeName;
-    }
+    }*/
 
     public Integer getOrderStatus() {
         return orderStatus;
@@ -232,13 +232,13 @@ public class AppPurchaseItemOutput {
         this.orderPaymentNum = orderPaymentNum;
     }
 
-    public String getSupplierId() {
+    /*public String getSupplierId() {
         return supplierId;
     }
 
     public void setSupplierId(String supplierId) {
         this.supplierId = supplierId;
-    }
+    }*/
 
     public String getOrderPostage() {
         return orderPostage;
