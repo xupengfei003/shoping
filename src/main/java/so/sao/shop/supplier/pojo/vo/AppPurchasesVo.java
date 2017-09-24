@@ -92,7 +92,7 @@ public class AppPurchasesVo {
     /**
      * 门店ID
      */
-    private BigDecimal userId;
+    private String supplierId;
 
     public String getOrderReceiverName() {
         return orderReceiverName;
@@ -238,11 +238,11 @@ public class AppPurchasesVo {
         this.orderPostage = orderPostage;
     }
 
-    public BigDecimal getUserId() {
-        return userId;
+    public String getSupplierId() {
+        return supplierId;
     }
 
-    public void setUserId(BigDecimal userId) {
-        this.userId = userId;
+    public void setSupplierId(String supplierId) {
+        this.supplierId = supplierId;
     }
 }
