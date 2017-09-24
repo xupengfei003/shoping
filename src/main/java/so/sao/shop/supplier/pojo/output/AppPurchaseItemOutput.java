@@ -88,6 +88,10 @@ public class AppPurchaseItemOutput {
      */
     private String orderPostage;
     /**
+     * 门店ID
+     */
+    private BigDecimal userId;
+    /**
      * 商品信息
      */
     private List<AppPurchaseItemVo> appPurchaseItemVos;
@@ -226,6 +230,14 @@ public class AppPurchaseItemOutput {
 
     public void setOrderPaymentNum(String orderPaymentNum) {
         this.orderPaymentNum = orderPaymentNum;
+    }
+
+    public BigDecimal getUserId() {
+        return userId;
+    }
+
+    public void setUserId(BigDecimal userId) {
+        this.userId = userId;
     }
 
     public String getOrderPostage() {

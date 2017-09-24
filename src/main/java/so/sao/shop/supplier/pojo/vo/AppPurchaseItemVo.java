@@ -10,6 +10,10 @@ import java.math.BigDecimal;
 public class AppPurchaseItemVo {
 
     /**
+     * 商品ID
+     */
+    private String goodsId;
+    /**
      * 商品图片
      */
     private String goodsImage;
@@ -45,6 +49,14 @@ public class AppPurchaseItemVo {
      * 合并支付编号
      */
     private String payId;
+
+    public String getGoodsId() {
+        return goodsId;
+    }
+
+    public void setGoodsId(String goodsId) {
+        this.goodsId = goodsId;
+    }
 
     public String getGoodsImage() {
         return goodsImage;
