@@ -1200,9 +1200,14 @@ public class PurchaseServiceImpl implements PurchaseService {
         } else if (orderStatus == Constant.OrderStatusConfig.CANCEL_ORDER){ //已取消 订单金额+运费
             amount = purchase.getOrderPrice().add(purchase.getOrderPostage());
         }
+        //添加退款原因
+        String cancelReason = purchase.getOrderRefuseReason(); //买家拒绝理由
+        if (Ognl.isEmpty(cancelReason)) {
+            cancelReason = purchase.getOrderCancelReason(); //订单取消原因
+        }
         // 2.调用支付宝退款接口实现真正的退款
         // TODO: 2017/8/31 调用退款接口实现真正的退款,退款失败返回失败信息
-        String refundMsg = AlipayRefundUtil.alipayRefundRequest(purchase.getOrderId(), purchase.getPayId(), purchase.getOrderPaymentNum(), amount);
+        String refundMsg = AlipayRefundUtil.alipayRefundRequest(purchase.getOrderId(), purchase.getPayId(), purchase.getOrderPaymentNum(), amount, cancelReason);
         if("SUCCESS".equals(refundMsg)){
             // 3.修改订单状态为退款，修改退款时间为当前时间
             Map params = new HashMap();
