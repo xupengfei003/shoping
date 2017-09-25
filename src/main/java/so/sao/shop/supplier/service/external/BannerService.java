@@ -1,5 +1,6 @@
 package so.sao.shop.supplier.service.external;
 
+import java.text.ParseException;
 import java.util.Date;
 import org.springframework.web.multipart.MultipartFile;
 import so.sao.shop.supplier.domain.external.Banner;
@@ -18,7 +19,7 @@ public interface BannerService {
 	 * 新增轮播图
 	 * @param banner 轮播图对象
 	 */
-	Result saveBanner(Banner banner);
+	Result saveBanner(Banner banner) throws Exception;
 	
 	/**
 	 * 添加图片
@@ -29,7 +30,6 @@ public interface BannerService {
 	
 	/**
 	 * 根据供应商名称查询供应商信息
-	 * @param providerName 供应商名称
 	 * @return 轮播图供应商列表
 	 */
 	Result getAccounts(CommAccountBanInput commAccountBanInput);
@@ -39,14 +39,10 @@ public interface BannerService {
 	 * @param banner 轮播图对象
 	 * @return 返回更新结果
 	 */
-	Result updateBanner(Banner banner);
+	Result updateBanner(Banner banner) throws Exception;
 	
 	/**
      * 根据商品名称商品类型查询商品信息
-     * @param commodityName 商品名称
-     * @param categoryOneId 商品类型一
-     * @param categoryTwoId 商品类型二
-     * @param categoryThreeId 商品类型三
      * @return 查询结果
      */
 	Result getCommoditys(CommAccountBanInput commAccountBanInput);
