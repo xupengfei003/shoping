@@ -61,10 +61,10 @@ public class CommConstant {
                 st="已废除";
                 break;*/
             case CommConstant.COMM_ST_ON_SHELVES:
-                st="上架";
+                st="已上架";
                 break;
             case CommConstant.COMM_ST_OFF_SHELVES:
-                st="下架";
+                st="已下架";
                 break;
             case CommConstant.COMM_ST_ON_SHELVES_AUDIT:
                 st="上架待审核";
