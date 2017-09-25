@@ -35,8 +35,6 @@ public class AppPurchaseItemServiceImpl implements AppPurchaseItemService {
      */
     @Override
     public AppPurchaseItemOutput findOrderItemList(String orderId) throws Exception {
-        //查询详情信息
-//        List<AppPurchaseItemVo> appPurchaseItemVoList = appPurchaseItemDao.findOrderItemListByOrderId(orderId);
         //查询订单信息
         AppPurchasesVo appPurchasesVos = appPurchaseDao.findOrderByOrderId(orderId);
         //根据合并支付ID查询所有订单
@@ -46,9 +44,18 @@ public class AppPurchaseItemServiceImpl implements AppPurchaseItemService {
         for(AppPurchasesVo appPurchasesVo : appPurchasesVoList){
             orderIdList.add(appPurchasesVo.getOrderId());
         }
-        //根据订单ID列表查询订单详情
-        List<AppPurchaseItemVo> appPurchaseItemVoList = appPurchaseItemDao.findOrderItemList(orderIdList);
 
+        List<AppPurchaseItemVo> appPurchaseItemVoList = new ArrayList<>();
+        //业务逻辑
+        //1.如果订单状态为待付款的时候（订单状态为1），则把payID相同的订单列出；
+        //2.如果订单状态为其他时，则只列出orderId对应的订单
+        if(appPurchasesVos.getOrderStatus() == 1){
+            //根据订单ID列表查询订单详情
+            appPurchaseItemVoList = appPurchaseItemDao.findOrderItemList(orderIdList);
+        }else{
+            //查询详情信息
+            appPurchaseItemVoList = appPurchaseItemDao.findOrderItemListByOrderId(orderId);
+        }
         AppPurchaseItemOutput appPurchaseItemOutput = null;
         if(null != appPurchasesVos){
             appPurchaseItemOutput = BeanMapper.map(appPurchasesVos,AppPurchaseItemOutput.class);
