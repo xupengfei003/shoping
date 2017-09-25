@@ -1396,11 +1396,11 @@ public class CommodityServiceImpl implements CommodityService {
                     status=supplierCommodity.getStatus();
                 }else   if(CommConstant.AUDIT_PASS == auditResult){
                     //审核通过 Tmp表覆盖 supplierCommodity 表  覆盖图片表
-                    supplierCommodityDao.updateSupplierCommodityStatusById(scId,CommConstant.COMM_ST_ON_SHELVES,new Date());
                     SupplierCommodityTmp supplierCommodityTmp =supplierCommodityTmpDao.findSupplierCommodityTmpByScaId(id);
 
                     if(null != supplierCommodity) {
                         supplierCommodity = BeanMapper.map(supplierCommodityTmp, SupplierCommodity.class);
+                        supplierCommodity.setId(scId);
                         supplierCommodityDao.update(supplierCommodity);
                     }
                     List <Long> scids= new ArrayList<Long>();
