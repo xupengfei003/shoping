@@ -520,7 +520,7 @@ public class CommodityServiceImpl implements CommodityService {
                 map.put("supplierId", supplierCommodity.getSupplierId());
                 //商品需下架才可删除
                 if(supplierCommodity.getStatus() != CommConstant.COMM_ST_OFF_SHELVES){
-                    return Result.fail("存在已上架或待上架商品，请重新选择！");
+                    return Result.fail("存在已上架或待上架或审核中的商品，请重新选择！");
                 }else{
                     idList.add(id);
                 }
