@@ -152,16 +152,15 @@ public class FreightRulesController {
 
     /**
      * 查询配送规则
-     * @param userId
+     * @param accountId
      * @param provinceCode
      * @param cityCode
      * @param districtCode
      * @return
      */
     @GetMapping("/getFreightRule")
-    public Result getFreightRule(Long userId,String provinceCode,String cityCode,String districtCode){
-        Account account = accountService.selectByUserId(userId);
-        List<FreightRules> list = freightRulesService.queryAll0(account.getAccountId(),1);
+    public Result getFreightRule(Long accountId,String provinceCode,String cityCode,String districtCode){
+        List<FreightRules> list = freightRulesService.queryAll0(accountId,1);
         FreightRules freightRules = freightRulesService.matchAddress(provinceCode,cityCode,districtCode,list);
         if(freightRules == null){
             return Result.fail(Constant.MessageConfig.MSG_FAILURE);
