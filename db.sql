@@ -266,4 +266,5 @@ CREATE TABLE `comm_imge_tmp` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 COMMENT='商品图片表';
 
-
+/*订单表增加拒收类型*/
+ALTER TABLE purchase_item ADD pay_id VARCHAR(32) COMMENT '合并支付ID' AFTER brand_name;
