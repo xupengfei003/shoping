@@ -596,7 +596,7 @@ public class CommodityServiceImpl implements CommodityService {
         //判断该商品是否处于审核中
         int num = supplierCommodityAuditDao.countByScidAndAuditResult(id);
         if (num>0){
-            return Result.fail("审核中的记录不能进行上架、下架、编辑、删除操作！");
+            return Result.fail("该商品已提交管理员审核，暂不能进行任何操作！");
         }
         //如果是管理员直接执行上架操作
         if(isAdmin.equals(Constant.ADMIN_STATUS)){
@@ -631,7 +631,7 @@ public class CommodityServiceImpl implements CommodityService {
         //判断该供应商商品是否已处于待审核状态
         int num = supplierCommodityAuditDao.countByScidAndAuditResult(id);
         if (num > 0) {
-            return Result.fail("审核中的记录不能进行上架、下架、编辑、删除操作！");
+            return Result.fail("该商品已提交管理员审核，暂不能进行任何操作！");
         }
         //待上架商品直接进行下架操作
         if (CommConstant.COMM_ST_NEW == one.getStatus() || isAdmin){
@@ -675,7 +675,7 @@ public class CommodityServiceImpl implements CommodityService {
         //判断该供应商商品数组中是否已处于待审核状态
         int num = supplierCommodityAuditDao.countByScidArrayAndAuditResult(ids);
         if (num > 0) {
-            return Result.fail("审核中的记录不能进行上架、下架、编辑、删除操作！");
+            return Result.fail("所选商品中包含待审核商品，请重新选择！");
         }
         //管理员直接进行上架操作
         if (isAdmin) {
@@ -716,7 +716,7 @@ public class CommodityServiceImpl implements CommodityService {
         //判断该供应商商品数组中是否已处于待审核状态
         int num = supplierCommodityAuditDao.countByScidArrayAndAuditResult(ids);
         if (num > 0) {
-            return Result.fail("审核中的记录不能进行上架、下架、编辑、删除操作！");
+            return Result.fail("所选商品中包含待审核商品，请重新选择！");
         }
         //管理员操作直接下架
         if (isAdmin){
