@@ -119,51 +119,53 @@
             IFNULL(t.origin_place,'') AS originPlace,
             IFNULL(t.market_time,'') AS marketTime
         FROM (SELECT
-                t1.sc_id AS id,
-                sctmp.supplier_id,
-                sctmp.min_img,
-                sctmp.code69,
-                sctmp.code,
-                cb.name AS brandName,
-                c.name AS commName,
-                c.category_one_id AS categoryOneId,
-                cu.name AS unitName,
-                cms.name AS measureSpecName,
-                ct.name AS tagName,
-                sctmp.rule_val,
-                sctmp.inventory,
-                t1.status AS STATUS,
-                sctmp.invalid_status,
-                sctmp.price,
-                sctmp.unit_price,
-                t1.updated_at,
-                sctmp.created_at,
-                sctmp.min_order_quantity,
-                t1.audit_result,
-                t1.audit_opinion,
-                c.origin_place,
-                c.company_name,
-                c.market_time
-            FROM
+            t1.sc_id AS id,
+            sctmp.supplier_id,
+            sctmp.min_img,
+            sctmp.code69,
+            sctmp.code,
+            cb.name AS brandName,
+            c.name AS commName,
+            c.category_one_id AS categoryOneId,
+            cu.name AS unitName,
+            cms.name AS measureSpecName,
+            ct.name AS tagName,
+            sctmp.rule_val,
+            sctmp.inventory,
+            t1.status AS STATUS,
+            sctmp.invalid_status,
+            sctmp.price,
+            sctmp.unit_price,
+            t1.updated_at,
+            sctmp.created_at,
+            sctmp.min_order_quantity,
+            t1.audit_result,
+            t1.audit_opinion,
+            c.origin_place,
+            c.company_name,
+            c.market_time
+        FROM
             supplier_commodity_tmp sctmp
-            INNER JOIN (
-              SELECT
-                t.id,
-                t.sc_id,
-                t.supplier_id,
-                t.updated_at,
-                t.created_at,
-                t.status,
-                t.audit_result,
-                t.audit_flag,
-                t.audit_by,
-                t.audit_opinion
-              FROM supplier_commodity_audit t WHERE t.status = 6 AND t.audit_flag = 1) t1 ON sctmp.sca_id = t1.id
-              INNER JOIN (commodity c LEFT JOIN comm_brand cb ON c.brand_id = cb.id) ON sctmp.code69 = c.code69
-            LEFT JOIN comm_measure_spec cms ON sctmp.measure_spec_id = cms.id
-            LEFT JOIN comm_tag ct ON sctmp.tag_id = ct.id
-            LEFT JOIN comm_unit cu ON sctmp.unit_id = cu.id
-            WHERE sctmp.supplier_id = #{supplierId}
+        INNER JOIN (
+        SELECT
+            t.id,
+            t.sc_id,
+            t.supplier_id,
+            t.updated_at,
+            t.created_at,
+            t.status,
+            t.audit_result,
+            t.audit_flag,
+            t.audit_by,
+            t.audit_opinion
+        FROM 
+            supplier_commodity_audit t
+        WHERE t.status = 6 AND t.audit_flag = 1) t1 ON sctmp.sca_id = t1.id
+        INNER JOIN (commodity c LEFT JOIN comm_brand cb ON c.brand_id = cb.id) ON sctmp.code69 = c.code69
+        LEFT JOIN comm_measure_spec cms ON sctmp.measure_spec_id = cms.id
+        LEFT JOIN comm_tag ct ON sctmp.tag_id = ct.id
+        LEFT JOIN comm_unit cu ON sctmp.unit_id = cu.id
+        WHERE sctmp.supplier_id = #{supplierId}
         UNION
         SELECT
             sc.id,
@@ -192,32 +194,32 @@
             c.company_name,
             c.market_time
         FROM
-           supplier_commodity sc
+            supplier_commodity sc
         LEFT JOIN (
         SELECT
-                t.id,
-                t.sc_id,
-                t.supplier_id,
-                t.updated_at,
-                t.created_at,
-                t.status,
-                t.audit_result,
-                t.audit_flag,
-                t.audit_by,
-                t.audit_opinion
-            FROM
+            t.id,
+            t.sc_id,
+            t.supplier_id,
+            t.updated_at,
+            t.created_at,
+            t.status,
+            t.audit_result,
+            t.audit_flag,
+            t.audit_by,
+            t.audit_opinion
+        FROM
             supplier_commodity_audit t
-            WHERE t.audit_flag = 1 AND t.status != 6) t1 ON sc.id = t1.sc_id
-            INNER JOIN (commodity c LEFT JOIN comm_brand cb ON c.brand_id = cb.id) ON sc.code69 = c.code69
-            LEFT JOIN comm_measure_spec cms ON sc.measure_spec_id = cms.id
-            LEFT JOIN comm_tag ct ON sc.tag_id = ct.id
-            LEFT JOIN comm_unit cu ON sc.unit_id = cu.id
-            WHERE sc.deleted = 0 and sc.supplier_id = #{supplierId}
-            AND (t1.id is null and sc.`status` IN (0, 2, 3))
+        WHERE t.audit_flag = 1 AND t.status != 6) t1 ON sc.id = t1.sc_id
+        INNER JOIN (commodity c LEFT JOIN comm_brand cb ON c.brand_id = cb.id) ON sc.code69 = c.code69
+        LEFT JOIN comm_measure_spec cms ON sc.measure_spec_id = cms.id
+        LEFT JOIN comm_tag ct ON sc.tag_id = ct.id
+        LEFT JOIN comm_unit cu ON sc.unit_id = cu.id
+        WHERE sc.deleted = 0 and sc.supplier_id = #{supplierId}
+        AND (t1.id is null and sc.`status` IN (0, 2, 3))
 
-            UNION
+        UNION
 
-            SELECT
+        SELECT
             sc.id,
             sc.supplier_id,
             sc.min_img,
@@ -228,6 +230,7 @@
             c.category_one_id AS categoryOneId,
             cu.name AS unitName,
             cms.name AS measureSpecName,
+            ct.name AS tagName,
             sc.rule_val,
             sc.inventory,
             t1.status,
@@ -238,20 +241,24 @@
             sc.updated_at,
             sc.min_order_quantity,
             t1.audit_result,
-            t1.audit_opinion
-            FROM
+            t1.audit_opinion,
+            c.origin_place,
+            c.company_name,
+            c.market_time
+        FROM
             supplier_commodity sc
-            LEFT JOIN (
-            SELECT
-            *
-            FROM
+        LEFT JOIN (
+        SELECT
+        *
+        FROM
             supplier_commodity_audit t
-            WHERE t.audit_flag = 1 AND t.status != 6) t1 ON sc.id = t1.sc_id
-            INNER JOIN (commodity c LEFT JOIN comm_brand cb ON c.brand_id = cb.id) ON sc.code69 = c.code69
-            LEFT JOIN comm_measure_spec cms ON sc.measure_spec_id = cms.id
-            LEFT JOIN comm_unit cu ON sc.unit_id = cu.id
-            WHERE sc.deleted = 0 AND sc.supplier_id = #{supplierId}
-            AND (t1.id is not null and sc.`status` IN (0, 2, 3))
+        WHERE t.audit_flag = 1 AND t.status != 6) t1 ON sc.id = t1.sc_id
+        INNER JOIN (commodity c LEFT JOIN comm_brand cb ON c.brand_id = cb.id) ON sc.code69 = c.code69
+        LEFT JOIN comm_measure_spec cms ON sc.measure_spec_id = cms.id
+        LEFT JOIN comm_tag ct ON sc.tag_id = ct.id
+        LEFT JOIN comm_unit cu ON sc.unit_id = cu.id
+        WHERE sc.deleted = 0 AND sc.supplier_id = #{supplierId}
+        AND (t1.id is not null and sc.`status` IN (0, 2, 3))
         ) t
         GROUP BY id HAVING 1 = 1
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(commCode69)">
