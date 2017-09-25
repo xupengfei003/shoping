@@ -45,7 +45,7 @@ public class DistributionScopeServiceImpl implements DistributionScopeService {
          * 2.获取到上一步新增配送范围记录的主键,新增配送规则
          */
         //先根据区查询是否存在该区的配送范围，如果有添加失败，提示已添加
-        FreightRules freightRule = distributionScopeDao.selectFreightRulesByCode(distributionScopeInput.getAddressProvince(),distributionScopeInput.getAddressCity(),distributionScopeInput.getAddressDistrict());
+        FreightRules freightRule = distributionScopeDao.selectFreightRulesByCode(accountId,distributionScopeInput.getAddressProvince(),distributionScopeInput.getAddressCity(),distributionScopeInput.getAddressDistrict());
         if (null != freightRule){
             return false;
         }
