@@ -19,9 +19,10 @@ public class AlipayRefundUtil {
      * @param out_trade_no 订单支付pay_id
      * @param trade_no  支付宝交易流水号
      * @param refund_amount 需要退款的金额，该金额不能大于订单金额,单位为元，支持两位小数
+     * @param cancelReason
      * @return String
      */
-    public static String alipayRefundRequest(String orderId, String out_trade_no, String trade_no, BigDecimal refund_amount) {
+    public static String alipayRefundRequest(String orderId, String out_trade_no, String trade_no, BigDecimal refund_amount, String cancelReason) {
         // 发送请求
         String strResponse = null;
         try {
@@ -34,7 +35,7 @@ public class AlipayRefundUtil {
             alidata.setOut_trade_no(out_trade_no);//商户订单号
             alidata.setRefund_amount(refund_amount);//需要退款的金额
             alidata.setTrade_no(trade_no);//支付宝交易号
-            alidata.setRefund_reason("测试退款");//退款原因
+            alidata.setRefund_reason(cancelReason);//退款原因
             alidata.setOut_request_no(orderId);//标识一次退款请求 orderId区分
             request.setBizContent(JsonUtils.convertToString(alidata));
             AlipayTradeRefundResponse response = alipayClient.execute(request);
