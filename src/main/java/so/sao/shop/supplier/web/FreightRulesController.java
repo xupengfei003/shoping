@@ -143,7 +143,7 @@ public class FreightRulesController {
         Integer excessPiece = freightRulesInput.getExcessPiece();
         BigDecimal excessAmount = freightRulesInput.getExcessAmount();
         if (null != freightRulesInput){
-            if (0 == freightRulesInput.getWhetherShipping()){//不包邮
+            if (1 == freightRulesInput.getWhetherShipping()){//不包邮
                 return Ognl.isEmpty(defaultPiece) && Ognl.isEmpty(defaultAmount) && Ognl.isEmpty(excessPiece) && Ognl.isEmpty(excessAmount) ? false : true;
             }
         }
