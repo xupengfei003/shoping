@@ -268,7 +268,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             if(purchase.getOrderPostage().compareTo(new BigDecimal(0)) == 0){
                 purchaseInfoVo.setOrderPostage("包邮");
             } else {
-                purchaseInfoVo.setOrderPostage(NumberUtil.number2Thousand(purchase.getOrderPostage()));
+                purchaseInfoVo.setOrderPostage("￥"+NumberUtil.number2Thousand(purchase.getOrderPostage()));
             }
             purchaseInfoVo.setOrderId(purchase.getOrderId());
             purchaseInfoVo.setOrderReceiverName(purchase.getOrderReceiverName());
@@ -318,7 +318,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             if(StringUtils.isEmpty(purchasesVo.getOrderPostage()) || "0.00".equals(purchasesVo.getOrderPostage())){
                 purchasesVo.setOrderPostage("包邮");
             } else {
-                purchasesVo.setOrderPostage(NumberUtil.number2Thousand(new BigDecimal(purchasesVo.getOrderPostage())));
+                purchasesVo.setOrderPostage("￥"+NumberUtil.number2Thousand(new BigDecimal(purchasesVo.getOrderPostage())));
             }
             purchasesVo.setOrderPrice(NumberUtil.number2Thousand(new BigDecimal(purchasesVo.getOrderPrice())));
         }
