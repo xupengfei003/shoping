@@ -35,17 +35,27 @@ public class HotCommoditiesServiceImpl implements HotCommoditiesService{
     @Override
     public Result searchHotCommodities(HotCommodityInput hotCommodityInput) {
 
-        String isSalesVolume = null;
-        String isSort = null;
-        if(hotCommodityInput.getSortord() != null){
-            //自动排序
-            isSalesVolume = hotCommodityInput.getSortord() == 0? Integer.toString(hotCommodityInput.getSortord()) : null;
-            //手动排序
-            isSort = hotCommodityInput.getSortord() == 1? Integer.toString(hotCommodityInput.getSortord()) : null;
-        }
         PageTool.startPage(hotCommodityInput.getPageNum(), hotCommodityInput.getPageSize());
-        List<HotCommodities> hotCommoditiesList =  hotCommoditiesDao.findAll(isSalesVolume, isSort, hotCommodityInput.getInputvalue(),
+        List<HotCommodities> hotCommoditiesList =  hotCommoditiesDao.findAll( hotCommodityInput.getInputvalue(),
                     hotCommodityInput.getCategoryOneId(), hotCommodityInput.getCategoryTwoId(), hotCommodityInput.getCategoryThreeId());
+        if(hotCommoditiesList == null || hotCommoditiesList.size()==0)
+            return Result.fail("暂无热销商品！");
+        //统计商品销量
+        String [] ArrGoodIds = new String[hotCommoditiesList.size()];
+        for ( int i=0 ; i< hotCommoditiesList.size(); i++  ){
+            ArrGoodIds [i] = hotCommoditiesList.get(i).getScId().toString();
+        }
+
+        List<String> salesVolumes = null;
+        try {
+            salesVolumes = countSoldCommService.countSoldCommNum( ArrGoodIds );
+        } catch (Exception e) {
+            return Result.fail("销量统计异常！",e);
+        }
+
+        for( int i =0; i< hotCommoditiesList.size(); i++ ){
+            hotCommoditiesList.get(i).setSalesVolume( Integer.valueOf( salesVolumes.get(i) ) );
+        }
         PageInfo<HotCommodities> pageInfo = new PageInfo<HotCommodities>(hotCommoditiesList);
         return Result.success("查询热门商品列表成功！", pageInfo);
     }
