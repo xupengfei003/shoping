@@ -41,7 +41,7 @@ public class FreightRules {
     private String addressDistrict;
 
     /**
-     * 是否包邮:0-不包,1-包邮
+     * 是否包邮:0-包邮,1-不包邮
      */
     private Integer whetherShipping;
 
