@@ -61,10 +61,13 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
             //合并返回结果
             for (AppPurchaseItemVo appPurchaseItemVo : appPurchaseItemVoList) {
                 //赋值给详情
-                appPurchaseItemVo.setStoreName(appPurchasesVo.getStoreName());
-                appPurchaseItemVo.setStoreId(appPurchasesVo.getStoreId());
-                appPurchaseItemVo.setUserId(appPurchasesVo.getUserId());
-                appPurchaseItemVo.setUserName(appPurchasesVo.getUserName());
+               if(appPurchaseItemVo.getOrderId().equals(appPurchasesVo.getOrderId())){
+                   appPurchaseItemVo.setStoreName(appPurchasesVo.getStoreName());
+                   appPurchaseItemVo.setStoreId(appPurchasesVo.getStoreId());
+                   appPurchaseItemVo.setUserId(appPurchasesVo.getUserId());
+                   appPurchaseItemVo.setUserName(appPurchasesVo.getUserName());
+               }
+
                 //订单状态为待付款
                 if("1".equals(orderStatus)){
                     if (appPurchaseItemVo.getPayId().equals(appPurchasesVo.getPayId())) {
