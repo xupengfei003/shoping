@@ -516,9 +516,9 @@
                      <include refid="audit"/>
                 FROM supplier_commodity_audit t WHERE t.status = 6 AND t.audit_flag = 1) t1 ON sctmp.sca_id = t1.id
                 INNER JOIN commodity c ON sctmp.code69 = c.code69
-                INNER JOIN comm_brand cb ON c.brand_id = cb.id
-                INNER JOIN comm_measure_spec cms ON sctmp.measure_spec_id = cms.id
-                INNER JOIN comm_unit cu ON sctmp.unit_id = cu.id
+                LEFT JOIN comm_brand cb ON c.brand_id = cb.id
+                LEFT JOIN comm_measure_spec cms ON sctmp.measure_spec_id = cms.id
+                LEFT JOIN comm_unit cu ON sctmp.unit_id = cu.id
                 WHERE sctmp.supplier_id = #{supplierId}
         UNION
             SELECT
@@ -552,9 +552,9 @@
                     supplier_commodity_audit t
                 WHERE t.audit_flag = 1 AND t.status != 6) t1 ON sc.id = t1.sc_id
                 INNER JOIN commodity c ON sc.code69 = c.code69
-                INNER JOIN comm_brand cb ON c.brand_id = cb.id
-                INNER JOIN comm_measure_spec cms ON sc.measure_spec_id = cms.id
-                INNER JOIN comm_unit cu ON sc.unit_id = cu.id
+                LEFT JOIN comm_brand cb ON c.brand_id = cb.id
+                LEFT JOIN comm_measure_spec cms ON sc.measure_spec_id = cms.id
+                LEFT JOIN comm_unit cu ON sc.unit_id = cu.id
                 WHERE sc.deleted = 0 AND sc.supplier_id = #{supplierId}
                 AND (t1.id IS NULL AND sc.status IN (0, 2, 3))
         UNION
@@ -589,9 +589,9 @@
                    supplier_commodity_audit t
                 WHERE t.audit_flag = 1 AND t.status != 6) t1 ON sc.id = t1.sc_id
                 INNER JOIN commodity c ON sc.code69 = c.code69
-                INNER JOIN comm_brand cb ON c.brand_id = cb.id
-                INNER JOIN comm_measure_spec cms ON sc.measure_spec_id = cms.id
-                INNER JOIN comm_unit cu ON sc.unit_id = cu.id
+                LEFT JOIN comm_brand cb ON c.brand_id = cb.id
+                LEFT JOIN comm_measure_spec cms ON sc.measure_spec_id = cms.id
+                LEFT JOIN comm_unit cu ON sc.unit_id = cu.id
                 WHERE sc.deleted = 0 AND sc.supplier_id = #{supplierId}
                 AND (t1.id IS NOT NULL AND sc.status IN (0, 2, 3))
             ) t
