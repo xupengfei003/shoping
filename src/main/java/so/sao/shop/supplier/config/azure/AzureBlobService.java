@@ -143,7 +143,8 @@ public class AzureBlobService {
                     String extensionName = StringUtils.substringAfter(fileName, ".");
 
                     //过滤非jpg,png,jpeg,gif格式的文件
-                    if(!(Arrays.binarySearch(CommConstant.IMAGE_TYPE, file.getContentType().toLowerCase()) >= 0)){
+                    Arrays.sort( CommConstant.IMAGE_TYPE);
+                    if( !( Arrays.binarySearch( CommConstant.IMAGE_TYPE, file.getContentType().toLowerCase() ) >= 0) ){
                         map.put("fileName",fileName);
                         return Result.fail("上传的文件中包含非jpg/png/jpeg/gif格式", map);
                     }
