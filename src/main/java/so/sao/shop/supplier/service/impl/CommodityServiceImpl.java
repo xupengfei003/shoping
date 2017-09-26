@@ -491,9 +491,11 @@ public class CommodityServiceImpl implements CommodityService {
         Map<String,Long> map = new HashMap<>();
         if(null != supplierCommodity){
             map.put("supplierId", supplierCommodity.getSupplierId());
+            //验证商品是否在审核状态
+            int pendingNum = supplierCommodityAuditDao.countByScidAndAuditResult(id);
             //商品需下架才可删除
-            if(supplierCommodity.getStatus() != CommConstant.COMM_ST_OFF_SHELVES){
-                return Result.fail("商品需下架才可删除", map);
+            if(supplierCommodity.getStatus() != CommConstant.COMM_ST_OFF_SHELVES || pendingNum > 0){
+                return Result.fail("商品需下架才可删除！", map);
             }
             //删除商品,deleted更新为1
             supplierCommodityDao.deleteById(id, true, new Date());
@@ -518,8 +520,10 @@ public class CommodityServiceImpl implements CommodityService {
             SupplierCommodity supplierCommodity = supplierCommodityDao.findOne(id);
             if(null != supplierCommodity){
                 map.put("supplierId", supplierCommodity.getSupplierId());
+                //验证商品是否在审核状态
+                int pendingNum = supplierCommodityAuditDao.countByScidAndAuditResult(id);
                 //商品需下架才可删除
-                if(supplierCommodity.getStatus() != CommConstant.COMM_ST_OFF_SHELVES){
+                if(supplierCommodity.getStatus() != CommConstant.COMM_ST_OFF_SHELVES || pendingNum > 0){
                     return Result.fail("存在已上架或待上架或审核中的商品，请重新选择！");
                 }else{
                     idList.add(id);
