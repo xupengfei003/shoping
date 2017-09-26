@@ -259,7 +259,7 @@ public class CommodityExportOutput {
     @Override
     public String toString() {
         return
-                 code69 +
+                code69 +
                         "," + brandName +
                         "," + tagName +
                         "," + commName  +
@@ -270,13 +270,13 @@ public class CommodityExportOutput {
                         "," + price +
                         "," + unitPrice +
                         "," + inventory +
+                        "," + minOrderQuantity+
                         "," + statusName +
-                        "," + createdAt +
-                        "," + updatedAt +
                         "," + companyName +
                         "," + originPlace +
                         "," + marketTime +
-                        "," + minOrderQuantity ;
+                        "," + createdAt +
+                        "," + updatedAt ;
 
     }
 }
