@@ -263,6 +263,9 @@ public class CommodityExportOutput {
                         "," + brandName +
                         "," + tagName +
                         "," + commName  +
+                        "," + companyName +
+                        "," + originPlace +
+                        "," + marketTime +
                         "," + supplierCode +
                         "," + unitName +
                         "," + measureSpecName +
@@ -272,9 +275,6 @@ public class CommodityExportOutput {
                         "," + inventory +
                         "," + minOrderQuantity+
                         "," + statusName +
-                        "," + companyName +
-                        "," + originPlace +
-                        "," + marketTime +
                         "," + createdAt +
                         "," + updatedAt ;
 
