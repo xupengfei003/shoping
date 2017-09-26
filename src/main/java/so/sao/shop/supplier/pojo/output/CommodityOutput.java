@@ -20,6 +20,10 @@ public class CommodityOutput {
      */
     private Long id;
     /**
+     *ID
+     */
+    private Long scaId;
+    /**
      * 供应商ID
 
      */
@@ -490,5 +494,13 @@ public class CommodityOutput {
 
     public void setAdvice(String advice) {
         this.advice = advice;
+    }
+
+    public Long getScaId() {
+        return scaId;
+    }
+
+    public void setScaId(Long scaId) {
+        this.scaId = scaId;
     }
 }
