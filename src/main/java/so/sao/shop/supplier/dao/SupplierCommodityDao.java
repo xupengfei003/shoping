@@ -3,14 +3,11 @@ package so.sao.shop.supplier.dao;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import so.sao.shop.supplier.domain.SupplierCommodity;
-import so.sao.shop.supplier.domain.SupplierCommodityAudit;
-import so.sao.shop.supplier.domain.SupplierCommodityTmp;
 import so.sao.shop.supplier.pojo.input.CommSearchInput;
 import so.sao.shop.supplier.pojo.output.CommodityBannerOut;
 import so.sao.shop.supplier.pojo.output.CommodityOutput;
 import so.sao.shop.supplier.pojo.vo.SuppCommSearchVo;
 
-import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -62,11 +59,12 @@ public interface SupplierCommodityDao {
     CommodityOutput findDetail(@Param("id")long id);
 
     /**
-     * 查询编辑后的商品详情
-     * @param id
-     * @return
+     * 根据id 查找商品审核表商品的状态
+     * @param id  商品id
+     * @return 商品状态
      */
-    CommodityOutput findDetailTmp(@Param("id")long id);
+
+    int findAuditStatus(@Param("id")long id);
 
     /**
      * 根据商品ID查询购物车所需字段

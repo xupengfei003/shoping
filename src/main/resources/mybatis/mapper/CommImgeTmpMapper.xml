@@ -36,4 +36,21 @@
         FROM comm_imge_tmp WHERE sca_id = #{scaId}
     </select>
 
+    <!--查询编辑后商品的图片信息-->
+    <select id="findImgTmp" resultType="so.sao.shop.supplier.domain.CommImge">
+        SELECT
+        sitmp.id,
+        sca_id AS scaId,
+        name,
+        url,
+        type,
+        size,
+        thumbnail_url AS thumbnailUrl
+        FROM
+        comm_imge_tmp sitmp
+        LEFT JOIN supplier_commodity_audit sca ON sitmp.sca_id = sca.id
+        WHERE sitmp.sca_id = #{scaId}
+    </select>
+
+
 </mapper>

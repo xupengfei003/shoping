@@ -5,13 +5,10 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import so.sao.shop.supplier.config.CommConstant;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.domain.User;
-import so.sao.shop.supplier.pojo.BaseResult;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.*;
-import so.sao.shop.supplier.service.AmzScheduledJobService;
 import so.sao.shop.supplier.service.CommodityService;
 import so.sao.shop.supplier.util.CheckUtil;
 

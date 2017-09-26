@@ -20,5 +20,10 @@ public interface SupplierCommodityTmpDao {
      * @return
      */
     SupplierCommodityTmp findSupplierCommodityTmpByScaId(@Param("id") Long id);
-
+    /**
+     * 查询编辑后的商品详情
+     * @param id 商品ID
+     * @return 商品信息对象
+     */
+    CommodityOutput findDetailTmp(@Param("id")long id);
 }

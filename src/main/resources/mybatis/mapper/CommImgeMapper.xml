@@ -17,22 +17,6 @@
         FROM comm_imge WHERE sc_id = #{scId}
     </select>
 
-    <!--查询编辑后商品的图片信息-->
-    <select id="findTmp" resultType="so.sao.shop.supplier.domain.CommImge">
-        SELECT
-             sitmp.id,
-             sca_id AS scaId,
-             name,
-             url,
-             type,
-             size,
-             thumbnail_url AS thumbnailUrl
-        FROM
-             comm_imge_tmp sitmp
-        LEFT JOIN supplier_commodity_audit sca ON sitmp.sca_id = sca.id
-        WHERE sitmp.sca_id = #{scaId}
-    </select>
-
     <!--根据scId查询图片id集合-->
     <select id="findIdsByScId" resultType="Long">
         SELECT

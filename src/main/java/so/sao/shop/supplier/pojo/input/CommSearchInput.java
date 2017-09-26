@@ -42,6 +42,10 @@ public class CommSearchInput {
      * 商品科属id
      */
     private Long typeId;
+    /**
+     * 商品是否失效：0--失效 ，1--正常
+     */
+    private Integer invalidStatus;
 
     /**
      * 最小价格
@@ -174,6 +178,14 @@ public class CommSearchInput {
 
     public void setAuditResult(Integer auditResult) {
         this.auditResult = auditResult;
+    }
+
+    public Integer getInvalidStatus() {
+        return invalidStatus;
+    }
+
+    public void setInvalidStatus(Integer invalidStatus) {
+        this.invalidStatus = invalidStatus;
     }
 
     public Integer getPageNum() {

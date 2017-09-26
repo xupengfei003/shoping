@@ -381,36 +381,37 @@ public class CommodityServiceImpl implements CommodityService {
      */
     @Override
     public Result getCommodity(Long id) {
-        //根据商品的id查询出商品的状态
-        int status = supplierCommodityDao.findSupplierCommStatus(id);
+        //根据商品 id 判断该商品有没有审核记录
+        int auditReult = supplierCommodityAuditDao.countByScidAndAuditResult(id);
         //存放查询到的商品详细信息
         CommodityOutput commodityOutput = null;
-        //如果是商品的状态是否是 6 (编辑待审核),则根据供应商商品ID获取编辑后的商品信息
-        if (status > 0){
-            commodityOutput = supplierCommodityDao.findDetailTmp(id);
-            if (null != commodityOutput){
-                //根据供应商商品ID获取图片列表信息
-                List<CommImge> commImgeList = commImgeDao.findTmp(id);
-                List<CommImgeVo> commImgeVoList = new ArrayList<>();
-                commImgeList.forEach(commImge->{
-                    CommImgeVo commImgeVo = BeanMapper.map(commImge, CommImgeVo.class);
-                    commImgeVoList.add(commImgeVo);
-                });
-                commodityOutput.setImgeList(commImgeVoList);
+        List<CommImge> commImgeList;
+        if(auditReult > 0){ //商品有审核状态
+            //根据商品的id查询出商品的状态
+            int status = supplierCommodityDao.findSupplierCommStatus(id);
+            //如果是商品的状态是 6 (编辑待审核),则根据供应商商品ID获取编辑后的商品信息
+            if (status > 0) {
+                commodityOutput = supplierCommodityTmpDao.findDetailTmp(id);
+                if (null != commodityOutput) {
+                    //根据供应商商品ID获取图片列表信息
+                     commImgeList = commImgeTmpDao.findImgTmp(commodityOutput.getScaId());
+                    List<CommImgeVo> commImgeVoList = new ArrayList<>();
+                    commImgeList.forEach(commImge -> {
+                        CommImgeVo commImgeVo = BeanMapper.map(commImge, CommImgeVo.class);
+                        commImgeVoList.add(commImgeVo);
+                    });
+                    commodityOutput.setImgeList(commImgeVoList);
+                }
+            }else {
+                //商品没有审核记录,则根据供应商商品ID获取商品信息
+                commodityOutput = supplierCommodityDao.findDetail(id);
+                commodityOutput.setStatus(supplierCommodityDao.findAuditStatus(id));
+                readImgData(id,commodityOutput); //获取图片信息
             }
         } else {
-            //状态不是 6 (编辑待审核) 则根据供应商商品ID获取商品信息
+            //商品没有审核记录,则根据供应商商品ID获取商品信息
             commodityOutput = supplierCommodityDao.findDetail(id);
-            if(null != commodityOutput){
-                //根据供应商商品ID获取图片列表信息
-                List<CommImge> commImgeList = commImgeDao.find(id);
-                List<CommImgeVo> commImgeVoList = new ArrayList<>();
-                commImgeList.forEach(commImge->{
-                    CommImgeVo commImgeVo = BeanMapper.map(commImge, CommImgeVo.class);
-                    commImgeVoList.add(commImgeVo);
-                });
-                commodityOutput.setImgeList(commImgeVoList);
-            }
+            readImgData(id,commodityOutput); // 获取图片信息
         }
         return Result.success("查询成功", commodityOutput);
     }
@@ -419,7 +420,6 @@ public class CommodityServiceImpl implements CommodityService {
     public Account findAccountByUserId(Long userId){
         return accountDao.findByUserId(userId);
     }
-
     /**
      * 根据查询条件查询商品详情(简单条件查询)
      *
@@ -1487,4 +1487,24 @@ public class CommodityServiceImpl implements CommodityService {
         return Result.fail("当前审核记录为空");
     }
 
+    /**
+     * 根据 id 和入参对象 查询出商品的 图片信息
+     * @param id
+     * @param commodityOutput
+     * @return
+     */
+    public CommodityOutput readImgData(Long id, CommodityOutput commodityOutput) {
+        List<CommImge> commImgeList;
+        if (null != commodityOutput) {
+            //根据供应商商品ID获取图片列表信息
+            commImgeList = commImgeDao.find(id);
+            List<CommImgeVo> commImgeVoList = new ArrayList<>();
+            commImgeList.forEach(commImge -> {
+                CommImgeVo commImgeVo = BeanMapper.map(commImge, CommImgeVo.class);
+                commImgeVoList.add(commImgeVo);
+            });
+            commodityOutput.setImgeList(commImgeVoList);
+        }
+        return commodityOutput;
+    }
 }
