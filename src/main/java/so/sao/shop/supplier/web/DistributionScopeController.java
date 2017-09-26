@@ -91,8 +91,16 @@ public class DistributionScopeController {
      */
     @PostMapping("/update/{id}")
     @ApiOperation(value = "更新某条配送范围信息", notes = "更新某条配送范围信息")
-    public Result update(@PathVariable Integer id, @RequestBody @Valid DistributionScopeInput distributionScopeInput) throws Exception {
-        distributionScopeService.update(id,distributionScopeInput);
+    public Result update(HttpServletRequest request,@PathVariable Integer id, @RequestBody @Valid DistributionScopeInput distributionScopeInput) throws Exception {
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        //判断是否登陆
+        if (Ognl.isNull(user)) {
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
+        }
+        boolean isUpdate = distributionScopeService.update(user.getAccountId(),id,distributionScopeInput);
+        if (!isUpdate){
+            return Result.fail("该配送范围已存在或修改失败!");
+        }
         return Result.success(Constant.MessageConfig.MSG_SUCCESS);
     }
 
