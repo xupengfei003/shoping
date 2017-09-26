@@ -610,7 +610,7 @@ public class CommodityServiceImpl implements CommodityService {
         }
         //判断是否重复执行上架操作
         if(supplierCommodity.getStatus()==CommConstant.COMM_ST_ON_SHELVES){
-            return Result.success("商品上架操作成功！");
+            return Result.success("不能进行重复上架操作！");
         }
         //判断该商品是否处于审核中
         int num = supplierCommodityAuditDao.countByScidAndAuditResult(id);
@@ -625,6 +625,7 @@ public class CommodityServiceImpl implements CommodityService {
             supplierCommodity1.setUpdatedAt(new Date());
             //提交上架申请操作
             supplierCommodityDao.onOrOffShelves(supplierCommodity1);
+            supplierCommodityAuditDao.updateAuditFlagByScId(id, CommConstant.AUDIT_RECORD);
             return Result.success("商品上架操作成功！");
         }
         //插入审核记录前，将以前的审核记录flag变为0
@@ -663,11 +664,12 @@ public class CommodityServiceImpl implements CommodityService {
             supplierCommodity.setStatus(CommConstant.COMM_ST_OFF_SHELVES);
             supplierCommodity.setUpdatedAt(new Date());
             supplierCommodityDao.onOrOffShelves(supplierCommodity);
+            supplierCommodityAuditDao.updateAuditFlagByScId(id, CommConstant.AUDIT_RECORD);
             return Result.success("商品下架操作成功！");
         }
         //不能重复下架
         if (CommConstant.COMM_ST_OFF_SHELVES == one.getStatus()){
-             return Result.success("商品下架操作成功！");
+             return Result.success("不能进行重复下架操作！");
         }
         //更新scId对应的历史记录
         supplierCommodityAuditDao.updateAuditFlagByScId(id, CommConstant.AUDIT_RECORD);
@@ -700,11 +702,7 @@ public class CommodityServiceImpl implements CommodityService {
         if (num > 0) {
             return Result.fail("所选商品中包含待审核商品，请重新选择！");
         }
-        //管理员直接进行上架操作
-        if (isAdmin) {
-            return onOrOffShelvesBatchByAdmin(supplierCommodityList, CommConstant.COMM_ST_ON_SHELVES);
-        }
-        //批量添加供应商商品审核记录
+        //需要操作的供应商商品审核记录
         List<SupplierCommodityAudit> list = new ArrayList<>();
         for (SupplierCommodity supplierCommodity:supplierCommodityList) {
             //过滤重复上架
@@ -714,12 +712,19 @@ public class CommodityServiceImpl implements CommodityService {
             SupplierCommodityAudit supplierCommodityAudit = makeSupplierCommodityAudit(supplierCommodity, CommConstant.COMM_ST_ON_SHELVES_AUDIT);
             list.add(supplierCommodityAudit);
         }
-        if (list.size() > 0) {
-            //更新scId对应的历史记录
-            supplierCommodityAuditDao.updateAuditFlagByList(list, CommConstant.AUDIT_RECORD);
-            //添加新记录
-            supplierCommodityAuditDao.saveBatch(list);
+        if(list.size() <= 0){
+            return Result.fail("不能进行重复上架操作！");
         }
+        //管理员直接进行上架操作
+        if (isAdmin) {
+            //修改记录为历史记录
+            supplierCommodityAuditDao.updateAuditFlagByList(list, CommConstant.AUDIT_RECORD);
+            return onOrOffShelvesBatchByAdmin(supplierCommodityList, CommConstant.COMM_ST_ON_SHELVES);
+        }
+        //更新scId对应的历史记录
+        supplierCommodityAuditDao.updateAuditFlagByList(list, CommConstant.AUDIT_RECORD);
+        //添加新记录
+        supplierCommodityAuditDao.saveBatch(list);
         return Result.success("上架商品需要管理员审核，审核通过后会自动上架，稍后注意查询商品列表审核结果！");
     }
 
@@ -741,10 +746,6 @@ public class CommodityServiceImpl implements CommodityService {
         if (num > 0) {
             return Result.fail("所选商品中包含待审核商品，请重新选择！");
         }
-        //管理员操作直接下架
-        if (isAdmin){
-            return onOrOffShelvesBatchByAdmin(supplierCommodityList, CommConstant.COMM_ST_OFF_SHELVES);
-        }
         //存放状态需要转为待审核的商品
         List<SupplierCommodityAudit> auditList = new ArrayList<>();
         for (SupplierCommodity supplierCommodity:supplierCommodityList) {
@@ -760,12 +761,19 @@ public class CommodityServiceImpl implements CommodityService {
             SupplierCommodityAudit supplierCommodityAudit = makeSupplierCommodityAudit(supplierCommodity, CommConstant.COMM_ST_OFF_SHELVES_AUDIT);
             auditList.add(supplierCommodityAudit);
         }
-        if (auditList.size() > 0) {
-            //更新scId对应的历史记录
-            supplierCommodityAuditDao.updateAuditFlagByList(auditList, CommConstant.AUDIT_RECORD);
-            //添加新记录
-            supplierCommodityAuditDao.saveBatch(auditList);
+        if (auditList.size() <= 0){
+            return Result.fail("不能进行重复下架操作！");
         }
+        //管理员操作直接下架
+        if (isAdmin){
+            //修改记录为历史记录
+            supplierCommodityAuditDao.updateAuditFlagByList(auditList, CommConstant.AUDIT_RECORD);
+            return onOrOffShelvesBatchByAdmin(supplierCommodityList, CommConstant.COMM_ST_OFF_SHELVES);
+        }
+        //更新scId对应的历史记录
+        supplierCommodityAuditDao.updateAuditFlagByList(auditList, CommConstant.AUDIT_RECORD);
+        //添加新记录
+        supplierCommodityAuditDao.saveBatch(auditList);
         return Result.success("已上架商品下架提交时，需要管理员审核，审核通过后会自动下架，稍后注意查询商品列表审核结果！");
     }
 
