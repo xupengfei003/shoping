@@ -1026,11 +1026,23 @@ public class CommodityServiceImpl implements CommodityService {
             if(code69.matches(regexnum)){
                 //通过code69,supplierId,deleted=0判断商品是否存在
                 SupplierCommodity suppliercommodity = supplierCommodityDao.findSupplierCommodityInfo(code69, supplierId);
+                Commodity commodity = commodityDao.findCommInfoByCode69(code69);
                 if (null != suppliercommodity) {
                     errorRowList.add(rowNum);
                     continue;
-                }else {
-                    supplierCommodityVo.setCode69(code69);
+                }else  {
+
+                    if(null == commodity){
+                        if((!"".equals(originPlace))&&(!"".equals(companyName))&&(!"".equals(marketDate))){
+                            supplierCommodityVo.setCode69(code69);
+                        }else {
+                            errorRowList.add(rowNum);
+                            continue;
+                        }
+                    }else {
+                        supplierCommodityVo.setCode69(code69);
+                    }
+
                 }
             } else {
                 errorRowList.add(rowNum);
