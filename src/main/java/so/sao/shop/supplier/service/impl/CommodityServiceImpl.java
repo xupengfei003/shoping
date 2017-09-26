@@ -1111,7 +1111,12 @@ public class CommodityServiceImpl implements CommodityService {
             if (inventory.trim().length() > 9) {
                 supplierCommodityVo.setInventory(-1.0);
             } else {
-                supplierCommodityVo.setInventory(Double.valueOf(inventory));
+                if(inventory.trim().matches("^[0-9]*$")){
+                    supplierCommodityVo.setInventory(Double.valueOf(inventory));
+                }else {
+                    errorRowList.add(rowNum);
+                    continue;
+                }
             }
             if (supplierCommodityVo.getPrice().compareTo(BigDecimal.ZERO) == -1) {
                 errorRowList.add(rowNum);
@@ -1137,7 +1142,12 @@ public class CommodityServiceImpl implements CommodityService {
             if("".equals(minOrderQuantity)){
                 supplierCommodityVo.setMinOrderQuantity(1);
             }else {
-                supplierCommodityVo.setMinOrderQuantity(Integer.parseInt(minOrderQuantity));
+                if(Integer.parseInt(minOrderQuantity)<999){
+                    supplierCommodityVo.setMinOrderQuantity(Integer.parseInt(minOrderQuantity));
+                }else {
+                    errorRowList.add(rowNum);
+                    continue;
+                }
             }
 
             commodityList.add(supplierCommodityVo);
