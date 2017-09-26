@@ -100,7 +100,7 @@ public class AccountPurchaseItemVo {
     }
 
     public String getGoodsTatolPrice() {
-        return NumberUtil.number2Thousand(new BigDecimal(goodsUnitPrice));
+        return NumberUtil.number2Thousand(new BigDecimal(goodsTatolPrice));
     }
 
     public void setGoodsTatolPrice(String goodsTatolPrice) {
