@@ -277,37 +277,37 @@ public interface Constant {
         /**
          * 1
          */
-        public static final String PAYMENT_NOTIFI = "您好:您有一笔新的订单通知,订单编号:";
+        public static final String PAYMENT_NOTIFI = "您好:您有一笔待付款订单,订单编号:";
         /**
          * 2
          */
-        public static final String PENDING_SHIP_NOTIFI = "您好:您有一笔待发货的订单通知,订单编号:";
+        public static final String PENDING_SHIP_NOTIFI = "您好:您有一笔订单状态已变成<待发货>,订单编号:";
         /**
          * 3
          */
-        public static final String ISSUE_SHIP_NOTIFI = "您好:您有一笔确认发货的订单通知,订单编号:";
+        public static final String ISSUE_SHIP_NOTIFI = "您好:您有一笔订单状态已变成<已发货>,订单编号:";
         /**
          * 4
          */
-        public static final String RECEIVED_NOTIFI = "您好:您有一笔已完成的订单通知,订单编号:";
+        public static final String RECEIVED_NOTIFI = "您好:您有一笔订单状态已变成<已完成>,订单编号:";
         /**
          * 5
          */
-        public static final String REJECT_NOTIFI = "您好:您有一笔拒收的订单通知,订单编号:";
+        public static final String REJECT_NOTIFI = "您好:您有一笔订单状态已变成<已拒收退款审核>,订单编号:";
         /**
          * 6
          */
-        public static final String REFUNDED_NOTIFI = "您好:您有一笔已退款的订单通知,订单编号:";
+        public static final String REFUNDED_NOTIFI = "您好:您有一笔订单状态已变成<已退款>,订单编号:";
 
         /**
          * 7
          */
-        public static final String CANCEL_ORDER = "您好:您有一笔已付款已取消的订单通知,订单编号:";
+        public static final String CANCEL_ORDER = "您好:您有一笔订单状态已变成<已支付退款审核>,订单编号:";
 
         /**
          * 8
          */
-        public static final String PAYMENT_CANCEL_ORDER = "您好:您有一笔待付款已取消的订单通知,订单编号:";
+        public static final String PAYMENT_CANCEL_ORDER = "您好:您有一笔订单状态已变成<待付款已取消>,订单编号:";
     }
 
     interface AccountCodeConfig{
