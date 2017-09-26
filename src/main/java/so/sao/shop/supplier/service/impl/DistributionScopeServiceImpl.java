@@ -100,6 +100,8 @@ public class DistributionScopeServiceImpl implements DistributionScopeService {
 
     /**
      * 更新某条配送范围信息
+     *
+     * @param accountId
      * @param id 配送范围ID
      * @param distributionScopeInput 配送范围实体
      * @return Result
@@ -107,11 +109,16 @@ public class DistributionScopeServiceImpl implements DistributionScopeService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void update(Integer id,DistributionScopeInput distributionScopeInput) {
+    public boolean update(Long accountId, Integer id, DistributionScopeInput distributionScopeInput) {
         /**
          * 1.更改配送范围记录
          * 2.更改配送规则中相关记录信息
          */
+        //先根据区查询是否存在该区的配送范围，如果有添加失败，提示已添加
+        FreightRules freightRule = distributionScopeDao.selectFreightRulesByCode(accountId,distributionScopeInput.getAddressProvince(),distributionScopeInput.getAddressCity(),distributionScopeInput.getAddressDistrict());
+        if (null != freightRule){
+            return false;
+        }
         DistributionScope ds = distributionScopeDao.query(id);//根据配送范围ID查找相应记录
         if(Ognl.isNotNull(ds)){
             //更新配送范围
@@ -136,7 +143,9 @@ public class DistributionScopeServiceImpl implements DistributionScopeService {
 //            freightRules.setRemark(remart);//设置备注
             freightRules.setDistributionScopeId(ds.getId());//设置关联配送范围ID
             freightRulesDao.update(freightRules);//更改配送规则中相关记录信息
+            return true;
         }
+        return false;
     }
 
     /**
