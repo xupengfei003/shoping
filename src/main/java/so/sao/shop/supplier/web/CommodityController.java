@@ -30,7 +30,7 @@ public class CommodityController {
     private CommodityService commodityService;
     
     @ApiOperation(value="查询供应商商品信息集合（高级搜索）", notes="根据参数返回符合条件的商品信息集合（高级搜索）【责任人：唐文斌】")
-    @PostMapping(value="/search")
+    @GetMapping(value="/search")
     public Result search(HttpServletRequest request, CommSearchInput commSearchInput) throws Exception {
 
         //供应商ID校验
