@@ -19,6 +19,8 @@ ALTER TABLE `ty_supplier`.`account`
 /* 运费规则(0:通用规则 1:配送规则) */;
 ALTER TABLE `ty_supplier`.`account`
   ADD COLUMN `freight_rules` INT(1) DEFAULT NULL COMMENT '运费规则(0:通用规则 1:配送规则)' AFTER `sms_monthago_type`		/* 运费规则(0:通用规则 1:配送规则) */;
+/*修改包邮字段注释*/
+ALTER TABLE `freight_rules`  MODIFY COLUMN whether_shipping int(2) COMMENT '0.包邮 1.不包邮';
 /*重建购物车表*/
 DROP TABLE IF EXISTS cart_item;
 CREATE TABLE `cart_item` (
@@ -175,7 +177,7 @@ CREATE TABLE `freight_rules` (
   `address_province` varchar(100) COLLATE utf8_bin DEFAULT NULL COMMENT '省',
   `address_city` varchar(100) COLLATE utf8_bin DEFAULT NULL COMMENT '市',
   `address_district` varchar(100) COLLATE utf8_bin DEFAULT NULL COMMENT '区',
-  `whether_shipping` int(2) DEFAULT NULL COMMENT '是否包邮:0-不包,1-包邮',
+  `whether_shipping` int(2) DEFAULT NULL COMMENT '是否包邮:0-包邮,1-不包邮',
   `send_amount` decimal(10,2) DEFAULT NULL COMMENT '起送金额',
   `default_piece` int(11) DEFAULT NULL COMMENT '默认计件',
   `excess_piece` int(11) DEFAULT NULL COMMENT '超量计件',
@@ -266,4 +268,5 @@ CREATE TABLE `comm_imge_tmp` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 COMMENT='商品图片表';
 
-
+/*订单表增加拒收类型*/
+ALTER TABLE purchase_item ADD pay_id VARCHAR(32) COMMENT '合并支付ID' AFTER brand_name;

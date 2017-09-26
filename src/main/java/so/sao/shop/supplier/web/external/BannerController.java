@@ -61,7 +61,7 @@ public class BannerController {
 	 */
 	@ApiOperation(value = "添加轮播图",notes = "添加轮播图【负责人：张腾飞】")
 	@PostMapping("/create")
-	public Result createBanner(HttpServletRequest request, @Valid @RequestBody Banner banner) {
+	public Result createBanner(HttpServletRequest request, @Valid @RequestBody Banner banner) throws Exception {
 		return bannerService.saveBanner(banner);
 	}
 	
@@ -85,7 +85,7 @@ public class BannerController {
 	 */
 	@ApiOperation(value = "根据id更新轮播图信息",notes = "根据id更新轮播图信息【负责人：张腾飞】")
 	@PutMapping("/update")
-	public Result update(HttpServletRequest request,@Valid @RequestBody Banner banner) {
+	public Result update(HttpServletRequest request,@Valid @RequestBody Banner banner) throws Exception{
 		return bannerService.updateBanner(banner);
 	}
 	

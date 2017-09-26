@@ -12,16 +12,13 @@ public interface HotCommoditiesDao {
 
     /**
      *查询所有热门商品列表
-     * @param isSalesVolume 按照销量排序（自动）
-     * @param isSort    按照sort排序（手动）
      * @param inputvalue 商品编号和商品名称模糊查询
      * @param categoryOneId 商品一级科属
      * @param categoryTwoId 商品二级科属
      * @param categoryThreeId  商品三级科属
      * @return
      */
-    List<HotCommodities> findAll(@Param("isSalesVolume")String isSalesVolume, @Param("isSort")String isSort,
-                                 @Param("inputvalue")String inputvalue, @Param("categoryOneId")Long categoryOneId,
+    List<HotCommodities> findAll(@Param("inputvalue")String inputvalue, @Param("categoryOneId")Long categoryOneId,
                                  @Param("categoryTwoId")Long categoryTwoId, @Param("categoryThreeId")Long categoryThreeId);
 
     /**

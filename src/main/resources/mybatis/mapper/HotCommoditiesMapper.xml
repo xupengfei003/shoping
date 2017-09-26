@@ -2,52 +2,27 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="so.sao.shop.supplier.dao.external.HotCommoditiesDao" >
 
-    <resultMap id="BaseResultMap" type="so.sao.shop.supplier.domain.external.HotCommodities">
-        <id column="ID" property="id"/>
-        <result column="SC_ID" property="scId"/>
-        <result column="SUPPLIER_ID" property="supplierId"/>
-        <result column="PROVIDER_NAME" property="providerName"/>
-        <result column="CITY_NAME" property="cityName"/>
-        <result column="COMM_BRAND_NAME" property="commBrandName"/>
-        <result column="COMM_NAME" property="commName"/>
-        <result column="COMM_UNIT_NAME" property="commUnitName"/>
-        <result column="COMM_MEASURE_NAME" property="commMeasureName"/>
-        <result column="CODE" property="code"/>
-        <result column="CODE69" property="code69"/>
-        <result column="RULE_VAL" property="ruleVal"/>
-        <result column="INVENTORY" property="inventory"/>
-        <result column="SALES_VOLUME" property="salesVolume"/>
-        <result column="MIN_IMG" property="minImg"/>
-        <result column="PRICE" property="price"/>
-        <result column="STATUS" property="status"/>
-        <result column="SORT" property="sort"/>
-        <result column="OPERATOR" property="operator"/>
-        <result column="CREATE_AT" property="createdAt"/>
-        <result column="UPDATE_AT" property="updatedAt"/>
-    </resultMap>
-
     <sql id="searchColumns">
-        hc.ID ,
-        hc.sc_id ,
-        hc.SUPPLIER_ID ,
-        hc.PROVIDER_NAME ,
-        hc.CITY_NAME ,
-        hc.COMM_BRAND_NAME ,
-        hc.COMM_NAME ,
-        hc.COMM_UNIT_NAME ,
-        hc.COMM_MEASURE_NAME ,
-        hc.CODE ,
-        hc.CODE69 ,
-        hc.RULE_VAL ,
-        hc.INVENTORY ,
-        hc.SALES_VOLUME ,
-        hc.MIN_IMG ,
-        hc.PRICE ,
-        hc.STATUS ,
-        hc.SORT ,
-        hc.OPERATOR ,
-        hc.CREATE_AT ,
-        hc.UPDATE_AT
+        hc.id AS id,
+		sc.id AS scId,
+		sc.supplier_id AS supplierId,
+		a.provider_name AS providerName,
+		r.name AS cityName,
+		cb.name AS commBrandName,
+		c.name AS commName,
+		cu.name AS commUnitName,
+        cms.name AS commMeasureName,
+		sc.code AS code,
+        c.code69 AS code69,
+		sc.rule_val AS ruleVal,
+        sc.inventory AS inventory,
+        sc.min_img AS minImg,
+        sc.price AS price,
+        sc.status AS status,
+		hc.SORT AS sort,
+        hc.OPERATOR AS operator,
+        hc.CREATE_AT AS createdAt,
+        hc.UPDATE_AT AS updatedAt
     </sql>
 
     <sql id="searchCommColumns">
@@ -72,16 +47,22 @@
     </sql>
 
     <!--查询所有热门商品列表-->
-    <select id="findAll" resultMap="BaseResultMap">
+    <select id="findAll" resultType="so.sao.shop.supplier.domain.external.HotCommodities">
         SELECT
               <include refid="searchColumns"/>
         FROM  hot_commodity hc
-        LEFT JOIN (supplier_commodity sc LEFT JOIN  commodity c ON sc.code69 = c.code69) ON hc.sc_id = sc.id
+        LEFT JOIN supplier_commodity sc  ON hc.sc_id = sc.id
+        LEFT JOIN commodity c ON sc.code69 = c.code69
+        LEFT JOIN comm_brand cb on c.brand_id = cb.id
+        LEFT JOIN comm_measure_spec cms on sc.measure_spec_id = cms.id
+        LEFT JOIN comm_unit cu on sc.unit_id = cu.id
+        LEFT JOIN account a ON sc.supplier_id = a.account_id
+        LEFT JOIN sys_region r ON a.contract_register_address_city = r.sr_id
         <where>
-            hc.STATUS = 2
+            sc.STATUS = 2
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(inputvalue)">
-                AND (hc.code69 = #{inputvalue}
-                OR hc.comm_name LIKE "%${inputvalue}%")
+                AND (sc.code69 = #{inputvalue}
+                OR c.name LIKE "%${inputvalue}%")
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(categoryOneId)">
                 AND c.category_one_id = #{categoryOneId}
@@ -93,12 +74,7 @@
                 AND c.category_three_id = #{categoryThreeId}
             </if>
         </where>
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(isSalesVolume)">
-            ORDER BY hc.SALES_VOLUME DESC
-        </if>
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(isSort)">
-            ORDER BY hc.sort
-        </if>
+        ORDER BY hc.sort
     </select>
     <!-- 查询商品列表-->
     <select id="find" resultType="so.sao.shop.supplier.pojo.output.AddHotCommOutput">
@@ -140,21 +116,6 @@
     <insert id="saveAll" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
         insert hot_commodity (
             SC_ID ,
-            SUPPLIER_ID ,
-            PROVIDER_NAME ,
-            CITY_NAME ,
-            COMM_BRAND_NAME ,
-            COMM_NAME ,
-            COMM_UNIT_NAME ,
-            COMM_MEASURE_NAME ,
-            CODE ,
-            CODE69 ,
-            RULE_VAL ,
-            INVENTORY ,
-            SALES_VOLUME ,
-            MIN_IMG ,
-            PRICE ,
-            STATUS ,
             SORT ,
             OPERATOR ,
             CREATE_AT ,
@@ -163,21 +124,6 @@
         <foreach collection ="list" item="data" index= "index" separator =",">
             (
             #{data.scId},
-            #{data.supplierId},
-            #{data.providerName},
-            #{data.cityName},
-            #{data.commBrandName},
-            #{data.commName},
-            #{data.commUnitName},
-            #{data.commMeasureName},
-            #{data.code},
-            #{data.code69},
-            #{data.ruleVal},
-            #{data.inventory},
-            #{data.salesVolume},
-            #{data.minImg},
-            #{data.price},
-            #{data.status},
             #{data.sort},
             #{data.operator},
             #{data.createdAt},

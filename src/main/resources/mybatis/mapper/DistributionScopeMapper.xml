@@ -62,10 +62,9 @@
         FROM distribution_scope
         WHERE
         address_province = #{addressProvince,jdbcType=VARCHAR}
-        AND
-        address_city = #{addressCity,jdbcType=VARCHAR}
-        AND
-        address_district = #{addressDistrict,jdbcType=VARCHAR}
+        AND address_city = #{addressCity,jdbcType=VARCHAR}
+        AND address_district = #{addressDistrict,jdbcType=VARCHAR}
+        AND supplier_id = #{accountId,jdbcType=VARCHAR}
     </select>
     <!-- 删除一条信息 -->
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">

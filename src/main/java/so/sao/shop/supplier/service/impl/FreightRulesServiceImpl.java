@@ -111,7 +111,7 @@ public class FreightRulesServiceImpl implements FreightRulesService {
         }
         if (freightRulesInput.getRulesType() == freightRules.getRulesType()){//入参中的配送规则类型和查出来的配送规则类型是否匹配
             freightRules = BeanMapper.map(freightRulesInput,freightRules.getClass());
-            freightRules.setId(freightRules.getId());
+            freightRules.setId(id);
             freightRules.setUpdateAt(new Date());
             freightRulesDao.update(freightRules);
             this.updateAccountRulesType(accountId);

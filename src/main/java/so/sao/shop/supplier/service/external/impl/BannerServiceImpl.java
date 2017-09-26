@@ -1,5 +1,6 @@
 package so.sao.shop.supplier.service.external.impl;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -34,6 +35,8 @@ import so.sao.shop.supplier.util.PageTool;
  */
 @Service
 public class BannerServiceImpl implements BannerService {
+
+	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 	
 	@Autowired
 	private BannerDao bannerDao;
@@ -52,11 +55,9 @@ public class BannerServiceImpl implements BannerService {
 	 * @param banner 轮播图对象
 	 */
 	@Override
-	public Result saveBanner(Banner banner) {
-		//判断上下架时间是否间隔一天
-		if((banner.getOffShelfTime().getTime() - banner.getOnShelvesTime().getTime())/(1000*3600*24)<1) {
-			return Result.fail("上下架时间必须间隔至少一天");
-		}
+	public Result saveBanner(Banner banner) throws Exception {
+        Result x = thinkTime(banner);
+        if (x != null) return x;
 		//根据轮播位置和上架时间确定是否有轮播图存在
 		List<BannerOut> banners = bannerDao.findBanners(banner.getLocation(), banner.getOnShelvesTime());
 		if(banners != null && !banners.isEmpty()) {
@@ -121,17 +122,15 @@ public class BannerServiceImpl implements BannerService {
 	 * @return 返回更新结果
 	 */
 	@Override
-	public Result updateBanner(Banner banner) {
+	public Result updateBanner(Banner banner) throws Exception {
+        Result x = thinkTime(banner);
+        if (x != null) return x;
 		//判断供应商状态
 		if("2".equals(banner.getUrlType())) {
 			Account account = accountDao.selectByPrimaryKey(Long.parseLong(banner.getUrlValue()));
 			if(account.getAccountStatus() != 1) {
 				return Result.fail("此供应商已经停用或删除，请更换供应商或更改跳转方式");
 			}
-		}
-		//判断上下架时间间隔
-		if((banner.getOffShelfTime().getTime() - banner.getOnShelvesTime().getTime())/(1000*3600*24)<1) {
-			return Result.fail("上下架时间必须间隔至少一天");
 		}
 		//根据轮播位置和上架时间确定是否有轮播图存在
 		List<BannerOut> banners = bannerDao.findBanners(banner.getLocation(),banner.getOnShelvesTime());
@@ -154,8 +153,31 @@ public class BannerServiceImpl implements BannerService {
 		bannerDao.update(banner);
 		return Result.success("更新轮播图成功");
 	}
-	
-	/**
+
+    private Result thinkTime(Banner banner) throws ParseException {
+        if (!"2".equals(banner.getStatus())) {
+            //判断上架时间必须大于系统时间
+            if(sdf.parse(sdf.format(banner.getOnShelvesTime())).getTime() <= sdf.parse(sdf.format(new Date())).getTime()) {
+                return Result.fail("上架时间必须大于当前系统时间");
+            }
+        }else {
+            //判断上架时间必须大于系统时间
+            if(sdf.parse(sdf.format(banner.getOnShelvesTime())).getTime() != sdf.parse(sdf.format(new Date())).getTime()) {
+                return Result.fail("立即上架，上架时间必须等于当前系统时间");
+                }
+            }
+        //判断下架时间必须大于上架时间
+        if(banner.getOffShelfTime().getTime() - banner.getOnShelvesTime().getTime() < 0) {
+            return Result.fail("下架时间必须大于上架时间");
+        }
+        //判断上下架时间间隔
+        if((banner.getOffShelfTime().getTime() - banner.getOnShelvesTime().getTime())/(1000*3600*24)<1) {
+            return Result.fail("上下架时间必须间隔至少一天");
+        }
+        return null;
+    }
+
+    /**
      * 根据商品名称商品类型查询商品信息
      * @param commAccountBanInput 查询参数
      * @return 查询结果
@@ -252,7 +274,6 @@ public class BannerServiceImpl implements BannerService {
 	 */
 	@Override
 	public Result updateBanners(Date onTime, String status) throws Exception {
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		//根据上下架时间和轮播图状态查询轮播图
 		List<BannerOut> BannerOut = bannerDao.findByUpAndDownTime(sdf.parse(sdf.format(onTime)), status);
 		if(BannerOut != null && !BannerOut.isEmpty()) {

@@ -22,7 +22,7 @@ public class FreightRulesInput {
     private Integer rulesType;
 
     /**
-     * 是否包邮:0-不包,1-包邮
+     * 是否包邮:0-包邮,1-不包邮
      */
     @Min(value = 0,message = "包邮类型错误")
     @Max(value = 1,message = "包邮类型错误")

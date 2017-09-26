@@ -491,9 +491,11 @@ public class CommodityServiceImpl implements CommodityService {
         Map<String,Long> map = new HashMap<>();
         if(null != supplierCommodity){
             map.put("supplierId", supplierCommodity.getSupplierId());
+            //验证商品是否在审核状态
+            int pendingNum = supplierCommodityAuditDao.countByScidAndAuditResult(id);
             //商品需下架才可删除
-            if(supplierCommodity.getStatus() != CommConstant.COMM_ST_OFF_SHELVES){
-                return Result.fail("商品需下架才可删除", map);
+            if(supplierCommodity.getStatus() != CommConstant.COMM_ST_OFF_SHELVES || pendingNum > 0){
+                return Result.fail("商品需下架才可删除！", map);
             }
             //删除商品,deleted更新为1
             supplierCommodityDao.deleteById(id, true, new Date());
@@ -518,9 +520,11 @@ public class CommodityServiceImpl implements CommodityService {
             SupplierCommodity supplierCommodity = supplierCommodityDao.findOne(id);
             if(null != supplierCommodity){
                 map.put("supplierId", supplierCommodity.getSupplierId());
+                //验证商品是否在审核状态
+                int pendingNum = supplierCommodityAuditDao.countByScidAndAuditResult(id);
                 //商品需下架才可删除
-                if(supplierCommodity.getStatus() != CommConstant.COMM_ST_OFF_SHELVES){
-                    return Result.fail("存在已上架或待上架商品，请重新选择！");
+                if(supplierCommodity.getStatus() != CommConstant.COMM_ST_OFF_SHELVES || pendingNum > 0){
+                    return Result.fail("存在已上架或待上架或审核中的商品，请重新选择！");
                 }else{
                     idList.add(id);
                 }
@@ -604,7 +608,7 @@ public class CommodityServiceImpl implements CommodityService {
             supplierCommodity1.setId(id);
             supplierCommodity1.setStatus(CommConstant.COMM_ST_ON_SHELVES);
             supplierCommodity1.setUpdatedAt(new Date());
-            //下架操作
+            //提交上架申请操作
             supplierCommodityDao.onOrOffShelves(supplierCommodity1);
             return Result.success("商品上架操作成功！");
         }
@@ -633,8 +637,12 @@ public class CommodityServiceImpl implements CommodityService {
         if (num > 0) {
             return Result.fail("该商品已提交管理员审核，暂不能进行任何操作！");
         }
-        //待上架商品直接进行下架操作
-        if (CommConstant.COMM_ST_NEW == one.getStatus() || isAdmin){
+        //待上架商品下架操作校验
+        if (CommConstant.COMM_ST_NEW == one.getStatus() ){
+            return Result.fail("存在待上架商品，请重新选择！");
+        }
+        //管理员直接进行下架操作
+        if (isAdmin){
             SupplierCommodity supplierCommodity = new SupplierCommodity();
             supplierCommodity.setId(id);
             supplierCommodity.setStatus(CommConstant.COMM_ST_OFF_SHELVES);
@@ -724,8 +732,6 @@ public class CommodityServiceImpl implements CommodityService {
         }
         //存放状态需要转为待审核的商品
         List<SupplierCommodityAudit> auditList = new ArrayList<>();
-        //存放直接下架的商品
-        List<SupplierCommodity> list = new ArrayList<>();
         for (SupplierCommodity supplierCommodity:supplierCommodityList) {
             //过滤重复上架
             if (CommConstant.COMM_ST_OFF_SHELVES == supplierCommodity.getStatus()) {
@@ -733,18 +739,11 @@ public class CommodityServiceImpl implements CommodityService {
             }
             //需要直接下架的商品存入list中
             if(supplierCommodity.getStatus() == CommConstant.COMM_ST_NEW){
-                supplierCommodity.setStatus(CommConstant.COMM_ST_OFF_SHELVES);
-                supplierCommodity.setUpdatedAt(new Date());
-                list.add(supplierCommodity);
-                continue;
+                return Result.fail("存在待上架商品，请重新选择！");
             }
             //需要下架审核的商品存入auditList中
             SupplierCommodityAudit supplierCommodityAudit = makeSupplierCommodityAudit(supplierCommodity, CommConstant.COMM_ST_OFF_SHELVES_AUDIT);
             auditList.add(supplierCommodityAudit);
-        }
-        //批量直接下架
-        if (list.size() > 0) {
-            supplierCommodityDao.onOrOffShelvesBatch(list);
         }
         if (auditList.size() > 0) {
             //更新scId对应的历史记录
@@ -1396,11 +1395,11 @@ public class CommodityServiceImpl implements CommodityService {
                     status=supplierCommodity.getStatus();
                 }else   if(CommConstant.AUDIT_PASS == auditResult){
                     //审核通过 Tmp表覆盖 supplierCommodity 表  覆盖图片表
-                    supplierCommodityDao.updateSupplierCommodityStatusById(scId,CommConstant.COMM_ST_ON_SHELVES,new Date());
                     SupplierCommodityTmp supplierCommodityTmp =supplierCommodityTmpDao.findSupplierCommodityTmpByScaId(id);
 
                     if(null != supplierCommodity) {
                         supplierCommodity = BeanMapper.map(supplierCommodityTmp, SupplierCommodity.class);
+                        supplierCommodity.setId(scId);
                         supplierCommodityDao.update(supplierCommodity);
                     }
                     List <Long> scids= new ArrayList<Long>();

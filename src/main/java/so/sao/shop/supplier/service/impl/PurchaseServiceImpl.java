@@ -268,7 +268,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             if(purchase.getOrderPostage().compareTo(new BigDecimal(0)) == 0){
                 purchaseInfoVo.setOrderPostage("包邮");
             } else {
-                purchaseInfoVo.setOrderPostage(NumberUtil.number2Thousand(purchase.getOrderPostage()));
+                purchaseInfoVo.setOrderPostage("￥"+NumberUtil.number2Thousand(purchase.getOrderPostage()));
             }
             purchaseInfoVo.setOrderId(purchase.getOrderId());
             purchaseInfoVo.setOrderReceiverName(purchase.getOrderReceiverName());
@@ -318,7 +318,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             if(StringUtils.isEmpty(purchasesVo.getOrderPostage()) || "0.00".equals(purchasesVo.getOrderPostage())){
                 purchasesVo.setOrderPostage("包邮");
             } else {
-                purchasesVo.setOrderPostage(NumberUtil.number2Thousand(new BigDecimal(purchasesVo.getOrderPostage())));
+                purchasesVo.setOrderPostage("￥"+NumberUtil.number2Thousand(new BigDecimal(purchasesVo.getOrderPostage())));
             }
             purchasesVo.setOrderPrice(NumberUtil.number2Thousand(new BigDecimal(purchasesVo.getOrderPrice())));
         }
@@ -1200,9 +1200,14 @@ public class PurchaseServiceImpl implements PurchaseService {
         } else if (orderStatus == Constant.OrderStatusConfig.CANCEL_ORDER){ //已取消 订单金额+运费
             amount = purchase.getOrderPrice().add(purchase.getOrderPostage());
         }
+        //添加退款原因
+        String cancelReason = purchase.getOrderRefuseReason(); //买家拒绝理由
+        if (Ognl.isEmpty(cancelReason)) {
+            cancelReason = purchase.getOrderCancelReason(); //订单取消原因
+        }
         // 2.调用支付宝退款接口实现真正的退款
         // TODO: 2017/8/31 调用退款接口实现真正的退款,退款失败返回失败信息
-        String refundMsg = AlipayRefundUtil.alipayRefundRequest(purchase.getOrderId(), purchase.getPayId(), purchase.getOrderPaymentNum(), amount);
+        String refundMsg = AlipayRefundUtil.alipayRefundRequest(purchase.getOrderId(), purchase.getPayId(), purchase.getOrderPaymentNum(), amount, cancelReason);
         if("SUCCESS".equals(refundMsg)){
             // 3.修改订单状态为退款，修改退款时间为当前时间
             Map params = new HashMap();

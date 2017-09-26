@@ -41,10 +41,12 @@ public interface DistributionScopeDao {
     void deleteByPrimaryKey(Integer id);
     /**
      * 根据省市区code码获取对应记录
+     *
+     * @param accountId
      * @param addressProvince
      * @param addressCity
      * @param addressDistrict
      * @return
      */
-    FreightRules selectFreightRulesByCode(@Param("addressProvince") String addressProvince,@Param("addressCity") String addressCity,@Param("addressDistrict") String addressDistrict);
+    FreightRules selectFreightRulesByCode(@Param("accountId")Long accountId, @Param("addressProvince") String addressProvince, @Param("addressCity") String addressCity, @Param("addressDistrict") String addressDistrict);
 }
