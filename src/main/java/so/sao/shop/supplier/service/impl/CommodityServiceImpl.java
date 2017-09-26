@@ -633,8 +633,12 @@ public class CommodityServiceImpl implements CommodityService {
         if (num > 0) {
             return Result.fail("该商品已提交管理员审核，暂不能进行任何操作！");
         }
-        //待上架商品直接进行下架操作
-        if (CommConstant.COMM_ST_NEW == one.getStatus() || isAdmin){
+        //待上架商品下架操作校验
+        if (CommConstant.COMM_ST_NEW == one.getStatus() ){
+            return Result.fail("存在待上架商品，请重新选择！");
+        }
+        //管理员直接进行下架操作
+        if (isAdmin){
             SupplierCommodity supplierCommodity = new SupplierCommodity();
             supplierCommodity.setId(id);
             supplierCommodity.setStatus(CommConstant.COMM_ST_OFF_SHELVES);
@@ -724,8 +728,6 @@ public class CommodityServiceImpl implements CommodityService {
         }
         //存放状态需要转为待审核的商品
         List<SupplierCommodityAudit> auditList = new ArrayList<>();
-        //存放直接下架的商品
-        List<SupplierCommodity> list = new ArrayList<>();
         for (SupplierCommodity supplierCommodity:supplierCommodityList) {
             //过滤重复上架
             if (CommConstant.COMM_ST_OFF_SHELVES == supplierCommodity.getStatus()) {
@@ -733,18 +735,11 @@ public class CommodityServiceImpl implements CommodityService {
             }
             //需要直接下架的商品存入list中
             if(supplierCommodity.getStatus() == CommConstant.COMM_ST_NEW){
-                supplierCommodity.setStatus(CommConstant.COMM_ST_OFF_SHELVES);
-                supplierCommodity.setUpdatedAt(new Date());
-                list.add(supplierCommodity);
-                continue;
+                return Result.fail("存在待上架商品，请重新选择！");
             }
             //需要下架审核的商品存入auditList中
             SupplierCommodityAudit supplierCommodityAudit = makeSupplierCommodityAudit(supplierCommodity, CommConstant.COMM_ST_OFF_SHELVES_AUDIT);
             auditList.add(supplierCommodityAudit);
-        }
-        //批量直接下架
-        if (list.size() > 0) {
-            supplierCommodityDao.onOrOffShelvesBatch(list);
         }
         if (auditList.size() > 0) {
             //更新scId对应的历史记录
