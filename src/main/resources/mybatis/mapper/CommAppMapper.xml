@@ -245,11 +245,10 @@
 
     <!-- findCommoditiesByConditionOrder 根据动态条件(供应商ID 分类 品牌ids 排序条件)查询商品 -->
     <select id="findCommoditiesByConditionOrder"  resultType="so.sao.shop.supplier.pojo.output.CommAppOutput">
-        SELECT DISTINCT
+        SELECT
         sc.id AS id,
         sc.supplier_id AS supplierId,
         sc.min_img AS minImg,
-        sc.sku AS sku,
         sc.code69 AS code69,
         sc.code AS CODE,
         comm.origin_place AS originPlace,
@@ -270,16 +269,23 @@
         sc.invalid_status AS invalidStatus
         FROM
         supplier_commodity sc
-        LEFT JOIN comm_measure_spec cms ON sc.measure_spec_id = cms.id
-        LEFT JOIN comm_unit cu ON sc.unit_id = cu.id
         LEFT JOIN comm_tag tag ON sc.tag_id = tag.id
-        LEFT JOIN commodity comm ON comm.code69 = sc.code69
-        LEFT JOIN comm_brand cb ON comm.brand_id = cb.id
-        LEFT JOIN comm_category cc2 ON comm.category_two_id = cc2.id
-        LEFT JOIN comm_category cc3 ON comm.category_three_id = cc3.id
-        LEFT JOIN account acc ON acc.account_id = sc.supplier_id
+        , comm_measure_spec cms
+        , comm_unit cu
+        , commodity comm
+        , comm_brand cb
+        , comm_category cc2
+        , comm_category cc3
+        , account acc
         WHERE sc.invalid_status = 1
         AND sc.status = 2
+        AND sc.measure_spec_id = cms.id
+        AND sc.unit_id = cu.id
+        AND comm.code69 = sc.code69
+        AND comm.brand_id = cb.id
+        AND  comm.category_two_id = cc2.id
+        AND comm.category_three_id = cc3.id
+        AND acc.account_id = sc.supplier_id
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierId)">
             AND sc.supplier_id = #{supplierId}
         </if>
@@ -295,7 +301,6 @@
                 #{id}
             </foreach>
         </if>
-
         <if test="@so.sao.shop.supplier.util.Ognl@isDESC(orderPriceOrSalesNum )">
             ORDER BY sc.price DESC
         </if>
