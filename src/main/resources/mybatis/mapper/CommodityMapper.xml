@@ -96,6 +96,18 @@
           updated_at = #{updatedAt}
         WHERE id = #{id}
     </update>
+
+    <update id="updateComm">
+        UPDATE commodity SET
+        origin_place = #{originPlace},
+        company_name = #{companyName},
+        market_time = #{marketTime},
+        brand_id = #{brandId},
+        updated_by = #{updatedBy},
+        updated_at = #{updatedAt}
+        WHERE id = #{id}
+    </update>
+
     <select id="findByIds" resultType="so.sao.shop.supplier.pojo.output.CommodityExportOutput">
         SELECT
             id AS id,
