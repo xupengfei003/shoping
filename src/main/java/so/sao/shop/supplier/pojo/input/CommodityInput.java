@@ -80,18 +80,21 @@ public class CommodityInput {
     /**
      * 企业名称
      */
+    @NotBlank(message = "企业名称不能为空")
     @Length(max = 256,message = "企业名称长度不能大于256")
     private String companyName;
 
     /**
      * 上市时间
      */
+    @NotNull(message = "上市时间不能为空")
     @JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
     private Date marketTime;
 
     /**
      * 商品产地
      */
+    @NotBlank(message = "商品产地不能为空")
     @Length(max = 256,message = "商品产地长度不能大于256")
     private String originPlace;
 

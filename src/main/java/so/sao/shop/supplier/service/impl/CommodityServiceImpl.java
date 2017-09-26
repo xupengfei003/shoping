@@ -109,13 +109,18 @@ public class CommodityServiceImpl implements CommodityService {
         //验证品牌是否存在，不存在则新增
         CommBrand brand = commBrandDao.findById(commodityInput.getBrandId());
         if (null == brand){
-            brand = new CommBrand();
-            brand.setCreatedAt(new Date());
-            brand.setCreatedBy(supplierId);
-            brand.setUpdatedAt(new Date());
-            brand.setUpdatedBy(supplierId);
-            brand.setName(commodityInput.getBrandName());
-            commBrandDao.save(brand);
+            List<CommBrand> commBrands = commBrandDao.searchByName(commodityInput.getBrandName());
+            if(commBrands.size() > 0){
+                brand = commBrands.get(0);
+            }else{
+                brand = new CommBrand();
+                brand.setCreatedAt(new Date());
+                brand.setCreatedBy(supplierId);
+                brand.setUpdatedAt(new Date());
+                brand.setUpdatedBy(supplierId);
+                brand.setName(commodityInput.getBrandName());
+                commBrandDao.save(brand);
+            }
         }
         for (SupplierCommodityVo commodityVo : commodityInput.getCommodityList()) {
             //验证计量单位是否存在
@@ -154,6 +159,16 @@ public class CommodityServiceImpl implements CommodityService {
                     tyCommImges.add(tyCommImge);
                 });
                 tyCommImagDao.batchSave(tyCommImges);
+            }else{
+                if(null == commodity.getMarketTime() || null == commodity.getBrandId() || StringUtil.isNull(commodity.getCompanyName()) || StringUtil.isNull(commodity.getOriginPlace())){
+                    commodity.setBrandId(brand.getId());
+                    commodity.setOriginPlace(commodityInput.getOriginPlace());
+                    commodity.setMarketTime(commodityInput.getMarketTime());
+                    commodity.setCompanyName(commodityInput.getCompanyName());
+                    commodity.setUpdatedAt(new Date());
+                    commodity.setUpdatedBy(supplierId);
+                    commodityDao.updateComm(commodity);
+                }
             }
             //校验商品条码是否重复
             int scNum = supplierCommodityDao.countByCode69(code69,supplierId);

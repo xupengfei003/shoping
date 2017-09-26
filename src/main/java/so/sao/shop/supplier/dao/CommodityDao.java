@@ -33,6 +33,12 @@ public interface CommodityDao {
      */
     boolean update(Commodity commodity);
     /**
+     * 修改商品
+     * @param commodity 商品信息对象
+     * @return 修改结果
+     */
+    boolean updateComm(Commodity commodity);
+    /**
      * 查询商品
      * @param id 商品ID
      * @return  商品信息对象
