@@ -270,3 +270,21 @@ CREATE TABLE `comm_imge_tmp` (
 
 /*订单表增加拒收类型*/
 ALTER TABLE purchase_item ADD pay_id VARCHAR(32) COMMENT '合并支付ID' AFTER brand_name;
+
+/*热门商品表多余字段删除*/
+ALTER TABLE hot_commodity
+  DROP COLUMN min_img,
+  DROP COLUMN code69,
+  DROP COLUMN supplier_id,
+  DROP COLUMN code,
+  DROP COLUMN provider_name,
+  DROP COLUMN city_name,
+  DROP COLUMN comm_brand_name,
+  DROP COLUMN comm_name,
+  DROP COLUMN comm_unit_name,
+  DROP COLUMN comm_measure_name,
+  DROP COLUMN price,
+  DROP COLUMN rule_val,
+  DROP COLUMN inventory,
+  DROP COLUMN sales_volume,
+  DROP COLUMN status
