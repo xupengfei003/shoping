@@ -18,6 +18,7 @@ import so.sao.shop.supplier.util.Ognl;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,18 +51,18 @@ public class AppPurchaseController {
 
     /**
      * 分页获取供应商运费规则列表
-     * @param userId userId
+     * @param accountId accountId
 
      * @return Result
      * @throws Exception Exception
      */
     @GetMapping("/freightQueryAll")
     @ApiOperation(value = "分页获取供应商运费规则列表", notes = "分页获取供应商运费规则列表 【负责人：郑振海】")
-    public Result queryAll(Long userId ,Integer rulesType) throws Exception {
-        Long accountId = accountService.selectByUserId(userId).getAccountId();
-        if(accountId == null){
-            Result.fail(Constant.MessageConfig.MSG_FAILURE);
-        }
+    public Result queryAll(@NotNull Long accountId , Integer rulesType) throws Exception {
+//        Long accountId = accountService.selectByUserId(userId).getAccountId();
+//        if(accountId == null){
+//            Result.fail(Constant.MessageConfig.MSG_FAILURE);
+//        }
         List<FreightRules> dataList = freightRulesService.queryAll(accountId, 0, 0,rulesType);
         Map<String,Object> map = new HashMap<>();
         map.put("data",new PageInfo<>(dataList));
