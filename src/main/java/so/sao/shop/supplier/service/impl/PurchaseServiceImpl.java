@@ -1146,7 +1146,19 @@ public class PurchaseServiceImpl implements PurchaseService {
         map.put("updatedAt", new Date());//更新时间
         map.put("orderStatus", inputOrderStatus);//订单状态 7-已付款已取消/8-待付款已取消
         purchaseDao.insertCancelMessage(map);
-
+        //业务逻辑
+        //1.当待支付取消订单时，没有产生二维码，不对二维码做处理；
+        //2.当已支付订单取消时，由于产生了二维码，故取消时使二维码失效。
+        if(inputOrderStatus == 7){
+            // 验证二维码是否存在，是否失效
+            PurchasePrintVo purchasePrintVo = purchaseDao.findPrintOrderInfo(cancelReasonInput.getOrderId()); // 查询订单和二维码信息
+            if (null == purchasePrintVo || null == purchasePrintVo.getQrcodeStatus()
+                    || purchasePrintVo.getQrcodeStatus().equals(1)) { // 订单为null或二维码状态失效（1）
+                throw new Exception("二维码不存在或已经失效");
+            }
+            // 将二维码状态改为失效，并记录失效时间
+            qrcodeDao.updateStatus(cancelReasonInput.getOrderId(), 1, new Date(), new Date()); // status失效是1
+        }
         //TODO 订单取消成功给该供应商推送一条消息
         pushNotification(cancelReasonInput.getOrderId(), inputOrderStatus);
     }
