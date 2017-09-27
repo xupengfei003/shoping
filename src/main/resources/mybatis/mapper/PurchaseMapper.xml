@@ -78,6 +78,7 @@
         order_receiver_mobile,
         order_status,
         order_price,
+        order_postage,
         order_create_time,
         order_payment_method,
         order_payment_num
