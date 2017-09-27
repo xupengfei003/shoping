@@ -43,7 +43,6 @@ public interface SupplierCommodityDao {
      * @return 修改结果
      */
     void update(SupplierCommodity supplierCommodity);
-
     /**
      * 查询商品
      * @param id 商品ID
