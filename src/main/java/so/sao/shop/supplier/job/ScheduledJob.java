@@ -61,7 +61,9 @@ public class ScheduledJob {
         } catch (Exception e) {
             logger.error("系统异常", e);
         } finally {
-            redisTemplate.delete(Constant.REDIS_KEY_PREFIX + "COUNT_BILLING_DETAILS");
+            if (null != lock && lock) {
+                redisTemplate.delete(Constant.REDIS_KEY_PREFIX + "COUNT_BILLING_DETAILS");
+            }
         }
     }
 
@@ -88,7 +90,9 @@ public class ScheduledJob {
         } catch (Exception e) {
             logger.error("系统异常", e);
         } finally {
-            redisTemplate.delete(Constant.REDIS_KEY_PREFIX + "CANCEL_PAYMENT_ORDER");
+            if (null != lock && lock) {
+                redisTemplate.delete(Constant.REDIS_KEY_PREFIX + "CANCEL_PAYMENT_ORDER");
+            }
         }
     }
 }
