@@ -41,17 +41,15 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
      */
     @Override
     public PageInfo<AppPurchaseOutput> findOrderList(Integer pageNum, Integer rows, String userId, String orderStatus) throws Exception {
-        List<AppPurchasesVo> orderListA = appPurchaseDao.findOrderList(userId, convertStringToInt(orderStatus));
+
         PageTool.startPage(pageNum, rows);
         //查询订单信息
         //业务逻辑
         //1.如果待支付订单为合并订单则合并显示；
         //2.如果为其他状态订单则单个显示
         //3.如果没有订单编号则返回null
-        if(getOrderIds(orderStatus, orderListA).size() == 0){
-            return new PageInfo<>();
-        }
-        List<AppPurchasesVo> orderList = appPurchaseDao.findOrderByOrderIds(getOrderIds(orderStatus, orderListA));
+
+        List<AppPurchasesVo> orderList = appPurchaseDao.findOrderList(userId, convertStringToInt(orderStatus));
         List<String> orderIdList = new ArrayList<>();//接收订单编号
         PageInfo pageInfo = new PageInfo(orderList);
         //如果有订单列表信息则继续后续相关操作，
@@ -113,7 +111,7 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
                 appPurchaseOutput.setOrderPostage(NumberUtil.number2Thousand(appPurchasesVo.getOrderPostage()));
             }
             //当查询订单状态为1时将计算后的总价赋值输出
-            if(goodsAllPrice.intValue() > 0){
+            if(goodsAllPrice.compareTo(new BigDecimal(0)) == 1){
                 appPurchaseOutput.setOrderPrice(NumberUtil.number2Thousand(goodsAllPrice));
             }
             appPurchaseOutputs.add(appPurchaseOutput);

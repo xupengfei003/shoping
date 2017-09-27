@@ -45,6 +45,7 @@
             </foreach>
         </if>
         AND user_id = TRIM(#{userId})
+        GROUP BY pay_id
         ORDER BY updated_at DESC
     </select>
 
@@ -66,17 +67,5 @@
         order_status != -1
         AND pay_id = TRIM(#{payId})
         ORDER BY updated_at DESC
-    </select>
-
-    <select id="findOrderByOrderIds" parameterType="java.util.List" resultMap="AppOrderAllList">
-        SELECT
-        <include refid="App_Order_Column_List"/>
-        FROM purchase
-        WHERE
-        order_status != -1
-        AND order_id IN
-        <foreach collection="orderIds" open="(" close=")" separator="," item="orderId" index="i">
-            #{orderId}
-        </foreach>
     </select>
 </mapper>
