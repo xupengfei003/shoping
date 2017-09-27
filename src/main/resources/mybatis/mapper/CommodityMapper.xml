@@ -149,8 +149,8 @@
         sctmp.invalid_status,
         sctmp.price,
         sctmp.unit_price,
-        t1.updated_at,
         sctmp.created_at,
+        t1.updated_at,
         sctmp.min_order_quantity,
         t1.audit_result,
         t1.audit_opinion,
@@ -282,7 +282,7 @@
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(commCodeOrName)">
             AND (code69 = #{commCodeOrName}
-            OR c.name LIKE "%${commCodeOrName}%")
+            OR commName LIKE "%${commCodeOrName}%")
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(suppCommCode)">
             AND supplierCode = #{suppCommCode}
@@ -304,7 +304,7 @@
             AND #{maxPrice}
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(typeId)">
-            AND t.category_one_id = #{typeId}
+            AND categoryOneId = #{typeId}
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(beginCreateAt) and @so.sao.shop.supplier.util.Ognl@isEmpty(endCreateAt)">
             AND Date(createdAt)<![CDATA[ >= #{beginCreateAt}]]>

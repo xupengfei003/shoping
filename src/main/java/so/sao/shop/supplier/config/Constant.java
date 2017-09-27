@@ -349,4 +349,29 @@ public interface Constant {
          */
         public static final int MAX_MEASURESPEC_NAME_LENGTH = 64;
     }
+
+    /**
+     * 配送规则
+     */
+    interface FreightRulesCodeConfig{
+        /**
+         * 通用通则
+         */
+        public static final int commType = 0;
+
+        /**
+         * 配送规则
+         */
+        public static final int dispatchingType = 1;
+
+        /**
+         * 包邮
+         */
+        public static final int exemption = 0;
+
+        /**
+         * 不包邮
+         */
+        public static final int NotExemption = 1;
+    }
 }

@@ -151,7 +151,9 @@ public class FreightRulesController {
     }
 
     /**
-     * 查询配送规则
+     * 根据省市区code码查询配送规则
+     *  1.若当前商户正在使用的配送规则为通用规则，直接返回通用规则
+     *  2.若当前商户使用的是区域配送规则，根据省市区code码匹配配送规则
      * @param accountId
      * @param provinceCode
      * @param cityCode
@@ -160,12 +162,35 @@ public class FreightRulesController {
      */
     @GetMapping("/getFreightRule")
     public Result getFreightRule(Long accountId,String provinceCode,String cityCode,String districtCode){
-        List<FreightRules> list = freightRulesService.queryAll0(accountId,1);
-        FreightRules freightRules = freightRulesService.matchAddress(provinceCode,cityCode,districtCode,list);
-        if(freightRules == null){
-            return Result.fail(Constant.MessageConfig.MSG_FAILURE);
-        }else{
-            return Result.success(Constant.MessageConfig.MSG_SUCCESS,freightRules);
+        /**
+         * 1.根据accountID查询商户当前正在使用的运费规则类型
+         * 2.根据运费规则类型查询列表
+         *  ①.若当前商户正在使用的配送规则为通用规则，直接返回通用规则
+         *  ②.若当前商户使用的是区域配送规则，根据省市区code码匹配配送规则
+         */
+        //根据accountID查询商户当前正在使用的运费规则类型
+        Integer rules = accountService.findRulesById(accountId);
+        if (null == rules){
+            return Result.fail("当前商户没有设置运费规则");
         }
+        List<FreightRules> list = freightRulesService.queryAll0(accountId,rules);
+        if (null == list && list.isEmpty()){
+            return Result.fail(Constant.MessageConfig.MSG_NO_DATA);
+        }
+        //通用规则
+        if (0 == rules){
+            return Result.success(Constant.MessageConfig.MSG_SUCCESS,list.get(0));
+        }
+        //配送规则
+        if (1 == rules && null != list && !list.isEmpty()){
+            //省市区匹配商家设置的匹配规则
+            FreightRules freightRules = freightRulesService.matchAddress(provinceCode,cityCode,districtCode,list);
+            if(freightRules == null){
+                return Result.fail(Constant.MessageConfig.MSG_NO_DATA);
+            }else{
+                return Result.success(Constant.MessageConfig.MSG_SUCCESS,freightRules);
+            }
+        }
+        return Result.fail(Constant.MessageConfig.MSG_FAILURE);
     }
 }
