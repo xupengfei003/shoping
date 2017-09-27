@@ -868,7 +868,7 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
             //根据条件查询数据
             List<OrderMoneyRecord> records = orderMoneyRecordDao.findRecords(startTime, endTime, state, limits);
             List<Object[]> data = new ArrayList<>();
-            String[] titles = {"供应商名称", "结账时间", "待结算金额（¥）", "已结算金额（¥）", "结算时间", "结算状态", "供应商账户", "银行流水号", "运费总金额", "订单总金额"};
+            String[] titles = {"供应商名称", "结账时间", "待结算金额（¥）", "已结算金额（¥）", "结算时间", "结算状态", "供应商账户", "银行流水号"};
             for (int i = 0; i < records.size(); i++) {//转换数据格式
                 Object[] o = OrderMoneyRecord.converData(records.get(i));
                 logger.debug("【数据 为】 ： " + Arrays.toString(o));
