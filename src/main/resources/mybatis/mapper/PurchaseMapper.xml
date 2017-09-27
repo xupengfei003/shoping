@@ -74,11 +74,14 @@
     <select id="getOrderListByIds" resultMap="BaseResultMap">
         SELECT
         order_id,
+        order_payment_time,
         order_receiver_name,
         order_receiver_mobile,
         order_status,
         order_price,
+        order_postage,
         order_create_time,
+        updated_at,
         order_payment_method,
         order_payment_num
         FROM
