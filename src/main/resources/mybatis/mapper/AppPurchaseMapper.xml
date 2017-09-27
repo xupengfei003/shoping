@@ -45,6 +45,7 @@
             </foreach>
         </if>
         AND user_id = TRIM(#{userId})
+        GROUP BY pay_id
         ORDER BY updated_at DESC
     </select>
 

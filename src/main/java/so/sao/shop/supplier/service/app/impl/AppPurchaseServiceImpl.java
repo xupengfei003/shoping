@@ -41,18 +41,18 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
      */
     @Override
     public PageInfo<AppPurchaseOutput> findOrderList(Integer pageNum, Integer rows, String userId, String orderStatus) throws Exception {
-        List<AppPurchasesVo> orderListA = appPurchaseDao.findOrderList(userId, convertStringToInt(orderStatus));
+//        List<AppPurchasesVo> orderListA = appPurchaseDao.findOrderList(userId, convertStringToInt(orderStatus));
         PageTool.startPage(pageNum, rows);
         //查询订单信息
         //业务逻辑
         //1.如果待支付订单为合并订单则合并显示；
         //2.如果为其他状态订单则单个显示
         //3.如果没有订单编号则返回null
-        if(getOrderIds(orderStatus, orderListA).size() == 0){
+       /* if(getOrderIds(orderStatus, orderListA).size() == 0){
             return new PageInfo<>();
-        }
+        }*/
 
-        List<AppPurchasesVo> orderList = appPurchaseDao.findOrderByOrderIds(getOrderIds(orderStatus,orderListA));
+        List<AppPurchasesVo> orderList = appPurchaseDao.findOrderList(userId, convertStringToInt(orderStatus));
         List<String> orderIdList = new ArrayList<>();//接收订单编号
         PageInfo pageInfo = new PageInfo(orderList);
         //如果有订单列表信息则继续后续相关操作，
@@ -73,7 +73,7 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
             BigDecimal goodsAllPrice = new BigDecimal(0);//当查询订单状态为1时，计算该订单下所有商品总价
             //合并返回结果
             for (AppPurchaseItemVo appPurchaseItemVo : appPurchaseItemVoList) {
-                for (AppPurchasesVo appPurchasesVoA : orderListA) {
+              /*  for (AppPurchasesVo appPurchasesVoA : orderListA) {
                     //赋值给详情
                     if (appPurchaseItemVo.getOrderId().equals(appPurchasesVoA.getOrderId())) {
                         appPurchaseItemVo.setStoreName(appPurchasesVoA.getStoreName());
@@ -82,7 +82,7 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
                         appPurchaseItemVo.setUserName(appPurchasesVoA.getUserName());
                         break;
                     }
-                }
+                }*/
                 //订单状态为待付款
                 if ("1".equals(orderStatus)) {
                     if (appPurchaseItemVo.getPayId().equals(appPurchasesVo.getPayId())) {
@@ -119,6 +119,13 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
             //当查询订单状态为1时将计算后的总价赋值输出
             if (goodsAllPrice.compareTo(new BigDecimal(0)) == 1) {
                 appPurchaseOutput.setOrderPrice(NumberUtil.number2Thousand(goodsAllPrice));
+            }
+            //1.当订单状态为1的时候，则商户ID和商户名称为null
+            //2.订单状态为其他则显示相应的值
+            if("1".equals(orderStatus)){
+                appPurchaseOutput.setStoreId(null);
+                appPurchaseOutput.setStoreName(null);
+                appPurchaseOutput.setOrderId(null);
             }
             appPurchaseOutputs.add(appPurchaseOutput);
 
