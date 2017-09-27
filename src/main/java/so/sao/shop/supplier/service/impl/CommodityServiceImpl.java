@@ -1329,6 +1329,12 @@ public class CommodityServiceImpl implements CommodityService {
 
     }
     private Result saveBatchCommodity(@Valid CommodityBatchInput commodityBatchInput,Long supplierId){
+
+        //获取当前供应商
+        Account account = accountDao.selectByPrimaryKey(supplierId);
+        if(null == account){
+            return Result.fail("供应商不存在！");
+        }
         CommodityImageVo commodityImageVo= new CommodityImageVo();
         commodityImageVo.setImage(commodityBatchInput.getImage());
         commodityImageVo.setCode69(commodityBatchInput.getCommodityList().get(0).getCode69());
@@ -1408,6 +1414,12 @@ public class CommodityServiceImpl implements CommodityService {
             sc.setUpdatedBy(supplierId);
             sc.setCreatedAt(new Date());
             sc.setUpdatedAt(new Date());
+            //若供应商被禁用，新增的商品是失效状态
+            if(account.getAccountStatus() == CommConstant.ACCOUNT_INVALID_STATUS){
+                sc.setInvalidStatus(CommConstant.COMM_INVALID_STATUS);
+            }else if(account.getAccountStatus() == CommConstant.ACCOUNT_ACTIVE_STATUS){
+                sc.setInvalidStatus(CommConstant.COMM_ACTIVE_STATUS);
+            }
             String sku =  CommUtil.createSku(commCategoryCode, commodity.getId(), supplierId);
             sc.setSku(sku);
             supplierCommodityDao.save(sc);
