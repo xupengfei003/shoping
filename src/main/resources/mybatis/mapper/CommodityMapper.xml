@@ -282,7 +282,7 @@
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(commCodeOrName)">
             AND (code69 = #{commCodeOrName}
-            OR c.name LIKE "%${commCodeOrName}%")
+            OR commName LIKE "%${commCodeOrName}%")
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(suppCommCode)">
             AND supplierCode = #{suppCommCode}
