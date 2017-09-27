@@ -282,10 +282,10 @@
             OR c.name LIKE "%${commCodeOrName}%")
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(suppCommCode)">
-            AND t.supplierCode = #{suppCommCode}
+            AND t.supplier_id = #{suppCommCode}
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(commName)">
-            AND c.commName LIKE "%${commName}%"
+            AND commName LIKE "%${commName}%"
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(status)">
             AND t.status = #{status}
@@ -301,19 +301,19 @@
             AND #{maxPrice}
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(typeId)">
-            AND t.categoryOneId = #{typeId}
+            AND t.category_one_id = #{typeId}
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(beginCreateAt) and @so.sao.shop.supplier.util.Ognl@isEmpty(endCreateAt)">
-            AND Date(t.createdAt)<![CDATA[ >= #{beginCreateAt}]]>
+            AND Date(createdAt)<![CDATA[ >= #{beginCreateAt}]]>
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(endCreateAt) and @so.sao.shop.supplier.util.Ognl@isEmpty(beginCreateAt)">
-            AND  Date(t.createdAt)<![CDATA[<= #{endCreateAt}]]>
+            AND  Date(createdAt)<![CDATA[<= #{endCreateAt}]]>
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(beginCreateAt) and @so.sao.shop.supplier.util.Ognl@isNotEmpty(endCreateAt)">
-            AND Date(t.createdAt) BETWEEN #{beginCreateAt}
+            AND Date(createdAt) BETWEEN #{beginCreateAt}
             AND #{endCreateAt}
         </if>
-        ORDER BY t.updatedAt DESC ,t.id DESC
+        ORDER BY t.updated_at DESC ,t.id DESC
     </select>
 
     <!--根据code69 商品编码查询商品名称-->
