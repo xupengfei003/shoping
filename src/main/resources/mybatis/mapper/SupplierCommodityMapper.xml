@@ -231,7 +231,8 @@
         updated_at AS updatedAt,
         supplier_id AS supplierId,
         status,
-        sku
+        sku,
+        invalid_status AS invalidStatus
         FROM supplier_commodity WHERE id = #{id} and deleted = 0
     </select>
 
