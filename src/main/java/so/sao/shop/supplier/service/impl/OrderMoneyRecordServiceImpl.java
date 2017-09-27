@@ -722,7 +722,7 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
         BigDecimal tmpTotalPostage = new BigDecimal("0.00");
         OrderMoneyRecord orderMoneyRecord = orderMoneyRecordDao.findOne(recordId);
         if (null != orderMoneyRecord) {
-            tmpTotalOrderRevenue = orderMoneyRecord.getOrderTotalAmount();
+            tmpTotalOrderRevenue = orderMoneyRecord.getTotalMoney();
             tmpTotalPostage = orderMoneyRecord.getPostageTotalAmount();
         }
 
