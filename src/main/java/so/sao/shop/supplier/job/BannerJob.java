@@ -45,7 +45,10 @@ public class BannerJob {
 	        } catch (Exception e) {
 	            logger.error("系统异常", e);
 	        } finally {
-	            redisTemplate.delete(Constant.REDIS_KEY_PREFIX + "ON_SHELVES_BANNER");
+				//判断其余服务是否获得key
+				if (null != lock && lock) {
+					redisTemplate.delete(Constant.REDIS_KEY_PREFIX + "ON_SHELVES_BANNER");
+				}
 	        }
 	}
 	/**
@@ -62,7 +65,10 @@ public class BannerJob {
 		} catch (Exception e) {
 			logger.error("系统异常", e);
 		} finally {
-			redisTemplate.delete(Constant.REDIS_KEY_PREFIX + "OFF_SHELF_BANNER");
+			//判断其余服务是否获得key
+			if (null != lock && lock) {
+				redisTemplate.delete(Constant.REDIS_KEY_PREFIX + "OFF_SHELF_BANNER");
+			}
 		}
 	}
 }
