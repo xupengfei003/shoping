@@ -37,7 +37,7 @@
                 AND notifi_type = 0
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotNull(notifiType) and notifiType != 0">
-                AND (notifi_type = 1 OR notifi_type = 2)
+                AND notifi_type in(1,2)
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotNull(accountId)">
                 AND account_id = #{accountId,jdbcType=BIGINT}
@@ -67,7 +67,7 @@
                 AND notifi_type = 0
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotNull(notifiType) and notifiType != 0">
-                AND (notifi_type = 1 OR notifi_type = 2)
+                AND notifi_type in(1,2)
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotNull(accountId)">
                 AND account_id = #{accountId,jdbcType=BIGINT}
