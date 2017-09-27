@@ -462,7 +462,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             cellTemp.setCellValue(orderStatus);
             cellTemp.setCellStyle(style);
             cellTemp = row.createCell(4);
-            cellTemp.setCellValue(purchase.getOrderPrice() + "￥");
+            cellTemp.setCellValue("￥" + purchase.getOrderPrice());
             cellTemp.setCellStyle(style);
             cellTemp = row.createCell(5);
             cellTemp.setCellValue(purchase.getOrderCreateTime() == null ? "" : StringUtil.fomateData(purchase.getOrderCreateTime(), "yyyy-MM-dd HH:mm:ss"));

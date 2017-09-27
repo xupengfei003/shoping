@@ -18,7 +18,9 @@ public interface AppPurchaseDao {
      * @return List<AppPurchaseItemVo> 订单列表
      * @throws Exception 异常
      */
-    List<AppPurchasesVo> findOrderList(@Param("userId") String userId, @Param("orderStatusArr") Integer[] orderStatusArr) throws Exception;
+    List<AppPurchasesVo> findOrderList(@Param("userId") String userId,
+                                       @Param("orderStatusArr") Integer[] orderStatusArr,
+                                       @Param("flag") String flag) throws Exception;
 
     /**
      * 根据订单ID查询订单列表
