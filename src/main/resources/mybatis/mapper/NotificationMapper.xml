@@ -37,7 +37,7 @@
                 AND notifi_type = 0
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotNull(notifiType) and notifiType != 0">
-                AND (notifi_type = 1 OR notifi_type = 2)
+                AND notifi_type in(1,2)
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotNull(accountId)">
                 AND account_id = #{accountId,jdbcType=BIGINT}
@@ -55,14 +55,24 @@
         GROUP BY sigin
         ORDER BY created_at DESC
     </select>
-    <!-- 查询未读消息列表 -->
+    <!-- 查询前五条消息列表不区分已读未读 -->
     <select id="searchUnread" resultMap="BaseResultMap">
         SELECT
         <include refid="Base_Column_List"/>
         FROM
         notification
-        WHERE notifi_type = #{notifiType,jdbcType=INTEGER}
-        AND account_id = #{accountId,jdbcType=BIGINT}
+        <where>
+            1=1
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotNull(notifiType) and notifiType == 0">
+                AND notifi_type = 0
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotNull(notifiType) and notifiType != 0">
+                AND notifi_type in(1,2)
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotNull(accountId)">
+                AND account_id = #{accountId,jdbcType=BIGINT}
+            </if>
+        </where>
         ORDER BY created_at DESC
         LIMIT #{count,jdbcType=INTEGER}
     </select>
