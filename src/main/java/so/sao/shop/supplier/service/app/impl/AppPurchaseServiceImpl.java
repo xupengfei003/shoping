@@ -3,6 +3,7 @@ package so.sao.shop.supplier.service.app.impl;
 import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.dao.app.AppPurchaseDao;
 import so.sao.shop.supplier.dao.app.AppPurchaseItemDao;
 import so.sao.shop.supplier.pojo.output.AppPurchaseOutput;
@@ -16,7 +17,9 @@ import so.sao.shop.supplier.util.PageTool;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by bzh on 2017/9/6.
@@ -38,11 +41,19 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
      */
     @Override
     public PageInfo<AppPurchaseOutput> findOrderList(Integer pageNum, Integer rows, String userId, String orderStatus) throws Exception {
+        List<AppPurchasesVo> orderListA = appPurchaseDao.findOrderList(userId, convertStringToInt(orderStatus));
         PageTool.startPage(pageNum, rows);
         //查询订单信息
-        List<AppPurchasesVo> orderList = appPurchaseDao.findOrderList(userId, convertStringToInt(orderStatus));
+        //业务逻辑
+        //1.如果待支付订单为合并订单则合并显示；
+        //2.如果为其他状态订单则单个显示
+        //3.如果没有订单编号则返回null
+        if(getOrderIds(orderStatus, orderListA).size() == 0){
+            return new PageInfo<>();
+        }
+        List<AppPurchasesVo> orderList = appPurchaseDao.findOrderByOrderIds(getOrderIds(orderStatus, orderListA));
         List<String> orderIdList = new ArrayList<>();//接收订单编号
-
+        PageInfo pageInfo = new PageInfo(orderList);
         //如果有订单列表信息则继续后续相关操作，
         //如果没有订单列表则直接返回null，不进行后续操作。
         if (null != orderList && orderList.size() > 0) {
@@ -61,12 +72,12 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
             //合并返回结果
             for (AppPurchaseItemVo appPurchaseItemVo : appPurchaseItemVoList) {
                 //赋值给详情
-               if(appPurchaseItemVo.getOrderId().equals(appPurchasesVo.getOrderId())){
-                   appPurchaseItemVo.setStoreName(appPurchasesVo.getStoreName());
-                   appPurchaseItemVo.setStoreId(appPurchasesVo.getStoreId());
-                   appPurchaseItemVo.setUserId(appPurchasesVo.getUserId());
-                   appPurchaseItemVo.setUserName(appPurchasesVo.getUserName());
-               }
+                if(appPurchaseItemVo.getOrderId().equals(appPurchasesVo.getOrderId())){
+                    appPurchaseItemVo.setStoreName(appPurchasesVo.getStoreName());
+                    appPurchaseItemVo.setStoreId(appPurchasesVo.getStoreId());
+                    appPurchaseItemVo.setUserId(appPurchasesVo.getUserId());
+                    appPurchaseItemVo.setUserName(appPurchasesVo.getUserName());
+                }
 
                 //订单状态为待付款
                 if("1".equals(orderStatus)){
@@ -108,26 +119,22 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
             appPurchaseOutputs.add(appPurchaseOutput);
 
         }
-        //业务逻辑
-        //1.如果待支付订单为合并订单则合并显示；
-        //2.如果为其他状态订单则单个显示
-        List newList = new ArrayList();
-        for (int i = 0; i< appPurchaseOutputs.size() ;i++) {
-            int count = 0;
-            for(AppPurchaseOutput appPurchaseOutput : appPurchaseOutputs){
-                if(appPurchaseOutputs.get(i).getPayId().equals(appPurchaseOutput.getPayId())){
-                    count += 1;
+        pageInfo.setList(appPurchaseOutputs);
+        return pageInfo;
+    }
+
+    //获取不重复的订单ID
+    private List<String> getOrderIds(String orderStatus, List<AppPurchasesVo> orderListA) {
+        List<String> getOrderIdList = new ArrayList();
+
+            Set<String> set = new HashSet();
+            for (AppPurchasesVo appPurchasesVo : orderListA) {
+                if(set.add(appPurchasesVo.getPayId())){
+                    getOrderIdList.add(appPurchasesVo.getOrderId());
                 }
             }
-            newList.add(appPurchaseOutputs.get(i));
-            if(count >=2){
-//                appPurchaseOutputs.get(i).setOrderId(appPurchaseOutputs.get(i).getPayId());
-                i = i+1;
-            }
-        }
-        PageInfo pageInfo = new PageInfo(newList);//复制分页信息
-        pageInfo.setList(newList);
-        return pageInfo;
+
+        return getOrderIdList;
     }
 
     //获取ID（订单状态为待付款（1）获取的是payID,订单状态为其他则获取的是orderId）
