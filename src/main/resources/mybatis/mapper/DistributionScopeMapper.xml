@@ -56,7 +56,7 @@
         WHERE id = #{id,jdbcType=INTEGER}
     </select>
     <!--根据省市区code码获取对应记录-->
-    <select id="selectFreightRulesByCode" resultType="so.sao.shop.supplier.domain.FreightRules">
+    <select id="selectDistributionScopeByCode" resultMap="BaseResultMap">
         SELECT
         <include refid="Base_Column_List"/>
         FROM distribution_scope

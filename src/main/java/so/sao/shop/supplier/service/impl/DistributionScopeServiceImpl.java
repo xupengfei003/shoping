@@ -45,8 +45,8 @@ public class DistributionScopeServiceImpl implements DistributionScopeService {
          * 2.获取到上一步新增配送范围记录的主键,新增配送规则
          */
         //先根据区查询是否存在该区的配送范围，如果有添加失败，提示已添加
-        FreightRules freightRule = distributionScopeDao.selectFreightRulesByCode(accountId,distributionScopeInput.getAddressProvince(),distributionScopeInput.getAddressCity(),distributionScopeInput.getAddressDistrict());
-        if (null != freightRule){
+        DistributionScope DbDistributionScope = distributionScopeDao.selectDistributionScopeByCode(accountId,distributionScopeInput.getAddressProvince(),distributionScopeInput.getAddressCity(),distributionScopeInput.getAddressDistrict());
+        if (null != DbDistributionScope){
             return false;
         }
         DistributionScope distributionScope = new DistributionScope();
@@ -111,15 +111,24 @@ public class DistributionScopeServiceImpl implements DistributionScopeService {
     @Transactional(rollbackFor = Exception.class)
     public boolean update(Long accountId, Integer id, DistributionScopeInput distributionScopeInput) {
         /**
-         * 1.更改配送范围记录
-         * 2.更改配送规则中相关记录信息
+         * 1.判断是否只是更改备注
+         * 2.更改配送范围记录
+         * 3.更改配送规则中相关记录信息
          */
+        DistributionScope ds = distributionScopeDao.query(id);//根据配送范围ID查找相应记录
+        //省市区未修改，只修改备注或未操作
+        if (Ognl.isNotNull(ds) && id.equals(ds.getId()) && ds.getAddressProvince().equals(distributionScopeInput.getAddressProvince()) && ds.getAddressCity().equals(distributionScopeInput.getAddressCity()) && ds.getAddressDistrict().equals(distributionScopeInput.getAddressDistrict())){
+            ds.setRemark(distributionScopeInput.getRemark());
+            ds.setUpdateAt(new Date());
+            distributionScopeDao.update(ds);//更改配送范围记录
+            return true;
+        }
         //先根据区查询是否存在该区的配送范围，如果有添加失败，提示已添加
-        FreightRules freightRule = distributionScopeDao.selectFreightRulesByCode(accountId,distributionScopeInput.getAddressProvince(),distributionScopeInput.getAddressCity(),distributionScopeInput.getAddressDistrict());
-        if (null != freightRule){
+        DistributionScope distributionScope = distributionScopeDao.selectDistributionScopeByCode(accountId,distributionScopeInput.getAddressProvince(),distributionScopeInput.getAddressCity(),distributionScopeInput.getAddressDistrict());
+        if (null != distributionScope){
             return false;
         }
-        DistributionScope ds = distributionScopeDao.query(id);//根据配送范围ID查找相应记录
+
         if(Ognl.isNotNull(ds)){
             //更新配送范围
             String province = distributionScopeInput.getAddressProvince();//省
