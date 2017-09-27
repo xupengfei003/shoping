@@ -407,6 +407,7 @@ public class CommodityServiceImpl implements CommodityService {
             //如果是商品的状态是 6 (编辑待审核),则根据供应商商品ID获取编辑后的商品信息
             if (status > 0) {
                 commodityOutput = supplierCommodityTmpDao.findDetailTmp(id);
+                commodityOutput.setStatus(supplierCommodityDao.findAuditStatus(id));
                 if (null != commodityOutput) {
                     //根据供应商商品ID获取图片列表信息
                      commImgeList = commImgeTmpDao.findImgTmp(commodityOutput.getScaId());
@@ -418,7 +419,7 @@ public class CommodityServiceImpl implements CommodityService {
                     commodityOutput.setImgeList(commImgeVoList);
                 }
             }else {
-                //商品没有审核记录,则根据供应商商品ID获取商品信息
+                //商品没状态不是 6(编辑待审核),则根据供应商商品ID获取商品信息
                 commodityOutput = supplierCommodityDao.findDetail(id);
                 commodityOutput.setStatus(supplierCommodityDao.findAuditStatus(id));
                 readImgData(id,commodityOutput); //获取图片信息
