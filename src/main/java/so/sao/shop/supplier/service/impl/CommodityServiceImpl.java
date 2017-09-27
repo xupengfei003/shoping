@@ -186,8 +186,10 @@ public class CommodityServiceImpl implements CommodityService {
             sc.setCreatedAt(new Date());
             sc.setUpdatedAt(new Date());
             //若供应商被禁用，新增的商品是失效状态
-            if(account.getAccountStatus()==CommConstant.ACCOUNT_INVALID_STATUS){
+            if(account.getAccountStatus() == CommConstant.ACCOUNT_INVALID_STATUS){
                 sc.setInvalidStatus(CommConstant.COMM_INVALID_STATUS);
+            }else if(account.getAccountStatus() == CommConstant.ACCOUNT_ACTIVE_STATUS){
+                sc.setInvalidStatus(CommConstant.COMM_ACTIVE_STATUS);
             }
             supplierCommodityDao.save(sc);
             //保存图片
