@@ -468,9 +468,16 @@ public class PurchaseServiceImpl implements PurchaseService {
             cellTemp = row.createCell(4);
             cellTemp.setCellValue("￥" + purchase.getOrderPrice());
             cellTemp.setCellStyle(style);
-            cellTemp = row.createCell(5);
-            cellTemp.setCellValue("￥" + purchase.getOrderPostage());
-            cellTemp.setCellStyle(style);
+            if(purchase.getOrderPostage().compareTo(new BigDecimal(0)) == 1){
+                cellTemp = row.createCell(5);
+                cellTemp.setCellValue("￥" + purchase.getOrderPostage());
+                cellTemp.setCellStyle(style);
+            } else {
+                cellTemp = row.createCell(5);
+                cellTemp.setCellValue("包邮");
+                cellTemp.setCellStyle(style);
+            }
+
             cellTemp = row.createCell(6);
             cellTemp.setCellValue(purchase.getOrderCreateTime() == null ? "" : StringUtil.fomateData(purchase.getOrderCreateTime(), "yyyy-MM-dd HH:mm:ss"));
             cellTemp.setCellStyle(style);
