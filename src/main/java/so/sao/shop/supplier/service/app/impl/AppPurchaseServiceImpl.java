@@ -42,13 +42,13 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
         //查询订单信息
         List<AppPurchasesVo> orderList = appPurchaseDao.findOrderList(userId, convertStringToInt(orderStatus));
         List<String> orderIdList = new ArrayList<>();//接收订单编号
-        PageInfo pageInfo = new PageInfo(orderList);//复制分页信息
+
         //如果有订单列表信息则继续后续相关操作，
         //如果没有订单列表则直接返回null，不进行后续操作。
         if (null != orderList && orderList.size() > 0) {
             orderIdList = getId(orderStatus, orderList);
         } else {
-            return pageInfo;
+            return new PageInfo<>();
         }
         List<AppPurchaseOutput> appPurchaseOutputs = new ArrayList<>();//接收返回list
         List<AppPurchaseItemVo> appPurchaseItemVoList = getAllOrderItemList(orderIdList,orderStatus);//接收详情列表
@@ -92,6 +92,7 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
             appPurchaseOutput.setAppPurchaseItemVos(appPurchaseItemVoListInner);
             appPurchaseOutput.setOrderPrice(NumberUtil.number2Thousand(appPurchasesVo.getOrderPrice()));
             appPurchaseOutput.setGoodsAllNum(goodsAllNum);
+
             //输出运费
             //1.如果运费为0，则显示“包邮”
             //2.如果有运费，则输出实际金额的千分值
@@ -105,8 +106,27 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
                 appPurchaseOutput.setOrderPrice(NumberUtil.number2Thousand(goodsAllPrice));
             }
             appPurchaseOutputs.add(appPurchaseOutput);
+
         }
-        pageInfo.setList(appPurchaseOutputs);
+        //业务逻辑
+        //1.如果待支付订单为合并订单则合并显示；
+        //2.如果为其他状态订单则单个显示
+        List newList = new ArrayList();
+        for (int i = 0; i< appPurchaseOutputs.size() ;i++) {
+            int count = 0;
+            for(AppPurchaseOutput appPurchaseOutput : appPurchaseOutputs){
+                if(appPurchaseOutputs.get(i).getPayId().equals(appPurchaseOutput.getPayId())){
+                    count += 1;
+                }
+            }
+            newList.add(appPurchaseOutputs.get(i));
+            if(count >=2){
+//                appPurchaseOutputs.get(i).setOrderId(appPurchaseOutputs.get(i).getPayId());
+                i = i+1;
+            }
+        }
+        PageInfo pageInfo = new PageInfo(newList);//复制分页信息
+        pageInfo.setList(newList);
         return pageInfo;
     }
 
