@@ -36,8 +36,11 @@ public class ContractScheduledJob {
         } catch (Exception e) {
             logger.error("系统异常", e);
         } finally {
-            //执行完毕删除key
-            redisTemplate.delete(Constant.REDIS_SMSCODE_KEY_PREFIX + "CONTRACT_END_INFORM");
+            //判断其余服务是否获得key
+            if (null != lock && lock) {
+                //执行完毕删除key
+                redisTemplate.delete(Constant.REDIS_SMSCODE_KEY_PREFIX + "CONTRACT_END_INFORM");
+            }
         }
     }
 }
