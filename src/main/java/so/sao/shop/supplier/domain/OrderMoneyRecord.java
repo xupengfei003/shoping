@@ -233,7 +233,7 @@ public class OrderMoneyRecord {
     }
 
     public static Object[] converData(OrderMoneyRecord orderMoneyRecord){
-        Object[] data = new Object[10];
+        Object[] data = new Object[8];
 
         if (null != orderMoneyRecord) {
             data[0] = orderMoneyRecord.getProviderName();//供应商名称
@@ -256,8 +256,8 @@ public class OrderMoneyRecord {
             }
             data[6] = orderMoneyRecord.getBankAccount();//供应商账户
             data[7] = orderMoneyRecord.getSerialNumber();//银行流水号
-            data[8] = NumberUtil.number2Thousand(orderMoneyRecord.getPostageTotalAmount());//运费总金额
-            data[9] = NumberUtil.number2Thousand(orderMoneyRecord.getOrderTotalAmount());//订单总金额
+//            data[8] = NumberUtil.number2Thousand(orderMoneyRecord.getPostageTotalAmount());//运费总金额
+//            data[9] = NumberUtil.number2Thousand(orderMoneyRecord.getOrderTotalAmount());//订单总金额
         }
 
         return data;
