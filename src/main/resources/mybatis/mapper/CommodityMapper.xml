@@ -304,7 +304,7 @@
             AND #{maxPrice}
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(typeId)">
-            AND t.category_one_id = #{typeId}
+            AND categoryOneId = #{typeId}
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(beginCreateAt) and @so.sao.shop.supplier.util.Ognl@isEmpty(endCreateAt)">
             AND Date(createdAt)<![CDATA[ >= #{beginCreateAt}]]>
