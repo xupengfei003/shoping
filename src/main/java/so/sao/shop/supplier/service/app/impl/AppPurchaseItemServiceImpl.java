@@ -80,10 +80,10 @@ public class AppPurchaseItemServiceImpl implements AppPurchaseItemService {
                 String goodsUnit = appPurchaseItemVo.getGoodsUnitPrice().replaceAll(",","");
                 goodsAllPrice = goodsAllPrice.add(goodsNum.multiply(new BigDecimal(goodsUnit)));
                 //将订单信息赋值给详情
-                appPurchaseItemVo.setStoreName(appPurchasesVos.getStoreName());
+               /* appPurchaseItemVo.setStoreName(appPurchasesVos.getStoreName());
                 appPurchaseItemVo.setStoreId(appPurchasesVos.getStoreId());
                 appPurchaseItemVo.setUserId(appPurchasesVos.getUserId());
-                appPurchaseItemVo.setUserName(appPurchasesVos.getUserName());
+                appPurchaseItemVo.setUserName(appPurchasesVos.getUserName());*/
             }
             appPurchaseItemOutput.setOrderPrice(String.valueOf(goodsAllPrice));
             appPurchaseItemOutput.setAppPurchaseItemVos(appPurchaseItemVoList);

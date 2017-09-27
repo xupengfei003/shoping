@@ -45,6 +45,9 @@
             </foreach>
         </if>
         AND user_id = TRIM(#{userId})
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(flag)">
+          GROUP BY pay_id
+        </if>
         ORDER BY updated_at DESC
     </select>
 
