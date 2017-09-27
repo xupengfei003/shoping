@@ -74,7 +74,6 @@ public class AppCartServiceImpl implements AppCartService {
         // 1.定义Map,用于保存提示信息及商品信息
         Map<String, Object> map = new HashMap<>();
         if (Ognl.isNull(id)) {
-            map.put("msg", "商品ID有误");
             map.put("appCartItem", null);
             return map;
         }
@@ -87,63 +86,42 @@ public class AppCartServiceImpl implements AppCartService {
               e.根据查询出商品信息中的code69查询商品名称
          */
         SupplierCommodity supplierCommodity = supplierCommodityDao.findOneToCartItem(id);
+        // 若商品不存在，新建一个商品对象
         if (Ognl.isNull(supplierCommodity)) {
-            map.put("code", "0");
-            map.put("msg", "商品不存在");
-            map.put("appCartItem", null);
-            return map;
+            supplierCommodity = new SupplierCommodity();
         }
-        if (Ognl.isNull(supplierCommodity.getUnitId())) {
-            map.put("code", "0");
-            map.put("msg", "计量单位ID有误");
-            map.put("appCartItem", null);
-            return map;
+        // 若计量单位Id不为空，去查计量单位，若为空，计量单位为null,若查询结果为null,那么计量单位也为null
+        CommUnit commUnit = new CommUnit();
+        if (Ognl.isNotNull(supplierCommodity.getUnitId())) {
+            commUnit = commUnitDao.findOne(supplierCommodity.getUnitId());
         }
-        CommUnit commUnit = commUnitDao.findOne(supplierCommodity.getUnitId());
         if (Ognl.isNull(commUnit)) {
-            map.put("code", "0");
-            map.put("msg", "计量单位有误");
-            map.put("appCartItem", null);
-            return map;
+            commUnit.setName(null);
         }
-        if (Ognl.isNull(supplierCommodity.getMeasureSpecId())) {
-            map.put("code", "0");
-            map.put("msg", "计量规格ID有误");
-            map.put("appCartItem", null);
-            return map;
+        // 若计量规格Id不为空，去查计量规格，若为空，计量规格为null,若查询结果为null,那么计量规格也为null
+        CommMeasureSpec commMeasureSpec = new CommMeasureSpec();
+        if (Ognl.isNotNull(supplierCommodity.getMeasureSpecId())) {
+            commMeasureSpec = commMeasureSpecDao.findOne(supplierCommodity.getMeasureSpecId());
         }
-        CommMeasureSpec commMeasureSpec = commMeasureSpecDao.findOne(supplierCommodity.getMeasureSpecId());
         if (Ognl.isNull(commMeasureSpec)) {
-            map.put("code", "0");
-            map.put("msg", "计量规格有误");
-            map.put("appCartItem", null);
-            return map;
+            commMeasureSpec.setName(null);
         }
-        if (Ognl.isNull(supplierCommodity.getSupplierId())) {
-            map.put("code", "0");
-            map.put("msg", "供应商不存在");
-            map.put("appCartItem", null);
-            return map;
+        // 若供应商Id不为空，去查供应商，若为空，供应商为null,若查询结果为null,那么供应商也为null
+        Account account = new Account();
+        if (Ognl.isNotNull(supplierCommodity.getSupplierId())) {
+            account = accountDao.findNameAndStatus(supplierCommodity.getSupplierId());
         }
-        Account account = accountDao.findNameAndStatus(supplierCommodity.getSupplierId());
         if (Ognl.isNull(account)) {
-            map.put("code", "0");
-            map.put("msg", "供应商不存在");
-            map.put("appCartItem", null);
-            return map;
+            account.setProviderName(null);
+            account.setAccountStatus(null);
         }
-        if (Ognl.isNull(supplierCommodity.getCode69())) {
-            map.put("code", "0");
-            map.put("msg", "商品69码有误");
-            map.put("appCartItem", null);
-            return map;
+        // 若商品69码不为空，去查商品名称，若为空，商品名为null,若查询结果为null,那么商品名也为null
+        Commodity commodity = new Commodity();
+        if (Ognl.isNotNull(supplierCommodity.getCode69())) {
+            commodity = commodityDao.findNameByCode69(supplierCommodity.getCode69());
         }
-        Commodity commodity = commodityDao.findNameByCode69(supplierCommodity.getCode69());
         if (Ognl.isNull(commodity)) {
-            map.put("code", "0");
-            map.put("msg", "商品名称有误");
-            map.put("appCartItem", null);
-            return map;
+            commodity.setName(null);
         }
         // 3.生成购物车数据
         AppCartItem appCartItem = new AppCartItem();
@@ -160,28 +138,6 @@ public class AppCartServiceImpl implements AppCartService {
         appCartItem.setUnitName(commUnit.getName());                  //计量单位名称
         appCartItem.setCommodityProperties(supplierCommodity.getSku());//sku
         appCartItem.setInventory(supplierCommodity.getInventory());    //库存数
-        // 4.校验供应商状态与商品状态
-        if (1 != account.getAccountStatus()) {
-            map.put("code", "0");
-            map.put("msg", "供应商已被停用");
-            map.put("appCartItem", appCartItem);
-            return map;
-        }
-        if (2 != supplierCommodity.getStatus()) {
-            map.put("code", "0");
-            map.put("msg", "商品已下架");
-            map.put("appCartItem", appCartItem);
-            return map;
-        }
-        if (1 != supplierCommodity.getInvalidStatus()) {
-            map.put("code", "0");
-            map.put("msg", "商品已失效");
-            map.put("appCartItem", appCartItem);
-            return map;
-        }
-        // 5.返回
-        map.put("code", "1");
-        map.put("msg", null);
         map.put("appCartItem", appCartItem);
         return map;
     }
@@ -200,7 +156,7 @@ public class AppCartServiceImpl implements AppCartService {
                                                  Long id,
                                                  Integer count) throws Exception {
         if (Ognl.isNull(cartItem)) {
-            return null;
+            cartItem = new AppCartItem();
         }
         //新建要返回的List<AppCartItemVo>
         AppCartItemVo cartItemVo = new AppCartItemVo();
@@ -254,7 +210,6 @@ public class AppCartServiceImpl implements AppCartService {
         /*
             1.根据购物车记录ID和userId查询购物车记录中的商品Id,若查询结果为null,则返回失败
             2.根据商品的Id查询商品的相信信息,同时校验商品及供货商是否合法,返回符合要求的购物车信息
-            3.若返回的code为0,则返回失败
             4.校验是否有库存,若有库存,进行更新,成功的话返回购物车记录
             5.若库存不足，返回失败
          */
@@ -269,13 +224,11 @@ public class AppCartServiceImpl implements AppCartService {
         }
         // 2.根据商品的Id查询商品的相信信息,同时校验商品及供货商是否合法,返回符合要求的购物车信息
         map = validateCommodity(appCartItem.getCommodityId());
-        String code = (String) map.get("code");
-        // 3.若返回的code为0,则返回失败
-        if ("0".equals(code)) {
-            return map;
-        }
         // 4.校验是否有库存,若有库存,进行更新
         appCartItem = (AppCartItem) map.get("appCartItem");
+        if (Ognl.isNull(appCartItem.getInventory())) {
+            appCartItem.setInventory(0.00);
+        }
         if (appCartItem.getInventory() - number >= 0) {
             appCartItem.setCount(number);           // 商品数量
             appCartItem.setUpdatedAt(new Date());   // 更新时间
@@ -311,7 +264,6 @@ public class AppCartServiceImpl implements AppCartService {
             1.根据购物车记录ID和userId查询购物车记录中的商品Id,若查询结果为null,则返回失败
             2.若查询出集合的size和入参集合的size不等,说明更新数据有误,更新失败
             3.根据商品的Id查询商品的相信信息,同时校验商品及供货商是否合法,返回符合要求的购物车信息
-            4.若返回的code为0,则返回失败
             5.校验是否有库存,若有库存,进行更新
             6.若库存不足，返回失败
          */
@@ -344,15 +296,12 @@ public class AppCartServiceImpl implements AppCartService {
         for (int i = 0; i < cartItemList.size(); i++) {
             AppCartItem appCartItems = cartItemList.get(i);
             map = validateCommodity(appCartItems.getCommodityId());
-            String code = (String) map.get("code");
-            // 4.若返回的code为0,则返回失败
-            if ("0".equals(code)) {
-                map.put("appCartItem", null);
-                return map;
-            }
             // 5.校验是否有库存,若有库存,进行更新
             AppCartItem appCartItem = (AppCartItem) map.get("appCartItem");
             int number = Integer.valueOf(inputList.get(i).getNumber());
+            if (Ognl.isNull(appCartItem.getInventory())) {
+                appCartItem.setInventory(0.00);
+            }
             if (appCartItem.getInventory() - number >= 0) {
                 appCartItem.setCount(number);                     // 商品数量
                 appCartItem.setUpdatedAt(new Date());             // 更新时间
@@ -392,7 +341,6 @@ public class AppCartServiceImpl implements AppCartService {
             1.判断是否存在相同商品的购物车,若存在,进行更新
             2.若不存在,进行添加
               a.根据商品的Id查询商品的相信信息,同时校验商品及供货商是否合法,返回符合要求的购物车信息
-              b.若返回的code为0,则返回失败
               c.校验是否有库存,若有库存,进行更新
               d.若库存不足，返回失败
          */
@@ -413,13 +361,11 @@ public class AppCartServiceImpl implements AppCartService {
             // 2.若不存在,进行添加
             // a.根据商品的Id查询商品的相信信息,同时校验商品及供货商是否合法,返回符合要求的购物车信息
             map = validateCommodity(commodityId);
-            String code = (String) map.get("code");
-            // b.若返回的code为0,则返回失败
-            if ("0".equals(code)) {
-                return map;
-            }
             // c.校验是否有库存,若有库存,进行更新
             appCartItem = (AppCartItem) map.get("appCartItem");
+            if (Ognl.isNull(appCartItem.getInventory())) {
+                appCartItem.setInventory(0.00);
+            }
             if (appCartItem.getInventory() - number >= 0) {
                 appCartItem.setCount(number);           // 商品数量
                 appCartItem.setCreatedAt(new Date());   // 创建时间
@@ -475,35 +421,24 @@ public class AppCartServiceImpl implements AppCartService {
             Long id = appCartItems.getId();                  // ID
             // 2.校验商品是否可继续出售并取出商品信息
             map = validateCommodity(appCartItems.getCommodityId());
-            // 获取信息码和购物车记录
-            String code = (String) map.get("code");
             AppCartItem appCartItem = (AppCartItem) map.get("appCartItem");
-            if (Ognl.isNull(appCartItem)) {
-                map.put("code", "0");
-                map.put("msg", "商品信息已经被删除");
-                map.put("collection", null);
-                return map;
-            }
             // 转化为VO
             AppCartItemVo cartItemVo = transformAppCartItemVo(appCartItem, creatTime, uapdateTime, userId, id, oldNumber);
             // 3.校验库存
+            if (Ognl.isNull(appCartItem.getInventory())) {
+                appCartItem.setInventory(0.00);
+            }
             if (appCartItem.getInventory() - oldNumber >= 0) {
                 cartItemVo.setRemaining("1");       // 有库存
             } else {
                 cartItemVo.setRemaining("0");       // 无库存
-            }
-            // 4.校验商品是否失效
-            if ("0".equals(code)) {
-                cartItemVo.setIsUsable("0");        // 商品已经失效
-            } else {
-                cartItemVo.setIsUsable("1");        // 商品未失效
             }
             voList.add(cartItemVo);
         }
         // 5.转化格式输出
         outList = groupById(voList);
         Integer totalNumber = voList.size();
-        map.put("totalNumber",totalNumber);
+        map.put("totalNumber", totalNumber);
         map.put("code", "1");
         map.put("msg", "成功");
         map.put("collection", outList);
