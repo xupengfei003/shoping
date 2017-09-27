@@ -51,8 +51,12 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
        /* if(getOrderIds(orderStatus, orderListA).size() == 0){
             return new PageInfo<>();
         }*/
-
-        List<AppPurchasesVo> orderList = appPurchaseDao.findOrderList(userId, convertStringToInt(orderStatus));
+        List<AppPurchasesVo> orderList = new ArrayList<>();
+        if("1".equals(orderStatus)){
+            orderList = appPurchaseDao.findOrderList(userId, convertStringToInt(orderStatus),"1");
+        } else {
+            orderList = appPurchaseDao.findOrderList(userId, convertStringToInt(orderStatus),"");
+        }
         List<String> orderIdList = new ArrayList<>();//接收订单编号
         PageInfo pageInfo = new PageInfo(orderList);
         //如果有订单列表信息则继续后续相关操作，
