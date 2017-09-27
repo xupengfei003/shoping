@@ -386,34 +386,42 @@ public class PurchaseServiceImpl implements PurchaseService {
         cell.setCellStyle(style);
 
         cell = row.createCell(1);
-        cell.setCellValue("收货人");
+        cell.setCellValue("支付时间");
         cell.setCellStyle(style);
 
         cell = row.createCell(2);
-        cell.setCellValue("联系电话");
+        cell.setCellValue("收货人姓名");
         cell.setCellStyle(style);
 
         cell = row.createCell(3);
-        cell.setCellValue("订单状态");
+        cell.setCellValue("收货人电话");
         cell.setCellStyle(style);
 
         cell = row.createCell(4);
-        cell.setCellValue("订单金额");
+        cell.setCellValue("订单状态");
         cell.setCellStyle(style);
 
         cell = row.createCell(5);
-        cell.setCellValue("运费金额");
+        cell.setCellValue("订单金额");
         cell.setCellStyle(style);
 
         cell = row.createCell(6);
-        cell.setCellValue("下单时间");
+        cell.setCellValue("运费金额");
         cell.setCellStyle(style);
 
         cell = row.createCell(7);
-        cell.setCellValue("支付类型");
+        cell.setCellValue("创建时间");
         cell.setCellStyle(style);
 
         cell = row.createCell(8);
+        cell.setCellValue("更新时间");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(9);
+        cell.setCellValue("支付类型");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(10);
         cell.setCellValue("支付流水号");
         cell.setCellStyle(style);
 
@@ -442,9 +450,12 @@ public class PurchaseServiceImpl implements PurchaseService {
             cellTemp.setCellValue(purchase.getOrderId());
             cellTemp.setCellStyle(style);
             cellTemp = row.createCell(1);
-            cellTemp.setCellValue(purchase.getOrderReceiverName());
+            cellTemp.setCellValue(purchase.getOrderPaymentTime() == null ? "" : StringUtil.fomateData(purchase.getOrderCreateTime(), "yyyy-MM-dd HH:mm:ss"));
             cellTemp.setCellStyle(style);
             cellTemp = row.createCell(2);
+            cellTemp.setCellValue(purchase.getOrderReceiverName());
+            cellTemp.setCellStyle(style);
+            cellTemp = row.createCell(3);
             cellTemp.setCellValue(purchase.getOrderReceiverMobile());
             cellTemp.setCellStyle(style);
             Integer status = purchase.getOrderStatus();
@@ -462,24 +473,27 @@ public class PurchaseServiceImpl implements PurchaseService {
             } else if (status == Constant.OrderStatusConfig.REFUNDED) {
                 orderStatus = Constant.OrderMessageConfig.REFUNDED;
             }
-            cellTemp = row.createCell(3);
+            cellTemp = row.createCell(4);
             cellTemp.setCellValue(orderStatus);
             cellTemp.setCellStyle(style);
-            cellTemp = row.createCell(4);
+            cellTemp = row.createCell(5);
             cellTemp.setCellValue("￥" + purchase.getOrderPrice());
             cellTemp.setCellStyle(style);
             if(purchase.getOrderPostage().compareTo(new BigDecimal(0)) == 1){
-                cellTemp = row.createCell(5);
+                cellTemp = row.createCell(6);
                 cellTemp.setCellValue("￥" + purchase.getOrderPostage());
                 cellTemp.setCellStyle(style);
             } else {
-                cellTemp = row.createCell(5);
+                cellTemp = row.createCell(6);
                 cellTemp.setCellValue("包邮");
                 cellTemp.setCellStyle(style);
             }
 
-            cellTemp = row.createCell(6);
+            cellTemp = row.createCell(7);
             cellTemp.setCellValue(purchase.getOrderCreateTime() == null ? "" : StringUtil.fomateData(purchase.getOrderCreateTime(), "yyyy-MM-dd HH:mm:ss"));
+            cellTemp.setCellStyle(style);
+            cellTemp = row.createCell(8);
+            cellTemp.setCellValue(purchase.getUpdatedAt() == null ? "" : StringUtil.fomateData(purchase.getOrderCreateTime(), "yyyy-MM-dd HH:mm:ss"));
             cellTemp.setCellStyle(style);
             Integer paymentMethod = purchase.getOrderPaymentMethod();
             String payment = "";
@@ -488,10 +502,10 @@ public class PurchaseServiceImpl implements PurchaseService {
             } else if (paymentMethod == Constant.PaymentStatusConfig.WECHAT) {
                 payment = Constant.PaymentMsgConfig.WECHAT;
             }
-            cellTemp = row.createCell(7);
+            cellTemp = row.createCell(9);
             cellTemp.setCellValue(payment);
             cellTemp.setCellStyle(style);
-            cellTemp = row.createCell(8);
+            cellTemp = row.createCell(10);
             cellTemp.setCellValue(purchase.getOrderPaymentNum());
             cellTemp.setCellStyle(style);
         }
