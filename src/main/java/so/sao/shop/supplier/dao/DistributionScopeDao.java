@@ -48,5 +48,5 @@ public interface DistributionScopeDao {
      * @param addressDistrict
      * @return
      */
-    FreightRules selectFreightRulesByCode(@Param("accountId")Long accountId, @Param("addressProvince") String addressProvince, @Param("addressCity") String addressCity, @Param("addressDistrict") String addressDistrict);
+    DistributionScope selectDistributionScopeByCode(@Param("accountId")Long accountId, @Param("addressProvince") String addressProvince, @Param("addressCity") String addressCity, @Param("addressDistrict") String addressDistrict);
 }
