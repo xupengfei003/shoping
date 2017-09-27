@@ -1086,9 +1086,6 @@ public class CommodityServiceImpl implements CommodityService {
             if ( null != mapTag.get(tag) ) {
                 commodityBatchInput.setTagId(mapTag.get(tag));
                 commodityBatchInput.setTagName(tag);
-            } else {
-                errorRowList.add(rowNum);
-                continue;
             }
 
             commodityBatchInput.setOriginPlace(originPlace);
@@ -1168,7 +1165,7 @@ public class CommodityServiceImpl implements CommodityService {
             if("".equals(minOrderQuantity)){
                 supplierCommodityVo.setMinOrderQuantity(1);
             }else {
-                if(Integer.parseInt(minOrderQuantity)<999){
+                if(Integer.parseInt(minOrderQuantity) <= 999){
                     supplierCommodityVo.setMinOrderQuantity(Integer.parseInt(minOrderQuantity));
                 }else {
                     errorRowList.add(rowNum);
