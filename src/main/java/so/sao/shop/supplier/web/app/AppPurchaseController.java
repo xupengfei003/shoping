@@ -3,8 +3,11 @@ package so.sao.shop.supplier.web.app;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.hibernate.validator.constraints.NotBlank;
+import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.domain.FreightRules;
@@ -50,25 +53,34 @@ public class AppPurchaseController {
     }
 
     /**
-     * 分页获取供应商运费规则列表
+     * 获取供应商当前使用的运费规则列表
      * @param accountId accountId
 
      * @return Result
      * @throws Exception Exception
      */
     @GetMapping("/freightQueryAll")
-    @ApiOperation(value = "分页获取供应商运费规则列表", notes = "分页获取供应商运费规则列表 【负责人：郑振海】")
-    public Result queryAll(@NotNull Long accountId , Integer rulesType) throws Exception {
-//        Long accountId = accountService.selectByUserId(userId).getAccountId();
-//        if(accountId == null){
-//            Result.fail(Constant.MessageConfig.MSG_FAILURE);
-//        }
-        List<FreightRules> dataList = freightRulesService.queryAll(accountId, 0, 0,rulesType);
-        Map<String,Object> map = new HashMap<>();
-        map.put("data",new PageInfo<>(dataList));
+    @ApiOperation(value = " 获取供应商当前使用的运费规则列表", notes = " 获取供应商当前使用的运费规则列表 【负责人：郑振海】")
+    public Result queryAll(@RequestParam("accountId") Long accountId ) throws Exception {
+        //根据accountID查询商户当前正在使用的运费规则类型
         Integer rules = accountService.findRulesById(accountId);
-        map.put("freightRules",rules);
-        return Result.success(Constant.MessageConfig.MSG_SUCCESS, map);
+        if (null == rules){
+            return Result.fail("当前商户没有设置运费规则");
+        }
+        //根据运费规则类型查询运费规则列表
+        List<FreightRules> list = freightRulesService.queryAll(accountId,0,0,rules);
+        if (null == list || list.isEmpty()){
+            return Result.fail(Constant.MessageConfig.MSG_NO_DATA);
+        }else {
+            //过滤掉匹配规则没有设置的
+           for (int i = 0;i < list.size();i++){
+                   if (null == list.get(i).getWhetherShipping()){
+                       list.remove(i);
+                   }
+        }
+
+    }
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS, list);
     }
 
 

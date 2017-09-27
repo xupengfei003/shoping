@@ -68,9 +68,9 @@ public class LogisticsServiceImpl implements LogisticsService {
             }
             result.setData(map);
         } catch (Exception e) {
-            logger.debug(e.getMessage(),e);
-            result.setCode(Constant.CodeConfig.CODE_SYSTEM_EXCEPTION);
-            result.setMessage(Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
+            logger.error(e.getMessage(),e);
+            result.setCode(Constant.CodeConfig.CODE_FAILURE);
+            result.setMessage(Constant.MessageConfig.MSG_NO_DATA);
             return result;
         }
         return result;

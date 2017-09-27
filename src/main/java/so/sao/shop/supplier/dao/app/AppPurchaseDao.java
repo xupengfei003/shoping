@@ -5,6 +5,7 @@ import so.sao.shop.supplier.pojo.vo.AppPurchasesVo;
 
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by acer on 2017/9/6.
@@ -36,4 +37,13 @@ public interface AppPurchaseDao {
      * @throws Exception 异常
      */
     List<AppPurchasesVo> findOrderByPayId(@Param("payId") String payId) throws Exception;
+
+    /**
+     * 根据订单ID列表查询订单列表
+     *
+     * @param orderIds 订单ID
+     * @return AppPurchasesVo 订单信息
+     * @throws Exception 异常
+     */
+    List<AppPurchasesVo> findOrderByOrderIds(@Param("orderIds") List<String> orderIds) throws Exception;
 }
