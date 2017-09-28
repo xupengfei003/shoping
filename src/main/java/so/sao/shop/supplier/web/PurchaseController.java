@@ -485,6 +485,10 @@ public class PurchaseController {
     //验证订单状态
     private boolean verifyOrderStatus(String orderId, Integer orderStatus) {
         Integer getOrderStatus = purchaseService.findOrderStatus(orderId);
+        //合并取消
+        if(orderId.length() == 28){
+            getOrderStatus = Constant.OrderStatusConfig.PAYMENT;
+        }
         if(null == getOrderStatus){
             return false;
         }

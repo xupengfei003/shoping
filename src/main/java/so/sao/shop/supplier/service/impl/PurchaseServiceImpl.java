@@ -1152,12 +1152,14 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void cancelOrder(CancelReasonInput cancelReasonInput) throws Exception {
-
         Integer orderStatus = purchaseDao.getOrderStatus(cancelReasonInput.getOrderId());
+        if(cancelReasonInput.getOrderId().length() == 28){
+            orderStatus = Constant.OrderStatusConfig.PAYMENT;
+        }
         Integer inputOrderStatus = Constant.OrderStatusConfig.CANCEL_ORDER;
         if (orderStatus == Constant.OrderStatusConfig.PAYMENT) {
             inputOrderStatus = Constant.OrderStatusConfig.PAYMENT_CANCEL_ORDER;
-            List<PurchaseItemVo> purchaseItemVoList = purchaseItemDao.getOrderDetailByOId(cancelReasonInput.getOrderId());
+            List<PurchaseItemVo> purchaseItemVoList = purchaseItemDao.getOrderDetailByPayId(cancelReasonInput.getOrderId());
             //更新仓库数量
             Map<BigInteger, BigDecimal> mapInput = new HashMap<>();
             purchaseItemVoList.forEach(purchaseItemVo -> {

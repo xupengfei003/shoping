@@ -1,5 +1,6 @@
 package so.sao.shop.supplier.dao;
 
+import org.apache.ibatis.annotations.Param;
 import so.sao.shop.supplier.domain.PurchaseItem;
 import so.sao.shop.supplier.pojo.vo.AccountPurchaseItemVo;
 import so.sao.shop.supplier.pojo.vo.PurchaseItemPrintVo;
@@ -39,4 +40,12 @@ public interface PurchaseItemDao {
      * @return 商品条目封装的vo类的集合
      */
     List<PurchaseItemPrintVo> findPrintItems(String orderId);
+
+    /**
+     * 根据合并订单号查询订单详情列表
+     *
+     * @param payId
+     * @return
+     */
+    List<PurchaseItemVo> getOrderDetailByPayId(@Param("payId") String payId);
 }
