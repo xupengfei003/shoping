@@ -9,6 +9,7 @@ import so.sao.shop.supplier.dao.app.AppPurchaseDao;
 import so.sao.shop.supplier.dao.app.AppPurchaseItemDao;
 import so.sao.shop.supplier.pojo.output.AppPurchaseOutput;
 import so.sao.shop.supplier.pojo.vo.AppPurchaseItemVo;
+import so.sao.shop.supplier.pojo.vo.AppPurchaseShipMethodVo;
 import so.sao.shop.supplier.pojo.vo.AppPurchasesVo;
 import so.sao.shop.supplier.service.app.AppPurchaseService;
 import so.sao.shop.supplier.util.BeanMapper;
@@ -75,6 +76,7 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
         }
         int i = 0;
         for (AppPurchasesVo appPurchasesVo : orderList) {
+
             List<AppPurchaseItemVo> appPurchaseItemVoListInner = new TreeList<>();
             AppPurchaseOutput appPurchaseOutput = null;
             int goodsAllNum = 0;//计算该订单下所有商品总数

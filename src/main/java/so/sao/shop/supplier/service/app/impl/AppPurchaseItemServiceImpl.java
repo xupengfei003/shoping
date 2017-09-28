@@ -2,10 +2,12 @@ package so.sao.shop.supplier.service.app.impl;
 
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.dao.app.AppPurchaseDao;
 import so.sao.shop.supplier.dao.app.AppPurchaseItemDao;
 import so.sao.shop.supplier.pojo.output.AppPurchaseItemOutput;
 import so.sao.shop.supplier.pojo.vo.AppPurchaseItemVo;
+import so.sao.shop.supplier.pojo.vo.AppPurchaseShipMethodVo;
 import so.sao.shop.supplier.pojo.vo.AppPurchasesVo;
 import so.sao.shop.supplier.service.app.AppPurchaseItemService;
 import so.sao.shop.supplier.util.BeanMapper;
@@ -43,7 +45,8 @@ public class AppPurchaseItemServiceImpl implements AppPurchaseItemService {
         AppPurchasesVo appPurchasesVos = new AppPurchasesVo();
         Integer orderStatus = 0;
         BigDecimal totalOrderPostageList = new BigDecimal(0);
-
+        List<AppPurchaseShipMethodVo> appPurchaseShipMethodVos = new ArrayList<>();//配送方式列表
+        AppPurchaseShipMethodVo appPurchaseShipMethodVo = new AppPurchaseShipMethodVo();//配送方式
         if(orderId.length() == 28){
             //根据合并支付ID查询所有订单
             appPurchasesVoList = appPurchaseDao.findOrderByPayId(orderId);
@@ -56,6 +59,13 @@ public class AppPurchaseItemServiceImpl implements AppPurchaseItemService {
         }else{
             //查询订单信息
             appPurchasesVos = appPurchaseDao.findOrderByOrderId(orderId);
+            if(appPurchasesVos.getOrderStatus() == Constant.OrderStatusConfig.ISSUE_SHIP ||
+                    appPurchasesVos.getOrderStatus() == Constant.OrderStatusConfig.RECEIVED ||
+                    appPurchasesVos.getOrderStatus() == Constant.OrderStatusConfig.REJECT ||
+                    appPurchasesVos.getOrderStatus() == Constant.OrderStatusConfig.REFUNDED){
+                appPurchaseShipMethodVo = setOrderShipMethod(appPurchasesVos, appPurchaseShipMethodVo);
+                appPurchaseShipMethodVos.add(appPurchaseShipMethodVo);
+            }
         }
 
         //获取订单ID集合
@@ -105,8 +115,27 @@ public class AppPurchaseItemServiceImpl implements AppPurchaseItemService {
             if(orderStatus == 1){
                 appPurchaseItemOutput.setOrderId(appPurchasesVos.getPayId());
             }
+            appPurchaseItemOutput.setAppPurchaseShipMethods(appPurchaseShipMethodVos);
             appPurchaseItemOutput.setAppPurchaseItemVos(appPurchaseItemVoList);
         }
         return appPurchaseItemOutput;
+    }
+
+    private AppPurchaseShipMethodVo setOrderShipMethod(AppPurchasesVo appPurchasesVo, AppPurchaseShipMethodVo appPurchaseShipMethodVo) {
+        //赋值配送方式
+        if(null == appPurchasesVo.getOrderShipMethod()){
+            appPurchaseShipMethodVo = null;
+        } else {
+            if(appPurchasesVo.getOrderShipMethod() == 1){
+                appPurchaseShipMethodVo.setOrderShipMethod(appPurchasesVo.getOrderShipMethod());
+                appPurchaseShipMethodVo.setDistributorName(appPurchasesVo.getDistributorName());
+                appPurchaseShipMethodVo.setDistributorMobile(appPurchasesVo.getDistributorMobile());
+            } else {
+                appPurchaseShipMethodVo.setOrderShipMethod(appPurchasesVo.getOrderShipMethod());
+                appPurchaseShipMethodVo.setLogisticsCompany(appPurchasesVo.getLogisticsCompany());
+                appPurchaseShipMethodVo.setOrderShipmentNumber(appPurchasesVo.getOrderShipmentNumber());
+            }
+        }
+        return appPurchaseShipMethodVo;
     }
 }

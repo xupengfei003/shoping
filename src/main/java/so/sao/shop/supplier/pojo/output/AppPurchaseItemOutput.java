@@ -2,6 +2,7 @@ package so.sao.shop.supplier.pojo.output;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import so.sao.shop.supplier.pojo.vo.AppPurchaseItemVo;
+import so.sao.shop.supplier.pojo.vo.AppPurchaseShipMethodVo;
 import so.sao.shop.supplier.util.NumberUtil;
 
 import java.math.BigDecimal;
@@ -51,10 +52,6 @@ public class AppPurchaseItemOutput {
      */
     private Integer orderStatus;
     /**
-     * 物流单号
-     */
-    private String orderShipmentNumber;
-    /**
      * 订单支付时间
      */
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
@@ -97,6 +94,10 @@ public class AppPurchaseItemOutput {
      * 商品信息
      */
     private List<AppPurchaseItemVo> appPurchaseItemVos;
+    /**
+     * 配送方式信息
+     */
+    private List<AppPurchaseShipMethodVo> appPurchaseShipMethods;
 
     public String getOrderReceiverName() {
         return orderReceiverName;
@@ -152,14 +153,6 @@ public class AppPurchaseItemOutput {
 
     public void setOrderStatus(Integer orderStatus) {
         this.orderStatus = orderStatus;
-    }
-
-    public String getOrderShipmentNumber() {
-        return orderShipmentNumber;
-    }
-
-    public void setOrderShipmentNumber(String orderShipmentNumber) {
-        this.orderShipmentNumber = orderShipmentNumber;
     }
 
     public List<AppPurchaseItemVo> getAppPurchaseItemVos() {
@@ -247,5 +240,13 @@ public class AppPurchaseItemOutput {
 
     public void setStoreName(String storeName) {
         this.storeName = storeName;
+    }
+
+    public List<AppPurchaseShipMethodVo> getAppPurchaseShipMethods() {
+        return appPurchaseShipMethods;
+    }
+
+    public void setAppPurchaseShipMethods(List<AppPurchaseShipMethodVo> appPurchaseShipMethods) {
+        this.appPurchaseShipMethods = appPurchaseShipMethods;
     }
 }
