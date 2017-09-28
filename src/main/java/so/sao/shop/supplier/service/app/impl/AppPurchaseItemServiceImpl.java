@@ -74,6 +74,8 @@ public class AppPurchaseItemServiceImpl implements AppPurchaseItemService {
             appPurchaseItemOutput = BeanMapper.map(appPurchasesVos,AppPurchaseItemOutput.class);
             if(orderStatus == 1){
                 appPurchaseItemOutput.setOrderId(appPurchasesVos.getPayId());
+                appPurchaseItemOutput.setStoreId(null);
+                appPurchaseItemOutput.setStoreName(null);
             }
             //输出运费
             //1.如果运费为0，则显示“包邮”
@@ -92,11 +94,6 @@ public class AppPurchaseItemServiceImpl implements AppPurchaseItemService {
                 BigDecimal goodsNum = new BigDecimal(appPurchaseItemVo.getGoodsNumber());
                 String goodsUnit = appPurchaseItemVo.getGoodsUnitPrice().replaceAll(",","");
                 goodsAllPrice = goodsAllPrice.add(goodsNum.multiply(new BigDecimal(goodsUnit)));
-                //将订单信息赋值给详情
-               /* appPurchaseItemVo.setStoreName(appPurchasesVos.getStoreName());
-                appPurchaseItemVo.setStoreId(appPurchasesVos.getStoreId());
-                appPurchaseItemVo.setUserId(appPurchasesVos.getUserId());
-                appPurchaseItemVo.setUserName(appPurchasesVos.getUserName());*/
             }
             appPurchaseItemOutput.setOrderPrice(String.valueOf(goodsAllPrice));
             if(orderStatus == 1){
