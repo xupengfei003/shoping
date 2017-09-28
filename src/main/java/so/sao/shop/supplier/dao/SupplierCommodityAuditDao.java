@@ -4,6 +4,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import so.sao.shop.supplier.domain.SupplierCommodityAudit;
 import so.sao.shop.supplier.pojo.input.CommodityAuditInput;
+import so.sao.shop.supplier.pojo.output.CommodityOutput;
 import so.sao.shop.supplier.pojo.vo.CommodityAuditinputVo;
 
 import java.util.List;
@@ -68,4 +69,10 @@ public interface SupplierCommodityAuditDao {
      */
     List<CommodityAuditinputVo> findCommodityAudit(CommodityAuditInput commodityAuditInput);
 
+    /**
+     * 查询审核记录的商品详情
+     * @param id 审核表ID
+     * @return 商品信息对象
+     */
+    CommodityOutput findAuditDetail(@Param("id")long id);
 }

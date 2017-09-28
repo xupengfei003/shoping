@@ -148,4 +148,56 @@
         WHERE sca.audit_flag = 1 AND sca.sc_id = #{id}
     </select>
 
+    <select id="findAuditDetailTmp" resultType="so.sao.shop.supplier.pojo.output.CommodityOutput">
+        SELECT
+            sca.sc_id AS id,
+            sca.id AS scaId,
+            cb.name AS brandName,
+            c.category_one_id AS categoryOneId,
+            c.category_two_id AS categoryTwoId,
+            c.category_three_id AS categoryThreeId,
+            c.name AS NAME,
+            sctmp.remark AS remark,
+            sctmp.code AS CODE,
+            sctmp.code69 AS code69,
+            c.origin_place AS originPlace,
+            c.company_name AS companyName,
+            c.market_time AS marketTime,
+            sctmp.tag_id AS tagId,
+            ct.name AS tagName,
+            sctmp.measure_spec_id AS measureSpecId,
+            cms.name AS measureSpecName,
+            sctmp.rule_val AS ruleVal,
+            sctmp.unit_id AS unitId,
+            cu.name AS unitName,
+            sctmp.inventory AS inventory,
+            sctmp.min_img AS minImg,
+            sctmp.price AS price,
+            sctmp.unit_price AS unitPrice,
+            sca.created_at AS createdAt,
+            sca.updated_at AS updatedAt,
+            sca.supplier_id AS supplierId,
+            sca.status AS STATUS,
+            sctmp.invalid_status AS invalidStatus,
+            sctmp.min_order_quantity AS minOrderQuantity,
+            (SELECT NAME FROM comm_category cc WHERE cc.id = c.category_one_id) AS categoryOneName,
+            (SELECT NAME FROM comm_category cc WHERE cc.id = c.category_two_id) AS categoryTwoName,
+            (SELECT NAME FROM comm_category cc WHERE cc.id = c.category_three_id) AS categoryThreeName
+        FROM
+            supplier_commodity_tmp sctmp
+        INNER JOIN (commodity c LEFT JOIN comm_brand cb ON c.brand_id = cb.id) ON sctmp.code69 = c.code69
+        LEFT JOIN comm_measure_spec cms ON sctmp.measure_spec_id = cms.id
+        LEFT JOIN comm_unit cu ON sctmp.unit_id = cu.id
+        LEFT JOIN comm_tag ct ON sctmp.tag_id = ct.id
+        RIGHT JOIN supplier_commodity_audit sca ON sctmp.sca_id = sca.id
+        WHERE sca.id = #{id}
+    </select>
+
+    <select id="countTemByScaId" resultType="int">
+        SELECT
+        COUNT(id) as num
+        FROM supplier_commodity_tmp
+        where sca_id=#{id}
+    </select>
+
 </mapper>
