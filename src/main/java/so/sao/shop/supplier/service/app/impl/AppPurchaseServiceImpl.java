@@ -199,7 +199,8 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
         for (AppPurchasesVo appPurchasesVoA : orderListA) {
             BigDecimal totalOrderPostage = new BigDecimal(0);//总运费
             for (AppPurchasesVo appPurchasesVo : orderList) {
-                //订单状态为其他
+                //订单状态为1用合并订单编号
+                //订单状态为其他用订单编号
                 if(appPurchasesVo.getOrderStatus() == 1){
                     if (appPurchasesVoA.getPayId().equals(appPurchasesVo.getPayId())) {
                         totalOrderPostage = totalOrderPostage.add(appPurchasesVo.getOrderPostage());
