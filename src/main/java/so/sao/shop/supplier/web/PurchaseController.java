@@ -10,6 +10,7 @@ import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.domain.User;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.*;
+import so.sao.shop.supplier.pojo.output.OrderCancelReasonOutput;
 import so.sao.shop.supplier.pojo.output.OrderRefuseReasonOutput;
 import so.sao.shop.supplier.pojo.output.PurchaseItemPrintOutput;
 import so.sao.shop.supplier.pojo.vo.PurchaseInfoVo;
@@ -440,7 +441,7 @@ public class PurchaseController {
     @ApiOperation("查看取消订单原因接口")
     @GetMapping("/scanCancelReason/{orderId}")
     public Result scanCancelReason(@PathVariable("orderId") String orderId) throws Exception {
-        String cancelReason = purchaseService.searchCancelReasonByOrderId(orderId);
+        OrderCancelReasonOutput cancelReason = purchaseService.searchCancelReasonByOrderId(orderId);
         if (!StringUtils.isEmpty(cancelReason)) {
             return Result.success(Constant.MessageConfig.MSG_SUCCESS, cancelReason);
         }

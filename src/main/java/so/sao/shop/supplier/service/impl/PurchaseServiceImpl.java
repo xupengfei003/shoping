@@ -26,6 +26,7 @@ import so.sao.shop.supplier.domain.*;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.*;
 import so.sao.shop.supplier.pojo.output.CommodityOutput;
+import so.sao.shop.supplier.pojo.output.OrderCancelReasonOutput;
 import so.sao.shop.supplier.pojo.output.OrderRefuseReasonOutput;
 import so.sao.shop.supplier.pojo.output.PurchaseItemPrintOutput;
 import so.sao.shop.supplier.pojo.vo.*;
@@ -1199,8 +1200,8 @@ public class PurchaseServiceImpl implements PurchaseService {
      * @throws Exception
      */
     @Override
-    public String searchCancelReasonByOrderId(String orderId) throws Exception {
-        String cancelReason = purchaseDao.findCancelReason(orderId);
+    public OrderCancelReasonOutput searchCancelReasonByOrderId(String orderId) throws Exception {
+        OrderCancelReasonOutput cancelReason = purchaseDao.findCancelReason(orderId);
         return cancelReason;
     }
 
