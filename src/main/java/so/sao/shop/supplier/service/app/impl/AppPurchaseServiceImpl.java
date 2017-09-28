@@ -69,7 +69,10 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
         }
         List<AppPurchaseOutput> appPurchaseOutputs = new ArrayList<>();//接收返回list
         List<AppPurchaseItemVo> appPurchaseItemVoList = getAllOrderItemList(orderIdList, orderStatus);//接收详情列表
-        List<BigDecimal> totalOrderPostageList = getOrderPostage(userId, orderStatus, appPurchaseItemVoList);
+        List<BigDecimal> totalOrderPostageList = new ArrayList<>();
+        if("1".equals(orderStatus) || "".equals(orderStatus) || null == orderStatus){
+            totalOrderPostageList = getOrderPostage(userId, orderStatus, appPurchaseItemVoList);
+        }
         int i = 0;
         for (AppPurchasesVo appPurchasesVo : orderList) {
             List<AppPurchaseItemVo> appPurchaseItemVoListInner = new TreeList<>();
@@ -117,12 +120,20 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
             //输出运费
             //1.如果运费为0，则显示“包邮”
             //2.如果有运费，则输出实际金额的千分值
-
-            if (totalOrderPostageList.get(i).compareTo(new BigDecimal(0)) == 0) {
-                appPurchaseOutput.setOrderPostage("包邮");
+            if("1".equals(orderStatus) || "".equals(orderStatus) || null == orderStatus){
+                if (totalOrderPostageList.get(i).compareTo(new BigDecimal(0)) == 0) {
+                    appPurchaseOutput.setOrderPostage("包邮");
+                } else {
+                    appPurchaseOutput.setOrderPostage(NumberUtil.number2Thousand(totalOrderPostageList.get(i)));
+                }
             } else {
-                appPurchaseOutput.setOrderPostage(NumberUtil.number2Thousand(totalOrderPostageList.get(i)));
+                if (appPurchasesVo.getOrderPostage().compareTo(new BigDecimal(0)) == 0) {
+                    appPurchaseOutput.setOrderPostage("包邮");
+                } else {
+                    appPurchaseOutput.setOrderPostage(NumberUtil.number2Thousand(appPurchasesVo.getOrderPostage()));
+                }
             }
+
             //当查询订单状态为1时将计算后的总价赋值输出
             if (goodsAllPrice.compareTo(new BigDecimal(0)) == 1) {
                 appPurchaseOutput.setOrderPrice(NumberUtil.number2Thousand(goodsAllPrice));
