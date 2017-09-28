@@ -25,8 +25,9 @@ public class CommExportInput {
     private String commName;
 
     @ApiModelProperty(value = "商品状态")
+    private Integer invalidStatus;
+    @ApiModelProperty(value = "商品状态")
     private Integer status;
-
     @ApiModelProperty(value = "商品科属id")
     private Long typeId;
 
@@ -126,6 +127,10 @@ public class CommExportInput {
         this.status = status;
     }
 
+    public Integer getInvalidStatus() {return invalidStatus;}
+
+    public void setInvalidStatus(Integer invalidStatus) {this.invalidStatus = invalidStatus;}
+
     public Long getTypeId() {
         return typeId;
     }
@@ -165,4 +170,5 @@ public class CommExportInput {
     public void setEndCreateAt(Date endCreateAt) {
         this.endCreateAt = endCreateAt;
     }
+
 }

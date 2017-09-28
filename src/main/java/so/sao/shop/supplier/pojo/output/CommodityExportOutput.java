@@ -99,6 +99,12 @@ public class CommodityExportOutput {
      * 最小起订量
      */
     private  int minOrderQuantity;
+    /**
+     * 是否失效
+     */
+    private  int invalidStatus;
+
+    private  String invalidStatusName;
 
     public Long getId() {
         return id;
@@ -256,6 +262,10 @@ public class CommodityExportOutput {
 
     public void setMinOrderQuantity(int minOrderQuantity) {this.minOrderQuantity = minOrderQuantity;}
 
+    public int getInvalidStatus() {return invalidStatus;}
+
+    public void setInvalidStatus(int invalidStatus) {this.invalidStatusName =  CommConstant.getinvalidStatus(invalidStatus);}
+
     @Override
     public String toString() {
         return
@@ -270,11 +280,12 @@ public class CommodityExportOutput {
                         "," + unitName +
                         "," + measureSpecName +
                         "," + ruleValue +
-                        "," + price +
-                        "," + unitPrice +
-                        "," + inventory +
+                        ",￥" + price +
+                        ",￥" + unitPrice +
+                        "," + (new Double(inventory)).intValue() +
                         "," + minOrderQuantity+
                         "," + statusName +
+                        "," + invalidStatusName +
                         "," + createdAt +
                         "," + updatedAt ;
 
