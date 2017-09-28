@@ -7,6 +7,7 @@ import so.sao.shop.supplier.domain.Purchase;
 import so.sao.shop.supplier.pojo.input.AccountPurchaseInput;
 import so.sao.shop.supplier.pojo.input.AccountPurchaseLowInput;
 import so.sao.shop.supplier.pojo.input.PurchaseSelectInput;
+import so.sao.shop.supplier.pojo.output.OrderCancelReasonOutput;
 import so.sao.shop.supplier.pojo.output.OrderRefuseReasonOutput;
 import so.sao.shop.supplier.pojo.vo.*;
 
@@ -213,7 +214,7 @@ public interface PurchaseDao {
      * @param orderId 订单编号
      * @return
      */
-    String findCancelReason(@Param("orderId") String orderId);
+    OrderCancelReasonOutput findCancelReason(@Param("orderId") String orderId);
 
     /**
      * 根据支付ID获取订单

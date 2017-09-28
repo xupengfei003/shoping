@@ -4,6 +4,7 @@ package so.sao.shop.supplier.service;
 import com.github.pagehelper.PageInfo;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.*;
+import so.sao.shop.supplier.pojo.output.OrderCancelReasonOutput;
 import so.sao.shop.supplier.pojo.output.OrderRefuseReasonOutput;
 import so.sao.shop.supplier.pojo.output.PurchaseItemPrintOutput;
 import so.sao.shop.supplier.pojo.vo.PurchaseInfoVo;
@@ -202,7 +203,7 @@ public interface PurchaseService {
      * @return 取消订单原因
      * @throws Exception
      */
-    String searchCancelReasonByOrderId(String orderId) throws Exception;
+    OrderCancelReasonOutput searchCancelReasonByOrderId(String orderId) throws Exception;
 
     /**
      * 根据订单编号实现退款逻辑
