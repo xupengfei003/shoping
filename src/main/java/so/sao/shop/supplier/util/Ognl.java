@@ -128,6 +128,19 @@ public class Ognl {
         return false;
     }
 
+    /**
+     * SQL-判断是否为合并取消
+     *
+     * @param str （str 为28时则合并取消，传入的时合并订单号）
+     * @return
+     */
+    public static boolean objLength(String str){
+        if (str.length() == 28){
+            return true;
+        }else {
+            return false;
+        }
+    }
 
 }
 
