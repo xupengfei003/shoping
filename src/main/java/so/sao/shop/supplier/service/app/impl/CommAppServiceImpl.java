@@ -110,7 +110,7 @@ public class CommAppServiceImpl implements CommAppService {
 
     /**
      * 根据供应商ID或名称查询供应商详情列表
-     * @param accountId 供应商ID
+     * @param accountId 账户ID
      * @param providerName 供应商名称
      * @param pageNum 当前页号
      * @param pageSize 页面大小
