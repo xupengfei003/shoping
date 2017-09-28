@@ -349,13 +349,13 @@ public class AccountController {
      * @return
      */
     @ApiOperation(value = "密码修改",notes = "密码修改【负责人：汪涛】")
-    @PutMapping(value = "/updatePassword/{encodedPassword}")
-    public Result updatePassword(HttpServletRequest request, @PathVariable String encodedPassword) throws IOException {
+    @PostMapping(value = "/updatePassword")
+    public Result updatePassword(HttpServletRequest request,@RequestBody Map encodedPassword) throws IOException {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         if(null == user){
             return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
-        return authService.updatePassword(user.getId(), encodedPassword);
+        return authService.updatePassword(user.getId(), encodedPassword.get("encodedPassword").toString());
     }
 
     /**

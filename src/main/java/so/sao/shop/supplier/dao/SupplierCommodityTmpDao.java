@@ -26,4 +26,18 @@ public interface SupplierCommodityTmpDao {
      * @return 商品信息对象
      */
     CommodityOutput findDetailTmp(@Param("id")long id);
+
+    /**
+     * 查询审核编辑后的商品详情
+     * @param id 审核表ID
+     * @return 商品信息对象
+     */
+    CommodityOutput findAuditDetailTmp(@Param("id")long id);
+
+    /**
+     * 通过审核表ID查询tmp表是否存在数据
+     * @param id 审核表ID
+     * @return
+     */
+    int countTemByScaId(@Param("id")long id);
 }

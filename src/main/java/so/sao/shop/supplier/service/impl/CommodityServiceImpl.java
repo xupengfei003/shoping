@@ -392,7 +392,7 @@ public class CommodityServiceImpl implements CommodityService {
         return Result.success("更新商品信息成功");
     }
     /**
-     * 根据供应商商品ID获取商品详情
+     * 根据供应商商品ID获取商品·
      * @param id
      * @return
      */
@@ -609,7 +609,7 @@ public class CommodityServiceImpl implements CommodityService {
         //判断配送范围和运费规则是否完整
         Boolean flag=checkFreightRules(supplierCommodity.getSupplierId());
         if(!flag){
-            return Result.fail("请先完善配送范围和运费规则");
+            return Result.fail("该供应商未配置配送范围与运费规则，无法上架商品！");
         }
         //判断是否重复执行上架操作
         if(supplierCommodity.getStatus()==CommConstant.COMM_ST_ON_SHELVES){
@@ -698,7 +698,7 @@ public class CommodityServiceImpl implements CommodityService {
         //判断供应商是否已完善配送范围和运费规则
         boolean flag = checkFreightRules(supplierCommodityList.get(0).getSupplierId());
         if (!flag) {
-            return Result.fail("请先完善配送范围和运费规则!");
+            return Result.fail("该供应商未配置配送范围与运费规则，无法上架商品！");
         }
         //判断该供应商商品数组中是否已处于待审核状态
         int num = supplierCommodityAuditDao.countByScidArrayAndAuditResult(ids);
@@ -1552,4 +1552,32 @@ public class CommodityServiceImpl implements CommodityService {
         }
         return commodityOutput;
     }
+
+    /**
+     * 根据审核表ID查询审核记录详情
+     * @param id 审核表ID
+     * @return
+     */
+    public Result findAuditDetail(Long id){
+        int num = supplierCommodityTmpDao.countTemByScaId(id);
+        List<CommImge> commImgeList  = null;
+        CommodityOutput auditDetail = null;
+        if(num > 0){
+          auditDetail = supplierCommodityTmpDao.findAuditDetailTmp(id);
+            if (null != auditDetail) {
+                //根据供应商商品ID获取图片列表信息
+                commImgeList = commImgeTmpDao.findImgTmp(id);
+                List<CommImgeVo> commImgeVoList = new ArrayList<>();
+                commImgeList.forEach(commImge -> {
+                    CommImgeVo commImgeVo = BeanMapper.map(commImge, CommImgeVo.class);
+                    commImgeVoList.add(commImgeVo);
+                });
+                auditDetail.setImgeList(commImgeVoList);
+            }
+            return Result.success("查询审核记录详情成功！",auditDetail);
+        }
+        auditDetail = supplierCommodityAuditDao.findAuditDetail(id);
+        readImgData(auditDetail.getId(),auditDetail); // 获取图片信息
+        return Result.success("查询审核记录详情成功！",auditDetail);
+    };
 }

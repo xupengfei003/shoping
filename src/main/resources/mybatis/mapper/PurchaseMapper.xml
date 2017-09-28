@@ -631,13 +631,20 @@
         order_status = #{cancelMap.orderStatus},
         order_cancel_time = #{cancelMap.updatedAt},
         updated_at = #{cancelMap.updatedAt}
-        WHERE order_id = #{cancelMap.orderId}
+        WHERE
+        <if test="!@so.sao.shop.supplier.util.Ognl@objLength(cancelMap.orderId)">
+            order_id = #{cancelMap.orderId}
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@objLength(cancelMap.orderId)">
+            pay_id = #{cancelMap.orderId}
+        </if>
     </update>
 
     <!--根据订单编号查询取消原因-->
-    <select id="findCancelReason" resultType="java.lang.String" parameterType="java.lang.String">
+    <select id="findCancelReason" resultType="so.sao.shop.supplier.pojo.output.OrderCancelReasonOutput" parameterType="java.lang.String">
         SELECT
-          order_cancel_reason
+          order_cancel_reason AS orderCancelReason,
+          cancel_type AS cancelType
         FROM
           purchase
         WHERE order_id = #{orderId}

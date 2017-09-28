@@ -27,6 +27,7 @@ import so.sao.shop.supplier.domain.*;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.*;
 import so.sao.shop.supplier.pojo.output.CommodityOutput;
+import so.sao.shop.supplier.pojo.output.OrderCancelReasonOutput;
 import so.sao.shop.supplier.pojo.output.OrderRefuseReasonOutput;
 import so.sao.shop.supplier.pojo.output.PurchaseItemPrintOutput;
 import so.sao.shop.supplier.pojo.vo.*;
@@ -1152,12 +1153,14 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void cancelOrder(CancelReasonInput cancelReasonInput) throws Exception {
-
         Integer orderStatus = purchaseDao.getOrderStatus(cancelReasonInput.getOrderId());
+        if(cancelReasonInput.getOrderId().length() == 28){
+            orderStatus = Constant.OrderStatusConfig.PAYMENT;
+        }
         Integer inputOrderStatus = Constant.OrderStatusConfig.CANCEL_ORDER;
         if (orderStatus == Constant.OrderStatusConfig.PAYMENT) {
             inputOrderStatus = Constant.OrderStatusConfig.PAYMENT_CANCEL_ORDER;
-            List<PurchaseItemVo> purchaseItemVoList = purchaseItemDao.getOrderDetailByOId(cancelReasonInput.getOrderId());
+            List<PurchaseItemVo> purchaseItemVoList = purchaseItemDao.getOrderDetailByPayId(cancelReasonInput.getOrderId());
             //更新仓库数量
             Map<BigInteger, BigDecimal> mapInput = new HashMap<>();
             purchaseItemVoList.forEach(purchaseItemVo -> {
@@ -1200,8 +1203,8 @@ public class PurchaseServiceImpl implements PurchaseService {
      * @throws Exception
      */
     @Override
-    public String searchCancelReasonByOrderId(String orderId) throws Exception {
-        String cancelReason = purchaseDao.findCancelReason(orderId);
+    public OrderCancelReasonOutput searchCancelReasonByOrderId(String orderId) throws Exception {
+        OrderCancelReasonOutput cancelReason = purchaseDao.findCancelReason(orderId);
         return cancelReason;
     }
 

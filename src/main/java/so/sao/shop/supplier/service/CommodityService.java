@@ -153,4 +153,11 @@ public interface CommodityService {
      * @return
      */
     Result auditBatch(HttpServletRequest request , CommAuditInput commAuditInput);
+
+    /**
+     * 根据审核表ID查询审核记录详情
+     * @param id 审核表ID
+     * @return
+     */
+    Result findAuditDetail(Long id);
 }
