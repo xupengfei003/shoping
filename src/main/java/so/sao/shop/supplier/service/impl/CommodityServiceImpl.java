@@ -392,7 +392,7 @@ public class CommodityServiceImpl implements CommodityService {
         return Result.success("更新商品信息成功");
     }
     /**
-     * 根据供应商商品ID获取商品详情
+     * 根据供应商商品ID获取商品·
      * @param id
      * @return
      */
@@ -1552,4 +1552,32 @@ public class CommodityServiceImpl implements CommodityService {
         }
         return commodityOutput;
     }
+
+    /**
+     * 根据审核表ID查询审核记录详情
+     * @param id 审核表ID
+     * @return
+     */
+    public Result findAuditDetail(Long id){
+        int num = supplierCommodityTmpDao.countTemByScaId(id);
+        List<CommImge> commImgeList  = null;
+        CommodityOutput auditDetail = null;
+        if(num > 0){
+          auditDetail = supplierCommodityTmpDao.findAuditDetailTmp(id);
+            if (null != auditDetail) {
+                //根据供应商商品ID获取图片列表信息
+                commImgeList = commImgeTmpDao.findImgTmp(id);
+                List<CommImgeVo> commImgeVoList = new ArrayList<>();
+                commImgeList.forEach(commImge -> {
+                    CommImgeVo commImgeVo = BeanMapper.map(commImge, CommImgeVo.class);
+                    commImgeVoList.add(commImgeVo);
+                });
+                auditDetail.setImgeList(commImgeVoList);
+            }
+            return Result.success("查询审核记录详情成功！",auditDetail);
+        }
+        auditDetail = supplierCommodityAuditDao.findAuditDetail(id);
+        readImgData(auditDetail.getId(),auditDetail); // 获取图片信息
+        return Result.success("查询审核记录详情成功！",auditDetail);
+    };
 }

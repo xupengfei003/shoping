@@ -196,4 +196,9 @@ public class CommodityController {
         return commodityService.serachCommodityAudit(commodityAuditInput);
     }
 
+    @ApiOperation(value="查询商品审核记录详情信息", notes="根据ID返回相应的审核记录详情信息【责任人：唐文斌】")
+    @GetMapping(value="/getAudit/{id}")
+    public Result getAuditDetail(@PathVariable Long id){
+        return commodityService.findAuditDetail(id);
+    }
 }
