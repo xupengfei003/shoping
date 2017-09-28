@@ -123,4 +123,22 @@
         LEFT JOIN SUPPLIER_COMMODITY c ON g.goods_id = c.id
         WHERE  ORDER_ID = #{orderId,jdbcType=BIGINT}
     </select>
+
+    <!-- 根据合并订单ID查询订单明细 -->
+    <select id="getOrderDetailByPayId" resultMap="PurchaseItemList" parameterType="java.lang.String">
+        SELECT
+        pi.goods_image,
+        pi.goods_name,
+        pi.goods_attribute,
+        pi.goods_id,
+        pi.code69,
+        pi.goods_number,
+        pi.goods_tatol_price,
+        pi.brand_name,
+        pi.goods_unit_price
+        FROM
+        purchase_item pi
+        JOIN purchase p ON p.order_id = pi.order_id
+        and p.pay_id = #{payId,jdbcType=VARCHAR}
+    </select>
 </mapper>
