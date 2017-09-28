@@ -158,7 +158,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                     CommodityOutput commOutput = (CommodityOutput) result.getData();
                     //判断是否满足最小起订量
                     if (!this.checkMinOrderQuantity(commOutput,goodsNumber)){
-                        output.put("message",commOutput.getName()+"商品不满足最小起订量或已下架");
+                        output.put("message",commOutput.getName()+"商品不满足最小起订量或已下架或商家已被禁用");
                         return output;
                     }
                     //2.生成批量插入订单详情数据
@@ -1420,7 +1420,7 @@ public class PurchaseServiceImpl implements PurchaseService {
      * @return
      */
     private boolean checkMinOrderQuantity(CommodityOutput commOutput, BigDecimal goodsNumber){
-        if (null != commOutput && null != goodsNumber && CommConstant.COMM_ST_ON_SHELVES == commOutput.getStatus()){
+        if (null != commOutput && null != goodsNumber && CommConstant.COMM_ST_ON_SHELVES == commOutput.getStatus() && 1 == commOutput.getInvalidStatus()){
             if (commOutput.getMinOrderQuantity() > goodsNumber.intValue()){
                 return false;
             }else {
