@@ -38,9 +38,14 @@ public class AppPurchaseItemOutput {
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date orderCreateTime;
     /**
+     * 供应商ID
+     */
+    private String storeId;
+
+    /**
      * 供应商名称
-     *//*
-    private String storeName;*/
+     */
+    private String storeName;
     /**
      * 订单状态
      */
@@ -87,10 +92,7 @@ public class AppPurchaseItemOutput {
      * 订单邮费 (0:包邮，非零显示具体金额)
      */
     private String orderPostage;
-    /**
-     * 门店ID
-     */
-//    private String supplierId;
+
     /**
      * 商品信息
      */
@@ -143,14 +145,6 @@ public class AppPurchaseItemOutput {
     public void setOrderCreateTime(Date orderCreateTime) {
         this.orderCreateTime = orderCreateTime;
     }
-
-  /*  public String getStoreName() {
-        return storeName;
-    }
-
-    public void setStoreName(String storeName) {
-        this.storeName = storeName;
-    }*/
 
     public Integer getOrderStatus() {
         return orderStatus;
@@ -231,20 +225,27 @@ public class AppPurchaseItemOutput {
     public void setOrderPaymentNum(String orderPaymentNum) {
         this.orderPaymentNum = orderPaymentNum;
     }
-
-    /*public String getSupplierId() {
-        return supplierId;
-    }
-
-    public void setSupplierId(String supplierId) {
-        this.supplierId = supplierId;
-    }*/
-
     public String getOrderPostage() {
         return orderPostage;
     }
 
     public void setOrderPostage(String orderPostage) {
         this.orderPostage = orderPostage;
+    }
+
+    public String getStoreId() {
+        return storeId;
+    }
+
+    public void setStoreId(String storeId) {
+        this.storeId = storeId;
+    }
+
+    public String getStoreName() {
+        return storeName;
+    }
+
+    public void setStoreName(String storeName) {
+        this.storeName = storeName;
     }
 }
