@@ -153,7 +153,7 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
         return pageInfo;
     }
 
-    //获取不重复的订单ID
+    /*//获取不重复的订单ID
     private List<String> getOrderIds(String orderStatus, List<AppPurchasesVo> orderListA) {
         List<String> getOrderIdList = new ArrayList();
 
@@ -165,7 +165,7 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
         }
 
         return getOrderIdList;
-    }
+    }*/
 
     //获取ID（订单状态为待付款（1）获取的是payID,订单状态为其他则获取的是orderId）
     private List<String> getId(String orderStatus, List<AppPurchasesVo> orderList) {
