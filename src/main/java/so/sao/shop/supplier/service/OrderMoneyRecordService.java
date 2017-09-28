@@ -1,14 +1,13 @@
 package so.sao.shop.supplier.service;
 
 import so.sao.shop.supplier.domain.Account;
-import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.OrderMoneyRecordInput;
+import so.sao.shop.supplier.pojo.input.OrderMoneyRecordRankInput;
 import so.sao.shop.supplier.pojo.output.OrderMoneyRecordOutput;
 import so.sao.shop.supplier.pojo.output.RecordToPurchaseOutput;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -37,10 +36,10 @@ public interface OrderMoneyRecordService {
     /**
      * 更新结算状态
      * @param recordId
-     * @param state
+     * @param serialNumber
      * @return
      */
-    boolean updateOrderMoneyRecordState(String recordId, String state) throws Exception;
+    boolean updateOrderMoneyRecordState(String recordId, String serialNumber) throws Exception;
 
     /**
      * 根据根据申请人账户ID查询满足结算时间条件的已结算/待结算明细，并根据pageNum和pageSize进行分页
@@ -51,7 +50,7 @@ public interface OrderMoneyRecordService {
      * @return
      * @throws Exception
      */
-    Result searchRecords(Long accountId, OrderMoneyRecordInput put, Integer pageNum, Integer pageSize) throws Exception;
+    Map<String, Object> searchRecords(Long accountId, OrderMoneyRecordRankInput put, Integer pageNum, Integer pageSize) throws Exception;
 
     /**
      * 根据结算明细查询该明细所对应的订单列表，并根据pageNum和pageSize进行分页展示

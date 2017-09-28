@@ -25,45 +25,71 @@
         FROM notification
         WHERE notifi_id = #{notifiId,jdbcType=INTEGER}
     </select>
-    <!-- 查询所有消息通知 -->
-    <select id="search" resultMap="BaseResultMap">
+    <!-- 分页查询供应商消息列表 -->
+    <select id="searchSupplierNotifi" resultMap="BaseResultMap">
         SELECT
         <include refid="Base_Column_List"/>
         FROM
         notification
         <where>
             1=1
-            <if test="@so.sao.shop.supplier.util.Ognl@isNotNull(notifiType)">
-                AND notifi_type = #{notifiType,jdbcType=INTEGER}
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotNull(notifiType) and notifiType == 0">
+                AND notifi_type = 0
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotNull(notifiType) and notifiType != 0">
+                AND notifi_type in(1,2)
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotNull(accountId)">
                 AND account_id = #{accountId,jdbcType=BIGINT}
             </if>
-            <if test="@so.sao.shop.supplier.util.Ognl@isNull(accountId)">
-                GROUP BY sigin
-            </if>
         </where>
         ORDER BY created_at DESC
     </select>
-    <!-- 查询未读消息列表 -->
+    <!-- 分页查询管理员消息列表 -->
+    <select id="searchAdminNotifi" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM
+        notification
+        WHERE notifi_type = 1
+        GROUP BY sigin
+        ORDER BY created_at DESC
+    </select>
+    <!-- 查询前五条消息列表不区分已读未读 -->
     <select id="searchUnread" resultMap="BaseResultMap">
         SELECT
         <include refid="Base_Column_List"/>
         FROM
         notification
-        WHERE notifi_type = #{notifiType,jdbcType=INTEGER}
-        AND account_id = #{accountId,jdbcType=BIGINT}
+        <where>
+            1=1
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotNull(notifiType) and notifiType == 0">
+                AND notifi_type = 0
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotNull(notifiType) and notifiType != 0">
+                AND notifi_type in(1,2)
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotNull(accountId)">
+                AND account_id = #{accountId,jdbcType=BIGINT}
+            </if>
+        </where>
         ORDER BY created_at DESC
         LIMIT #{count,jdbcType=INTEGER}
     </select>
-
     <!-- 消息跑马灯显示 -->
-    <select id="marqueeShow" resultMap="BaseResultMap">
+    <select id="marqueeShow" resultType="java.lang.String">
         SELECT
-        <include refid="Base_Column_List"/>
+        notifi_detail
         FROM
         notification
-        GROUP BY sigin
+        <if test="@so.sao.shop.supplier.util.Ognl@isNull(accountId)">
+            WHERE notifi_type = 1
+            GROUP BY sigin
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotNull(accountId)">
+            WHERE notifi_type in(1,2)
+            AND account_id = #{accountId,jdbcType=BIGINT}
+        </if>
         ORDER BY created_at DESC LIMIT 1
     </select>
     <!-- 根据主键删除消息 -->

@@ -7,7 +7,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Created by acer on 2017/7/26.
+ * @author gxy on 2017/7/26.
  */
 public class PurchaseInfoVo {
     /**
@@ -92,6 +92,11 @@ public class PurchaseInfoVo {
      * 物流单号
      */
     private String orderShipmentNumber;
+
+    /**
+     * 订单邮费 (0:包邮，非零显示具体金额)
+     */
+    private String orderPostage;
 
     /**
      * 订单明细列表
@@ -232,5 +237,13 @@ public class PurchaseInfoVo {
 
     public void setOrderAddress(String orderAddress) {
         this.orderAddress = orderAddress;
+    }
+
+    public String getOrderPostage() {
+        return orderPostage;
+    }
+
+    public void setOrderPostage(String orderPostage) {
+        this.orderPostage = orderPostage;
     }
 }

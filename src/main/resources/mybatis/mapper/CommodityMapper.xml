@@ -17,7 +17,7 @@
         comm.id AS id,
         comm.code69 AS code69,
         b.name AS brandName,
-        comm.name AS name,
+        comm.name AS NAME,
         comm.category_one_id AS categoryOneId,
         comm.category_two_id AS categoryTwoId,
         comm.category_three_id AS categoryThreeId,
@@ -27,9 +27,12 @@
         comm.created_at AS createdAt,
         comm.created_by AS createdBy,
         comm.updated_at AS updatedAt,
-        comm.updated_by AS updatedBy
+        comm.updated_by AS updatedBy,
+        (SELECT NAME FROM comm_category WHERE id = comm.category_one_id) AS categoryOneName,
+        (SELECT NAME FROM comm_category WHERE id = comm.category_two_id) AS categoryTwoName,
+        (SELECT NAME FROM comm_category WHERE id = comm.category_three_id) AS categoryThreeName
         FROM commodity comm
-        LEFT JOIN comm_brand b on comm.brand_id=b.id
+        LEFT JOIN comm_brand b ON comm.brand_id=b.id
         WHERE code69 = #{code69}
     </select>
     <!--根据code69查询商品信息-->
@@ -83,34 +86,248 @@
         )
     </insert>
     <update id="update">
-        UPDATE commodity SET name=#{name},brand_id = #{brandId} WHERE id = #{id}
+        UPDATE commodity SET
+          name = #{name},
+          code69 = #{code69},
+          category_one_id = #{categoryOneId},
+          category_two_id = #{categoryTwoId},
+          category_three_id = #{categoryThreeId},
+          updated_by = #{updatedBy},
+          updated_at = #{updatedAt}
+        WHERE id = #{id}
     </update>
-    <select id="findByIds" parameterType="Long[]" resultType="so.sao.shop.supplier.pojo.output.CommodityExportOutput">
+
+    <update id="updateComm">
+        UPDATE commodity SET
+        origin_place = #{originPlace},
+        company_name = #{companyName},
+        market_time = #{marketTime},
+        brand_id = #{brandId},
+        updated_by = #{updatedBy},
+        updated_at = #{updatedAt}
+        WHERE id = #{id}
+    </update>
+
+    <select id="findByIds" resultType="so.sao.shop.supplier.pojo.output.CommodityExportOutput">
         SELECT
-        sc.sku AS sku,
-        sc.code69 AS code69,
+        id AS id,
+        supplier_id,
+        IFNULL(t.code69,'') AS code69,
+        IFNULL(t.code,'') AS supplierCode,
+        IFNULL(t.brandName,'') AS brandName,
+        IFNULL(t.commName,'') AS commName,
+        IFNULL(t.unitName,'') AS unitName,
+        IFNULL(t.measureSpecName,'') AS measureSpecName,
+        IFNULL(t.rule_val,'') AS ruleValue,
+        inventory AS inventory,
+        STATUS,
+        price AS price,
+        unit_price AS unitPrice,
+        IFNULL(t.created_at,'') AS createdAt,
+        IFNULL(t.updated_at,'') AS updatedAt,
+        IFNULL(t.min_order_quantity,'') AS minOrderQuantity,
+        IFNULL(t.tagName,'') AS tagName,
+        IFNULL(t.company_name,'') AS companyName,
+        IFNULL(t.origin_place,'') AS originPlace,
+        IFNULL(t.market_time,'') AS marketTime,
+        categoryOneId,
+        invalid_status AS  invalidStatus
+        FROM (SELECT
+        t1.sc_id AS id,
+        sctmp.supplier_id,
+        sctmp.min_img,
+        sctmp.code69,
+        sctmp.code,
         cb.name AS brandName,
-        ct.name AS tagName,
-        cc.name AS commName,
-        sc.code AS supplierCode,
+        c.name AS commName,
+        c.category_one_id AS categoryOneId,
         cu.name AS unitName,
         cms.name AS measureSpecName,
-        sc.rule_val AS ruleValue,
-        sc.price AS price,
-        sc.unit_price AS unitPrice,
-        sc.inventory AS inventory,
-        sc.status AS status,
-        sc.created_at AS createdAt,
-        sc.updated_at AS updatedAt,
-        cc.company_name AS companyName,
-        cc.origin_place AS originPlace,
-        cc.market_time AS marketTime
+        ct.name AS tagName,
+        sctmp.rule_val,
+        sctmp.inventory,
+        t1.status AS STATUS,
+        sctmp.invalid_status,
+        sctmp.price,
+        sctmp.unit_price,
+        sctmp.created_at,
+        t1.updated_at,
+        sctmp.min_order_quantity,
+        t1.audit_result,
+        t1.audit_opinion,
+        c.origin_place,
+        c.company_name,
+        c.market_time
+        FROM
+        supplier_commodity_tmp sctmp
+        INNER JOIN (
+        SELECT
+        t.id,
+        t.sc_id,
+        t.supplier_id,
+        t.updated_at,
+        t.created_at,
+        t.status,
+        t.audit_result,
+        t.audit_flag,
+        t.audit_by,
+        t.audit_opinion
+        FROM
+        supplier_commodity_audit t
+        WHERE t.status = 6 AND t.audit_flag = 1) t1 ON sctmp.sca_id = t1.id
+        INNER JOIN commodity c ON sctmp.code69 = c.code69
+        LEFT JOIN comm_brand cb ON c.brand_id = cb.id
+        LEFT JOIN comm_measure_spec cms ON sctmp.measure_spec_id = cms.id
+        LEFT JOIN comm_tag ct ON sctmp.tag_id = ct.id
+        LEFT JOIN comm_unit cu ON sctmp.unit_id = cu.id
+        WHERE sctmp.supplier_id = #{supplierId}
+        UNION
+        SELECT
+        sc.id,
+        sc.supplier_id,
+        sc.min_img,
+        c.code69,
+        sc.code,
+        cb.name AS brandName,
+        c.name AS commName,
+        c.category_one_id AS categoryOneId,
+        cu.name AS unitName,
+        cms.name AS measureSpecName,
+        ct.name AS tagName,
+        sc.rule_val,
+        sc.inventory,
+        sc.status,
+        sc.invalid_status,
+        sc.price,
+        sc.unit_price,
+        sc.created_at,
+        sc.updated_at,
+        sc.min_order_quantity,
+        t1.audit_result,
+        t1.audit_opinion,
+        c.origin_place,
+        c.company_name,
+        c.market_time
+        FROM
+        supplier_commodity sc
+        LEFT JOIN (
+        SELECT
+        t.id,
+        t.sc_id,
+        t.supplier_id,
+        t.updated_at,
+        t.created_at,
+        t.status,
+        t.audit_result,
+        t.audit_flag,
+        t.audit_by,
+        t.audit_opinion
+        FROM
+        supplier_commodity_audit t
+        WHERE t.audit_flag = 1 AND t.status != 6) t1 ON sc.id = t1.sc_id
+        INNER JOIN commodity c ON sc.code69 = c.code69
+        LEFT JOIN comm_brand cb ON c.brand_id = cb.id
+        LEFT JOIN comm_measure_spec cms ON sc.measure_spec_id = cms.id
+        LEFT JOIN comm_tag ct ON sc.tag_id = ct.id
+        LEFT JOIN comm_unit cu ON sc.unit_id = cu.id
+        WHERE sc.deleted = 0 and sc.supplier_id = #{supplierId}
+        AND (t1.id is null and sc.`status` IN (0, 2, 3))
 
-        FROM supplier_commodity sc INNER JOIN (commodity c LEFT JOIN comm_brand cb on c.brand_id = cb.id) on sc.code69 = c.code69
-        LEFT JOIN comm_measure_spec cms on sc.measure_spec_id = cms.id LEFT JOIN comm_unit cu on sc.unit_id = cu.id  LEFT JOIN comm_tag ct on sc.tag_id = ct.id  LEFT JOIN commodity cc on sc.code69 = cc.code69
-        WHERE sc.id IN
-        <foreach collection="array" item="scId" index="index" open="(" close=")" separator=",">
-            #{scId}
-        </foreach>
+        UNION
+
+        SELECT
+        sc.id,
+        sc.supplier_id,
+        sc.min_img,
+        c.code69,
+        sc.code,
+        cb.name AS brandName,
+        c.name AS commName,
+        c.category_one_id AS categoryOneId,
+        cu.name AS unitName,
+        cms.name AS measureSpecName,
+        ct.name AS tagName,
+        sc.rule_val,
+        sc.inventory,
+        t1.status,
+        sc.invalid_status,
+        sc.price,
+        sc.unit_price,
+        sc.created_at,
+        sc.updated_at,
+        sc.min_order_quantity,
+        t1.audit_result,
+        t1.audit_opinion,
+        c.origin_place,
+        c.company_name,
+        c.market_time
+        FROM
+        supplier_commodity sc
+        LEFT JOIN (
+        SELECT
+        *
+        FROM
+        supplier_commodity_audit t
+        WHERE t.audit_flag = 1 AND t.status != 6) t1 ON sc.id = t1.sc_id
+        INNER JOIN commodity c ON sc.code69 = c.code69
+        LEFT JOIN comm_brand cb ON c.brand_id = cb.id
+        LEFT JOIN comm_measure_spec cms ON sc.measure_spec_id = cms.id
+        LEFT JOIN comm_tag ct ON sc.tag_id = ct.id
+        LEFT JOIN comm_unit cu ON sc.unit_id = cu.id
+        WHERE sc.deleted = 0 AND sc.supplier_id = #{supplierId}
+        AND (t1.id is not null and sc.`status` IN (0, 2, 3))
+        ) t
+        GROUP BY id HAVING 1 = 1
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(commCode69)">
+            AND code69 = #{commCode69}
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(commCodeOrName)">
+            AND (code69 = #{commCodeOrName}
+            OR commName LIKE "%${commCodeOrName}%")
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(suppCommCode)">
+            AND supplierCode = #{suppCommCode}
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(commName)">
+            AND commName LIKE "%${commName}%"
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(status)">
+            AND t.status = #{status}
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(invalidStatus)">
+            AND t.invalid_status = #{invalidStatus}
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(minPrice) and @so.sao.shop.supplier.util.Ognl@isEmpty(maxPrice)">
+            AND t.price<![CDATA[ >= #{minPrice}]]>
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(maxPrice) and @so.sao.shop.supplier.util.Ognl@isEmpty(minPrice)">
+            AND  t.price<![CDATA[<= #{maxPrice}]]>
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(minPrice) and @so.sao.shop.supplier.util.Ognl@isNotEmpty(maxPrice)">
+            AND t.price BETWEEN #{minPrice}
+            AND #{maxPrice}
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(typeId)">
+            AND categoryOneId = #{typeId}
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(beginCreateAt) and @so.sao.shop.supplier.util.Ognl@isEmpty(endCreateAt)">
+            AND Date(createdAt)<![CDATA[ >= #{beginCreateAt}]]>
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(endCreateAt) and @so.sao.shop.supplier.util.Ognl@isEmpty(beginCreateAt)">
+            AND  Date(createdAt)<![CDATA[<= #{endCreateAt}]]>
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(beginCreateAt) and @so.sao.shop.supplier.util.Ognl@isNotEmpty(endCreateAt)">
+            AND Date(createdAt) BETWEEN #{beginCreateAt}
+            AND #{endCreateAt}
+        </if>
+        ORDER BY t.updated_at DESC ,t.id DESC
+    </select>
+
+    <!--根据code69 商品编码查询商品名称-->
+    <select id="findNameByCode69" resultType="so.sao.shop.supplier.domain.Commodity">
+        SELECT
+        name
+        FROM commodity
+        WHERE code69 = #{code69}
     </select>
 </mapper>

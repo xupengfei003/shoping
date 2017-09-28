@@ -3,6 +3,7 @@ package so.sao.shop.supplier.dao;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import so.sao.shop.supplier.domain.CommBrand;
+import so.sao.shop.supplier.pojo.output.CommBrandOutput;
 
 import java.util.List;
 
@@ -30,5 +31,24 @@ public interface CommBrandDao {
      */
     CommBrand findByName(@Param("name")String name);
 
+    /**
+     * 查询品牌集合
+     * @param name 品牌名称
+     * @return  商品类型对象
+     */
+    List<CommBrand> searchByName(@Param("name")String name);
+
+    /**
+     * 根据品牌id查询品牌
+     * @param id
+     * @return
+     */
+    CommBrand findById(@Param("id")Long id);
+
+    /**
+     * 查询商品品牌
+     * @return
+     */
+    List<CommBrandOutput> search();
 
 }

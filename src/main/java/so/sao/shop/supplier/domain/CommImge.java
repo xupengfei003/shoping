@@ -14,6 +14,10 @@ public class CommImge{
      */
     private Long scId;
     /**
+     * 供应商商品审核表ID
+     */
+    private Long scaId;
+    /**
      * 图片名称
      */
     private String name;
@@ -80,6 +84,14 @@ public class CommImge{
 
     public void setScId(Long scId) {
         this.scId = scId;
+    }
+
+    public Long getScaId() {
+        return scaId;
+    }
+
+    public void setScaId(Long scaId) {
+        this.scaId = scaId;
     }
 
     public String getThumbnailUrl() {

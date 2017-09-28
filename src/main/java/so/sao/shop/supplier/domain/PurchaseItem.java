@@ -23,6 +23,12 @@ public class PurchaseItem {
      * 商品编号
      */
     private Long goodsId;
+
+    /**
+     * 商品条码
+     */
+    private String code69;
+
     /**
      * 商品数量
      */
@@ -56,6 +62,11 @@ public class PurchaseItem {
      */
     private String brandName;
 
+    /**
+     * 合并支付ID
+     *
+     */
+    private String payId;
 
     public String getDetailsId() {
         return detailsId;
@@ -79,6 +90,14 @@ public class PurchaseItem {
 
     public void setGoodsId(Long goodsId) {
         this.goodsId = goodsId;
+    }
+
+    public String getCode69() {
+        return code69;
+    }
+
+    public void setCode69(String code69) {
+        this.code69 = code69;
     }
 
     public Integer getGoodsNumber() {
@@ -143,5 +162,13 @@ public class PurchaseItem {
 
     public void setBrandName(String brandName) {
         this.brandName = brandName;
+    }
+
+    public String getPayId() {
+        return payId;
+    }
+
+    public void setPayId(String payId) {
+        this.payId = payId;
     }
 }

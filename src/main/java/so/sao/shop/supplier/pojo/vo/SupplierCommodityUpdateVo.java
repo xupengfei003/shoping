@@ -57,7 +57,7 @@ public class SupplierCommodityUpdateVo {
      * 缩略图
      */
     @NotBlank(message = "缩略图不能为空")
-    @Length(max = 256,message = "缩略图长度不能大于500")
+    @Length(max = 500,message = "缩略图长度不能大于500")
     private String minImg;
 
     /**
@@ -75,6 +75,14 @@ public class SupplierCommodityUpdateVo {
     @Min(value=0)
     @Max(value = 99999999)
     private BigDecimal unitPrice;
+
+    /**
+     *
+     * 最小起订量
+     */
+    @Min(value=0)
+    @Max(value = 999)
+    private  int minOrderQuantity;
 
     /**
      * 图片集合
@@ -161,5 +169,13 @@ public class SupplierCommodityUpdateVo {
 
     public void setImgeList(List<CommImgeUpdateVo> imgeList) {
         this.imgeList = imgeList;
+    }
+
+    public int getMinOrderQuantity() {
+        return minOrderQuantity;
+    }
+
+    public void setMinOrderQuantity(int minOrderQuantity) {
+        this.minOrderQuantity = minOrderQuantity;
     }
 }

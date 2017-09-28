@@ -26,9 +26,13 @@ public interface UserDao {
     int saveSmsCode(@Param("tel")String tel, @Param("code")String code);
     String findSmsCode(Long userId);
     int add(User user);
-    int update(@Param("id")Long id, @Param("tel")String tel);
+    void update(@Param("id")Long id, @Param("tel")String tel);
     int updateLogoutTime(@Param("userId")Long userId,@Param("logoutTime")Date logoutTime);
-
+    /**
+     * 根据登录名查询用户信息
+     * @param loginName 登录名称
+     * @return 用户对象
+     */
     User findByLoginName(String loginName);
    
 }

@@ -7,9 +7,9 @@ import so.sao.shop.supplier.domain.Purchase;
 import so.sao.shop.supplier.pojo.input.AccountPurchaseInput;
 import so.sao.shop.supplier.pojo.input.AccountPurchaseLowInput;
 import so.sao.shop.supplier.pojo.input.PurchaseSelectInput;
+import so.sao.shop.supplier.pojo.output.OrderCancelReasonOutput;
 import so.sao.shop.supplier.pojo.output.OrderRefuseReasonOutput;
-import so.sao.shop.supplier.pojo.vo.PurchasePrintVo;
-import so.sao.shop.supplier.pojo.vo.PurchasesVo;
+import so.sao.shop.supplier.pojo.vo.*;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -160,12 +160,27 @@ public interface PurchaseDao {
     void insertRefuseMessage(@Param("map") Map<String,Object> map) throws Exception;
 
     /**
+     * 添加拒收货信息(图片)
+     *
+     * @param map 封装了所有拒收相关的信息
+     * @param imgList 封装了所有图片相关的信息
+     * @return boolean 返回true则为成功，false为失败
+     */
+    void insertRefuseImg(@Param("map")  Map<String, Object> map,@Param("imgList") List<CommBlobUpload> imgList) throws Exception;
+    /**
      * 根据订单ID获取该订单的拒收原因
      *
      * @param orderId 订单ID
-     * @return OrderRefuseReasonOutput 封装了所有订单拒收原因信息
+     * @return OrderRefuseReasonVo 封装了所有订单拒收原因信息
      */
-    OrderRefuseReasonOutput findRefuseReasonByOrderId(@Param("orderId") String orderId) throws Exception;
+    OrderRefuseReasonVo findRefuseReasonByOrderId(@Param("orderId") String orderId) throws Exception;
+    /**
+     * 根据订单ID获取该订单的拒收图片
+     *
+     * @param orderId 订单ID
+     * @return OrderRefuseImageVo 封装了所有订单拒收原因信息
+     */
+    List<OrderRefuseImageVo> findRefuseImageByOrderId(@Param("orderId") String orderId) throws Exception;
 
     /**
      * 查询该商户下已完成且按自然月结算的订单列表
@@ -199,7 +214,7 @@ public interface PurchaseDao {
      * @param orderId 订单编号
      * @return
      */
-    String findCancelReason(@Param("orderId") String orderId);
+    OrderCancelReasonOutput findCancelReason(@Param("orderId") String orderId);
 
     /**
      * 根据支付ID获取订单
@@ -216,4 +231,28 @@ public interface PurchaseDao {
      * @throws Exception 异常
      */
     int refundByOrderId(@Param("refundMap") Map<String,Object> refundMap) throws Exception;
+
+    /**
+     * 根据订单状态查询订单ID
+     *
+     * @param orderStatus 订单状态
+     * @return String 订单ID
+     * @throws Exception 异常
+     */
+    List<String> findOrderIdByOrderStatus(@Param("orderStatus") Integer orderStatus) throws Exception;
+
+    /**
+     * 批量更新订单的账户状态
+     * @param purchaseUpdateList
+     */
+    void updatePurchasesAccountStatusById(List<Purchase> purchaseUpdateList);
+
+    /**
+     * 根据订单编号和用户id查询订单
+     *
+     * @param orderId 订单编号
+     * @param userId 用户id
+     * @return 订单列表
+     */
+    List<Purchase> findPurchaseByUserId(@Param("orderId") String orderId, @Param("userId") String userId);
 }

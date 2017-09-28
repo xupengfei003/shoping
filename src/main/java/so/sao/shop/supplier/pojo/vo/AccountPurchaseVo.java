@@ -38,13 +38,11 @@ public class AccountPurchaseVo {
     /**
      * 订单实付金额
      */
-    @NumberFormat(pattern = "\"###,##0.00\"")
     private String orderPrice;
 
     /**
      * 订单结算金额
      */
-    @NumberFormat(pattern = "\"###,##0.00\"")
     private String orderSettlemePrice;
 
     /**
@@ -67,6 +65,11 @@ public class AccountPurchaseVo {
      * 支付方式
      */
     private Integer orderPaymentMethod;
+
+    /**
+     * 邮费金额
+     */
+    private String orderPostage;
 
     public String getOrderId() {
         return orderId;
@@ -148,6 +151,14 @@ public class AccountPurchaseVo {
         this.orderSettlemePrice = orderSettlemePrice;
     }
 
+    public String getOrderPostage() {
+        return orderPostage;
+    }
+
+    public void setOrderPostage(String orderPostage) {
+        this.orderPostage = orderPostage;
+    }
+
     @Override
     public String toString() {
         return "AccountPurchaseVo{" +
@@ -161,6 +172,7 @@ public class AccountPurchaseVo {
                 ", orderPaymentTime=" + orderPaymentTime +
                 ", orderPaymentNum='" + orderPaymentNum + '\'' +
                 ", orderPaymentMethod=" + orderPaymentMethod +
+                ", orderPostage=" + orderPostage +
                 '}';
     }
 }

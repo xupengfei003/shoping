@@ -6,12 +6,12 @@ import so.sao.shop.supplier.config.StorageConfig;
 import so.sao.shop.supplier.domain.Account;
 import so.sao.shop.supplier.pojo.BaseResult;
 import so.sao.shop.supplier.pojo.Result;
-import so.sao.shop.supplier.pojo.input.CommodityInput;
-import so.sao.shop.supplier.pojo.input.CommodityUpdateInput;
+import so.sao.shop.supplier.pojo.input.*;
 import so.sao.shop.supplier.pojo.output.CommodityExportOutput;
 import so.sao.shop.supplier.pojo.output.CommodityOutput;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
@@ -34,7 +34,7 @@ public interface CommodityService {
      * @param commodityUpdateInput 商品信息对象
      * @return 修改结果
      */
-    Result updateCommodity(CommodityUpdateInput commodityUpdateInput, Long supplierId);
+    Result updateCommodity(CommodityUpdateInput commodityUpdateInput, Long supplierId, boolean isAdmin);
 
     /**
      * 根据供应商商品ID获取商品详细信息
@@ -42,13 +42,6 @@ public interface CommodityService {
      * @return
      */
     Result getCommodity(Long id);
-
-    /**
-     * 根据id查询多个商品
-     * @param ids
-     * @return
-     */
-    public List<CommodityExportOutput> findByIds(Long[] ids);
 
     /**
      * 根据userId查Account实体
@@ -65,44 +58,19 @@ public interface CommodityService {
     Result findCommodity(String code69);
 
     /**
-     * 删除商品图片
-     * @param id
-     * @return
-     */
-    public BaseResult deleteCommImge(Long id);
-    /**
      * 根据查询条件查询商品详情（高级搜索）
      * @author liugang
-     * @param supplierId 供应商ID
-     * @param commCode69 商品编码
-     * @param sku SKU(商品ID)
-     * @param suppCommCode 商家商品编码
-     * @param commName 商品名称
-     * @param status 状态
-     * @param typeId 类型ID
-     * @param minPrice 价格（低）
-     * @param maxPrice 价格（高）
-     * @param pageNum 当前页号
-     * @param pageSize 页面大小
-     * @param beginCreateAt 创建时间（起始）
-     * @param endCreateAt 创建时间（终止）
+     * @param commSearchInput 高级搜索查询请求
      * @return Result Result对象
      */
-    Result searchCommodities(Long supplierId, String commCode69, String sku, String suppCommCode, String commName, Integer status, Long typeId,
-                               BigDecimal minPrice, BigDecimal maxPrice, Date beginCreateAt, Date endCreateAt, Integer pageNum, Integer pageSize);
-
+    Result searchCommodities(CommSearchInput commSearchInput);
 
     /**
      * 根据查询条件查询商品详情(简单条件查询)
-     * @param supplierId  供应商ID
-     * @param inputvalue  输入参数
-     * @param beginCreateAt 创建时间（起始）
-     * @param endCreateAt 创建时间（终止）
-     * @param pageNum  当前页号
-     * @param pageSize 页面大小
+     * @param commSimpleSearchInput  简单条件查询请求
      * @return
      */
-    Result simpleSearchCommodities(Long supplierId, String inputvalue, Date beginCreateAt, Date endCreateAt, Integer pageNum, Integer pageSize);
+    Result simpleSearchCommodities(CommSimpleSearchInput commSimpleSearchInput);
 
     /**
      * 删除商品
@@ -123,28 +91,28 @@ public interface CommodityService {
      * @param id
      * @return
      */
-    Result updateStatusSj(Long id);
+    Result onShelves(Long id,String isAdmin);
 
     /**
      * 下架商品
      * @param id
      * @return
      */
-    Result updateStatusXj(Long id);
+    Result offShelves(Long id, boolean isAdmin);
 
     /**
      * 批量上架商品
      * @param ids
      * @return
      */
-    BaseResult updateStatusSjs(Long[] ids);
+    Result onShelvesBatch(Long[] ids, boolean isAdmin);
 
     /**
      * 批量下架商品
      * @param ids
      * @return
      */
-    BaseResult updateStatusXjs(Long[] ids);
+    Result offShelvesBatch(Long[] ids, boolean isAdmin);
 
 
     /**
@@ -153,5 +121,43 @@ public interface CommodityService {
      * @return 导入结果
      */
 
-    Result importExcel(MultipartFile multipartFile , HttpServletRequest request, StorageConfig storageConfig, Long supplierId) throws Exception;
+    Result importExcel(MultipartFile multipartFile , HttpServletRequest request, Long supplierId) throws Exception;
+
+    /**
+     * 批量导出
+     * @param request
+     * @param response
+     * @param commExportInput
+     * @return
+     */
+    Result exportExcel(HttpServletRequest request , HttpServletResponse response , CommExportInput commExportInput);
+
+    /**
+     * 根据供应商的激活状态更新商品的激活状态
+     * @param accountStatus  供应商状态
+     * @return
+     */
+    void updateCommInvalidStatus(Long supplierId, Integer accountStatus);
+	
+	/**
+     * 根据条件查询商品审核列表
+     * @param commodityAuditInput 查询条件
+     * @return 商品审核数据
+     */
+    Result< PageInfo> serachCommodityAudit(CommodityAuditInput commodityAuditInput);
+
+    /**
+     * 批量审核
+     * @param request
+     * @param commAuditInput
+     * @return
+     */
+    Result auditBatch(HttpServletRequest request , CommAuditInput commAuditInput);
+
+    /**
+     * 根据审核表ID查询审核记录详情
+     * @param id 审核表ID
+     * @return
+     */
+    Result findAuditDetail(Long id);
 }

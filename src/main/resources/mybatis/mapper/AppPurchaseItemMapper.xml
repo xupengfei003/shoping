@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="so.sao.shop.supplier.dao.app.AppPurchaseItemDao">
+    <!--App端查询全部订单详情-->
+    <resultMap id="AppGoodsAllList" type="so.sao.shop.supplier.pojo.vo.AppPurchaseItemVo">
+        <id column="goods_id" property="goodsId"/>
+        <result column="goods_image" property="goodsImage"/>
+        <result column="goods_name" property="goodsName"/>
+        <result column="goods_unit_price" property="goodsUnitPrice"/>
+        <result column="goods_number" property="goodsNumber"/>
+        <result column="goods_tatol_price" property="goodsTatolPrice"/>
+        <result column="goods_attribute" property="goodsAttribute"/>
+        <result column="order_id" property="orderId"/>
+        <result column="pay_id" property="payId"/>
+    </resultMap>
+    <sql id="App_Goods_Column_List">
+       g.goods_id, g.goods_image, g.goods_name, g.goods_unit_price, g.goods_number, g.goods_tatol_price, g.goods_attribute, p.order_id,p.pay_id
+    </sql>
+    <!--根据订单ID列表查询商品详情-->
+    <select id="findOrderItemList" parameterType="java.util.List" resultMap="AppGoodsAllList">
+        SELECT
+        <include refid="App_Goods_Column_List"/>
+        FROM purchase_item g
+        JOIN purchase p
+        ON p.order_id = g.order_id
+        AND p.order_id IN
+        <foreach collection="orderIdList" item="orderId" open="(" close=")" separator="," index="i">
+            #{orderId,jdbcType=VARCHAR}
+        </foreach>
+        ORDER BY p.updated_at DESC
+    </select>
+    <!--根据订单ID查询商品详情-->
+    <select id="findOrderItemListByOrderId" parameterType="java.lang.String" resultMap="AppGoodsAllList">
+        SELECT
+        <include refid="App_Goods_Column_List"/>
+        FROM purchase_item g
+        JOIN purchase p
+        ON p.order_id = g.order_id
+        AND p.order_id = TRIM(#{orderId,jdbcType=VARCHAR})
+    </select>
+    <!--根据合并支付ID列表查询商品详情-->
+    <select id="findOrderItemListByPayId" parameterType="java.util.List" resultMap="AppGoodsAllList">
+        SELECT
+          <include refid="App_Goods_Column_List"/>
+        FROM
+          purchase_item g
+        JOIN
+          purchase p
+        ON
+          p.pay_id = g.pay_id
+        AND
+          p.order_id = g.order_id
+        AND
+          p.pay_id
+        IN
+            <foreach collection="payIdList" item="payId" open="(" close=")" separator="," index="i">
+                #{payId,jdbcType=VARCHAR}
+            </foreach>
+        ORDER BY
+          p.updated_at
+        DESC
+    </select>
+</mapper>

@@ -26,6 +26,11 @@ public interface Constant {
     public static final String REDIS_LOGIN_KEY_PREFIX = "supplier_platform_login_";
 
     /**
+     * 供货平台在redis中短信验证码key前缀
+     */
+    public static final String REDIS_SMSCODE_KEY_PREFIX = "supplier_platform_smscode_";
+
+    /**
      * 判断是否是管理员 1是
      */
     public static final String ADMIN_STATUS = "1";
@@ -167,9 +172,13 @@ public interface Constant {
          */
         public static final Integer REFUNDED = 6;
         /**
-         * 已取消
+         * 已付款已取消
          */
         public static final Integer CANCEL_ORDER = 7;
+        /**
+         * 待付款已取消
+         */
+        public static final Integer PAYMENT_CANCEL_ORDER = 8;
 
     }
 
@@ -201,9 +210,19 @@ public interface Constant {
         /**
          * 7
          */
-        public static final String CANCEL_ORDER = "已取消";
+        public static final String CANCEL_ORDER = "已付款已取消";
+        /**
+         * 8
+         */
+        public static final String PAYMENT_CANCEL_ORDER = "待付款已取消";
     }
+    interface OrderStatusRule{
+        /**
+         * 待付款\待发货\已发货\已完成\已拒收\已退款\已付款已取消\待付款已取消
+         */
 
+        public static final String[] RULES = {"2#8","3#7","4#5","#","6#","#","6#","#"};
+    }
     interface PaymentStatusConfig{
         /**
          * 支付宝
@@ -258,32 +277,37 @@ public interface Constant {
         /**
          * 1
          */
-        public static final String PAYMENT_NOTIFI = "您好:您有一笔新的订单通知,订单编号:";
+        public static final String PAYMENT_NOTIFI = "您好:您有一笔待付款订单,订单编号:";
         /**
          * 2
          */
-        public static final String PENDING_SHIP_NOTIFI = "您好:您有一笔待发货的订单通知,订单编号:";
+        public static final String PENDING_SHIP_NOTIFI = "您好:您有一笔订单状态已变成<待发货>,订单编号:";
         /**
          * 3
          */
-        public static final String ISSUE_SHIP_NOTIFI = "您好:您有一笔确认发货的订单通知,订单编号:";
+        public static final String ISSUE_SHIP_NOTIFI = "您好:您有一笔订单状态已变成<已发货>,订单编号:";
         /**
          * 4
          */
-        public static final String RECEIVED_NOTIFI = "您好:您有一笔已完成的订单通知,订单编号:";
+        public static final String RECEIVED_NOTIFI = "您好:您有一笔订单状态已变成<已完成>,订单编号:";
         /**
          * 5
          */
-        public static final String REJECT_NOTIFI = "您好:您有一笔拒收待审核的订单通知,订单编号:";
+        public static final String REJECT_NOTIFI = "您好:您有一笔订单状态已变成<已拒收退款审核>,订单编号:";
         /**
          * 6
          */
-        public static final String REFUNDED_NOTIFI = "您好:您有一笔已退款的订单通知,订单编号:";
+        public static final String REFUNDED_NOTIFI = "您好:您有一笔订单状态已变成<已退款>,订单编号:";
 
         /**
          * 7
          */
-        public static final String CANCEL_ORDER = "您好:您有一笔已取消待审核的订单通知,订单编号:";
+        public static final String CANCEL_ORDER = "您好:您有一笔订单状态已变成<已支付退款审核>,订单编号:";
+
+        /**
+         * 8
+         */
+        public static final String PAYMENT_CANCEL_ORDER = "您好:您有一笔订单状态已变成<待付款已取消>,订单编号:";
     }
 
     interface AccountCodeConfig{
@@ -324,5 +348,30 @@ public interface Constant {
          * 商品计量规格名称最大长度
          */
         public static final int MAX_MEASURESPEC_NAME_LENGTH = 64;
+    }
+
+    /**
+     * 配送规则
+     */
+    interface FreightRulesCodeConfig{
+        /**
+         * 通用通则
+         */
+        public static final int commType = 0;
+
+        /**
+         * 配送规则
+         */
+        public static final int dispatchingType = 1;
+
+        /**
+         * 包邮
+         */
+        public static final int exemption = 0;
+
+        /**
+         * 不包邮
+         */
+        public static final int NotExemption = 1;
     }
 }

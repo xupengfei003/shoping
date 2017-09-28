@@ -20,7 +20,7 @@ public class Notification {
     private Long accountId;
 
     /**
-     * 消息类型 0订单，1系统
+     * 消息类型 0订单，1系统，2合同消息
      */
     private Integer notifiType;
 
@@ -60,6 +60,7 @@ public class Notification {
     private String title;
 
     /**
+     * /**
      * notifiDetail(逗号后的内容)
      */
     private String content;
@@ -68,6 +69,7 @@ public class Notification {
     }
 
     public Notification(Long accountId, Integer notifiType, String orderId, String notifiDetail, Date createdAt, Integer notifiStatus) {
+        this.notifiId = notifiId;
         this.accountId = accountId;
         this.notifiType = notifiType;
         this.orderId = orderId;

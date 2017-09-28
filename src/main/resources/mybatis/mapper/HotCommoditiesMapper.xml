@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="so.sao.shop.supplier.dao.external.HotCommoditiesDao" >
+
+    <sql id="searchColumns">
+        hc.id AS id,
+		sc.id AS scId,
+		sc.supplier_id AS supplierId,
+		a.provider_name AS providerName,
+		r.name AS cityName,
+		cb.name AS commBrandName,
+		c.name AS commName,
+		cu.name AS commUnitName,
+        cms.name AS commMeasureName,
+		sc.code AS code,
+        c.code69 AS code69,
+		sc.rule_val AS ruleVal,
+        sc.inventory AS inventory,
+        sc.min_img AS minImg,
+        sc.price AS price,
+        sc.status AS status,
+		hc.SORT AS sort,
+        hc.OPERATOR AS operator,
+        hc.CREATE_AT AS createdAt,
+        hc.UPDATE_AT AS updatedAt
+    </sql>
+
+    <sql id="searchCommColumns">
+        c.id AS id,
+        sc.min_img AS minImg,
+        sc.id AS scId,
+        c.code69 AS code69,
+        sc.code AS code,
+        cb.name AS commBrandName,
+        c.name AS commName,
+        cu.name AS commUnitName,
+        cms.name AS commMeasureName,
+        sc.rule_val AS ruleVal,
+        sc.inventory AS inventory,
+        sc.status AS status,
+        sc.price AS price,
+        a.provider_name AS providerName,
+        r.name AS cityName,
+        sc.supplier_id AS supplierId,
+        sc.created_at AS createdAt,
+        sc.updated_at AS updatedAt
+    </sql>
+
+    <!--查询所有热门商品列表-->
+    <select id="findAll" resultType="so.sao.shop.supplier.domain.external.HotCommodities">
+        SELECT
+              <include refid="searchColumns"/>
+        FROM  hot_commodity hc
+        LEFT JOIN supplier_commodity sc  ON hc.sc_id = sc.id
+        LEFT JOIN commodity c ON sc.code69 = c.code69
+        LEFT JOIN comm_brand cb on c.brand_id = cb.id
+        LEFT JOIN comm_measure_spec cms on sc.measure_spec_id = cms.id
+        LEFT JOIN comm_unit cu on sc.unit_id = cu.id
+        LEFT JOIN account a ON sc.supplier_id = a.account_id
+        LEFT JOIN sys_region r ON a.contract_register_address_city = r.sr_id
+        <where>
+            sc.STATUS = 2
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(inputvalue)">
+                AND (sc.code69 = #{inputvalue}
+                OR c.name LIKE "%${inputvalue}%")
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(categoryOneId)">
+                AND c.category_one_id = #{categoryOneId}
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(categoryTwoId)">
+                AND c.category_two_id =  #{categoryTwoId}
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(categoryThreeId)">
+                AND c.category_three_id = #{categoryThreeId}
+            </if>
+        </where>
+        ORDER BY hc.sort
+    </select>
+    <!-- 查询商品列表-->
+    <select id="find" resultType="so.sao.shop.supplier.pojo.output.AddHotCommOutput">
+        SELECT
+              <include refid="searchCommColumns"/>
+        FROM supplier_commodity sc
+        INNER JOIN (commodity c LEFT JOIN comm_brand cb on c.brand_id = cb.id) on sc.code69 = c.code69
+        LEFT JOIN comm_measure_spec cms on sc.measure_spec_id = cms.id
+        LEFT JOIN comm_unit cu on sc.unit_id = cu.id
+        LEFT JOIN account a ON sc.supplier_id = a.account_id
+        LEFT JOIN sys_region r ON a.contract_register_address_city = r.sr_id
+        <where>
+            sc.deleted = 0
+            AND sc.status = 2
+            AND sc.invalid_status = 1
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(inputvalue)">
+                AND (c.code69 = #{inputvalue}
+                OR c.name LIKE "%${inputvalue}%")
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(categoryOneId)">
+                AND c.category_one_id = #{categoryOneId}
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(categoryTwoId)">
+                AND c.category_two_id =  #{categoryTwoId}
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(categoryThreeId)">
+                AND c.category_three_id = #{categoryThreeId}
+            </if>
+        </where>
+        ORDER BY sc.updated_at DESC
+    </select>
+
+    <!--删除hot_category数据表-->
+    <update id="truncateHotCommodity">
+        TRUNCATE hot_commodity
+    </update>
+
+    <!--批量保存热门商品-->
+    <insert id="saveAll" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
+        insert hot_commodity (
+            SC_ID ,
+            SORT ,
+            OPERATOR ,
+            CREATE_AT ,
+            UPDATE_AT
+        )VALUES
+        <foreach collection ="list" item="data" index= "index" separator =",">
+            (
+            #{data.scId},
+            #{data.sort},
+            #{data.operator},
+            #{data.createdAt},
+            #{data.updatedAt}
+            )
+        </foreach>
+    </insert>
+</mapper>

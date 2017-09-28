@@ -209,6 +209,11 @@ public class Account {
 	@NotEmpty(message = "合同注册详细地址不能为空")
     @Length(max = 255,message = "合同注册详细地址长度不能超过255")
 	private String contractRegisterAddressDetail;
+
+	/**
+	 * 合同状态(正常状态:0 /即将过期:1 /已过期:2)
+	 */
+	private int contractStatus;
 	/**
 	 * 上传方式 ，1单次，2批量
 	 */
@@ -237,6 +242,13 @@ public class Account {
 	@NotEmpty(message = "上传合同地址")
 	@Length(max = 255,message = "上传合同地址长度不能超过255")
 	private String contractOriginal;
+	
+	/**
+	 * 合同原文件名
+	 */
+	@NotEmpty(message = "合同原文件名")
+	@Length(max = 255,message = "合同原文件名长度不能超过255")
+	private String contractName;
 
 	/**
 	 * 上次结算时间
@@ -246,6 +258,23 @@ public class Account {
 	 * 客服电话
 	 */
 	private String servicePhone;
+	/**
+	 * 合同到期30天发送短信标记
+	 */
+	private int monthAgoType;
+
+	/**
+	 * 运费规则
+	 */
+	private int freightRules;
+
+	public int getMonthAgoType() {
+		return monthAgoType;
+	}
+
+	public void setMonthAgoType(int monthAgoType) {
+		this.monthAgoType = monthAgoType;
+	}
 
 	public String getServicePhone() {
 		return servicePhone;
@@ -607,5 +636,28 @@ public class Account {
 	public void setLastSettlementDate(Date lastSettlementDate) {
 		this.lastSettlementDate = lastSettlementDate;
 	}
-    
+
+	public String getContractName() {
+		return contractName;
+	}
+
+	public void setContractName(String contractName) {
+		this.contractName = contractName;
+	}
+
+	public int getContractStatus() {
+		return contractStatus;
+	}
+
+	public void setContractStatus(int contractStatus) {
+		this.contractStatus = contractStatus;
+	}
+
+	public int getFreightRules() {
+		return freightRules;
+	}
+
+	public void setFreightRules(int freightRules) {
+		this.freightRules = freightRules;
+	}
 }

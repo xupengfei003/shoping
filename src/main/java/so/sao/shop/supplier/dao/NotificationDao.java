@@ -22,12 +22,18 @@ public interface NotificationDao {
     void saveNotifications(List<Notification> notificationList);
 
     /**
-     *
+     * 分页查询供应商消息列表
      * @param accountId accountId
      * @param notifiType notifiType
      * @return List<Notification>
      */
-    List<Notification> search(@Param("accountId") Long accountId, @Param("notifiType") Integer notifiType);
+    List<Notification> searchSupplierNotifi(@Param("accountId") Long accountId, @Param("notifiType") Integer notifiType);
+
+    /**
+     * 分页查询管理员消息列表
+     * @return List<Notification>
+     */
+    List<Notification> searchAdminNotifi();
 
     /**
      * 获取未读消息总数
@@ -63,9 +69,10 @@ public interface NotificationDao {
 
     /**
      * 消息跑马灯显示
+     * @param accountId accountId
      * @return String
      */
-    List<Notification> marqueeShow();
+    String marqueeShow(@Param("accountId") Long accountId);
 
     /**
      * 查询未读消息列表

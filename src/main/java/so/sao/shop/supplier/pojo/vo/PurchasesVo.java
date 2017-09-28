@@ -61,6 +61,10 @@ public class PurchasesVo {
      */
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date updateTime;
+    /**
+     * 订单邮费 (0:包邮，非零显示具体金额)
+     */
+    private String orderPostage;
 
     public String getOrderId() {
         return orderId;
@@ -140,5 +144,13 @@ public class PurchasesVo {
 
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public String getOrderPostage() {
+        return orderPostage;
+    }
+
+    public void setOrderPostage(String orderPostage) {
+        this.orderPostage = orderPostage;
     }
 }

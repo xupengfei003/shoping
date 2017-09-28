@@ -35,17 +35,17 @@ public interface QrcodeDao {
 
     /**
      * 修改二维码状态
-     *
+     * <p>
      * 根据订单编号修改二维码状态
      *
-     * @param orderId 订单编号
-     * @param status 状态
+     * @param orderId    订单编号
+     * @param status     状态
      * @param disabledAt 失效时间
-     * @param updatedAt 修改时间
+     * @param updatedAt  修改时间
      * @return 成功返回true，失败返回false
      */
-    boolean updateStatus(@Param("orderId") String orderId, @Param("status")Integer status,
-                         @Param("disabledAt")Date disabledAt, @Param("updatedAt")Date updatedAt);
+    boolean updateStatus(@Param("orderId") String orderId, @Param("status") Integer status,
+                         @Param("disabledAt") Date disabledAt, @Param("updatedAt") Date updatedAt);
 
     /**
      * 根据订单编号查询对应的二维码
@@ -62,5 +62,4 @@ public interface QrcodeDao {
      * @return
      */
     int getQrcodesByPayId(String payId);
-
 }

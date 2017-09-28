@@ -1,6 +1,10 @@
 package so.sao.shop.supplier.util;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.util.StringUtils;
+
+import java.util.Collection;
+
 /**
  * 用户mybatis动态SQL验证判断字符串用
  *
@@ -18,7 +22,7 @@ public class Ognl {
             return true;
         }
         if (o instanceof String) {
-            return StringUtils.isEmpty(o.toString());
+            return StringUtils.isEmpty(o.toString().trim());
         }
         return false;
     }
@@ -77,5 +81,66 @@ public class Ognl {
     public static boolean isNotIndexOf(String str, String str1) {
         return !isIndexOf(str, str1);
     }
+
+    /**
+     * 判断集合是否不为null与isEmpty
+     * @param coll
+     * @return
+     */
+    public static boolean CollectionIsNotEmpty(final Collection<?> coll){
+        return CollectionUtils.isNotEmpty(coll);
+    }
+
+
+    /**
+     *  SQL- 判断参数是不是排序要求
+     * @param orderPrice
+     * @return
+     */
+    public  static boolean isDESC(String orderPrice){
+        if ( null != orderPrice &&  "DESC" .equalsIgnoreCase(orderPrice)){
+            return  true;
+        }
+        return false;
+    }
+
+
+    /**
+     * SQL- 判断参数是不是排序要求
+     * @param orderPrice
+     * @return
+     */
+    public  static boolean isASC(String orderPrice){
+        if (  null != orderPrice && "ASC" .equalsIgnoreCase(orderPrice)){
+            return  true;
+        }
+        return false;
+    }
+    /**
+     * SQL- 判断参数是不是排序要求
+     * @param orderPrice
+     * @return
+     */
+    public  static boolean isNotASCandDESC(String orderPrice){
+        if (  !("ASC" .equalsIgnoreCase(orderPrice)) && !("DESC" .equalsIgnoreCase(orderPrice)) ){
+            return  true;
+        }
+        return false;
+    }
+
+    /**
+     * SQL-判断是否为合并取消
+     *
+     * @param str （str 为28时则合并取消，传入的时合并订单号）
+     * @return
+     */
+    public static boolean objLength(String str){
+        if (str.length() == 28){
+            return true;
+        }else {
+            return false;
+        }
+    }
+
 }
 

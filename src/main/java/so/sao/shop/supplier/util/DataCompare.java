@@ -46,5 +46,59 @@ public class DataCompare {
         }
         return false;
     }
+    public static BigDecimal roundData(BigDecimal value,int newScale){
+        return value.setScale(newScale,   BigDecimal.ROUND_HALF_UP);
+
+    }
+
+    /**
+     * 价格校验
+     * @param minPrice
+     * @param maxPrice
+     */
+    public static String priceCheck(BigDecimal minPrice, BigDecimal maxPrice) {
+        String reMessage = "";
+        if (null != minPrice && null != maxPrice) {
+            int minCompare = minPrice.compareTo(BigDecimal.ZERO);   //当minCompare == -1，说明minPrice<0;
+            int maxCompare = maxPrice.compareTo(BigDecimal.ZERO);   //当maxCompare == -1，说明maxPrice<0;
+            int minMax = minPrice.compareTo(maxPrice);   //当minPrice > maxPrice,minMax==1
+            if (minCompare == -1 || maxCompare == -1) {
+                reMessage = "价格不能为负数";
+            }
+
+            if (minMax == 1) {
+                reMessage = "最小金额不能大于最大金额";
+            }
+        }
+        return reMessage;
+    }
+
+    /**
+     * 价格校验
+     * @param beginCreatAt 起始时间
+     * @param endCreatAt 结束时间
+     */
+    public static String createAtCheck(Date beginCreatAt, Date endCreatAt) {
+        String reMessage = "";
+        if (null != beginCreatAt && null != endCreatAt) {
+            if (endCreatAt.before(beginCreatAt)) {
+                reMessage = "起始时间不能大于终止时间";
+            }
+        }
+        return reMessage;
+    }
+
+    /**
+     * 格式化成int
+     * @param o
+     * @return
+     */
+    public static Integer formatInteger(Object o) {
+        try{
+            return Integer.valueOf(o+"");
+        } catch(Exception ex) {
+            return 0;
+        }
+    }
 
 }

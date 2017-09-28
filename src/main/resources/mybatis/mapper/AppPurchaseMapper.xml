@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="so.sao.shop.supplier.dao.app.AppPurchaseDao">
+    <!--App端查询全部订单列表-->
+    <resultMap id="AppOrderAllList" type="so.sao.shop.supplier.pojo.vo.AppPurchasesVo">
+        <id column="order_id" property="orderId"/>
+        <result column="order_create_time" property="orderCreateTime"/>
+        <result column="store_name" property="storeName"/>
+        <result column="order_status" property="orderStatus"/>
+        <result column="order_receiver_name" property="orderReceiverName"/>
+        <result column="order_receiver_mobile" property="orderReceiverMobile"/>
+        <result column="order_address" property="orderAddress"/>
+        <result column="order_price" property="orderPrice"/>
+        <result column="order_shipment_number" property="orderShipmentNumber"/>
+        <result column="pay_id" property="payId"/>
+        <result column="order_payment_time" property="orderPaymentTime"/>
+        <result column="order_refuse_time" property="orderRefuseTime"/>
+        <result column="drawback_time" property="drawbackTime"/>
+        <result column="deliver_goods_time" property="deliverGoodsTime"/>
+        <result column="order_receive_time" property="orderReceiveTime"/>
+        <result column="order_cancel_time" property="orderCancelTime"/>
+        <result column="order_payment_num" property="orderPaymentNum"/>
+        <result column="order_postage" property="orderPostage"/>
+        <result column="user_id" property="userId"/>
+        <result column="user_name" property="userName"/>
+        <result column="store_id" property="storeId"/>
+        <result column="order_ship_method" property="orderShipMethod"/>
+        <result column="distributor_name" property="distributorName"/>
+        <result column="distributor_mobile" property="distributorMobile"/>
+        <result column="logistics_company" property="logisticsCompany"/>
+    </resultMap>
+
+    <sql id="App_Order_Column_List">
+        order_id, order_create_time, store_name, order_status, order_receiver_name,
+        order_receiver_mobile, order_address,order_price,order_shipment_number,pay_id,
+        order_payment_time,order_refuse_time,drawback_time,deliver_goods_time,order_receive_time,
+        order_cancel_time,order_payment_num,order_postage,user_id,store_id,user_name,order_ship_method,
+        distributor_name,distributor_mobile,logistics_company
+    </sql>
+    <select id="findOrderList" resultMap="AppOrderAllList" parameterType="java.lang.Integer">
+        SELECT
+        <include refid="App_Order_Column_List"/>
+        FROM purchase
+        WHERE
+        order_status != -1
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderStatusArr)">
+            AND order_status IN
+            <foreach collection="orderStatusArr" open="(" close=")" separator="," item="orderStatus" index="i">
+                #{orderStatus}
+            </foreach>
+        </if>
+        AND user_id = TRIM(#{userId})
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(flag)">
+          GROUP BY pay_id
+        </if>
+        ORDER BY order_create_time DESC
+    </select>
+
+    <select id="findOrderByOrderId" resultMap="AppOrderAllList" parameterType="java.lang.String">
+        SELECT
+        <include refid="App_Order_Column_List"/>
+        FROM purchase
+        WHERE
+        order_status != -1
+        AND order_id = TRIM(#{orderId})
+        ORDER BY order_create_time DESC
+    </select>
+
+    <select id="findOrderByPayId" resultMap="AppOrderAllList" parameterType="java.lang.String">
+        SELECT
+        <include refid="App_Order_Column_List"/>
+        FROM purchase
+        WHERE
+        order_status != -1
+        AND pay_id = TRIM(#{payId})
+        ORDER BY order_create_time DESC
+    </select>
+
+    <select id="findOrderByOrderIds" parameterType="java.util.List" resultMap="AppOrderAllList">
+        SELECT
+        <include refid="App_Order_Column_List"/>
+        FROM purchase
+        WHERE
+        order_status != -1
+        AND order_id IN
+        <foreach collection="orderIds" open="(" close=")" separator="," item="orderId" index="i">
+            #{orderId}
+        </foreach>
+    </select>
+</mapper>

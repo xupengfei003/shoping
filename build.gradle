@@ -55,7 +55,8 @@ dependencies {
 	compile('commons-io:commons-io:+')
 	compile group: 'com.aliyun.mns', name: 'aliyun-sdk-mns', version: '1.1.8.4'
 	compile group: 'ma.glasnost.orika', name: 'orika-core', version: '1.5.1'
-
+	compile 'net.sf.json-lib:json-lib:2.4:jdk15'
+	dependencies { compile fileTree(dir:'libs',include:['*.jar'])}
 	//compile fileTree(dir:'lib', include: '*.jar')
 
 	compile('com.microsoft.azure:azure-storage:5.4.0')

@@ -50,6 +50,13 @@
         from comm_tag where name=#{name} and (supplier_id=0 or supplier_id= #{supplierId})
     </select>
 
+    <!--根据标签名称和supplierId查询存在数量（存在性校验使用）-->
+    <select id="countByNameAndSupplierId" resultType="int">
+        select
+        COUNT(id) as num
+        from comm_tag where name=#{name} and (supplier_id=0 or supplier_id= #{supplierId})
+    </select>
+
     <!--查询商品标签集合-->
     <select id="find" parameterType="java.lang.Long" resultMap="resultMap">
         select
@@ -58,7 +65,7 @@
     </select>
 
     <!--根据id查询个数-->
-    <select id="findCountById" resultType="int">
+    <select id="countById" resultType="int">
         select
         count(*)
         from comm_tag where id = #{id}

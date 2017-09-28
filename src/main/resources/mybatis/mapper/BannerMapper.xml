@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="so.sao.shop.supplier.dao.external.BannerDao">
+	<resultMap id="BaseResultMap" type="so.sao.shop.supplier.pojo.output.BannerOut">
+		<id column="id" property="id" jdbcType="BIGINT" />
+		<result column="file_name" property="fileName" jdbcType="VARCHAR" />
+		<result column="min_img_url" property="minImgUrl" jdbcType="VARCHAR" />
+		<result column="url" property="url" jdbcType="VARCHAR" />
+		<result column="location" property="location" jdbcType="VARCHAR" />
+		<result column="on_shelves_time" property="onShelvesTime" />
+		<result column="off_shelf_time" property="offShelfTime" />
+		<result column="status" property="status" jdbcType="VARCHAR" />
+		<result column="url_type" property="urlType" jdbcType="VARCHAR" />
+		<result column="url_value" property="urlValue" jdbcType="VARCHAR" />
+		<result column="operator" property="operator" jdbcType="VARCHAR" />
+		<result column="update_at" property="updateAt" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id,
+		file_name,
+		min_img_url,
+		url,
+		location,
+		on_shelves_time,
+		off_shelf_time,
+		status,
+		url_type,
+		url_value,
+		operator,
+		update_at
+	</sql>
+	<!-- 根据上架时间查询时间段内轮播图 -->
+	<select id="findBanners" resultMap="BaseResultMap">
+		SELECT
+			<include refid="Base_Column_List" />
+		FROM
+			banner
+		WHERE
+			status != 4
+		AND
+			status != 3
+		AND
+			location = #{location}
+		AND
+			on_shelves_time <![CDATA[ <= ]]>  #{onShelvesTime}
+		AND
+			off_shelf_time <![CDATA[ > ]]> #{onShelvesTime}
+	</select>
+	<!-- 插入轮播图 -->
+	<insert id="saveBanner">
+		INSERT INTO banner(
+			file_name,
+			min_img_url,
+			url,
+			location,
+			on_shelves_time,
+			off_shelf_time,
+			status,
+			url_type,
+			url_value,
+			operator,
+			create_at,
+			update_at
+		)VALUES(
+			#{fileName},
+			#{minImgUrl},
+			#{url},
+			#{location},
+			#{onShelvesTime},
+			#{offShelfTime},
+			#{status},
+			#{urlType},
+			#{urlValue},
+			#{operator},
+			#{createAt},
+			#{updateAt}
+		)
+	</insert>
+	<!-- 更新轮播图 -->
+	<update id="update">
+		UPDATE 
+		  banner 
+		SET
+		  file_name = #{fileName},
+		  min_img_url = #{minImgUrl},
+		  url = #{url},
+		  location = #{location},
+		  on_shelves_time = #{onShelvesTime},
+		  off_shelf_time = #{offShelfTime},
+		  status = #{status},
+		  url_type = #{urlType},
+		  url_value = #{urlValue},
+		  operator = #{operator},
+		  update_at = #{updateAt}
+		WHERE 
+		  id = #{id}
+	</update>
+	<!-- 根据id查询轮播图 -->
+	<select id="findOne" resultMap="BaseResultMap">
+		SELECT 
+		  <include refid="Base_Column_List" />
+		 FROM banner
+		 WHERE id = #{id}
+	</select>
+	<!-- 查询轮播图列表 -->
+	<select id="findPage" parameterType="so.sao.shop.supplier.pojo.input.BannerInput" resultMap="BaseResultMap">
+		SELECT 
+		  <include refid="Base_Column_List" />
+		 FROM banner
+		 WHERE status != 4
+		 <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(onShelvesTime)">
+		 	AND on_shelves_time <![CDATA[ >= ]]> #{onShelvesTime}
+		 </if>
+		 <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(offShelfTime)">
+		 	AND off_shelf_time <![CDATA[ <= ]]> #{offShelfTime}
+		 </if>
+		 <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(location)">
+		 	AND location = #{location}
+		 </if>
+		 <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(status)">
+		 	AND status = #{status}
+		 </if>
+		 ORDER BY update_at DESC
+	</select>
+	<!-- 根据id删除轮播图 -->
+	<update id="deleteById">
+		UPDATE 
+		  banner 
+		SET
+		  status = 4,
+		  update_at = sysdate()
+		WHERE
+		  id = #{id}
+	</update>
+	<!-- 批量更新轮播图 -->
+	<update id="updateByIds">
+        <foreach collection="ids" item="item" index="index" open="" close="" separator=";" >
+            UPDATE 
+			  banner 
+			SET
+			  status = #{status},
+			  update_at = sysdate()
+			WHERE
+			  id = #{item}
+        </foreach>
+	</update>
+	<!-- 根据上架时间查询待上架轮播图 -->
+	<select id="findByUpAndDownTime" resultMap="BaseResultMap">
+		SELECT
+			<include refid="Base_Column_List" />
+		FROM
+			banner
+		WHERE
+			status = #{status}
+		<if test="status == 1">
+			AND on_shelves_time = #{onTime}
+		</if>
+		<if test="status == 2">
+			AND off_shelf_time = #{onTime}
+		</if>
+	</select>
+</mapper>

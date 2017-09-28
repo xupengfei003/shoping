@@ -5,7 +5,7 @@ public class CategoryOutput {
     /**
      * id
      */
-    private long id;
+    private Long id;
     /**
      * 分类名称
      */
@@ -15,6 +15,18 @@ public class CategoryOutput {
      * 类型级别
      */
     private int level;
+    /**
+     *  PID
+     */
+    private Long pid;
+
+    public Long getPid() {
+        return pid;
+    }
+
+    public void setPid(Long pid) {
+        this.pid = pid;
+    }
 
     public long getId() {
         return id;

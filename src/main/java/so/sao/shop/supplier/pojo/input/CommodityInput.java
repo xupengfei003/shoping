@@ -2,9 +2,12 @@ package so.sao.shop.supplier.pojo.input;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.NotBlank;
+import org.hibernate.validator.constraints.NotEmpty;
 import so.sao.shop.supplier.pojo.vo.SupplierCommodityVo;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.List;
 
@@ -24,61 +27,81 @@ public class CommodityInput {
     /**
      * 品牌
      */
+    @NotBlank(message = "商品品牌不能为空")
     @Length(max = 256,message = "商品品牌长度不能大于256")
     private String brandName;
 
     /**
+     * 品牌id
+     */
+    private Long brandId;
+
+    /**
      * 一级类型Id
      */
+    @NotNull(message = "商品科属一级类型不能为空")
     private Long categoryOneId;
 
     /**
      * 二级类型Id
      */
+    @NotNull(message = "商品科属二级类型不能为空")
     private Long categoryTwoId;
 
     /**
      * 三级类型Id
      */
+    @NotNull(message = "商品科属三级类型不能为空")
     private Long categoryThreeId;
 
     /**
      * 商品名称
      */
+    @NotBlank(message = "商品名称不能为空")
     @Length(max = 256,message = "商品名称长度不能大于256")
     private String name;
 
     /**
-     * 商品描述
+     * 商品说明
      */
+    @NotBlank(message = "商品说明不能为空")
+    @Length(max = 65535,message = "商品说明长度不能大于65535")
     private String remark;
 
     /**
      * 商品标签Id
      */
     private Long tagId;
+    /**
+     * 商品标签Name
+     */
+    private String tagName;
 
     /**
      * 企业名称
      */
+    @NotBlank(message = "企业名称不能为空")
     @Length(max = 256,message = "企业名称长度不能大于256")
     private String companyName;
 
     /**
      * 上市时间
      */
+    @NotNull(message = "上市时间不能为空")
     @JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
     private Date marketTime;
 
     /**
      * 商品产地
      */
+    @NotBlank(message = "商品产地不能为空")
     @Length(max = 256,message = "商品产地长度不能大于256")
     private String originPlace;
 
     /**
      * 商品集合
      */
+    @NotEmpty(message = "商品规格不能为空")
     @Valid
     private List<SupplierCommodityVo> commodityList;
 
@@ -176,5 +199,21 @@ public class CommodityInput {
 
     public void setCommodityList(List<SupplierCommodityVo> commodityList) {
         this.commodityList = commodityList;
+    }
+
+    public String getTagName() {
+        return tagName;
+    }
+
+    public void setTagName(String tagName) {
+        this.tagName = tagName;
+    }
+
+    public Long getBrandId() {
+        return brandId;
+    }
+
+    public void setBrandId(Long brandId) {
+        this.brandId = brandId;
     }
 }

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="so.sao.shop.supplier.dao.FreightRulesDao">
+
+    <resultMap id="BaseResultMap" type="so.sao.shop.supplier.domain.FreightRules">
+        <id column="id" jdbcType="INTEGER" property="id" />
+        <result column="supplier_id" jdbcType="BIGINT" property="supplierId" />
+        <result column="rules_type" jdbcType="INTEGER" property="rulesType" />
+        <result column="address_province" jdbcType="VARCHAR" property="addressProvince" />
+        <result column="address_city" jdbcType="VARCHAR" property="addressCity" />
+        <result column="address_district" jdbcType="VARCHAR" property="addressDistrict" />
+        <result column="whether_shipping" jdbcType="INTEGER" property="whetherShipping" />
+        <result column="send_amount" jdbcType="DECIMAL" property="sendAmount" />
+        <result column="default_piece" jdbcType="INTEGER" property="defaultPiece" />
+        <result column="excess_piece" jdbcType="INTEGER" property="excessPiece" />
+        <result column="default_amount" jdbcType="DECIMAL" property="defaultAmount" />
+        <result column="excess_amount" jdbcType="DECIMAL" property="excessAmount" />
+        <result column="remark" jdbcType="VARCHAR" property="remark" />
+        <result column="created_at" jdbcType="TIMESTAMP" property="createdAt" />
+        <result column="update_at" jdbcType="TIMESTAMP" property="updateAt" />
+        <result column="distribution_scope_id" javaType="INTEGER" property="distributionScopeId"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, supplier_id, rules_type, address_province, address_city, address_district, whether_shipping,
+        send_amount, default_piece, excess_piece, default_amount, excess_amount, remark,
+        created_at, update_at,distribution_scope_id
+    </sql>
+    <!--创建配送规则-->
+    <insert id="insert" parameterType="so.sao.shop.supplier.domain.FreightRules">
+    insert into freight_rules (supplier_id, rules_type,
+      address_province, address_city, address_district,
+      whether_shipping, send_amount, default_piece,
+      excess_piece, default_amount, excess_amount,
+      remark, created_at, update_at,distribution_scope_id
+      )
+    values (#{supplierId,jdbcType=BIGINT}, #{rulesType,jdbcType=INTEGER},
+      #{addressProvince,jdbcType=VARCHAR}, #{addressCity,jdbcType=VARCHAR}, #{addressDistrict,jdbcType=VARCHAR},
+      #{whetherShipping,jdbcType=INTEGER}, #{sendAmount,jdbcType=DECIMAL}, #{defaultPiece,jdbcType=INTEGER},
+      #{excessPiece,jdbcType=INTEGER}, #{defaultAmount,jdbcType=DECIMAL}, #{excessAmount,jdbcType=DECIMAL},
+      #{remark,jdbcType=VARCHAR}, #{createdAt,jdbcType=TIMESTAMP}, #{updateAt,jdbcType=TIMESTAMP},#{distributionScopeId,jdbcType=INTEGER}
+      )
+  </insert>
+    <!--修改配送规则记录信息-->
+    <update id="update" parameterType="so.sao.shop.supplier.domain.FreightRules">
+       update freight_rules
+        set
+            <!-- 修改配送范围-->
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(addressProvince)">
+                address_province = #{addressProvince,jdbcType=VARCHAR},
+                address_city = #{addressCity,jdbcType=VARCHAR},
+                address_district = #{addressDistrict,jdbcType=VARCHAR},
+            </if>
+
+            <!--修改配送规则-->
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(rulesType)">
+                rules_type = #{rulesType,jdbcType=INTEGER},
+                whether_shipping = #{whetherShipping,jdbcType=INTEGER},
+                default_piece = #{defaultPiece,jdbcType=INTEGER},
+                default_amount = #{defaultAmount,jdbcType=DECIMAL},
+                excess_piece = #{excessPiece,jdbcType=INTEGER},
+                excess_amount = #{excessAmount,jdbcType=DECIMAL},
+                send_amount = #{sendAmount,jdbcType=DECIMAL},
+            </if>
+                remark = #{remark,jdbcType=VARCHAR},
+                update_at = #{updateAt,jdbcType=TIMESTAMP}
+        <where>
+            <choose>
+                <when test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(distributionScopeId)">
+                    distribution_scope_id = #{distributionScopeId,jdbcType=INTEGER}
+                </when>
+                <otherwise>
+                    id = #{id,jdbcType=INTEGER}
+                </otherwise>
+            </choose>
+        </where>
+
+    </update>
+    <!--根据配送规则ID删除记录-->
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        delete from freight_rules
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+    <delete id="deleteByDistributionScopeId" parameterType="java.lang.Integer">
+        delete from freight_rules
+        where distribution_scope_id = #{distributionScopeId,jdbcType=INTEGER}
+    </delete>
+    <!--查询所有配送规则-->
+    <select id="queryAll" resultMap="BaseResultMap">
+        SELECT
+        id, supplier_id, rules_type, p.name address_province, c.name address_city, d.name address_district, whether_shipping,
+        send_amount, default_piece, excess_piece, default_amount, excess_amount, remark,
+        created_at, update_at,distribution_scope_id
+        FROM freight_rules f
+        LEFT JOIN sys_region p ON address_province = p.sr_id
+        LEFT JOIN sys_region c ON address_city = c.sr_id
+        LEFT JOIN sys_region d ON address_district = d.sr_id
+        WHERE supplier_id = #{accountId,jdbcType=BIGINT}
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(rulesType)">
+            AND rules_type = #{rulesType,jdbcType=INTEGER}
+        </if>
+        ORDER BY created_at DESC
+    </select>
+    <!--根据配送规则ID查询记录-->
+    <select id="query" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+        SELECT
+        id, supplier_id, rules_type, p.name address_province, c.name address_city, d.name address_district, whether_shipping,
+        send_amount, default_piece, excess_piece, default_amount, excess_amount, remark,
+        created_at, update_at,distribution_scope_id
+        FROM freight_rules f
+        LEFT JOIN sys_region p ON address_province = p.sr_id
+        LEFT JOIN sys_region c ON address_city = c.sr_id
+        LEFT JOIN sys_region d ON address_district = d.sr_id
+        WHERE id = #{id,jdbcType=INTEGER}
+    </select>
+    <!-- 根据配送范围Id获取单条配送规则信息 -->
+    <select id="queryByDsId" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM freight_rules
+        WHERE distribution_scope_id = #{dsId,jdbcType=INTEGER}
+    </select>
+
+    <select id="queryAll0" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM freight_rules
+        WHERE supplier_id = #{accountId,jdbcType=BIGINT}
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(rules)">
+            AND rules_type = #{rules,jdbcType=INTEGER}
+        </if>
+        ORDER BY created_at DESC
+    </select>
+</mapper>

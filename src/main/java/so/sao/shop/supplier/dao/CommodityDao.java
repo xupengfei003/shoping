@@ -3,6 +3,7 @@ package so.sao.shop.supplier.dao;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import so.sao.shop.supplier.domain.Commodity;
+import so.sao.shop.supplier.pojo.input.CommExportInput;
 import so.sao.shop.supplier.pojo.output.CommodityExportOutput;
 import so.sao.shop.supplier.pojo.output.CommodityInfoOutput;
 
@@ -32,6 +33,12 @@ public interface CommodityDao {
      */
     boolean update(Commodity commodity);
     /**
+     * 修改商品
+     * @param commodity 商品信息对象
+     * @return 修改结果
+     */
+    boolean updateComm(Commodity commodity);
+    /**
      * 查询商品
      * @param id 商品ID
      * @return  商品信息对象
@@ -52,6 +59,14 @@ public interface CommodityDao {
     Commodity findCommInfoByCode69(@Param("code69")String code69);
 
     /**
+     * 根据code69 商品编码查询商品名称
+     * @param code69
+     * @return
+     * @throws Exception
+     */
+    Commodity findNameByCode69(@Param("code69")String code69) throws Exception;
+
+    /**
      * 查询商品信息集合
      * @param commodity
      * @return 查询结果结合
@@ -59,10 +74,10 @@ public interface CommodityDao {
     List<Commodity> find(Commodity commodity);
 
     /**
-     * 根据id查询多个商品
-     * @param ids
+     * 商品批量导出
+     * @param commExportInput
      * @return
      */
-    List<CommodityExportOutput> findByIds(Long[] ids);
+    List<CommodityExportOutput> findByIds(CommExportInput commExportInput);
 
 }

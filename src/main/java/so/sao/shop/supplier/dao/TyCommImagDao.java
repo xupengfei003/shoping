@@ -19,4 +19,16 @@ public interface TyCommImagDao {
      * @param tyCommImge
      */
     void save(TyCommImge tyCommImge);
+
+    /**
+     * 批量新增
+     * @param tyCommImges
+     */
+    void batchSave(List<TyCommImge> tyCommImges);
+
+    /**
+     * 批量删除商品大图
+     * @param code69s 商品ID
+     */
+    void deleteByCode69s(@Param("code69s") List<String> code69s);
 }

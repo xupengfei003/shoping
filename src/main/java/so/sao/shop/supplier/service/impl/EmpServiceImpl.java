@@ -3,10 +3,10 @@ package so.sao.shop.supplier.service.impl;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +28,8 @@ import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.EmpInput;
 import so.sao.shop.supplier.pojo.input.EmpUpdateInput;
 import so.sao.shop.supplier.service.EmpService;
+import so.sao.shop.supplier.util.PageTool;
+
 /**
  * <p>Title: EmpServiceImpl</p>
  * <p>Description: 员工业务实现</p>
@@ -91,14 +93,10 @@ public class EmpServiceImpl implements EmpService {
 	 */
     @Transactional(rollbackFor = Exception.class)
 	public Result saveEmp(Emp emp) throws Exception{
-		//定义返回值
-		Result baseResult = new Result();
 		//判断登录用户是否为员工
 		Long accountId = accountDao.findAccountIdByUserId(emp.getUserId());
         if(accountId == null) {
-        	baseResult.setMessage("此登录账户为员工，无添加员工权限");
-            baseResult.setCode(Constant.CodeConfig.CODE_FAILURE);
-            return baseResult;
+            return Result.fail("此登录账户为员工，无添加员工权限");
         }
 		//利用redis的setnx，获取锁成功返回true
 		Boolean lock = redisTemplate.opsForValue().setIfAbsent(Constant.REDIS_KEY_PREFIX+emp.getEmpTel(),"1");
@@ -128,20 +126,16 @@ public class EmpServiceImpl implements EmpService {
                             smsService.sendSms(Collections.singletonList(emp.getEmpTel()),Arrays.asList("phone","password"), Arrays.asList(emp.getEmpTel(),password), smsTemplateCode2);
                         }
                     });
-            		baseResult.setMessage("员工信息添加成功！");
-                    baseResult.setCode(Constant.CodeConfig.CODE_SUCCESS);
-                    return baseResult;
+                    return Result.success("员工信息添加成功！");
 				}
 			}
-			baseResult.setMessage("此员工信息已经存在！");
-	        baseResult.setCode(Constant.CodeConfig.CODE_FAILURE);
 		} catch (Exception e) {
 			logger.error("插入员工信息异常！",e);
-			throw new Exception(e.getMessage());
+			throw new Exception("插入员工信息异常！",e);
 		} finally {
 			redisTemplate.delete(Constant.REDIS_KEY_PREFIX+emp.getEmpTel());
 		}
-        return baseResult;
+        return Result.fail("员工信息插入失败！");
 	}
 
 	/**
@@ -155,17 +149,11 @@ public class EmpServiceImpl implements EmpService {
         if(accountId == null) {
         	return Result.fail("此登录账户不是供应商，无查询权限");
         }
-        //判断当前页码和每页显示的条数是否为空
-        if (null == empInput.getPageNum()){
-			empInput.setPageNum(1);
-        }
-        if (null == empInput.getPageSize()){
-			empInput.setPageSize(10);
-        }
         //分页
-        PageHelper.startPage(empInput.getPageNum(), empInput.getPageSize());
+        PageTool.startPage(empInput.getPageNum(), empInput.getPageSize());
         empInput.setAccountId(accountId);
-        PageInfo pageInfo = new PageInfo(empDao.findPage(empInput));
+        List<Emp> empList =  empDao.findPage(empInput);
+        PageInfo pageInfo = new PageInfo(empList);
         return Result.success("查询成功", pageInfo);
     }
 
@@ -182,11 +170,7 @@ public class EmpServiceImpl implements EmpService {
             	return Result.fail("此登录账户不是供应商，无更新权限");
             }
 			empUpdateInput.setUpdateAt(new Date());
-            int updateNumber = empDao.updateEmpStatusById(empUpdateInput);
-            //判断受影响的行数
-            if (updateNumber > 0){
-                return Result.success("修改成功！");
-            }
-            return Result.fail("修改失败！");
+            empDao.updateEmpStatusById(empUpdateInput);
+            return Result.success("员工状态修改成功");
     }
 }
