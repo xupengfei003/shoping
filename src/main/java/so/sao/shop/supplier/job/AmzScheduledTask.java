@@ -28,7 +28,7 @@ public class AmzScheduledTask {
     private RedisTemplate<String, String> redisTemplate;
 
     //每天凌晨1点执行 (0 0 1 * * ?)
-    @Scheduled(cron = "${amz.jobs.cron.day}")
+//    @Scheduled(cron = "${amz.jobs.cron.day}")
     public void excuteStoreInfoDayJob() {
         Boolean lock = redisTemplate.opsForValue().setIfAbsent(Constant.REDIS_KEY_PREFIX + "AMZ_COUNT_BILLING_DETAILS", "1");
         try {
