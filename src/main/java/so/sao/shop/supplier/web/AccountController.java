@@ -350,12 +350,12 @@ public class AccountController {
      */
     @ApiOperation(value = "密码修改",notes = "密码修改【负责人：汪涛】")
     @PostMapping(value = "/updatePassword")
-    public Result updatePassword(HttpServletRequest request,String encodedPassword) throws IOException {
+    public Result updatePassword(HttpServletRequest request,@RequestBody Map encodedPassword) throws IOException {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         if(null == user){
             return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
-        return authService.updatePassword(user.getId(), encodedPassword);
+        return authService.updatePassword(user.getId(), encodedPassword.get("encodedPassword").toString());
     }
 
     /**
