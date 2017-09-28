@@ -139,7 +139,29 @@
     </update>
     <!-- 查询所有审核数据 -->
     <select id="findCommodityAudit" resultType="so.sao.shop.supplier.pojo.vo.CommodityAuditinputVo">
-        SELECT * FROM (
+        SELECT
+        t2.id AS id,
+        t2.scId AS scId,
+        t2.supplierId AS supplierId,
+        t2.supplierName AS supplierName,
+        t2.minImg AS minImg,
+        t2.code69 AS code69,
+        t2.code AS code,
+        t2.brandName AS brandName,
+        t2.name AS name,
+        t2.unitName AS unitName,
+        t2.measureSpecName AS measureSpecName,
+        t2.ruleVal AS ruleVal,
+        t2.inventory AS inventory,
+        t2.price AS price,
+        t2.unitPrice AS unitPrice,
+        t2.createdAt AS createdAt,
+        t2.updatedAt AS updatedAt,
+        t2.minOrderQuantity AS minOrderQuantity,
+        t2.auditResult AS auditResult,
+        t2.auditOpinion AS auditOpinion,
+        t2.status AS status
+        FROM (
         SELECT
         t1.id AS id,
         sc.id AS scId,
@@ -195,25 +217,36 @@
         t1.audit_opinion AS auditOpinion,
         t1.status AS status
         FROM `supplier_commodity_tmp` sctmp
-        RIGHT JOIN (SELECT * FROM `supplier_commodity_audit` t WHERE t.`status` = 6) t1
+        RIGHT JOIN (SELECT
+        t.`id`,
+        t.`sc_id`,
+        t.`supplier_id`,
+        t.`status`,
+        t.`audit_result`,
+        t.`created_at`,
+        t.`updated_at`,
+        t.`audit_by`,
+        t.`audit_flag`,
+        t.`audit_opinion`
+        FROM `supplier_commodity_audit` t WHERE t.`status` = 6) t1
         ON sctmp.`sca_id` = t1.id
         INNER JOIN account a ON t1.supplier_id=a.account_id
         INNER JOIN commodity c ON sctmp.code69 = c.code69
         LEFT JOIN comm_measure_spec cms ON sctmp.measure_spec_id = cms.id
         LEFT JOIN comm_unit cu ON sctmp.unit_id = cu.id
         LEFT JOIN comm_brand cb ON c.brand_id = cb.id
-        ) t
+        ) t2
         <where>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(status)">
-                AND t.status = #{status}
+                AND t2.status = #{status}
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(auditResult)">
-                AND t.auditResult = #{auditResult}
+                AND t2.auditResult = #{auditResult}
             </if>
         </where>
-        ORDER BY t.createdAt ASC
+        ORDER BY t2.createdAt ASC
     </select>
-
+    <!-- 查询审核记录详情 -->
     <select id="findAuditDetail" resultType="so.sao.shop.supplier.pojo.output.CommodityOutput">
         SELECT
 	        sca.sc_id AS id,
