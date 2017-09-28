@@ -74,11 +74,14 @@
     <select id="getOrderListByIds" resultMap="BaseResultMap">
         SELECT
         order_id,
+        order_payment_time,
         order_receiver_name,
         order_receiver_mobile,
         order_status,
         order_price,
+        order_postage,
         order_create_time,
+        updated_at,
         order_payment_method,
         order_payment_num
         FROM
@@ -632,9 +635,10 @@
     </update>
 
     <!--根据订单编号查询取消原因-->
-    <select id="findCancelReason" resultType="java.lang.String" parameterType="java.lang.String">
+    <select id="findCancelReason" resultType="so.sao.shop.supplier.pojo.output.OrderCancelReasonOutput" parameterType="java.lang.String">
         SELECT
-          order_cancel_reason
+          order_cancel_reason AS orderCancelReason,
+          cancel_type AS cancelType
         FROM
           purchase
         WHERE order_id = #{orderId}

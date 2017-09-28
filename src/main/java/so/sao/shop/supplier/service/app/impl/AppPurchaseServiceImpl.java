@@ -53,7 +53,7 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
             return new PageInfo<>();
         }*/
         List<AppPurchasesVo> orderList = new ArrayList<>();
-        if ("1".equals(orderStatus) || "".equals(orderStatus)) {
+        if ("1".equals(orderStatus) || "".equals(orderStatus) || null == orderStatus) {
             orderList = appPurchaseDao.findOrderList(userId, convertStringToInt(orderStatus), "1");
         } else {
             orderList = appPurchaseDao.findOrderList(userId, convertStringToInt(orderStatus), "");
@@ -157,7 +157,7 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
     //获取ID（订单状态为待付款（1）获取的是payID,订单状态为其他则获取的是orderId）
     private List<String> getId(String orderStatus, List<AppPurchasesVo> orderList) {
         List<String> orderIdList = new ArrayList<>();
-        if ("1".equals(orderStatus) || "".equals(orderStatus)) {
+        if ("1".equals(orderStatus) || "".equals(orderStatus) || null == orderStatus) {
             //获取所有合并支付编号
             for (AppPurchasesVo appPurchasesVo : orderList) {
                 orderIdList.add(appPurchasesVo.getPayId());
@@ -173,7 +173,7 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
 
     //获取详情信息
     private List<AppPurchaseItemVo> getAllOrderItemList(List<String> orderIdList, String orderStatus) throws Exception {
-        if ("1".equals(orderStatus) || "".equals(orderStatus)) {
+        if ("1".equals(orderStatus) || "".equals(orderStatus) || null == orderStatus) {
             return appPurchaseItemDao.findOrderItemListByPayId(orderIdList);
         }
         return appPurchaseItemDao.findOrderItemList(orderIdList);
