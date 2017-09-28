@@ -42,10 +42,16 @@ public class AppPurchaseItemServiceImpl implements AppPurchaseItemService {
         List<AppPurchasesVo> appPurchasesVoList = new ArrayList<>();
         AppPurchasesVo appPurchasesVos = new AppPurchasesVo();
         Integer orderStatus = 0;
+        BigDecimal totalOrderPostageList = new BigDecimal(0);
+
         if(orderId.length() == 28){
             //根据合并支付ID查询所有订单
             appPurchasesVoList = appPurchaseDao.findOrderByPayId(orderId);
+            for(AppPurchasesVo appPurchasesVo : appPurchasesVoList){
+                totalOrderPostageList = totalOrderPostageList.add(appPurchasesVo.getOrderPostage());
+            }
             appPurchasesVos = appPurchasesVoList.get(0);
+            appPurchasesVos.setOrderPostage(totalOrderPostageList);
             orderStatus = 1;
         }else{
             //查询订单信息
