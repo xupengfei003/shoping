@@ -47,10 +47,7 @@ public class AppPurchasesVo {
      * 订单状态
      */
     private Integer orderStatus;
-    /**
-     * 物流单号
-     */
-    private String orderShipmentNumber;
+
     /**
      * 订单支付时间
      */
@@ -102,7 +99,7 @@ public class AppPurchasesVo {
      */
     private String storeId;
     /**
-     * 配送方式
+     * 配送方式（1.自配送，2.物流公司）
      */
     private Integer orderShipMethod;
     /**
@@ -117,6 +114,10 @@ public class AppPurchasesVo {
      * 物流公司
      */
     private String logisticsCompany;
+    /**
+     * 物流公司物流单号
+     */
+    private String orderShipmentNumber;
     public String getOrderReceiverName() {
         return orderReceiverName;
     }

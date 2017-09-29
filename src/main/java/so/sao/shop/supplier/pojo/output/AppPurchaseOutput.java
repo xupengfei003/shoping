@@ -37,10 +37,7 @@ public class AppPurchaseOutput {
      * 订单状态
      */
     private Short orderStatus;
-    /**
-     * 物流单号
-     */
-    private String orderShipmentNumber;
+
     /**
      * 订单合计（订单实付金额）
      */
@@ -95,6 +92,28 @@ public class AppPurchaseOutput {
      * 供应商名称
      */
     private String storeName;
+
+    /**
+     * 配送方式（1.自配送，2.物流公司）
+     */
+    private Integer orderShipMethod;
+    /**
+     * 配送人姓名
+     */
+    private String distributorName;
+    /**
+     * 配送人电话）
+     */
+    private String distributorMobile;
+    /**
+     * 物流公司名称
+     */
+    private String logisticsCompany;
+    /**
+     * 物流公司物流单号
+     */
+    private String orderShipmentNumber;
+
     /**
      * 商品信息
      */
@@ -250,5 +269,37 @@ public class AppPurchaseOutput {
 
     public void setStoreName(String storeName) {
         this.storeName = storeName;
+    }
+
+    public Integer getOrderShipMethod() {
+        return orderShipMethod;
+    }
+
+    public void setOrderShipMethod(Integer orderShipMethod) {
+        this.orderShipMethod = orderShipMethod;
+    }
+
+    public String getDistributorName() {
+        return distributorName;
+    }
+
+    public void setDistributorName(String distributorName) {
+        this.distributorName = distributorName;
+    }
+
+    public String getDistributorMobile() {
+        return distributorMobile;
+    }
+
+    public void setDistributorMobile(String distributorMobile) {
+        this.distributorMobile = distributorMobile;
+    }
+
+    public String getLogisticsCompany() {
+        return logisticsCompany;
+    }
+
+    public void setLogisticsCompany(String logisticsCompany) {
+        this.logisticsCompany = logisticsCompany;
     }
 }
