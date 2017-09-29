@@ -1,6 +1,7 @@
 package so.sao.shop.supplier.pojo.output;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import so.sao.shop.supplier.domain.FreightRules;
 import so.sao.shop.supplier.pojo.vo.CommImgeVo;
 
 import java.math.BigDecimal;
@@ -19,10 +20,26 @@ public class CommodityOutput {
      */
     private Long id;
     /**
+     *ID
+     */
+    private Long scaId;
+    /**
      * 供应商ID
 
      */
     private Long supplierId;
+    /**
+     * 供应商名称
+     */
+    private String providerName;
+    /**
+     * 供应商合同所在市
+     */
+    private String contractCity;
+    /**
+     * 销量
+     */
+    private Integer salesNumber;
     /**
      * 品牌
      */
@@ -144,9 +161,37 @@ public class CommodityOutput {
     private Date updatedAt;
 
     /**
+     * 是否失效 0失效，1正常
+     */
+    private int invalidStatus;
+
+
+    /**
+     *  最小起订量
+     */
+    private int minOrderQuantity;
+    /**
      * 图片集合
      */
     private List<CommImgeVo> imgeList;
+
+    /**
+     * 审核意见
+     */
+    private String advice;
+
+    /**
+     * 商品运费规则
+     */
+    private List<FreightRules> freightRulesList;
+
+    public List<FreightRules> getFreightRulesList() {
+        return freightRulesList;
+    }
+
+    public void setFreightRulesList(List<FreightRules> freightRulesList) {
+        this.freightRulesList = freightRulesList;
+    }
 
     public Long getId() {
         return id;
@@ -154,6 +199,30 @@ public class CommodityOutput {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getProviderName() {
+        return providerName;
+    }
+
+    public void setProviderName(String providerName) {
+        this.providerName = providerName;
+    }
+
+    public String getContractCity() {
+        return contractCity;
+    }
+
+    public void setContractCity(String contractCity) {
+        this.contractCity = contractCity;
+    }
+
+    public Integer getSalesNumber() {
+        return salesNumber;
+    }
+
+    public void setSalesNumber(Integer salesNumber) {
+        this.salesNumber = salesNumber;
     }
 
     public Long getSupplierId() {
@@ -401,5 +470,37 @@ public class CommodityOutput {
 
     public void setUnitId(Long unitId) {
         this.unitId = unitId;
+    }
+
+    public int getInvalidStatus() {
+        return invalidStatus;
+    }
+
+    public void setInvalidStatus(int invalidStatus) {
+        this.invalidStatus = invalidStatus;
+    }
+
+    public int getMinOrderQuantity() {
+        return minOrderQuantity;
+    }
+
+    public void setMinOrderQuantity(int minOrderQuantity) {
+        this.minOrderQuantity = minOrderQuantity;
+    }
+
+    public String getAdvice() {
+        return advice;
+    }
+
+    public void setAdvice(String advice) {
+        this.advice = advice;
+    }
+
+    public Long getScaId() {
+        return scaId;
+    }
+
+    public void setScaId(Long scaId) {
+        this.scaId = scaId;
     }
 }

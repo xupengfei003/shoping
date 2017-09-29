@@ -29,7 +29,7 @@ public interface CommMeasureSpecService {
      * @param id 计量规格主键id
      * @return boolean
      */
-    public Result deleteOneById(Long supplierId, Long id);
+    public Result deleteById(Long supplierId, Long id);
 
     /**
      *根据计量规格的CommMeasureSpecUpdateInput更新计量规格

@@ -5,6 +5,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import so.sao.shop.supplier.util.NumberUtil;
+import so.sao.shop.supplier.util.StringUtil;
 
 public class OrderMoneyRecord {
     /**
@@ -83,6 +85,16 @@ public class OrderMoneyRecord {
      * 结算时间
      */
     private Date settledAt;
+
+    /**
+     * 运费总金额
+     */
+    private BigDecimal postageTotalAmount;
+
+    /**
+     * 订单结算总金额
+     */
+    private BigDecimal orderTotalAmount;
 
     public String getRecordId() {
         return recordId;
@@ -204,17 +216,35 @@ public class OrderMoneyRecord {
         this.settledAt = settledAt;
     }
 
+    public BigDecimal getPostageTotalAmount() {
+        return postageTotalAmount;
+    }
+
+    public void setPostageTotalAmount(BigDecimal postageTotalAmount) {
+        this.postageTotalAmount = postageTotalAmount;
+    }
+
+    public BigDecimal getOrderTotalAmount() {
+        return orderTotalAmount;
+    }
+
+    public void setOrderTotalAmount(BigDecimal orderTotalAmount) {
+        this.orderTotalAmount = orderTotalAmount;
+    }
+
     public static Object[] converData(OrderMoneyRecord orderMoneyRecord){
-        Object[] data = new Object[7];
+        Object[] data = new Object[8];
 
         if (null != orderMoneyRecord) {
             data[0] = orderMoneyRecord.getProviderName();//供应商名称
             if(orderMoneyRecord.getCheckoutAt() != null){//结账时间
-               data[1] = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss").format(orderMoneyRecord.getCheckoutAt());
+               data[1] = StringUtil.fomateData(orderMoneyRecord.getCheckoutAt(), "yyyy-MM-dd");
             }
-            data[2] = orderMoneyRecord.getTotalMoney();//待结算金额（¥）
-            data[3] = orderMoneyRecord.getSettledAmount();//已结算金额（¥）
-            data[4] = orderMoneyRecord.getSettledAt();//结算时间
+            data[2] = NumberUtil.number2Thousand(orderMoneyRecord.getTotalMoney());//待结算金额（¥）
+            data[3] = NumberUtil.number2Thousand(orderMoneyRecord.getSettledAmount());//已结算金额（¥）
+            if(orderMoneyRecord.getSettledAt() != null) {//结算时间
+                data[4] = StringUtil.fomateData(orderMoneyRecord.getSettledAt(), "yyyy-MM-dd HH:mm");
+            }
             switch (orderMoneyRecord.getState()){
                 case "0":
                     data[5] = "未结算";//结算状态
@@ -225,8 +255,10 @@ public class OrderMoneyRecord {
 
             }
             data[6] = orderMoneyRecord.getBankAccount();//供应商账户
+            data[7] = orderMoneyRecord.getSerialNumber();//银行流水号
+//            data[8] = NumberUtil.number2Thousand(orderMoneyRecord.getPostageTotalAmount());//运费总金额
+//            data[9] = NumberUtil.number2Thousand(orderMoneyRecord.getOrderTotalAmount());//订单总金额
         }
-
 
         return data;
     }

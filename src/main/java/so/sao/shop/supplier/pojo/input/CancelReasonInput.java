@@ -7,16 +7,18 @@ import org.hibernate.validator.constraints.NotEmpty;
  */
 public class CancelReasonInput {
     /**
-     * 取消原因
-     */
-    @NotEmpty(message = "取消原因不能为空")
-    private String cancelReason;
-
-    /**
      * 订单编号
      */
     @NotEmpty(message = "订单编号不能为空")
     private String orderId;
+    /**
+     * 取消类型
+     */
+    private String cancelType;
+    /**
+     * 取消原因
+     */
+    private String cancelReason;
 
     public String getCancelReason() {
         return cancelReason;
@@ -32,5 +34,13 @@ public class CancelReasonInput {
 
     public void setOrderId(String orderId) {
         this.orderId = orderId;
+    }
+
+    public String getCancelType() {
+        return cancelType;
+    }
+
+    public void setCancelType(String cancelType) {
+        this.cancelType = cancelType;
     }
 }

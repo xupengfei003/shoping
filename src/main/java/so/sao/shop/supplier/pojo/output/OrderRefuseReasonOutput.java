@@ -1,25 +1,39 @@
 package so.sao.shop.supplier.pojo.output;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.util.Date;
+import java.util.List;
+
 /**
  * Created by acer on 2017/8/17.
  */
 public class OrderRefuseReasonOutput {
     /**
+     * 拒收类型
+     */
+    private String refuseType;
+    /**
      * 拒收理由
      */
     private String refuseReason;
     /**
-     * 拒收图片1
+     * 拒收时间
      */
-    private String refuseImgUrlA;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date refuseTime;
     /**
-     * 拒收图片2
+     * 拒收图片列表
      */
-    private String refuseImgUrlB;
-    /**
-     * 拒收图片3
-     */
-    private String refuseImgUrlC;
+    private List<String> refuseImgUrl;
+
+    public String getRefuseType() {
+        return refuseType;
+    }
+
+    public void setRefuseType(String refuseType) {
+        this.refuseType = refuseType;
+    }
 
     public String getRefuseReason() {
         return refuseReason;
@@ -29,27 +43,19 @@ public class OrderRefuseReasonOutput {
         this.refuseReason = refuseReason;
     }
 
-    public String getRefuseImgUrlA() {
-        return refuseImgUrlA;
+    public Date getRefuseTime() {
+        return refuseTime;
     }
 
-    public void setRefuseImgUrlA(String refuseImgUrlA) {
-        this.refuseImgUrlA = refuseImgUrlA;
+    public void setRefuseTime(Date refuseTime) {
+        this.refuseTime = refuseTime;
     }
 
-    public String getRefuseImgUrlB() {
-        return refuseImgUrlB;
+    public List<String> getRefuseImgUrl() {
+        return refuseImgUrl;
     }
 
-    public void setRefuseImgUrlB(String refuseImgUrlB) {
-        this.refuseImgUrlB = refuseImgUrlB;
-    }
-
-    public String getRefuseImgUrlC() {
-        return refuseImgUrlC;
-    }
-
-    public void setRefuseImgUrlC(String refuseImgUrlC) {
-        this.refuseImgUrlC = refuseImgUrlC;
+    public void setRefuseImgUrl(List<String> refuseImgUrl) {
+        this.refuseImgUrl = refuseImgUrl;
     }
 }

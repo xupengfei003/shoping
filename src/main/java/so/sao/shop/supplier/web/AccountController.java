@@ -3,27 +3,27 @@ package so.sao.shop.supplier.web;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import so.sao.shop.supplier.domain.*;
-import so.sao.shop.supplier.pojo.BaseResult;
 import so.sao.shop.supplier.pojo.Result;
+import so.sao.shop.supplier.pojo.input.AccountInput;
+import so.sao.shop.supplier.pojo.input.AccountUpdateInput;
 import so.sao.shop.supplier.service.*;
 import so.sao.shop.supplier.util.DownloadAzureFile;
-import so.sao.shop.supplier.util.ExcelImportUtils;
 import so.sao.shop.supplier.config.Constant;
+import so.sao.shop.supplier.util.Ognl;
+import so.sao.shop.supplier.util.StringUtil;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.*;
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +40,7 @@ public class AccountController {
 	 */
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+
     @Autowired
     private AccountService accountService;
 
@@ -47,13 +48,7 @@ public class AccountController {
     private AuthService authService;
 
     @Autowired
-    private SupplierRecordService supplierRecordService;
-
-    @Autowired
     private SysRegionService sysRegionService;
-
-    @Autowired
-    private ImportExcel importExcel;
 
     /**
      * 单次添加供应商信息
@@ -61,80 +56,33 @@ public class AccountController {
      * @param account 供应商信息
      * @return 返回添加结果
      */
-    @ApiOperation("添加供应商信息")
+    @ApiOperation(value = "添加供应商信息",notes = "添加供应商信息【负责人：张腾飞】")
     @PostMapping("/save")
-    public Result save(HttpServletRequest request, @Valid @RequestBody Account account,BindingResult result) throws Exception{
-        Result baseResult = new Result();
+    public Result save(HttpServletRequest request, @Valid @RequestBody Account account) throws Exception{
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         if(user==null || !user.getIsAdmin().equals(Constant.ADMIN_STATUS)){
-            baseResult.setCode(0);
-            baseResult.setMessage(so.sao.shop.supplier.config.Constant.MessageConfig.ADMIN_AUTHORITY_EERO);
-            return baseResult;
+            return Result.fail(Constant.MessageConfig.ADMIN_AUTHORITY_EERO);
         }
-        //判断验证是否通过。true 未通过  false通过
-        if(result.hasErrors()) {
-            List<ObjectError> list = result.getAllErrors();
-            for (ObjectError error : list) {
-                baseResult.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_NOT_EMPTY);
-                baseResult.setMessage(error.getDefaultMessage());
-            }
-        }else{
-            /**
-             * 插入用户和供应商信息
-             */
-			return accountService.saveUserAndAccount(account);
-        }
-        return baseResult;
+        /**
+         * 插入用户和供应商信息
+         */
+		return accountService.saveUserAndAccount(account);
     }
 
-   /* *//**
-     * 根据id查询供应商详细信息
-     * @param id
-     * @return
-     *//*
-    @ApiOperation("根据ID查询供应商信息")
-    @GetMapping("/selectById/{id}")
-    public Account selectById(@PathVariable Long id){
-        return accountService.selectById(id);
-    }*/
-
     /**
-     * 跟新供应商信息
+     * 更新供应商信息
      *
      * @param account 供应商对象
      * @return 返回更新成功或者失败
      */
-    @ApiOperation("修改供应商信息")
+    @ApiOperation(value = "修改供应商信息",notes = "修改供应商信息【负责人：】")
     @PutMapping("/update")
-    public BaseResult update(@Valid @RequestBody Account account,BindingResult result, HttpServletRequest request) {
-        BaseResult baseResult = new BaseResult();
+    public Result update(@Valid @RequestBody Account account, HttpServletRequest request) throws Exception{
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         if(user==null || !user.getIsAdmin().equals(Constant.ADMIN_STATUS)){
-            baseResult.setCode(0);
-            baseResult.setMessage(so.sao.shop.supplier.config.Constant.MessageConfig.ADMIN_AUTHORITY_EERO);
-            return baseResult;
+            return Result.fail(Constant.MessageConfig.ADMIN_AUTHORITY_EERO);
         }
-        //判断验证是否通过。true 未通过  false通过
-        if(result.hasErrors()) {
-            List<ObjectError> list = result.getAllErrors();
-            for (ObjectError error : list) {
-                baseResult.setCode(0);
-                baseResult.setMessage(error.getDefaultMessage());
-            }
-        }else{
-            //修改用户登录名
-            accountService.updateUser(account.getUserId(), account.getContractResponsiblePhone());
-            // 修改用户信息
-            int num = accountService.update(account);
-            if (num < 0) {
-                baseResult.setCode(0);
-                baseResult.setMessage("修改失败");
-            } else {
-                baseResult.setCode(1);
-                baseResult.setMessage("修改成功");
-            }
-        }
-        return baseResult;
+        return accountService.updateAccountAndUser(account);
     }
 
     /**
@@ -143,25 +91,14 @@ public class AccountController {
      * @param id
      * @return 返回成功或失败
      */
-    @ApiOperation("删除供应商信息")
+    @ApiOperation(value = "删除供应商信息",notes = "删除供应商信息【负责人：】")
     @DeleteMapping("/delete/{id}")
-    public BaseResult delete(@PathVariable Long id, HttpServletRequest request) {
-        BaseResult baseResult = new BaseResult();
+    public Result delete(@PathVariable Long id, HttpServletRequest request) throws Exception{
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         if(user==null || !user.getIsAdmin().equals(Constant.ADMIN_STATUS)){
-            baseResult.setCode(0);
-            baseResult.setMessage(so.sao.shop.supplier.config.Constant.MessageConfig.ADMIN_AUTHORITY_EERO);
-            return baseResult;
+            return Result.fail(Constant.MessageConfig.ADMIN_AUTHORITY_EERO);
         }
-        int num = accountService.delete(id);
-        if (num < 0) {
-            baseResult.setCode(0);
-            baseResult.setMessage("删除失败");
-        } else {
-            baseResult.setCode(1);
-            baseResult.setMessage("删除成功");
-        }
-        return baseResult;
+        return accountService.delete(id);
     }
 
     /**
@@ -169,7 +106,7 @@ public class AccountController {
      *
      * @return
      */
-    @ApiOperation("银行信息")
+    @ApiOperation(value = "银行信息",notes = "")
     @GetMapping("/selectBank")
     public List<String> selectBank() {
         return accountService.selectBank();
@@ -180,7 +117,7 @@ public class AccountController {
      *
      * @return
      */
-    @ApiOperation("行业信息")
+    @ApiOperation(value = "行业信息",notes = "")
     @GetMapping("/selectHangYe")
     public List<String> selectHangYe() {
         return accountService.selectHangYe();
@@ -191,7 +128,7 @@ public class AccountController {
      *
      * @return
      */
-    @ApiOperation("行业信息(字典项)")
+    @ApiOperation(value = "行业信息(字典项)",notes = "")
     @GetMapping("/selectHangYeDict")
     public List<DictItem> selectHangYeDict() {
         return accountService.selectHangYeDict();
@@ -205,7 +142,7 @@ public class AccountController {
      * @throws AuthenticationException
      * @throws IOException
      */
-    @ApiOperation("登陆")
+    @ApiOperation(value = "登陆",notes = "")
     @PostMapping(value = "${jwt.route.authentication.path}")
     public Result<String> createAuthenticationToken(
             @RequestBody User authenticationRequest, HttpServletResponse response) throws AuthenticationException, IOException {
@@ -218,13 +155,13 @@ public class AccountController {
      * @param request
      * @return
      */
-    @ApiOperation("获取admin标记")
+    @ApiOperation(value = "获取admin标记",notes = "")
     @GetMapping(value = "/isAdmin")
     public Result isAdmin(HttpServletRequest request){
         Map result = new HashMap();
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         result.put("isAdmin",user.getIsAdmin());
-        return new Result(1,"",result);
+        return Result.success("", result);
     }
 
     /**
@@ -232,14 +169,14 @@ public class AccountController {
      * @param request
      * @return
      */
-    @ApiOperation("获取当前登陆供应商名")
+    @ApiOperation(value = "获取当前登陆供应商名",notes = "")
     @GetMapping(value = "/username")
     public Result getUserName(HttpServletRequest request){
         Map result = new HashMap();
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         Account account = accountService.selectById(user.getAccountId());
         result.put("username",account!=null?account.getProviderName():"");
-        return new Result(1,"",result);
+        return Result.success("", result);
     }
 
     /**
@@ -247,7 +184,7 @@ public class AccountController {
      *
      * @return
      */
-    @ApiOperation("登出")
+    @ApiOperation(value = "登出",notes = "")
     @PostMapping(value = "/logout")
     public Result<String> logout(HttpServletRequest request) {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
@@ -255,35 +192,26 @@ public class AccountController {
     }
 
     /**
-     * 根据用户ID查询用户的实时余额并更新用户余额
-     *
+     * 根据用户ID查询用户的实时余额
      * @param request
      * @return
      */
-    @ApiOperation(value = "根据用户的账户查询用户余额", notes = "根据用户的账户ID,查询未结算金额")
+    @ApiOperation(value = "根据账户ID查询用户余额", notes = "根据用户的账户ID,查询未结算金额【负责人：方洲】")
     @GetMapping(value = "/selectAccountBalance")
-    public Result getBalance(HttpServletRequest request) {
-        Result result = new Result<>();
-        Map map = new HashMap();
-        map.put("balance","0.00");
+    public Result getBalanceByAccountId(HttpServletRequest request) throws Exception{
         //获取用户
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        //定义map存放余额
+        Map<String,String > map = new HashMap();
         //判断是否登陆
-        if (null == user){
-            result.setCode(Constant.CodeConfig.CODE_USER_NOT_LOGIN);
-            result.setMessage(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
-            result.setData(map);
-            return result;
+        if (Ognl.isNull(user)){
+            //若没登陆，返回余额0.00
+            map.put("balance","0.00");
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN,map);
         }
-        try{
-            result = accountService.getAccountBalance(user.getAccountId());
-        }catch (Exception e){
-            e.printStackTrace();
-            result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SYSTEM_EXCEPTION);
-            result.setMessage(so.sao.shop.supplier.config.Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
-            result.setData(map);
-        }
-        return result;
+        //查询用户余额
+        map = accountService.getAccountBalance(user.getAccountId());
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS,map);
     }
 
     /**
@@ -293,26 +221,27 @@ public class AccountController {
      * @return
      * @throws IOException
      */
-    @ApiOperation("忘记密码")
+    @ApiOperation(value = "忘记密码",notes = "")
     @GetMapping(value = "/findPassword/{tel}")
-    public BaseResult getPassword(HttpServletRequest request, @PathVariable String tel) throws IOException {
+    public Result getPassword(HttpServletRequest request, @PathVariable String tel) throws IOException {
         return authService.getPassword(tel);
     }
 
     /**
      * 根据条件查询供应商列表
      *
-     * @param condition
+     * @param accountInput
      * @return
      */
-    @GetMapping(value = "/account")
-    @ApiOperation(value = "查询供应商列表")
-    public PageInfo search(Condition condition, HttpServletRequest request)  {
+    @GetMapping(value = "/findAccount")
+    @ApiOperation(value = "查询供应商列表" , notes = "负责人：唐文斌")
+    public PageInfo search(AccountInput accountInput, HttpServletRequest request)  {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         if(user==null || !user.getIsAdmin().equals(Constant.ADMIN_STATUS)){
             throw new RuntimeException("unauthorized access");
         }
-        return accountService.searchAccount(condition);
+        List<Account> accountList = accountService.searchAccount(accountInput);
+        return new PageInfo(accountList);
     }
 
     /**
@@ -323,7 +252,7 @@ public class AccountController {
      */
 
     @GetMapping("/search")
-    @ApiOperation(value = "根据id查询供应商(省市区汉字)")
+    @ApiOperation(value = "根据id查询供应商(省市区汉字)",notes = "")
     public Account get(@RequestParam(required = false) Long id, HttpServletRequest request){
         id = getAccountId(id, request);
         return accountService.selectById(id);
@@ -336,7 +265,7 @@ public class AccountController {
      * @return
      */
     @GetMapping("/search0")
-    @ApiOperation(value = "根据id查询供应商(省市区编码)")
+    @ApiOperation(value = "根据id查询供应商(省市区编码)",notes = "")
     public Account get0(@RequestParam(required = false) Long id, HttpServletRequest request) {
         id = getAccountId(id, request);
         return accountService.selectById0(id);
@@ -361,32 +290,18 @@ public class AccountController {
     }
 
     /**
-     * 查询当前登陆供应商
-     * @param id
-     * @param request
-     * @return
-     */
-    @GetMapping("/searchSelf")
-    @ApiOperation(value = "查询当前登陆供应商")
-    public Account getSelf(@RequestParam Long id, HttpServletRequest request) {
-        User user = (User) request.getAttribute(Constant.REQUEST_USER);
-        return accountService.selectById(accountService.selectByUserId(user.getId()).getAccountId());
-    }
-
-
-    /**
      * 查询当前登录用户登录手机号码
      * @return 当前登录用户登录手机号码
      */
     @GetMapping("/LoginPhone")
-    @ApiOperation(value = "查询当前登录用户手机号码")
+    @ApiOperation(value = "查询当前登录用户手机号码",notes = "查询当前登录用户手机号码【负责人：汪涛】")
     public Result getLoginPhone(HttpServletRequest request){
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         if(user!=null) {
             String tel=user.getUsername();
-            return new Result(Constant.CodeConfig.CODE_SUCCESS,"查询成功",tel);
+            return Result.success("查询成功",tel);
         }else {
-            return new Result(Constant.CodeConfig.CODE_FAILURE,"获取用户登录信息异常","");
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
     }
 
@@ -396,12 +311,12 @@ public class AccountController {
      * @return 验证码信息
      * @throws IOException
      */
-    @ApiOperation("发送验证码")
+    @ApiOperation(value = "发送验证码",notes = "发送验证码【负责人：汪涛】")
     @GetMapping(value = "/sendCode")
-    public BaseResult sendCode(HttpServletRequest request) throws IOException {
+    public Result sendCode(HttpServletRequest request) throws IOException {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
-        if(null==user){
-            return new BaseResult(Constant.CodeConfig.CODE_FAILURE, "登录验证不通过");
+        if(null == user){
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
         String tel=user.getUsername();
         return authService.sendCode(tel);
@@ -413,15 +328,15 @@ public class AccountController {
      * @param code
      * @return
      */
-    @ApiOperation("检验验证码")
+    @ApiOperation(value = "检验验证码",notes = "检验验证码【负责人：汪涛】")
     @GetMapping(value = "/verifySmsCode/{code}")
-    public BaseResult verifySmsCode(HttpServletRequest request, @PathVariable String code) {
+    public Result verifySmsCode(HttpServletRequest request, @PathVariable String code) {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
-        if(null==user){
-            return new BaseResult(Constant.CodeConfig.CODE_FAILURE, "登录验证不通过");
+        if(null == user){
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
-        if(null==code||code==""){
-            return new BaseResult(Constant.CodeConfig.CODE_FAILURE, "验证码无效");
+        if(StringUtil.isNull(code)){
+            return Result.fail("验证码无效");
         }
         return authService.verifySmsCode(user, code);
     }
@@ -433,27 +348,14 @@ public class AccountController {
      * @param encodedPassword
      * @return
      */
-    @ApiOperation("密码修改")
-    @PutMapping(value = "/updatePassword/{encodedPassword}")
-    public Result updatePassword(HttpServletRequest request, @PathVariable String encodedPassword) throws IOException {
+    @ApiOperation(value = "密码修改",notes = "密码修改【负责人：汪涛】")
+    @PostMapping(value = "/updatePassword")
+    public Result updatePassword(HttpServletRequest request,@RequestBody Map encodedPassword) throws IOException {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
-        if(null==user){
-            return Result.fail("登录验证不通过");
+        if(null == user){
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
-        return authService.updatePassword(user.getId(), encodedPassword);
-    }
-
-    /**
-     * 根据上传开始时间、结束时间、上传方式查询供应商上传记录
-     *
-     * @param condition 查询参数
-     * @return 供应商信息列表
-     */
-
-    @ApiOperation("供应商上传记录")
-    @GetMapping("/record")
-    public PageInfo<SupplierRecord> findAccount(Condition condition) {
-        return supplierRecordService.searchAccountRecord(condition);
+        return authService.updatePassword(user.getId(), encodedPassword.get("encodedPassword").toString());
     }
 
     /**
@@ -462,51 +364,17 @@ public class AccountController {
      * @param pid 地区id
      * @return 返回下级列表
      */
-    @ApiOperation("获取地区下级列表")
+    @ApiOperation(value = "获取地区下级列表",notes = "获取地区下级列表【负责人：张腾飞】")
     @GetMapping("get")
     public List<SysRegion> findByPid(@RequestParam(required = false) Integer pid) {
         return sysRegionService.findByPid(pid);
     }
 
     /**
-     * 供应商信息批量上传
-     */
-    @ApiOperation("供应商信息上传")
-    @PostMapping("/upload")
-    public String excelUpload(HttpServletRequest request, HttpServletResponse response, MultipartFile file) {
-        User user = (User) request.getAttribute(Constant.REQUEST_USER);
-        if(user==null || !user.getIsAdmin().equals(Constant.ADMIN_STATUS)){
-            throw new RuntimeException("unauthorized access");
-        }
-        //判断文件是否为空
-        if (file == null) {
-            return "文件不能为空";
-        }
-
-        //获取文件名
-        String fileName = file.getOriginalFilename();
-
-        //验证文件名是否合格
-        if (!ExcelImportUtils.validateExcel(fileName)) {
-            return "上传的不是模板文件";
-        }
-
-        //进一步判断文件内容是否为空（即判断其大小是否为0或其名称是否为null）
-        long size = file.getSize();
-        if (StringUtils.isEmpty(fileName) || size <= 9700) {
-            return "文件内容为空";
-        }
-
-        //批量导入
-        String message = importExcel.batchImport(fileName, file);
-        return message;
-    }
-
-    /**
      * 统计已入驻供应商数量
      * @return 已入驻供应商数量
      */
-    @ApiOperation("统计已入驻供应商数量")
+    @ApiOperation(value = "统计已入驻供应商数量",notes = "统计已入驻供应商数量【负责人：汪涛】")
     @GetMapping(value = "/AccountNumber")
     public Result getAccountNumber(){
          int num=accountService.selectAccountNumber();
@@ -519,7 +387,7 @@ public class AccountController {
      * @param multipartFile 合同
      * @return 返回合同云存储地址
      */
-    @ApiOperation("供应商合同上传")
+    @ApiOperation(value = "供应商合同上传",notes = "供应商合同上传【负责人：张腾飞】")
     @PostMapping(value = "/uploadContract")
     public Result uploadContract(HttpServletRequest request,@RequestPart("file") MultipartFile multipartFile,String blobName) {
     	User user = (User) request.getAttribute(Constant.REQUEST_USER);
@@ -537,13 +405,46 @@ public class AccountController {
      * @param response
      * @return
      */
-    @ApiOperation("供应商合同下载")
+    @ApiOperation(value = "供应商合同下载",notes = "供应商合同下载【负责人：张腾飞】")
     @GetMapping(value = "/downloadContract")
     public Result download(@RequestParam String downloadUrl, @RequestParam String realFileName, HttpServletRequest request, HttpServletResponse response) throws Exception{
     	User user = (User) request.getAttribute(Constant.REQUEST_USER);
         if(user==null){
-        	return Result.fail("请登录后再操作");
+        	return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
         return DownloadAzureFile.downloadFile(downloadUrl, realFileName, request, response);
     }
+
+    /**
+     * 修改供应商状态并激活账户
+     * @param accountUpdateInput
+     * @param request
+     * @return
+     */
+    @PutMapping("/updateStatus")
+    @ApiOperation(value = "修改供应商状态",notes = "修改供应商状态【负责人：陈化静】")
+    public Result updateStatus(@Valid @RequestBody AccountUpdateInput accountUpdateInput, HttpServletRequest request){
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        //验证是否登录, 判断登录用户是否是管理员
+        if(user == null || !Constant.ADMIN_STATUS.equals(user.getIsAdmin()) ){
+            return Result.fail(Constant.MessageConfig.ADMIN_AUTHORITY_EERO);
+        }
+        return accountService.updateAccountStatus(accountUpdateInput);
+    }
+
+    /**
+     * 根据商户ID修改当前默认运费规则
+     * @param freightRules
+     * @return
+     */
+    @PostMapping("/updateFreightRules")
+    @ApiOperation(value = "根据商户ID修改当前默认运费规则",notes = "根据商户ID修改当前默认运费规则【负责人：郑振海】")
+    public Result updateRulesByFreightRules(HttpServletRequest request,@RequestParam Integer freightRules){
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        if (null == user || Ognl.isEmpty(user.getAccountId())) {   //验证用户是否登陆
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
+        }
+        return accountService.updateRulesByFreightRules(user.getAccountId(),freightRules) == true ? Result.success(Constant.MessageConfig.MSG_SUCCESS) : Result.fail("运费规则不完整或不存在！");
+    }
+
 }

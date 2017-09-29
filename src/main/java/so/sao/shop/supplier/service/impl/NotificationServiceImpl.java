@@ -1,6 +1,5 @@
 package so.sao.shop.supplier.service.impl;
 
-import com.github.pagehelper.PageHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import so.sao.shop.supplier.dao.NotificationDao;
@@ -9,6 +8,8 @@ import so.sao.shop.supplier.pojo.input.NotificationInput;
 import so.sao.shop.supplier.pojo.output.NotificationOutput;
 import so.sao.shop.supplier.service.NotificationService;
 import so.sao.shop.supplier.util.NumberGenerate;
+import so.sao.shop.supplier.util.Ognl;
+import so.sao.shop.supplier.util.PageTool;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -67,9 +68,14 @@ public class NotificationServiceImpl implements NotificationService {
      */
     @Override
     public List<Notification> search(Integer pageNum, Integer pageSize, Long accountId, Integer notifiType) throws Exception {
-        PageHelper.startPage(null == pageNum || pageNum <= 0 ? 1 : pageNum, null == pageSize || pageSize <= 0 ? 10 : pageSize);
-        List<Notification> dataList = getNotifications(accountId, notifiType, 0, 1);
-        return dataList;
+        PageTool.startPage(pageNum, pageSize);
+        List<Notification> notificationList;
+        if(Ognl.isEmpty(accountId)){    //管理员
+            notificationList = notificationDao.searchAdminNotifi();
+        } else {    //供应商
+            notificationList = notificationDao.searchSupplierNotifi(accountId, notifiType);
+        }
+        return notificationList;
     }
 
     /**
@@ -130,17 +136,13 @@ public class NotificationServiceImpl implements NotificationService {
     /**
      * 消息跑马灯显示
      *
+     * @param accountId accountId
      * @return String
      * @throws Exception Exception
      */
     @Override
-    public String marqueeShow() throws Exception {
-        String show = "暂无系统消息通知";
-        List<Notification> notificationList = notificationDao.marqueeShow(); //只查询系统消息
-        if (null != notificationList && notificationList.size() > 0) {
-            show = notificationList.get(0).getNotifiDetail();
-        }
-        return show;
+    public String marqueeShow(Long accountId) throws Exception {
+        return notificationDao.marqueeShow(accountId);
     }
 
     /**
@@ -154,23 +156,11 @@ public class NotificationServiceImpl implements NotificationService {
      */
     @Override
     public List<Notification> searchUnread(Long accountId, Integer notifiType, Integer count) throws Exception {
-        List<Notification> dataList = getNotifications(accountId, notifiType, count, 0);
-        return dataList;
-    }
-
-    //获取List<Notification>
-    private List<Notification> getNotifications(Long accountId, Integer notifiType, Integer count, int flag) {
-        List<Notification> notificationList;
-        //flag 标识 执行那种逻辑
-        if (flag == 1) { //查询全量数据
-            notificationList = notificationDao.search(accountId, notifiType);
-        } else { //查询未读数据 count 在此处有效
-            notificationList = notificationDao.searchUnread(accountId, notifiType, count == null ? 5 : count);
-        }
-        if (null != notificationList && notificationList.size() > 0) {
-            notificationList.forEach(notification -> {
+        List<Notification> dataList = notificationDao.searchUnread(accountId, notifiType, count == null ? 5 : count);
+        if (null != dataList && dataList.size() > 0) {
+            dataList.forEach(notification -> {
                 String detail = notification.getNotifiDetail();
-                if(notification.getNotifiType() != 1){ //非系统消息 设定前端展示规则
+                if(notification.getNotifiType() == 0){ //订单消息 设定前端展示规则
                     if (null != detail && !"".equals(detail)) {
                         List<String> strings = Arrays.asList(detail.split(",")).stream().map(s -> s.trim()).collect(Collectors.toList());
                         if(null != strings && strings.size()>0){
@@ -181,6 +171,6 @@ public class NotificationServiceImpl implements NotificationService {
                 }
             });
         }
-        return notificationList;
+        return dataList;
     }
 }

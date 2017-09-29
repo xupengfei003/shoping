@@ -2,7 +2,6 @@ package so.sao.shop.supplier.web;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,6 +11,7 @@ import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.domain.User;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.service.FeedbackService;
+import so.sao.shop.supplier.util.Ognl;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
@@ -23,10 +23,8 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/feedback")
-@Api(description = "反馈管理-所有接口")
+@Api(description = "反馈管理-所有接口 【负责人:郭兴业】")
 public class FeedbackController {
-
-    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private FeedbackService feedbackService;
@@ -39,31 +37,17 @@ public class FeedbackController {
      */
     @PostMapping("/createFeedback")
     @ApiOperation(value = "提交反馈", notes = "提交反馈")
-    public Result createFeedback(HttpServletRequest request, @RequestBody Map map) {
-        Result result = new Result();
+    public Result createFeedback(HttpServletRequest request, @RequestBody Map map) throws Exception {
         //验证供应商是否登陆并取出accountId
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
-        if (null == user) {   //验证用户是否登陆
-            result.setCode(Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
-            return result;
+        if (Ognl.isNull(user)) {   //验证用户是否登陆
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
         String suggest = (String) map.get("suggest");
-        if (null == suggest || "".equals(suggest)) {
-            result.setCode(Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage(Constant.MessageConfig.MSG_NOT_EMPTY);
-            return result;
+        if (Ognl.isEmpty(suggest)) {
+            return Result.fail(Constant.MessageConfig.MSG_NOT_EMPTY);
         }
-        try {
-            feedbackService.createFeedback(user.getAccountId(), suggest);
-            result.setCode(Constant.CodeConfig.CODE_SUCCESS);
-            result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
-        } catch (Exception e) {
-            logger.error("系统异常", e);
-            result.setCode(Constant.CodeConfig.CODE_FAILURE);
-            result.setMessage(Constant.MessageConfig.MSG_FAILURE);
-            return result;
-        }
-        return result;
+        feedbackService.createFeedback(user.getAccountId(), suggest);
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS);
     }
 }

@@ -41,14 +41,22 @@
     </select>
 
     <!--根据id查询个数-->
-    <select id="findCountById" resultType="int">
+    <select id="countById" resultType="int">
         select
         count(*)
         from comm_unit where id = #{id}
     </select>
 
+    <!--通过name和供应商id判断商品单位是否重复-->
+    <select id="countByNameAndSupplierId" resultType="int">
+       SELECT COUNT(NAME)
+        FROM comm_unit
+        WHERE NAME = #{name}
+        AND ( supplier_id=0 OR supplier_id=#{supplierId} )
+    </select>
+
     <!--删除商品单位-->
-    <delete id="delete" parameterType="so.sao.shop.supplier.domain.CommUnit">
+    <delete id="deleteById" parameterType="so.sao.shop.supplier.domain.CommUnit">
         DELETE FROM comm_unit
         WHERE id=#{id}
     </delete>

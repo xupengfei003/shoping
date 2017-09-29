@@ -14,6 +14,11 @@ public class BlobUpload {
      * 不包含域名的相对路径
      */
     private String fileUrl;
+    
+    /**
+     * 合同原文件名
+     */
+    private String originalFileName;
 
     public void setFileName(String fileName) {
         this.fileName = fileName;
@@ -35,4 +40,12 @@ public class BlobUpload {
         this.fileName = fileName;
         this.fileUrl = fileUrl;
     }
+
+	public String getOriginalFileName() {
+		return originalFileName;
+	}
+
+	public void setOriginalFileName(String originalFileName) {
+		this.originalFileName = originalFileName;
+	}
 }

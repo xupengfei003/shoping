@@ -22,7 +22,7 @@ public interface EmpDao {
 	 * @param emp 员工对象
 	 * @return
 	 */
-	int save(Emp emp);
+	void save(Emp emp);
 
 	/**
      * 根据条件查询出员工列表
@@ -35,6 +35,6 @@ public interface EmpDao {
 	 * @param empUpdateInput 入参对象
 	 * @return 返回修改状态
 	 */
-	int updateEmpStatusById(EmpUpdateInput empUpdateInput);
+	void updateEmpStatusById(EmpUpdateInput empUpdateInput);
   
 }

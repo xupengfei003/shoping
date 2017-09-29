@@ -2,7 +2,10 @@ package so.sao.shop.supplier.dao;
 
 import org.apache.ibatis.annotations.Param;
 import so.sao.shop.supplier.domain.Account;
-import so.sao.shop.supplier.domain.Condition;
+import so.sao.shop.supplier.pojo.input.AccountInput;
+import so.sao.shop.supplier.pojo.input.AccountUpdateInput;
+import so.sao.shop.supplier.pojo.output.AccountBannerOut;
+import so.sao.shop.supplier.pojo.output.AccountOutput;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -20,7 +23,7 @@ public interface AccountDao {
      * @param accountId 供应商id
      * @return 返回受影响行数
      */
-    int deleteByPrimaryKey(Long accountId);
+    void deleteByPrimaryKey(Long accountId);
 
     /**
      * 单次添加供应商信息
@@ -28,13 +31,6 @@ public interface AccountDao {
      * @return 返回受影响行数
      */
     int insert(Account record);
-
-    /**
-     * 单次添加供应商信息
-     * @param record 供应商对象
-     * @return 返回受影响行数
-     */
-    int insertSelective(Account record);
 
     /**
      * 根据id查询供应商信息(省市区汉字)
@@ -65,13 +61,6 @@ public interface AccountDao {
     int updateByPrimaryKey(Account record);
 
     /**
-     * 批量插入供应商信息
-     * @param accounts
-     * @return 返回受影响行数
-     */
-    int saveBatch(List<Account> accounts);
-
-    /**
      * 根据用户id，查找该用户的账户信息
      * @param userId
      * @return
@@ -90,31 +79,31 @@ public interface AccountDao {
      * @param account
      * @return
      */
-    int updateUserBalance(Account account) throws Exception;
+    void updateUserBalance(Account account) throws Exception;
 
-    
+
     /**
      * 根据条件查询出相应供应商的信息
-     * @param condition 分页对象
+     * @param accountInput 入参对象
      * @return 返回分页对象
      */
-    List<Account> findPage(Condition condition);
+    List<Account> findPage(AccountInput accountInput);
 
-	/**
+    /**
      * 将计算的总金额,更新为该商户id下的历史总收入
      * @param account
      * @param storeId 商户id
      */
     void updateUserPrice(@Param("account") BigDecimal account, @Param("storeId") Long storeId);
-    
+
     /**
      * 根据用户id查询供应商id
      * @param userId 用户id
      * @return 返回供应商id
      */
-    Long findAccountIdByUserId(Long userId); 
+    Long findAccountIdByUserId(Long userId);
 
-   /**
+    /**
      * 统计出当前供应商数量
      * @return 供应商数量
      */
@@ -149,4 +138,64 @@ public interface AccountDao {
      */
     int countByAccountId(Long accountId);
 
+    /**
+     * 根据供应商ID查询供应商名称及状态
+     * @param accountId
+     * @return
+     * @throws Exception
+     */
+    Account findNameAndStatus (@Param("accountId") Long accountId) throws Exception;
+
+
+    /**
+     * 查询供应商合同截止时间一个月前的用户
+     * @return
+     */
+    List<Account> findMonthAgo();
+    /**
+     * 查询合同到期的供应商
+     * @return
+     */
+    List<Account> findContractEndDate();
+    /**
+     * 根据账户ID修改供应商状态
+     * @return
+     */
+    void updateAccountStatusById(AccountUpdateInput accountUpdateInput);
+
+    /**
+     * 根据供应商ID或name查询供应商信息
+     * @param accountId
+     * @param providerName
+     * @return 供应商信息列表
+     */
+    List<AccountOutput> findAccounts(@Param("accountId")Long accountId, @Param("providerName")String providerName);
+
+    /**
+     * 根据供应商ID修改供应商合同剩余30天发送短信标记
+     * @param accountId
+     */
+    void updateAccountSmsTypeById(@Param("accountId")Long accountId);
+
+    /**
+     * 根据供应商名称查询供应商信息
+     * @param providerName
+     * @return 轮播图供应商查询信息
+     */
+    List<AccountBannerOut> findByProviderName(@Param("providerName")String providerName);
+
+    /**
+     * 根据AccountId查询供应商的物流运费规则
+     * @param accountId
+     * @return
+     */
+    Integer findRulesById (@Param("accountId")Long accountId);
+
+    /**
+     * 根据商户ID修改当前默认运费规则
+     * @param account
+     * @param freightRules
+     */
+    void updateRulesByFreightRules(@Param("accountId") Long account, @Param("freightRules") Integer freightRules);
 }
+

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="so.sao.shop.supplier.dao.PayDao">
-    <update id="save" parameterType="java.util.Map">
+    <update id="updatePaymentByPayId" parameterType="java.util.Map">
         UPDATE purchase
         SET
         order_payment_num = #{payInput.orderPaymentNum},
@@ -12,4 +12,29 @@
         pay_status = #{payInput.payStatus}
         WHERE pay_id = #{payInput.orderId}
     </update>
+
+    <update id="updatePaymentByOrderId" parameterType="java.util.Map">
+        UPDATE purchase
+        SET
+        order_payment_num = #{payInput.orderPaymentNum},
+        order_payment_method = #{payInput.orderPaymentMethod},
+        order_payment_time = #{payInput.orderPaymentTime},
+        updated_at = #{payInput.updatedAt},
+        order_status = #{payInput.orderStatus},
+        pay_status = #{payInput.payStatus}
+        WHERE order_id = #{payInput.orderId}
+    </update>
+
+    <select id="findPayIdByOrderId" resultType="java.lang.String" parameterType="java.lang.String">
+        SELECT pay_id
+        FROM purchase
+        WHERE order_id = #{orderId}
+    </select>
+
+    <select id="findPayOrderTotalPrice" parameterType="java.lang.String" resultType="java.math.BigDecimal">
+        SELECT
+        SUM(order_price + order_postage)
+        FROM purchase
+        WHERE pay_id = #{payId}
+    </select>
 </mapper>

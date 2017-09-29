@@ -1,9 +1,7 @@
 package so.sao.shop.supplier.service.impl;
 
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 
+import org.apache.ibatis.annotations.Param;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,18 +12,23 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import so.sao.shop.supplier.config.CommConstant;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.config.azure.AzureBlobService;
 import so.sao.shop.supplier.config.azure.BlobUpload;
 import so.sao.shop.supplier.config.sms.SmsService;
 import so.sao.shop.supplier.dao.*;
 import so.sao.shop.supplier.domain.*;
-import so.sao.shop.supplier.pojo.BaseResult;
 import so.sao.shop.supplier.pojo.Result;
+import so.sao.shop.supplier.pojo.input.AccountInput;
+import so.sao.shop.supplier.pojo.input.AccountUpdateInput;
 import so.sao.shop.supplier.service.AccountService;
+import so.sao.shop.supplier.service.CommodityService;
+import so.sao.shop.supplier.service.FreightRulesService;
+import so.sao.shop.supplier.util.*;
 
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -89,6 +92,17 @@ public class AccountServiceImpl implements AccountService {
     String smsTemplateCode2;
 
     /**
+     * 供应商禁用
+     */
+    @Value("${shop.aliyun.sms.sms-template-code5}")
+    String smsTemplateCode5;
+
+    @Autowired
+    private CommodityService commodityService;
+
+    @Autowired
+    private FreightRulesDao freightRulesDao;
+    /**
      * 初始化银行信息
      *
      * @return 返回银行列表
@@ -102,11 +116,12 @@ public class AccountServiceImpl implements AccountService {
      * 根据id修改供应商状态为删除
      *
      * @param accountId 供应商id
-     * @return 返回受影响行数
+     * @return 返回结果
      */
     @Override
-    public int delete(Long accountId) {
-        return accountDao.deleteByPrimaryKey(accountId);
+    public Result delete(Long accountId) throws Exception{
+        accountDao.deleteByPrimaryKey(accountId);
+        return Result.success("删除供应商成功！");
     }
 
     /**
@@ -142,42 +157,33 @@ public class AccountServiceImpl implements AccountService {
     }
 
     /**
-     * 根据id更新用户信息
-     *
-     * @param id
-     * @param tel
-     * @return 返回更新行数
-     */
-    @Override
-    public int updateUser(Long id, String tel) {
-        return userDao.update(id, tel);
-    }
-
-    /**
-     * 单次添加供应商信息
+     * 修改供应商信息和用户信息
      *
      * @param account 供应商对象
-     * @return 返回受影响行数
+     * @return 返回修改结果
      */
     @Override
-    public int insert(Account account) {
-        // 创建日期
-        account.setCreateDate(new Date());
-        return accountDao.insertSelective(account);
-    }
-
-    /**
-     * 修改供应商信息
-     *
-     * @param account 供应商对象
-     * @return 返回受影响行数
-     */
-    @Override
-    public int update(Account account) {
+    @Transactional(rollbackFor = Exception.class)
+    public Result updateAccountAndUser(Account account) throws Exception{
+    	//修改用户信息
+    	userDao.update(account.getUserId(), account.getContractResponsiblePhone());
+    	//修改供应商信息
         account.setUpdateDate(new Date());
         account.setCreateDate(null);
-        return accountDao.updateByPrimaryKeySelective(account);
+        //获取供应商合同截止时间
+        Date contractEndDate = accountDao.selectById(account.getAccountId()).getContractEndDate();
+        //将日期转为"yyyy-MM-dd"格式字符串
+        String oldDate = DateUtil.getStringDate(contractEndDate);
+        String newDate = DateUtil.getStringDate(account.getContractEndDate());
+        //如果不相等则修改过合同时间，恢复短信状态为初始值。
+        if (!oldDate.equals(newDate)){
+            account.setMonthAgoType(CommConstant.ACCOUNT_NOSENDSMS_STATUS);
+        }
+        accountDao.updateByPrimaryKeySelective(account);
+        return Result.success("修改供应商和用户成功");
     }
+    
+    
 
     /**
      * 根据userId查供应商信息
@@ -222,6 +228,8 @@ public class AccountServiceImpl implements AccountService {
             list.add(accMap);
             list.add(conMap);
             account.setAreaList(list);
+            //更新合同状态
+            updateContractStatus(account);
             return account;
         }
         return new Account();
@@ -235,89 +243,90 @@ public class AccountServiceImpl implements AccountService {
      */
     @Override
     public Account selectById0(Long accountId) {
-        return accountDao.selectById(accountId);
+        Account account = accountDao.selectById(accountId);
+        //更新合同状态
+        updateContractStatus(account);
+        return account;
     }
 
     /**
      * 根据账户ID获取用户的可用余额；
-     *
      * @param accountId
      * @return
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Result getAccountBalance(Long accountId) throws Exception{
-        //返回对象
-        Result result = new Result<>();
-        //初始化为查询失败，余额为0.00
-        result.setCode(Constant.CodeConfig.CODE_FAILURE);
-        result.setMessage(Constant.MessageConfig.MSG_FAILURE);
-        Map map = new HashMap();
-        map.put("balance","0.00");
-        result.setData(map);
-        //余额输出格式（千分位且保留两位小数）
-        DecimalFormat dFormat=new DecimalFormat(",###,##0.00");
+    public Map<String,String> getAccountBalance(Long accountId) throws Exception{
         /*
             1、判断账户是否存在,若账户存在，统计账户下订单产生的增额
                a.统计订单状态为已完成，账户状态为未结算的订单金额之和
                b.若统计金额为空或小于等于0，赋值0.00
                c.将所得余额同步到账户表中
-            2、若账户不存在，返回账户不存在
+            2、若账户不存在，返回余额为0.00
         */
-        // 1.判断账户是否存在,若账户存在，统计账户下订单产生的增额
+        //根据账户ID查询账户个数
         int accountNum = accountDao.countByAccountId(accountId);
+        //定义map存放余额，初始余额为0.00
+        Map<String,String> map = new HashMap();
+        map.put("balance","0.00");
+        // 1.判断账户是否存在,若账户存在，统计账户下订单产生的增额
         if(1 == accountNum){
             // a.统计订单状态为已完成，账户状态为未结算的订单金额之和
             BigDecimal uncountedMoney = purchaseDao.findUncountedMoney(accountId);
-            // b.若统计金额为空或小于等于0，赋值0.00
-            if (null == uncountedMoney || (BigDecimal.ZERO).compareTo(uncountedMoney) == 1){
+            // b.若统计金额为空，赋值0.00
+            if (Ognl.isNull(uncountedMoney)){
                 uncountedMoney = new BigDecimal("0.00");
             }
             // c.将所得余额同步到账户表中
             Account account = new Account();
-            Date date = new Date(); //系统时间
-            account.setAccountId(accountId); //账户
-            account.setBalance(uncountedMoney); //用户余额
-            account.setUpdateDate(date); //系统时间
-            int resultInt = accountDao.updateUserBalance(account);
-            // 判断更新是否成功
-            if(resultInt == 1){
-               result.setCode(Constant.CodeConfig.CODE_SUCCESS);
-               result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
-               String balance = dFormat.format(uncountedMoney);// 余额格式化
-               map.put("balance",balance);
-               result.setData(map);
-            }
-        } else if (0 == accountNum){
-            //为0则账户不存在
-            result.setCode(Constant.AccountCodeConfig.CODE_NOT_EXIST_ACCOUNT);
-            result.setMessage(Constant.AccountMessageConfig.MESSAGE_NOT_EXIST_ACCOUNT);
-        } else {
-            //其余则表中数据有误，即系统异常
-            result.setCode(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SYSTEM_EXCEPTION);
-            result.setMessage(so.sao.shop.supplier.config.Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
+            Date date = new Date();              //系统时间
+            account.setAccountId(accountId);     //账户
+            account.setBalance(uncountedMoney);  //用户余额
+            account.setUpdateDate(date);         //更新时间
+            accountDao.updateUserBalance(account);
+            // 返回数据
+            String balance = NumberUtil.number2Thousand(uncountedMoney);// 余额格式化
+            map.put("balance",balance);
         }
         //返回对象
-        return result;
+        return map;
     }
 
     /**
-     * 分页查询
+     * 多条件分页查询供应商列表
      *
-     * @param condition
+     * @param accountInput 入参对象
      * @return 分页对象
      */
     @Override
-    public PageInfo searchAccount(Condition condition) {
-        if (condition.getPageNum() == null) {
-            condition.setPageNum(1);
+    public List<Account> searchAccount(AccountInput accountInput) {
+        PageTool.startPage(accountInput.getPageNum(), accountInput.getPageSize());
+        List<Account> accountList = accountDao.findPage(accountInput);
+        for (Account account : accountList) {
+            //合同状态设置
+            updateContractStatus(account);
         }
-        if (condition.getPageSize() == null) {
-            condition.setPageSize(10);
+        return accountList;
+    }
+
+    /**
+     * 供应商列表和详情页面显示合同状态
+     * 正常状态:0 -只显示合同时间 / 即将过期:1 / 已过期:2
+     * @param account
+     * @return
+     */
+    private Account updateContractStatus(Account account){
+        if (account != null){
+            long endDate = account.getContractEndDate().getTime();
+            long currentDate = DateUtil.stringToDate(DateUtil.getStringDate()).getTime();
+            long betweenDate = (endDate - currentDate) / (1000 * 60 * 60 * 24);
+            if (betweenDate <= 0){
+                account.setContractStatus(2);
+            }else if(betweenDate > 0 && betweenDate <= 30){
+                account.setContractStatus(1);
+            }
         }
-        Page page = PageHelper.startPage(condition.getPageNum(), condition.getPageSize());
-        PageInfo pageInfo = new PageInfo(accountDao.findPage(condition));
-        return pageInfo;
+        return account;
     }
 
     /**
@@ -328,8 +337,6 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public  Result saveUserAndAccount(Account account) throws Exception{
-
-        Result baseResult = new Result();
         Boolean lock = redisTemplate.opsForValue().setIfAbsent(Constant.REDIS_KEY_PREFIX+account.getContractResponsiblePhone(),"1");
         try {
             if(lock!=null&&lock) {
@@ -338,39 +345,26 @@ public class AccountServiceImpl implements AccountService {
                 if (user1 == null) {
                     User user = new User();
                     user.setUsername(account.getContractResponsiblePhone());
-                    String password = smsService.getVerCode();
-                    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-                    user.setPassword(encoder.encode(password));
                     user.setLastPasswordResetDate(new Date());
                     user.setIsAdmin("0");
                     userDao.add(user);
                     account.setCreateDate(new Date());
                     account.setUpdateDate(new Date());
-                    account.setAccountStatus(1);
+                    account.setAccountStatus(CommConstant.ACCOUNT_INVALID_STATUS);
                     account.setUserId(user.getId());
                     account.setLastSettlementDate(new Date());
+                    account.setMonthAgoType(CommConstant.ACCOUNT_NOSENDSMS_STATUS);
                     accountDao.insert(account);
-                    tpe.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            smsService.sendSms(Collections.singletonList(account.getContractResponsiblePhone()),Arrays.asList("phone","password"), Arrays.asList(account.getContractResponsiblePhone(),password), smsTemplateCode2);
-                        }
-                    });
-                    //smsService.sendSms(Collections.singletonList(account.getContractResponsiblePhone()),Arrays.asList("phone","password"), Arrays.asList(account.getContractResponsiblePhone(),password), smsTemplateCode2);
-                    baseResult.setMessage("用户和供应商添加成功！");
-                    baseResult.setCode(Constant.CodeConfig.CODE_SUCCESS);
-                    return baseResult;
+                    return Result.success("用户和供应商添加成功！");
                 }
             }
-            baseResult.setMessage("此供应商已经存在！");
-            baseResult.setCode(Constant.CodeConfig.CODE_FAILURE);
         } catch (Exception e) {
         	logger.error("增加供应商异常",e);
-        	throw new Exception(e.getMessage());
+        	throw new Exception("增加供应商异常",e);
         }finally {
             redisTemplate.delete(Constant.REDIS_KEY_PREFIX+account.getContractResponsiblePhone());
         }
-        return baseResult;
+        return Result.fail("此供应商已经存在！");
     }
 
     /**
@@ -393,8 +387,11 @@ public class AccountServiceImpl implements AccountService {
             return Result.fail("上传文件为空");
         }
     	//文件名称不为空，先删除云端文件
+//    	if(!"".equals(blobName) && blobName != null) {
+//    		azureBlobService.deleteFile(CommConstant.AZURE_CONTAINER.toLowerCase(), blobName.split("-_-")[1]);
+//    	}
     	if(!"".equals(blobName) && blobName != null) {
-    		azureBlobService.deleteFile(so.sao.shop.supplier.util.Constant.AZURE_CONTAINER.toLowerCase(), blobName.split("-_-")[1]);
+    		azureBlobService.deleteFile(CommConstant.AZURE_CONTAINER.toLowerCase(), blobName);
     	}
         //获取文件名称
         String fileName = multipartFile.getOriginalFilename();
@@ -403,18 +400,22 @@ public class AccountServiceImpl implements AccountService {
         //获取文件后缀名
         String prefix=fileName.substring(fileName.lastIndexOf(".")+1);
         //判断文件类型
-        if(!("doc".equals(prefix) || "docx".equals(prefix)||"ppt".equals(prefix)||"pptx".equals(prefix)||"wps".equals(prefix)||"pdf".equals(prefix)||"txt".equals(prefix))) {
-            return Result.fail("不符合文件类型");
+//        if(!("doc".equals(prefix) || "docx".equals(prefix)||"ppt".equals(prefix)||"pptx".equals(prefix)||"wps".equals(prefix)||"pdf".equals(prefix)||"txt".equals(prefix))) {
+//            return Result.fail("不符合文件类型");
+//        }
+        if(!"pdf".equals(prefix)) {
+        	return Result.fail("不符合文件类型");
         }
         //判断文件大小
         if(fileSize/1024/1024>20) {
         	return Result.fail("上传文件大于20M");
         }
       //上传成功封装为result返回页面
-        List<BlobUpload> blobUploadList =azureBlobService.uploadFiles(new MultipartFile[] {multipartFile}, so.sao.shop.supplier.util.Constant.AZURE_CONTAINER.toLowerCase());
+        List<BlobUpload> blobUploadList =azureBlobService.uploadFiles(new MultipartFile[] {multipartFile}, CommConstant.AZURE_CONTAINER.toLowerCase());
         BlobUpload blobUpload = blobUploadList.get(0);
-        blobUpload.setFileName(fileName+"-_-"+blobUpload.getFileName());
+        blobUpload.setOriginalFileName(fileName);
         return Result.success("文件上传成功",blobUpload);
+
     }
 
     /**
@@ -426,5 +427,76 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public List<Account> findAccountList(Integer days, Date currentDate) {
         return accountDao.findAccountList(days, currentDate);
+    }
+
+    /**
+     * 修改供应商状态并激活账户
+     * @param accountUpdateInput
+     * @return 返回修改状态
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Result updateAccountStatus(AccountUpdateInput accountUpdateInput) {
+        Account account = accountDao.selectById(accountUpdateInput.getAccountId());
+        if (account == null) {
+            return Result.fail("更新失败！");
+        }
+        //判断合同是否到期，到期后无法启用供应商状态。
+        updateContractStatus(account);
+        if(accountUpdateInput.getAccountStatus()==CommConstant.ACCOUNT_ACTIVE_STATUS && account.getContractStatus() == 2){
+            return Result.fail("合同有效期已过期，请更新后启用！");
+        }
+        //判断启用还是禁用操作，并发送相应的短信提示
+        String password =smsService.getVerCode();
+        if (accountUpdateInput.getAccountStatus()==CommConstant.ACCOUNT_ACTIVE_STATUS) {
+            userDao.updatePassword(account.getUserId(), new BCryptPasswordEncoder().encode(password), new Date());
+        }
+        tpe.execute(new Runnable() {
+            @Override
+            public void run() {
+                smsService.sendSms(Collections.singletonList(accountUpdateInput.getAccountTel()),
+                        Arrays.asList("phone","password"),Arrays.asList(accountUpdateInput.getAccountTel(),password),
+                        accountUpdateInput.getAccountStatus()==CommConstant.ACCOUNT_ACTIVE_STATUS?smsTemplateCode2:smsTemplateCode5);
+            }
+        });
+        commodityService.updateCommInvalidStatus(accountUpdateInput.getAccountId() , accountUpdateInput.getAccountStatus());
+        //修改账户状态
+        accountUpdateInput.setUpdateDate(new Date());
+        accountDao.updateAccountStatusById(accountUpdateInput);
+        return Result.success("更新成功！");
+    }
+
+    /**
+     * 根据AccountId查询供应商的物流运费规则
+     * @param accountId
+     * @return
+     */
+    @Override
+    public Integer findRulesById(Long accountId) {
+
+        return accountDao.findRulesById(accountId);
+    }
+    /**
+     * 根据商户ID修改当前默认运费规则
+     * @param account
+     * @param freightRules
+     */
+    public boolean updateRulesByFreightRules( Long account, Integer freightRules){
+        /**
+         * 1.获取所有配送规则记录
+         * 2.判断集合中是否匹配入参中的运费规则类型，匹配则修改并返回true,不匹配则返回false
+         */
+        List<FreightRules> firstList = freightRulesDao.queryAll(account,freightRules);
+        if (null == firstList || firstList.isEmpty()){
+            return false;
+        }else {
+            for (FreightRules freightRule:firstList) {
+                if (null == freightRule.getWhetherShipping()){
+                    return false;
+                }
+            }
+          accountDao.updateRulesByFreightRules(account,freightRules);
+          return true;
+        }
     }
 }

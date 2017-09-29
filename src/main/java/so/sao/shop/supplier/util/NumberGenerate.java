@@ -39,8 +39,8 @@ public class NumberGenerate {
      * 通过UUID进行截取每4位一个单位，转换10进制数字，与100求余得出当前选中参数
      * @return
      */
-    public static String generateUuid() {
-        SimpleDateFormat sf = new SimpleDateFormat("yyyyMMddHHmmss");
+    public static String generateOrderId(String dateFormat) {
+        SimpleDateFormat sf = new SimpleDateFormat(dateFormat);
         StringBuffer shortBuffer = new StringBuffer(sf.format(new Date()));
         String uuid = UUID.randomUUID().toString().replace("-", "");
         for (int i = 0; i < 8; i++) {
@@ -50,9 +50,8 @@ public class NumberGenerate {
         }
         return shortBuffer.toString();
     }
-
     /**
-     * 通过UUID进行截取每4位一个单位，转换10进制数字，与100求余得出当前选中参数
+     * 通过UUID进行截取每4位一个单位，转换10进制数字，与62求余得出当前选中参数
      * @return
      */
     public static String generateId() {

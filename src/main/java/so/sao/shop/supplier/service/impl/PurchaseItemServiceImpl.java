@@ -14,6 +14,7 @@ import so.sao.shop.supplier.pojo.vo.AccountPurchaseItemVo;
 import so.sao.shop.supplier.pojo.vo.PurchaseInListVo;
 import so.sao.shop.supplier.service.PurchaseItemService;
 import so.sao.shop.supplier.util.NumberUtil;
+import so.sao.shop.supplier.util.PageTool;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
@@ -40,61 +41,35 @@ public class PurchaseItemServiceImpl implements PurchaseItemService {
     @Override
     public Result<RecordToPurchaseItemOutput> searchPurchaseItems(Integer pageNum, Integer pageSize, String orderId) {
         /**
-         * 1  判断当前页码和每页显示条数是否为空
-         *      1.1 若为空或输入数据不恰当（非正数） 赋予默认值（当前页码为1,每页显示条数为10）
-         * 2  访问持久化层#findById(String orderId),根据订单编号检索该订单数据
-         * 3  判断#findById(String orderId) 返回数据是否为空
-         *      3.1 若为空，返回‘暂无订单数据’的信息
-         * 4  使用分页工具进行分页设置
-         * 5  访问持久化层#findPage(String orderId)。根基订单编号检索改订单下所有订单明细
-         * 6  判断#findPage(String orderId)返回数据市口为空
-         *      6.1 若为空，返回‘暂无订单数据’的信息
-         * 7  将订单及改订单下的订单明细封装到出参中，并封装成功信息   封装分页信息，  并返回
+         * 1  访问持久化层#findById(String orderId),根据订单编号检索该订单数据
+         *      1.1  判断#findById(String orderId) 返回数据是否为空，为空返回
+         * 2  使用分页工具进行分页设置
+         * 3  访问持久化层#findPage(String orderId)。根据订单编号检索该订单下的明细
+         * 4  封装出参信息(code、message、data)并返回
          */
-        Result<RecordToPurchaseItemOutput> result = new Result<>();//出参对象
-        result.setCode(Constant.CodeConfig.CODE_NOT_FOUND_RESULT);
-        result.setMessage(Constant.MessageConfig.MSG_NOT_FOUND_RESULT);
-        result.setData(null);
 
-        //1.1 判断当前页码和每页显示条数是否为空
-        if (null==pageNum || 0 >= pageNum){
-            pageNum = 1;
-        }
-        if (null==pageSize || 0 >= pageSize){
-            pageSize = 10;
-        }
-
-        //2.获取该订单编号对应的数据
+        //1.获取该订单编号对应的数据
         Purchase purchase = purchaseDao.findById(orderId);
-
-        //3. 判断数据是否为空,若为空，返回‘暂无订单数据’的信息
         if (null == purchase){
-            return result;
+            return Result.success(Constant.MessageConfig.MSG_NO_DATA);
         }
 
-        //4. 分页
-        PageHelper.startPage(pageNum,pageSize);
+        //2. 分页
+        PageTool.startPage(pageNum,pageSize);
 
-        //5. 访问持久化层获取数据
+        //3. 访问持久化层获取数据
         List<AccountPurchaseItemVo> purchaseItemList = purchaseItemDao.findPage(orderId);
-
         if(null != purchaseItemList && !purchaseItemList.isEmpty()){
-            for (AccountPurchaseItemVo account:purchaseItemList) {//将价格转化成科学记数法
-                account.setGoodsUnitPrice(NumberUtil.number2Thousand(new BigDecimal(account.getGoodsUnitPrice())));
-                account.setGoodsTatolPrice(NumberUtil.number2Thousand(new BigDecimal(account.getGoodsTatolPrice())));
-            }
-            PageInfo<AccountPurchaseItemVo> pageInfo = new PageInfo<>(purchaseItemList);
-
-            //4.将转化后的数据集合封装到PageInfo对象中,封装成功信息和code
-            PurchaseInListVo purchaseInListVo = new PurchaseInListVo(purchase.getOrderId(),purchase.getOrderPrice(),purchase.getOrderReceiverName());
-            RecordToPurchaseItemOutput output = new RecordToPurchaseItemOutput();
-            output.setPurchaseInListVo(purchaseInListVo);
-            output.setPageInfo(pageInfo);
-            result.setCode(Constant.CodeConfig.CODE_SUCCESS);
-            result.setMessage(Constant.MessageConfig.MSG_SUCCESS);
-            result.setData(output);
+            PageInfo<AccountPurchaseItemVo> pageInfo = new PageInfo<>(purchaseItemList);//分页信息
+            PurchaseInListVo purchaseInListVo = new PurchaseInListVo(purchase.getOrderId(),purchase.getOrderPrice(),purchase.getOrderReceiverName());//订单明细所属的订单信息
+            RecordToPurchaseItemOutput output = new RecordToPurchaseItemOutput();//出参中的数据对象
+            output.setPurchaseInListVo(purchaseInListVo);//将展示数据封装到出参数据对象中
+            output.setPageInfo(pageInfo);//将分页对象封装到出参对象中
+            return Result.success(Constant.MessageConfig.MSG_SUCCESS,output);
         }
-        return result;
+        return Result.success(Constant.MessageConfig.MSG_NO_DATA);
+
     }
+
 
 }

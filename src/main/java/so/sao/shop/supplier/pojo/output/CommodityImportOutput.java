@@ -64,6 +64,12 @@ public class CommodityImportOutput extends BaseResult {
      */
     private String originPlace;
 
+    /**
+     *
+     * 最小起订量
+     */
+    private  int minOrderQuantity;
+
     public int getRowNum() {
         return rowNum;
     }
@@ -151,4 +157,8 @@ public class CommodityImportOutput extends BaseResult {
     public String getOriginPlace() {return originPlace;}
 
     public void setOriginPlace(String originPlace) {this.originPlace = originPlace;}
+
+    public int getMinOrderQuantity() {return minOrderQuantity;}
+
+    public void setMinOrderQuantity(int minOrderQuantity) {this.minOrderQuantity = minOrderQuantity;}
 }

@@ -42,6 +42,40 @@
             #{updatedAt}
         )
   </insert>
+    <!--批量新增图片-->
+    <insert id="batchSave" parameterType="java.util.List">
+        insert ty_comm_imge (
+        code69,
+        name,
+        thumbnail_url,
+        url,
+        type,
+        size,
+        created_at,
+        updated_at
+        )VALUES
+        <foreach collection ="list" item="data" index= "index" separator =",">
+        (
+        #{data.code69},
+        #{data.name},
+        #{data.thumbnailUrl},
+        #{data.url},
+        #{data.type},
+        #{data.size},
+        #{data.createdAt},
+        #{data.updatedAt}
+        )
+        </foreach>
+    </insert>
+
+    <!--根据scId集合批量删除图片-->
+    <delete id="deleteByCode69s">
+        DELETE FROM ty_comm_imge
+        WHERE code69 IN
+        <foreach collection="code69s" item="code69" index="index" open="(" close=")" separator=",">
+            #{code69}
+        </foreach>
+    </delete>
 </mapper>
 
 

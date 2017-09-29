@@ -3,6 +3,7 @@ package so.sao.shop.supplier.pojo.input;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
  * Created by acer on 2017/8/17.
@@ -14,22 +15,18 @@ public class RefuseOrderInput {
     @NotEmpty(message = "订单编号不能为空")
     private String orderId;
     /**
+     * 拒收类型
+     */
+    private String refuseType;
+    /**
      * 拒收理由
      */
     @NotEmpty(message = "拒收理由不能为空")
     private String refuseReason;
     /**
-     * 拒收图片1
+     * 拒收图片
      */
-    private String refuseImgUrlA;
-    /**
-     * 拒收图片2
-     */
-    private String refuseImgUrlB;
-    /**
-     * 拒收图片3
-     */
-    private String refuseImgUrlC;
+    private List<String> refuseImg;
 
     public String getOrderId() {
         return orderId;
@@ -37,6 +34,14 @@ public class RefuseOrderInput {
 
     public void setOrderId(String orderId) {
         this.orderId = orderId;
+    }
+
+    public String getRefuseType() {
+        return refuseType;
+    }
+
+    public void setRefuseType(String refuseType) {
+        this.refuseType = refuseType;
     }
 
     public String getRefuseReason() {
@@ -47,27 +52,11 @@ public class RefuseOrderInput {
         this.refuseReason = refuseReason;
     }
 
-    public String getRefuseImgUrlA() {
-        return refuseImgUrlA;
+    public List<String> getRefuseImg() {
+        return refuseImg;
     }
 
-    public void setRefuseImgUrlA(String refuseImgUrlA) {
-        this.refuseImgUrlA = refuseImgUrlA;
-    }
-
-    public String getRefuseImgUrlB() {
-        return refuseImgUrlB;
-    }
-
-    public void setRefuseImgUrlB(String refuseImgUrlB) {
-        this.refuseImgUrlB = refuseImgUrlB;
-    }
-
-    public String getRefuseImgUrlC() {
-        return refuseImgUrlC;
-    }
-
-    public void setRefuseImgUrlC(String refuseImgUrlC) {
-        this.refuseImgUrlC = refuseImgUrlC;
+    public void setRefuseImg(List<String> refuseImg) {
+        this.refuseImg = refuseImg;
     }
 }

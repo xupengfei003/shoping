@@ -45,6 +45,9 @@
     <result column="contract_original_name" property="contractOriginalName" jdbcType="VARCHAR" />
     <result column="contract_original" property="contractOriginal" jdbcType="VARCHAR" />
     <result column="service_phone" property="servicePhone" jdbcType="VARCHAR" />
+    <result column="contract_name" property="contractName" jdbcType="VARCHAR" />
+    <result column="sms_monthago_type" property="monthAgoType" jdbcType="INTEGER" />
+    <result column="freight_rules" property="freightRules" javaType="INTEGER"></result>
   </resultMap>
   <sql id="Base_Column_List" >
     account_id,
@@ -82,7 +85,8 @@
     sms_code,
     contract_original_name,
     contract_original,
-    service_phone
+    service_phone,
+    contract_name
   </sql>
 
   <!-- 查询出省市区汉字字段-->
@@ -145,7 +149,7 @@
        contract_register_address_province,contract_register_address_city,
        contract_register_address_district,
       contract_register_address_detail, upload_mode, 
-      sms_code,contract_original_name,contract_original,last_settlement_date,service_phone)
+      sms_code,contract_original_name,contract_original,last_settlement_date,service_phone,contract_name,sms_monthago_type)
     values (#{accountId,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, #{providerName,jdbcType=VARCHAR}, 
       #{responsible,jdbcType=VARCHAR}, #{responsiblePhone,jdbcType=VARCHAR}, #{license,jdbcType=VARCHAR}, 
       #{licenseTimeCreate}, #{licenseTimeEnd}, #{businessType,jdbcType=VARCHAR},
@@ -160,10 +164,10 @@
       #{contractLicenseEnd},#{contractRegisterAddress,jdbcType=VARCHAR}, #{contractRegisterAddressProvince,jdbcType=VARCHAR},
       #{contractRegisterAddressCity,jdbcType=VARCHAR}, #{contractRegisterAddressDistrict,jdbcType=VARCHAR},
       #{contractRegisterAddressDetail,jdbcType=VARCHAR}, #{uploadMode,jdbcType=VARCHAR}, 
-      #{smsCode,jdbcType=VARCHAR},#{contractOriginalName,jdbcType=VARCHAR},#{contractOriginal,jdbcType=VARCHAR},#{lastSettlementDate},#{servicePhone})
+      #{smsCode,jdbcType=VARCHAR},#{contractOriginalName,jdbcType=VARCHAR},#{contractOriginal,jdbcType=VARCHAR},#{lastSettlementDate},#{servicePhone},#{contractName},#{monthAgoType})
   </insert>
 
-  <insert id="insertSelective" parameterType="so.sao.shop.supplier.domain.Account" >
+  <!-- <insert id="insertSelective" parameterType="so.sao.shop.supplier.domain.Account" >
     insert into account
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="accountId != null" >
@@ -409,7 +413,7 @@
         #{smsCode,jdbcType=VARCHAR},
       </if>
     </trim>
-  </insert>
+  </insert> -->
 
   <update id="updateByPrimaryKey" parameterType="so.sao.shop.supplier.domain.Account" >
     update account
@@ -451,7 +455,8 @@
     contract_register_address_district = #{contractRegisterAddressDistrict,jdbcType=VARCHAR},
     contract_register_address_detail = #{contractRegisterAddressDetail,jdbcType=VARCHAR},
     upload_mode = #{uploadMode,jdbcType=VARCHAR},
-    sms_code = #{smsCode,jdbcType=VARCHAR}
+    sms_code = #{smsCode,jdbcType=VARCHAR},
+    sms_monthago_type = #{monthAgoType,jdbcType=INTEGER}
     where account_id = #{accountId,jdbcType=BIGINT}
   </update>
 
@@ -582,7 +587,13 @@
       	contract_original = #{contractOriginal,jdbcType=VARCHAR},
       </if>
       <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(servicePhone)">
-        service_phone = #{servicePhone,jdbcType=VARCHAR}
+        service_phone = #{servicePhone,jdbcType=VARCHAR},
+      </if>
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(contractName)">
+        contract_name = #{contractName,jdbcType=VARCHAR},
+      </if>
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(monthAgoType)">
+        sms_monthago_type = #{monthAgoType,jdbcType=INTEGER}
       </if>
     </set>
     where account_id = #{accountId,jdbcType=BIGINT}
@@ -618,73 +629,6 @@
     </set>
     WHERE account_id = #{accountId}
   </update>
-  <insert id="saveBatch" parameterType="so.sao.shop.supplier.domain.Account">
-    INSERT INTO
-	    account(user_id,
-	    provider_name,
-	    responsible,
-	    responsible_phone,
-	    license,license_time_create,
-	    license_time_end,
-	    regist_address,
-        regist_address_province,
-        regist_address_city,
-        regist_address_district,
-	    register_address_detail,
-	    business_type,
-	    contract_responsible,
-	    contract_responsible_phone,
-	    contract_license,
-	    contract_license_create,
-	    contract_license_end,
-	    contract_register_address,
-        contract_register_address_province,
-        contract_register_address_city,
-        contract_register_address_district,
-	    contract_register_address_detail,
-	    contract_create_date,
-	    contract_end_date,
-	    bank_name,
-	    bank_num,
-	    bank_user_name,
-	    remittanced,
-	    upload_mode,
-	    create_date)
-    VALUES
-    <foreach collection="list" item="accounts" index="1" separator=",">
-      (#{accounts.userId},
-          #{accounts.providerName},
-          #{accounts.responsible},
-          #{accounts.responsiblePhone},
-          #{accounts.license},
-          #{accounts.licenseTimeCreate},
-          #{accounts.licenseTimeEnd},
-          #{accounts.registAddress},
-          #{accounts.registAddressProvince},
-          #{accounts.registAddressCity},
-          #{accounts.registAddressDistrict},
-          #{accounts.registerAddressDetail},
-          #{accounts.businessType},
-          #{accounts.contractResponsible},
-          #{accounts.contractResponsiblePhone},
-          #{accounts.contractLicense},
-          #{accounts.contractLicenseCreate},
-          #{accounts.contractLicenseEnd},
-          #{accounts.contractRegisterAddress},
-          #{accounts.contractRegisterAddressProvince},
-          #{accounts.contractRegisterAddressCity},
-          #{accounts.contractRegisterAddressDistrict},
-          #{accounts.contractRegisterAddressDetail},
-          #{accounts.contractCreateDate},
-          #{accounts.contractEndDate},
-          #{accounts.bankName},
-          #{accounts.bankNum},
-          #{accounts.bankUserName},
-          #{accounts.remittanced},
-          #{accounts.uploadMode},
-          #{accounts.createDate})
-    </foreach>
-  </insert>
 
   <!--根据账户表账户id,修改账户表中用户余额-->
   <update id="updateUserBalance" parameterType="so.sao.shop.supplier.domain.Account">
@@ -700,13 +644,13 @@
     WHERE account_id=#{accountId};
   </update>
 
-  <select id="findPage" resultMap="BaseResultMap" parameterType="so.sao.shop.supplier.domain.Condition">
+  <select id="findPage" resultMap="BaseResultMap" parameterType="so.sao.shop.supplier.pojo.input.AccountInput">
           SELECT a.contract_responsible,a.contract_create_date, a.account_id,a.user_id,a.create_date,a.provider_name, a.contract_end_date, a.contract_responsible_phone,p.name regist_address_province,
                   c.name regist_address_city,d.name regist_address_district  ,cp.name contract_register_address_province,cc.name contract_register_address_city,
-                  cd.name contract_register_address_district,  a.contract_register_address
+                  cd.name contract_register_address_district,  a.contract_register_address, account_status
             FROM account a,sys_region p, sys_region c, sys_region d, sys_region cp, sys_region cc, sys_region cd, user u
             <where>
-                    account_status = 1
+              (account_status = 1 OR account_status = 2)
               AND u.is_admin = 0
               AND a.user_id = u.user_id
               AND regist_address_province = p.sr_id
@@ -779,7 +723,7 @@
 
     <!-- 统计已入驻供应商数量总和 -->
   <select id="findAccountNumber" resultType="int">
-    select COUNT(provider_name) FROM account AS a ,user AS u WHERE account_status= 1 AND a.user_id = u.user_id AND u.is_admin = 0
+    select COUNT(provider_name) FROM account AS a ,user AS u WHERE (account_status= 1 OR account_status= 2) AND a.user_id = u.user_id AND u.is_admin = 0
   </select>
 
   <!--查询出当天要结算的供应商信息列表-->
@@ -832,7 +776,7 @@
   <update id="updateAccountLastSettlementDate" parameterType="java.util.List">
     <foreach collection="list" item="item" index="index" open="" close="" separator=";">
       UPDATE account
-      SET last_settlement_date = #{item.lastSettlementDate}
+      SET last_settlement_date = #{item.lastSettlementDate}, update_date = #{item.updateDate}
       WHERE account_id = #{item.accountId}
     </foreach>
   </update>
@@ -850,5 +794,109 @@
      SELECT COUNT(account_id)
         FROM account
         WHERE account_id = #{accountId}
+  </select>
+  <!--根据供应商id更新供应商状态-->
+  <update id="updateAccountStatusById" parameterType="so.sao.shop.supplier.pojo.input.AccountUpdateInput">
+    UPDATE account
+    SET account_status = #{accountStatus}, update_date = #{updateDate}
+    WHERE account_id = #{accountId}
+  </update>
+
+  <!--查询合同截止时间30天前的供应商-->
+  <select id="findMonthAgo" resultMap="BaseResultMap">
+    SELECT account_id,contract_responsible_phone FROM account
+    WHERE account_status = 1 AND sms_monthago_type = 0 AND DATE_FORMAT(contract_end_date,'%Y-%m-%d')=(DATE_FORMAT(DATE_ADD(NOW(), INTERVAL 30 DAY),'%Y-%m-%d'))
+  </select>
+
+  <!--查询合同已过期供应商-->
+  <select id="findContractEndDate" resultMap="BaseResultMap">
+    SELECT account_id,contract_responsible_phone FROM account
+    WHERE account_status = 1 AND DATE_FORMAT(contract_end_date,'%Y-%m-%d')=DATE_FORMAT(NOW(),'%Y-%m-%d')
+  </select>
+
+  <!-- 根据accountId或providerName查询供应商信息-->
+  <select id="findAccounts" resultType="so.sao.shop.supplier.pojo.output.AccountOutput" >
+    SELECT
+    a.account_id AS accountId,
+    a.provider_name AS providerName,
+    a.responsible AS responsible,
+    a.responsible_phone AS responsiblePhone,
+    a.contract_end_date AS contractEndDate,
+    a.regist_address_province  AS registAddressProvince,
+    r.name AS registAddressProvinceName,
+    a.regist_address_city AS registAddressCity,
+    (SELECT NAME FROM sys_region r WHERE a.regist_address_city = r.sr_id) AS registAddressCityName,
+    a.regist_address_district AS registAddressDistrict,
+    (SELECT NAME FROM sys_region r WHERE a.regist_address_district = r.sr_id) AS registAddressDistrictName,
+    a.contract_register_address_province AS contractRegisterAddressProvince,
+    (SELECT NAME FROM sys_region r WHERE a.contract_register_address_province = r.sr_id) AS contractRegisterAddressProvinceName,
+    a.contract_register_address_city AS contractRegisterAddressCity,
+    (SELECT NAME FROM sys_region r WHERE a.contract_register_address_city = r.sr_id) AS contractRegisterAddressCityName,
+    a.contract_register_address_district AS contractRegisterAddressDistrict,
+    (SELECT NAME FROM sys_region r WHERE a.contract_register_address_district = r.sr_id) AS contractRegisterAddressDistrictName
+    FROM account a
+    LEFT JOIN sys_region r ON a.regist_address_province = r.sr_id
+    WHERE
+    a.account_status = 1
+    <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(providerName)">
+      AND a.provider_name LIKE '%${providerName}%'
+    </if>
+    <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(accountId)">
+      AND a.account_id =#{accountId}
+    </if>
+  </select>
+
+  <!--根据供应商ID查询供应商名称及状态-->
+  <select id="findNameAndStatus" resultMap="BaseResultMap">
+    SELECT
+    provider_name,
+    account_status
+    FROM account WHERE account_id = #{accountId}
+  </select>
+
+    <!-- 根据供应商ID修改供应商合同剩余30天发送短信标记-->
+  <update id="updateAccountSmsTypeById" parameterType="java.lang.Long">
+    UPDATE account
+    SET sms_monthago_type = 1
+    WHERE account_id = #{accountId}
+  </update>
+
+  <!-- 根据供应商名称查询供应商 -->
+  <select id="findByProviderName" resultType="so.sao.shop.supplier.pojo.output.AccountBannerOut">
+  	SELECT
+	  a.account_id AS accountId,
+	  a.provider_name AS providerName,
+	  a.contract_responsible AS responsible,
+	  a.contract_create_date AS createDate,
+	  a.contract_end_date AS endDate,
+	  a.contract_responsible_phone AS responsiblePhone,
+	  s1.name province,
+	  s2.name city,
+	  s3.name district
+	FROM
+	  account a,sys_region s1,sys_region s2,sys_region s3
+	 WHERE
+	  account_status = 1
+	 AND a.contract_register_address_province = s1.sr_id
+	 AND a.contract_register_address_city = s2.sr_id
+	 AND a.contract_register_address_district = s3.sr_id
+	 <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(providerName)">
+      	AND a.provider_name LIKE CONCAT ('%',#{providerName},'%')
+     </if>
+     ORDER BY a.update_date DESC
+  </select>
+  <!--根据商户ID修改当前默认运费规则-->
+  <update id="updateRulesByFreightRules">
+    UPDATE
+    account
+    SET freight_rules = #{freightRules}
+    WHERE account_id = #{accountId}
+  </update>
+
+  <!--根据AccountId查询供应商的物流运费规则-->
+  <select id="findRulesById" resultType="Integer">
+    SELECT
+    freight_rules
+    FROM account WHERE account_id = #{accountId}
   </select>
 </mapper>

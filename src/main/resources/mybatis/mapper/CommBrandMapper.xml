@@ -22,8 +22,18 @@
     <select id="findByName" resultType="so.sao.shop.supplier.domain.CommBrand">
         SELECT id, name,deleted FROM comm_brand WHERE deleted != '1' AND name = #{name}
     </select>
+    <select id="searchByName" resultType="so.sao.shop.supplier.domain.CommBrand">
+        SELECT id, name,deleted FROM comm_brand WHERE deleted != '1' AND name = #{name}
+    </select>
     <select id="find" resultType="so.sao.shop.supplier.domain.CommBrand">
         SELECT id, name,deleted FROM comm_brand
     </select>
 
+    <select id="findById" resultType="so.sao.shop.supplier.domain.CommBrand">
+        SELECT id, name FROM comm_brand WHERE deleted != 1 AND id = #{id}
+    </select>
+
+    <select id="search" resultType="so.sao.shop.supplier.pojo.output.CommBrandOutput">
+        SELECT id, name FROM comm_brand WHERE deleted != 1
+    </select>
 </mapper>

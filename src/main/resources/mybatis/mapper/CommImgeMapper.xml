@@ -10,7 +10,7 @@
         size,
         thumbnail_url AS thumbnailUrl
     </sql>
-
+    <!--查询商品的图片信息-->
     <select id="find" resultType="so.sao.shop.supplier.domain.CommImge">
         SELECT
         <include refid="baseColumns"/>
@@ -46,19 +46,47 @@
         #{thumbnailUrl}
         )
     </insert>
+
+    <!--批量新增图片-->
+    <insert id="batchSave" parameterType="java.util.List">
+        insert comm_imge (
+        sc_id,
+        name,
+        thumbnail_url,
+        url,
+        type,
+        size
+        )VALUES
+        <foreach collection ="list" item="data" index= "index" separator =",">
+            (
+            #{data.scId},
+            #{data.name},
+            #{data.thumbnailUrl},
+            #{data.url},
+            #{data.type},
+            #{data.size}
+            )
+        </foreach>
+    </insert>
+
     <update id="update">
         UPDATE comm_imge SET name=#{name},url = #{url},type = #{type},size = #{size} WHERE id = #{id}
     </update>
-
-    <delete id="deleteById">
-        DELETE FROM comm_imge WHERE id=#{id}
-    </delete>
 
     <delete id="deleteByIds">
         DELETE FROM comm_imge
         WHERE id IN
         <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
             #{id}
+        </foreach>
+    </delete>
+
+    <!--根据scId集合批量删除图片-->
+    <delete id="deleteByScIds">
+        DELETE FROM comm_imge
+        WHERE sc_id IN
+        <foreach collection="scIds" item="scId" index="index" open="(" close=")" separator=",">
+            #{scId}
         </foreach>
     </delete>
 </mapper>

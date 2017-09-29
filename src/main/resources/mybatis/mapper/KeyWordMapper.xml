@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="so.sao.shop.supplier.dao.external.KeyWordDao" >
+    <resultMap id="baseColumns" type="so.sao.shop.supplier.domain.external.KeyWord">
+        <id column="id" property="id"/>
+        <result column="key_word_type" property="keyWordType"/>
+        <result column="key_word_value" property="keyWordValue"/>
+        <result column="operator" property="operator"/>
+        <result column="sort" property="sort"/>
+        <result column="create_at" property="createAt"/>
+        <result column="update_at" property="updateAt"/>
+    </resultMap>
+
+    <!--添加关键字-->
+    <insert id="save" parameterType="so.sao.shop.supplier.domain.external.KeyWord" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO key_word
+        (
+        key_word_type,
+        key_word_value,
+        operator,
+        sort,
+        create_at,
+        update_at
+        )
+        VALUES
+        <foreach collection="list" item="item" index="index" open="" close="" separator="," >
+             (
+            1,
+            #{item.keyWordValue},
+            #{item.operator},
+            #{item.sort},
+            #{item.createAt},
+            #{item.updateAt}
+            )
+        </foreach>
+
+    </insert>
+
+
+
+    <!--编辑关键字-->
+    <update id="update" parameterType="so.sao.shop.supplier.domain.external.KeyWord">
+        UPDATE key_word
+        SET
+        key_word_value = #{keyWordValue},
+        operator = #{operator},
+        update_at = #{updateAt}
+        WHERE id = #{id}
+    </update>
+
+    <!--查询商品品类列表-->
+    <select id="findAll" resultType="so.sao.shop.supplier.domain.external.KeyWord">
+        SELECT
+        id,
+        key_word_type AS keyWordType,
+        key_word_value AS keyWordValue,
+        operator,
+        sort,
+        create_at AS createAt,
+        update_at AS updateAt
+        FROM key_word
+        ORDER BY sort
+    </select>
+
+    <!--删除所有数据-->
+    <delete id="delete">
+        TRUNCATE TABLE key_word
+    </delete>
+
+    <!--根据keyWordValue统计数量(存在性校验）-->
+    <select id="countByKeyWordValue" resultType="int">
+        SELECT COUNT(1) FROM key_word WHERE key_word_value = #{keyWordValue}
+    </select>
+
+</mapper>

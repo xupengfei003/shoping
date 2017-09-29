@@ -53,7 +53,7 @@ public class SuppCommSearchVo {
     /**
      * 库存
      */
-    private Double inventory;
+    private String inventory;
     /**
      * 商品状态
      * 0:待上架 ，1:已废弃 ，2：上架 3：下架
@@ -65,6 +65,12 @@ public class SuppCommSearchVo {
     private int statusNum;
 
     /**
+     * 商品是否失效
+     * 0 失效  1正常
+     */
+    private int invalidStatus;
+
+    /**
      * 市场价
      */
     private String price;
@@ -72,9 +78,23 @@ public class SuppCommSearchVo {
      * 售价
      */
     private String unitPrice;
+    /**
+     * 最小起订量
+     */
+
+    private Integer minOrderQuantity;
 
     /**
-     *  创建时间
+     * 审核意见
+     */
+    private String auditOpinion;
+    /**
+     * 审核结果
+     */
+    private Integer auditResult;
+
+    /**
+     * 创建时间
      */
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date createdAt;
@@ -83,6 +103,14 @@ public class SuppCommSearchVo {
      */
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date updatedAt;
+
+    public int getInvalidStatus() {
+        return invalidStatus;
+    }
+
+    public void setInvalidStatus(int invalidStatus) {
+        this.invalidStatus = invalidStatus;
+    }
 
     public Long getId() {
         return id;
@@ -164,11 +192,11 @@ public class SuppCommSearchVo {
         this.ruleVal = ruleVal;
     }
 
-    public Double getInventory() {
+    public String getInventory() {
         return inventory;
     }
 
-    public void setInventory(Double inventory) {
+    public void setInventory(String inventory) {
         this.inventory = inventory;
     }
 
@@ -212,11 +240,35 @@ public class SuppCommSearchVo {
         this.price = price;
     }
 
-    public String getUnitPrice() {
-        return unitPrice;
+    public Integer getMinOrderQuantity() {
+        return minOrderQuantity;
     }
+
+    public void setMinOrderQuantity(Integer minOrderQuantity) {
+        this.minOrderQuantity = minOrderQuantity;
+    }
+
+    public String getUnitPrice() {
+            return unitPrice;
+        }
 
     public void setUnitPrice(String unitPrice) {
         this.unitPrice = unitPrice;
+    }
+
+    public String getAuditOpinion() {
+        return auditOpinion;
+    }
+
+    public void setAuditOpinion(String auditOpinion) {
+        this.auditOpinion = auditOpinion;
+    }
+
+    public Integer getAuditResult() {
+        return auditResult;
+    }
+
+    public void setAuditResult(Integer auditResult) {
+        this.auditResult = auditResult;
     }
 }

@@ -1,8 +1,5 @@
 package so.sao.shop.supplier.pojo.vo;
 
-
-import java.math.BigDecimal;
-
 public class OrderMoneyRecordVo {
     /**
      * 结算明细id
@@ -43,6 +40,21 @@ public class OrderMoneyRecordVo {
      * 银行卡号
      */
     private String bankAccount;
+
+    /**
+     * 银行流水号
+     */
+    private String serialNumber;
+
+    /**
+     * 运费总金额
+     */
+    private String postageTotalAmount;
+
+    /**
+     * 订单总金额
+     */
+    private String orderTotalAmount;
 
     public String getRecordId() {
         return recordId;
@@ -106,5 +118,29 @@ public class OrderMoneyRecordVo {
 
     public void setBankAccount(String bankAccount) {
         this.bankAccount = bankAccount;
+    }
+
+    public String getSerialNumber() {
+        return serialNumber;
+    }
+
+    public void setSerialNumber(String serialNumber) {
+        this.serialNumber = serialNumber;
+    }
+
+    public String getPostageTotalAmount() {
+        return postageTotalAmount;
+    }
+
+    public void setPostageTotalAmount(String postageTotalAmount) {
+        this.postageTotalAmount = postageTotalAmount;
+    }
+
+    public String getOrderTotalAmount() {
+        return orderTotalAmount;
+    }
+
+    public void setOrderTotalAmount(String orderTotalAmount) {
+        this.orderTotalAmount = orderTotalAmount;
     }
 }
