@@ -32,7 +32,7 @@ public class CommTagController {
 
     @PostMapping(value = "save")
     @ApiOperation(value = "新增商品标签", notes = "新增商品标签【负责人：赵延】")
-    public Result create(HttpServletRequest request, @RequestParam String name) {
+    public Result create(HttpServletRequest request, @RequestParam(required=false) String name) {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //判断是否非法登录
         if (null == user) {
