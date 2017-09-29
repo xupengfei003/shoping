@@ -78,7 +78,26 @@ public class CommConstant {
         }
         return st;
     }
-
+    /**
+     * 失效状态:正常invalidStatus
+     */
+    public static final int INVALIDSTATUS_ON = 1;
+    /**
+     * 失效状态:失效
+     */
+    public static final int INVALIDSTATUS_OFF = 0;
+    public static String getinvalidStatus(int status){
+        String st="正常";
+        switch (status){
+            case CommConstant.INVALIDSTATUS_ON:
+                st="正常";
+                break;
+            case CommConstant.INVALIDSTATUS_OFF:
+                st="失效";
+                break;
+        }
+        return st;
+    }
          /*Page分页常量*/
 
     /**
@@ -252,7 +271,7 @@ public class CommConstant {
      * 批量导出模板表头名称
      *
      */
-    public static final String[] EXCEL_OUT_TITLES ={"商品条码","商品品牌","商品标签","商品名称","企业名称","商品产地","上市时间","商品商家编码","包装单位","计量规格","规格值","市场价","成本价","库存量","最小起订量","商品状态","创建时间","更新时间"};
+    public static final String[] EXCEL_OUT_TITLES ={"商品条码","商品品牌","商品标签","商品名称","企业名称","商品产地","上市时间","商品商家编码","包装单位","计量规格","规格值","市场价","成本价","库存量","最小起订量","商品状态","是否失效","创建时间","更新时间"};
 
     /**
      * 批量导出 每个工作表导出最大行数

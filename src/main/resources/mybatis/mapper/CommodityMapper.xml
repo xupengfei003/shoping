@@ -130,7 +130,8 @@
         IFNULL(t.company_name,'') AS companyName,
         IFNULL(t.origin_place,'') AS originPlace,
         IFNULL(t.market_time,'') AS marketTime,
-        categoryOneId
+        categoryOneId,
+        invalid_status AS  invalidStatus
         FROM (SELECT
         t1.sc_id AS id,
         sctmp.supplier_id,
@@ -292,6 +293,9 @@
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(status)">
             AND t.status = #{status}
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(invalidStatus)">
+            AND t.invalid_status = #{invalidStatus}
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(minPrice) and @so.sao.shop.supplier.util.Ognl@isEmpty(maxPrice)">
             AND t.price<![CDATA[ >= #{minPrice}]]>
