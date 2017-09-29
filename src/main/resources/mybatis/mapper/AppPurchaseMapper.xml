@@ -24,13 +24,18 @@
         <result column="user_id" property="userId"/>
         <result column="user_name" property="userName"/>
         <result column="store_id" property="storeId"/>
+        <result column="order_ship_method" property="orderShipMethod"/>
+        <result column="distributor_name" property="distributorName"/>
+        <result column="distributor_mobile" property="distributorMobile"/>
+        <result column="logistics_company" property="logisticsCompany"/>
     </resultMap>
 
     <sql id="App_Order_Column_List">
         order_id, order_create_time, store_name, order_status, order_receiver_name,
         order_receiver_mobile, order_address,order_price,order_shipment_number,pay_id,
         order_payment_time,order_refuse_time,drawback_time,deliver_goods_time,order_receive_time,
-        order_cancel_time,order_payment_num,order_postage,user_id,store_id,user_name
+        order_cancel_time,order_payment_num,order_postage,user_id,store_id,user_name,order_ship_method,
+        distributor_name,distributor_mobile,logistics_company
     </sql>
     <select id="findOrderList" resultMap="AppOrderAllList" parameterType="java.lang.Integer">
         SELECT
@@ -38,17 +43,26 @@
         FROM purchase
         WHERE
         order_status != -1
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderStatusArr)">
-            AND order_status IN
-            <foreach collection="orderStatusArr" open="(" close=")" separator="," item="orderStatus" index="i">
-                #{orderStatus}
-            </foreach>
-        </if>
         AND user_id = TRIM(#{userId})
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(flag)">
-          GROUP BY pay_id
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderStatusArr)">
+                AND order_status IN
+                <foreach collection="orderStatusArr" open="(" close=")" separator="," item="orderStatus" index="i">
+                    #{orderStatus}
+                </foreach>
+            </if>
+            <if test="flag == 1">
+                GROUP BY pay_id
+            </if>
         </if>
-        ORDER BY updated_at DESC
+        <if test="!@so.sao.shop.supplier.util.Ognl@isNotEmpty(flag)">
+            GROUP BY pay_id
+            UNION
+            (SELECT
+                <include refid="App_Order_Column_List"/>
+            FROM purchase WHERE user_id = TRIM(#{userId}) AND order_status != 1)
+        </if>
+        ORDER BY order_create_time DESC
     </select>
 
     <select id="findOrderByOrderId" resultMap="AppOrderAllList" parameterType="java.lang.String">
@@ -58,7 +72,7 @@
         WHERE
         order_status != -1
         AND order_id = TRIM(#{orderId})
-        ORDER BY updated_at DESC
+        ORDER BY order_create_time DESC
     </select>
 
     <select id="findOrderByPayId" resultMap="AppOrderAllList" parameterType="java.lang.String">
@@ -68,7 +82,7 @@
         WHERE
         order_status != -1
         AND pay_id = TRIM(#{payId})
-        ORDER BY updated_at DESC
+        ORDER BY order_create_time DESC
     </select>
 
     <select id="findOrderByOrderIds" parameterType="java.util.List" resultMap="AppOrderAllList">

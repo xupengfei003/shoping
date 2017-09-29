@@ -9,6 +9,7 @@ import so.sao.shop.supplier.dao.app.AppPurchaseDao;
 import so.sao.shop.supplier.dao.app.AppPurchaseItemDao;
 import so.sao.shop.supplier.pojo.output.AppPurchaseOutput;
 import so.sao.shop.supplier.pojo.vo.AppPurchaseItemVo;
+import so.sao.shop.supplier.pojo.vo.AppPurchaseShipMethodVo;
 import so.sao.shop.supplier.pojo.vo.AppPurchasesVo;
 import so.sao.shop.supplier.service.app.AppPurchaseService;
 import so.sao.shop.supplier.util.BeanMapper;
@@ -53,10 +54,12 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
             return new PageInfo<>();
         }*/
         List<AppPurchasesVo> orderList = new ArrayList<>();
-        if ("1".equals(orderStatus) || "".equals(orderStatus) || null == orderStatus) {
+        if ("1".equals(orderStatus)) {
             orderList = appPurchaseDao.findOrderList(userId, convertStringToInt(orderStatus), "1");
-        } else {
+        } else if("".equals(orderStatus) || null == orderStatus) {
             orderList = appPurchaseDao.findOrderList(userId, convertStringToInt(orderStatus), "");
+        } else {
+            orderList = appPurchaseDao.findOrderList(userId, convertStringToInt(orderStatus), "2");
         }
         List<String> orderIdList = new ArrayList<>();//接收订单编号
         PageInfo pageInfo = new PageInfo(orderList);
@@ -75,6 +78,7 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
         }
         int i = 0;
         for (AppPurchasesVo appPurchasesVo : orderList) {
+
             List<AppPurchaseItemVo> appPurchaseItemVoListInner = new TreeList<>();
             AppPurchaseOutput appPurchaseOutput = null;
             int goodsAllNum = 0;//计算该订单下所有商品总数
@@ -153,7 +157,7 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
         return pageInfo;
     }
 
-    //获取不重复的订单ID
+    /*//获取不重复的订单ID
     private List<String> getOrderIds(String orderStatus, List<AppPurchasesVo> orderListA) {
         List<String> getOrderIdList = new ArrayList();
 
@@ -165,7 +169,7 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
         }
 
         return getOrderIdList;
-    }
+    }*/
 
     //获取ID（订单状态为待付款（1）获取的是payID,订单状态为其他则获取的是orderId）
     private List<String> getId(String orderStatus, List<AppPurchasesVo> orderList) {
@@ -204,9 +208,15 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
 
     //计算运费
     private List<BigDecimal> getOrderPostage(String userId, String orderStatus, List<AppPurchaseItemVo> appPurchaseItemVoList) throws Exception {
-        List<AppPurchasesVo> orderList = appPurchaseDao.findOrderList(userId, convertStringToInt(orderStatus), "");
-        List<AppPurchasesVo> orderListA = appPurchaseDao.findOrderList(userId, convertStringToInt(orderStatus), "1");
-        List<BigDecimal> totalOrderPostageList = new ArrayList<>();
+        List<AppPurchasesVo> orderList = appPurchaseDao.findOrderList(userId, convertStringToInt(orderStatus), "2");
+        List<AppPurchasesVo> orderListA = new ArrayList<>();
+                List<BigDecimal> totalOrderPostageList = new ArrayList<>();
+        List<AppPurchasesVo> orderListB = new ArrayList<>();
+        if("1".equals(orderStatus)){
+            orderListA = appPurchaseDao.findOrderList(userId, convertStringToInt(orderStatus), "1");
+        } else{
+            orderListA = appPurchaseDao.findOrderList(userId, convertStringToInt(orderStatus), "");
+        }
         for (AppPurchasesVo appPurchasesVoA : orderListA) {
             BigDecimal totalOrderPostage = new BigDecimal(0);//总运费
             for (AppPurchasesVo appPurchasesVo : orderList) {

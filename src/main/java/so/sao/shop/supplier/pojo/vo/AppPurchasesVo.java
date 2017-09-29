@@ -101,7 +101,22 @@ public class AppPurchasesVo {
      * 商户ID
      */
     private String storeId;
-
+    /**
+     * 配送方式
+     */
+    private Integer orderShipMethod;
+    /**
+     * 配送人姓名
+     */
+    private String distributorName;
+    /**
+     * 配送人电话
+     */
+    private String distributorMobile;
+    /**
+     * 物流公司
+     */
+    private String logisticsCompany;
     public String getOrderReceiverName() {
         return orderReceiverName;
     }
@@ -268,5 +283,37 @@ public class AppPurchasesVo {
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    public Integer getOrderShipMethod() {
+        return orderShipMethod;
+    }
+
+    public void setOrderShipMethod(Integer orderShipMethod) {
+        this.orderShipMethod = orderShipMethod;
+    }
+
+    public String getDistributorName() {
+        return distributorName;
+    }
+
+    public void setDistributorName(String distributorName) {
+        this.distributorName = distributorName;
+    }
+
+    public String getDistributorMobile() {
+        return distributorMobile;
+    }
+
+    public void setDistributorMobile(String distributorMobile) {
+        this.distributorMobile = distributorMobile;
+    }
+
+    public String getLogisticsCompany() {
+        return logisticsCompany;
+    }
+
+    public void setLogisticsCompany(String logisticsCompany) {
+        this.logisticsCompany = logisticsCompany;
     }
 }
