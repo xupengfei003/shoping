@@ -33,6 +33,15 @@
     where id = #{id,jdbcType=BIGINT}
     and user_id = #{userId,jdbcType=BIGINT}
   </delete>
+  <!--根据购物车记录ID批量删除该记录-->
+  <delete id="deleteByIds" parameterType="java.util.List">
+    delete from cart_item
+    where id IN
+    <foreach collection="ids" open="(" close=")" item="id" index= "index" separator =",">
+       #{id,jdbcType=BIGINT}
+    </foreach>
+    and user_id = #{userId,jdbcType=BIGINT}
+  </delete>
 
   <!--根据购物车记录ID和userId查询购物车记录中的商品Id和供应商Id-->
   <select id="selectByIdAndUserId" resultMap="BaseResultMap">

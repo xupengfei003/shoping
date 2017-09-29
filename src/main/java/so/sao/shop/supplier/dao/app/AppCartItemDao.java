@@ -78,4 +78,11 @@ public interface AppCartItemDao {
      */
     List<AppCartItem> selectByUserId(@Param("userId") Long userId) throws Exception;
 
+    /**
+     * 批量删除
+     * @param ids
+     * @param userId
+     * @return
+     */
+    int deleteByIds(@Param("ids")List<String> ids,@Param("userId") Long userId);
 }

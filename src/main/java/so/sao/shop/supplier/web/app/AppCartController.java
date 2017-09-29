@@ -59,7 +59,32 @@ public class AppCartController {
             return Result.fail(Constant.MessageConfig.MSG_FAILURE);
         }
     }
-
+    /**
+     * 根据购物车记录ID删除购物车记录
+     *
+     * @param cartitemId
+     * @param userId
+     * @return
+     * @throws Exception
+     */
+    @ApiOperation(value = "根据购物车ID批量删除购物车记录", notes = "根据购物车ID批量删除购物车记录")
+    @GetMapping(value = "/cartitem/deleteBatch")
+    public Result deleteCartItem(String cartitemId, Long userId) throws Exception {
+        if (Ognl.isNull(cartitemId)) {
+            return Result.fail("购物车记录ID不能为空");
+        }
+        if (Ognl.isNull(userId)) {
+            return Result.fail("用户ID不能为空");
+        }
+        // 删除购物车记录
+        Boolean flag = cartService.deleteByIds(cartitemId, userId);
+        // 返回结果
+        if (flag) {
+            return Result.success(Constant.MessageConfig.MSG_SUCCESS);
+        } else {
+            return Result.fail(Constant.MessageConfig.MSG_FAILURE);
+        }
+    }
     /**
      * 更新购物车商品数量
      *
