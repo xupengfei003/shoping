@@ -1579,5 +1579,5 @@ public class CommodityServiceImpl implements CommodityService {
         auditDetail = supplierCommodityAuditDao.findAuditDetail(id);
         readImgData(auditDetail.getId(),auditDetail); // 获取图片信息
         return Result.success("查询审核记录详情成功！",auditDetail);
-    };
+    }
 }
