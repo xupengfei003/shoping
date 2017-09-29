@@ -287,4 +287,8 @@ ALTER TABLE hot_commodity
   DROP COLUMN rule_val,
   DROP COLUMN inventory,
   DROP COLUMN sales_volume,
-  DROP COLUMN status
+  DROP COLUMN status ;
+
+/*给商品类表增加索引*/
+  ALTER TABLE `supplier_commodity_audit` ADD INDEX selectByScid (sc_id);
+  ALTER TABLE `commodity` ADD INDEX selectByCode69 (code69);
