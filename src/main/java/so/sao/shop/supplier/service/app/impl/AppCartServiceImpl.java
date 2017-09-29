@@ -196,6 +196,23 @@ public class AppCartServiceImpl implements AppCartService {
     }
 
     /**
+     * 批量删除
+     *
+     * @param cartitemId
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public Boolean deleteByIds(String cartitemId, Long userId) {
+        String[] ids = cartitemId.split(",");
+        List<String> list = new ArrayList();
+        for (String id : ids){
+            list.add(id);
+        }
+        // 若删除时受影响的行数大于0为成功，其余为删除失败
+        return cartItemDao.deleteByIds(list, userId) > 0 ? true : false;
+    }
+    /**
      * 修改购物车内商品的数量
      *
      * @param cartitemId
