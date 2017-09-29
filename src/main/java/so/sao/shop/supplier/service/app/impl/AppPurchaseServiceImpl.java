@@ -73,7 +73,7 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
         List<AppPurchaseOutput> appPurchaseOutputs = new ArrayList<>();//接收返回list
         List<AppPurchaseItemVo> appPurchaseItemVoList = getAllOrderItemList(orderIdList, orderStatus);//接收详情列表
         List<BigDecimal> totalOrderPostageList = new ArrayList<>();
-        if("1".equals(orderStatus)){
+        if("1".equals(orderStatus) || "".equals(orderStatus) || null == orderStatus){
             totalOrderPostageList = getOrderPostage(userId, orderStatus, appPurchaseItemVoList);
         }
         int i = 0;
@@ -124,7 +124,7 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
             //输出运费
             //1.如果运费为0，则显示“包邮”
             //2.如果有运费，则输出实际金额的千分值
-            if("1".equals(orderStatus)){
+            if("1".equals(orderStatus) || "".equals(orderStatus) || null == orderStatus){
                 if (totalOrderPostageList.get(i).compareTo(new BigDecimal(0)) == 0) {
                     appPurchaseOutput.setOrderPostage("包邮");
                 } else {
@@ -208,9 +208,15 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
 
     //计算运费
     private List<BigDecimal> getOrderPostage(String userId, String orderStatus, List<AppPurchaseItemVo> appPurchaseItemVoList) throws Exception {
-        List<AppPurchasesVo> orderList = appPurchaseDao.findOrderList(userId, convertStringToInt(orderStatus), "");
-        List<AppPurchasesVo> orderListA = appPurchaseDao.findOrderList(userId, convertStringToInt(orderStatus), "1");
-        List<BigDecimal> totalOrderPostageList = new ArrayList<>();
+        List<AppPurchasesVo> orderList = appPurchaseDao.findOrderList(userId, convertStringToInt(orderStatus), "2");
+        List<AppPurchasesVo> orderListA = new ArrayList<>();
+                List<BigDecimal> totalOrderPostageList = new ArrayList<>();
+        List<AppPurchasesVo> orderListB = new ArrayList<>();
+        if("1".equals(orderStatus)){
+            orderListA = appPurchaseDao.findOrderList(userId, convertStringToInt(orderStatus), "1");
+        } else{
+            orderListA = appPurchaseDao.findOrderList(userId, convertStringToInt(orderStatus), "");
+        }
         for (AppPurchasesVo appPurchasesVoA : orderListA) {
             BigDecimal totalOrderPostage = new BigDecimal(0);//总运费
             for (AppPurchasesVo appPurchasesVo : orderList) {
