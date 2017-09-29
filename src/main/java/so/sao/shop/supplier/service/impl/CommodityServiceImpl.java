@@ -660,6 +660,10 @@ public class CommodityServiceImpl implements CommodityService {
         if (CommConstant.COMM_ST_NEW == one.getStatus() ){
             return Result.fail("存在待上架商品，请重新选择！");
         }
+        //不能重复下架
+        if (CommConstant.COMM_ST_OFF_SHELVES == one.getStatus()){
+            return Result.success("不能进行重复下架操作！");
+        }
         //管理员直接进行下架操作
         if (isAdmin){
             SupplierCommodity supplierCommodity = new SupplierCommodity();
@@ -669,10 +673,6 @@ public class CommodityServiceImpl implements CommodityService {
             supplierCommodityDao.onOrOffShelves(supplierCommodity);
             supplierCommodityAuditDao.updateAuditFlagByScId(id, CommConstant.AUDIT_RECORD);
             return Result.success("商品下架操作成功！");
-        }
-        //不能重复下架
-        if (CommConstant.COMM_ST_OFF_SHELVES == one.getStatus()){
-             return Result.success("不能进行重复下架操作！");
         }
         //更新scId对应的历史记录
         supplierCommodityAuditDao.updateAuditFlagByScId(id, CommConstant.AUDIT_RECORD);
@@ -1579,5 +1579,5 @@ public class CommodityServiceImpl implements CommodityService {
         auditDetail = supplierCommodityAuditDao.findAuditDetail(id);
         readImgData(auditDetail.getId(),auditDetail); // 获取图片信息
         return Result.success("查询审核记录详情成功！",auditDetail);
-    };
+    }
 }

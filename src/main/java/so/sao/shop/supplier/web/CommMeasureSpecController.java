@@ -57,7 +57,7 @@ public class CommMeasureSpecController {
      */
     @PostMapping("/save")
     @ApiOperation(value = "新添加计量规格", notes ="新添加一个计量规格名称【负责人：许鹏飞】" )
-    public Result create(HttpServletRequest request,@RequestParam String name){
+    public Result create(HttpServletRequest request,@RequestParam(required=false) String name){
        // 1. 先从请求对象中拿到供应商(用户)的ID
        User user = (User)request.getAttribute(Constant.REQUEST_USER);
         if (null == user) {   //验证用户是否登陆

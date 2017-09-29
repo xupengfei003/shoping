@@ -21,6 +21,14 @@ public interface AppCartService {
     boolean deleteCartItemById(Long id, Long userId) throws Exception;
 
     /**
+     * 批量删除
+     *
+     * @param cartitemId
+     * @return
+     * @throws Exception
+     */
+    Boolean deleteByIds(String cartitemId, Long userId);
+    /**
      * 修改购物车内商品的数量
      *
      * @param cartitemId

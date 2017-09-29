@@ -54,7 +54,7 @@ public class CommUnitController {
      */
     @ApiOperation(value = "商品单位添加",notes = "添加商品单位信息【负责人：任志平】")
     @PostMapping("/save")
-    public Result create(HttpServletRequest request, @RequestParam String name ){
+    public Result create(HttpServletRequest request, @RequestParam(required=false) String name ){
         //校验输入name是否为空
         if( null == name || Ognl.isEmpty(name.trim())){
             return Result.fail("商品单位不能为空！");
