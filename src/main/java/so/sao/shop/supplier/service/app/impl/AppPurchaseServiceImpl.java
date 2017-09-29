@@ -54,10 +54,12 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
             return new PageInfo<>();
         }*/
         List<AppPurchasesVo> orderList = new ArrayList<>();
-        if ("1".equals(orderStatus) || "".equals(orderStatus) || null == orderStatus) {
+        if ("1".equals(orderStatus)) {
             orderList = appPurchaseDao.findOrderList(userId, convertStringToInt(orderStatus), "1");
-        } else {
+        } else if("".equals(orderStatus) || null == orderStatus) {
             orderList = appPurchaseDao.findOrderList(userId, convertStringToInt(orderStatus), "");
+        } else {
+            orderList = appPurchaseDao.findOrderList(userId, convertStringToInt(orderStatus), "2");
         }
         List<String> orderIdList = new ArrayList<>();//接收订单编号
         PageInfo pageInfo = new PageInfo(orderList);
@@ -71,7 +73,7 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
         List<AppPurchaseOutput> appPurchaseOutputs = new ArrayList<>();//接收返回list
         List<AppPurchaseItemVo> appPurchaseItemVoList = getAllOrderItemList(orderIdList, orderStatus);//接收详情列表
         List<BigDecimal> totalOrderPostageList = new ArrayList<>();
-        if("1".equals(orderStatus) || "".equals(orderStatus) || null == orderStatus){
+        if("1".equals(orderStatus)){
             totalOrderPostageList = getOrderPostage(userId, orderStatus, appPurchaseItemVoList);
         }
         int i = 0;
@@ -122,7 +124,7 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
             //输出运费
             //1.如果运费为0，则显示“包邮”
             //2.如果有运费，则输出实际金额的千分值
-            if("1".equals(orderStatus) || "".equals(orderStatus) || null == orderStatus){
+            if("1".equals(orderStatus)){
                 if (totalOrderPostageList.get(i).compareTo(new BigDecimal(0)) == 0) {
                     appPurchaseOutput.setOrderPostage("包邮");
                 } else {
