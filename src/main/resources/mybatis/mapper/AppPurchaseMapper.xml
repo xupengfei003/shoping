@@ -43,15 +43,24 @@
         FROM purchase
         WHERE
         order_status != -1
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderStatusArr)">
-            AND order_status IN
-            <foreach collection="orderStatusArr" open="(" close=")" separator="," item="orderStatus" index="i">
-                #{orderStatus}
-            </foreach>
-        </if>
         AND user_id = TRIM(#{userId})
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(flag)">
-          GROUP BY pay_id
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderStatusArr)">
+                AND order_status IN
+                <foreach collection="orderStatusArr" open="(" close=")" separator="," item="orderStatus" index="i">
+                    #{orderStatus}
+                </foreach>
+            </if>
+            <if test="flag == 1">
+                GROUP BY pay_id
+            </if>
+        </if>
+        <if test="!@so.sao.shop.supplier.util.Ognl@isNotEmpty(flag)">
+            GROUP BY pay_id
+            UNION
+            (SELECT
+                <include refid="App_Order_Column_List"/>
+            FROM purchase WHERE user_id = TRIM(#{userId}) AND order_status != 1)
         </if>
         ORDER BY order_create_time DESC
     </select>
