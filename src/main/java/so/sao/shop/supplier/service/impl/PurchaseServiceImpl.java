@@ -158,7 +158,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                     CommodityOutput commOutput = (CommodityOutput) result.getData();
                     //判断是否满足最小起订量
                     if (!this.checkMinOrderQuantity(commOutput,goodsNumber)){
-                        output.put("message",commOutput.getName()+"商品不满足最小起订量或已下架或商家已被禁用");
+                        output.put("message",commOutput.getName()+"商品不满足最小起订量或已下架或该商品已失效");
                         return output;
                     }
                     //2.生成批量插入订单详情数据
@@ -1341,10 +1341,9 @@ public class PurchaseServiceImpl implements PurchaseService {
          */
         Map<String ,Object> map = new HashMap<>();
         map.put("status",0);
-        map.put("message","系统异常");
+        map.put("message","商户没有设置配送运费规则");
         Integer rules = accountDao.findRulesById(accountId);//获取商户当前默认运费规则
         if (null == rules){
-            map.put("message","商户没有设置配送运费规则");
             return map;
         }
         if (0 == rules){//通用运费规则
