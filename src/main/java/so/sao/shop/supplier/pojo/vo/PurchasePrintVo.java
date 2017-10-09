@@ -61,6 +61,19 @@ public class PurchasePrintVo {
      */
     private Integer orderStatus;
 
+    /**
+     * 运费
+     */
+    private BigDecimal orderPostage;
+
+    public BigDecimal getOrderPostage() {
+        return orderPostage;
+    }
+
+    public void setOrderPostage(BigDecimal orderPostage) {
+        this.orderPostage = orderPostage;
+    }
+
     public Integer getOrderStatus() {
         return orderStatus;
     }
