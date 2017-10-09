@@ -510,6 +510,7 @@
             p.order_price AS totalPrice,
             p.order_status AS orderStatus,
             q.url AS qrcodeUrl,
+            P.order_postage AS orderPostage,
             q.status AS qrcodeStatus,
             a.provider_name AS providerName
         FROM purchase p
