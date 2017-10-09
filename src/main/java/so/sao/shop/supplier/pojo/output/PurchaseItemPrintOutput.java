@@ -82,9 +82,22 @@ public class PurchaseItemPrintOutput{
     private Integer orderStatus;
 
     /**
+     * 运费
+     */
+    private BigDecimal orderPostage;
+
+    /**
      * 商品明细列表
      */
     private List<PurchaseItemPrintVo> purchaseItemPrintVos;
+
+    public String getOrderPostage() {
+        return NumberUtil.number2Thousand(orderPostage);
+    }
+
+    public void setOrderPostage(BigDecimal orderPostage) {
+        this.orderPostage = orderPostage;
+    }
 
     public Integer getOrderStatus() {
         return orderStatus;

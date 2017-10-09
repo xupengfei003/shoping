@@ -725,6 +725,8 @@ public class PurchaseServiceImpl implements PurchaseService {
         // 3.封装返回对象
         PurchaseItemPrintOutput output = new PurchaseItemPrintOutput(); // 封装返回对象
         output = BeanMapper.map(purchasePrintVo, output.getClass()); // 将订单信息复制到output
+        output.setTotalPrice(purchasePrintVo.getOrderPostage().add(purchasePrintVo.getTotalPrice())); // 订单总金额=订单金额+运费
+        output.setOrderPostage(purchasePrintVo.getOrderPostage()); // 运费
         output.setPurchaseItemPrintVos(purchaseItemPrintVos); // 添加商品条目
 
         return output;

@@ -510,6 +510,7 @@
             p.order_price AS totalPrice,
             p.order_status AS orderStatus,
             q.url AS qrcodeUrl,
+            P.order_postage AS orderPostage,
             q.status AS qrcodeStatus,
             a.provider_name AS providerName
         FROM purchase p
@@ -671,7 +672,7 @@
     <!--根据订单状态查询订单ID-->
     <select id="findOrderIdByOrderStatus" parameterType="java.lang.Integer" resultType="java.lang.String">
         SELECT
-        order_id
+        pay_id
         FROM purchase
         WHERE order_status = #{orderStatus}
         AND pay_status = 0
