@@ -1029,7 +1029,15 @@ public class PurchaseServiceImpl implements PurchaseService {
         //2.如果没有拒收图片，则不存入数据库
         if(refuseOrderInput.getRefuseImg().size()>0){
             for(int i = 0;i<refuseOrderInput.getRefuseImg().size(); i++){
-                imgList.add(disposeImage(refuseOrderInput.getRefuseImg().get(i)));//拒收图片URL
+                CommBlobUpload commBlobUpload = new CommBlobUpload();
+                String fileName = NumberGenerate.generateId() + System.currentTimeMillis() + refuseOrderInput.getRefuseImg().get(i).getType();
+                commBlobUpload.setFileName(fileName);//图片名称
+                commBlobUpload.setUrl(refuseOrderInput.getRefuseImg().get(i).getUrl());//拒收图片URL
+                commBlobUpload.setMinImgUrl(refuseOrderInput.getRefuseImg().get(i).getMinImgUrl());//拒收缩略图
+                commBlobUpload.setSize(refuseOrderInput.getRefuseImg().get(i).getSize());//拒收图片大小
+                commBlobUpload.setType(refuseOrderInput.getRefuseImg().get(i).getType());//拒收图片类型
+//                imgList.add(disposeImage(refuseOrderInput.getRefuseImg().get(i)));//拒收图片URL
+                imgList.add(commBlobUpload);
             }
         }
         if(imgList.size()>0){
