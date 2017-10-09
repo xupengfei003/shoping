@@ -672,7 +672,7 @@
     <!--根据订单状态查询订单ID-->
     <select id="findOrderIdByOrderStatus" parameterType="java.lang.Integer" resultType="java.lang.String">
         SELECT
-        order_id
+        pay_id
         FROM purchase
         WHERE order_status = #{orderStatus}
         AND pay_status = 0
