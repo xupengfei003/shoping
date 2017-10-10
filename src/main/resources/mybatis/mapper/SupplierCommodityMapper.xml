@@ -697,7 +697,8 @@
         status,
         invalid_status,
         code69,
-        inventory
+        inventory,
+        deleted
         FROM supplier_commodity
         WHERE id = #{id}
     </select>
