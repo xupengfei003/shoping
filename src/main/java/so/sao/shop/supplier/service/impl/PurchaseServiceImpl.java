@@ -1,12 +1,7 @@
 package so.sao.shop.supplier.service.impl;
 
-import com.alipay.api.AlipayClient;
-import com.alipay.api.DefaultAlipayClient;
-import com.alipay.api.request.AlipayTradeRefundRequest;
-import com.alipay.api.response.AlipayTradeRefundResponse;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,10 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.util.StringUtils;
-import so.sao.shop.supplier.alipay.AlipayConfig;
-import so.sao.shop.supplier.alipay.AlipayRefundInfo;
 import so.sao.shop.supplier.alipay.AlipayRefundUtil;
-import so.sao.shop.supplier.alipay.JsonUtils;
 import so.sao.shop.supplier.config.CommConstant;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.config.StorageConfig;
@@ -118,12 +110,12 @@ public class PurchaseServiceImpl implements PurchaseService {
                 //判断库存是否充足
                 if (null != commodityOutput && purchaseItem.getGoodsNumber() > commodityOutput.getInventory()) {
                     //提示信息
-                    output.put("message", "商品库存不足");
+                    output.put("message", commodityOutput.getName() + "商品库存不足");
                     return output;
                 }
                 Account accountUser = purchaseDao.findAccountById(goodsId);
                 if (null != accountUser && 1 != accountUser.getAccountStatus()) {//商家账号为禁用或删除状态，不允许下单
-                    output.put("message", "商家账号为禁用或删除状态，不允许下单");
+                    output.put("message", accountUser.getProviderName() + "商家账号为禁用或删除状态，不允许下单");
                     return output;
                 } else {
                     set.add(accountUser.getAccountId());
@@ -138,6 +130,9 @@ public class PurchaseServiceImpl implements PurchaseService {
         Map<Long, BigDecimal> inventoryMap = new HashMap<>();//存储商品编号和购买数量
         //合并支付单号
         String payId = NumberGenerate.generateOrderId("yyMMddHHmmss");
+        /**
+         * 循环供应商ID生成订单
+         */
         for (Long sId : set) {
             //生成订单编号
             String orderId = NumberGenerate.generateOrderId("yyyyMMddHHmmss");
@@ -226,7 +221,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             //根据商品编号更改库存数量
             int count = supplierCommodityDao.updateInventoryByGoodsId(inventoryMap);
             if (count == 0) {
-                output.put("message", "商品库存不足");
+                output.put("message", "更改失败");
                 return output;
             }
             int result = purchaseDao.savePurchase(listPurchase);
