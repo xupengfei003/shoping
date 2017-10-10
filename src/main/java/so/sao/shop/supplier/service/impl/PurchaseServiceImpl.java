@@ -1030,7 +1030,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         if(refuseOrderInput.getRefuseImg().size()>0){
             for(int i = 0;i<refuseOrderInput.getRefuseImg().size(); i++){
                 CommBlobUpload commBlobUpload = new CommBlobUpload();
-                String fileName = NumberGenerate.generateId() + System.currentTimeMillis() + refuseOrderInput.getRefuseImg().get(i).getType();
+                String fileName = NumberGenerate.generateId() + System.currentTimeMillis() + "." +refuseOrderInput.getRefuseImg().get(i).getType();
                 commBlobUpload.setFileName(fileName);//图片名称
                 commBlobUpload.setUrl(refuseOrderInput.getRefuseImg().get(i).getUrl());//拒收图片URL
                 commBlobUpload.setMinImgUrl(refuseOrderInput.getRefuseImg().get(i).getMinImgUrl());//拒收缩略图
