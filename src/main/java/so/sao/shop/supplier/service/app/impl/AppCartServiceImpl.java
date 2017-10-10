@@ -310,6 +310,7 @@ public class AppCartServiceImpl implements AppCartService {
         }
         List<AppCartItem> updateList = new ArrayList<>(); // 用于记录批量更新的完整购物车记录数据
         // 3.根据商品的Id查询商品的相信信息,同时校验商品及供货商是否合法,返回符合要求的购物车信息
+        String commNames = "" ;    //用于存储所有库存不足的商品名称
         for (int i = 0; i < cartItemList.size(); i++) {
             AppCartItem appCartItems = cartItemList.get(i);
             map = validateCommodity(appCartItems.getCommodityId());
@@ -326,12 +327,18 @@ public class AppCartServiceImpl implements AppCartService {
                 appCartItem.setId(appCartItems.getId());          // 记录ID
                 updateList.add(appCartItem);
             } else {
-                // 6.若库存不足，返回失败
-                map.put("code", "0");
-                map.put("msg", "库存不足");
-                map.put("collection", null);
-                return map;
+                commNames += appCartItem.getCommodityName()+",";
             }
+        }
+
+        //库存不足商品名校验
+        if (!("".equals(commNames))) {
+            commNames = commNames.substring(0,commNames.length()-1);
+            // 6.若库存不足，返回失败
+            map.put("code", "0");
+            map.put("msg","【"+commNames+"】"+"库存不足");
+            map.put("collection", null);
+            return map;
         }
         // 更新数据,成功的话返回购物车记录
         int num = cartItemDao.updateByIdBatch(updateList);
