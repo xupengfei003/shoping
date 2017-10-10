@@ -89,53 +89,57 @@ public class AppCartServiceImpl implements AppCartService {
         // 若商品不存在，新建一个商品对象
         if (Ognl.isNull(supplierCommodity)) {
             supplierCommodity = new SupplierCommodity();
+            map.put("supplierCode","0");
         }
         // 若计量单位Id不为空，去查计量单位，若为空，计量单位为null,若查询结果为null,那么计量单位也为null
         CommUnit commUnit = new CommUnit();
         if (Ognl.isNotNull(supplierCommodity.getUnitId())) {
             commUnit = commUnitDao.findOne(supplierCommodity.getUnitId());
         }
-        if (Ognl.isNull(commUnit)) {
-            commUnit.setName(null);
-        }
         // 若计量规格Id不为空，去查计量规格，若为空，计量规格为null,若查询结果为null,那么计量规格也为null
         CommMeasureSpec commMeasureSpec = new CommMeasureSpec();
         if (Ognl.isNotNull(supplierCommodity.getMeasureSpecId())) {
             commMeasureSpec = commMeasureSpecDao.findOne(supplierCommodity.getMeasureSpecId());
-        }
-        if (Ognl.isNull(commMeasureSpec)) {
-            commMeasureSpec.setName(null);
         }
         // 若供应商Id不为空，去查供应商，若为空，供应商为null,若查询结果为null,那么供应商也为null
         Account account = new Account();
         if (Ognl.isNotNull(supplierCommodity.getSupplierId())) {
             account = accountDao.findNameAndStatus(supplierCommodity.getSupplierId());
         }
-        if (Ognl.isNull(account)) {
-            account.setProviderName(null);
-            account.setAccountStatus(null);
-        }
         // 若商品69码不为空，去查商品名称，若为空，商品名为null,若查询结果为null,那么商品名也为null
         Commodity commodity = new Commodity();
         if (Ognl.isNotNull(supplierCommodity.getCode69())) {
             commodity = commodityDao.findNameByCode69(supplierCommodity.getCode69());
         }
-        if (Ognl.isNull(commodity)) {
-            commodity.setName(null);
-        }
         // 3.生成购物车数据
         AppCartItem appCartItem = new AppCartItem();
         appCartItem.setSupplierId(supplierCommodity.getSupplierId()); //供应商ID
-        appCartItem.setSupplierName(account.getProviderName());       //供应商名称
+        if (Ognl.isNull(account)){
+            appCartItem.setSupplierName(null);
+        } else {
+            appCartItem.setSupplierName(account.getProviderName());   //供应商名称
+        }
         appCartItem.setCommodityId(id);                               //商品ID
-        appCartItem.setCommodityName(commodity.getName());            //商品名称
+        if (Ognl.isNull(commodity)){
+            appCartItem.setCommodityName(null);
+        }else {
+            appCartItem.setCommodityName(commodity.getName());        //商品名称
+        }
         appCartItem.setCommodityPrice(supplierCommodity.getPrice());  //商品价格
         appCartItem.setCommodityPic(supplierCommodity.getMinImg());   //商品图片路径
         appCartItem.setMeasureSpecId(supplierCommodity.getMeasureSpecId()); //计量规格ID
-        appCartItem.setMeasureSpecName(commMeasureSpec.getName());    //计量规格名称
+        if (Ognl.isNull(commMeasureSpec)){
+            appCartItem.setMeasureSpecName(null);
+        }else {
+            appCartItem.setMeasureSpecName(commMeasureSpec.getName());//计量规格名称
+        }
         appCartItem.setRuleVal(supplierCommodity.getRuleVal());       //规格值
         appCartItem.setUnitId(supplierCommodity.getUnitId());         //计量单位ID
-        appCartItem.setUnitName(commUnit.getName());                  //计量单位名称
+        if (Ognl.isNull(commUnit)){
+            appCartItem.setUnitName(null);
+        }else {
+            appCartItem.setUnitName(commUnit.getName());              //计量单位名称
+        }
         appCartItem.setCommodityProperties(supplierCommodity.getSku());//sku
         appCartItem.setInventory(supplierCommodity.getInventory());    //库存数
         map.put("appCartItem", appCartItem);
@@ -380,6 +384,13 @@ public class AppCartServiceImpl implements AppCartService {
             map = validateCommodity(commodityId);
             // c.校验是否有库存,若有库存,进行更新
             appCartItem = (AppCartItem) map.get("appCartItem");
+            String supplierCode=(String)map.get("supplierCode");
+            if ("0".equals(supplierCode)){
+                map.put("code", "0");
+                map.put("msg", "商品不存在");
+                map.put("appCartItem", appCartItem);
+                return map;
+            }
             if (Ognl.isNull(appCartItem.getInventory())) {
                 appCartItem.setInventory(0.00);
             }
