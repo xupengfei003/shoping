@@ -1,8 +1,8 @@
 package so.sao.shop.supplier.pojo.input;
 
 import org.hibernate.validator.constraints.NotEmpty;
+import so.sao.shop.supplier.pojo.vo.RefuseImg;
 
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -26,7 +26,7 @@ public class RefuseOrderInput {
     /**
      * 拒收图片
      */
-    private List<String> refuseImg;
+    private List<RefuseImg> refuseImg;
 
     public String getOrderId() {
         return orderId;
@@ -52,11 +52,11 @@ public class RefuseOrderInput {
         this.refuseReason = refuseReason;
     }
 
-    public List<String> getRefuseImg() {
+    public List<RefuseImg> getRefuseImg() {
         return refuseImg;
     }
 
-    public void setRefuseImg(List<String> refuseImg) {
+    public void setRefuseImg(List<RefuseImg> refuseImg) {
         this.refuseImg = refuseImg;
     }
 }
