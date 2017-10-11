@@ -22,8 +22,9 @@ gradle-build:
 image-build-develop:
   stage: imageBuildDevelop
   script:
-    - "current_date=$(TZ=England/London date +%m%d%H%M)"
-    - "current_date=${current_date:0:1}$((${current_date:1:8}+800))"
+    #- "current_date=$(TZ=England/London date +%m%d%H%M)"
+    #- "current_date=${current_date:0:1}$((${current_date:1:8}+800))"
+    - "current_date=$(date +%m%d%H%M)"
     - "commit_sha=$CI_COMMIT_SHA"
     - "docker build -t $DOCKER_REGISTRY_TEST:5000/shop-supplier-test:$CI_COMMIT_REF_NAME-$current_date-${commit_sha:0:8} ."
     - "docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY_TEST:5000"
@@ -34,8 +35,9 @@ image-build-develop:
 image-build-master:
   stage: imageBuildMaster
   script:
-    - "current_date=$(TZ=England/London date +%m%d%H%M)"
-    - "current_date=${current_date:0:1}$((${current_date:1:8}+800))"
+    #- "current_date=$(TZ=England/London date +%m%d%H%M)"
+    #- "current_date=${current_date:0:1}$((${current_date:1:8}+800))"
+    - "current_date=$(date +%m%d%H%M)"
     - "commit_sha=$CI_COMMIT_SHA"
     - "docker build -t $DOCKER_REGISTRY_PRO:5000/shop-supplier-pro:$CI_COMMIT_REF_NAME-$current_date-${commit_sha:0:8} ."
     - "docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY_PRO:5000"
