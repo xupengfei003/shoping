@@ -31,11 +31,6 @@ public class Qualification {
     private Integer uploadType;
 
     /**
-     * 资质状态（1、待审核  2、审核通过  3、审核未通过）
-     */
-    private Integer status;
-
-    /**
      * 审核未通过原因
      */
     private String reason;
@@ -85,14 +80,6 @@ public class Qualification {
 
     public void setUploadType(Integer uploadType) {
         this.uploadType = uploadType;
-    }
-
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
     }
 
     public String getReason() {
