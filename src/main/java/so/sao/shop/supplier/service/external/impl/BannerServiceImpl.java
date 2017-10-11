@@ -134,17 +134,8 @@ public class BannerServiceImpl implements BannerService {
 		}
 		//根据轮播位置和上架时间确定是否有轮播图存在
 		List<BannerOut> banners = bannerDao.findBanners(banner.getLocation(),banner.getOnShelvesTime());
-		//根据原上下架时间、轮播图位置确定是否更改，如果没有更改直接执行更新
-		for(BannerOut bannerOut : banners) {
-			if(bannerOut.getOnShelvesTime().getTime() == banner.getOnShelvesTime().getTime() && bannerOut.getOffShelfTime().getTime() == banner.getOffShelfTime().getTime() && bannerOut.getLocation().equals(banner.getLocation())) {
-				banner.setStatus(Ognl.isEmpty(banner.getStatus()) ? "1" :banner.getStatus());
-				banner.setUpdateAt(new Date());
-				bannerDao.update(banner);
-				return Result.success("更新轮播图成功");
-			}
-		}
-		//根据轮播位置和上架时间确定是否有轮播图存在
-		if(banners != null && !banners.isEmpty()) {
+		//根据轮播位置和上架时间确定是否有其它轮播图存在
+		if(banners.size()>1) {
 			return Result.fail("此轮播位在上架时间已有待上架或已上架轮播图");
 		}
 		//更新轮播图

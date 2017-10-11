@@ -429,7 +429,7 @@ public class AzureBlobService {
      * @return
      */
     private static String getFileExtension(String fileName) {
-        int position = fileName.indexOf('.');
+        int position = fileName.lastIndexOf(".");
         if (position > 0) {
             return fileName.substring(position);
         }

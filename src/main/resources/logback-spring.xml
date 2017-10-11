@@ -1,4 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+
+    <springProperty scope="context" name="logStdout" source="log.stdout"/>
+    <springProperty scope="context" name="logLevel" source="log.level" defaultValue="info"/>
+    <springProperty scope="context" name="logGelfOut" source="log.gelf.out" defaultValue="true"/>
+    <springProperty scope="context" name="logGraylogPort" source="log.graylog.port" defaultValue="12201"/>
+
+    <include resource="org/springframework/boot/logging/logback/defaults.xml" />
+
+    <if condition='property("logStdout").equals("true")'>
+        <then>
+            <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
+        </then>
+    </if>
+
+    <appender name="GELF" class="de.siegmar.logbackgelf.GelfUdpAppender">
+        <graylogHost>log-internal.storify.cc</graylogHost>
+        <graylogPort>${logGraylogPort}</graylogPort>
+        <maxChunkSize>508</maxChunkSize>
+        <useCompression>true</useCompression>
+        <layout class="de.siegmar.logbackgelf.GelfLayout">
+            <originHost>localhost</originHost>
+            <includeRawMessage>false</includeRawMessage>
+            <includeMarker>true</includeMarker>
+            <includeMdcData>true</includeMdcData>
+            <includeCallerData>false</includeCallerData>
+            <includeRootCauseData>false</includeRootCauseData>
+            <includeLevelName>false</includeLevelName>
+            <shortPatternLayout class="ch.qos.logback.classic.PatternLayout">
+                <pattern>%m%nopex</pattern>
+            </shortPatternLayout>
+            <fullPatternLayout class="ch.qos.logback.classic.PatternLayout">
+                <pattern>%m</pattern>
+            </fullPatternLayout>
+            <staticField>app_name:supplier</staticField>
+            <staticField>os_arch:${os.arch}</staticField>
+            <staticField>os_name:${os.name}</staticField>
+            <staticField>os_version:${os.version}</staticField>
+        </layout>
+    </appender>
+
+    <logger name="so.sao.shop.service.repository" level="DEBUG" />
+    <logger name="org.springframework.web.filter.CommonsRequestLoggingFilter" level="INFO" />
+    <logger name="so.sao.shop.modules.web.client.LoggingRequestInterceptor" level="DEBUG" />
+
+    <root level="${logLevel}">
+        <if condition='property("logGelfOut").equals("true")'>
+            <then>
+                <appender-ref ref="GELF" />
+            </then>
+        </if>
+        <if condition='property("logStdout").equals("true")'>
+            <then>
+                <appender-ref ref="CONSOLE" />
+            </then>
+        </if>
+    </root>
 </configuration>
