@@ -16,6 +16,8 @@ import so.sao.shop.supplier.util.MD5Util;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by acer on 2017/8/15.
@@ -45,10 +47,20 @@ public class PayServiceImpl implements PayService {
         if (isSign(payInput)) {
             Map<String, Object> map = mergePaymentInfo(payInput);
             flagDao = payDao.updatePaymentByPayId(map);
+
+           new Thread() {
+                @Override
+                public void run() {
+                    // 根据支付id，批量生成订单的二维码
+                    try {
+                        purchaseService.createReceivingQrcodeByPayId(payInput.getOrderId());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }.start();
             //TODO 为该供应商推送"待发货"消息通知
             sendNotice(payInput);
-            // 根据支付id，批量生成订单的二维码
-            purchaseService.createReceivingQrcodeByPayId(payInput.getOrderId());
         }
         return flagDao;
     }
@@ -104,6 +116,7 @@ public class PayServiceImpl implements PayService {
     private void sendNotice(PayInput payInput) {
         List<Purchase> purchaseList = purchaseDao.findByPayId(payInput.getOrderId());
         List<Notification> notificationList = new ArrayList<>();
+
         if (null != purchaseList && purchaseList.size() > 0) {
             purchaseList.forEach(purchase -> {
                 if (purchase.getPayStatus() != 0) {
