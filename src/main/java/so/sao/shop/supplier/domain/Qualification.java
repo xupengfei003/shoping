@@ -21,11 +21,6 @@ public class Qualification {
     private Long accountId;
 
     /**
-     * 资质类型（1、质检报告  2、营业执照  3、授权报告  4、食品流通许可证）
-     */
-    private Integer qualificationType;
-
-    /**
      * 资质上传类型（1、小食品零售  2、其他）
      */
     private Integer uploadType;
@@ -64,14 +59,6 @@ public class Qualification {
 
     public void setAccountId(Long accountId) {
         this.accountId = accountId;
-    }
-
-    public Integer getQualificationType() {
-        return qualificationType;
-    }
-
-    public void setQualificationType(Integer qualificationType) {
-        this.qualificationType = qualificationType;
     }
 
     public Integer getUploadType() {
