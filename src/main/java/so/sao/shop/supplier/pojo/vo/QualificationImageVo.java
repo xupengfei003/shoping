@@ -6,6 +6,11 @@ package so.sao.shop.supplier.pojo.vo;
 public class QualificationImageVo {
 
     /**
+     * 资质类型（1、质检报告  2、营业执照  3、授权报告  4、食品流通许可证）
+     */
+    private Integer qualificationType;
+
+    /**
      * 图片名称
      */
     private String fileName;
@@ -68,5 +73,13 @@ public class QualificationImageVo {
 
     public void setMinCloudName(String minCloudName) {
         this.minCloudName = minCloudName;
+    }
+
+    public Integer getQualificationType() {
+        return qualificationType;
+    }
+
+    public void setQualificationType(Integer qualificationType) {
+        this.qualificationType = qualificationType;
     }
 }

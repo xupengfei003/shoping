@@ -21,6 +21,11 @@ public class QualificationImage {
     private Long qualificationId;
 
     /**
+     * 资质类型（1、质检报告  2、营业执照  3、授权报告  4、食品流通许可证）
+     */
+    private Integer qualificationType;
+
+    /**
      * 图片名称
      */
     private String fileName;
@@ -138,5 +143,13 @@ public class QualificationImage {
 
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public Integer getQualificationType() {
+        return qualificationType;
+    }
+
+    public void setQualificationType(Integer qualificationType) {
+        this.qualificationType = qualificationType;
     }
 }
