@@ -268,7 +268,7 @@ public class AzureBlobService {
                     fileName=fileStr;
                     try {
                         //图片尺寸不变，压缩图片文件大小outputQuality实现,参数1为最高质量
-                        Thumbnails.of(realzippath+"/"+ fileStr.trim()).scale(1f).outputQuality(0.25f).toFile(realzippath+"/img/"+ fileStr.trim());
+                        Thumbnails.of(realzippath+"/"+ fileStr.trim()).scale(1f).outputQuality(0.05f).toFile(realzippath+"/img/"+ fileStr.trim());
                         File file = new File(realzippath+"/img/"+ fileStr.trim());
                         if (file.exists()) {
                             //获取上传文件的名称及文件类型
