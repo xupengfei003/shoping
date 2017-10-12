@@ -1,6 +1,7 @@
 package so.sao.shop.supplier.dao;
 
 
+import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Param;
 import so.sao.shop.supplier.domain.Account;
 import so.sao.shop.supplier.domain.Purchase;
@@ -255,4 +256,19 @@ public interface PurchaseDao {
      * @return 订单列表
      */
     List<Purchase> findPurchaseByUserId(@Param("orderId") String orderId, @Param("userId") String userId);
+
+	 /**
+     * 根据订单编号和用户id查询订单
+     *
+     * @param orderId 订单编号
+     * @param userId 用户id
+     * @return 订单列表
+     */
+       /**
+     * 根据供应商ID查询各类订单数量
+     * @param accountId
+     * @return
+     */
+    @MapKey(value = "order_status")
+    Map<Object, Object> countOrderNumByOrderStatus(Long accountId);
 }

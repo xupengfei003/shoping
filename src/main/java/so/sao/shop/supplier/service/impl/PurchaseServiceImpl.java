@@ -1449,4 +1449,77 @@ public class PurchaseServiceImpl implements PurchaseService {
         }
         return errorUrl;
     }
+
+	 /**
+     * 根据供应商ID查询各类订单数量
+     * @param accountId
+     * @return
+     */
+    @Override
+    public Map<Object, Object> countOrderNumByOrderStatus(Long accountId) {
+        Map<Object, Object> map = purchaseDao.countOrderNumByOrderStatus(accountId);
+        return this.transformOfMap(map);
+    }
+
+    /**
+     * map中key值和value转化
+     *  key:订单各个状态对应的字符
+     *  value:订单各类状态对应的统计数据
+     * @param map
+     * @return
+     */
+    private Map<Object,Object> transformOfMap(Map<Object, Object> map) {
+        Map<Object,Object> resultMap = new HashMap();//返回参数
+        Map<Object,Object> valueMap = null;//入参中的value值（map）
+        Long count = null;//入参map中的value(value也为map)中的value值（统计数据）
+        String str = null;//各个订单状态对应的字符
+        Long totalCount = 0L;//统计数据之和(订单总量)
+
+        //转化map中的Key和value值
+        for (int i = 1;i <= 8;i++){
+            valueMap = (Map<Object, Object>) map.get(i);
+            count = null == valueMap ? 0L : (Long) valueMap.get("count");
+            totalCount = totalCount + count;
+            str = this.getStrByOrderStatus(i);
+            resultMap.put(str,count);
+        }
+        resultMap.put("totalOrderNum",totalCount);
+        return resultMap;
+    }
+
+    /**
+     * 根据订单各个状态获取对应的字符
+     * @param i 订单状态
+     * @return
+     */
+    private String getStrByOrderStatus(int i) {
+        String str = null;
+        switch (i){
+            case 1:
+                str = "paymentOrderNum";
+                break;
+            case 2:
+                str = "pendingShipOrderNum";
+                break;
+            case 3:
+                str =  "issueShipOrderNum";
+                break;
+            case 4:
+                str =  "receivedOrderNum";
+                break;
+            case 5:
+                str =  "rejectOrderNum";
+                break;
+            case 6:
+                str =  "refundedOrderNum";
+                break;
+            case 7:
+                str =  "cancelOrderNum";
+                break;
+            case 8:
+                str =  "paymentCancelOrderNum";
+                break;
+        }
+        return str;
+    }
 }
