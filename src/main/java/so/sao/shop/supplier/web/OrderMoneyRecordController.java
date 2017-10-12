@@ -19,6 +19,8 @@ import so.sao.shop.supplier.util.Ognl;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import java.util.Map;
 
 /**
@@ -277,9 +279,15 @@ public class OrderMoneyRecordController {
      */
     @ApiOperation(value="供应商订单金额统计", notes = "供应商订单金额统计【负责人:郑振海】")
     @GetMapping("/countOrderMoneyRecords")
-    public Result countOrderMoneyRecords(Integer timeType){
-
-        return null;
+    public Result countOrderMoneyRecords(HttpServletRequest request,@RequestParam Integer timeType){
+        //获取用户
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        //判断是否登陆
+        if (Ognl.isNull(user)) {
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
+        }
+        Map<String,Object> resultMap = orderMoneyRecordService.countOrderMoneyRecords(timeType,user.getAccountId());
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS,resultMap);
     }
 
 }
