@@ -327,5 +327,12 @@
     FROM order_money_record
     WHERE user_id = #{accountId} AND state = '0';
     </select>
+    <!--根据供应商ID及时间段对该供应商订单的金额进行统计-->
+    <select id="countOrderMoneyRecords" resultType="java.util.Map">
+        SELECT state ,SUM(settled_amount) AS settledMoney ,SUM(total_money) AS pendingSettlementMoney
+        from order_money_record
+        WHERE settled_at &lt; #{endTime} AND settled_at &gt;= #{startTime} AND user_id = #{accountId}
+        GROUP BY state;
+    </select>
 
 </mapper>

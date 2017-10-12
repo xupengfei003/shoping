@@ -152,4 +152,12 @@ public class QualificationImage {
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
     }
+
+    public Integer getQualificationType() {
+        return qualificationType;
+    }
+
+    public void setQualificationType(Integer qualificationType) {
+        this.qualificationType = qualificationType;
+    }
 }

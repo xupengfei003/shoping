@@ -1,6 +1,9 @@
 package so.sao.shop.supplier.dao;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.Date;
 
 /**
  * Created by liugang on 2017/10/11.
@@ -8,4 +11,8 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface QualificationDao {
+
+    void updateQualificationStatus(@Param("accountId") Integer accountId, @Param("qualificationStatus")Integer qualificationStatus, @Param("updateDate")Date updateDate );
+
+    Integer getAccountQualificationStatus( @Param("accountId") Integer accountId );
 }
