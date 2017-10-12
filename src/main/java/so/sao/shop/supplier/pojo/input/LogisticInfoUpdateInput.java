@@ -1,6 +1,10 @@
 package so.sao.shop.supplier.pojo.input;
 
+import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import javax.validation.Valid;
 
 /**
  * Created by acer on 2017/10/11.
@@ -14,8 +18,8 @@ public class LogisticInfoUpdateInput {
     /**
      * 配送方式
      */
-    @NotEmpty(message = "配送方式不能为空")
-    private String orderShipMethod;
+    @NotBlank(message = "配送方式不能为空")
+    private Integer orderShipMethod;
     /**
      * 物流公司/配送人姓名
      */
@@ -51,11 +55,11 @@ public class LogisticInfoUpdateInput {
         this.number = number;
     }
 
-    public String getOrderShipMethod() {
+    public Integer getOrderShipMethod() {
         return orderShipMethod;
     }
 
-    public void setOrderShipMethod(String orderShipMethod) {
+    public void setOrderShipMethod(Integer orderShipMethod) {
         this.orderShipMethod = orderShipMethod;
     }
 }
