@@ -1147,7 +1147,7 @@ public class CommodityServiceImpl implements CommodityService {
             } else if (supplierCommodityVo.getUnitPrice().compareTo(BigDecimal.ZERO) == -1) {
                 errorRowList.add(rowNum);
                 continue;
-            } else if (supplierCommodityVo.getUnitPrice().compareTo(supplierCommodityVo.getPrice()) != -1) {
+            } else if (supplierCommodityVo.getUnitPrice().compareTo(supplierCommodityVo.getPrice()) == 1) {
                 errorRowList.add(rowNum);
                 continue;
             } else if (supplierCommodityVo.getInventory() < 0) {

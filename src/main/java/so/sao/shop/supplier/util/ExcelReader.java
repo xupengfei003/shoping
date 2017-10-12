@@ -24,7 +24,7 @@ public class ExcelReader {
     static private Workbook wb;
     static private Sheet sheet;
     static private Row row;
-    private static DecimalFormat df = new DecimalFormat("0");             //数字格式，防止长数字成为科学计数法形式，或者int变为double形式
+    private static DecimalFormat df = new DecimalFormat("0.##");             //数字格式，防止长数字成为科学计数法形式，或者int变为double形式
 
 
     /**
