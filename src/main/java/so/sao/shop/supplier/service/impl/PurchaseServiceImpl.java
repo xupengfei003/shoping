@@ -1522,4 +1522,23 @@ public class PurchaseServiceImpl implements PurchaseService {
         }
         return str;
     }
+    /**
+     * 更改物流信息
+     *
+     * @param logisticInfoUpdateInput 封装了订单ID，物流公司，物流单号
+     */
+    @Override
+    public boolean updateLogisticInfoByOrderId(LogisticInfoUpdateInput logisticInfoUpdateInput) {
+        Map<String,Object> map = new HashMap<>();
+        map.put("orderId",logisticInfoUpdateInput.getOrderId());
+        map.put("orderShipMethod",logisticInfoUpdateInput.getOrderShipMethod());
+        map.put("name",logisticInfoUpdateInput.getName());
+        map.put("number",logisticInfoUpdateInput.getNumber());
+        map.put("updateTime",new Date());
+        Integer count = purchaseDao.updateLogisticInfoByOrderId(map);
+        if(count == 0){
+            return false;
+        }
+        return true;
+    }
 }

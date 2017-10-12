@@ -253,4 +253,11 @@ public interface PurchaseService {
      * @return
      */
     Map<Object, Object> countOrderNumByOrderStatus(Long accountId);
+
+    /**
+     * 更改物流信息
+     *
+     * @param logisticInfoUpdateInput 封装了订单ID，物流公司，物流单号
+     */
+    boolean updateLogisticInfoByOrderId(LogisticInfoUpdateInput logisticInfoUpdateInput);
 }

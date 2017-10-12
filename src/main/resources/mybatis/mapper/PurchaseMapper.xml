@@ -88,23 +88,14 @@
         purchase
         <where>
             order_status != -1
-
-            <!--<if test="@so.sao.shop.supplier.util.Ognl@isEmpty(purchaseSelectInput.orderStatus)">
-                AND (order_status != 7 || pay_status != 0)
-            </if>
-            <if test="purchaseSelectInput.orderStatus == 7">
-                AND pay_status != 0
-            </if>
-            <if test="purchaseSelectInput.orderStatus!=null">
-                AND order_status = TRIM(#{purchaseSelectInput.orderStatus})
-            </if>-->
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.orderStatus)">
                 AND order_status = TRIM(#{purchaseSelectInput.orderStatus})
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.orderReceiverName) and
             @so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.orderReceiverMobile) and purchaseSelectInput.orderReceiverName == purchaseSelectInput.orderReceiverMobile">
                 AND (order_receiver_name LIKE "${purchaseSelectInput.orderReceiverName}%"
-                OR order_receiver_mobile LIKE "${purchaseSelectInput.orderReceiverMobile}%")
+                OR order_receiver_mobile LIKE "${purchaseSelectInput.orderReceiverMobile}%"
+                OR store_name LIKE "${storeName}%")
             </if>
             <if test="purchaseSelectInput.orderReceiverName != purchaseSelectInput.orderReceiverMobile">
                 <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.orderReceiverName)">
@@ -161,7 +152,9 @@
             <if test="purchaseSelectInput.userId!=null">
                 AND user_id LIKE "${purchaseSelectInput.userId}%"
             </if>
-            AND store_id = #{accountId}
+            <if test="accountId != null">
+                AND store_id = #{accountId}
+            </if>
         </where>
 
         ORDER BY updated_at DESC
@@ -222,9 +215,10 @@
         <result column="order_payment_num" property="orderPaymentNum"/>
         <result column="updated_at" property="updateTime"/>
         <result column="order_postage" property="orderPostage"/>
+        <result column="store_name" property="storeName"/>
     </resultMap>
     <sql id="Order_Column_List">
-        order_id, order_receiver_name, order_receiver_mobile, order_create_time, order_price, order_status,order_payment_time, order_payment_method, order_payment_num,updated_at,order_postage
+        order_id, order_receiver_name, order_receiver_mobile, order_create_time, order_price, order_status,order_payment_time, order_payment_method, order_payment_num,updated_at,order_postage,store_name
     </sql>
     <select id="findPage" resultMap="OrderAllList" parameterType="so.sao.shop.supplier.pojo.input.PurchaseSelectInput">
         SELECT
@@ -233,22 +227,16 @@
         <where>
             order_status != -1
 
-          <!--  <if test="@so.sao.shop.supplier.util.Ognl@isEmpty(orderStatus)">
-                AND (order_status != 7 || pay_status != 0)
-            </if>
-            <if test="orderStatus == 7">
-                AND pay_status != 0
-            </if>
-            <if test="orderStatus!=null">
-                AND order_status = TRIM(#{orderStatus})
-            </if>-->
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderStatus)">
                 AND order_status = TRIM(#{orderStatus})
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderReceiverName) and
-            @so.sao.shop.supplier.util.Ognl@isNotEmpty(orderReceiverMobile) and orderReceiverName == orderReceiverMobile">
+            @so.sao.shop.supplier.util.Ognl@isNotEmpty(orderReceiverMobile) and
+            @so.sao.shop.supplier.util.Ognl@isNotEmpty(storeName) and
+            orderReceiverName == orderReceiverMobile">
                 AND (order_receiver_name LIKE "${orderReceiverName}%"
-                OR order_receiver_mobile LIKE "${orderReceiverMobile}%")
+                OR order_receiver_mobile LIKE "${orderReceiverMobile}%"
+                OR store_name LIKE "${storeName}%")
             </if>
             <if test="orderReceiverName != orderReceiverMobile">
                 <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderReceiverName)">
@@ -280,8 +268,7 @@
             </if>
 
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderPaymentEndTime)">
-                AND order_payment_time &lt; TRIM(DATE_ADD(STR_TO_DATE(#{orderPaymentEndTime},'%Y-%m-%d'),INTERVAL 1
-                DAY))
+                AND order_payment_time &lt; TRIM(DATE_ADD(STR_TO_DATE(#{orderPaymentEndTime},'%Y-%m-%d'),INTERVAL 1 DAY))
             </if>
 
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderReceiveBeginTime)">
@@ -289,8 +276,7 @@
             </if>
 
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderReceiveEndTime)">
-                AND order_receive_time &lt; TRIM(DATE_ADD(STR_TO_DATE(#{orderReceiveEndTime},'%Y-%m-%d'),INTERVAL 1
-                DAY))
+                AND order_receive_time &lt; TRIM(DATE_ADD(STR_TO_DATE(#{orderReceiveEndTime},'%Y-%m-%d'),INTERVAL 1 DAY))
             </if>
 
             <if test="orderPaymentMethod!=null">
@@ -703,4 +689,20 @@
         WHERE store_id = #{accountId}
         GROUP BY order_status
     </select>
+
+    <!--根据订单ID更改物流信息-->
+    <update id="updateLogisticInfoByOrderId" parameterType="java.util.Map">
+        UPDATE purchase
+        SET
+        <if test="#{map.orderShipMethod} == 1">
+            distributor_name = #{map.name},
+            distributor_mobile = #{map.number},
+        </if>
+        <if test="#{map.orderShipMethod} == 2">
+            logistics_company = #{map.name},
+            order_shipment_number = #{map.number},
+        </if>
+        updated_at = #{map.updateTime}
+        WHERE order_id = #{map.orderId}
+    </update>
 </mapper>
