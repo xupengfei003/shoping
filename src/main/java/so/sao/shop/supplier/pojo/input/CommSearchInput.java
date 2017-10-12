@@ -19,14 +19,9 @@ public class CommSearchInput {
     private String commCode69;
 
     /**
-     * sku
+     * 商品商家品牌
      */
-    private String sku;
-
-    /**
-     * 商品商家编码
-     */
-    private String suppCommCode;
+    private String commBrand;
 
     /**
      * 商品名称
@@ -39,50 +34,47 @@ public class CommSearchInput {
     private Integer status;
 
     /**
-     * 商品科属id
+     *	一级类型ID
      */
-    private Long typeId;
+    private Long typeOneId;
     /**
-     * 商品是否失效：0--失效 ，1--正常
+     *  二级类型ID
      */
-    private Integer invalidStatus;
-
+    private Long typeTwoId;
     /**
-     * 最小价格
+     *三级类型ID
+     */
+    private Long typeThreeId;
+    /**
+     * 供货售价[低]
      */
     private BigDecimal minPrice;
-
     /**
-     * 最大价格
+     * 供货售价[高]
      */
     private BigDecimal maxPrice;
-
     /**
-     * 创建开始时间
+    * 更新时间[前]
+    */
+    @DateTimeFormat(pattern = "yyyy-MM-dd",iso= DateTimeFormat.ISO.DATE)
+    private Date beginUpdateAt;
+    /**
+     * 更新时间[后]
      */
     @DateTimeFormat(pattern = "yyyy-MM-dd",iso= DateTimeFormat.ISO.DATE)
-    private Date beginCreateAt;
-
+    private Date endUpdateAt;
     /**
-     * 创建结束时间
-     */
-    @DateTimeFormat(pattern = "yyyy-MM-dd",iso= DateTimeFormat.ISO.DATE)
-    private Date endCreateAt;
-
-    /**
-     * auditResult 审核结果：0代表未通过，1代表通过
-     */
-    private Integer auditResult;
-
-    /**
-     * 页数
-     */
+    * 当前页号
+    */
     private Integer pageNum;
-
     /**
-     * 每页条数
+     * 页面大小
      */
     private Integer pageSize;
+    /**
+    * 审核结果：0代表未通过，1代表通过
+    */
+    private Integer auditResult;
 
     public Long getSupplierId() {
         return supplierId;
@@ -100,20 +92,12 @@ public class CommSearchInput {
         this.commCode69 = commCode69;
     }
 
-    public String getSku() {
-        return sku;
+    public String getCommBrand() {
+        return commBrand;
     }
 
-    public void setSku(String sku) {
-        this.sku = sku;
-    }
-
-    public String getSuppCommCode() {
-        return suppCommCode;
-    }
-
-    public void setSuppCommCode(String suppCommCode) {
-        this.suppCommCode = suppCommCode;
+    public void setCommBrand(String commBrand) {
+        this.commBrand = commBrand;
     }
 
     public String getCommName() {
@@ -132,12 +116,28 @@ public class CommSearchInput {
         this.status = status;
     }
 
-    public Long getTypeId() {
-        return typeId;
+    public Long getTypeOneId() {
+        return typeOneId;
     }
 
-    public void setTypeId(Long typeId) {
-        this.typeId = typeId;
+    public void setTypeOneId(Long typeOneId) {
+        this.typeOneId = typeOneId;
+    }
+
+    public Long getTypeTwoId() {
+        return typeTwoId;
+    }
+
+    public void setTypeTwoId(Long typeTwoId) {
+        this.typeTwoId = typeTwoId;
+    }
+
+    public Long getTypeThreeId() {
+        return typeThreeId;
+    }
+
+    public void setTypeThreeId(Long typeThreeId) {
+        this.typeThreeId = typeThreeId;
     }
 
     public BigDecimal getMinPrice() {
@@ -156,36 +156,20 @@ public class CommSearchInput {
         this.maxPrice = maxPrice;
     }
 
-    public Date getBeginCreateAt() {
-        return beginCreateAt;
+    public Date getBeginUpdateAt() {
+        return beginUpdateAt;
     }
 
-    public void setBeginCreateAt(Date beginCreateAt) {
-        this.beginCreateAt = beginCreateAt;
+    public void setBeginUpdateAt(Date beginUpdateAt) {
+        this.beginUpdateAt = beginUpdateAt;
     }
 
-    public Date getEndCreateAt() {
-        return endCreateAt;
+    public Date getEndUpdateAt() {
+        return endUpdateAt;
     }
 
-    public void setEndCreateAt(Date endCreateAt) {
-        this.endCreateAt = endCreateAt;
-    }
-
-    public Integer getAuditResult() {
-        return auditResult;
-    }
-
-    public void setAuditResult(Integer auditResult) {
-        this.auditResult = auditResult;
-    }
-
-    public Integer getInvalidStatus() {
-        return invalidStatus;
-    }
-
-    public void setInvalidStatus(Integer invalidStatus) {
-        this.invalidStatus = invalidStatus;
+    public void setEndUpdateAt(Date endUpdateAt) {
+        this.endUpdateAt = endUpdateAt;
     }
 
     public Integer getPageNum() {
@@ -202,5 +186,34 @@ public class CommSearchInput {
 
     public void setPageSize(Integer pageSize) {
         this.pageSize = pageSize;
+    }
+
+    public Integer getAuditResult() {
+        return auditResult;
+    }
+
+    public void setAuditResult(Integer auditResult) {
+        this.auditResult = auditResult;
+    }
+
+    @Override
+    public String toString() {
+        return "CommSearchInput{" +
+                "supplierId=" + supplierId +
+                ", commCode69='" + commCode69 + '\'' +
+                ", commBrand='" + commBrand + '\'' +
+                ", commName='" + commName + '\'' +
+                ", status=" + status +
+                ", typeOneId=" + typeOneId +
+                ", typeTwoId=" + typeTwoId +
+                ", typeThreeId=" + typeThreeId +
+                ", minPrice=" + minPrice +
+                ", maxPrice=" + maxPrice +
+                ", beginUpdateAt=" + beginUpdateAt +
+                ", endUpdateAt=" + endUpdateAt +
+                ", pageNum=" + pageNum +
+                ", pageSize=" + pageSize +
+                ", auditResult=" + auditResult +
+                '}';
     }
 }

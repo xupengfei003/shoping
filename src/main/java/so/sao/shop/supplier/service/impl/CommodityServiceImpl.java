@@ -473,15 +473,21 @@ public class CommodityServiceImpl implements CommodityService {
      */
     @Override
     public Result searchCommodities(CommSearchInput commSearchInput) {
-        //入参校验
+        /**
+         * 入参校验
+         * 1.价格不能为负数";
+         * 2.最小金额不能大于最大金额
+         */
         String priceMessage = DataCompare.priceCheck(commSearchInput.getMinPrice(), commSearchInput.getMaxPrice());
         if(!"".equals(priceMessage)){
             return Result.fail(priceMessage);
         }
-        String createAtMessage = DataCompare.createAtCheck(commSearchInput.getBeginCreateAt(),commSearchInput.getEndCreateAt());
+        //起始时间不能大于终止时间
+        String createAtMessage = DataCompare.createAtCheck(commSearchInput.getBeginUpdateAt(),commSearchInput.getEndUpdateAt());
         if(!"".equals(createAtMessage)){
             return Result.fail(createAtMessage);
         }
+
         //开始分页
         PageTool.startPage(commSearchInput.getPageNum(), commSearchInput.getPageSize());
         List<SuppCommSearchVo> respList = supplierCommodityDao.find(commSearchInput);

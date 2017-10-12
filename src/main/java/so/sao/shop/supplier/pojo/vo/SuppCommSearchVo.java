@@ -23,6 +23,10 @@ public class SuppCommSearchVo {
      */
     private String sku;
     /**
+     * sc表的id
+     */
+    private Long commId;
+    /**
      * 商品编码
      */
     private String code69;
@@ -103,6 +107,14 @@ public class SuppCommSearchVo {
      */
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date updatedAt;
+
+    public Long getCommId() {
+        return commId;
+    }
+
+    public void setCommId(Long commId) {
+        this.commId = commId;
+    }
 
     public int getInvalidStatus() {
         return invalidStatus;
@@ -270,5 +282,33 @@ public class SuppCommSearchVo {
 
     public void setAuditResult(Integer auditResult) {
         this.auditResult = auditResult;
+    }
+
+    @Override
+    public String toString() {
+        return "SuppCommSearchVo{" +
+                "id=" + id +
+                ", minImg='" + minImg + '\'' +
+                ", sku='" + sku + '\'' +
+                ", commId=" + commId +
+                ", code69='" + code69 + '\'' +
+                ", code='" + code + '\'' +
+                ", brandName='" + brandName + '\'' +
+                ", commName='" + commName + '\'' +
+                ", unitName='" + unitName + '\'' +
+                ", measureSpecName='" + measureSpecName + '\'' +
+                ", ruleVal='" + ruleVal + '\'' +
+                ", inventory='" + inventory + '\'' +
+                ", status='" + status + '\'' +
+                ", statusNum=" + statusNum +
+                ", invalidStatus=" + invalidStatus +
+                ", price='" + price + '\'' +
+                ", unitPrice='" + unitPrice + '\'' +
+                ", minOrderQuantity=" + minOrderQuantity +
+                ", auditOpinion='" + auditOpinion + '\'' +
+                ", auditResult=" + auditResult +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                '}';
     }
 }
