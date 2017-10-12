@@ -270,4 +270,16 @@ public class OrderMoneyRecordController {
         orderMoneyRecordService.exportExcel(request,response);
     }
 
+	 /**
+     * 供应商订单金额统计
+     * @param timeType 统计时间类型--时间类型（1.本周，2.当月，3.近三个月）
+     * @return
+     */
+    @ApiOperation(value="供应商订单金额统计", notes = "供应商订单金额统计【负责人:郑振海】")
+    @GetMapping("/countOrderMoneyRecords")
+    public Result countOrderMoneyRecords(Integer timeType){
+
+        return null;
+    }
+
 }

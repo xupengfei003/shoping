@@ -538,4 +538,20 @@ public class PurchaseController {
         }
         return Result.success(Constant.MessageConfig.MSG_SUCCESS, purchaseService.getReceiveUrl(orderId, userId));
     }
+
+  /**
+     * 商户各类订单数量统计接口
+     * @return
+     */
+    @ApiOperation(value = "供应商各类订单数量统计接口",notes = "根据供应商ID获取该供应商割裂订单数量【负责人：郑振海】")
+    @GetMapping("/countOrderNumByOrderStatus")
+    public Result countOrderNumByOrderStatus(HttpServletRequest request){
+        //1.取出当前登录用户
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        if (null == user || Ognl.isEmpty(user.getAccountId())) {   //验证用户是否登陆
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
+        }
+        Map<Object, Object> orderNum = purchaseService.countOrderNumByOrderStatus(user.getAccountId());
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS,orderNum);
+    }
 }

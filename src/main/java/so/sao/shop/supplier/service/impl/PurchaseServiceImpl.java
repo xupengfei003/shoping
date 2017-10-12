@@ -1449,4 +1449,27 @@ public class PurchaseServiceImpl implements PurchaseService {
         }
         return errorUrl;
     }
+
+	 /**
+     * 根据供应商ID查询各类订单数量
+     * @param accountId
+     * @return
+     */
+    @Override
+    public Map<Object, Object> countOrderNumByOrderStatus(Long accountId) {
+        Map<Object, Object> map = purchaseDao.countOrderNumByOrderStatus(accountId);
+        map = this.transformOfMap(map);
+        return map;
+    }
+
+    private Map<Object,Object> transformOfMap(Map<Object, Object> map) {
+        Map<Object,Object> resultMap = new HashMap();
+        Map<Integer,Object> valueMap = null;
+        for (int i = 1;i < map.size();i++){
+            valueMap = (Map<Integer, Object>) map.get(i);
+            Long count = null == valueMap ? 0L : (Long) valueMap.get("count");
+            resultMap.put(i,count);
+        }
+        return resultMap;
+    }
 }
