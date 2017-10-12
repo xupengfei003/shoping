@@ -33,15 +33,11 @@ public class QualificationServiceImpl implements QualificationService{
      * @param qualificationStatus
      * @return Result
      */
+
     @Override
     public Result updateQualificationStatus(Integer accountId, Integer qualificationStatus) {
         Date updateDate = new Date();
-        try{
-            qualificationDao.updateQualificationStatus( accountId, qualificationStatus,updateDate );
-        }catch (Exception e){
-            logger.info("更新异常", e);
-            return Result.fail("更新异常");
-        }
+        qualificationDao.updateQualificationStatus( accountId, qualificationStatus,updateDate );
         return Result.success("更新成功");
     }
 
@@ -54,6 +50,7 @@ public class QualificationServiceImpl implements QualificationService{
     public Result getAccountQualificationStatus(Integer accountId) {
         Integer qualificationStatus = qualificationDao.getAccountQualificationStatus( accountId );
         if(Ognl.isNull(qualificationStatus)){
+            logger.info("暂无数据");
             return Result.fail("暂无数据");
         }
         return Result.success("查询成功", qualificationStatus );
