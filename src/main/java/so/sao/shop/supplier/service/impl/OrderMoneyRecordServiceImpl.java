@@ -921,11 +921,11 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
                 break;
             case 2:
                 timeMap.put("startTime",sdf.format(DateUtil.firstDayOfMonth(date)));//获取指定时间所在月的第一天
-                timeMap.put("endTime",sdf.format(date));
+                timeMap.put("endTime",sdf.format(DateUtil.lastDayOfMonth(date)));//获取指定时间所在月的最后一天
                 break;
             case 3:
                 timeMap.put("startTime",sdf.format(DateUtil.subtractMonths(date,3)));//3个月前的第一天
-                timeMap.put("endTime",sdf.format(DateUtil.firstDayOfMonth(date)));//3个月前的第一天
+                timeMap.put("endTime",sdf.format(DateUtil.firstDayOfMonth(date)));//3个月前的最后一天
                 break;
         }
         return timeMap;
