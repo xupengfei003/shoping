@@ -124,6 +124,17 @@ public class DateUtil {
     }
 
     /**
+     * 获取指定时间所在月的最后一天
+     * @param date
+     * @return
+     */
+    public static Date lastDayOfMonth(Date date){
+        Calendar ca = Calendar.getInstance();
+        ca.set(Calendar.DAY_OF_MONTH, ca.getActualMaximum(Calendar.DAY_OF_MONTH));
+        return ca.getTime();
+    }
+
+    /**
      * 获取指定时间--n个月之前的时间
      */
     public static Date subtractMonths(Date date, int n) {

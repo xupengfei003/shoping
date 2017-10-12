@@ -257,13 +257,6 @@ public interface PurchaseDao {
      */
     List<Purchase> findPurchaseByUserId(@Param("orderId") String orderId, @Param("userId") String userId);
 
-	 /**
-     * 根据订单编号和用户id查询订单
-     *
-     * @param orderId 订单编号
-     * @param userId 用户id
-     * @return 订单列表
-     */
        /**
      * 根据供应商ID查询各类订单数量
      * @param accountId
@@ -271,4 +264,11 @@ public interface PurchaseDao {
      */
     @MapKey(value = "order_status")
     Map<Object, Object> countOrderNumByOrderStatus(Long accountId);
+
+    /**
+     * 更改物流信息
+     *
+     * @param map 封装了订单ID，物流公司，物流单号，更新时间
+     */
+    int updateLogisticInfoByOrderId(@Param("map") Map<String, Object> map);
 }

@@ -15,19 +15,20 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.dao.LogisticsDao;
+import so.sao.shop.supplier.dao.PurchaseDao;
 import so.sao.shop.supplier.pojo.Result;
+import so.sao.shop.supplier.pojo.vo.PurchaseInfoVo;
 import so.sao.shop.supplier.service.LogisticsService;
 import so.sao.shop.supplier.util.MD5Util;
 
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.security.MessageDigest;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * Created by wyy on 2017/8/16.
@@ -38,6 +39,8 @@ public class LogisticsServiceImpl implements LogisticsService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Resource
     private LogisticsDao logisticsDao;
+    @Resource
+    private PurchaseDao purchaseDao;
     /**
      * 根据物流单好查询物流信息
      * @param num 物流单号
@@ -225,5 +228,79 @@ public class LogisticsServiceImpl implements LogisticsService {
         }
     }
 
+    /**
+     * 插入已确认收货的订单
+     *
+     * @return
+     */
+    @Override
+    public Map<String,Object> insertReceivedOrder(String orderId) throws Exception {
+        Map<String,Object> resultMap = new HashMap<>();
+        Integer orderStatus = purchaseDao.getOrderStatus(orderId);
+        if(orderStatus != 3){
+            resultMap.put("flag","fail");
+            resultMap.put("msg","订单状态不合法，不能收货");
+            return resultMap;
+        }
+        Map<String,Object> map = new HashMap<>();
+        map.put("orderId",orderId);
+        map.put("createTime",new Date());
+        Integer count = logisticsDao.insertReceivedOrder(map);
+        if(count != 0){
+            resultMap.put("flag","success");
+        }
+        return resultMap;
+    }
+
+    /**
+     * 获取已收货7天的订单ID
+     *
+     * @return List<String> 订单编号集合
+     */
+    @Override
+    public List<String> findOrderIdByTime(){
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:ss:mm");
+        String nowTime = simpleDateFormat.format(new Date());
+        List<String> orderIds = logisticsDao.findOrderIdByTime(nowTime);
+        return orderIds;
+    }
+
+    /**
+     * 自动确认收货
+     *
+     * @param orderIds 订单ID集合
+     * @return
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int receiveOrder(List<String> orderIds) {
+        Map<String,Object> map = new HashMap<>();
+        map.put("orderIds",orderIds);
+        map.put("date",new Date());
+        map.put("status",1);
+        logisticsDao.updateQrcodesStatus(map);//更改二维码状态
+        return logisticsDao.receiveOrder(map);//确认收货
+    }
+
+    /**
+     * 根据订单ID删除received_purchase表已自动确认收货的订单
+     *
+     * @param orderIds 订单ID集合
+     */
+    @Override
+    public void deleteReceivedOrderByOrderId(List<String> orderIds) {
+        logisticsDao.deleteReceivedOrderByOrderId(orderIds);
+    }
+
+    /**
+     * 根据订单状态获取订单信息（订单ID、物流单号）
+     *
+     * @param orderStatus 订单状态
+     * @return PurchaseInfoVo 订单信息列表
+     */
+    @Override
+    public List<PurchaseInfoVo>  findOrderInfoByOrderStatus(Integer orderStatus) {
+        return logisticsDao.findOrderInfoByOrderStatus(orderStatus);
+    }
 }
 
