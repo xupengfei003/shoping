@@ -694,11 +694,11 @@
     <update id="updateLogisticInfoByOrderId" parameterType="java.util.Map">
         UPDATE purchase
         SET
-        <if test="#{map.orderShipMethod} == 1">
+        <if test="map.orderShipMethod == 1">
             distributor_name = #{map.name},
             distributor_mobile = #{map.number},
         </if>
-        <if test="#{map.orderShipMethod} == 2">
+        <if test="map.orderShipMethod == 2">
             logistics_company = #{map.name},
             order_shipment_number = #{map.number},
         </if>
