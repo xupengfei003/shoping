@@ -20,6 +20,12 @@ import java.util.List;
 public class SupplierCommodityVo {
 
     /**
+     * 商家编码
+     */
+    @Length(max = 50,message = "商品商家编码长度不能大于50")
+    private String code;
+
+    /**
      * 商品条码
      */
     @Length(max = 20,message = "商品条码长度不能大于20")
@@ -148,6 +154,14 @@ public class SupplierCommodityVo {
     @NotEmpty(message = "图片不能为空")
     @Valid
     private List<CommImgeVo> imgeList;
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
 
     public String getCode69() {
         return code69;
