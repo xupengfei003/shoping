@@ -4,6 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.dao.QualificationDao;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.service.QualificationService;
@@ -28,16 +30,24 @@ public class QualificationServiceImpl implements QualificationService{
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
-     * 资质审核 - 更新资质状态和时间
+     * 资质审核 - 更新资质状态和时间,拒绝原因
      * @param accountId
      * @param qualificationStatus
+     * @param reason
      * @return Result
      */
-
     @Override
-    public Result updateQualificationStatus(Integer accountId, Integer qualificationStatus) {
+    @Transactional(rollbackFor = Exception.class)
+    public Result updateQualificationStatus(Integer accountId, Integer qualificationStatus, String reason) {
+        if( !(Constant.QUALIFICATION_VERIFY_PASS == qualificationStatus)
+                && !(Constant.QUALIFICATION_VERIFY_NOT_PASS == qualificationStatus)
+                && !(Constant.QUALIFICATION_AWAIT_VERIFY == qualificationStatus ) ){
+            logger.info("无效的审核参数");
+            return Result.fail("无效的审核参数");
+        }
         Date updateDate = new Date();
         qualificationDao.updateQualificationStatus( accountId, qualificationStatus,updateDate );
+        qualificationDao.updateQualificationReason( reason, accountId );
         return Result.success("更新成功");
     }
 
@@ -47,7 +57,7 @@ public class QualificationServiceImpl implements QualificationService{
      * @return Result
      */
     @Override
-    public Result getAccountQualificationStatus(Integer accountId) {
+    public Result getAccountQualificationStatus(Long accountId) {
         Integer qualificationStatus = qualificationDao.getAccountQualificationStatus( accountId );
         if(Ognl.isNull(qualificationStatus)){
             logger.info("暂无数据");

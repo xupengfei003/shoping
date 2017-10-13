@@ -2,6 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="so.sao.shop.supplier.dao.QualificationDao">
 
+    <!-- 资质审核 - 更新资质状态和时间-->
     <update id="updateQualificationStatus">
         UPDATE account
         SET
@@ -10,7 +11,15 @@
         WHERE account_id = #{accountId};
     </update>
 
-    <select id="getAccountQualificationStatus" parameterType="int" resultType="int">
+    <!-- 资质审核 - 更新资质拒绝原因-->
+    <update id="updateQualificationReason">
+        UPDATE qualification
+        SET reason = #{ reason }
+        WHERE account_id = #{accountId};
+    </update>
+
+    <!-- 查询登录供应商的资质状态 -->
+    <select id="getAccountQualificationStatus" parameterType="long" resultType="int">
       SELECT  qualification_status
       FROM account
       WHERE  account_id = #{ accountId } ;

@@ -7,7 +7,7 @@ import so.sao.shop.supplier.pojo.Result;
  */
 public interface QualificationService {
 
-    Result updateQualificationStatus(Integer accountId, Integer qualificationStatus );
+    Result updateQualificationStatus(Integer accountId, Integer qualificationStatus, String reason );
 
-    Result getAccountQualificationStatus( Integer accountId );
+    Result getAccountQualificationStatus( Long accountId );
 }
