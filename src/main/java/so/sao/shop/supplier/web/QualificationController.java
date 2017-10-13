@@ -65,10 +65,10 @@ public class QualificationController {
     @ApiOperation(value = "根据供应商id查询资质详情",notes = "根据供应商id查询资质详情【负责人：张腾飞】")
     @GetMapping("/getByAccountId")
     public Result getQualification(HttpServletRequest request, @RequestParam Long accountId){
-        /*User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
         if (null == user || Ognl.isEmpty(user.getAccountId())) {   //验证用户是否登陆
             return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
-        }*/
+        }
         return qualificationService.findByAccountId(accountId);
     }
 
@@ -81,6 +81,10 @@ public class QualificationController {
     @ApiOperation(value = "查询资质列表",notes = "查询资质列表【负责人：张腾飞】")
     @GetMapping("/search")
     public Result search(HttpServletRequest request,QualificationInput qualificationInput){
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        if (null == user || Ognl.isEmpty(user.getAccountId())) {   //验证用户是否登陆
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
+        }
         return qualificationService.searchQualifications(qualificationInput);
     }
 
