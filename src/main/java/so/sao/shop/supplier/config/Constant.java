@@ -34,7 +34,12 @@ public interface Constant {
      * 判断是否是管理员 1是
      */
     public static final String ADMIN_STATUS = "1";
-
+    /**
+     * 资质审核： 1待审核 2审核通过 3审核未通过
+     */
+    public static final Integer QUALIFICATION_AWAIT_VERIFY = 1;
+    public static final Integer QUALIFICATION_VERIFY_PASS = 2;
+    public static final Integer QUALIFICATION_VERIFY_NOT_PASS = 3;
     /**
      * code定义
      */
@@ -77,6 +82,7 @@ public interface Constant {
          * 最小金额不能大于最大金额
          */
         public static final Integer MoneyNOTLate = 8;
+
     }
     /**
      * Message定义
