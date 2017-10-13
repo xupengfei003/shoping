@@ -163,7 +163,6 @@ public class CommodityServiceImpl implements CommodityService {
                 if(null == commodity.getMarketTime() || null == commodity.getBrandId() || StringUtil.isNull(commodity.getCompanyName()) || StringUtil.isNull(commodity.getOriginPlace())){
                     commodity.setBrandId(brand.getId());
                     commodity.setOriginPlace(commodityInput.getOriginPlace());
-                    commodity.setMarketTime(commodityInput.getMarketTime());
                     commodity.setCompanyName(commodityInput.getCompanyName());
                     commodity.setUpdatedAt(new Date());
                     commodity.setUpdatedBy(supplierId);
@@ -179,7 +178,7 @@ public class CommodityServiceImpl implements CommodityService {
             SupplierCommodity sc = BeanMapper.map(commodityVo, SupplierCommodity.class);
             sc.setRemark(commodityInput.getRemark());
             sc.setTagId(commodityInput.getTagId());
-            sc.setStatus(CommConstant.COMM_ST_NEW);
+            sc.setStatus(CommConstant.COMM_ST_OFF_SHELVES);
             sc.setSupplierId(supplierId);
             sc.setCreatedBy(supplierId);
             sc.setUpdatedBy(supplierId);
@@ -309,8 +308,8 @@ public class CommodityServiceImpl implements CommodityService {
             }
             //商品状态
             int status = supplierCommodityDao.findStatus(id);
-            //如果商品状态是待上架或下架，或者上架状态并且是管理员操作，可以直接修改
-            if(status == CommConstant.COMM_ST_NEW || status == CommConstant.COMM_ST_OFF_SHELVES || (status == CommConstant.COMM_ST_ON_SHELVES && isAdmin)){
+            //如果商品状态是下架，可以直接修改
+            if(status == CommConstant.COMM_ST_OFF_SHELVES){
                 if(null != commodityUpdateInput.getTagId()){
                     //验证商品标签是否存在
                     int commTagNum = commTagDao.countById(commodityUpdateInput.getTagId());
@@ -879,7 +878,7 @@ public class CommodityServiceImpl implements CommodityService {
                 commodityImportOutput.setMessage("商品条码:" + code69+"成功导入！");
                 commodityImportOutput.setCode69(code69);
                 commodityImportOutput.setBrand(commodityBatchInput.getBrandName());
-                commodityImportOutput.setSjcode(commodityBatchInput.getCommodityList().get(0).getCode());
+//                commodityImportOutput.setSjcode(commodityBatchInput.getCommodityList().get(0).getCode());
                 commodityImportOutput.setRowNum(rowNum);
                 commodityImportOutput.setTagName(commodityBatchInput.getTagName());
                 commodityImportOutput.setUnit(commodityBatchInput.getCommodityList().get(0).getUnitName());
@@ -889,7 +888,7 @@ public class CommodityServiceImpl implements CommodityService {
                 commodityImportOutput.setMarketTime(commodityBatchInput.getMarketTime());
                 commodityImportOutput.setName(commodityBatchInput.getName());
                 commodityImportOutput.setRuleVal(commodityBatchInput.getCommodityList().get(0).getRuleVal());
-                commodityImportOutput.setInventory(commodityBatchInput.getCommodityList().get(0).getInventory());
+//                commodityImportOutput.setInventory(commodityBatchInput.getCommodityList().get(0).getInventory());
                 commodityImportOutput.setMinOrderQuantity(commodityBatchInput.getCommodityList().get(0).getMinOrderQuantity());
                 commodityImportOutputList.add(commodityImportOutput);
             }
@@ -1077,7 +1076,7 @@ public class CommodityServiceImpl implements CommodityService {
             commodityBatchInput.setBrandName(brand);
             commodityBatchInput.setName(name);
             if(code.matches(regex)){
-                supplierCommodityVo.setCode(code);
+//                supplierCommodityVo.setCode(code);
             }else {
                 errorRowList.add(rowNum);
                 continue;
@@ -1132,10 +1131,10 @@ public class CommodityServiceImpl implements CommodityService {
             supplierCommodityVo.setUnitPrice(DataCompare.roundData(new BigDecimal(unitPrice), 2));
             supplierCommodityVo.setPrice(DataCompare.roundData(new BigDecimal(price), 2));
             if (inventory.trim().length() > 9) {
-                supplierCommodityVo.setInventory(-1.0);
+//                supplierCommodityVo.setInventory(-1.0);
             } else {
                 if(inventory.trim().matches("^[0-9]*$")){
-                    supplierCommodityVo.setInventory(Double.valueOf(inventory));
+//                    supplierCommodityVo.setInventory(Double.valueOf(inventory));
                 }else {
                     errorRowList.add(rowNum);
                     continue;
