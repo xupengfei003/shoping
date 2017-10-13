@@ -23,7 +23,6 @@
         comm.category_three_id AS categoryThreeId,
         comm.company_name AS companyName,
         comm.origin_place AS originPlace,
-        comm.market_time AS marketTime,
         comm.created_at AS createdAt,
         comm.created_by AS createdBy,
         comm.updated_at AS updatedAt,

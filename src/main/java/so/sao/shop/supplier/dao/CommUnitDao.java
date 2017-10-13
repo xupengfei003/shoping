@@ -10,37 +10,37 @@ import java.util.List;
  */
 public interface CommUnitDao {
     /**
-     * 添加商品单位
-     * @param commUnit 商品单位对象
+     * 添加库存单位
+     * @param commUnit 库存单位对象
      * @return 新增结果
      */
     void save(CommUnit commUnit);
 
     /**
-     * 修改商品单位
-     * @param commUnit 商品单位对象
+     * 修改库存单位
+     * @param commUnit 库存单位对象
      * @return 修改结果
      */
     void update(CommUnit commUnit);
 
     /**
-     * 通过id删除商品单位
-     * @param id 商品单位id
+     * 通过id删除库存单位
+     * @param id 库存单位id
      * @return 删除结果
      */
     void deleteById(@Param("id") Long id);
 
     /**
-     * 查询商品单位集合
+     * 查询库存单位集合
      * @param  supplierId 供应商id
-     * @return 商品单位对象集合
+     * @return 库存单位对象集合
      */
     List<CommUnit> search(Long supplierId);
 
     /**
-     * 查询商品单位有无重复
+     * 查询库存单位有无重复
      * @param supplierId 供应商id
-     * @param name 商品单位名称
+     * @param name 库存单位名称
      * @return int
      */
     int countByNameAndSupplierId(@Param("supplierId") Long supplierId, @Param("name") String name);
@@ -54,14 +54,14 @@ public interface CommUnitDao {
     List<CommUnit> findNameAndSupplierId(@Param("supplierId") Long supplierId, @Param("name") String name);
 
     /**
-     *根据id查询商品单位信息
-     * @param id 商品单位id
-     * @return  商品单位对象
+     *根据id查询库存单位信息
+     * @param id 库存单位id
+     * @return  库存单位对象
      */
      CommUnit findOne(Long id);
 
     /**
-     * 商品单位存在性校验
+     * 库存单位存在性校验
      * @param id
      * @return
      */
