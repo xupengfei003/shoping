@@ -925,7 +925,7 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
                 break;
             case 3:
                 timeMap.put("startTime",sdf.format(DateUtil.subtractMonths(date,3)));//3个月前的第一天
-                timeMap.put("endTime",sdf.format(date));//3个月前的最后一天
+                timeMap.put("endTime",sdf.format(date));//目前日期
                 break;
         }
         return timeMap;
