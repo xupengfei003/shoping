@@ -6,6 +6,7 @@ import so.sao.shop.supplier.domain.SupplierCommodity;
 import so.sao.shop.supplier.pojo.input.CommSearchInput;
 import so.sao.shop.supplier.pojo.output.CommodityBannerOut;
 import so.sao.shop.supplier.pojo.output.CommodityOutput;
+import so.sao.shop.supplier.pojo.output.CountCommDetailOutput;
 import so.sao.shop.supplier.pojo.vo.SuppCommSearchVo;
 
 import java.util.Date;
@@ -260,6 +261,10 @@ public interface SupplierCommodityDao {
      */
     void updateSupplierCommodityStatusById(@Param("id")Long id, @Param("status") int status, @Param("updatedAt") Date updatedAt);
 
-
-
+    /**
+     * 供应商首页-供应商商品部分信息统计
+     * @param supplierId 供应商id
+     * @return 供应商商品部分统计出参对象
+     */
+    CountCommDetailOutput countCommDetail(Long supplierId);
 }
