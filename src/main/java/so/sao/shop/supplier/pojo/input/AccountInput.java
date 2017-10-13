@@ -10,19 +10,18 @@ import java.util.Date;
  * Created by acer on 2017/7/20.
  */
 public class AccountInput {
-   
     /**
-     * 开始时间
+     * 创建时间开始时间
      */
 	@DateTimeFormat(pattern = "yyyy-MM-dd",iso=ISO.DATE)
-    private Date beginDate;
+    private Date createBeginDate;
     /**
-     * 截止时间
+     * 创建时间截止时间
      */
 	@DateTimeFormat(pattern = "yyyy-MM-dd",iso=ISO.DATE)
-    private Date endDate;
+    private Date createEndDate;
     /**
-     * 供应商名称/法人代表（合同）模糊查询
+     * 供应商名称/法人代表模糊查询
      */
     private String vague;
     /**
@@ -40,25 +39,25 @@ public class AccountInput {
     @DateTimeFormat(pattern = "yyyy-MM-dd",iso=ISO.DATE)
     private Date contractCreateDate;
     /**
-     * 法人代表（合同）
+     * 法人代表
      */
-    private String contractResponsible;
+    private String responsible;
     /**
-     * 法人代表电话（合同）
+     * 法人代表电话
      */
-    private String contractResponsiblePhone;
+    private String responsiblePhone;
     /**
-     * 合同注册地址（省）
+     * 注册地址（省）
      */
-    private String contractRegisterAddressProvince;
+    private String registAddressProvince;
     /**
-     * 合同注册地址（市）
+     * 注册地址（市）
      */
-    private String contractRegisterAddressCity;
+    private String registAddressCity;
     /**
-     * 合同注册地址（区）
+     * 注册地址（区）
      */
-    private String contractRegisterAddressDistrict;
+    private String registAddressDistrict;
     /**
      * 页数
      */
@@ -71,6 +70,25 @@ public class AccountInput {
      * 供应商上传方式
      */
     private String uploadMode;
+
+    /**
+     * 供应商更新时间开始时间
+     */
+    @DateTimeFormat(pattern = "yyyy-MM-dd",iso=ISO.DATE)
+    private Date updateBeginDate;
+    /**
+     * 供应商更新时间截止时间
+     */
+    @DateTimeFormat(pattern = "yyyy-MM-dd",iso=ISO.DATE)
+    private Date updateEndDate;
+    /**
+     * 供应商资质审核状态（0.未发起审核 1、待审核 2、审核通过 3、审核未通过）
+     */
+    private String qualificationStatus;
+    /**
+     * 供应商状态
+     */
+    private String accountStatus;
 
     public String getUploadMode() {
         return uploadMode;
@@ -88,20 +106,20 @@ public class AccountInput {
         this.providerName = providerName!=null?providerName.replaceAll(" ","").trim():null;
     }
 
-    public String getContractResponsible() {
-        return contractResponsible;
+    public String getResponsible() {
+        return responsible;
     }
 
-    public void setContractResponsible(String contractResponsible) {
-        this.contractResponsible = contractResponsible!=null?contractResponsible.replaceAll(" ","").trim():null;
+    public void setResponsible(String responsible) {
+        this.responsible = responsible!=null?responsible.replaceAll(" ","").trim():null;
     }
 
-    public String getContractResponsiblePhone() {
-        return contractResponsiblePhone;
+    public String getResponsiblePhone() {
+        return responsiblePhone;
     }
 
-    public void setContractResponsiblePhone(String contractResponsiblePhone) {
-        this.contractResponsiblePhone = contractResponsiblePhone!=null?contractResponsiblePhone.replaceAll(" ","").trim():null;
+    public void setResponsiblePhone(String responsiblePhone) {
+        this.responsiblePhone = responsiblePhone!=null?responsiblePhone.replaceAll(" ","").trim():null;
     }
 
     public Integer getPageNum() {
@@ -120,45 +138,6 @@ public class AccountInput {
         this.pageSize = pageSize;
     }
 
-	public String getContractRegisterAddressProvince() {
-		return contractRegisterAddressProvince;
-	}
-
-	public void setContractRegisterAddressProvince(String contractRegisterAddressProvince) {
-		this.contractRegisterAddressProvince = contractRegisterAddressProvince;
-	}
-
-	public String getContractRegisterAddressCity() {
-		return contractRegisterAddressCity;
-	}
-
-	public void setContractRegisterAddressCity(String contractRegisterAddressCity) {
-		this.contractRegisterAddressCity = contractRegisterAddressCity;
-	}
-
-	public String getContractRegisterAddressDistrict() {
-		return contractRegisterAddressDistrict;
-	}
-
-	public void setContractRegisterAddressDistrict(String contractRegisterAddressDistrict) {
-		this.contractRegisterAddressDistrict = contractRegisterAddressDistrict;
-	}
-
-    public Date getBeginDate() {
-        return beginDate;
-    }
-
-    public void setBeginDate(Date beginDate) {
-        this.beginDate = beginDate ;
-    }
-
-    public Date getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(Date endDate) {
-        this.endDate = endDate;
-    }
 
     public Date getContractEndDate() {
         return contractEndDate;
@@ -182,5 +161,77 @@ public class AccountInput {
 
     public void setVague(String vague) {
         this.vague = vague;
+    }
+
+    public Date getCreateBeginDate() {
+        return createBeginDate;
+    }
+
+    public void setCreateBeginDate(Date createBeginDate) {
+        this.createBeginDate = createBeginDate;
+    }
+
+    public Date getCreateEndDate() {
+        return createEndDate;
+    }
+
+    public void setCreateEndDate(Date createEndDate) {
+        this.createEndDate = createEndDate;
+    }
+
+    public String getRegistAddressProvince() {
+        return registAddressProvince;
+    }
+
+    public void setRegistAddressProvince(String registAddressProvince) {
+        this.registAddressProvince = registAddressProvince;
+    }
+
+    public String getRegistAddressCity() {
+        return registAddressCity;
+    }
+
+    public void setRegistAddressCity(String registAddressCity) {
+        this.registAddressCity = registAddressCity;
+    }
+
+    public String getRegistAddressDistrict() {
+        return registAddressDistrict;
+    }
+
+    public void setRegistAddressDistrict(String registAddressDistrict) {
+        this.registAddressDistrict = registAddressDistrict;
+    }
+
+    public Date getUpdateBeginDate() {
+        return updateBeginDate;
+    }
+
+    public void setUpdateBeginDate(Date updateBeginDate) {
+        this.updateBeginDate = updateBeginDate;
+    }
+
+    public Date getUpdateEndDate() {
+        return updateEndDate;
+    }
+
+    public void setUpdateEndDate(Date updateEndDate) {
+        this.updateEndDate = updateEndDate;
+    }
+
+    public String getQualificationStatus() {
+        return qualificationStatus;
+    }
+
+    public void setQualificationStatus(String qualificationStatus) {
+        this.qualificationStatus = qualificationStatus;
+    }
+
+    public String getAccountStatus() {
+        return accountStatus;
+    }
+
+    public void setAccountStatus(String accountStatus) {
+        this.accountStatus = accountStatus;
     }
 }

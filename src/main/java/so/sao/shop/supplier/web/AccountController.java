@@ -416,23 +416,6 @@ public class AccountController {
     }
 
     /**
-     * 修改供应商状态并激活账户
-     * @param accountUpdateInput
-     * @param request
-     * @return
-     */
-    @PutMapping("/updateStatus")
-    @ApiOperation(value = "修改供应商状态",notes = "修改供应商状态【负责人：陈化静】")
-    public Result updateStatus(@Valid @RequestBody AccountUpdateInput accountUpdateInput, HttpServletRequest request){
-        User user = (User) request.getAttribute(Constant.REQUEST_USER);
-        //验证是否登录, 判断登录用户是否是管理员
-        if(user == null || !Constant.ADMIN_STATUS.equals(user.getIsAdmin()) ){
-            return Result.fail(Constant.MessageConfig.ADMIN_AUTHORITY_EERO);
-        }
-        return accountService.updateAccountStatus(accountUpdateInput);
-    }
-
-    /**
      * 根据商户ID修改当前默认运费规则
      * @param freightRules
      * @return

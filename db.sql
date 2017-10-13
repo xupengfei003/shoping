@@ -43,3 +43,6 @@ CREATE TABLE `comm_carton` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='商品箱规单位'
 ;
 
+/*供应商表增加资质审核状态字段*/
+ALTER TABLE `ty_supplier`.`account`
+  ADD COLUMN `qualification_status` INT(1) DEFAULT '0'   COMMENT '资质状态（1、待审核 2、审核通过 3、审核未通过）' AFTER `freight_rules`;

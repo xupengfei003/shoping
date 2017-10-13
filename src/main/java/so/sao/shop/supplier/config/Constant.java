@@ -35,8 +35,9 @@ public interface Constant {
      */
     public static final String ADMIN_STATUS = "1";
     /**
-     * 资质审核： 1待审核 2审核通过 3审核未通过
+     * 资质审核： 0未提交审核，1待审核 2审核通过 3审核未通过
      */
+    public static final Integer QUALIFICATION_NOT_VERIFY = 0;
     public static final Integer QUALIFICATION_AWAIT_VERIFY = 1;
     public static final Integer QUALIFICATION_VERIFY_PASS = 2;
     public static final Integer QUALIFICATION_VERIFY_NOT_PASS = 3;
