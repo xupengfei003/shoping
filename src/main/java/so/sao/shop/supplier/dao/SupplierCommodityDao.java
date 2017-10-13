@@ -3,7 +3,11 @@ package so.sao.shop.supplier.dao;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import so.sao.shop.supplier.domain.SupplierCommodity;
+import so.sao.shop.supplier.pojo.input.CommInventoryInfoInput;
+import so.sao.shop.supplier.pojo.input.CommInventoryInput;
 import so.sao.shop.supplier.pojo.input.CommSearchInput;
+import so.sao.shop.supplier.pojo.output.CommInventoryInfoOutput;
+import so.sao.shop.supplier.pojo.output.CommInventoryOutput;
 import so.sao.shop.supplier.pojo.output.CommodityBannerOut;
 import so.sao.shop.supplier.pojo.output.CommodityOutput;
 import so.sao.shop.supplier.pojo.output.CountCommDetailOutput;
@@ -267,4 +271,23 @@ public interface SupplierCommodityDao {
      * @return 供应商商品部分统计出参对象
      */
     CountCommDetailOutput countCommDetail(Long supplierId);
+    /**
+     * 商品库存查询接口
+     * @param commInventoryInput 库存检索条件
+     * @return List<CommInventoryOutput>
+     */
+    List<CommInventoryOutput> searchCommInventory(CommInventoryInput commInventoryInput);
+
+    /**
+     * 获取某商品库存信息
+     * @param id 商品Id
+     * @return CommInventoryInfoOutput
+     */
+    CommInventoryInfoOutput getInventoryById(Long id);
+
+    /**
+     * 更新某商品库存信息
+     * @param commInventoryInfoInput commInventoryInfoInput
+     */
+    void updateInventoryById(CommInventoryInfoInput commInventoryInfoInput);
 }
