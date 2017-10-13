@@ -10,41 +10,50 @@ import com.fasterxml.jackson.annotation.JsonFormat;
  * Created by QuJunLong on 2017/7/18.
  */
 public class SupplierCommodity {
+
     /**
      * ID
      */
     private Long id;
+
     /**
      * SKU
      */
     private String sku;
+
     /**
      * 供应商ID
      */
     private Long supplierId;
+
     /**
      * 商品标签ID
      */
     private Long tagId;
+
     /**
      * 商家编码
      */
     private String code;
+
     /**
      * 商品编码
      */
     private String code69;
+
     /**
      * 商品描述
      */
     private String remark;
+
     /**
      * 商品介绍
      */
     private String description;
+
     /**
      * 商品状态
-     * 已上架 待上架 已下架
+     * 已上架 已下架
      */
     private int status;
 
@@ -53,10 +62,12 @@ public class SupplierCommodity {
      * 0 失效  1正常
      */
     private int invalidStatus;
+
     /**
      * 计量规格ID
      */
     private Long measureSpecId;
+
     /**
      * 规格值
      */
@@ -66,20 +77,22 @@ public class SupplierCommodity {
      * 计量单位ID
      */
     private Long unitId;
+
     /**
      * 库存
      */
     private Double inventory;
+
     /**
      * 缩略图
      */
     private String minImg;
     /**
-     * 市场价
+     * 批发价
      */
     private BigDecimal price;
     /**
-     * 售价
+     * 供货价
      */
     private BigDecimal unitPrice;
     /**
@@ -108,6 +121,41 @@ public class SupplierCommodity {
      *  最小起订量
      */
     private int minOrderQuantity;
+
+    /**
+     * 箱规单位ID
+     */
+    private Long cartonId;
+
+    /**
+     * 箱规单位
+     */
+    private String cartonName;
+
+    /**
+     * 箱规数值
+     */
+    private int cartonVal;
+
+    /**
+     * 计量规格数值
+     */
+    private int measureSpecVal;
+
+    /**
+     * 生产日期
+     */
+    private Date productionDate;
+
+    /**
+     * 有效期
+     */
+    private int guaranteePeriod;
+
+    /**
+     * 有效期单位
+     */
+    private String guaranteePeriodUnit;
 
     public Long getId() {
         return id;
@@ -291,5 +339,61 @@ public class SupplierCommodity {
 
     public void setMinOrderQuantity(int minOrderQuantity) {
         this.minOrderQuantity = minOrderQuantity;
+    }
+
+    public Long getCartonId() {
+        return cartonId;
+    }
+
+    public void setCartonId(Long cartonId) {
+        this.cartonId = cartonId;
+    }
+
+    public String getCartonName() {
+        return cartonName;
+    }
+
+    public void setCartonName(String cartonName) {
+        this.cartonName = cartonName;
+    }
+
+    public int getCartonVal() {
+        return cartonVal;
+    }
+
+    public void setCartonVal(int cartonVal) {
+        this.cartonVal = cartonVal;
+    }
+
+    public int getMeasureSpecVal() {
+        return measureSpecVal;
+    }
+
+    public void setMeasureSpecVal(int measureSpecVal) {
+        this.measureSpecVal = measureSpecVal;
+    }
+
+    public Date getProductionDate() {
+        return productionDate;
+    }
+
+    public void setProductionDate(Date productionDate) {
+        this.productionDate = productionDate;
+    }
+
+    public int getGuaranteePeriod() {
+        return guaranteePeriod;
+    }
+
+    public void setGuaranteePeriod(int guaranteePeriod) {
+        this.guaranteePeriod = guaranteePeriod;
+    }
+
+    public String getGuaranteePeriodUnit() {
+        return guaranteePeriodUnit;
+    }
+
+    public void setGuaranteePeriodUnit(String guaranteePeriodUnit) {
+        this.guaranteePeriodUnit = guaranteePeriodUnit;
     }
 }
