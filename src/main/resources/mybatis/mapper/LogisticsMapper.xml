@@ -62,7 +62,6 @@
         order_shipment_number AS orderShipmentNumber
         FROM purchase
         WHERE order_status = #{orderStatus}
-        AND order_ship_method = 2
     </select>
 
     <!--批量更改二维码状态-->
@@ -76,5 +75,12 @@
         <foreach collection="map.orderIds" item="orderId" open="(" close=")" separator="," index="i">
             #{orderId}
         </foreach>
+    </update>
+    <!--更改订单状态为确认送达-->
+    <update id="updateOrderStatus" parameterType="java.util.Map">
+        UPDATE purchase
+        SET order_status = #{map.orderStatus},
+        updated_at = #{map.date}
+        WHERE order_id = #{map.orderId}
     </update>
 </mapper>

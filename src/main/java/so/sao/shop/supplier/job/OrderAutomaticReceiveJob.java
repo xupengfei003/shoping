@@ -38,19 +38,32 @@ public class OrderAutomaticReceiveJob {
     public void artificialAutomaticReceive() {
         /**
          * 1.从received_purchase表中检索出所有据当前时间大于等于7天的订单ID
-         * 2.将这些订单ID将purchase表中的相应订单状态修改为4（已完成）
-         * 3.更改订单状态完成后将received_purchase中这些订单ID相关的数据delete
+         * 2.从purchase表中取出订单状态为3的订单（已发货）
+         * 3.将received_purchase表中买家已收货的订单过滤，将过滤后的订单集合确认收货
+         * 4.将这些订单ID将purchase表中的相应订单状态修改为4（已完成）
+         * 5.更改订单状态完成后将received_purchase中这些订单ID相关的数据delete
          */
         Boolean lock = redisTemplate.opsForValue().setIfAbsent(Constant.REDIS_KEY_PREFIX + "ARTIFICIAL_AUTOMATIC_RECEIVE", "1");
         try {
             if (null != lock && lock) {
                 List<String> orderIds = logisticsService.findOrderIdByTime();
+                //获取已发货的所有订单
+                List<PurchaseInfoVo> purchaseInfoVoList = logisticsService.findOrderInfoByOrderStatus(Constant.OrderStatusConfig.CONFIRM_RECEIVED);
+                List<String> orderIdsInput = new ArrayList<>();//存储入参订单ID
+                //过滤订单
+                for (String orderId : orderIds) {
+                    for (PurchaseInfoVo purchaseInfoVo: purchaseInfoVoList) {
+                        if(orderId.equals(purchaseInfoVo.getOrderId())){
+                            orderIdsInput.add(orderId);
+                        }
+                    }
+                }
                 Integer count = 0;
                 if (null != orderIds && orderIds.size() > 0) {
-                    count = logisticsService.receiveOrder(orderIds);
+                    count = logisticsService.receiveOrder(orderIdsInput);//自动确认收货
                 }
                 if (count != 0) {
-                    logisticsService.deleteReceivedOrderByOrderId(orderIds);
+                    logisticsService.deleteReceivedOrderByOrderId(orderIds);//删除中间表中符合时间的订单信息
                 }
             }
         } catch (Exception e) {
