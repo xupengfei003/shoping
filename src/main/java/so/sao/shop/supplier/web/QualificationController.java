@@ -7,7 +7,9 @@ import org.springframework.web.bind.annotation.*;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.domain.User;
 import so.sao.shop.supplier.pojo.Result;
+import so.sao.shop.supplier.pojo.input.QualificationInput;
 import so.sao.shop.supplier.service.QualificationService;
+import so.sao.shop.supplier.util.Ognl;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -54,5 +56,32 @@ public class QualificationController {
         return result;
     }
 
+    /**
+     * 根据供应商id查询资质信息
+     * @param request
+     * @param accountId
+     * @return
+     */
+    @ApiOperation(value = "根据供应商id查询资质详情",notes = "根据供应商id查询资质详情【负责人：张腾飞】")
+    @GetMapping("/getByAccountId")
+    public Result getQualification(HttpServletRequest request, @RequestParam Long accountId){
+        /*User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        if (null == user || Ognl.isEmpty(user.getAccountId())) {   //验证用户是否登陆
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
+        }*/
+        return qualificationService.findByAccountId(accountId);
+    }
+
+    /**
+     * 根据条件查询资质列表
+     * @param request
+     * @param qualificationInput 查询条件
+     * @return 返回查询结果
+     */
+    @ApiOperation(value = "查询资质列表",notes = "查询资质列表【负责人：张腾飞】")
+    @GetMapping("/search")
+    public Result search(HttpServletRequest request,QualificationInput qualificationInput){
+        return qualificationService.searchQualifications(qualificationInput);
+    }
 
 }
