@@ -14,5 +14,7 @@ public interface QualificationDao {
 
     void updateQualificationStatus(@Param("accountId") Integer accountId, @Param("qualificationStatus")Integer qualificationStatus, @Param("updateDate")Date updateDate );
 
-    Integer getAccountQualificationStatus( @Param("accountId") Integer accountId );
+    void updateQualificationReason(@Param("reason") String reason, @Param("accountId") Integer accountId );
+
+    Integer getAccountQualificationStatus( @Param("accountId") Long accountId );
 }
