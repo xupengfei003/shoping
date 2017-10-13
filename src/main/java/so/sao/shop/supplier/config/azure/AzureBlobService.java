@@ -249,6 +249,8 @@ public class AzureBlobService {
         return Result.success("文件上传成功", blobUploadList);
     }
 
+
+
     /**
      * 解压后上传文件
      */
@@ -267,9 +269,16 @@ public class AzureBlobService {
                 for (String fileStr : files) {
                     fileName=fileStr;
                     try {
-                        //图片尺寸不变，压缩图片文件大小outputQuality实现,参数1为最高质量
-                        Thumbnails.of(realzippath+"/"+ fileStr.trim()).scale(1f).outputQuality(0.05f).toFile(realzippath+"/img/"+ fileStr.trim());
-                        File file = new File(realzippath+"/img/"+ fileStr.trim());
+                        File srcFileJPG = new File(realzippath+"/"+ fileStr.trim());
+                        long srcFileSizeJPG = srcFileJPG.length();
+                        File file = null;
+                        if(srcFileSizeJPG > 1024 * 1024){
+                            //图片尺寸不变，压缩图片文件大小outputQuality实现,参数1为最高质量
+                            Thumbnails.of(realzippath+"/"+ fileStr.trim()).scale(1f).outputQuality(0.05f).toFile(realzippath+"/img/"+ fileStr.trim());
+                            file = new File(realzippath+"/img/"+ fileStr.trim());
+                        }else {
+                            file = new File(realzippath+ fileStr.trim());
+                        }
                         if (file.exists()) {
                             //获取上传文件的名称及文件类型
                             CommBlobUpload blobUploadEntity = new CommBlobUpload();
