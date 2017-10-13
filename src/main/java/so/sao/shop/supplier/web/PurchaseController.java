@@ -492,6 +492,9 @@ public class PurchaseController {
         if(null == getOrderStatus){
             return false;
         }
+        if(null != getOrderStatus && Constant.OrderStatusConfig.CONFIRM_RECEIVED.equals(getOrderStatus)){
+            getOrderStatus = 3;
+        }
         String status = Constant.OrderStatusRule.RULES[getOrderStatus - 1];
         return status.contains(String.valueOf(orderStatus));
     }

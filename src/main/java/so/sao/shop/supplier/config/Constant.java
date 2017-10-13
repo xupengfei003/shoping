@@ -83,7 +83,6 @@ public interface Constant {
          * 最小金额不能大于最大金额
          */
         public static final Integer MoneyNOTLate = 8;
-
     }
     /**
      * Message定义
@@ -186,6 +185,10 @@ public interface Constant {
          * 待付款已取消
          */
         public static final Integer PAYMENT_CANCEL_ORDER = 8;
+        /**
+         * 确认送达
+         */
+        public static final Integer CONFIRM_RECEIVED = 19;
 
     }
 
@@ -222,6 +225,10 @@ public interface Constant {
          * 8
          */
         public static final String PAYMENT_CANCEL_ORDER = "待付款已取消";
+        /**
+         * 19
+         */
+        public static final String CONFIRM_RECEIVED = "确认送达";
     }
     interface OrderStatusRule{
         /**

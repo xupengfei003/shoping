@@ -234,6 +234,7 @@ public class LogisticsServiceImpl implements LogisticsService {
      * @return
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Map<String,Object> insertReceivedOrder(String orderId) throws Exception {
         Map<String,Object> resultMap = new HashMap<>();
         Integer orderStatus = purchaseDao.getOrderStatus(orderId);
@@ -245,6 +246,8 @@ public class LogisticsServiceImpl implements LogisticsService {
         Map<String,Object> map = new HashMap<>();
         map.put("orderId",orderId);
         map.put("createTime",new Date());
+        map.put("orderStatus",Constant.OrderStatusConfig.CONFIRM_RECEIVED);
+        logisticsDao.updateOrderStatus(map);
         Integer count = logisticsDao.insertReceivedOrder(map);
         if(count != 0){
             resultMap.put("flag","success");
