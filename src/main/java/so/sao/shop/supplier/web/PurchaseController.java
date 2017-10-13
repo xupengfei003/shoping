@@ -554,4 +554,20 @@ public class PurchaseController {
         Map<Object, Object> orderNum = purchaseService.countOrderNumByOrderStatus(user.getAccountId());
         return Result.success(Constant.MessageConfig.MSG_SUCCESS,orderNum);
     }
+    /**
+     * 更改物流信息
+     *
+     * @param logisticInfoUpdateInput 封装了订单ID，物流公司，物流单号
+     * @return Result 结果
+     * @throws Exception
+     */
+    @ApiOperation(value = "更改物流信息", notes = "根据订单编号更改物流信息【负责人：白治华】")
+    @PostMapping("/updateLogisticInfoByOrderId")
+    public  Result updateLogisticInfoByOrderId(@RequestBody @Valid LogisticInfoUpdateInput logisticInfoUpdateInput) throws Exception {
+        boolean flag = purchaseService.updateLogisticInfoByOrderId(logisticInfoUpdateInput);
+        if (flag) {
+            return Result.success(Constant.MessageConfig.MSG_SUCCESS);
+        }
+        return Result.fail(Constant.MessageConfig.MSG_FAILURE);
+    }
 }

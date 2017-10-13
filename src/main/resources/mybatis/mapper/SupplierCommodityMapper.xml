@@ -465,6 +465,15 @@
         from supplier_commodity sc
         WHERE sc.deleted = 0 and sc.tag_id=#{tagId}
     </select>
+
+    <!--根据箱规单位ID查询是否有正在使用（存在性校验使用）-->
+    <select id="countSupplierCommodityByCartonId" parameterType="java.lang.Long" resultType="int">
+        select
+        COUNT(id) as num
+        from supplier_commodity sc
+        WHERE sc.deleted = 0 and sc.carton_id=#{cartonId}
+    </select>
+
     <!--查询商品列表（简易查询）-->
     <select id="findSimple" resultType="so.sao.shop.supplier.pojo.vo.SuppCommSearchVo">
         SELECT

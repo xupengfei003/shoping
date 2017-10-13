@@ -65,7 +65,10 @@ public class PurchasesVo {
      * 订单邮费 (0:包邮，非零显示具体金额)
      */
     private String orderPostage;
-
+    /**
+     * 供应商名称
+     */
+    private String storeName;
     public String getOrderId() {
         return orderId;
     }
@@ -152,5 +155,13 @@ public class PurchasesVo {
 
     public void setOrderPostage(String orderPostage) {
         this.orderPostage = orderPostage;
+    }
+
+    public String getStoreName() {
+        return storeName;
+    }
+
+    public void setStoreName(String storeName) {
+        this.storeName = storeName;
     }
 }

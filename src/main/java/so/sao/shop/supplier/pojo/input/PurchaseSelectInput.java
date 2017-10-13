@@ -99,7 +99,10 @@ public class PurchaseSelectInput {
      * 订单支付状态  0.未支付 1.已支付
      */
     private Integer payStatus;
-
+    /**
+     * 供应商名称
+     */
+    private String storeName;
     public String getOrderId() {
         return orderId;
     }
@@ -234,5 +237,13 @@ public class PurchaseSelectInput {
 
     public void setPayStatus(Integer payStatus) {
         this.payStatus = payStatus;
+    }
+
+    public String getStoreName() {
+        return storeName;
+    }
+
+    public void setStoreName(String storeName) {
+        this.storeName = storeName;
     }
 }
