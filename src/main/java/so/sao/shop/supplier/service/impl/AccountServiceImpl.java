@@ -90,12 +90,21 @@ public class AccountServiceImpl implements AccountService {
      */
     @Value("${shop.aliyun.sms.sms-template-code2}")
     String smsTemplateCode2;
-
     /**
-     * 供应商禁用
+     * 添加供应商启用密码短信通知
      */
-    @Value("${shop.aliyun.sms.sms-template-code5}")
-    String smsTemplateCode5;
+    @Value("${shop.aliyun.sms.sms-template-code6}")
+    String smsTemplateCode6;
+    /**
+     * 供应商启用短信通知
+     */
+    @Value("${shop.aliyun.sms.sms-template-code7}")
+    String smsTemplateCode7;
+    /**
+     * 供应商禁用短信通知
+     */
+    @Value("${shop.aliyun.sms.sms-template-code8}")
+    String smsTemplateCode8;
 
     @Autowired
     private CommodityService commodityService;
@@ -165,19 +174,43 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result updateAccountAndUser(Account account) throws Exception{
-    	//修改用户信息
-    	userDao.update(account.getUserId(), account.getContractResponsiblePhone());
-    	//修改供应商信息
+        //查询修改前的供应商信息
+        Account account1 = accountDao.selectById(account.getAccountId());
+        //修改用户信息
+        userDao.update(account.getUserId(), account.getContractResponsiblePhone());
+        //修改供应商信息
         account.setUpdateDate(new Date());
         account.setCreateDate(null);
+        account.setContractResponsiblePhone(account.getResponsiblePhone());
+        account.setContractRegisterAddressProvince(account.getRegistAddressProvince());
+        account.setContractRegisterAddressCity(account.getRegistAddressCity());
+        account.setContractRegisterAddressDistrict(account.getRegistAddressDistrict());
         //获取供应商合同截止时间
-        Date contractEndDate = accountDao.selectById(account.getAccountId()).getContractEndDate();
+        Date contractEndDate = account1.getContractEndDate();
         //将日期转为"yyyy-MM-dd"格式字符串
         String oldDate = DateUtil.getStringDate(contractEndDate);
         String newDate = DateUtil.getStringDate(account.getContractEndDate());
         //如果不相等则修改过合同时间，恢复短信状态为初始值。
         if (!oldDate.equals(newDate)){
             account.setMonthAgoType(CommConstant.ACCOUNT_NOSENDSMS_STATUS);
+        }
+        updateContractStatus(account);
+        if(account.getAccountStatus()== CommConstant.ACCOUNT_ACTIVE_STATUS && account.getContractStatus() == 2){
+            return Result.fail("合同有效期已过期，请更新后启用！");
+        }
+        int accountStatus = account1.getAccountStatus();
+        AccountUpdateInput accountUpdateInput = new AccountUpdateInput();
+        accountUpdateInput.setAccountTel(account.getResponsiblePhone());
+        accountUpdateInput.setAccountStatus(account.getAccountStatus());
+        if (account.getAccountStatus() == null){
+            account.setAccountStatus(accountStatus);
+        }
+        //如果用户修改供应商状态，则根据状态发送相应短信提示
+        if (accountStatus != account.getAccountStatus()){
+            //发送短信通知
+            updateAccountStatus(accountUpdateInput);
+            //进行商品失效相关操作
+            commodityService.updateCommInvalidStatus(account.getAccountId(), accountUpdateInput.getAccountStatus());
         }
         accountDao.updateByPrimaryKeySelective(account);
         return Result.success("修改供应商和用户成功");
@@ -337,23 +370,41 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public  Result saveUserAndAccount(Account account) throws Exception{
-        Boolean lock = redisTemplate.opsForValue().setIfAbsent(Constant.REDIS_KEY_PREFIX+account.getContractResponsiblePhone(),"1");
+        Boolean lock = redisTemplate.opsForValue().setIfAbsent(Constant.REDIS_KEY_PREFIX+account.getResponsiblePhone(),"1");
         try {
             if(lock!=null&&lock) {
                 //需要加锁的代码
-                User user1 = userDao.findByUsername(account.getContractResponsiblePhone());
+                User user1 = userDao.findByUsername(account.getResponsiblePhone());
                 if (user1 == null) {
                     User user = new User();
-                    user.setUsername(account.getContractResponsiblePhone());
+                    user.setUsername(account.getResponsiblePhone());
                     user.setLastPasswordResetDate(new Date());
                     user.setIsAdmin("0");
                     userDao.add(user);
                     account.setCreateDate(new Date());
                     account.setUpdateDate(new Date());
-                    account.setAccountStatus(CommConstant.ACCOUNT_INVALID_STATUS);
                     account.setUserId(user.getId());
                     account.setLastSettlementDate(new Date());
                     account.setMonthAgoType(CommConstant.ACCOUNT_NOSENDSMS_STATUS);
+                    account.setContractResponsiblePhone(account.getResponsiblePhone());
+                    account.setContractRegisterAddressProvince(account.getRegistAddressProvince());
+                    account.setContractRegisterAddressCity(account.getRegistAddressCity());
+                    account.setContractRegisterAddressDistrict(account.getRegistAddressDistrict());
+                    //初始化资质审核状态
+                    account.setQualificationStatus(Constant.QUALIFICATION_NOT_VERIFY);
+                    if(account.getAccountStatus()==null || account.getAccountStatus()==0){
+                        account.setAccountStatus(CommConstant.ACCOUNT_INVALID_STATUS);
+                    }
+                    String password =smsService.getVerCode();
+                    userDao.updatePassword(user.getId(), new BCryptPasswordEncoder().encode(password), new Date());
+                    tpe.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            smsService.sendSms(Collections.singletonList(account.getResponsiblePhone()),
+                                    Arrays.asList("phone","password"),Arrays.asList(account.getResponsiblePhone(),password),
+                                    smsTemplateCode6);
+                        }
+                    });
                     accountDao.insert(account);
                     return Result.success("用户和供应商添加成功！");
                 }
@@ -362,7 +413,7 @@ public class AccountServiceImpl implements AccountService {
         	logger.error("增加供应商异常",e);
         	throw new Exception("增加供应商异常",e);
         }finally {
-            redisTemplate.delete(Constant.REDIS_KEY_PREFIX+account.getContractResponsiblePhone());
+            redisTemplate.delete(Constant.REDIS_KEY_PREFIX+account.getResponsiblePhone());
         }
         return Result.fail("此供应商已经存在！");
     }
@@ -430,40 +481,19 @@ public class AccountServiceImpl implements AccountService {
     }
 
     /**
-     * 修改供应商状态并激活账户
+     * 启用禁用发送短信
      * @param accountUpdateInput
      * @return 返回修改状态
      */
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public Result updateAccountStatus(AccountUpdateInput accountUpdateInput) {
-        Account account = accountDao.selectById(accountUpdateInput.getAccountId());
-        if (account == null) {
-            return Result.fail("更新失败！");
-        }
-        //判断合同是否到期，到期后无法启用供应商状态。
-        updateContractStatus(account);
-        if(accountUpdateInput.getAccountStatus()==CommConstant.ACCOUNT_ACTIVE_STATUS && account.getContractStatus() == 2){
-            return Result.fail("合同有效期已过期，请更新后启用！");
-        }
-        //判断启用还是禁用操作，并发送相应的短信提示
-        String password =smsService.getVerCode();
-        if (accountUpdateInput.getAccountStatus()==CommConstant.ACCOUNT_ACTIVE_STATUS) {
-            userDao.updatePassword(account.getUserId(), new BCryptPasswordEncoder().encode(password), new Date());
-        }
+    public void updateAccountStatus(AccountUpdateInput accountUpdateInput) {
         tpe.execute(new Runnable() {
             @Override
             public void run() {
                 smsService.sendSms(Collections.singletonList(accountUpdateInput.getAccountTel()),
-                        Arrays.asList("phone","password"),Arrays.asList(accountUpdateInput.getAccountTel(),password),
-                        accountUpdateInput.getAccountStatus()==CommConstant.ACCOUNT_ACTIVE_STATUS?smsTemplateCode2:smsTemplateCode5);
+                        Arrays.asList("phone","password"),Arrays.asList(accountUpdateInput.getAccountTel(),accountUpdateInput.getAccountTel()),
+                        accountUpdateInput.getAccountStatus()== CommConstant.ACCOUNT_ACTIVE_STATUS?smsTemplateCode7:smsTemplateCode8);
             }
         });
-        commodityService.updateCommInvalidStatus(accountUpdateInput.getAccountId() , accountUpdateInput.getAccountStatus());
-        //修改账户状态
-        accountUpdateInput.setUpdateDate(new Date());
-        accountDao.updateAccountStatusById(accountUpdateInput);
-        return Result.success("更新成功！");
     }
 
     /**
