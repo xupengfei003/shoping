@@ -5,11 +5,13 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.PurchaseSelectInput;
+import so.sao.shop.supplier.pojo.vo.PurchaseInfoVo;
 import so.sao.shop.supplier.pojo.vo.PurchasesVo;
 import so.sao.shop.supplier.service.PurchaseService;
 import so.sao.shop.supplier.util.DataCompare;
@@ -105,6 +107,19 @@ public class AdminPurchaseController {
         return Result.success(Constant.MessageConfig.MSG_SUCCESS);
     }
 
+    /**
+     * 管理员根据订单ID获取订单详情
+     *
+     * @param orderId  订单ID
+     * @return Result 封装了订单详情
+     * @throws Exception
+     */
+    @GetMapping(value = "/adminPurchase/{orderId}")
+    @ApiOperation(value = "管理员根据订单ID查询订单详情", notes = "管理员查询订单详情【负责人：白治华】")
+    public Result adminFindOrderItemById(@PathVariable String orderId) throws Exception {
+        PurchaseInfoVo purchaseInfoVo = purchaseService.findById(orderId);
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS, purchaseInfoVo);
+    }
     //验证时间格式
     private boolean verifyDate(String inputDate) {
         //订单创建时间

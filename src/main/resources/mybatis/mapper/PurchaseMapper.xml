@@ -695,10 +695,12 @@
         UPDATE purchase
         SET
         <if test="map.orderShipMethod == 1">
+            order_ship_method = #{map.orderShipMethod},
             distributor_name = #{map.name},
             distributor_mobile = #{map.number},
         </if>
         <if test="map.orderShipMethod == 2">
+            order_ship_method = #{map.orderShipMethod},
             logistics_company = #{map.name},
             order_shipment_number = #{map.number},
         </if>

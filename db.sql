@@ -46,3 +46,11 @@ CREATE TABLE `comm_carton` (
 /*供应商表增加资质审核状态字段*/
 ALTER TABLE `ty_supplier`.`account`
   ADD COLUMN `qualification_status` INT(1) DEFAULT '0'   COMMENT '资质状态（1、待审核 2、审核通过 3、审核未通过）' AFTER `freight_rules`;
+
+/*创建自配送时确认收货订单表*/
+CREATE TABLE `received_purchase` (
+  `id` int(10) NOT NULL AUTO_INCREMENT COMMENT '编号',
+  `order_id` varchar(30) DEFAULT NULL COMMENT '订单ID',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;

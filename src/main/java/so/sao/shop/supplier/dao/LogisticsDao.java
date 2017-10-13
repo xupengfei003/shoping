@@ -69,4 +69,11 @@ public interface LogisticsDao {
      * @return 成功返回true，失败返回false
      */
     boolean updateQrcodesStatus(@Param("map") Map<String,Object> map);
+    /**
+     * 更改订单状态为确认送达
+     *
+     * @param map 封装了要修改的信息
+     * @return 成功返回true，失败返回false
+     */
+    void updateOrderStatus(@Param("map") Map<String,Object> map);
 }
