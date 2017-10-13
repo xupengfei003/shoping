@@ -13,7 +13,7 @@ COLLATE='utf8_general_ci'
 ENGINE=InnoDB
 ;
 
-/*创建供应商资质照片表*/
+/*创建供应照商资质片表*/
 CREATE TABLE `qualification_image` (
 	`id` BIGINT(64) NOT NULL AUTO_INCREMENT COMMENT 'id',
 	`qualification_id` BIGINT(64) NULL DEFAULT NULL COMMENT '资质id',
@@ -31,3 +31,18 @@ CREATE TABLE `qualification_image` (
 COLLATE='utf8_general_ci'
 ENGINE=InnoDB
 ;
+
+/*创建商品箱规单位表*/
+CREATE TABLE `comm_carton` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `name` varchar(64) NOT NULL COMMENT '箱规单位名称',
+  `supplier_id` bigint(20) NOT NULL COMMENT '供应商ID,管理员supplierId为0',
+  `created_at` datetime DEFAULT NULL COMMENT '创建时间',
+  `updated_at` datetime DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='商品箱规单位'
+;
+
+/*供应商表增加资质审核状态字段*/
+ALTER TABLE `ty_supplier`.`account`
+  ADD COLUMN `qualification_status` INT(1) DEFAULT '0'   COMMENT '资质状态（1、待审核 2、审核通过 3、审核未通过）' AFTER `freight_rules`;

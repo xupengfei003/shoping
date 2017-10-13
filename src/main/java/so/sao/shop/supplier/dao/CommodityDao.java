@@ -46,7 +46,7 @@ public interface CommodityDao {
     Commodity findOne(@Param("id")long id);
 
     /**
-     * 查询商品
+     * 根据code69查询商品
      * @param code69 商品编码
      * @return  商品信息对象
      */

@@ -6,6 +6,7 @@ import so.sao.shop.supplier.domain.SupplierCommodity;
 import so.sao.shop.supplier.pojo.input.CommSearchInput;
 import so.sao.shop.supplier.pojo.output.CommodityBannerOut;
 import so.sao.shop.supplier.pojo.output.CommodityOutput;
+import so.sao.shop.supplier.pojo.output.CountCommDetailOutput;
 import so.sao.shop.supplier.pojo.vo.SuppCommSearchVo;
 
 import java.util.Date;
@@ -162,6 +163,13 @@ public interface SupplierCommodityDao {
     int countSupplierCommodityByTagId(@Param("tagId")Long tagId);
 
     /**
+     * 根据箱规单位ID查询未删除状态的供应商商品
+     * @param cartonId 箱规单位ID
+     * @return int 在使用箱规单位的商品数量
+     */
+    int countSupplierCommodityByCartonId(@Param("cartonId")Long cartonId);
+
+    /**
      * 根据计量规格主键commMeasureSpecId 查所有引用到的未删除状态的SupplierCommodity
      * @param commMeasureSpecId 计量规格主键ID
      * @return List<SupplierCommodity>
@@ -253,6 +261,10 @@ public interface SupplierCommodityDao {
      */
     void updateSupplierCommodityStatusById(@Param("id")Long id, @Param("status") int status, @Param("updatedAt") Date updatedAt);
 
-
-
+    /**
+     * 供应商首页-供应商商品部分信息统计
+     * @param supplierId 供应商id
+     * @return 供应商商品部分统计出参对象
+     */
+    CountCommDetailOutput countCommDetail(Long supplierId);
 }

@@ -465,6 +465,15 @@
         from supplier_commodity sc
         WHERE sc.deleted = 0 and sc.tag_id=#{tagId}
     </select>
+
+    <!--根据箱规单位ID查询是否有正在使用（存在性校验使用）-->
+    <select id="countSupplierCommodityByCartonId" parameterType="java.lang.Long" resultType="int">
+        select
+        COUNT(id) as num
+        from supplier_commodity sc
+        WHERE sc.deleted = 0 and sc.carton_id=#{cartonId}
+    </select>
+
     <!--查询商品列表（简易查询）-->
     <select id="findSimple" resultType="so.sao.shop.supplier.pojo.vo.SuppCommSearchVo">
         SELECT
@@ -799,5 +808,17 @@
     <select id="findAuditStatus" resultType="int">
       SELECT status FROM supplier_commodity_audit
        WHERE audit_flag = 1 AND sc_id  = #{id}
+    </select>
+
+    <select id="countCommDetail" resultType="so.sao.shop.supplier.pojo.output.CountCommDetailOutput">
+        SELECT
+        (SELECT COUNT(id) FROM supplier_commodity WHERE deleted=0 AND inventory_status=1 AND supplier_id = #{1}) AS inventoryStatusNum ,
+        (SELECT COUNT(sca.id) FROM supplier_commodity_audit sca JOIN supplier_commodity sc ON sca.sc_id=sc.id WHERE sc.deleted=0 AND sca.status=2 AND sca.audit_flag=1 AND sca.supplier_id = #{1}) AS onShelvesNum ,
+        ((SELECT COUNT(id) FROM supplier_commodity WHERE deleted=0 AND STATUS=3 AND supplier_id = #{1})-
+        (SELECT COUNT(sca.id) FROM supplier_commodity_audit sca JOIN supplier_commodity sc ON sca.sc_id=sc.id WHERE sc.deleted=0 AND sca.status=4 AND sca.audit_flag=1 AND sca.supplier_id = #{1})) AS offShelvesNum ,
+        (SELECT COUNT(sca.id) FROM supplier_commodity_audit sca JOIN supplier_commodity sc ON sca.sc_id=sc.id WHERE sc.deleted=0 AND sca.status=4 AND sca.audit_flag=1 AND sca.supplier_id = #{1}) AS onShelvesAuditNum ,
+        (SELECT COUNT(sca.id) FROM supplier_commodity_audit sca JOIN supplier_commodity sc ON sca.sc_id=sc.id WHERE sc.deleted=0 AND sca.status=5 AND sca.audit_flag=1 AND sca.supplier_id = #{1}) AS offShelvesAuditNum ,
+        (SELECT COUNT(id) FROM supplier_commodity WHERE deleted=0 AND supplier_id = #{1}) AS skuNum
+        FROM account a WHERE account_id = #{1}
     </select>
 </mapper>
