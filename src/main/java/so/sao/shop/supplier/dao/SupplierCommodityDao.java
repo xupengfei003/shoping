@@ -151,8 +151,23 @@ public interface SupplierCommodityDao {
      * @param endCreateAt 创建时间（后）
      * @return 查询结果集
      */
-    List<SuppCommSearchVo> findSimple(@Param("supplierId")Long supplierId, @Param("inputvalue")String inputvalue,
-                                      @Param("beginCreateAt") Date beginCreateAt, @Param("endCreateAt") Date endCreateAt);
+//    List<SuppCommSearchVo> findSimple(@Param("supplierId")Long supplierId, @Param("inputvalue")String inputvalue,
+//                                      @Param("beginCreateAt") Date beginCreateAt, @Param("endCreateAt") Date endCreateAt);
+
+    /**
+     * 查询商品信息集合
+     * @param status
+     * @param inputvalue 输入值（商品条码/商品名称）
+     * @param auditResult
+     * @param role 角色
+     * @param supplierId
+     * @return
+     */
+    List<SuppCommSearchVo> findSimple(@Param("status") Integer status,
+                                      @Param("inputvalue") String inputvalue,
+                                      @Param("auditResult") Integer auditResult,
+                                      @Param("role") String role,
+                                      @Param("supplierId") Long supplierId);
 
     /**
      * 根据商品标签ID查询未删除状态的供应商商品

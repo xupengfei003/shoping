@@ -38,7 +38,7 @@ public class CommodityController {
     @ApiOperation(value="查询供应商商品信息集合（简单查询）", notes="根据参数返回符合条件的商品信息集合（简单查询）【责任人：唐文斌】")
     @GetMapping(value="/simplesearch")
     public Result simpleSearch(HttpServletRequest request, CommSimpleSearchInput commSimpleSearchInput) throws Exception {
-        return commodityService.simpleSearchCommodities(commSimpleSearchInput);
+        return commodityService.simpleSearchCommodities(commSimpleSearchInput,request);
     }
 
     @ApiOperation(value="查询商品详情信息", notes="根据ID返回相应的商品信息【责任人：唐文斌】")

@@ -241,6 +241,7 @@
         SELECT
             id AS id,
             min_img AS minImg,
+            commId,
             supplierId as supplierId,
             providerName as supplierName,
             code69 AS code69,
@@ -507,7 +508,9 @@
         SELECT
             id AS id,
             min_img AS minImg,
-            supplier_id,
+            commId,
+            supplier_id as supplierId,
+            providerName as supplierName,
             code69 AS code69,
             CODE AS CODE,
             brandName,
@@ -529,6 +532,8 @@
         FROM (
             SELECT
                 t1.sc_id AS id,
+                c.id commId,
+                a.provider_name providerName,
                 sctmp.supplier_id,
                 sctmp.min_img,
                 sctmp.code69,
@@ -554,15 +559,25 @@
                 INNER JOIN (
                 SELECT
                      <include refid="audit"/>
-                FROM supplier_commodity_audit t WHERE t.status = 6 AND t.audit_flag = 1) t1 ON sctmp.sca_id = t1.id
+                FROM supplier_commodity_audit t
+                WHERE t.status = 6
+                  AND t.audit_flag = 1
+
+                ) t1 ON sctmp.sca_id = t1.id
                 INNER JOIN commodity c ON sctmp.code69 = c.code69
                 LEFT JOIN comm_brand cb ON c.brand_id = cb.id
                 LEFT JOIN comm_measure_spec cms ON sctmp.measure_spec_id = cms.id
                 LEFT JOIN comm_unit cu ON sctmp.unit_id = cu.id
-                WHERE sctmp.supplier_id = #{supplierId}
+                LEFT JOIN account a ON a.account_id = sctmp.supplier_id
+                <if test="@so.sao.shop.supplier.util.Ognl@isEmpty(role) and @so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierId)">
+                    WHERE sctmp.supplier_id = #{supplierId}
+                </if>
+
         UNION
             SELECT
                 sc.id,
+                c.id commId,
+                a.provider_name providerName,
                 sc.supplier_id,
                 sc.min_img,
                 c.code69,
@@ -590,16 +605,25 @@
                     <include refid="audit"/>
                 FROM
                     supplier_commodity_audit t
-                WHERE t.audit_flag = 1 AND t.status != 6) t1 ON sc.id = t1.sc_id
+                WHERE t.audit_flag = 1
+                  AND t.status != 6
+
+                  ) t1 ON sc.id = t1.sc_id
                 INNER JOIN commodity c ON sc.code69 = c.code69
                 LEFT JOIN comm_brand cb ON c.brand_id = cb.id
                 LEFT JOIN comm_measure_spec cms ON sc.measure_spec_id = cms.id
                 LEFT JOIN comm_unit cu ON sc.unit_id = cu.id
-                WHERE sc.deleted = 0 AND sc.supplier_id = #{supplierId}
+                LEFT JOIN account a ON a.account_id = sc.supplier_id
+                WHERE sc.deleted = 0
+                <if test="@so.sao.shop.supplier.util.Ognl@isEmpty(role) and @so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierId)">
+                    AND sc.supplier_id = #{supplierId}
+                </if>
                 AND (t1.id IS NULL AND sc.status IN (0, 2, 3))
         UNION
             SELECT
                 sc.id,
+                c.id commId,
+                a.provider_name providerName,
                 sc.supplier_id,
                 sc.min_img,
                 c.code69,
@@ -627,27 +651,41 @@
                    <include refid="audit"/>
                 FROM
                    supplier_commodity_audit t
-                WHERE t.audit_flag = 1 AND t.status != 6) t1 ON sc.id = t1.sc_id
+                WHERE t.audit_flag = 1
+                  AND t.status != 6
+
+                  ) t1 ON sc.id = t1.sc_id
                 INNER JOIN commodity c ON sc.code69 = c.code69
                 LEFT JOIN comm_brand cb ON c.brand_id = cb.id
                 LEFT JOIN comm_measure_spec cms ON sc.measure_spec_id = cms.id
                 LEFT JOIN comm_unit cu ON sc.unit_id = cu.id
-                WHERE sc.deleted = 0 AND sc.supplier_id = #{supplierId}
+                LEFT JOIN account a ON a.account_id = sc.supplier_id
+                WHERE sc.deleted = 0
+                <if test="@so.sao.shop.supplier.util.Ognl@isEmpty(role) and @so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierId)">
+                    AND sc.supplier_id = #{supplierId}
+                </if>
                 AND (t1.id IS NOT NULL AND sc.status IN (0, 2, 3))
             ) t
         GROUP BY id HAVING 1 = 1
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(inputvalue)">
+
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(auditResult)">
+            AND t.audit_result = #{auditResult}
+        </if>
+
+        <!-- 供应商 -->
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(inputvalue) and @so.sao.shop.supplier.util.Ognl@isEmpty(role)">
             AND (t.code69 = #{inputvalue} OR commName LIKE CONCAT ('%',#{inputvalue},'%'))
         </if>
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(beginCreateAt) and @so.sao.shop.supplier.util.Ognl@isEmpty(endCreateAt)">
-            AND Date(t.created_at)<![CDATA[ >= #{beginCreateAt}]]>
+        <!-- 管理员 -->
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(inputvalue) and role == 'admin'">
+            AND (t.code69 = #{inputvalue} OR commName LIKE CONCAT ('%',#{inputvalue},'%') OR providerName LIKE CONCAT ('%',#{inputvalue},'%'))
         </if>
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(endCreateAt) and @so.sao.shop.supplier.util.Ognl@isEmpty(beginCreateAt)">
-            AND  Date(t.created_at)<![CDATA[<= #{endCreateAt}]]>
+
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(status)">
+            AND (t.status = #{status})
         </if>
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(beginCreateAt) and @so.sao.shop.supplier.util.Ognl@isNotEmpty(endCreateAt)">
-            AND Date(t.created_at) BETWEEN #{beginCreateAt} AND #{endCreateAt}
-        </if>
+
+        <!-- 保留项 end -->
         ORDER BY t.updated_at DESC , t.id DESC
     </select>
 

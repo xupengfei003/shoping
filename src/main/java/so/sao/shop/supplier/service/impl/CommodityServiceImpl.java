@@ -1,6 +1,5 @@
 package so.sao.shop.supplier.service.impl;
 
-import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +41,8 @@ import java.util.stream.Collectors;
 @Service
 public class CommodityServiceImpl implements CommodityService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+
     @Autowired
     private CommCategoryDao commCategoryDao;
     @Autowired
@@ -442,20 +443,34 @@ public class CommodityServiceImpl implements CommodityService {
      * 根据查询条件查询商品详情(简单条件查询)
      *
      * @param commSimpleSearchInput 简单查询请求
+     * @param request
      * @return
      */
     @Override
-    public Result simpleSearchCommodities(CommSimpleSearchInput commSimpleSearchInput) {
+    public Result simpleSearchCommodities(CommSimpleSearchInput commSimpleSearchInput, HttpServletRequest request) {
         //入参校验
-        Date beginCreateAt = commSimpleSearchInput.getBeginCreateAt();
-        Date endCreateAt = commSimpleSearchInput.getEndCreateAt();
-        String createAtMessage = DataCompare.createAtCheck(beginCreateAt, endCreateAt);
-        if(!"".equals(createAtMessage)){
-            return Result.fail(createAtMessage);
-        }
+//        Date beginCreateAt = commSimpleSearchInput.getBeginCreateAt();
+//        Date endCreateAt = commSimpleSearchInput.getEndCreateAt();
+//        String createAtMessage = DataCompare.createAtCheck(beginCreateAt, endCreateAt);
+//        if(!"".equals(createAtMessage)){
+//            return Result.fail(createAtMessage);
+//        }
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //开始分页
         PageTool.startPage(commSimpleSearchInput.getPageNum(), commSimpleSearchInput.getPageSize());
-        List<SuppCommSearchVo> respList = supplierCommodityDao.findSimple(commSimpleSearchInput.getSupplierId(), commSimpleSearchInput.getInputvalue(), beginCreateAt, endCreateAt);
+        Integer status = commSimpleSearchInput.getStatus();
+        String inputvalue = commSimpleSearchInput.getInputvalue();
+        Integer auditResult = commSimpleSearchInput.getAuditResult();
+        String role = getRole(user);
+        Long supplierId = null;
+        if(role == null){//说明是供应商
+            supplierId = accountDao.findAccountByUserId(user.getId()).getAccountId();
+        }
+
+
+
+        List<SuppCommSearchVo> respList = supplierCommodityDao.findSimple(status,inputvalue,auditResult,role,supplierId);
+
         respList.forEach(suppCommSearchVo->{
             suppCommSearchVo.setStatus(CommConstant.getStatus(suppCommSearchVo.getStatusNum()));
             //转换金额为千分位
@@ -464,6 +479,19 @@ public class CommodityServiceImpl implements CommodityService {
         });
         PageInfo<SuppCommSearchVo> pageInfo = new PageInfo<SuppCommSearchVo>(respList);
         return Result.success("查询完成", pageInfo);
+    }
+
+    /**
+     * 获取角色
+     * @param user
+     * @return
+     */
+    private String getRole(User user) {
+        String role = null;
+        if(Constant.ADMIN_STATUS.equals(user.getIsAdmin())){
+            role = "admin";
+        }
+        return role;
     }
 
     /**

@@ -21,11 +21,19 @@ public class SuppCommSearchVo {
     /**
      * SKU(商品ID)
      */
-    private String sku;
+//    private String sku;
     /**
      * sc表的id
      */
     private Long commId;
+    /**
+     * 供应商id
+     */
+//    private Long supplierId;
+    /**
+     * 供应商名称
+     */
+    private String supplierName;
     /**
      * 商品编码
      */
@@ -33,7 +41,7 @@ public class SuppCommSearchVo {
     /**
      * 商家编码
      */
-    private String code;
+//    private String code;
     /**
      * 商品品牌名称
      */
@@ -100,13 +108,21 @@ public class SuppCommSearchVo {
     /**
      * 创建时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
-    private Date createdAt;
+//    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+//    private Date createdAt;
     /**
      *  更新时间
      */
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date updatedAt;
+
+    public String getSupplierName() {
+        return supplierName;
+    }
+
+    public void setSupplierName(String supplierName) {
+        this.supplierName = supplierName;
+    }
 
     public Long getCommId() {
         return commId;
@@ -140,13 +156,7 @@ public class SuppCommSearchVo {
         this.minImg = minImg;
     }
 
-    public String getSku() {
-        return sku;
-    }
 
-    public void setSku(String sku) {
-        this.sku = sku;
-    }
 
     public String getCode69() {
         return code69;
@@ -156,13 +166,7 @@ public class SuppCommSearchVo {
         this.code69 = code69;
     }
 
-    public String getCode() {
-        return code;
-    }
 
-    public void setCode(String code) {
-        this.code = code;
-    }
 
     public String getBrandName() {
         return brandName;
@@ -228,13 +232,7 @@ public class SuppCommSearchVo {
         this.statusNum = statusNum;
     }
 
-    public Date getCreatedAt() {
-        return createdAt;
-    }
 
-    public void setCreatedAt(Date createdAt) {
-        this.createdAt = createdAt;
-    }
 
     public Date getUpdatedAt() {
         return updatedAt;
@@ -289,10 +287,9 @@ public class SuppCommSearchVo {
         return "SuppCommSearchVo{" +
                 "id=" + id +
                 ", minImg='" + minImg + '\'' +
-                ", sku='" + sku + '\'' +
                 ", commId=" + commId +
+                ", supplierName='" + supplierName + '\'' +
                 ", code69='" + code69 + '\'' +
-                ", code='" + code + '\'' +
                 ", brandName='" + brandName + '\'' +
                 ", commName='" + commName + '\'' +
                 ", unitName='" + unitName + '\'' +
@@ -307,7 +304,6 @@ public class SuppCommSearchVo {
                 ", minOrderQuantity=" + minOrderQuantity +
                 ", auditOpinion='" + auditOpinion + '\'' +
                 ", auditResult=" + auditResult +
-                ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
                 '}';
     }
