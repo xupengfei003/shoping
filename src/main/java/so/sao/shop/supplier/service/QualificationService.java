@@ -60,4 +60,11 @@ public interface QualificationService {
      * @return
      */
     Result deleteQualification(Long accountID);
+
+    /**
+     * 更新资质状态消息已读状态
+     * @param accountId
+     * @return Result
+     */
+    Result updateQualificationMessageRead( Integer accountId );
 }

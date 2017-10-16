@@ -1,5 +1,6 @@
 package so.sao.shop.supplier.dao;
 
+import io.swagger.models.auth.In;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import so.sao.shop.supplier.pojo.input.QualificationInput;
@@ -60,4 +61,10 @@ public interface QualificationDao {
      * @return
      */
     boolean delete(Long accountId);
+
+    /**
+     * 更新资质状态消息已读状态
+     * @param accountId
+     */
+    void updateQualificationMessageRead(Integer accountId);
 }

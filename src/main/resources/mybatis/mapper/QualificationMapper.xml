@@ -112,5 +112,10 @@
         WHERE account_id = #{accountId}
     </update>
 
-
+    <!-- 更新资质状态消息已读状态 -->
+    <update id="updateQualificationMessageRead">
+        UPDATE qualification
+        SET is_read = 1
+        WHERE account_id = #{accountId}
+    </update>
 </mapper>

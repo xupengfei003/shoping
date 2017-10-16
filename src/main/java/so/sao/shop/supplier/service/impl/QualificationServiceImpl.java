@@ -267,4 +267,15 @@ public class QualificationServiceImpl implements QualificationService{
             }
         }
     }
+
+    /**
+     * 更新资质状态消息已读状态
+     * @param accountId
+     * @return
+     */
+    @Override
+    public Result updateQualificationMessageRead(Integer accountId) {
+        qualificationDao.updateQualificationMessageRead( accountId );
+        return  Result.success("更新成功");
+    }
 }
