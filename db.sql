@@ -1,15 +1,15 @@
 /*创建供应商资质表*/
 CREATE TABLE `qualification` (
-	`id` BIGINT(64) NOT NULL AUTO_INCREMENT COMMENT 'id',
-	`account_id` BIGINT(64) NULL DEFAULT NULL COMMENT '供应商id',
-	`reason` VARCHAR(255) NULL DEFAULT NULL COMMENT '审核未通过原因',
-	`delete` INT(1) NULL DEFAULT '0' COMMENT '删除状态（0、未删除（默认） 1、删除）',
-	`create_time` DATETIME NULL DEFAULT NULL COMMENT '创建时间',
-	`update_time` DATETIME NULL DEFAULT NULL COMMENT '更新时间',
-	PRIMARY KEY (`id`)
-)
-COLLATE='utf8_general_ci'
-ENGINE=InnoDB
+  `id` bigint(64) NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `account_id` bigint(64) DEFAULT NULL COMMENT '供应商id',
+  `qualification_status` int(1) DEFAULT '0' COMMENT '资质状态（0、未发起审核 1、待审核 2、审核通过 3、审核未通过）',
+  `reason` varchar(255) DEFAULT NULL COMMENT '审核未通过原因',
+  `is_read` int(1) DEFAULT '0' COMMENT '是否已读（0、未读 1、已读）',
+  `delete` int(1) DEFAULT '0' COMMENT '删除状态（0、未删除（默认） 1、删除）',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8
 ;
 
 /*创建供应照商资质片表*/
@@ -41,10 +41,6 @@ CREATE TABLE `comm_carton` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='商品箱规单位'
 ;
-
-/*供应商表增加资质审核状态字段*/
-ALTER TABLE `ty_supplier`.`account`
-  ADD COLUMN `qualification_status` INT(1) DEFAULT '0'   COMMENT '资质状态（0、未发起审核 1、待审核 2、审核通过 3、审核未通过）' AFTER `freight_rules`;
 
 /*创建自配送时确认收货订单表*/
 CREATE TABLE `received_purchase` (
