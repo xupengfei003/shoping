@@ -32,11 +32,11 @@
 
     <!--根据供应商资质ID删除资质图片（更新资质图片删除状态位）-->
     <update id="delete">
-        UPDATE qualification_image
+        UPDATE qualification_image qi
         SET
-        delete= 1
+        qi.delete= 1
         WHERE
-        qualification_id = #{qualificationId}
+        qi.qualification_id = #{qualificationId}
     </update>
 
 </mapper>
