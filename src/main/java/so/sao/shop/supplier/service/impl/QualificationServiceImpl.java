@@ -71,24 +71,23 @@ public class QualificationServiceImpl implements QualificationService{
             return Result.fail("无效的审核参数");
         }
         Date updateDate = new Date();
-        qualificationDao.updateQualificationStatus( accountId, qualificationStatus,updateDate );
-        qualificationDao.updateQualificationReason( reason, accountId );
+        qualificationDao.updateQualificationStatus( accountId, qualificationStatus, reason, updateDate );
         return Result.success("更新成功");
     }
 
     /**
-     * 查询登录供应商的资质状态
+     * 查询登录供应商的资质状态,资质消息是否已读
      * @param accountId
      * @return Result
      */
     @Override
     public Result getAccountQualificationStatus(Long accountId) {
-        Integer qualificationStatus = qualificationDao.getAccountQualificationStatus( accountId );
-        if(Ognl.isNull(qualificationStatus)){
+        QualificationOut qualificationOut = qualificationDao.getAccountQualificationStatus( accountId );
+        if(Ognl.isNull(qualificationOut)){
             logger.info("暂无数据");
             return Result.fail("暂无数据");
         }
-        return Result.success("查询成功", qualificationStatus );
+        return Result.success("查询成功", qualificationOut );
     }
 
     @Override

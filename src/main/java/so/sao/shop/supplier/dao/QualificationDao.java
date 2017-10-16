@@ -17,11 +17,21 @@ import java.util.List;
 @Mapper
 public interface QualificationDao {
 
-    void updateQualificationStatus(@Param("accountId") Integer accountId, @Param("qualificationStatus")Integer qualificationStatus, @Param("updateDate")Date updateDate );
+    /**
+     * 资质审核 - 更新资质状态和时间,拒绝原因
+     * @param accountId
+     * @param qualificationStatus
+     * @param reason
+     * @param updateDate
+     */
+    void updateQualificationStatus(@Param("accountId") Integer accountId, @Param("qualificationStatus")Integer qualificationStatus,@Param("reason") String reason, @Param("updateDate")Date updateDate );
 
-    void updateQualificationReason(@Param("reason") String reason, @Param("accountId") Integer accountId );
-
-    Integer getAccountQualificationStatus( @Param("accountId") Long accountId );
+    /**
+     * 查询登录供应商的资质状态,资质消息是否已读
+     * @param accountId
+     * @return
+     */
+    QualificationOut getAccountQualificationStatus( @Param("accountId") Long accountId );
 
     /**
      * 根据供应商id查询资质详情
