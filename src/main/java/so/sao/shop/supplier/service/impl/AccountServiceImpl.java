@@ -177,7 +177,7 @@ public class AccountServiceImpl implements AccountService {
         //查询修改前的供应商信息
         Account account1 = accountDao.selectById(account.getAccountId());
         //修改用户信息
-        userDao.update(account.getUserId(), account.getContractResponsiblePhone());
+        userDao.update(account.getUserId(), account.getResponsiblePhone());
         //修改供应商信息
         account.setUpdateDate(new Date());
         account.setCreateDate(null);
@@ -390,13 +390,15 @@ public class AccountServiceImpl implements AccountService {
                     account.setContractRegisterAddressProvince(account.getRegistAddressProvince());
                     account.setContractRegisterAddressCity(account.getRegistAddressCity());
                     account.setContractRegisterAddressDistrict(account.getRegistAddressDistrict());
-                    //初始化资质审核状态
-                    account.setQualificationStatus(Constant.QUALIFICATION_NOT_VERIFY);
                     if(account.getAccountStatus()==null || account.getAccountStatus()==0){
                         account.setAccountStatus(CommConstant.ACCOUNT_INVALID_STATUS);
                     }
-                    String password =smsService.getVerCode();
+                    //String password =smsService.getVerCode();
+                    String password ="123456";
+                    //初始化用户密码
                     userDao.updatePassword(user.getId(), new BCryptPasswordEncoder().encode(password), new Date());
+                    //插入供应商信息
+                    accountDao.insert(account);
                     tpe.execute(new Runnable() {
                         @Override
                         public void run() {
@@ -405,7 +407,6 @@ public class AccountServiceImpl implements AccountService {
                                     smsTemplateCode6);
                         }
                     });
-                    accountDao.insert(account);
                     return Result.success("用户和供应商添加成功！");
                 }
             }
