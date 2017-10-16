@@ -303,7 +303,7 @@ public class CommodityServiceImpl implements CommodityService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Result updateCommodity(CommodityUpdateInput commodityUpdateInput, Long supplierId, boolean isAdmin){
+    public Result updateCommodity(CommodityUpdateInput commodityUpdateInput, Long supplierId){
         for (SupplierCommodityUpdateVo commodityVo : commodityUpdateInput.getCommodityList()) {
             long id =  commodityVo.getId();
             //验证商品是否存在
@@ -330,12 +330,17 @@ public class CommodityServiceImpl implements CommodityService {
                 //验证包装单位是否存在
                 int commUnitNum = commUnitDao.countById(commodityVo.getUnitId());
                 if (commUnitNum == 0) {
-                    return Result.fail("包装单位不存在！");
+                    return Result.fail("库存单位不存在！");
                 }
                 //验证计量规格是否存在
                 int commMeasureSpecNum = commMeasureSpecDao.countById(commodityVo.getMeasureSpecId());
                 if (commMeasureSpecNum == 0) {
                     return Result.fail("计量规格不存在！");
+                }
+                //验证箱规单位是否存在
+                int commCartonNum = commCartonDao.countById(commodityVo.getCartonId());
+                if(commCartonNum == 0){
+                    return Result.fail("箱规单位不存在！");
                 }
                 //修改商品规格
                 SupplierCommodity sc = BeanMapper.map(commodityVo, SupplierCommodity.class);
@@ -386,6 +391,9 @@ public class CommodityServiceImpl implements CommodityService {
                 sct.setUpdatedBy(supplierId);
                 sct.setCreatedBy(supplierId);
                 sct.setScaId(sca.getId());
+                sct.setInventory(sc.getInventory());
+                sct.setInventoryStatus(sc.getInvalidStatus());
+                sct.setInventoryMinimum(sc.getInventoryMinimum());
                 supplierCommodityTmpDao.save(sct);
                 //修改后图片数据保存
                 List<CommImgeTmp> commImgeTmps = new ArrayList<>();

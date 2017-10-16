@@ -135,12 +135,12 @@ public class SupplierCommodity {
     /**
      * 箱规数值
      */
-    private int cartonVal;
+    private Long cartonVal;
 
     /**
      * 计量规格数值
      */
-    private int measureSpecVal;
+    private Long measureSpecVal;
 
     /**
      * 生产日期
@@ -367,19 +367,19 @@ public class SupplierCommodity {
         this.cartonName = cartonName;
     }
 
-    public int getCartonVal() {
+    public Long getCartonVal() {
         return cartonVal;
     }
 
-    public void setCartonVal(int cartonVal) {
+    public void setCartonVal(Long cartonVal) {
         this.cartonVal = cartonVal;
     }
 
-    public int getMeasureSpecVal() {
+    public Long getMeasureSpecVal() {
         return measureSpecVal;
     }
 
-    public void setMeasureSpecVal(int measureSpecVal) {
+    public void setMeasureSpecVal(Long measureSpecVal) {
         this.measureSpecVal = measureSpecVal;
     }
 

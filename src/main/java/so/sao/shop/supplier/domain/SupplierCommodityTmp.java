@@ -105,6 +105,51 @@ public class SupplierCommodityTmp {
      */
     private int minOrderQuantity;
 
+    /**
+     * 箱规单位ID
+     */
+    private Long cartonId;
+
+    /**
+     * 箱规单位
+     */
+    private String cartonName;
+
+    /**
+     * 箱规数值
+     */
+    private Long cartonVal;
+
+    /**
+     * 计量规格数值
+     */
+    private Long measureSpecVal;
+
+    /**
+     * 生产日期
+     */
+    private Date productionDate;
+
+    /**
+     * 有效期
+     */
+    private int guaranteePeriod;
+
+    /**
+     * 有效期单位
+     */
+    private String guaranteePeriodUnit;
+
+    /**
+     * 库存下限
+     */
+    private Long inventoryMinimum;
+
+    /**
+     * 库存状态
+     */
+    private int inventoryStatus;
+
     public Long getId() {
         return id;
     }
@@ -287,5 +332,77 @@ public class SupplierCommodityTmp {
 
     public void setMinOrderQuantity(int minOrderQuantity) {
         this.minOrderQuantity = minOrderQuantity;
+    }
+
+    public Long getCartonId() {
+        return cartonId;
+    }
+
+    public void setCartonId(Long cartonId) {
+        this.cartonId = cartonId;
+    }
+
+    public String getCartonName() {
+        return cartonName;
+    }
+
+    public void setCartonName(String cartonName) {
+        this.cartonName = cartonName;
+    }
+
+    public Long getCartonVal() {
+        return cartonVal;
+    }
+
+    public void setCartonVal(Long cartonVal) {
+        this.cartonVal = cartonVal;
+    }
+
+    public Long getMeasureSpecVal() {
+        return measureSpecVal;
+    }
+
+    public void setMeasureSpecVal(Long measureSpecVal) {
+        this.measureSpecVal = measureSpecVal;
+    }
+
+    public Date getProductionDate() {
+        return productionDate;
+    }
+
+    public void setProductionDate(Date productionDate) {
+        this.productionDate = productionDate;
+    }
+
+    public int getGuaranteePeriod() {
+        return guaranteePeriod;
+    }
+
+    public void setGuaranteePeriod(int guaranteePeriod) {
+        this.guaranteePeriod = guaranteePeriod;
+    }
+
+    public String getGuaranteePeriodUnit() {
+        return guaranteePeriodUnit;
+    }
+
+    public void setGuaranteePeriodUnit(String guaranteePeriodUnit) {
+        this.guaranteePeriodUnit = guaranteePeriodUnit;
+    }
+
+    public Long getInventoryMinimum() {
+        return inventoryMinimum;
+    }
+
+    public void setInventoryMinimum(Long inventoryMinimum) {
+        this.inventoryMinimum = inventoryMinimum;
+    }
+
+    public int getInventoryStatus() {
+        return inventoryStatus;
+    }
+
+    public void setInventoryStatus(int inventoryStatus) {
+        this.inventoryStatus = inventoryStatus;
     }
 }
