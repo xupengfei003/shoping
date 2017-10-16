@@ -810,6 +810,7 @@
        WHERE audit_flag = 1 AND sc_id  = #{id}
     </select>
 
+    <!-- 供应商首页-商品信息统计 -->
     <select id="countCommDetail" resultType="so.sao.shop.supplier.pojo.output.CountCommDetailOutput">
         SELECT
         (SELECT COUNT(id) FROM supplier_commodity WHERE deleted=0 AND inventory_status=1 AND supplier_id = #{1}) AS inventoryStatusNum ,
@@ -821,6 +822,7 @@
         (SELECT COUNT(id) FROM supplier_commodity WHERE deleted=0 AND supplier_id = #{1}) AS skuNum
         FROM account a WHERE account_id = #{1}
     </select>
+
     <!-- 商品库存查询接口 -->
     <select id="searchCommInventory" resultType="so.sao.shop.supplier.pojo.output.CommInventoryOutput" parameterType="so.sao.shop.supplier.pojo.input.CommInventoryInput">
         SELECT
