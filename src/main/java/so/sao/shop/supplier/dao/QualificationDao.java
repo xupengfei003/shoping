@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Param;
 import so.sao.shop.supplier.pojo.input.QualificationInput;
 import so.sao.shop.supplier.pojo.output.QualificationListOut;
 import so.sao.shop.supplier.pojo.output.QualificationOut;
+import so.sao.shop.supplier.domain.Qualification;
 
 import java.util.Date;
 import java.util.List;
@@ -35,4 +36,18 @@ public interface QualificationDao {
      * @return 返回供应商及资质信息
      */
     public List<QualificationListOut> findPage(QualificationInput qualificationInput);
+
+    /**
+     * 添加供应商资质
+     * @param qualification
+     * @return
+     */
+    boolean save(Qualification qualification);
+
+    /**
+     * 根据供应商ID删除资质表（更新资质表删除状态位）
+     * @param accountId 供应商ID
+     * @return
+     */
+    boolean delete(Long accountId);
 }

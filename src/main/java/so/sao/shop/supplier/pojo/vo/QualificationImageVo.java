@@ -6,7 +6,7 @@ package so.sao.shop.supplier.pojo.vo;
 public class QualificationImageVo {
 
     /**
-     * 资质类型（1、质检报告  2、营业执照  3、授权报告  4、食品流通许可证）
+     * 资质类型（1、开户银行许可证 2、营业执照3、授权报告 4、质检报告 5、食品流通许可证）
      */
     private Integer qualificationType;
 
