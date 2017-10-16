@@ -388,4 +388,40 @@ public interface Constant {
          */
         public static final int NotExemption = 1;
     }
+
+    /*供应商资质常量*/
+    interface QualificationConfig{
+        /**
+         * 最大上传图片数量
+         */
+        public static final int MaxImgNumber = 3;
+
+        /*资质类型（1、开户银行许可证 2、营业执照3、授权报告 4、质检报告 5、食品流通许可证）*/
+        /**
+         * 质检报告
+         */
+        public static final int BankLicense = 1;
+        /**
+         * 营业执照
+         */
+        public static final int BusinessLicense = 2;
+        /**
+         * 授权报告
+         */
+        public static final int AuthorizationReport = 3;
+         /**
+         * 质检报告
+         */
+        public static final int InspectionReport = 4;
+        /**
+         * 食品流通许可证
+         */
+        public static final int FoodDistributionLicense = 5;
+
+        /**
+         * 所有资质文件最大图片数量
+         */
+        public  static final int AllQualificationImgNum = 15;
+
+    }
 }

@@ -14,4 +14,6 @@ public interface RegionMapper {
     List<String> selectShiByShen(String name);
 
     List<String> selectQuByShi(String name);
+
+    List<Region> getAllRegion();
 }

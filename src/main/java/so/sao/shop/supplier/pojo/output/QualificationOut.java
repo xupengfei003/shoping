@@ -40,6 +40,10 @@ public class QualificationOut {
      * 审核状态
      */
     private String qualificationStatus;
+    /**
+     * 是否已读（0、未读 1、已读）
+     */
+    private Integer isRead;
 
     public Long getId() {
         return id;
@@ -111,5 +115,13 @@ public class QualificationOut {
 
     public void setQualificationStatus(String qualificationStatus) {
         this.qualificationStatus = qualificationStatus;
+    }
+
+    public Integer getIsRead() {
+        return isRead;
+    }
+
+    public void setIsRead(Integer isRead) {
+        this.isRead = isRead;
     }
 }

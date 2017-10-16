@@ -610,22 +610,22 @@ public class CommodityServiceImpl implements CommodityService {
         SupplierCommodity supplierCommodity=supplierCommodityDao.findOne(id);
         Long supplierId = supplierCommodity.getSupplierId();
         //判断供应商资质审核
-//        if (qualificationDao.getAccountQualificationStatus(supplierId) != 2 ){
-//            return Result.fail("抱歉，您还没通过资质信息审核，无法上架商品！",supplierId);
-//        }
+        if (qualificationDao.getAccountQualificationStatus(supplierId) != Constant.QUALIFICATION_VERIFY_PASS ){
+            return Result.fail("抱歉，您还没通过资质信息审核，无法上架商品！",supplierId);
+        }
         //判断配送范围和运费规则是否完整
         Boolean FreightRulesFlag=checkFreightRules(supplierId);
         if(!FreightRulesFlag){
             return Result.fail("该供应商未配置配送范围与运费规则，无法上架商品！");
         }
-        //判断是否重复执行上架操作
-        if(supplierCommodity.getStatus()==CommConstant.COMM_ST_ON_SHELVES){
-            return Result.success("不能进行重复上架操作！");
-        }
         //判断该商品是否处于审核中
         int num = supplierCommodityAuditDao.countByScidAndAuditResult(id);
         if (num>0){
             return Result.fail("该商品已提交管理员审核，暂不能进行任何操作！");
+        }
+        //判断是否重复执行上架操作
+        if(supplierCommodity.getStatus()==CommConstant.COMM_ST_ON_SHELVES){
+            return Result.success("不能进行重复上架操作！");
         }
         //插入审核记录前，将以前的审核记录flag变为0
         supplierCommodityAuditDao.updateAuditFlagByScId(id, CommConstant.AUDIT_RECORD);
@@ -679,9 +679,9 @@ public class CommodityServiceImpl implements CommodityService {
         }
         Long supplierId = supplierCommodityList.get(0).getSupplierId();
         //判断供应商资质审核
-//        if (qualificationDao.getAccountQualificationStatus(supplierId) != 2 ){
-//            return Result.fail("抱歉，您还没通过资质信息审核，无法上架商品！",supplierId);
-//        }
+        if (qualificationDao.getAccountQualificationStatus(supplierId) != Constant.QUALIFICATION_VERIFY_PASS ){
+            return Result.fail("抱歉，您还没通过资质信息审核，无法上架商品！",supplierId);
+        }
         //判断供应商是否已完善配送范围和运费规则
         boolean FreightRulesFlag = checkFreightRules(supplierId);
         if (!FreightRulesFlag) {
