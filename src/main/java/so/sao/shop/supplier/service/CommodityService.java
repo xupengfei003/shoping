@@ -53,9 +53,10 @@ public interface CommodityService {
      * 根据查询条件查询商品详情（高级搜索）
      * @author liugang
      * @param commSearchInput 高级搜索查询请求
+     * @param request
      * @return Result Result对象
      */
-    Result searchCommodities(CommSearchInput commSearchInput);
+    Result searchCommodities(CommSearchInput commSearchInput, HttpServletRequest request);
 
     /**
      * 根据查询条件查询商品详情(简单条件查询)

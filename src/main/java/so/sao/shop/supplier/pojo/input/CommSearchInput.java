@@ -56,12 +56,12 @@ public class CommSearchInput {
     /**
     * 更新时间[前]
     */
-    @DateTimeFormat(pattern = "yyyy-MM-dd",iso= DateTimeFormat.ISO.DATE)
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss",iso= DateTimeFormat.ISO.DATE)
     private Date beginUpdateAt;
     /**
      * 更新时间[后]
      */
-    @DateTimeFormat(pattern = "yyyy-MM-dd",iso= DateTimeFormat.ISO.DATE)
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss",iso= DateTimeFormat.ISO.DATE)
     private Date endUpdateAt;
     /**
     * 当前页号
@@ -75,6 +75,33 @@ public class CommSearchInput {
     * 审核结果：0代表未通过，1代表通过
     */
     private Integer auditResult;
+    /**
+     * 供应商名称
+     */
+    private String supplierName;
+
+
+    /**
+     * 用来区分管理员的字段
+     */
+    private String role;
+
+
+    public String getSupplierName() {
+        return supplierName;
+    }
+
+    public void setSupplierName(String supplierName) {
+        this.supplierName = supplierName;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
 
     public Long getSupplierId() {
         return supplierId;
@@ -196,6 +223,7 @@ public class CommSearchInput {
         this.auditResult = auditResult;
     }
 
+
     @Override
     public String toString() {
         return "CommSearchInput{" +
@@ -214,6 +242,8 @@ public class CommSearchInput {
                 ", pageNum=" + pageNum +
                 ", pageSize=" + pageSize +
                 ", auditResult=" + auditResult +
+                ", supplierName='" + supplierName + '\'' +
+                ", role='" + role + '\'' +
                 '}';
     }
 }

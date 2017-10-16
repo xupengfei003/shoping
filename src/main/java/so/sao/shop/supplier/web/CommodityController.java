@@ -32,7 +32,7 @@ public class CommodityController {
     @ApiOperation(value="查询供应商商品信息集合（高级搜索）", notes="根据参数返回符合条件的商品信息集合（高级搜索）【责任人：唐文斌】")
     @GetMapping(value="/search")
     public Result search(HttpServletRequest request, CommSearchInput commSearchInput) throws Exception {
-        return commodityService.searchCommodities(commSearchInput);
+        return commodityService.searchCommodities(commSearchInput,request);
     }
 
     @ApiOperation(value="查询供应商商品信息集合（简单查询）", notes="根据参数返回符合条件的商品信息集合（简单查询）【责任人：唐文斌】")

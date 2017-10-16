@@ -497,10 +497,11 @@ public class CommodityServiceImpl implements CommodityService {
     /**
      * 高级搜索
      * @param commSearchInput 高级搜索查询请求
+     * @param request
      * @return
      */
     @Override
-    public Result searchCommodities(CommSearchInput commSearchInput) {
+    public Result searchCommodities(CommSearchInput commSearchInput, HttpServletRequest request) {
         /**
          * 入参校验
          * 1.价格不能为负数";
@@ -516,6 +517,11 @@ public class CommodityServiceImpl implements CommodityService {
             return Result.fail(createAtMessage);
         }
 
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        commSearchInput.setRole(getRole(user));
+        if(!"admin".equals(commSearchInput.getRole())){
+            commSearchInput.setSupplierId(accountDao.findAccountIdByUserId(user.getId()));
+        }
         //开始分页
         PageTool.startPage(commSearchInput.getPageNum(), commSearchInput.getPageSize());
         List<SuppCommSearchVo> respList = supplierCommodityDao.find(commSearchInput);

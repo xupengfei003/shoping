@@ -249,6 +249,8 @@
             brandName,
             commName,
             categoryOneId,
+            categoryTwoId,
+            categoryThreeId,
             unitName,
             measureSpecName,
             rule_val AS ruleVal,
@@ -302,6 +304,9 @@
              LEFT JOIN comm_measure_spec cms ON sctmp.measure_spec_id = cms.id
              LEFT JOIN comm_unit cu ON sctmp.unit_id = cu.id
              LEFT JOIN account a ON a.account_id = sctmp.supplier_id
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierId)">
+                WHERE sctmp.supplier_id = #{supplierId}
+            </if>
 
         UNION
             SELECT
@@ -344,7 +349,9 @@
              LEFT JOIN comm_unit cu ON sc.unit_id = cu.id
              LEFT JOIN account a ON a.account_id = sc.supplier_id
             WHERE sc.deleted = 0
-
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierId) ">
+                AND sc.supplier_id = #{supplierId}
+            </if>
             AND (t1.id IS NULL AND sc.status IN (0, 2, 3))
 
         UNION
@@ -388,17 +395,18 @@
              LEFT JOIN comm_unit cu ON sc.unit_id = cu.id
              LEFT JOIN account a ON a.account_id = sc.supplier_id
             WHERE sc.deleted = 0
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierId)">
+                AND sc.supplier_id = #{supplierId}
+            </if>
             AND (t1.id IS NOT NULL AND sc.status IN (0, 2, 3))
         ) t
         GROUP BY id HAVING 1 = 1
 
 
 
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierId)">
-            AND t.supplierId = #{supplierId}
-        </if>
 
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierName)">
+
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierName) and @so.sao.shop.supplier.util.Ognl@isEmpty(role)">
             AND t.providerName  LIKE CONCAT ('%',#{supplierName},'%')
         </if>
 
@@ -407,13 +415,9 @@
         </if>
 
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(commBrand)">
-            AND t.commBrand  LIKE CONCAT ('%',#{commBrand},'%')
+            AND t.brandName  LIKE CONCAT ('%',#{commBrand},'%')
         </if>
 
-
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(suppCommCode)">
-            AND t.code = #{suppCommCode}
-        </if>
 
 
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(commName)">
@@ -444,13 +448,13 @@
             AND t.audit_result = #{auditResult}
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(beginUpdateAt) and @so.sao.shop.supplier.util.Ognl@isEmpty(endUpdateAt)">
-            AND Date(t.updated_at)<![CDATA[ >= #{beginUpdateAt}]]>
+            AND unix_timestamp(t.updated_at)<![CDATA[ >= unix_timestamp(#{beginUpdateAt})]]>
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(endUpdateAt) and @so.sao.shop.supplier.util.Ognl@isEmpty(beginUpdateAt)">
-            AND Date(t.updated_at)<![CDATA[<= #{endUpdateAt}]]>
+            AND unix_timestamp(t.updated_at)<![CDATA[<= unix_timestamp(#{endUpdateAt})]]>
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(beginUpdateAt) and @so.sao.shop.supplier.util.Ognl@isNotEmpty(endUpdateAt)">
-            AND Date(t.updated_at) BETWEEN #{beginUpdateAt} AND #{endUpdateAt}
+            AND unix_timestamp(t.updated_at) BETWEEN unix_timestamp(#{beginUpdateAt}) AND unix_timestamp(#{endUpdateAt})
         </if>
         ORDER BY t.updated_at DESC , t.id DESC
     </select>
