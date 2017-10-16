@@ -423,5 +423,10 @@ public interface Constant {
          */
         public  static final int AllQualificationImgNum = 15;
 
+        /**
+         * 必传资质文件数量
+         */
+        public  static final int MustAddQualification = 2;
+
     }
 }

@@ -1,8 +1,8 @@
 package so.sao.shop.supplier.dao;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import so.sao.shop.supplier.domain.QualificationImage;
-import so.sao.shop.supplier.pojo.vo.QualificationImagesVo;
 
 import java.util.List;
 
@@ -18,7 +18,7 @@ public interface QualificationImageDao {
      * @param imgs
      * @return
      */
-    boolean save(List<QualificationImage> imgs);
+    boolean save(@Param("imgs")List<QualificationImage> imgs);
 
     /**
      * 根据供应商资质ID删除资质图片（更新资质图片删除状态位）

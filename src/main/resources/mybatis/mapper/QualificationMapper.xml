@@ -98,7 +98,7 @@
         update_time
         )VALUES (
         #{accountId},
-        #{QualificationStatus},
+        #{qualificationStatus},
         #{createTime},
         #{updateTime}
         )
@@ -106,10 +106,11 @@
 
     <!--根据供应商ID删除资质表（更新资质表删除状态位）-->
     <update id="delete">
-        UPDATE qualification
+        UPDATE qualification q
         SET
-        delete= 1
-        WHERE account_id = #{accountId}
+        q.delete= 1
+        WHERE
+        q.account_id = #{accountId}
     </update>
 
     <!-- 更新资质状态消息已读状态 -->

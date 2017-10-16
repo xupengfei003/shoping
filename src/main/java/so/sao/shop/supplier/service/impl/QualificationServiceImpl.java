@@ -15,6 +15,7 @@ import so.sao.shop.supplier.pojo.input.QualificationInput;
 import so.sao.shop.supplier.pojo.input.QualificationSaveInput;
 import so.sao.shop.supplier.pojo.output.QualificationListOut;
 import so.sao.shop.supplier.pojo.output.QualificationOut;
+import so.sao.shop.supplier.pojo.vo.QualificationImageUploadVo;
 import so.sao.shop.supplier.service.QualificationService;
 import so.sao.shop.supplier.util.Ognl;
 import so.sao.shop.supplier.util.PageTool;
@@ -132,13 +133,13 @@ public class QualificationServiceImpl implements QualificationService{
                     String cloudName = StringUtils.substringAfter(url, CommConstant.AZURE_CONTAINER+"/");
                     //获取缩略图云端名称
                     String minCloudName = StringUtils.substringAfter(minImgUrl, CommConstant.AZURE_CONTAINER+"/");
-                    QualificationImageVo qualificationImageVo = new QualificationImageVo();
-                    qualificationImageVo.setFileName(blobUploadList.get(0).getFileName());
-                    qualificationImageVo.setCloudName(cloudName);
-                    qualificationImageVo.setMinCloudName(minCloudName);
-                    qualificationImageVo.setUrl(url);
-                    qualificationImageVo.setMinImgUrl(minImgUrl);
-                    return Result.success("文件上传成功", qualificationImageVo);
+                    QualificationImageUploadVo qualificationImageUploadVo = new QualificationImageUploadVo();
+                    qualificationImageUploadVo.setFileName(blobUploadList.get(0).getFileName());
+                    qualificationImageUploadVo.setCloudName(cloudName);
+                    qualificationImageUploadVo.setMinCloudName(minCloudName);
+                    qualificationImageUploadVo.setUrl(url);
+                    qualificationImageUploadVo.setMinImgUrl(minImgUrl);
+                    return Result.success("文件上传成功", qualificationImageUploadVo);
                 }
             }else{
                 return Result.fail("请选择需要上传的文件");
@@ -156,13 +157,15 @@ public class QualificationServiceImpl implements QualificationService{
      * @return
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Result saveQualification(QualificationSaveInput qualificationInput) {
         Result result = new Result();
         //入参校验
         checkInputParam(qualificationInput);
         Qualification qualification = new Qualification();
         qualification.setAccountId(qualificationInput.getAccountId());
-        qualification.setQualificationStatus(1);
+        qualification.setQualificationStatus(1);   //设置资质状态为待审核
+        qualification.setDelete(0);
         qualification.setCreateTime(new Date());
         qualification.setUpdateTime(new Date());
         //供应商资质入库
@@ -182,14 +185,15 @@ public class QualificationServiceImpl implements QualificationService{
                 qualificationImages.setMinCloudName(qualificationImageVo.getMinCloudName());
                 qualificationImages.setUrl(qualificationImageVo.getUrl());
                 qualificationImages.setMinImgUrl(qualificationImageVo.getMinImgUrl());
+                qualificationImages.setDelete(0);
                 qualificationImages.setCreateTime(new Date());
                 qualificationImages.setUpdateTime(new Date());
                 list.add(qualificationImages);
             }
-            //供应商资质图片入库
-            qualificationImageDao.save(list);
         }
 
+        //供应商资质图片入库
+        qualificationImageDao.save(list);
         result.setCode(Constant.CodeConfig.CODE_SUCCESS);
         result.setMessage("添加供应商资质成功");
         return result;
@@ -202,10 +206,11 @@ public class QualificationServiceImpl implements QualificationService{
      * @return
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Result deleteQualification(Long accountID) {
         Result result = new Result();
         //通过供应商ID查询资质ID
-        Long qualificationId = 0L;
+        Long qualificationId = qualificationDao.findByAccountId(accountID).get(0).getId();
         //通过供应商ID删除该供应商下的所有资质信息（软删除）
         qualificationDao.delete(accountID);
         //通过资质ID同步删除供应商资质图片信息（软删除）
@@ -222,19 +227,52 @@ public class QualificationServiceImpl implements QualificationService{
     private void checkInputParam(QualificationSaveInput qualificationInput){
         List<QualificationImagesVo> imgs = qualificationInput.getImgs();
         //资质图片集合不能为空
-        if (imgs == null || imgs.size()==0){
+        if (imgs == null || imgs.size() == 0){
             throw new BusinessException("资质图片不能为空");
-        }else if (imgs.size() > Constant.QualificationConfig.AllQualificationImgNum){
+        }
+
+        /*开户银行许可证/营业执照为必传项*/
+        if (imgs.size() < Constant.QualificationConfig.MustAddQualification){
+            throw new BusinessException("开户银行许可证/营业执照不能为空");
+        }else {
+            List<Integer> types = new ArrayList<>();
+            for (QualificationImagesVo img : imgs)
+            {
+               types.add(img.getQualificationType());
+            }
+
+            if (!(types.contains(Constant.QualificationConfig.BankLicense))){
+                throw new BusinessException("开户银行许可证不能为空");
+            }else if (!(types.contains(Constant.QualificationConfig.BusinessLicense))){
+                throw new BusinessException("营业执照不能为空");
+            }
+        }
+
+        /*资质图片最大不能超过15张*/
+        if (imgs.size() > Constant.QualificationConfig.AllQualificationImgNum){
             throw new BusinessException("资质图片总数不能超过 "+Constant.QualificationConfig.AllQualificationImgNum+" 张");
         }
         //校验各类资质必填项及数量
         for (QualificationImagesVo qualificationImagesVo : imgs){
-
-            checkQualificationImgNum(qualificationImagesVo,Constant.QualificationConfig.BankLicense,"开户银行许可证");
-            checkQualificationImgNum(qualificationImagesVo,Constant.QualificationConfig.BusinessLicense,"营业执照");
-            checkQualificationImgMaxNum(qualificationImagesVo,Constant.QualificationConfig.AuthorizationReport,"授权报告");
-            checkQualificationImgMaxNum(qualificationImagesVo,Constant.QualificationConfig.InspectionReport,"质检报告");
-            checkQualificationImgMaxNum(qualificationImagesVo,Constant.QualificationConfig.FoodDistributionLicense,"食品流通许可证");
+            int typeNum = qualificationImagesVo.getQualificationType();
+            switch (typeNum){
+                case Constant.QualificationConfig.BankLicense :
+                    checkQualificationImgNum(qualificationImagesVo,Constant.QualificationConfig.BankLicense,"开户银行许可证");
+                    break;
+                case Constant.QualificationConfig.BusinessLicense :
+                    checkQualificationImgNum(qualificationImagesVo,Constant.QualificationConfig.BusinessLicense,"营业执照");
+                    break;
+                case Constant.QualificationConfig.AuthorizationReport :
+                    checkQualificationImgMaxNum(qualificationImagesVo,Constant.QualificationConfig.AuthorizationReport,"授权报告");
+                    break;
+                case Constant.QualificationConfig.InspectionReport :
+                    checkQualificationImgMaxNum(qualificationImagesVo,Constant.QualificationConfig.InspectionReport,"质检报告");
+                    break;
+                case Constant.QualificationConfig.FoodDistributionLicense :
+                    checkQualificationImgMaxNum(qualificationImagesVo,Constant.QualificationConfig.FoodDistributionLicense,"食品流通许可证");
+                    break;
+                default: throw new BusinessException("非法资质类型");
+            }
         }
     }
 
@@ -251,6 +289,8 @@ public class QualificationServiceImpl implements QualificationService{
             }else {
                 checkQualificationImgMaxNum(qualificationImagesVo,qualificationType,qualificationName);
             }
+        }else{
+            throw new BusinessException(qualificationName + "不能为空");
         }
     }
 
