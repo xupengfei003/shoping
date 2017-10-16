@@ -72,12 +72,7 @@ public class CommodityController {
     public Result update(HttpServletRequest request, @Valid @RequestBody CommodityUpdateInput commodityUpdateInput, @RequestParam(required = false) Long supplierId) throws Exception {
         //校验供应商ID
         supplierId = CheckUtil.supplierIdCheck(request,supplierId);
-        User user = (User) request.getAttribute(Constant.REQUEST_USER);
-        boolean isAdmin = false;
-        if (Constant.ADMIN_STATUS.equals(user.getIsAdmin())){
-            isAdmin = true;
-        }
-        return commodityService.updateCommodity(commodityUpdateInput, supplierId, isAdmin);
+        return commodityService.updateCommodity(commodityUpdateInput, supplierId);
     }
 
     @ApiOperation(value="上架商品", notes="【负责人：张瑞兵】")
