@@ -100,7 +100,7 @@ public class QualificationController {
      * @return
      */
     @PostMapping(value = "/save")
-    @ApiOperation(value = "添加供应商资质图片", notes = "添加供应商资质图片【负责人：刘刚】")
+    @ApiOperation(value = "添加供应商资质", notes = "添加供应商资质【负责人：刘刚】")
     public Result saveQualification(HttpServletRequest request, @RequestBody QualificationSaveInput qualificationInput) throws Exception{
         //供应商ID校验
         qualificationInput.setAccountId(CheckUtil.supplierIdCheck(request,qualificationInput.getAccountId()));
@@ -112,11 +112,25 @@ public class QualificationController {
      * @param accountID  供应商ID
      * @return
      */
-    @PostMapping(value = "/delete/{accountID}")
+    @PutMapping(value = "/delete/{accountID}")
     @ApiOperation(value = "供应商资质删除", notes = "供应商资质删除【负责人：刘刚】")
     public Result deleteQualification(HttpServletRequest request,@PathVariable Long accountID) throws Exception{
         //供应商ID校验
         accountID = CheckUtil.supplierIdCheck(request,accountID);
         return qualificationService.deleteQualification(accountID);
     }
+
+    /**
+     * 更新资质状态消息已读状态
+     * @param accountId
+     * @return result
+     */
+    @ApiOperation(value = "资质审核", notes = "更新资质状态消息已读状态【负责人：许鹏飞】")
+    @PutMapping("/updateQualificationMessageRead")
+    public Result updateQualificationMessageRead(@RequestParam(value = "accountId" ) Integer accountId ){
+        Result result = qualificationService.updateQualificationMessageRead( accountId );
+        return result;
+    }
+
+
 }

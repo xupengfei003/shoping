@@ -47,7 +47,6 @@
     <result column="service_phone" property="servicePhone" jdbcType="VARCHAR" />
     <result column="contract_name" property="contractName" jdbcType="VARCHAR" />
     <result column="sms_monthago_type" property="monthAgoType" jdbcType="INTEGER" />
-    <result column="qualification_status" property="qualificationStatus" jdbcType="INTEGER" />
     <result column="freight_rules" property="freightRules" javaType="INTEGER"></result>
   </resultMap>
   <sql id="Base_Column_List" >
@@ -87,8 +86,7 @@
     contract_original_name,
     contract_original,
     service_phone,
-    contract_name,
-    qualification_status
+    contract_name
   </sql>
 
   <!-- 查询出省市区汉字字段-->
@@ -151,7 +149,7 @@
        contract_register_address_province,contract_register_address_city,
        contract_register_address_district,
       contract_register_address_detail, upload_mode, 
-      sms_code,contract_original_name,contract_original,last_settlement_date,service_phone,contract_name,sms_monthago_type,qualification_status)
+      sms_code,contract_original_name,contract_original,last_settlement_date,service_phone,contract_name,sms_monthago_type)
     values (#{accountId,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, #{providerName,jdbcType=VARCHAR}, 
       #{responsible,jdbcType=VARCHAR}, #{responsiblePhone,jdbcType=VARCHAR}, #{license,jdbcType=VARCHAR}, 
       #{licenseTimeCreate}, #{licenseTimeEnd}, #{businessType,jdbcType=VARCHAR},
@@ -166,8 +164,9 @@
       #{contractLicenseEnd},#{contractRegisterAddress,jdbcType=VARCHAR}, #{contractRegisterAddressProvince,jdbcType=VARCHAR},
       #{contractRegisterAddressCity,jdbcType=VARCHAR}, #{contractRegisterAddressDistrict,jdbcType=VARCHAR},
       #{contractRegisterAddressDetail,jdbcType=VARCHAR}, #{uploadMode,jdbcType=VARCHAR}, 
-      #{smsCode,jdbcType=VARCHAR},#{contractOriginalName,jdbcType=VARCHAR},#{contractOriginal,jdbcType=VARCHAR},#{lastSettlementDate},#{servicePhone},#{contractName},#{monthAgoType},
-      #{qualificationStatus})
+      #{smsCode,jdbcType=VARCHAR},#{contractOriginalName,jdbcType=VARCHAR},
+      #{contractOriginal,jdbcType=VARCHAR},#{lastSettlementDate},
+      #{servicePhone},#{contractName},#{monthAgoType})
   </insert>
 
   <!-- <insert id="insertSelective" parameterType="so.sao.shop.supplier.domain.Account" >
@@ -650,8 +649,8 @@
   <select id="findPage" resultMap="BaseResultMap" parameterType="so.sao.shop.supplier.pojo.input.AccountInput">
     SELECT a.responsible,a.contract_create_date, a.account_id,a.user_id,a.create_date,a.update_date,a.provider_name, a.contract_end_date, a.responsible_phone,p.name regist_address_province,
     c.name regist_address_city,d.name regist_address_district  ,cp.name contract_register_address_province,cc.name contract_register_address_city,
-    cd.name contract_register_address_district,  a.contract_register_address, a.account_status,a.qualification_status
-    FROM account a,sys_region p, sys_region c, sys_region d, sys_region cp, sys_region cc, sys_region cd, user u
+    cd.name contract_register_address_district,  a.contract_register_address, a.account_status,IFNULL(q.qualification_status,0) qualificationStatus
+    FROM account a LEFT JOIN qualification q ON a.account_id=q.account_id AND q.delete = 0,sys_region p, sys_region c, sys_region d, sys_region cp, sys_region cc, sys_region cd, user u
     <where>
       account_status != 0
       AND u.is_admin = 0
@@ -701,14 +700,14 @@
       <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(vague)">
         AND  (responsible LIKE "%${vague}%" OR provider_name LIKE "%${vague}%")
       </if>
-      <if test="accountStatus != null">
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(accountStatus)">
         AND  account_status = #{accountStatus}
       </if>
-      <if test="qualificationStatus != null">
-        AND  qualification_status = #{qualificationStatus}
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(qualificationStatus)">
+        AND  q.qualification_status = #{qualificationStatus}
       </if>
     </where>
-             ORDER  BY  a.create_date DESC 
+             ORDER  BY  a.update_date DESC
   </select>
 
     <select id="findOne" resultMap="BaseResultMap" parameterType="long">

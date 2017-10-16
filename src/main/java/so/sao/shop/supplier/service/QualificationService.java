@@ -10,8 +10,20 @@ import so.sao.shop.supplier.pojo.input.QualificationSaveInput;
  */
 public interface QualificationService {
 
+    /**
+     * 资质审核 - 更新资质状态和时间,拒绝原因
+     * @param accountId
+     * @param qualificationStatus
+     * @param reason
+     * @return
+     */
     Result updateQualificationStatus(Integer accountId, Integer qualificationStatus, String reason );
 
+    /**
+     *查询登录供应商的资质状态,资质消息是否已读
+     * @param accountId
+     * @return
+     */
     Result getAccountQualificationStatus( Long accountId );
 
     /**
@@ -48,4 +60,11 @@ public interface QualificationService {
      * @return
      */
     Result deleteQualification(Long accountID);
+
+    /**
+     * 更新资质状态消息已读状态
+     * @param accountId
+     * @return Result
+     */
+    Result updateQualificationMessageRead( Integer accountId );
 }

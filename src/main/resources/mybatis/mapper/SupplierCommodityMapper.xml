@@ -81,12 +81,18 @@
             updated_by,
             deleted,
             status,
-            description,
             remark,
             tag_id,
-            sku,
             min_order_quantity,
-            invalid_status
+            invalid_status,
+            carton_id,
+            carton_val,
+            inventory_minimum,
+            inventory_status,
+            measure_spec_val,
+            production_date,
+            guarantee_period,
+            guarantee_period_unit
         )VALUES (
             #{supplierId},
             #{code},
@@ -104,20 +110,26 @@
             #{updatedBy},
             #{deleted},
             #{status},
-            #{description},
             #{remark},
             #{tagId},
-            #{sku},
             #{minOrderQuantity},
-            #{invalidStatus}
+            #{invalidStatus},
+            #{cartonId},
+            #{cartonVal},
+            #{inventoryMinimum},
+            #{inventoryStatus},
+            #{measureSpecVal},
+            #{productionDate},
+            #{guaranteePeriod},
+            #{guaranteePeriodUnit}
         )
     </insert>
+
 
     <!-- 更新商品规格信息 -->
     <update id="update">
         UPDATE supplier_commodity SET
             code = #{code},
-            inventory = #{inventory},
             rule_val = #{ruleVal},
             unit_id = #{unitId},
             price = #{price},
@@ -128,7 +140,12 @@
             remark = #{remark},
             tag_id = #{tagId},
             measure_spec_id = #{measureSpecId},
-            min_order_quantity = #{minOrderQuantity}
+            min_order_quantity = #{minOrderQuantity},
+            carton_id = #{cartonId},
+            carton_val = #{cartonVal},
+            production_date = #{productionDate},
+            guarantee_period =  #{guaranteePeriod},
+            guarantee_period_unit =  #{guaranteePeriodUnit}
         WHERE id = #{id}
     </update>
     <delete id="deleteById">
@@ -216,23 +233,31 @@
     <!--获取商品信息-->
     <select id="findOne" resultType="so.sao.shop.supplier.domain.SupplierCommodity">
         SELECT
-        id,
-        sku,
-        remark,
-        description,
-        code,
-        code69,
-        rule_val AS ruleVal,
-        inventory,
-        min_img AS minImg,
-        price,
-        unit_price AS unitPrice,
-        created_at AS createdAt,
-        updated_at AS updatedAt,
-        supplier_id AS supplierId,
-        status,
-        sku,
-        invalid_status AS invalidStatus
+            id,
+            sku,
+            remark,
+            description,
+            code,
+            code69,
+            rule_val AS ruleVal,
+            inventory,
+            min_img AS minImg,
+            price,
+            unit_price AS unitPrice,
+            created_at AS createdAt,
+            updated_at AS updatedAt,
+            supplier_id AS supplierId,
+            status,
+            sku,
+            invalid_status AS invalidStatus,
+            carton_id AS cartonId,
+            carton_val AS cartonVal,
+            inventory_minimum AS inventoryMinimum,
+            inventory_status AS inventoryStatus,
+            measure_spec_val AS measureSpecVal,
+            production_date AS productionDate,
+            guarantee_period AS guaranteePeriod,
+            guarantee_period_unit AS guaranteePeriodUnit
         FROM supplier_commodity WHERE id = #{id} and deleted = 0
     </select>
 

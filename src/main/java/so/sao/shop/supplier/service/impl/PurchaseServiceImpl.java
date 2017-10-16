@@ -1478,12 +1478,21 @@ public class PurchaseServiceImpl implements PurchaseService {
         Long count = null;//入参map中的value(value也为map)中的value值（统计数据）
         String str = null;//各个订单状态对应的字符
         Long totalCount = 0L;//统计数据之和(订单总量)
-
+        Long confirmCount = null;//记录已送达订单数量(计入已完成订单统计中)
         //转化map中的Key和value值
-        for (int i = 1;i <= 8;i++){
+        for (int i = 1;i <= 9;i++){
+            if (i == 9 ){
+                i = 19;
+            }
             valueMap = (Map<Object, Object>) map.get(i);
             count = null == valueMap ? 0L : (Long) valueMap.get("count");
             totalCount = totalCount + count;
+            if(i == 3){
+                confirmCount = count;
+            }
+            if (i == 19){
+                count = count + confirmCount;
+            }
             str = this.getStrByOrderStatus(i);
             resultMap.put(str,count);
         }
@@ -1522,6 +1531,9 @@ public class PurchaseServiceImpl implements PurchaseService {
                 break;
             case 8:
                 str =  "paymentCancelOrderNum";
+                break;
+            case 19:
+                str = "issueShipOrderNum";
                 break;
         }
         return str;

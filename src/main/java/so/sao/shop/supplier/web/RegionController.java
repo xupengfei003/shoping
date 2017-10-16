@@ -56,6 +56,7 @@ public class RegionController {
      * 查询省市区所有数据，并返回树形结构
      * @return
      */
+    @ApiOperation(value = "获取省市区树形结构数据", notes = "获取省市区树形结构数据")
     @GetMapping(value = "/allRegion")
     public Result getAllRegion() throws Exception {
         Map<String, Object> map = regionService.getAllRegion();

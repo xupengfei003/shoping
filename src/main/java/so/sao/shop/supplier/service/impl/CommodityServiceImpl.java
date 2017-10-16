@@ -66,6 +66,9 @@ public class CommodityServiceImpl implements CommodityService {
     private CommMeasureSpecDao commMeasureSpecDao;
 
     @Autowired
+    private CommCartonDao commCartonDao;
+
+    @Autowired
     private AzureBlobService azureBlobService;
 
     @Autowired
@@ -126,19 +129,20 @@ public class CommodityServiceImpl implements CommodityService {
             }
         }
         for (SupplierCommodityVo commodityVo : commodityInput.getCommodityList()) {
-            //验证计量单位是否存在
-            if(null != commodityVo.getUnitId()){
-                int commUnitNum = commUnitDao.countById(commodityVo.getUnitId());
-                if(commUnitNum == 0){
-                    return Result.fail("包装单位不存在！商品条码：" + commodityVo.getCode69());
-                }
+            //验证库存单位是否存在
+            int commUnitNum = commUnitDao.countById(commodityVo.getUnitId());
+            if(commUnitNum == 0){
+                return Result.fail("库存单位不存在！商品条码：" + commodityVo.getCode69());
             }
             //验证计量规格是否存在
-            if(null != commodityVo.getMeasureSpecId()){
-                int commMeasureSpecNum = commMeasureSpecDao.countById(commodityVo.getMeasureSpecId());
-                if(commMeasureSpecNum == 0){
-                    return Result.fail("计量规格不存在！商品条码：" + commodityVo.getCode69());
-                }
+            int commMeasureSpecNum = commMeasureSpecDao.countById(commodityVo.getMeasureSpecId());
+            if(commMeasureSpecNum == 0){
+                return Result.fail("计量规格不存在！商品条码：" + commodityVo.getCode69());
+            }
+            //验证箱规单位是否存在
+            int commCartonNum = commCartonDao.countById(commodityVo.getCartonId());
+            if(commCartonNum == 0){
+                return Result.fail("箱规单位不存在！商品条码：" + commodityVo.getCode69());
             }
             String code69 = commodityVo.getCode69();
             //验证商品是否存在,不存在则新增商品
@@ -187,6 +191,9 @@ public class CommodityServiceImpl implements CommodityService {
             sc.setUpdatedBy(supplierId);
             sc.setCreatedAt(new Date());
             sc.setUpdatedAt(new Date());
+            sc.setInventory(CommConstant.INVENTORY_DEFAULT_VALUE);
+            sc.setInventoryMinimum(CommConstant.INVENTORY_MINIMUM_DEFAULT_VALUE);
+            sc.setInventoryStatus(CommConstant.INVENTORY_NORMAL);
             //若供应商被禁用，新增的商品是失效状态
             if(account.getAccountStatus() == CommConstant.ACCOUNT_INVALID_STATUS){
                 sc.setInvalidStatus(CommConstant.COMM_INVALID_STATUS);
@@ -296,7 +303,7 @@ public class CommodityServiceImpl implements CommodityService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Result updateCommodity(CommodityUpdateInput commodityUpdateInput, Long supplierId, boolean isAdmin){
+    public Result updateCommodity(CommodityUpdateInput commodityUpdateInput, Long supplierId){
         for (SupplierCommodityUpdateVo commodityVo : commodityUpdateInput.getCommodityList()) {
             long id =  commodityVo.getId();
             //验证商品是否存在
@@ -323,12 +330,17 @@ public class CommodityServiceImpl implements CommodityService {
                 //验证包装单位是否存在
                 int commUnitNum = commUnitDao.countById(commodityVo.getUnitId());
                 if (commUnitNum == 0) {
-                    return Result.fail("包装单位不存在！");
+                    return Result.fail("库存单位不存在！");
                 }
                 //验证计量规格是否存在
                 int commMeasureSpecNum = commMeasureSpecDao.countById(commodityVo.getMeasureSpecId());
                 if (commMeasureSpecNum == 0) {
                     return Result.fail("计量规格不存在！");
+                }
+                //验证箱规单位是否存在
+                int commCartonNum = commCartonDao.countById(commodityVo.getCartonId());
+                if(commCartonNum == 0){
+                    return Result.fail("箱规单位不存在！");
                 }
                 //修改商品规格
                 SupplierCommodity sc = BeanMapper.map(commodityVo, SupplierCommodity.class);
@@ -379,6 +391,9 @@ public class CommodityServiceImpl implements CommodityService {
                 sct.setUpdatedBy(supplierId);
                 sct.setCreatedBy(supplierId);
                 sct.setScaId(sca.getId());
+                sct.setInventory(sc.getInventory());
+                sct.setInventoryStatus(sc.getInvalidStatus());
+                sct.setInventoryMinimum(sc.getInventoryMinimum());
                 supplierCommodityTmpDao.save(sct);
                 //修改后图片数据保存
                 List<CommImgeTmp> commImgeTmps = new ArrayList<>();
@@ -610,7 +625,7 @@ public class CommodityServiceImpl implements CommodityService {
         SupplierCommodity supplierCommodity=supplierCommodityDao.findOne(id);
         Long supplierId = supplierCommodity.getSupplierId();
         //判断供应商资质审核
-        if (qualificationDao.getAccountQualificationStatus(supplierId) != Constant.QUALIFICATION_VERIFY_PASS ){
+        if (Integer.parseInt(qualificationDao.getAccountQualificationStatus(supplierId).getQualificationStatus()) != Constant.QUALIFICATION_VERIFY_PASS){
             return Result.fail("抱歉，您还没通过资质信息审核，无法上架商品！",supplierId);
         }
         //判断配送范围和运费规则是否完整
@@ -679,7 +694,7 @@ public class CommodityServiceImpl implements CommodityService {
         }
         Long supplierId = supplierCommodityList.get(0).getSupplierId();
         //判断供应商资质审核
-        if (qualificationDao.getAccountQualificationStatus(supplierId) != Constant.QUALIFICATION_VERIFY_PASS ){
+        if (Integer.parseInt(qualificationDao.getAccountQualificationStatus(supplierId).getQualificationStatus()) != Constant.QUALIFICATION_VERIFY_PASS){
             return Result.fail("抱歉，您还没通过资质信息审核，无法上架商品！",supplierId);
         }
         //判断供应商是否已完善配送范围和运费规则
