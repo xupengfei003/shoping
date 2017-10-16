@@ -41,6 +41,22 @@ public class CommConstant {
      */
     public static final int COMM_EDIT_AUDIT = 6;
     /**
+     * 库存正常状态
+     */
+    public static final int INVENTORY_NORMAL = 0;
+    /**
+     * 库存预警状态
+     */
+    public static final int INVENTORY_WARNING = 1;
+    /**
+     * 库存默认值
+     */
+    public static final Double INVENTORY_DEFAULT_VALUE = 0.0;
+    /**
+     * 库存下限默认值
+     */
+    public static final long INVENTORY_MINIMUM_DEFAULT_VALUE = 0L;
+    /**
      * 商品一级分类pid
      */
     public static final long CATEGORY_ONE_PID = 0L;
