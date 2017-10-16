@@ -19,12 +19,10 @@ public class Qualification {
      * 供应商ID
      */
     private Long accountId;
-
     /**
-     * 资质上传类型（1、小食品零售  2、其他）
+     * 资质状态（0、未发起审核 1、待审核 2、审核通过 3、审核未通过）
      */
-    private Integer uploadType;
-
+    private Integer qualificationStatus;
     /**
      * 审核未通过原因
      */
@@ -34,7 +32,10 @@ public class Qualification {
      * 删除状态（0、未删除（默认）  1、删除）
      */
     private Integer delete;
-
+    /**
+     * 是否已读（0、未读 1、已读）
+     */
+    private Integer isRead;
     /**
      * 创建时间
      */
@@ -59,14 +60,6 @@ public class Qualification {
 
     public void setAccountId(Long accountId) {
         this.accountId = accountId;
-    }
-
-    public Integer getUploadType() {
-        return uploadType;
-    }
-
-    public void setUploadType(Integer uploadType) {
-        this.uploadType = uploadType;
     }
 
     public String getReason() {
@@ -99,5 +92,21 @@ public class Qualification {
 
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public Integer getQualificationStatus() {
+        return qualificationStatus;
+    }
+
+    public void setQualificationStatus(Integer qualificationStatus) {
+        this.qualificationStatus = qualificationStatus;
+    }
+
+    public Integer getIsRead() {
+        return isRead;
+    }
+
+    public void setIsRead(Integer isRead) {
+        this.isRead = isRead;
     }
 }

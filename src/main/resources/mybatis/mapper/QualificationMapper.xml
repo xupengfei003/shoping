@@ -28,7 +28,6 @@
     <select id="findByAccountId" resultType="so.sao.shop.supplier.pojo.output.QualificationOut">
         SELECT
             q.id AS id,
-            q.upload_type AS uplodaType,
             q.reason AS reason,
             i.qualification_type AS qualificationType,
             i.cloud_name AS cloudName,
@@ -36,16 +35,14 @@
             i.file_name AS fileName,
             i.url AS url,
             i.min_img_url AS minImgUrl,
-            a.qualification_status AS qualificationStatus
+            q.qualification_status AS qualificationStatus
         FROM
             qualification q
         LEFT JOIN qualification_image i
             ON q.id = i.qualification_id
-        LEFT JOIN account a
-            ON q.account_id = a.account_id
         WHERE q.delete = 0
             AND i.delete = 0
-            AND a.account_id = #{accountId}
+            AND q.account_id = #{accountId}
     </select>
     <!-- 根据条件查询资质列表 -->
     <select id="findPage" parameterType="so.sao.shop.supplier.pojo.input.QualificationInput" resultType="so.sao.shop.supplier.pojo.output.QualificationListOut">
@@ -59,7 +56,7 @@
             s2.name AS district,
             q.create_time AS createTime,
             q.update_time AS updateTime,
-            a.qualification_status AS qualificationStatus
+            q.qualification_status AS qualificationStatus
         FROM
             qualification q
         LEFT JOIN account a
@@ -92,7 +89,7 @@
         <if test="@so.sao.shop.supplier.util.Ognl@isNotNull(endUpdateTime)">
             AND q.update_time <![CDATA[<=]]> #{endUpdateTime}
         </if>
-        ORDER BY a.qualification_status,q.create_time
+        ORDER BY q.qualification_status,q.create_time
     </select>
 
 </mapper>
