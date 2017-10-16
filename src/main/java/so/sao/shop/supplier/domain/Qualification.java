@@ -33,10 +33,6 @@ public class Qualification {
      */
     private Integer delete;
     /**
-     * 是否已读（0、未读 1、已读）
-     */
-    private Integer isRead;
-    /**
      * 创建时间
      */
     private Date createTime;
@@ -100,13 +96,5 @@ public class Qualification {
 
     public void setQualificationStatus(Integer qualificationStatus) {
         this.qualificationStatus = qualificationStatus;
-    }
-
-    public Integer getIsRead() {
-        return isRead;
-    }
-
-    public void setIsRead(Integer isRead) {
-        this.isRead = isRead;
     }
 }
