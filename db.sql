@@ -2,7 +2,6 @@
 CREATE TABLE `qualification` (
 	`id` BIGINT(64) NOT NULL AUTO_INCREMENT COMMENT 'id',
 	`account_id` BIGINT(64) NULL DEFAULT NULL COMMENT '供应商id',
-	`upload_type` INT(1) NULL DEFAULT NULL COMMENT '资质上传类型（1、小食品零售 2、其他）',
 	`reason` VARCHAR(255) NULL DEFAULT NULL COMMENT '审核未通过原因',
 	`delete` INT(1) NULL DEFAULT '0' COMMENT '删除状态（0、未删除（默认） 1、删除）',
 	`create_time` DATETIME NULL DEFAULT NULL COMMENT '创建时间',
@@ -17,7 +16,7 @@ ENGINE=InnoDB
 CREATE TABLE `qualification_image` (
 	`id` BIGINT(64) NOT NULL AUTO_INCREMENT COMMENT 'id',
 	`qualification_id` BIGINT(64) NULL DEFAULT NULL COMMENT '资质id',
-	`qualification_type` INT(1) NULL DEFAULT NULL COMMENT '资质类型（1、质检报告 2、营业执照 3、授权报告 4、食品流通许可证）',
+	`qualification_type` INT(1) NULL DEFAULT NULL COMMENT '资质类型（1、开户银行许可证 2、营业执照3、授权报告 4、质检报告 5、食品流通许可证）',
 	`cloud_name` VARCHAR(255) NULL DEFAULT NULL COMMENT '云端名称',
 	`min_cloud_name` VARCHAR(255) NULL DEFAULT NULL COMMENT '云端缩略图名称',
 	`file_name` VARCHAR(255) NULL DEFAULT NULL COMMENT '图片名称',
@@ -45,7 +44,7 @@ CREATE TABLE `comm_carton` (
 
 /*供应商表增加资质审核状态字段*/
 ALTER TABLE `ty_supplier`.`account`
-  ADD COLUMN `qualification_status` INT(1) DEFAULT '0'   COMMENT '资质状态（1、待审核 2、审核通过 3、审核未通过）' AFTER `freight_rules`;
+  ADD COLUMN `qualification_status` INT(1) DEFAULT '0'   COMMENT '资质状态（0、未发起审核 1、待审核 2、审核通过 3、审核未通过）' AFTER `freight_rules`;
 
 /*创建自配送时确认收货订单表*/
 CREATE TABLE `received_purchase` (

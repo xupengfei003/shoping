@@ -21,11 +21,6 @@ public class Qualification {
     private Long accountId;
 
     /**
-     * 资质上传类型（1、小食品零售  2、其他）
-     */
-    private Integer uploadType;
-
-    /**
      * 审核未通过原因
      */
     private String reason;
@@ -59,14 +54,6 @@ public class Qualification {
 
     public void setAccountId(Long accountId) {
         this.accountId = accountId;
-    }
-
-    public Integer getUploadType() {
-        return uploadType;
-    }
-
-    public void setUploadType(Integer uploadType) {
-        this.uploadType = uploadType;
     }
 
     public String getReason() {

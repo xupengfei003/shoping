@@ -28,7 +28,6 @@
     <select id="findByAccountId" resultType="so.sao.shop.supplier.pojo.output.QualificationOut">
         SELECT
             q.id AS id,
-            q.upload_type AS uplodaType,
             q.reason AS reason,
             i.qualification_type AS qualificationType,
             i.cloud_name AS cloudName,
