@@ -462,8 +462,11 @@ public class CommodityServiceImpl implements CommodityService {
         String inputvalue = commSimpleSearchInput.getInputvalue();
         Integer auditResult = commSimpleSearchInput.getAuditResult();
         String role = getRole(user);
-        Long supplierId = null;
-        if(role == null){//说明是供应商
+
+        Long supplierId;
+        if("admin".equals(role)){//管理员
+            supplierId = commSimpleSearchInput.getSupplierId();
+        }else{//供应商
             supplierId = accountDao.findAccountByUserId(user.getId()).getAccountId();
         }
 

@@ -573,7 +573,7 @@
                 LEFT JOIN comm_measure_spec cms ON sctmp.measure_spec_id = cms.id
                 LEFT JOIN comm_unit cu ON sctmp.unit_id = cu.id
                 LEFT JOIN account a ON a.account_id = sctmp.supplier_id
-                <if test="@so.sao.shop.supplier.util.Ognl@isEmpty(role) and @so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierId)">
+                <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierId)">
                     WHERE sctmp.supplier_id = #{supplierId}
                 </if>
 
@@ -619,7 +619,7 @@
                 LEFT JOIN comm_unit cu ON sc.unit_id = cu.id
                 LEFT JOIN account a ON a.account_id = sc.supplier_id
                 WHERE sc.deleted = 0
-                <if test="@so.sao.shop.supplier.util.Ognl@isEmpty(role) and @so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierId)">
+                <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierId)">
                     AND sc.supplier_id = #{supplierId}
                 </if>
                 AND (t1.id IS NULL AND sc.status IN (0, 2, 3))
@@ -665,7 +665,7 @@
                 LEFT JOIN comm_unit cu ON sc.unit_id = cu.id
                 LEFT JOIN account a ON a.account_id = sc.supplier_id
                 WHERE sc.deleted = 0
-                <if test="@so.sao.shop.supplier.util.Ognl@isEmpty(role) and @so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierId)">
+                <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierId)">
                     AND sc.supplier_id = #{supplierId}
                 </if>
                 AND (t1.id IS NOT NULL AND sc.status IN (0, 2, 3))

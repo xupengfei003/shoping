@@ -41,7 +41,7 @@ public class SuppCommSearchVo {
     /**
      * 商家编码
      */
-//    private String code;
+    private String code;
     /**
      * 商品品牌名称
      */
@@ -282,6 +282,14 @@ public class SuppCommSearchVo {
         this.auditResult = auditResult;
     }
 
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
     @Override
     public String toString() {
         return "SuppCommSearchVo{" +
@@ -290,6 +298,7 @@ public class SuppCommSearchVo {
                 ", commId=" + commId +
                 ", supplierName='" + supplierName + '\'' +
                 ", code69='" + code69 + '\'' +
+                ", code='" + code + '\'' +
                 ", brandName='" + brandName + '\'' +
                 ", commName='" + commName + '\'' +
                 ", unitName='" + unitName + '\'' +
