@@ -4,7 +4,6 @@ CREATE TABLE `qualification` (
   `account_id` bigint(64) DEFAULT NULL COMMENT '供应商id',
   `qualification_status` int(1) DEFAULT '0' COMMENT '资质状态（0、未发起审核 1、待审核 2、审核通过 3、审核未通过）',
   `reason` varchar(255) DEFAULT NULL COMMENT '审核未通过原因',
-  `is_read` int(1) DEFAULT '0' COMMENT '是否已读（0、未读 1、已读）',
   `delete` int(1) DEFAULT '0' COMMENT '删除状态（0、未删除（默认） 1、删除）',
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
@@ -49,3 +48,8 @@ CREATE TABLE `received_purchase` (
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+/*
+增加供应商是否首次登陆
+ */
+ALTER TABLE `ty_supplier`.`account`
+  ADD COLUMN `is_read` INT(1) DEFAULT 0  NULL   COMMENT '是否已读（0、未读 1、已读）' AFTER `contract_name`;

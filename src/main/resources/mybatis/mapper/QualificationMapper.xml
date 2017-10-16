@@ -71,7 +71,7 @@
             )
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(status)">
-            AND a.qualification_status = #{status}
+            AND q.qualification_status = #{status}
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotNull(startCreateTime)">
             AND q.create_time <![CDATA[>=]]> #{startCreateTime}
