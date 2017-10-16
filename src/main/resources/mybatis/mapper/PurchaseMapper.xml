@@ -94,11 +94,23 @@
                     OR order_status = 19)
                 </if>
             </if>
+            /*供应商*/
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.orderReceiverName) and
-            @so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.orderReceiverMobile) and purchaseSelectInput.orderReceiverName == purchaseSelectInput.orderReceiverMobile">
+            @so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.orderReceiverMobile) and
+            !@so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.storeName) and
+            purchaseSelectInput.orderReceiverName == purchaseSelectInput.orderReceiverMobile">
+                AND (order_receiver_name LIKE "${purchaseSelectInput.orderReceiverName}%"
+                OR order_receiver_mobile LIKE "${purchaseSelectInput.orderReceiverMobile}%")
+            </if>
+            /*管理员*/
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.orderReceiverName) and
+            @so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.orderReceiverMobile) and
+            @so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.storeName) and
+            purchaseSelectInput.orderReceiverName == purchaseSelectInput.orderReceiverMobile and
+            purchaseSelectInput.orderReceiverName == purchaseSelectInput.storeName">
                 AND (order_receiver_name LIKE "${purchaseSelectInput.orderReceiverName}%"
                 OR order_receiver_mobile LIKE "${purchaseSelectInput.orderReceiverMobile}%"
-                OR store_name LIKE "${storeName}%")
+                OR store_name LIKE "${purchaseSelectInput.storeName}%")
             </if>
             <if test="purchaseSelectInput.orderReceiverName != purchaseSelectInput.orderReceiverMobile">
                 <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.orderReceiverName)">
@@ -236,10 +248,20 @@
                     OR order_status = 19)
                 </if>
             </if>
+            /*供应商*/
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderReceiverName) and
+            @so.sao.shop.supplier.util.Ognl@isNotEmpty(orderReceiverMobile) and
+            !@so.sao.shop.supplier.util.Ognl@isNotEmpty(storeName) and
+            orderReceiverName == orderReceiverMobile">
+                AND (order_receiver_name LIKE "${orderReceiverName}%"
+                OR order_receiver_mobile LIKE "${orderReceiverMobile}%")
+            </if>
+            /*管理员*/
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderReceiverName) and
             @so.sao.shop.supplier.util.Ognl@isNotEmpty(orderReceiverMobile) and
             @so.sao.shop.supplier.util.Ognl@isNotEmpty(storeName) and
-            orderReceiverName == orderReceiverMobile">
+            orderReceiverName == orderReceiverMobile and
+            orderReceiverName == storeName">
                 AND (order_receiver_name LIKE "${orderReceiverName}%"
                 OR order_receiver_mobile LIKE "${orderReceiverMobile}%"
                 OR store_name LIKE "${storeName}%")
