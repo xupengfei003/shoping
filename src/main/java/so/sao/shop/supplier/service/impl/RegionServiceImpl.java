@@ -1,6 +1,5 @@
 package so.sao.shop.supplier.service.impl;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import so.sao.shop.supplier.config.Constant;
@@ -8,6 +7,7 @@ import so.sao.shop.supplier.dao.RegionMapper;
 import so.sao.shop.supplier.domain.Region;
 import so.sao.shop.supplier.pojo.output.RegionOutput;
 import so.sao.shop.supplier.service.RegionService;
+import so.sao.shop.supplier.util.Ognl;
 
 import java.util.*;
 
@@ -54,81 +54,71 @@ public class RegionServiceImpl implements RegionService {
      */
     @Override
     public Map<String, Object> getAllRegion() {
-        //返回的map
-        Map<String, Object> map = new HashMap<>();
 
         //从数据中一次查出所有的省市区数据List
         List<Region> allList = districtDicDao.getAllRegion();
 
-        //构造根节点，即省的数据List
-        List<Region> tmpProvinceList = new ArrayList<>();
-
-        //构造非省的数据List
-        List<Region> notParentList = new ArrayList<>();
-
-        if (null == allList || allList.isEmpty()) {
-            return map;
-        }
-
+        //根据srId分成单条,根据parentId分组
+        Map<Integer, Region> map = new HashMap<>();
+        Map<Integer, List<Region>> pMap = new HashMap<>();
         for (Region region : allList) {
-            int level = region.getLevel();
-            if (level == 0) {
-                //获取根节点，即把省的数据添加到tmpShengList
-                tmpProvinceList.add(region);
+            //根据srId分成单条
+            map.put(region.getSrId(), region);
+            //根据parentId分组
+            if (Ognl.isNull(pMap.get(region.getParentId()))) {
+                List<Region> list = new ArrayList<>();
+                list.add(region);
+                pMap.put(region.getParentId(), list);
             } else {
-                //把非省的数据添加到notParentList
-                notParentList.add(region);
+                List<Region> list = pMap.get(region.getParentId());
+                list.add(region);
+                pMap.put(region.getParentId(), list);
             }
         }
-        map.put("options", getChildrenRegion(tmpProvinceList, notParentList));
-        return map;
-    }
 
-    /**
-     * 根据省查出子节点数据
-     * @param provinceList 省的数据List
-     * @param notParentList 非省的数据List
-     * @return
-     */
-    public List<Map> getChildrenRegion(List<Region> provinceList, List<Region> notParentList) {
-        List<Map> returnList = new ArrayList<>();
-        for (Region region : provinceList) {
-            Map map = new LinkedHashMap();
-            map.put("value", region.getSrId());
-            map.put("label",  region.getName());
-            map.put("children", getChild(map, notParentList));
-            returnList.add(map);
+        //取出parentId为0的List<Region>
+        List<Region> topList = pMap.get(0);
+
+        //组装返回数据
+        Map<String, Object> resultMap = new LinkedHashMap<>();
+        List childrenList = new ArrayList();
+        for (Region region : topList) {
+            Map<String, Object> children = nodeTree(map, pMap, region.getSrId());
+            childrenList.add(children);
         }
-        return returnList;
+        resultMap.put("options", childrenList);
+        return resultMap;
     }
 
     /**
      * 递归查询省->市->区(县)数据
-     * @param map 键为value、label的map
-     * @param notParentList 非省的数据List
+     * @param map 省市区所有数据 key:srId，value:Region
+     * @param pMap parentId对应的子节点列表的map  key:parentId，value:List<Region> </>
+     * @param srId
      * @return
      */
-    public List<Map> getChild(Map map, List<Region> notParentList) {
-        Integer tmpSrId = (Integer) map.get("value");
-        List<Map> childList = new ArrayList<>();
-        for (int i = 0; i < notParentList.size(); i++) {
-            Region notParentRegion = notParentList.get(i);
-            Integer tmpParentId = notParentRegion.getParentId();
-            if (tmpSrId.equals(tmpParentId)) {
-                Map currentMap = new LinkedHashMap();
-                currentMap.put("value", notParentRegion.getSrId());
-                currentMap.put("label", notParentRegion.getName());
-                notParentList.remove(notParentRegion);
-                i--;
-                List<Map> tmpChildList = getChild(currentMap, notParentList);
-                //判断是否为叶子节点，如果不是的话，继续递归查询
-                if (tmpChildList != null && tmpChildList.size() > 0) {
-                    currentMap.put("children", tmpChildList);
-                }
-                childList.add(currentMap);
-            }
+    private Map<String,Object> nodeTree(Map<Integer, Region> map, Map<Integer, List<Region>> pMap , Integer srId ) {
+        Map<String,Object> resultMap = new LinkedHashMap<>();
+        //根据srId获取该对象
+        Region region = map.get(srId);
+        resultMap.put("value", region.getSrId());
+        resultMap.put("label", region.getName());
+
+        //查询该srId下的所有子节点
+        List<Region> list = pMap.get(srId);
+
+        //判断该节点下是否还有子节点，如果没有，则返回；否则，继续递归查询；
+        if (Ognl.isNull(list)){
+            return resultMap;
         }
-        return childList;
+        //子节点List
+        List childrenList = new ArrayList();
+        for (Region tmpRegion:list) {
+            Map<String,Object> vo = nodeTree(map, pMap, tmpRegion.getSrId());
+            childrenList.add(vo);
+        }
+        resultMap.put("children",childrenList);
+        return resultMap;
     }
 
 }
