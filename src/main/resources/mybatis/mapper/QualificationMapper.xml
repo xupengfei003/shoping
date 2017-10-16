@@ -2,26 +2,22 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="so.sao.shop.supplier.dao.QualificationDao">
 
-    <!-- 资质审核 - 更新资质状态和时间-->
+    <!-- 资质审核 - 更新资质状态和时间,拒绝原因 -->
     <update id="updateQualificationStatus">
-        UPDATE account
+        UPDATE qualification qua
         SET
         qualification_status = #{qualificationStatus},
-        update_date = #{updateDate}
+        reason = #{ reason },
+        update_time = #{updateDate}
         WHERE account_id = #{accountId};
     </update>
 
-    <!-- 资质审核 - 更新资质拒绝原因-->
-    <update id="updateQualificationReason">
-        UPDATE qualification
-        SET reason = #{ reason }
-        WHERE account_id = #{accountId};
-    </update>
-
-    <!-- 查询登录供应商的资质状态 -->
-    <select id="getAccountQualificationStatus" parameterType="long" resultType="int">
-      SELECT  qualification_status
-      FROM account
+    <!-- 查询登录供应商的资质状态, 资质消息是否已读 -->
+    <select id="getAccountQualificationStatus" parameterType="long"  resultType="so.sao.shop.supplier.pojo.output.QualificationOut">
+      SELECT
+            qualification_status AS qualificationStatus,
+            is_read AS isRead
+      FROM qualification
       WHERE  account_id = #{ accountId } ;
   </select>
 
@@ -115,4 +111,6 @@
         delete= 1
         WHERE account_id = #{accountId}
     </update>
+
+
 </mapper>

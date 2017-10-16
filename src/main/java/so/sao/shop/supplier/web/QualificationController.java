@@ -119,4 +119,7 @@ public class QualificationController {
         accountID = CheckUtil.supplierIdCheck(request,accountID);
         return qualificationService.deleteQualification(accountID);
     }
+
+
+
 }
