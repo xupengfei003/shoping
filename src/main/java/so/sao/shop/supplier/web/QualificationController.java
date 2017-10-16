@@ -120,6 +120,17 @@ public class QualificationController {
         return qualificationService.deleteQualification(accountID);
     }
 
+    /**
+     * 更新资质状态消息已读状态
+     * @param accountId
+     * @return result
+     */
+    @ApiOperation(value = "资质审核", notes = "更新资质状态消息已读状态【负责人：许鹏飞】")
+    @PutMapping("/updateQualificationMessageRead")
+    public Result updateQualificationMessageRead(@RequestParam(value = "accountId" ) Integer accountId ){
+        Result result = qualificationService.updateQualificationMessageRead( accountId );
+        return result;
+    }
 
 
 }
