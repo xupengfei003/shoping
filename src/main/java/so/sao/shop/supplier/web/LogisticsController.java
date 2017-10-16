@@ -29,13 +29,17 @@ public class LogisticsController {
     /**
      * 管理员确认送达
      *
-     * @param orderId 订单ID
+     * @param map 订单ID
      * @return
      * @throws Exception
      */
     @ApiOperation(value = "管理员确认送达" ,notes = "管理员确认送达订单【白治华】")
-    @PostMapping(value = "/artificialAutomaticReceive")
-    public Result artificialAutomaticReceive(String orderId) throws Exception {
+    @RequestMapping(value = "/artificialAutomaticRecive",method = RequestMethod.POST)
+    public Result artificialAutomaticReceive(@RequestBody Map<String,Object> map) throws Exception {
+        String orderId = String.valueOf(map.get("orderId"));
+        if(null == orderId){
+            return Result.fail(Constant.MessageConfig.MSG_FAILURE,"请选择订单");
+        }
         Map<String,Object> resultMap = logisticsService.insertReceivedOrder(orderId);
         if("fail".equals(resultMap.get("flag"))){
             return Result.fail(Constant.MessageConfig.MSG_FAILURE,resultMap.get("msg"));

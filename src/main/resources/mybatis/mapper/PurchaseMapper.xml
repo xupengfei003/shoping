@@ -89,7 +89,10 @@
         <where>
             order_status != -1
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.orderStatus)">
-                AND order_status = TRIM(#{purchaseSelectInput.orderStatus})
+                <if test="purchaseSelectInput.orderStatus == 3">
+                    AND (order_status = TRIM(#{purchaseSelectInput.orderStatus})
+                    OR order_status = 19)
+                </if>
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.orderReceiverName) and
             @so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.orderReceiverMobile) and purchaseSelectInput.orderReceiverName == purchaseSelectInput.orderReceiverMobile">
@@ -228,7 +231,10 @@
             order_status != -1
 
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderStatus)">
-                AND order_status = TRIM(#{orderStatus})
+                <if test="orderStatus == 3">
+                    AND (order_status = TRIM(#{orderStatus})
+                    OR order_status = 19)
+                </if>
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderReceiverName) and
             @so.sao.shop.supplier.util.Ognl@isNotEmpty(orderReceiverMobile) and

@@ -80,7 +80,7 @@
     <update id="updateOrderStatus" parameterType="java.util.Map">
         UPDATE purchase
         SET order_status = #{map.orderStatus},
-        updated_at = #{map.date}
+        updated_at = #{map.createTime}
         WHERE order_id = #{map.orderId}
     </update>
 </mapper>

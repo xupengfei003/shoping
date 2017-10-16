@@ -461,7 +461,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                 orderStatus = Constant.OrderMessageConfig.PAYMENT;
             } else if (status == Constant.OrderStatusConfig.PENDING_SHIP) {
                 orderStatus = Constant.OrderMessageConfig.PENDING_SHIP;
-            } else if (status == Constant.OrderStatusConfig.ISSUE_SHIP) {
+            } else if (status == Constant.OrderStatusConfig.ISSUE_SHIP || status == Constant.OrderStatusConfig.CONFIRM_RECEIVED) {
                 orderStatus = Constant.OrderMessageConfig.ISSUE_SHIP;
             } else if (status == Constant.OrderStatusConfig.RECEIVED) {
                 orderStatus = Constant.OrderMessageConfig.RECEIVED;
@@ -469,6 +469,10 @@ public class PurchaseServiceImpl implements PurchaseService {
                 orderStatus = Constant.OrderMessageConfig.REJECT;
             } else if (status == Constant.OrderStatusConfig.REFUNDED) {
                 orderStatus = Constant.OrderMessageConfig.REFUNDED;
+            } else if (status == Constant.OrderStatusConfig.CANCEL_ORDER) {
+                orderStatus = Constant.OrderMessageConfig.CANCEL_ORDER;
+            } else if (status == Constant.OrderStatusConfig.PAYMENT_CANCEL_ORDER) {
+                orderStatus = Constant.OrderMessageConfig.PAYMENT_CANCEL_ORDER;
             }
             cellTemp = row.createCell(4);
             cellTemp.setCellValue(orderStatus);
