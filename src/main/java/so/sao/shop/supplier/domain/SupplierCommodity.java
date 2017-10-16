@@ -157,6 +157,16 @@ public class SupplierCommodity {
      */
     private String guaranteePeriodUnit;
 
+    /**
+     * 库存下限
+     */
+    private Long inventoryMinimum;
+
+    /**
+     * 库存状态
+     */
+    private int inventoryStatus;
+
     public Long getId() {
         return id;
     }
@@ -395,5 +405,21 @@ public class SupplierCommodity {
 
     public void setGuaranteePeriodUnit(String guaranteePeriodUnit) {
         this.guaranteePeriodUnit = guaranteePeriodUnit;
+    }
+
+    public Long getInventoryMinimum() {
+        return inventoryMinimum;
+    }
+
+    public void setInventoryMinimum(Long inventoryMinimum) {
+        this.inventoryMinimum = inventoryMinimum;
+    }
+
+    public int getInventoryStatus() {
+        return inventoryStatus;
+    }
+
+    public void setInventoryStatus(int inventoryStatus) {
+        this.inventoryStatus = inventoryStatus;
     }
 }

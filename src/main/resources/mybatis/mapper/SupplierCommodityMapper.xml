@@ -81,12 +81,18 @@
             updated_by,
             deleted,
             status,
-            description,
             remark,
             tag_id,
-            sku,
             min_order_quantity,
-            invalid_status
+            invalid_status,
+            carton_id,
+            carton_val,
+            inventory_minimum,
+            inventory_status,
+            measure_spec_val,
+            production_date,
+            guarantee_period,
+            guarantee_period_unit
         )VALUES (
             #{supplierId},
             #{code},
@@ -104,14 +110,21 @@
             #{updatedBy},
             #{deleted},
             #{status},
-            #{description},
             #{remark},
             #{tagId},
-            #{sku},
             #{minOrderQuantity},
-            #{invalidStatus}
+            #{invalidStatus},
+            #{cartonId},
+            #{cartonVal},
+            #{inventoryMinimum},
+            #{inventoryStatus},
+            #{measureSpecVal},
+            #{productionDate},
+            #{guaranteePeriod},
+            #{guaranteePeriodUnit}
         )
     </insert>
+
 
     <!-- 更新商品规格信息 -->
     <update id="update">
