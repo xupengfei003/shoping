@@ -63,6 +63,9 @@ public class CommodityServiceImpl implements CommodityService {
     private CommUnitDao commUnitDao;
 
     @Autowired
+    private CommCartonDao commCartonDao;
+
+    @Autowired
     private CommMeasureSpecDao commMeasureSpecDao;
 
     @Autowired
@@ -405,12 +408,20 @@ public class CommodityServiceImpl implements CommodityService {
         //存放查询到的商品详细信息
         CommodityOutput commodityOutput = null;
         List<CommImge> commImgeList;
-        if(auditReult > 0){ //商品有审核状态
+        //商品有审核状态
+        if(auditReult > 0){
             //根据商品的id查询出商品的状态
             int status = supplierCommodityDao.findSupplierCommStatus(id);
             //如果是商品的状态是 6 (编辑待审核),则根据供应商商品ID获取编辑后的商品信息
             if (status > 0) {
                 commodityOutput = supplierCommodityTmpDao.findDetailTmp(id);
+                if (Ognl.isNull(commodityOutput.getCartonId())){
+                    commodityOutput.setCartonName(null);
+                }else {
+                    // 查询箱规名称
+                    CommCarton commCarton = commCartonDao.findOne(commodityOutput.getCartonId());
+                    commodityOutput.setCartonName(commCarton.getName());
+                }
                 commodityOutput.setStatus(supplierCommodityDao.findAuditStatus(id));
                 if (null != commodityOutput) {
                     //根据供应商商品ID获取图片列表信息
@@ -425,12 +436,32 @@ public class CommodityServiceImpl implements CommodityService {
             }else {
                 //商品没状态不为 6(编辑待审核),则根据供应商商品ID获取商品信息
                 commodityOutput = supplierCommodityDao.findDetail(id);
+                if (Ognl.isNull(commodityOutput)){
+                    return Result.success("商品不存在", commodityOutput);
+                }
+                if (Ognl.isNull(commodityOutput.getCartonId())){
+                    commodityOutput.setCartonName(null);
+                }else {
+                    // 查询箱规名称
+                    CommCarton commCarton = commCartonDao.findOne(commodityOutput.getCartonId());
+                    commodityOutput.setCartonName(commCarton.getName());
+                }
                 commodityOutput.setStatus(supplierCommodityDao.findAuditStatus(id));
                 readImgData(id,commodityOutput); //获取图片信息
             }
         } else {
             //商品没有审核记录,则根据供应商商品ID获取商品信息
             commodityOutput = supplierCommodityDao.findDetail(id);
+            if (Ognl.isNull(commodityOutput)){
+                return Result.success("商品不存在", commodityOutput);
+            }
+            if (Ognl.isNull(commodityOutput.getCartonId())){
+                commodityOutput.setCartonName(null);
+            }else {
+                // 查询箱规名称
+                CommCarton commCarton = commCartonDao.findOne(commodityOutput.getCartonId());
+                commodityOutput.setCartonName(commCarton.getName());
+            }
             readImgData(id,commodityOutput); // 获取图片信息
         }
         return Result.success("查询成功", commodityOutput);
