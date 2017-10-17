@@ -72,6 +72,12 @@ public class QualificationServiceImpl implements QualificationService{
             logger.info("无效的审核参数");
             return Result.fail("无效的审核参数");
         }
+        if( Ognl.isNotEmpty( reason ) ){
+            reason = reason.trim();
+        }
+        if( null != reason && reason.length() > 255 ){
+            return Result.fail("拒绝原因不能超过255位！");
+        }
         Date updateDate = new Date();
         qualificationDao.updateQualificationStatus( accountId, qualificationStatus, reason, updateDate );
         return Result.success("更新成功");
