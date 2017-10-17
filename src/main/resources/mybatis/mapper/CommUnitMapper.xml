@@ -10,12 +10,11 @@
     </resultMap>
     <!--查询库存单位集合-->
    <select id="search" resultMap="CommUnitResultMap">
-       SELECT id,name,supplier_id
-       FROM comm_unit
-       WHERE supplier_id=0
-       OR supplier_id=#{supplierId}
-       ORDER BY updated_at
-       DESC
+       SELECT
+       id,name,supplier_id
+       FROM
+       (SELECT  * FROM comm_unit cu WHERE supplier_id IN(0,#{supplierId}) ORDER BY supplier_id DESC ) cu1
+       GROUP BY NAME ORDER BY updated_at desc
    </select>
 
     <!--新增库存单位-->

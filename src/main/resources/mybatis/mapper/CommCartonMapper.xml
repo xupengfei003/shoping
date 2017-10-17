@@ -60,9 +60,11 @@
 
     <!--查询箱规单位集合-->
     <select id="find" parameterType="java.lang.Long" resultMap="resultMap">
-        select
+        SELECT
         <include refid="baseColumns"/>
-        from comm_carton where supplier_id in (0,#{supplierId}) order by updated_at DESC
+        FROM
+        (SELECT  * FROM comm_carton cc WHERE supplier_id IN(0,#{supplierId}) ORDER BY supplier_id DESC ) cc1
+        GROUP BY NAME ORDER BY updated_at desc
     </select>
 
     <!--根据id查询个数-->
