@@ -104,11 +104,8 @@ public class QualificationServiceImpl implements QualificationService{
     public Result searchQualifications(QualificationInput qualificationInput) {
         PageTool.startPage(qualificationInput.getPageNum(), qualificationInput.getPageSize());
         List<QualificationListOut> qualificationListOuts = qualificationDao.findPage(qualificationInput);
-        if(qualificationListOuts!=null && qualificationListOuts.size()>0){
-            PageInfo pageInfo = new PageInfo(qualificationListOuts);
-            return Result.success("查询成功",pageInfo);
-        }
-        return Result.fail("没有符合条件的资质信息");
+        PageInfo pageInfo = new PageInfo(qualificationListOuts);
+        return Result.success("查询成功",pageInfo);
     }
 
     /**
