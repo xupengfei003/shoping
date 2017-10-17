@@ -1062,12 +1062,12 @@
             </if>
             <if test="flag == 1">
                 <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(inputvalue)">
-                    AND (t.code69 LIKE "${code69}%" OR t.commName LIKE "${commName}%" OR t.supplierName LIKE "${supplierName}%")
+                    AND (t.code69 LIKE "${inputvalue}%" OR t.commName LIKE "${inputvalue}%" OR t.supplierName LIKE "${inputvalue}%")
                 </if>
             </if>
             <if test="flag == 0">
                 <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(inputvalue)">
-                    AND (t.code69 LIKE "${code69}%" OR t.commName LIKE "${commName}%")
+                    AND (t.code69 LIKE "${inputvalue}%" OR t.commName LIKE "${inputvalue}%")
                 </if>
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierName)">
