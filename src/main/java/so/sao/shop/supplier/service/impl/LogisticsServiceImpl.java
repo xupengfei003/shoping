@@ -234,22 +234,26 @@ public class LogisticsServiceImpl implements LogisticsService {
      * @return
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Map<String,Object> insertReceivedOrder(String orderId) throws Exception {
         Map<String,Object> resultMap = new HashMap<>();
         Integer orderStatus = purchaseDao.getOrderStatus(orderId);
-        if(orderStatus != 3){
+        Map<String,Object> map = new HashMap<>();
+        if(null != orderStatus && orderStatus == 3){
+            map.put("orderId",orderId);
+            map.put("createTime",new Date());
+            map.put("orderStatus",Constant.OrderStatusConfig.CONFIRM_RECEIVED);
+            logisticsDao.updateOrderStatus(map);
+            Integer count = logisticsDao.insertReceivedOrder(map);
+            if(count != 0){
+                resultMap.put("flag","success");
+            }
+            return resultMap;
+        } else {
             resultMap.put("flag","fail");
             resultMap.put("msg","订单状态不合法，不能收货");
             return resultMap;
         }
-        Map<String,Object> map = new HashMap<>();
-        map.put("orderId",orderId);
-        map.put("createTime",new Date());
-        Integer count = logisticsDao.insertReceivedOrder(map);
-        if(count != 0){
-            resultMap.put("flag","success");
-        }
-        return resultMap;
     }
 
     /**

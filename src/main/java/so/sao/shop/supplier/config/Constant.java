@@ -35,8 +35,9 @@ public interface Constant {
      */
     public static final String ADMIN_STATUS = "1";
     /**
-     * 资质审核： 1待审核 2审核通过 3审核未通过
+     * 资质审核： 0未提交审核，1待审核 2审核通过 3审核未通过
      */
+    public static final Integer QUALIFICATION_NOT_VERIFY = 0;
     public static final Integer QUALIFICATION_AWAIT_VERIFY = 1;
     public static final Integer QUALIFICATION_VERIFY_PASS = 2;
     public static final Integer QUALIFICATION_VERIFY_NOT_PASS = 3;
@@ -82,7 +83,6 @@ public interface Constant {
          * 最小金额不能大于最大金额
          */
         public static final Integer MoneyNOTLate = 8;
-
     }
     /**
      * Message定义
@@ -185,6 +185,10 @@ public interface Constant {
          * 待付款已取消
          */
         public static final Integer PAYMENT_CANCEL_ORDER = 8;
+        /**
+         * 确认送达
+         */
+        public static final Integer CONFIRM_RECEIVED = 19;
 
     }
 
@@ -221,6 +225,10 @@ public interface Constant {
          * 8
          */
         public static final String PAYMENT_CANCEL_ORDER = "待付款已取消";
+        /**
+         * 19
+         */
+        public static final String CONFIRM_RECEIVED = "确认送达";
     }
     interface OrderStatusRule{
         /**
@@ -379,5 +387,46 @@ public interface Constant {
          * 不包邮
          */
         public static final int NotExemption = 1;
+    }
+
+    /*供应商资质常量*/
+    interface QualificationConfig{
+        /**
+         * 最大上传图片数量
+         */
+        public static final int MaxImgNumber = 3;
+
+        /*资质类型（1、开户银行许可证 2、营业执照3、授权报告 4、质检报告 5、食品流通许可证）*/
+        /**
+         * 质检报告
+         */
+        public static final int BankLicense = 1;
+        /**
+         * 营业执照
+         */
+        public static final int BusinessLicense = 2;
+        /**
+         * 授权报告
+         */
+        public static final int AuthorizationReport = 3;
+         /**
+         * 质检报告
+         */
+        public static final int InspectionReport = 4;
+        /**
+         * 食品流通许可证
+         */
+        public static final int FoodDistributionLicense = 5;
+
+        /**
+         * 所有资质文件最大图片数量
+         */
+        public  static final int AllQualificationImgNum = 15;
+
+        /**
+         * 必传资质文件数量
+         */
+        public  static final int MustAddQualification = 2;
+
     }
 }

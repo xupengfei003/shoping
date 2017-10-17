@@ -135,12 +135,12 @@ public class SupplierCommodity {
     /**
      * 箱规数值
      */
-    private int cartonVal;
+    private Long cartonVal;
 
     /**
      * 计量规格数值
      */
-    private int measureSpecVal;
+    private Long measureSpecVal;
 
     /**
      * 生产日期
@@ -156,6 +156,16 @@ public class SupplierCommodity {
      * 有效期单位
      */
     private String guaranteePeriodUnit;
+
+    /**
+     * 库存下限
+     */
+    private Long inventoryMinimum;
+
+    /**
+     * 库存状态
+     */
+    private int inventoryStatus;
 
     public Long getId() {
         return id;
@@ -357,19 +367,19 @@ public class SupplierCommodity {
         this.cartonName = cartonName;
     }
 
-    public int getCartonVal() {
+    public Long getCartonVal() {
         return cartonVal;
     }
 
-    public void setCartonVal(int cartonVal) {
+    public void setCartonVal(Long cartonVal) {
         this.cartonVal = cartonVal;
     }
 
-    public int getMeasureSpecVal() {
+    public Long getMeasureSpecVal() {
         return measureSpecVal;
     }
 
-    public void setMeasureSpecVal(int measureSpecVal) {
+    public void setMeasureSpecVal(Long measureSpecVal) {
         this.measureSpecVal = measureSpecVal;
     }
 
@@ -395,5 +405,21 @@ public class SupplierCommodity {
 
     public void setGuaranteePeriodUnit(String guaranteePeriodUnit) {
         this.guaranteePeriodUnit = guaranteePeriodUnit;
+    }
+
+    public Long getInventoryMinimum() {
+        return inventoryMinimum;
+    }
+
+    public void setInventoryMinimum(Long inventoryMinimum) {
+        this.inventoryMinimum = inventoryMinimum;
+    }
+
+    public int getInventoryStatus() {
+        return inventoryStatus;
+    }
+
+    public void setInventoryStatus(int inventoryStatus) {
+        this.inventoryStatus = inventoryStatus;
     }
 }

@@ -89,13 +89,28 @@
         <where>
             order_status != -1
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.orderStatus)">
-                AND order_status = TRIM(#{purchaseSelectInput.orderStatus})
+                <if test="purchaseSelectInput.orderStatus == 3">
+                    AND (order_status = TRIM(#{purchaseSelectInput.orderStatus})
+                    OR order_status = 19)
+                </if>
             </if>
+            /*供应商*/
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.orderReceiverName) and
-            @so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.orderReceiverMobile) and purchaseSelectInput.orderReceiverName == purchaseSelectInput.orderReceiverMobile">
+            @so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.orderReceiverMobile) and
+            !@so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.storeName) and
+            purchaseSelectInput.orderReceiverName == purchaseSelectInput.orderReceiverMobile">
+                AND (order_receiver_name LIKE "${purchaseSelectInput.orderReceiverName}%"
+                OR order_receiver_mobile LIKE "${purchaseSelectInput.orderReceiverMobile}%")
+            </if>
+            /*管理员*/
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.orderReceiverName) and
+            @so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.orderReceiverMobile) and
+            @so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.storeName) and
+            purchaseSelectInput.orderReceiverName == purchaseSelectInput.orderReceiverMobile and
+            purchaseSelectInput.orderReceiverName == purchaseSelectInput.storeName">
                 AND (order_receiver_name LIKE "${purchaseSelectInput.orderReceiverName}%"
                 OR order_receiver_mobile LIKE "${purchaseSelectInput.orderReceiverMobile}%"
-                OR store_name LIKE "${storeName}%")
+                OR store_name LIKE "${purchaseSelectInput.storeName}%")
             </if>
             <if test="purchaseSelectInput.orderReceiverName != purchaseSelectInput.orderReceiverMobile">
                 <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.orderReceiverName)">
@@ -228,12 +243,25 @@
             order_status != -1
 
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderStatus)">
-                AND order_status = TRIM(#{orderStatus})
+                <if test="orderStatus == 3">
+                    AND (order_status = TRIM(#{orderStatus})
+                    OR order_status = 19)
+                </if>
             </if>
+            /*供应商*/
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderReceiverName) and
+            @so.sao.shop.supplier.util.Ognl@isNotEmpty(orderReceiverMobile) and
+            !@so.sao.shop.supplier.util.Ognl@isNotEmpty(storeName) and
+            orderReceiverName == orderReceiverMobile">
+                AND (order_receiver_name LIKE "${orderReceiverName}%"
+                OR order_receiver_mobile LIKE "${orderReceiverMobile}%")
+            </if>
+            /*管理员*/
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderReceiverName) and
             @so.sao.shop.supplier.util.Ognl@isNotEmpty(orderReceiverMobile) and
             @so.sao.shop.supplier.util.Ognl@isNotEmpty(storeName) and
-            orderReceiverName == orderReceiverMobile">
+            orderReceiverName == orderReceiverMobile and
+            orderReceiverName == storeName">
                 AND (order_receiver_name LIKE "${orderReceiverName}%"
                 OR order_receiver_mobile LIKE "${orderReceiverMobile}%"
                 OR store_name LIKE "${storeName}%")
@@ -695,10 +723,12 @@
         UPDATE purchase
         SET
         <if test="map.orderShipMethod == 1">
+            order_ship_method = #{map.orderShipMethod},
             distributor_name = #{map.name},
             distributor_mobile = #{map.number},
         </if>
         <if test="map.orderShipMethod == 2">
+            order_ship_method = #{map.orderShipMethod},
             logistics_company = #{map.name},
             order_shipment_number = #{map.number},
         </if>

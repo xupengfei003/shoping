@@ -49,7 +49,15 @@
             tag_id,
             min_order_quantity,
             sca_id,
-            invalid_status
+            invalid_status,
+            carton_id,
+            carton_val,
+            inventory_minimum,
+            inventory_status,
+            measure_spec_val,
+            production_date,
+            guarantee_period,
+            guarantee_period_unit
         )VALUES (
             #{supplierId},
             #{code},
@@ -71,7 +79,15 @@
             #{tagId},
             #{minOrderQuantity},
             #{scaId},
-            #{invalidStatus}
+            #{invalidStatus},
+            #{cartonId},
+            #{cartonVal},
+            #{inventoryMinimum},
+            #{inventoryStatus},
+            #{measureSpecVal},
+            #{productionDate},
+            #{guaranteePeriod},
+            #{guaranteePeriodUnit}
         )
     </insert>
 

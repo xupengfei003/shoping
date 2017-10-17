@@ -331,7 +331,7 @@
     <select id="countOrderMoneyRecords" resultType="java.util.Map">
         SELECT state ,SUM(settled_amount) AS settledMoney ,SUM(total_money) AS pendingSettlementMoney
         from order_money_record
-        WHERE checkout_at &lt; #{endTime} AND checkout_at &gt;= #{startTime} AND user_id = #{accountId}
+        WHERE checkout_at &lt; TRIM(DATE_ADD(STR_TO_DATE(#{endTime},'%Y-%m-%d'),INTERVAL 1 DAY)) AND checkout_at &gt;= TRIM(STR_TO_DATE(#{startTime},'%Y-%m-%d')) AND user_id = #{accountId}
         GROUP BY state;
     </select>
 

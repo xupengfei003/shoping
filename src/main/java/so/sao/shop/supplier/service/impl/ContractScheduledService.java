@@ -13,7 +13,7 @@ import so.sao.shop.supplier.dao.NotificationDao;
 import so.sao.shop.supplier.domain.Account;
 import so.sao.shop.supplier.domain.Notification;
 import so.sao.shop.supplier.pojo.input.AccountUpdateInput;
-import so.sao.shop.supplier.service.AccountService;
+import so.sao.shop.supplier.service.CommodityService;
 import so.sao.shop.supplier.util.NumberGenerate;
 
 import java.util.*;
@@ -29,8 +29,6 @@ public class ContractScheduledService {
     @Autowired
     private AccountDao accountDao;
 
-    @Autowired
-    private AccountService accountService;
     /**
      * 初始化日志
      */
@@ -51,6 +49,9 @@ public class ContractScheduledService {
 
     @Autowired
     private NotificationDao notificationDao;
+
+    @Autowired
+    private CommodityService commodityService;
 
     public void contractScheduled(){
             //查询合同剩余30天到期的供应商
@@ -86,6 +87,7 @@ public class ContractScheduledService {
                     Account accountEnd = list.get(i);
                     accountUpdateInput.setAccountId(accountEnd.getAccountId());
                     accountUpdateInput.setAccountStatus(CommConstant.ACCOUNT_INVALID_STATUS);
+                    accountUpdateInput.setUpdateDate(new Date());
                     //发送短信通知
                     TopicMessage topicMessage1 = smsService.sendSms(Collections.singletonList(accountEnd.getContractResponsiblePhone()), Arrays.asList("phone", "password"), Arrays.asList(accountEnd.getContractResponsiblePhone(), ""), smsTemplateCode5);
                     if (topicMessage1 == null) {
@@ -95,7 +97,8 @@ public class ContractScheduledService {
                     Notification notification=createNotification(accountEnd.getAccountId(),ENDINFORM,sigin);
                     notificationList.add(notification);
                     //供应商合同过期自动禁用该供应商
-                    accountService.updateAccountStatus(accountUpdateInput);
+                    accountDao.updateAccountStatusById(accountUpdateInput);
+                    commodityService.updateCommInvalidStatus(accountUpdateInput.getAccountId() , accountUpdateInput.getAccountStatus());
                 }
                 notificationDao.saveNotifications(notificationList);
             }

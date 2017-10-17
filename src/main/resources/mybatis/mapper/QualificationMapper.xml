@@ -2,33 +2,27 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="so.sao.shop.supplier.dao.QualificationDao">
 
-    <!-- 资质审核 - 更新资质状态和时间-->
+    <!-- 资质审核 - 更新资质状态和时间,拒绝原因 -->
     <update id="updateQualificationStatus">
-        UPDATE account
+        UPDATE qualification qua
         SET
         qualification_status = #{qualificationStatus},
-        update_date = #{updateDate}
-        WHERE account_id = #{accountId};
-    </update>
-
-    <!-- 资质审核 - 更新资质拒绝原因-->
-    <update id="updateQualificationReason">
-        UPDATE qualification
-        SET reason = #{ reason }
+        reason = #{ reason },
+        update_time = #{updateDate}
         WHERE account_id = #{accountId};
     </update>
 
     <!-- 查询登录供应商的资质状态 -->
-    <select id="getAccountQualificationStatus" parameterType="long" resultType="int">
-      SELECT  qualification_status
-      FROM account
-      WHERE  account_id = #{ accountId } ;
+    <select id="getAccountQualificationStatus" parameterType="long"  resultType="int">
+      SELECT
+            qualification_status AS qualificationStatus
+      FROM qualification qua
+      WHERE  qua.delete = 0 AND qua.account_id = #{ accountId } ;
   </select>
 
     <select id="findByAccountId" resultType="so.sao.shop.supplier.pojo.output.QualificationOut">
         SELECT
             q.id AS id,
-            q.upload_type AS uplodaType,
             q.reason AS reason,
             i.qualification_type AS qualificationType,
             i.cloud_name AS cloudName,
@@ -36,16 +30,14 @@
             i.file_name AS fileName,
             i.url AS url,
             i.min_img_url AS minImgUrl,
-            a.qualification_status AS qualificationStatus
+            q.qualification_status AS qualificationStatus
         FROM
             qualification q
         LEFT JOIN qualification_image i
             ON q.id = i.qualification_id
-        LEFT JOIN account a
-            ON q.account_id = a.account_id
         WHERE q.delete = 0
             AND i.delete = 0
-            AND a.account_id = #{accountId}
+            AND q.account_id = #{accountId}
     </select>
     <!-- 根据条件查询资质列表 -->
     <select id="findPage" parameterType="so.sao.shop.supplier.pojo.input.QualificationInput" resultType="so.sao.shop.supplier.pojo.output.QualificationListOut">
@@ -59,7 +51,7 @@
             s2.name AS district,
             q.create_time AS createTime,
             q.update_time AS updateTime,
-            a.qualification_status AS qualificationStatus
+            q.qualification_status AS qualificationStatus
         FROM
             qualification q
         LEFT JOIN account a
@@ -78,7 +70,7 @@
             )
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(status)">
-            AND a.qualification_status = #{status}
+            AND q.qualification_status = #{status}
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotNull(startCreateTime)">
             AND q.create_time <![CDATA[>=]]> #{startCreateTime}
@@ -92,7 +84,45 @@
         <if test="@so.sao.shop.supplier.util.Ognl@isNotNull(endUpdateTime)">
             AND q.update_time <![CDATA[<=]]> #{endUpdateTime}
         </if>
-        ORDER BY a.qualification_status,q.create_time
+        ORDER BY q.qualification_status,q.create_time
+    </select>
+
+   <!--供应商资质入库-->
+    <insert id="save" useGeneratedKeys="true" keyProperty="id">
+        INSERT qualification
+        (
+        account_id,
+        qualification_status,
+        create_time,
+        update_time
+        )VALUES (
+        #{accountId},
+        #{qualificationStatus},
+        #{createTime},
+        #{updateTime}
+        )
+    </insert>
+
+    <!--根据供应商ID删除资质表（更新资质表删除状态位）-->
+    <update id="delete">
+        UPDATE qualification q
+        SET
+        q.delete= 1
+        WHERE
+        q.account_id = #{accountId}
+    </update>
+
+    <!-- 更新资质状态消息已读状态 -->
+    <update id="updateQualificationMessageRead">
+        UPDATE account
+        SET is_read = 1
+        WHERE account_id = #{accountId}
+    </update>
+    <!-- 判断资质消息是否已读 -->
+    <select id="findQualificationStatusIsRead" parameterType="int" resultType="int">
+        SELECT is_read
+        FROM ACCOUNT
+        WHERE account_id = #{accountId}
     </select>
 
 </mapper>

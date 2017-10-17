@@ -20,6 +20,12 @@ import java.util.List;
 public class SupplierCommodityVo {
 
     /**
+     * 商家编码
+     */
+    @Length(max = 50,message = "商品商家编码长度不能大于50")
+    private String code;
+
+    /**
      * 商品条码
      */
     @Length(max = 20,message = "商品条码长度不能大于20")
@@ -60,7 +66,7 @@ public class SupplierCommodityVo {
     @NotNull(message = "库存不能为空")
     @Min(value = 0)
     @Max(value = 999999999)
-    private int inventory;
+    private Long inventory;
 
     /**
      * 缩略图
@@ -111,15 +117,15 @@ public class SupplierCommodityVo {
     @NotNull(message = "箱规数值不能为空")
     @Min(value = 0)
     @Max(value = 99999999)
-    private int cartonVal;
+    private Long cartonVal;
 
     /**
      * 计量规格数值
      */
-    @NotNull(message = "箱规数值不能为空")
+    @NotNull(message = "计量规格数值不能为空")
     @Min(value = 0)
     @Max(value = 99999999)
-    private int measureSpecVal;
+    private Long measureSpecVal;
 
     /**
      * 生产日期
@@ -148,6 +154,14 @@ public class SupplierCommodityVo {
     @NotEmpty(message = "图片不能为空")
     @Valid
     private List<CommImgeVo> imgeList;
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
 
     public String getCode69() {
         return code69;
@@ -181,11 +195,11 @@ public class SupplierCommodityVo {
         this.unitId = unitId;
     }
 
-    public int getInventory() {
+    public Long getInventory() {
         return inventory;
     }
 
-    public void setInventory(int inventory) {
+    public void setInventory(Long inventory) {
         this.inventory = inventory;
     }
 
@@ -257,19 +271,19 @@ public class SupplierCommodityVo {
         this.cartonName = cartonName;
     }
 
-    public int getCartonVal() {
+    public Long getCartonVal() {
         return cartonVal;
     }
 
-    public void setCartonVal(int cartonVal) {
+    public void setCartonVal(Long cartonVal) {
         this.cartonVal = cartonVal;
     }
 
-    public int getMeasureSpecVal() {
+    public Long getMeasureSpecVal() {
         return measureSpecVal;
     }
 
-    public void setMeasureSpecVal(int measureSpecVal) {
+    public void setMeasureSpecVal(Long measureSpecVal) {
         this.measureSpecVal = measureSpecVal;
     }
 

@@ -2,20 +2,12 @@ package so.sao.shop.supplier.service;
 
 import com.github.pagehelper.PageInfo;
 import org.springframework.web.multipart.MultipartFile;
-import so.sao.shop.supplier.config.StorageConfig;
 import so.sao.shop.supplier.domain.Account;
-import so.sao.shop.supplier.pojo.BaseResult;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.*;
-import so.sao.shop.supplier.pojo.output.CommodityExportOutput;
-import so.sao.shop.supplier.pojo.output.CommodityOutput;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Created by QuJunLong on 2017/7/17.
@@ -34,7 +26,7 @@ public interface CommodityService {
      * @param commodityUpdateInput 商品信息对象
      * @return 修改结果
      */
-    Result updateCommodity(CommodityUpdateInput commodityUpdateInput, Long supplierId, boolean isAdmin);
+    Result updateCommodity(CommodityUpdateInput commodityUpdateInput, Long supplierId);
 
     /**
      * 根据供应商商品ID获取商品详细信息
@@ -61,16 +53,18 @@ public interface CommodityService {
      * 根据查询条件查询商品详情（高级搜索）
      * @author liugang
      * @param commSearchInput 高级搜索查询请求
+     * @param request
      * @return Result Result对象
      */
-    Result searchCommodities(CommSearchInput commSearchInput);
+    Result searchCommodities(CommSearchInput commSearchInput, HttpServletRequest request);
 
     /**
      * 根据查询条件查询商品详情(简单条件查询)
      * @param commSimpleSearchInput  简单条件查询请求
+     * @param request
      * @return
      */
-    Result simpleSearchCommodities(CommSimpleSearchInput commSimpleSearchInput);
+    Result simpleSearchCommodities(CommSimpleSearchInput commSimpleSearchInput, HttpServletRequest request);
 
     /**
      * 删除商品

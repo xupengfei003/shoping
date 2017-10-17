@@ -8,9 +8,11 @@ import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.domain.User;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.QualificationInput;
+import so.sao.shop.supplier.pojo.input.QualificationSaveInput;
 import so.sao.shop.supplier.service.QualificationService;
 import so.sao.shop.supplier.util.Ognl;
-
+import org.springframework.web.multipart.MultipartFile;
+import so.sao.shop.supplier.util.CheckUtil;
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -65,10 +67,6 @@ public class QualificationController {
     @ApiOperation(value = "根据供应商id查询资质详情",notes = "根据供应商id查询资质详情【负责人：张腾飞】")
     @GetMapping("/getByAccountId")
     public Result getQualification(HttpServletRequest request, @RequestParam Long accountId){
-        User user = (User) request.getAttribute(Constant.REQUEST_USER);
-        if (null == user || Ognl.isEmpty(user.getAccountId())) {   //验证用户是否登陆
-            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
-        }
         return qualificationService.findByAccountId(accountId);
     }
 
@@ -81,11 +79,58 @@ public class QualificationController {
     @ApiOperation(value = "查询资质列表",notes = "查询资质列表【负责人：张腾飞】")
     @GetMapping("/search")
     public Result search(HttpServletRequest request,QualificationInput qualificationInput){
-        User user = (User) request.getAttribute(Constant.REQUEST_USER);
-        if (null == user || Ognl.isEmpty(user.getAccountId())) {   //验证用户是否登陆
-            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
-        }
         return qualificationService.searchQualifications(qualificationInput);
     }
+
+    /**
+     * 供应商资质文件上传
+     * @param multipartFile 供应商资质文件
+     * @return
+     */
+    @PostMapping(value = "/upload")
+    @ApiOperation(value = "供应商资质文件上传", notes = "供应商资质文件上传【负责人：刘刚】")
+    public Result uploadQualificationFile(@RequestPart("file") MultipartFile multipartFile) {
+
+        return qualificationService.uploadQualificationFile(multipartFile);
+    }
+
+    /**
+     * 添加供应商资质图片
+     * @param qualificationInput 资质入参
+     * @return
+     */
+    @PostMapping(value = "/save")
+    @ApiOperation(value = "添加供应商资质", notes = "添加供应商资质【负责人：刘刚】")
+    public Result saveQualification(HttpServletRequest request, @RequestBody QualificationSaveInput qualificationInput) throws Exception{
+        //供应商ID校验
+        qualificationInput.setAccountId(CheckUtil.supplierIdCheck(request,qualificationInput.getAccountId()));
+        return qualificationService.saveQualification(qualificationInput);
+    }
+
+    /**
+     * 供应商资质删除
+     * @param accountID  供应商ID
+     * @return
+     */
+    @PutMapping(value = "/delete/{accountID}")
+    @ApiOperation(value = "供应商资质删除", notes = "供应商资质删除【负责人：刘刚】")
+    public Result deleteQualification(HttpServletRequest request,@PathVariable Long accountID) throws Exception{
+        //供应商ID校验
+        accountID = CheckUtil.supplierIdCheck(request,accountID);
+        return qualificationService.deleteQualification(accountID);
+    }
+
+    /**
+     * 判断资质消息是否已读, 更新资质状态消息已读状态
+     * @param accountId
+     * @return result
+     */
+    @ApiOperation(value = "资质审核", notes = "更新资质状态消息已读状态【负责人：许鹏飞】")
+    @PutMapping("/updateQualificationMessageRead")
+    public Result updateQualificationMessageRead(@RequestParam(value = "accountId" ) Integer accountId ){
+        Result result = qualificationService.updateQualificationMessageRead( accountId );
+        return result;
+    }
+
 
 }

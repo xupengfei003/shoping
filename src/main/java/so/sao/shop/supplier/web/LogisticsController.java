@@ -26,13 +26,24 @@ public class LogisticsController {
     public Result<Object> findLogisticInfo(@PathVariable("num")String num){
         return logisticsService.findLogisticInfo(num);
     }
-    @ApiOperation(value = "查询物流信息" ,notes = "根据物流单号查询物流信息")
-    @PostMapping(value = "/artificialAutomaticReceive")
-    public Result artificialAutomaticReceive(String orderId) throws Exception {
+    /**
+     * 管理员确认送达
+     *
+     * @param map 订单ID
+     * @return
+     * @throws Exception
+     */
+    @ApiOperation(value = "管理员确认送达" ,notes = "管理员确认送达订单【白治华】")
+    @RequestMapping(value = "/artificialAutomaticRecive",method = RequestMethod.POST)
+    public Result artificialAutomaticReceive(@RequestBody Map<String,Object> map) throws Exception {
+        String orderId = String.valueOf(map.get("orderId"));
+        if(null == orderId){
+            return Result.fail(Constant.MessageConfig.MSG_FAILURE,"请选择订单");
+        }
         Map<String,Object> resultMap = logisticsService.insertReceivedOrder(orderId);
         if("fail".equals(resultMap.get("flag"))){
             return Result.fail(Constant.MessageConfig.MSG_FAILURE,resultMap.get("msg"));
         }
-        return Result.success(Constant.MessageConfig.MSG_SUCCESS);
+        return Result.success("该订单七日后自动确认收货");
     }
 }
