@@ -79,6 +79,8 @@ public class CommInventoryController {
     public Result updateInventoryById(@RequestBody @Valid CommInventoryInfoInput commInventoryInfoInput) throws Exception {
         if (commInventoryInfoInput.getInventory() + commInventoryInfoInput.getInventoryIncreasement() < 0) {
             return Result.fail("库存量不能小于0");
+        } else {
+            commInventoryInfoInput.setInventory(commInventoryInfoInput.getInventory() + commInventoryInfoInput.getInventoryIncreasement());
         }
         commInventoryService.updateInventoryById(commInventoryInfoInput);
         return Result.success("该商品库存设置成功");

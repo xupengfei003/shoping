@@ -868,7 +868,7 @@
 
 	<!-- 轮播图查询商品信息 -->
     <select id="findCommByNameAndCategory" resultType="so.sao.shop.supplier.pojo.output.CommodityBannerOut">
-    	SELECT 
+    	SELECT
 		  sc.id AS commodityId,
 		  a.provider_name AS providerName,
 		  sc.min_img AS minImg,
@@ -882,12 +882,12 @@
 		  sc.inventory AS inventory,
 		  sc.status AS status
 		FROM
-		  supplier_commodity sc 
-		  LEFT JOIN commodity c 
-		    ON sc.code69 = c.code69 
-		  LEFT JOIN comm_measure_spec cms 
-		    ON sc.measure_spec_id = cms.id 
-		  LEFT JOIN comm_unit cu 
+		  supplier_commodity sc
+		  LEFT JOIN commodity c
+		    ON sc.code69 = c.code69
+		  LEFT JOIN comm_measure_spec cms
+		    ON sc.measure_spec_id = cms.id
+		  LEFT JOIN comm_unit cu
 		    ON sc.unit_id = cu.id
 		  LEFT JOIN account a
 		    ON sc.supplier_id = a.account_id
@@ -946,57 +946,146 @@
     <!-- 商品库存查询接口 -->
     <select id="searchCommInventory" resultType="so.sao.shop.supplier.pojo.output.CommInventoryOutput" parameterType="so.sao.shop.supplier.pojo.input.CommInventoryInput">
         SELECT
-            sc.id AS id,
-            s.name AS supplierName,
-            sc.code69 AS code69,
-            cb.name AS brandName,
-            c.name AS commName,
-            cms.name AS measureSpecName,
-            sc.rule_val AS ruleVal,
-            cc.name AS cartonName,
-            sc.inventory_minimum AS inventoryMinimum,
-            sc.inventory AS inventory,
-            cu.name AS unitName,
-            sc.inventory_status AS inventoryStatus
+            id,
+            supplierName,
+            code69,
+            brandName,
+            commName,
+            measureSpecName,
+            ruleVal,
+            cartonName,
+            inventoryMinimum,
+            inventory,
+            unitName,
+            inventoryStatus,
+            categoryOneId,
+            categoryTwoId,
+            categoryThreeId,
+            status
         FROM
-            supplier_commodity sc
-        JOIN commodity c ON sc.code69 = c.code69
-        JOIN supplier s ON sc.supplier_id = s.id
-        JOIN comm_brand cb ON c.brand_id = cb.id
-        JOIN comm_measure_spec cms ON sc.measure_spec_id = cms.id
-        JOIN comm_carton cc ON sc.carton_id = cc.id
-        JOIN comm_unit cu ON sc.unit_id = cu.id
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(inventoryStatus)">
-            AND sc.inventory_status = #{inventoryStatus}
-        </if>
-        <if test="flag == 1">
-            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(inputvalue)">
-                AND (sc.code69 LIKE "${code69}%" OR c.name LIKE "${commName}%" OR s.name LIKE "${supplierName}%")
+        (
+            SELECT
+                t1.sc_id AS id,
+                sct.supplier_id,
+                a.provider_name AS supplierName,
+                sct.code69 AS code69,
+                cb.name AS brandName,
+                c.name AS commName,
+                cms.name AS measureSpecName,
+                sct.rule_val AS ruleVal,
+                cc.name AS cartonName,
+                sct.inventory_minimum AS inventoryMinimum,
+                sct.inventory AS inventory,
+                cu.name AS unitName,
+                sct.inventory_status AS inventoryStatus,
+                c.category_one_id AS categoryOneId,
+                c.category_two_id AS categoryTwoId,
+                c.category_three_id AS categoryThreeId,
+                sct.status AS status
+            FROM
+              supplier_commodity_tmp sct
+            INNER JOIN (
+                SELECT
+                    t.id,
+                    t.sc_id,
+                    t.supplier_id,
+                    t.updated_at,
+                    t.created_at,
+                    t. STATUS,
+                    t.audit_result,
+                    t.audit_flag,
+                    t.audit_by,
+                    t.audit_opinion
+                FROM
+                  supplier_commodity_audit t
+                WHERE
+                    t. STATUS = 6 AND t.audit_flag = 1) t1 ON sct.sca_id = t1.id
+                LEFT JOIN account a ON sct.supplier_id = a.account_id
+                LEFT JOIN commodity c ON sct.code69 = c.code69
+                LEFT JOIN comm_brand cb ON c.brand_id = cb.id
+                LEFT JOIN comm_measure_spec cms ON sct.measure_spec_id = cms.id
+                LEFT JOIN comm_carton cc ON sct.carton_id = cc.id
+                LEFT JOIN comm_unit cu ON sct.unit_id = cu.id
+                WHERE 1 = 1
+                <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierId)">
+                    AND sct.supplier_id = #{supplierId}
+                </if>
+            UNION
+                SELECT
+                    sc.id AS id,
+                    sc.supplier_id,
+                    a.provider_name AS supplierName,
+                    sc.code69 AS code69,
+                    cb. NAME AS brandName,
+                    c. NAME AS commName,
+                    cms. NAME AS measureSpecName,
+                    sc.rule_val AS ruleVal,
+                    cc. NAME AS cartonName,
+                    sc.inventory_minimum AS inventoryMinimum,
+                    sc.inventory AS inventory,
+                    cu. NAME AS unitName,
+                    sc.inventory_status AS inventoryStatus,
+                    c.category_one_id AS categoryOneId,
+                    c.category_two_id AS categoryTwoId,
+                    c.category_three_id AS categoryThreeId,
+                    sc.status AS status
+                FROM
+                    supplier_commodity sc
+                LEFT JOIN (
+                    SELECT
+                    t.id,
+                    t.sc_id,
+                    t.supplier_id,
+                    t.updated_at,
+                    t.created_at,
+                    t. STATUS,
+                    t.audit_result,
+                    t.audit_flag,
+                    t.audit_by,
+                    t.audit_opinion
+                    FROM
+                    supplier_commodity_audit t
+                    WHERE t. STATUS != 6) t1 ON sc.id = t1.sc_id
+                    LEFT JOIN account a ON sc.supplier_id = a.account_id
+                    LEFT JOIN commodity c ON sc.code69 = c.code69
+                    LEFT JOIN comm_brand cb ON c.brand_id = cb.id
+                    LEFT JOIN comm_measure_spec cms ON sc.measure_spec_id = cms.id
+                    LEFT JOIN comm_carton cc ON sc.carton_id = cc.id
+                    LEFT JOIN comm_unit cu ON sc.unit_id = cu.id
+                    WHERE 1 = 1
+                    <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierId)">
+                        AND sc.supplier_id = #{supplierId}
+                    </if>
+                ) t GROUP BY id HAVING 1 = 1
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(inventoryStatus)">
+                AND t.inventoryStatus = #{inventoryStatus}
             </if>
-        </if>
-        <if test="flag == 0">
-            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(inputvalue)">
-                AND (sc.code69 LIKE "${code69}%" OR c.name LIKE "${commName}%")
+            <if test="flag == 1">
+                <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(inputvalue)">
+                    AND (t.code69 LIKE "${code69}%" OR t.commName LIKE "${commName}%" OR t.supplierName LIKE "${supplierName}%")
+                </if>
             </if>
-        </if>
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierName)">
-            AND s.name LIKE "${supplierName}%"
-        </if>
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(categoryOneId)">
-            AND c.category_one_id = #{categoryOneId}
-        </if>
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(categoryTwoId)">
-            AND c.category_two_id = #{categoryTwoId}
-        </if>
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(categoryThreeId)">
-            AND c.category_three_id = #{categoryThreeId}
-        </if>
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(status)">
-            AND sc.status = #{status}
-        </if>
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierId)">
-            AND sc.supplier_id = #{supplierId}
-        </if>
+            <if test="flag == 0">
+                <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(inputvalue)">
+                    AND (t.code69 LIKE "${code69}%" OR t.commName LIKE "${commName}%")
+                </if>
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierName)">
+                AND t.supplierName LIKE "${supplierName}%"
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(categoryOneId)">
+                AND t.categoryOneId = #{categoryOneId}
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(categoryTwoId)">
+                AND t.categoryTwoId = #{categoryTwoId}
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(categoryThreeId)">
+                AND t.categoryThreeId = #{categoryThreeId}
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(status)">
+                AND t.status = #{status}
+            </if>
+            ORDER BY t.inventoryStatus DESC
     </select>
 
     <!-- 获取某商品库存信息 -->
@@ -1010,6 +1099,25 @@
         WHERE
             id = #{id}
     </select>
+    <!-- tmp_获取某商品库存信息 -->
+    <select id="getInventoryByTmpId" resultType="so.sao.shop.supplier.pojo.output.CommInventoryInfoOutput" parameterType="java.lang.Long">
+        SELECT
+            id,
+            inventory_minimum,
+            inventory,
+            inventory_status
+        FROM
+            supplier_commodity_tmp
+        WHERE
+            sca_id = (
+                SELECT
+                    sca.id
+                FROM
+                    supplier_commodity_audit sca
+                JOIN supplier_commodity sc ON sca.sc_id = sc.id
+                AND sc.id = #{id}
+            )
+    </select>
 
     <!-- 更新某商品库存信息 -->
     <update id="updateInventoryById" parameterType="so.sao.shop.supplier.pojo.input.CommInventoryInfoInput">
@@ -1017,8 +1125,26 @@
             supplier_commodity
         SET
             inventory_minimum = #{inventoryMinimum},
-            inventory = #{inventory}
+            inventory = #{inventory},
+            inventory_status = #{inventoryStatus}
         WHERE
             id = #{id}
+    </update>
+    <update id="updateInventoryByTmpScaId" parameterType="so.sao.shop.supplier.pojo.input.CommInventoryInfoInput">
+        UPDATE
+            supplier_commodity_tmp
+        SET
+            inventory_minimum = #{inventoryMinimum},
+            inventory = #{inventory},
+            inventory_status = #{inventoryStatus}
+        WHERE
+            sca_id = (
+                SELECT
+                    sca.id
+                FROM
+                    supplier_commodity_audit sca
+                JOIN supplier_commodity sc ON sca.sc_id = sc.id
+                AND sc.id = #{id}
+	    )
     </update>
 </mapper>
