@@ -121,7 +121,7 @@ public class QualificationController {
     }
 
     /**
-     * 更新资质状态消息已读状态
+     * 判断资质消息是否已读, 更新资质状态消息已读状态
      * @param accountId
      * @return result
      */

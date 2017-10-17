@@ -28,11 +28,11 @@ public interface QualificationDao {
     void updateQualificationStatus(@Param("accountId") Integer accountId, @Param("qualificationStatus")Integer qualificationStatus,@Param("reason") String reason, @Param("updateDate")Date updateDate );
 
     /**
-     * 查询登录供应商的资质状态,资质消息是否已读
+     * 查询登录供应商的资质状态
      * @param accountId
      * @return
      */
-    QualificationOut getAccountQualificationStatus( @Param("accountId") Long accountId );
+    Integer getAccountQualificationStatus( @Param("accountId") Long accountId );
 
     /**
      * 根据供应商id查询资质详情
@@ -67,4 +67,11 @@ public interface QualificationDao {
      * @param accountId
      */
     void updateQualificationMessageRead(Integer accountId);
+
+    /**
+     * 判断资质消息是否已读
+     * @param accountId
+     * @return
+     */
+    Integer findQualificationStatusIsRead(Integer accountId);
 }

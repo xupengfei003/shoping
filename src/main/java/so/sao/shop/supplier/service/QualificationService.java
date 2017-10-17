@@ -20,7 +20,7 @@ public interface QualificationService {
     Result updateQualificationStatus(Integer accountId, Integer qualificationStatus, String reason );
 
     /**
-     *查询登录供应商的资质状态,资质消息是否已读
+     *查询登录供应商的资质状态
      * @param accountId
      * @return
      */

@@ -12,13 +12,12 @@
         WHERE account_id = #{accountId};
     </update>
 
-    <!-- 查询登录供应商的资质状态, 资质消息是否已读 -->
-    <select id="getAccountQualificationStatus" parameterType="long"  resultType="so.sao.shop.supplier.pojo.output.QualificationOut">
+    <!-- 查询登录供应商的资质状态 -->
+    <select id="getAccountQualificationStatus" parameterType="long"  resultType="int">
       SELECT
-            qualification_status AS qualificationStatus,
-            is_read AS isRead
-      FROM qualification
-      WHERE  account_id = #{ accountId } ;
+            qualification_status AS qualificationStatus
+      FROM qualification qua
+      WHERE  qua.delete = 0 AND qua.account_id = #{ accountId } ;
   </select>
 
     <select id="findByAccountId" resultType="so.sao.shop.supplier.pojo.output.QualificationOut">
@@ -115,8 +114,15 @@
 
     <!-- 更新资质状态消息已读状态 -->
     <update id="updateQualificationMessageRead">
-        UPDATE qualification
+        UPDATE account
         SET is_read = 1
         WHERE account_id = #{accountId}
     </update>
+    <!-- 判断资质消息是否已读 -->
+    <select id="findQualificationStatusIsRead" parameterType="int" resultType="int">
+        SELECT is_read
+        FROM ACCOUNT
+        WHERE account_id = #{accountId}
+    </select>
+
 </mapper>
