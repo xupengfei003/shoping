@@ -164,7 +164,6 @@
         t2.brandName AS brandName,
         t2.name AS name,
         t2.unitName AS unitName,
-        t2.measureSpecName AS measureSpecName,
         t2.ruleVal AS ruleVal,
         t2.inventory AS inventory,
         t2.price AS price,
@@ -187,7 +186,6 @@
         cb.name AS brandName,
         c.name AS name,
         cu.name AS unitName,
-        cms.name AS measureSpecName,
         sc.rule_val AS ruleVal,
         sc.inventory AS inventory,
         sc.price AS price,
@@ -205,7 +203,6 @@
         ON sc.`id` = t1.sc_id
         INNER JOIN account a ON t1.supplier_id=a.account_id
         INNER JOIN commodity c ON sc.code69 = c.code69
-        LEFT JOIN comm_measure_spec cms ON sc.measure_spec_id = cms.id
         LEFT JOIN comm_unit cu ON sc.unit_id = cu.id
         LEFT JOIN comm_brand cb ON c.brand_id = cb.id
         WHERE sc.`deleted` = 0
@@ -221,7 +218,6 @@
         cb.name AS brandName,
         c.name AS name,
         cu.name AS unitName,
-        cms.name AS measureSpecName,
         sctmp.rule_val AS ruleVal,
         sctmp.inventory AS inventory,
         sctmp.price AS price,
@@ -239,7 +235,6 @@
         ON sctmp.`sca_id` = t1.id
         INNER JOIN account a ON t1.supplier_id=a.account_id
         INNER JOIN commodity c ON sctmp.code69 = c.code69
-        LEFT JOIN comm_measure_spec cms ON sctmp.measure_spec_id = cms.id
         LEFT JOIN comm_unit cu ON sctmp.unit_id = cu.id
         LEFT JOIN comm_brand cb ON c.brand_id = cb.id
         ) t2
