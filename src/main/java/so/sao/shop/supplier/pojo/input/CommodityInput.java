@@ -68,16 +68,6 @@ public class CommodityInput {
     private String remark;
 
     /**
-     * 商品标签Id
-     */
-    private Long tagId;
-
-    /**
-     * 商品标签Name
-     */
-    private String tagName;
-
-    /**
      * 企业名称
      */
     @NotBlank(message = "企业名称不能为空")
@@ -154,14 +144,6 @@ public class CommodityInput {
         this.remark = remark;
     }
 
-    public Long getTagId() {
-        return tagId;
-    }
-
-    public void setTagId(Long tagId) {
-        this.tagId = tagId;
-    }
-
     public String getCompanyName() {
         return companyName;
     }
@@ -184,14 +166,6 @@ public class CommodityInput {
 
     public void setCommodityList(List<SupplierCommodityVo> commodityList) {
         this.commodityList = commodityList;
-    }
-
-    public String getTagName() {
-        return tagName;
-    }
-
-    public void setTagName(String tagName) {
-        this.tagName = tagName;
     }
 
     public Long getBrandId() {
