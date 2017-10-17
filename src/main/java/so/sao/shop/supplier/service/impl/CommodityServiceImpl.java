@@ -64,10 +64,10 @@ public class CommodityServiceImpl implements CommodityService {
     private CommUnitDao commUnitDao;
 
     @Autowired
-    private CommCartonDao commCartonDao;
+    private CommMeasureSpecDao commMeasureSpecDao;
 
     @Autowired
-    private CommMeasureSpecDao commMeasureSpecDao;
+    private CommCartonDao commCartonDao;
 
     @Autowired
     private AzureBlobService azureBlobService;
