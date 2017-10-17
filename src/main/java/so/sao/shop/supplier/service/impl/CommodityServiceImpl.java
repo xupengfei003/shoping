@@ -499,7 +499,7 @@ public class CommodityServiceImpl implements CommodityService {
 //        }
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //开始分页
-        PageTool.startPage(commSimpleSearchInput.getPageNum(), commSimpleSearchInput.getPageSize());
+
         Integer status = commSimpleSearchInput.getStatus();
         String inputvalue = commSimpleSearchInput.getInputvalue();
         Integer auditResult = commSimpleSearchInput.getAuditResult();
@@ -510,10 +510,11 @@ public class CommodityServiceImpl implements CommodityService {
             supplierId = commSimpleSearchInput.getSupplierId();
         }else{//供应商
             supplierId = accountDao.findAccountByUserId(user.getId()).getAccountId();
+
         }
 
 
-
+        PageTool.startPage(commSimpleSearchInput.getPageNum(), commSimpleSearchInput.getPageSize());
         List<SuppCommSearchVo> respList = supplierCommodityDao.findSimple(status,inputvalue,auditResult,role,supplierId);
 
         respList.forEach(suppCommSearchVo->{
