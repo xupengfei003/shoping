@@ -113,7 +113,15 @@
         updated_by AS updatedBy,
         supplier_id AS supplierId,
         status,
-        min_order_quantity AS minOrderQuantity
+        min_order_quantity AS minOrderQuantity,
+        carton_id AS cartonId,
+        carton_val AS cartonVal},
+        inventory_minimum AS inventoryMinimum,
+        inventory_status AS inventoryStatus,
+        measure_spec_val AS measureSpecVal,
+        production_date AS productionDate,
+        guarantee_period AS guaranteePeriod,
+        guarantee_period_unit AS guaranteePeriodUnit
         FROM supplier_commodity_tmp
         WHERE  sca_id = #{id}
     </select>

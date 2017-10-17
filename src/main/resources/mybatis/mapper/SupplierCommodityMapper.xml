@@ -145,7 +145,15 @@
             carton_val = #{cartonVal},
             production_date = #{productionDate},
             guarantee_period =  #{guaranteePeriod},
-            guarantee_period_unit =  #{guaranteePeriodUnit}
+            guarantee_period_unit =  #{guaranteePeriodUnit},
+            carton_id = #{cartonId},
+            carton_val = #{cartonVal},
+            inventory_minimum = #{inventoryMinimum},
+            inventory_status = #{inventoryStatus},
+            measure_spec_val = #{measureSpecVal},
+            production_date = #{productionDate},
+            guarantee_period = #{guaranteePeriod},
+            guarantee_period_unit = #{guaranteePeriodUnit}
         WHERE id = #{id}
     </update>
     <delete id="deleteById">
