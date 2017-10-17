@@ -51,5 +51,5 @@ CREATE TABLE `received_purchase` (
 /*
 增加供应商是否首次登陆
  */
-ALTER TABLE `ty_supplier`.`account`
+ALTER TABLE `account`
   ADD COLUMN `is_read` INT(1) DEFAULT 0  NULL   COMMENT '是否已读（0、未读 1、已读）' AFTER `contract_name`;

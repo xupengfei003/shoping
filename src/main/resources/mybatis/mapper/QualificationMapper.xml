@@ -73,16 +73,16 @@
             AND q.qualification_status = #{status}
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotNull(startCreateTime)">
-            AND q.create_time <![CDATA[>=]]> #{startCreateTime}
+            AND STR_TO_DATE(DATE_FORMAT(q.create_time,'%Y-%c-%d'),'%Y-%m-%d') <![CDATA[>=]]> STR_TO_DATE(#{startCreateTime},'%Y-%m-%d')
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotNull(endCreateTime)">
-            AND q.create_time <![CDATA[<=]]> #{endCreateTime}
+            AND STR_TO_DATE(DATE_FORMAT(q.create_time,'%Y-%c-%d'),'%Y-%m-%d') <![CDATA[<=]]> STR_TO_DATE(#{endCreateTime},'%Y-%m-%d')
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotNull(startUpdateTime)">
-            AND q.update_time <![CDATA[>=]]> #{startUpdateTime}
+            AND STR_TO_DATE(DATE_FORMAT(q.update_time,'%Y-%c-%d'),'%Y-%m-%d') <![CDATA[>=]]> STR_TO_DATE(#{startUpdateTime},'%Y-%m-%d')
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotNull(endUpdateTime)">
-            AND q.update_time <![CDATA[<=]]> #{endUpdateTime}
+            AND STR_TO_DATE(DATE_FORMAT(q.update_time,'%Y-%c-%d'),'%Y-%m-%d') <![CDATA[<=]]> STR_TO_DATE(#{endUpdateTime},'%Y-%m-%d')
         </if>
         ORDER BY q.qualification_status,q.create_time
     </select>
