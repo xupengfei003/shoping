@@ -431,7 +431,7 @@
 
 
 
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierName) and @so.sao.shop.supplier.util.Ognl@isEmpty(role)">
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierName) and @so.sao.shop.supplier.util.Ognl@isNotEmpty(role)">
             AND t.providerName  LIKE CONCAT ('%',#{supplierName},'%')
         </if>
 
