@@ -127,12 +127,12 @@ public class Account {
 	/**
 	 * 用户创建日期
 	 */
-	@JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
+	@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
 	private Date createDate;
 	/**
 	 * 用户修改日期
 	 */
-	@JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
+	@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
 	private Date updateDate;
 	/**
 	 * 备注
