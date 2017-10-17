@@ -43,7 +43,7 @@ public class ImagesUploadThread implements  Runnable{
         this.azureBlobService = azureBlobService;
         this.commodityDao = commodityDao;
     }
-
+    @Override
     public void run() {
         for(int g = 0;   g < commodityImageVoList.size(); g++ ){
             CommodityImageVo commodityImageVo=commodityImageVoList.get(g);

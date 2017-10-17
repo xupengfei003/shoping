@@ -45,7 +45,7 @@ public class CommodityImportOutput extends BaseResult {
     /**
      * 库存
      */
-    private Double inventory;
+    private Long inventory;
     /**
      * 商品标签名称
      */
@@ -54,11 +54,7 @@ public class CommodityImportOutput extends BaseResult {
      * 企业名称
      */
     private String companyName;
-    /**
-     * 上市时间
-     */
-    @JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
-    private Date marketTime;
+
     /**
      * 商品产地
      */
@@ -98,7 +94,7 @@ public class CommodityImportOutput extends BaseResult {
         return unit;
     }
 
-    public Double getInventory() {
+    public Long getInventory() {
         return inventory;
     }
 
@@ -134,7 +130,7 @@ public class CommodityImportOutput extends BaseResult {
         this.unit = unit;
     }
 
-    public void setInventory(Double inventory) {
+    public void setInventory(Long inventory) {
         this.inventory = inventory;
     }
 
@@ -149,10 +145,6 @@ public class CommodityImportOutput extends BaseResult {
     public String getCompanyName() {return companyName;}
 
     public void setCompanyName(String companyName) {this.companyName = companyName;}
-
-    public Date getMarketTime() {return marketTime;}
-
-    public void setMarketTime(Date marketTime) {this.marketTime = marketTime;}
 
     public String getOriginPlace() {return originPlace;}
 
