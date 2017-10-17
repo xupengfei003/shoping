@@ -31,6 +31,7 @@ import org.apache.commons.lang.StringUtils;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by liugang on 2017/10/11.
@@ -65,18 +66,18 @@ public class QualificationServiceImpl implements QualificationService{
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result updateQualificationStatus(Integer accountId, Integer qualificationStatus, String reason) {
-        if( !(Constant.QUALIFICATION_VERIFY_PASS == qualificationStatus)
-                && !(Constant.QUALIFICATION_VERIFY_NOT_PASS == qualificationStatus)
-                && !(Constant.QUALIFICATION_AWAIT_VERIFY == qualificationStatus )
-                && !(Constant.QUALIFICATION_NOT_VERIFY == qualificationStatus ) ){
+        if( !(Objects.equals(Constant.QUALIFICATION_VERIFY_PASS, qualificationStatus))
+                && !(Objects.equals(Constant.QUALIFICATION_VERIFY_NOT_PASS, qualificationStatus))
+                && !(Objects.equals(Constant.QUALIFICATION_AWAIT_VERIFY, qualificationStatus))
+                && !(Objects.equals(Constant.QUALIFICATION_NOT_VERIFY, qualificationStatus)) ){
             logger.info("无效的审核参数");
             return Result.fail("无效的审核参数");
         }
         if( Ognl.isNotEmpty( reason ) ){
             reason = reason.trim();
         }
-        if( null != reason && reason.length() > 255 ){
-            return Result.fail("拒绝原因不能超过255位！");
+        if( null != reason && reason.length() > Constant.CheckMaxLength.MAX_QUALIFICATIUON_REJECT_REASON_LENGTH ){
+            return Result.fail("拒绝原因不能超过"+ Constant.CheckMaxLength.MAX_QUALIFICATIUON_REJECT_REASON_LENGTH +"位！");
         }
         Date updateDate = new Date();
         qualificationDao.updateQualificationStatus( accountId, qualificationStatus, reason, updateDate );
@@ -100,7 +101,7 @@ public class QualificationServiceImpl implements QualificationService{
     @Override
     public Result findByAccountId(Long accountId) {
         List<QualificationOut> qualificationOuts = qualificationDao.findByAccountId(accountId);
-        if(qualificationOuts.size()>0) {
+        if(qualificationOuts.size()> 0 ) {
             return Result.success("根据供应商id查询供应商资质详情成功", qualificationOuts);
         }
         return Result.success("根据供应商id查询供应商资质详情成功",new QualificationOut("0"));
@@ -235,7 +236,7 @@ public class QualificationServiceImpl implements QualificationService{
         }
 
         /*开户银行许可证/营业执照为必传项*/
-        if (imgs.size() < Constant.QualificationConfig.MustAddQualification){
+        if (imgs.size() < Constant.QualificationConfig.MUST_ADD_QUALIFICATION){
             throw new BusinessException("开户银行许可证/营业执照不能为空");
         }else {
             List<Integer> types = new ArrayList<>();
@@ -244,35 +245,35 @@ public class QualificationServiceImpl implements QualificationService{
                types.add(img.getQualificationType());
             }
 
-            if (!(types.contains(Constant.QualificationConfig.BankLicense))){
+            if (!(types.contains(Constant.QualificationConfig.BANK_LICENSE))){
                 throw new BusinessException("开户银行许可证不能为空");
-            }else if (!(types.contains(Constant.QualificationConfig.BusinessLicense))){
+            }else if (!(types.contains(Constant.QualificationConfig.BUSINESS_LICENSE))){
                 throw new BusinessException("营业执照不能为空");
             }
         }
 
         /*资质图片最大不能超过15张*/
-        if (imgs.size() > Constant.QualificationConfig.AllQualificationImgNum){
-            throw new BusinessException("资质图片总数不能超过 "+Constant.QualificationConfig.AllQualificationImgNum+" 张");
+        if (imgs.size() > Constant.QualificationConfig.ALL_QUALIFICATION_IMG_NUM){
+            throw new BusinessException("资质图片总数不能超过 "+Constant.QualificationConfig.ALL_QUALIFICATION_IMG_NUM+" 张");
         }
         //校验各类资质必填项及数量
         for (QualificationImagesVo qualificationImagesVo : imgs){
             int typeNum = qualificationImagesVo.getQualificationType();
             switch (typeNum){
-                case Constant.QualificationConfig.BankLicense :
-                    checkQualificationImgNum(qualificationImagesVo,Constant.QualificationConfig.BankLicense,"开户银行许可证");
+                case Constant.QualificationConfig.BANK_LICENSE :
+                    checkQualificationImgNum(qualificationImagesVo,Constant.QualificationConfig.BANK_LICENSE,"开户银行许可证");
                     break;
-                case Constant.QualificationConfig.BusinessLicense :
-                    checkQualificationImgNum(qualificationImagesVo,Constant.QualificationConfig.BusinessLicense,"营业执照");
+                case Constant.QualificationConfig.BUSINESS_LICENSE :
+                    checkQualificationImgNum(qualificationImagesVo,Constant.QualificationConfig.BUSINESS_LICENSE,"营业执照");
                     break;
-                case Constant.QualificationConfig.AuthorizationReport :
-                    checkQualificationImgMaxNum(qualificationImagesVo,Constant.QualificationConfig.AuthorizationReport,"授权报告");
+                case Constant.QualificationConfig.AUTHORIZATION_REPORT :
+                    checkQualificationImgMaxNum(qualificationImagesVo,Constant.QualificationConfig.AUTHORIZATION_REPORT,"授权报告");
                     break;
-                case Constant.QualificationConfig.InspectionReport :
-                    checkQualificationImgMaxNum(qualificationImagesVo,Constant.QualificationConfig.InspectionReport,"质检报告");
+                case Constant.QualificationConfig.INSPECTION_REPORT :
+                    checkQualificationImgMaxNum(qualificationImagesVo,Constant.QualificationConfig.INSPECTION_REPORT,"质检报告");
                     break;
-                case Constant.QualificationConfig.FoodDistributionLicense :
-                    checkQualificationImgMaxNum(qualificationImagesVo,Constant.QualificationConfig.FoodDistributionLicense,"食品流通许可证");
+                case Constant.QualificationConfig.FOOD_DISTRIBUTIONLICENSE :
+                    checkQualificationImgMaxNum(qualificationImagesVo,Constant.QualificationConfig.FOOD_DISTRIBUTIONLICENSE,"食品流通许可证");
                     break;
                 default: throw new BusinessException("非法资质类型");
             }
@@ -286,7 +287,7 @@ public class QualificationServiceImpl implements QualificationService{
      * @param qualificationName 资质类型（1、开户银行许可证 2、营业执照 3、授权报告 4、质检报告 5、食品流通许可证）
      */
     private void checkQualificationImgNum(QualificationImagesVo qualificationImagesVo, Integer qualificationType ,String qualificationName){
-        if (qualificationImagesVo.getQualificationType() == qualificationType){
+        if (Objects.equals(qualificationImagesVo.getQualificationType(), qualificationType)){
             if (qualificationImagesVo.getList() == null || qualificationImagesVo.getList().size() == 0){
                 throw new BusinessException(qualificationName + "图片不能为空");
             }else {
@@ -304,9 +305,9 @@ public class QualificationServiceImpl implements QualificationService{
      * @param qualificationName  资质类型（1、开户银行许可证 2、营业执照3、授权报告 4、质检报告 5、食品流通许可证）
      */
     private void checkQualificationImgMaxNum(QualificationImagesVo qualificationImagesVo, Integer qualificationType ,String qualificationName){
-        if (qualificationImagesVo.getQualificationType() == qualificationType){
-            if (qualificationImagesVo.getList().size() > Constant.QualificationConfig.MaxImgNumber){
-                throw new BusinessException(qualificationName + "图片不能超过 " + Constant.QualificationConfig.MaxImgNumber + " 张");
+        if (Objects.equals(qualificationImagesVo.getQualificationType(), qualificationType)){
+            if (qualificationImagesVo.getList().size() > Constant.QualificationConfig.MAX_IMG_NUMBER){
+                throw new BusinessException(qualificationName + "图片不能超过 " + Constant.QualificationConfig.MAX_IMG_NUMBER + " 张");
             }
         }
     }
@@ -319,11 +320,11 @@ public class QualificationServiceImpl implements QualificationService{
     @Override
     public Result updateQualificationMessageRead(Integer accountId) {
         Integer qualificationStatus = qualificationDao.getAccountQualificationStatus( accountId.longValue() );
-        if( Constant.QUALIFICATION_VERIFY_PASS == qualificationStatus ){
-            return  Result.success("资质审核已经通过",1);
+        if( Objects.equals(Constant.QUALIFICATION_VERIFY_PASS, qualificationStatus) ){
+            return  Result.success("资质审核已经通过",Constant.IS_READ);
         }
         Integer isRead = qualificationDao.findQualificationStatusIsRead( accountId );
-        if( 0 == isRead ){
+        if( Objects.equals(Constant.IS_NOT_READ, isRead ) ){
             qualificationDao.updateQualificationMessageRead( accountId );
         }
         return  Result.success("查询成功",isRead);

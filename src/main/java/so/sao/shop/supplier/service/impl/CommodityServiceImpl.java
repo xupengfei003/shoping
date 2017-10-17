@@ -604,7 +604,7 @@ public class CommodityServiceImpl implements CommodityService {
             //删除商品,deleted更新为1
             supplierCommodityDao.deleteById(id, true, new Date());
         }
-        return Result.success("删除商品成功", map);
+        return Result.success("删除商品成功！", map);
     }
 
     /**
@@ -628,7 +628,7 @@ public class CommodityServiceImpl implements CommodityService {
                 int pendingNum = supplierCommodityAuditDao.countByScidAndAuditResult(id);
                 //商品需下架才可删除
                 if(supplierCommodity.getStatus() != CommConstant.COMM_ST_OFF_SHELVES || pendingNum > 0){
-                    return Result.fail("存在已上架或待上架或审核中的商品，请重新选择！");
+                    return Result.fail("存在已上架或审核中的商品，请重新选择！");
                 }else{
                     idList.add(id);
                 }
@@ -646,7 +646,7 @@ public class CommodityServiceImpl implements CommodityService {
             });
             supplierCommodityDao.deleteByIds(supplierCommodityList);
         }
-        return Result.success("删除商品成功", map);
+        return Result.success("删除商品成功！", map);
     }
 
     /**
@@ -694,12 +694,12 @@ public class CommodityServiceImpl implements CommodityService {
         SupplierCommodity supplierCommodity=supplierCommodityDao.findOne(id);
         Long supplierId = supplierCommodity.getSupplierId();
         //判断供应商资质审核
-        if (Constant.QUALIFICATION_VERIFY_PASS.equals(qualificationDao.getAccountQualificationStatus(supplierId))){
+        if (!Objects.equals(Constant.QUALIFICATION_VERIFY_PASS, qualificationDao.getAccountQualificationStatus(supplierId))){
             return Result.fail("抱歉，您还没通过资质信息审核，无法上架商品！",supplierId);
         }
         //判断配送范围和运费规则是否完整
-        Boolean FreightRulesFlag=checkFreightRules(supplierId);
-        if(!FreightRulesFlag){
+        Boolean freightRulesFlag = checkFreightRules(supplierId);
+        if(!freightRulesFlag){
             return Result.fail("该供应商未配置配送范围与运费规则，无法上架商品！");
         }
         //判断该商品是否处于审核中
@@ -716,7 +716,7 @@ public class CommodityServiceImpl implements CommodityService {
         SupplierCommodityAudit supplierCommodityAudit = makeSupplierCommodityAudit(supplierCommodity, CommConstant.COMM_ST_ON_SHELVES_AUDIT);
         //执行上架申请操作
         supplierCommodityAuditDao.save(supplierCommodityAudit);
-        return Result.success("上架商品需要管理员审核，审核通过后会自动上架，稍后查询商品列表审核结果");
+        return Result.success("上架商品需要管理员审核，审核通过后会自动上架，稍后查询商品列表审核结果！");
     }
 
     /**
@@ -763,12 +763,12 @@ public class CommodityServiceImpl implements CommodityService {
         }
         Long supplierId = supplierCommodityList.get(0).getSupplierId();
         //判断供应商资质审核
-        if (Constant.QUALIFICATION_VERIFY_PASS.equals(qualificationDao.getAccountQualificationStatus(supplierId))){
+        if (!Objects.equals(Constant.QUALIFICATION_VERIFY_PASS, qualificationDao.getAccountQualificationStatus(supplierId))){
             return Result.fail("抱歉，您还没通过资质信息审核，无法上架商品！",supplierId);
         }
         //判断供应商是否已完善配送范围和运费规则
-        boolean FreightRulesFlag = checkFreightRules(supplierId);
-        if (!FreightRulesFlag) {
+        boolean freightRulesFlag = checkFreightRules(supplierId);
+        if (!freightRulesFlag) {
             return Result.fail("该供应商未配置配送范围与运费规则，无法上架商品！");
         }
         //判断该供应商商品数组中是否已处于待审核状态
