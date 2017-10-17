@@ -31,6 +31,11 @@ public class CommInventoryInfoInput {
     @NotNull(message = "库存增减量不能为空")
     private Long inventoryIncreasement;
 
+    /**
+     * 库存预警 0-正常，1-预警
+     */
+    private Integer inventoryStatus;
+
     public Long getId() {
         return id;
     }
@@ -61,5 +66,13 @@ public class CommInventoryInfoInput {
 
     public void setInventoryIncreasement(Long inventoryIncreasement) {
         this.inventoryIncreasement = inventoryIncreasement;
+    }
+
+    public Integer getInventoryStatus() {
+        return inventoryStatus;
+    }
+
+    public void setInventoryStatus(Integer inventoryStatus) {
+        this.inventoryStatus = inventoryStatus;
     }
 }
