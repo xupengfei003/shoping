@@ -311,10 +311,14 @@ public class QualificationServiceImpl implements QualificationService{
     /**
      * 判断资质消息是否已读，更新资质状态消息为已读状态
      * @param accountId
-     * @return
+     * @return 0 需要弹框，1 不需要
      */
     @Override
     public Result updateQualificationMessageRead(Integer accountId) {
+        Integer qualificationStatus = qualificationDao.getAccountQualificationStatus( accountId.longValue() );
+        if( Constant.QUALIFICATION_VERIFY_PASS == qualificationStatus ){
+            return  Result.success("资质审核已经通过",1);
+        }
         Integer isRead = qualificationDao.findQualificationStatusIsRead( accountId );
         if( 0 == isRead ){
             qualificationDao.updateQualificationMessageRead( accountId );

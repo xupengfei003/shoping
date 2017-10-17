@@ -50,7 +50,7 @@ public class QualificationController {
     @GetMapping("getAccountQualificationStatus")
     public Result getAccountQualificationStatus( HttpServletRequest request){
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
-        if(user==null || user.getIsAdmin().equals(Constant.ADMIN_STATUS)){
+        if(user==null){
             return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
         Long accountId = user.getAccountId();
@@ -126,7 +126,7 @@ public class QualificationController {
      * @return result
      */
     @ApiOperation(value = "资质审核", notes = "更新资质状态消息已读状态【负责人：许鹏飞】")
-    @PutMapping("/updateQualificationMessageRead")
+    @GetMapping("/updateQualificationMessageRead")
     public Result updateQualificationMessageRead(@RequestParam(value = "accountId" ) Integer accountId ){
         Result result = qualificationService.updateQualificationMessageRead( accountId );
         return result;

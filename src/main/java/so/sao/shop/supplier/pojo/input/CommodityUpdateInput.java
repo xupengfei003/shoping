@@ -18,11 +18,6 @@ public class CommodityUpdateInput {
     private String remark;
 
     /**
-     * 商品标签Id
-     */
-    private Long tagId;
-
-    /**
      * 商品规格集合
      */
     @NotEmpty(message = "商品规格不能为空")
@@ -35,14 +30,6 @@ public class CommodityUpdateInput {
 
     public void setRemark(String remark) {
         this.remark = remark;
-    }
-
-    public Long getTagId() {
-        return tagId;
-    }
-
-    public void setTagId(Long tagId) {
-        this.tagId = tagId;
     }
 
     public List<SupplierCommodityUpdateVo> getCommodityList() {

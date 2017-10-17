@@ -647,11 +647,31 @@
   </update>
 
   <select id="findPage" resultMap="BaseResultMap" parameterType="so.sao.shop.supplier.pojo.input.AccountInput">
-    SELECT a.responsible,a.contract_create_date, a.account_id,a.user_id,a.create_date,a.update_date,a.provider_name, a.contract_end_date, a.responsible_phone,p.name regist_address_province,
+   select
+      h.responsible,
+      h.contract_create_date,
+      h.account_id,
+      h.user_id,
+      h.create_date,
+      h.update_date,
+      h.provider_name,
+      h.contract_end_date,
+      h.responsible_phone,
+      h.regist_address_province,
+      h.regist_address_city,
+      h.regist_address_district,
+      h.contract_register_address_province,
+      h.contract_register_address_city,
+      h.contract_register_address_district,
+      h.contract_register_address,
+      h.account_status,
+      h.qualificationStatus
+    FROM
+    (SELECT a.responsible,a.contract_create_date, a.account_id,a.user_id,a.create_date,a.update_date,a.provider_name, a.contract_end_date, a.responsible_phone,p.name regist_address_province,
     c.name regist_address_city,d.name regist_address_district  ,cp.name contract_register_address_province,cc.name contract_register_address_city,
     cd.name contract_register_address_district,  a.contract_register_address, a.account_status,IFNULL(q.qualification_status,0) qualificationStatus
     FROM account a LEFT JOIN qualification q ON a.account_id=q.account_id AND q.delete = 0,sys_region p, sys_region c, sys_region d, sys_region cp, sys_region cc, sys_region cd, user u
-    <where>
+    WHERE
       account_status != 0
       AND u.is_admin = 0
       AND a.user_id = u.user_id
@@ -668,7 +688,7 @@
         AND STR_TO_DATE(DATE_FORMAT(a.create_date,'%Y-%c-%d'),'%Y-%m-%d') <![CDATA[<=]]> STR_TO_DATE(#{createEndDate},'%Y-%m-%d')
       </if>
       <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(providerName)">
-        AND provider_name LIKE "%${providerName}%"
+        AND a.provider_name LIKE "%${providerName}%"
       </if>
       <if test="contractCreateDate != null ">
         AND STR_TO_DATE(DATE_FORMAT(a.contract_end_date,'%Y-%c-%d'),'%Y-%m-%d') <![CDATA[>=]]> TRIM(STR_TO_DATE(#{contractCreateDate},'%Y-%m-%d'))
@@ -683,31 +703,33 @@
         AND STR_TO_DATE(DATE_FORMAT(a.update_date,'%Y-%c-%d'),'%Y-%m-%d') <![CDATA[<=]]> STR_TO_DATE(#{updateEndDate},'%Y-%m-%d')
       </if>
       <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(responsible)">
-        AND responsible LIKE "%${responsible}%"
+        AND a.responsible LIKE "%${responsible}%"
       </if>
       <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(responsiblePhone)">
-        AND  responsible_phone  LIKE "%${responsiblePhone}%"
+        AND  a.responsible_phone  LIKE "%${responsiblePhone}%"
       </if>
       <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(registAddressProvince)">
-        AND  regist_address_province = #{registAddressProvince}
+        AND  a.regist_address_province = #{registAddressProvince}
       </if>
       <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(registAddressCity)">
-        AND  regist_address_city = #{registAddressCity}
+        AND  a.regist_address_city = #{registAddressCity}
       </if>
       <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(registAddressDistrict)">
-        AND  regist_address_district = #{registAddressDistrict}
+        AND  a.regist_address_district = #{registAddressDistrict}
       </if>
       <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(vague)">
-        AND  (responsible LIKE "%${vague}%" OR provider_name LIKE "%${vague}%")
+        AND  (a.responsible LIKE "%${vague}%" OR a.provider_name LIKE "%${vague}%")
       </if>
       <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(accountStatus)">
-        AND  account_status = #{accountStatus}
+        AND  a.account_status = #{accountStatus}
       </if>
+     ) h
+    <where>
       <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(qualificationStatus)">
-        AND  q.qualification_status = #{qualificationStatus}
+        h.qualificationStatus = #{qualificationStatus}
       </if>
     </where>
-             ORDER  BY  a.update_date DESC
+    ORDER  BY  h.update_date DESC
   </select>
 
     <select id="findOne" resultMap="BaseResultMap" parameterType="long">

@@ -209,7 +209,6 @@ public class CommodityOutput {
     /**
      *有效期
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Integer guaranteePeriod;
 
     /**

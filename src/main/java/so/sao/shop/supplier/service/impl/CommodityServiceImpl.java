@@ -130,6 +130,13 @@ public class CommodityServiceImpl implements CommodityService {
             }
         }
         for (SupplierCommodityVo commodityVo : commodityInput.getCommodityList()) {
+            if(null != commodityVo.getTagId()){
+                //验证商品标签是否存在
+                int commTagNum = commTagDao.countById(commodityVo.getTagId());
+                if(commTagNum == 0){
+                    return Result.fail("商品标签不存在！商品条码：" + commodityVo.getCode69());
+                }
+            }
             //验证库存单位是否存在
             int commUnitNum = commUnitDao.countById(commodityVo.getUnitId());
             if(commUnitNum == 0){
@@ -185,7 +192,6 @@ public class CommodityServiceImpl implements CommodityService {
             //新增商品规格
             SupplierCommodity sc = BeanMapper.map(commodityVo, SupplierCommodity.class);
             sc.setRemark(commodityInput.getRemark());
-            sc.setTagId(commodityInput.getTagId());
             sc.setStatus(CommConstant.COMM_ST_OFF_SHELVES);
             sc.setSupplierId(supplierId);
             sc.setCreatedBy(supplierId);
@@ -256,13 +262,6 @@ public class CommodityServiceImpl implements CommodityService {
         if(!verifyAssociation(commCategoryOne, commCategoryTwo, commCategoryThree)){
             return Result.fail("商品科属之间的关联不正确！");
         }
-        if(null != commodityInput.getTagId()){
-            //验证商品标签是否存在
-            int commTagNum = commTagDao.countById(commodityInput.getTagId());
-            if(commTagNum == 0){
-                return Result.fail("商品标签不存在！");
-            }
-        }
         return Result.success("校验通过");
     }
 
@@ -321,9 +320,9 @@ public class CommodityServiceImpl implements CommodityService {
             int status = supplierCommodityDao.findStatus(id);
             //如果商品状态是下架，可以直接修改
             if(status == CommConstant.COMM_ST_OFF_SHELVES){
-                if(null != commodityUpdateInput.getTagId()){
+                if(null != commodityVo.getTagId()){
                     //验证商品标签是否存在
-                    int commTagNum = commTagDao.countById(commodityUpdateInput.getTagId());
+                    int commTagNum = commTagDao.countById(commodityVo.getTagId());
                     if(commTagNum == 0){
                         return Result.fail("商品标签不存在！");
                     }
@@ -346,7 +345,6 @@ public class CommodityServiceImpl implements CommodityService {
                 //修改商品规格
                 SupplierCommodity sc = BeanMapper.map(commodityVo, SupplierCommodity.class);
                 sc.setRemark(commodityUpdateInput.getRemark());
-                sc.setTagId(commodityUpdateInput.getTagId());
                 sc.setUpdatedBy(supplierId);
                 sc.setUpdatedAt(new Date());
                 sc.setId(commodityVo.getId());
@@ -386,7 +384,6 @@ public class CommodityServiceImpl implements CommodityService {
                 sct.setUpdatedAt(sc.getUpdatedAt());
                 sct.setInvalidStatus(sc.getInvalidStatus());
                 sct.setRemark(commodityUpdateInput.getRemark());
-                sct.setTagId(commodityUpdateInput.getTagId());
                 sct.setId(commodityVo.getId());
                 sct.setSupplierId(supplierId);
                 sct.setUpdatedBy(supplierId);
