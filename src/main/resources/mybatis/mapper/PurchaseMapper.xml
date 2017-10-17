@@ -93,7 +93,7 @@
                     AND (order_status = TRIM(#{purchaseSelectInput.orderStatus})
                     OR order_status = 19)
                 </if>
-                <if test="orderStatus != 3">
+                <if test="purchaseSelectInput.orderStatus != 3">
                     AND order_status = TRIM(#{orderStatus})
                 </if>
             </if>
