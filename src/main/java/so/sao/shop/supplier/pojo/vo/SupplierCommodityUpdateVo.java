@@ -126,6 +126,11 @@ public class SupplierCommodityUpdateVo {
     private String guaranteePeriodUnit;
 
     /**
+     * 商品标签Id
+     */
+    private Long tagId;
+
+    /**
      * 图片集合
      */
     @NotEmpty(message = "图片不能为空")
@@ -266,5 +271,13 @@ public class SupplierCommodityUpdateVo {
 
     public void setGuaranteePeriodUnit(String guaranteePeriodUnit) {
         this.guaranteePeriodUnit = guaranteePeriodUnit;
+    }
+
+    public Long getTagId() {
+        return tagId;
+    }
+
+    public void setTagId(Long tagId) {
+        this.tagId = tagId;
     }
 }
