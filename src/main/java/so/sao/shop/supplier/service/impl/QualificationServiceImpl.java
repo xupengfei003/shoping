@@ -66,18 +66,18 @@ public class QualificationServiceImpl implements QualificationService{
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result updateQualificationStatus(Integer accountId, Integer qualificationStatus, String reason) {
-        if( !(Constant.QUALIFICATION_VERIFY_PASS == qualificationStatus)
-                && !(Constant.QUALIFICATION_VERIFY_NOT_PASS == qualificationStatus)
-                && !(Constant.QUALIFICATION_AWAIT_VERIFY == qualificationStatus )
-                && !(Constant.QUALIFICATION_NOT_VERIFY == qualificationStatus ) ){
+        if( !(Objects.equals(Constant.QUALIFICATION_VERIFY_PASS, qualificationStatus))
+                && !(Objects.equals(Constant.QUALIFICATION_VERIFY_NOT_PASS, qualificationStatus))
+                && !(Objects.equals(Constant.QUALIFICATION_AWAIT_VERIFY, qualificationStatus))
+                && !(Objects.equals(Constant.QUALIFICATION_NOT_VERIFY, qualificationStatus)) ){
             logger.info("无效的审核参数");
             return Result.fail("无效的审核参数");
         }
         if( Ognl.isNotEmpty( reason ) ){
             reason = reason.trim();
         }
-        if( null != reason && reason.length() > 255 ){
-            return Result.fail("拒绝原因不能超过255位！");
+        if( null != reason && reason.length() > Constant.CheckMaxLength.MAX_QUALIFICATIUON_REJECT_REASON_LENGTH ){
+            return Result.fail("拒绝原因不能超过"+ Constant.CheckMaxLength.MAX_QUALIFICATIUON_REJECT_REASON_LENGTH +"位！");
         }
         Date updateDate = new Date();
         qualificationDao.updateQualificationStatus( accountId, qualificationStatus, reason, updateDate );
@@ -101,7 +101,7 @@ public class QualificationServiceImpl implements QualificationService{
     @Override
     public Result findByAccountId(Long accountId) {
         List<QualificationOut> qualificationOuts = qualificationDao.findByAccountId(accountId);
-        if(qualificationOuts.size()>0) {
+        if(qualificationOuts.size()> 0 ) {
             return Result.success("根据供应商id查询供应商资质详情成功", qualificationOuts);
         }
         return Result.success("根据供应商id查询供应商资质详情成功",new QualificationOut("0"));
@@ -320,11 +320,11 @@ public class QualificationServiceImpl implements QualificationService{
     @Override
     public Result updateQualificationMessageRead(Integer accountId) {
         Integer qualificationStatus = qualificationDao.getAccountQualificationStatus( accountId.longValue() );
-        if( Constant.QUALIFICATION_VERIFY_PASS == qualificationStatus ){
-            return  Result.success("资质审核已经通过",1);
+        if( Objects.equals(Constant.QUALIFICATION_VERIFY_PASS, qualificationStatus) ){
+            return  Result.success("资质审核已经通过",Constant.IS_READ);
         }
         Integer isRead = qualificationDao.findQualificationStatusIsRead( accountId );
-        if( 0 == isRead ){
+        if( Objects.equals(Constant.IS_NOT_READ, isRead ) ){
             qualificationDao.updateQualificationMessageRead( accountId );
         }
         return  Result.success("查询成功",isRead);

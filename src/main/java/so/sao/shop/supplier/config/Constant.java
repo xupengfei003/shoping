@@ -42,6 +42,11 @@ public interface Constant {
     public static final Integer QUALIFICATION_VERIFY_PASS = 2;
     public static final Integer QUALIFICATION_VERIFY_NOT_PASS = 3;
     /**
+     *标记消息已经读取： 1已经读取， 0 未读取
+     */
+    public static final Integer IS_NOT_READ = 0;
+    public static final Integer IS_READ = 1;
+    /**
      * code定义
      */
     interface CodeConfig{
@@ -362,6 +367,10 @@ public interface Constant {
          * 商品计量规格名称最大长度
          */
         public static final int MAX_MEASURESPEC_NAME_LENGTH = 64;
+        /**
+         * 资质审核状态拒绝原因最大255
+         */
+        public static final int MAX_QUALIFICATIUON_REJECT_REASON_LENGTH = 255;
     }
 
     /**
