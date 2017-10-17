@@ -53,3 +53,30 @@ CREATE TABLE `received_purchase` (
  */
 ALTER TABLE `account`
   ADD COLUMN `is_read` INT(1) DEFAULT 0  NULL   COMMENT '是否已读（0、未读 1、已读）' AFTER `contract_name`;
+
+/*
+商品表新增字段
+ */
+ALTER TABLE `supplier_commodity`
+  ADD COLUMN `carton_id` BIGINT(20)  NULL  COMMENT '箱规单位id' AFTER `min_order_quantity`,
+  ADD COLUMN `carton_val` INT(10)  NULL  COMMENT '箱规数值' AFTER `carton_id`,
+  ADD COLUMN `inventory_minimum` INT(10) DEFAULT 0  NULL  COMMENT '库存下限值' AFTER `carton_val`,
+  ADD COLUMN `inventory_status` INT(1) DEFAULT 0  NULL  COMMENT '库存状态，0-正常，1-预警' AFTER `inventory_minimum`,
+  ADD COLUMN `measure_spec_val` INT(10)  NULL  COMMENT '计量规格数值' AFTER `inventory_status`,
+  ADD COLUMN `production_date` DATETIME  NULL  COMMENT '生产日期' AFTER `measure_spec_val`,
+  ADD COLUMN `guarantee_period` INT(10)  NULL  COMMENT '有效期' AFTER `min_order_quantity`,
+  ADD COLUMN `guarantee_period_unit` VARCHAR (10)  NULL  COMMENT '有效期单位' AFTER `min_order_quantity`;
+
+/*
+商品tmp表新增字段
+ */
+ALTER TABLE `supplier_commodity_tmp`
+  ADD COLUMN `carton_id` BIGINT(20)  NULL  COMMENT '箱规单位id' AFTER `min_order_quantity`,
+  ADD COLUMN `carton_val` INT(10)  NULL  COMMENT '箱规数值' AFTER `carton_id`,
+  ADD COLUMN `inventory_minimum` INT(10) DEFAULT 0  NULL  COMMENT '库存下限值' AFTER `carton_val`,
+  ADD COLUMN `inventory_status` INT(1) DEFAULT 0  NULL  COMMENT '库存状态，0-正常，1-预警' AFTER `inventory_minimum`,
+  ADD COLUMN `measure_spec_val` INT(10)  NULL  COMMENT '计量规格数值' AFTER `inventory_status`,
+  ADD COLUMN `production_date` DATETIME  NULL  COMMENT '生产日期' AFTER `measure_spec_val`,
+  ADD COLUMN `guarantee_period` INT(10)  NULL  COMMENT '有效期' AFTER `min_order_quantity`,
+  ADD COLUMN `guarantee_period_unit` VARCHAR (10)  NULL  COMMENT '有效期单位' AFTER `min_order_quantity`;
+
