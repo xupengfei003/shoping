@@ -32,19 +32,13 @@ public class CommodityController {
     @ApiOperation(value="查询供应商商品信息集合（高级搜索）", notes="根据参数返回符合条件的商品信息集合（高级搜索）【责任人：唐文斌】")
     @GetMapping(value="/search")
     public Result search(HttpServletRequest request, CommSearchInput commSearchInput) throws Exception {
-
-        //供应商ID校验
-        commSearchInput.setSupplierId(CheckUtil.supplierIdCheck(request,commSearchInput.getSupplierId()));
-        return commodityService.searchCommodities(commSearchInput);
+        return commodityService.searchCommodities(commSearchInput,request);
     }
 
     @ApiOperation(value="查询供应商商品信息集合（简单查询）", notes="根据参数返回符合条件的商品信息集合（简单查询）【责任人：唐文斌】")
     @GetMapping(value="/simplesearch")
     public Result simpleSearch(HttpServletRequest request, CommSimpleSearchInput commSimpleSearchInput) throws Exception {
-
-        //供应商ID校验
-        commSimpleSearchInput.setSupplierId(CheckUtil.supplierIdCheck(request,commSimpleSearchInput.getSupplierId()));
-        return commodityService.simpleSearchCommodities(commSimpleSearchInput);
+        return commodityService.simpleSearchCommodities(commSimpleSearchInput,request);
     }
 
     @ApiOperation(value="查询商品详情信息", notes="根据ID返回相应的商品信息【责任人：唐文斌】")
