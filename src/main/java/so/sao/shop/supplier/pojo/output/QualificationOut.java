@@ -124,4 +124,11 @@ public class QualificationOut {
     public void setIsRead(Integer isRead) {
         this.isRead = isRead;
     }
+
+    public QualificationOut() {
+    }
+
+    public QualificationOut(String qualificationStatus) {
+        this.qualificationStatus = qualificationStatus;
+    }
 }

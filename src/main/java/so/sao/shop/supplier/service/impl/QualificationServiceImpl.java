@@ -97,7 +97,7 @@ public class QualificationServiceImpl implements QualificationService{
         if(qualificationOuts.size()>0) {
             return Result.success("根据供应商id查询供应商资质详情成功", qualificationOuts);
         }
-        return Result.fail("没有符合条件的供应商资质详情");
+        return Result.success("根据供应商id查询供应商资质详情成功",new QualificationOut("0"));
     }
 
     @Override
