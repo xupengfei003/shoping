@@ -19,7 +19,6 @@ import java.util.List;
 public class CommodityInput {
 
     /**
-     *
      * Excel 行号
      */
     private  int rowNum;
@@ -72,6 +71,7 @@ public class CommodityInput {
      * 商品标签Id
      */
     private Long tagId;
+
     /**
      * 商品标签Name
      */
@@ -83,13 +83,6 @@ public class CommodityInput {
     @NotBlank(message = "企业名称不能为空")
     @Length(max = 256,message = "企业名称长度不能大于256")
     private String companyName;
-
-    /**
-     * 上市时间
-     */
-    @NotNull(message = "上市时间不能为空")
-    @JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
-    private Date marketTime;
 
     /**
      * 商品产地
@@ -175,14 +168,6 @@ public class CommodityInput {
 
     public void setCompanyName(String companyName) {
         this.companyName = companyName;
-    }
-
-    public Date getMarketTime() {
-        return marketTime;
-    }
-
-    public void setMarketTime(Date marketTime) {
-        this.marketTime = marketTime;
     }
 
     public String getOriginPlace() {

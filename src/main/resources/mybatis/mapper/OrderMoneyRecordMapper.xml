@@ -327,5 +327,12 @@
     FROM order_money_record
     WHERE user_id = #{accountId} AND state = '0';
     </select>
+    <!--根据供应商ID及时间段对该供应商订单的金额进行统计-->
+    <select id="countOrderMoneyRecords" resultType="java.util.Map">
+        SELECT state ,SUM(settled_amount) AS settledMoney ,SUM(total_money) AS pendingSettlementMoney
+        from order_money_record
+        WHERE checkout_at &lt; TRIM(DATE_ADD(STR_TO_DATE(#{endTime},'%Y-%m-%d'),INTERVAL 1 DAY)) AND checkout_at &gt;= TRIM(STR_TO_DATE(#{startTime},'%Y-%m-%d')) AND user_id = #{accountId}
+        GROUP BY state;
+    </select>
 
 </mapper>

@@ -65,12 +65,7 @@ public class CommodityInfoOutput {
      * 企业名称
      */
     private String companyName;
-
-    /**
-     * 上市时间
-     */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
-    private Date marketTime;
+    
 
     /**
      * 商品产地
@@ -82,13 +77,6 @@ public class CommodityInfoOutput {
      */
     private List<TyCommImge> imgeList;
 
-    public Date getMarketTime() {
-        return marketTime;
-    }
-
-    public void setMarketTime(Date marketTime) {
-        this.marketTime = marketTime;
-    }
 
     public Long getId() {
         return id;

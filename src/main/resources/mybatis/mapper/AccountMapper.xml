@@ -164,7 +164,9 @@
       #{contractLicenseEnd},#{contractRegisterAddress,jdbcType=VARCHAR}, #{contractRegisterAddressProvince,jdbcType=VARCHAR},
       #{contractRegisterAddressCity,jdbcType=VARCHAR}, #{contractRegisterAddressDistrict,jdbcType=VARCHAR},
       #{contractRegisterAddressDetail,jdbcType=VARCHAR}, #{uploadMode,jdbcType=VARCHAR}, 
-      #{smsCode,jdbcType=VARCHAR},#{contractOriginalName,jdbcType=VARCHAR},#{contractOriginal,jdbcType=VARCHAR},#{lastSettlementDate},#{servicePhone},#{contractName},#{monthAgoType})
+      #{smsCode,jdbcType=VARCHAR},#{contractOriginalName,jdbcType=VARCHAR},
+      #{contractOriginal,jdbcType=VARCHAR},#{lastSettlementDate},
+      #{servicePhone},#{contractName},#{monthAgoType})
   </insert>
 
   <!-- <insert id="insertSelective" parameterType="so.sao.shop.supplier.domain.Account" >
@@ -645,55 +647,67 @@
   </update>
 
   <select id="findPage" resultMap="BaseResultMap" parameterType="so.sao.shop.supplier.pojo.input.AccountInput">
-          SELECT a.contract_responsible,a.contract_create_date, a.account_id,a.user_id,a.create_date,a.provider_name, a.contract_end_date, a.contract_responsible_phone,p.name regist_address_province,
-                  c.name regist_address_city,d.name regist_address_district  ,cp.name contract_register_address_province,cc.name contract_register_address_city,
-                  cd.name contract_register_address_district,  a.contract_register_address, account_status
-            FROM account a,sys_region p, sys_region c, sys_region d, sys_region cp, sys_region cc, sys_region cd, user u
-            <where>
-              (account_status = 1 OR account_status = 2)
-              AND u.is_admin = 0
-              AND a.user_id = u.user_id
-              AND regist_address_province = p.sr_id
-              AND regist_address_city = c.sr_id
-              AND regist_address_district = d.sr_id
-              AND contract_register_address_province = cp.sr_id
-              AND contract_register_address_city = cc.sr_id
-              AND contract_register_address_district = cd.sr_id
-                <if test="beginDate != null ">
-                    AND STR_TO_DATE(DATE_FORMAT(a.create_date,'%Y-%c-%d'),'%Y-%m-%d') <![CDATA[>=]]> STR_TO_DATE(#{beginDate},'%Y-%m-%d')
-                </if>
-                <if test="endDate != null ">
-                    AND STR_TO_DATE(DATE_FORMAT(a.create_date,'%Y-%c-%d'),'%Y-%m-%d') <![CDATA[<=]]> STR_TO_DATE(#{endDate},'%Y-%m-%d')
-                </if>
-                <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(providerName)">
-                    AND provider_name LIKE "%${providerName}%"
-                </if>
-				<if test="contractCreateDate != null ">
-                    AND STR_TO_DATE(DATE_FORMAT(a.contract_end_date,'%Y-%c-%d'),'%Y-%m-%d') <![CDATA[>=]]> TRIM(STR_TO_DATE(#{contractCreateDate},'%Y-%m-%d'))
-                </if>
-                <if test="contractEndDate != null ">
-                    AND STR_TO_DATE(DATE_FORMAT(a.contract_end_date,'%Y-%c-%d'),'%Y-%m-%d') <![CDATA[<=]]> TRIM(STR_TO_DATE(#{contractEndDate},'%Y-%m-%d'))
-                </if>
-                <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(contractResponsible)">
-                    AND contract_responsible LIKE "%${contractResponsible}%"
-                </if>
-                <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(contractResponsiblePhone)">
-                    AND  contract_responsible_phone  LIKE "%${contractResponsiblePhone}%"
-                </if>
-                <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(contractRegisterAddressProvince)">
-                  AND  contract_register_address_province = #{contractRegisterAddressProvince}
-                </if>
-                <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(contractRegisterAddressCity)">
-                  AND  contract_register_address_city = #{contractRegisterAddressCity}
-                </if>
-                <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(contractRegisterAddressDistrict)">
-                  AND  contract_register_address_district = #{contractRegisterAddressDistrict} 
-                </if>
-                <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(vague)">
-                   AND  (contract_responsible LIKE "%${vague}%" or provider_name LIKE "%${vague}%")
-                 </if>
+    SELECT a.responsible,a.contract_create_date, a.account_id,a.user_id,a.create_date,a.update_date,a.provider_name, a.contract_end_date, a.responsible_phone,p.name regist_address_province,
+    c.name regist_address_city,d.name regist_address_district  ,cp.name contract_register_address_province,cc.name contract_register_address_city,
+    cd.name contract_register_address_district,  a.contract_register_address, a.account_status,IFNULL(q.qualification_status,0) qualificationStatus
+    FROM account a LEFT JOIN qualification q ON a.account_id=q.account_id AND q.delete = 0,sys_region p, sys_region c, sys_region d, sys_region cp, sys_region cc, sys_region cd, user u
+    <where>
+      account_status != 0
+      AND u.is_admin = 0
+      AND a.user_id = u.user_id
+      AND regist_address_province = p.sr_id
+      AND regist_address_city = c.sr_id
+      AND regist_address_district = d.sr_id
+      AND contract_register_address_province = cp.sr_id
+      AND contract_register_address_city = cc.sr_id
+      AND contract_register_address_district = cd.sr_id
+      <if test="createBeginDate != null ">
+        AND STR_TO_DATE(DATE_FORMAT(a.create_date,'%Y-%c-%d'),'%Y-%m-%d') <![CDATA[>=]]> STR_TO_DATE(#{createBeginDate},'%Y-%m-%d')
+      </if>
+      <if test="createEndDate != null ">
+        AND STR_TO_DATE(DATE_FORMAT(a.create_date,'%Y-%c-%d'),'%Y-%m-%d') <![CDATA[<=]]> STR_TO_DATE(#{createEndDate},'%Y-%m-%d')
+      </if>
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(providerName)">
+        AND provider_name LIKE "%${providerName}%"
+      </if>
+      <if test="contractCreateDate != null ">
+        AND STR_TO_DATE(DATE_FORMAT(a.contract_end_date,'%Y-%c-%d'),'%Y-%m-%d') <![CDATA[>=]]> TRIM(STR_TO_DATE(#{contractCreateDate},'%Y-%m-%d'))
+      </if>
+      <if test="contractEndDate != null ">
+        AND STR_TO_DATE(DATE_FORMAT(a.contract_end_date,'%Y-%c-%d'),'%Y-%m-%d') <![CDATA[<=]]> TRIM(STR_TO_DATE(#{contractEndDate},'%Y-%m-%d'))
+      </if>
+      <if test="updateBeginDate != null ">
+        AND STR_TO_DATE(DATE_FORMAT(a.update_date,'%Y-%c-%d'),'%Y-%m-%d') <![CDATA[>=]]> STR_TO_DATE(#{updateBeginDate},'%Y-%m-%d')
+      </if>
+      <if test="updateEndDate != null ">
+        AND STR_TO_DATE(DATE_FORMAT(a.update_date,'%Y-%c-%d'),'%Y-%m-%d') <![CDATA[<=]]> STR_TO_DATE(#{updateEndDate},'%Y-%m-%d')
+      </if>
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(responsible)">
+        AND responsible LIKE "%${responsible}%"
+      </if>
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(responsiblePhone)">
+        AND  responsible_phone  LIKE "%${responsiblePhone}%"
+      </if>
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(registAddressProvince)">
+        AND  regist_address_province = #{registAddressProvince}
+      </if>
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(registAddressCity)">
+        AND  regist_address_city = #{registAddressCity}
+      </if>
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(registAddressDistrict)">
+        AND  regist_address_district = #{registAddressDistrict}
+      </if>
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(vague)">
+        AND  (responsible LIKE "%${vague}%" OR provider_name LIKE "%${vague}%")
+      </if>
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(accountStatus)">
+        AND  account_status = #{accountStatus}
+      </if>
+      <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(qualificationStatus)">
+        AND  q.qualification_status = #{qualificationStatus}
+      </if>
     </where>
-             ORDER  BY  a.create_date DESC 
+             ORDER  BY  a.update_date DESC
   </select>
 
     <select id="findOne" resultMap="BaseResultMap" parameterType="long">

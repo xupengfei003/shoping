@@ -88,4 +88,11 @@ public interface OrderMoneyRecordService {
      * @throws Exception
      */
     void exportExcel(HttpServletRequest request, HttpServletResponse response) throws Exception;
+
+    /**
+     * 供应商订单金额统计
+     * @param timeType 统计时间类型--时间类型（1.本周，2.当月，3.近三个月）
+     * @return
+     */
+    Map<String,Object> countOrderMoneyRecords(Integer timeType,Long accountId);
 }

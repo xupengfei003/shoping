@@ -8,7 +8,7 @@
         <result column="created_at"  property="createdAt"/>
         <result column="updated_at" property="updatedAt"/>
     </resultMap>
-    <!--查询商品单位集合-->
+    <!--查询库存单位集合-->
    <select id="search" resultMap="CommUnitResultMap">
        SELECT id,name,supplier_id
        FROM comm_unit
@@ -18,13 +18,13 @@
        DESC
    </select>
 
-    <!--新增商品单位-->
+    <!--新增库存单位-->
     <insert id="save" parameterType="so.sao.shop.supplier.domain.CommUnit">
         INSERT INTO comm_unit(name,supplier_id, created_at,updated_at)
         VALUES (#{name},#{supplierId},#{createdAt},#{updatedAt})
     </insert>
 
-    <!--查询商品单位是否重复-->
+    <!--查询库存单位是否重复-->
     <select id="findNameAndSupplierId" resultMap="CommUnitResultMap">
         SELECT id,supplier_id,name
         FROM comm_unit
@@ -32,7 +32,7 @@
         AND ( supplier_id=0 OR supplier_id=#{supplierId} )
     </select>
 
-    <!--findOneById 通过商品单位id 查comm_Unit -->
+    <!--findOneById 通过库存单位id 查comm_Unit -->
     <select id="findOne" resultMap="CommUnitResultMap">
         SELECT id, NAME,
         supplier_id , created_at, updated_at
@@ -47,7 +47,7 @@
         from comm_unit where id = #{id}
     </select>
 
-    <!--通过name和供应商id判断商品单位是否重复-->
+    <!--通过name和供应商id判断库存单位是否重复-->
     <select id="countByNameAndSupplierId" resultType="int">
        SELECT COUNT(NAME)
         FROM comm_unit
@@ -55,13 +55,13 @@
         AND ( supplier_id=0 OR supplier_id=#{supplierId} )
     </select>
 
-    <!--删除商品单位-->
+    <!--删除库存单位-->
     <delete id="deleteById" parameterType="so.sao.shop.supplier.domain.CommUnit">
         DELETE FROM comm_unit
         WHERE id=#{id}
     </delete>
     
-    <!--更新商品单位-->
+    <!--更新库存单位-->
     <update id="update" parameterType="so.sao.shop.supplier.domain.CommUnit">
         UPDATE comm_unit
         SET name=#{name},updated_at=#{updatedAt}

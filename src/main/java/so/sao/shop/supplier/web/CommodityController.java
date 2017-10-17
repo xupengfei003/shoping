@@ -66,12 +66,7 @@ public class CommodityController {
     public Result update(HttpServletRequest request, @Valid @RequestBody CommodityUpdateInput commodityUpdateInput, @RequestParam(required = false) Long supplierId) throws Exception {
         //校验供应商ID
         supplierId = CheckUtil.supplierIdCheck(request,supplierId);
-        User user = (User) request.getAttribute(Constant.REQUEST_USER);
-        boolean isAdmin = false;
-        if (Constant.ADMIN_STATUS.equals(user.getIsAdmin())){
-            isAdmin = true;
-        }
-        return commodityService.updateCommodity(commodityUpdateInput, supplierId, isAdmin);
+        return commodityService.updateCommodity(commodityUpdateInput, supplierId);
     }
 
     @ApiOperation(value="上架商品", notes="【负责人：张瑞兵】")
@@ -81,8 +76,7 @@ public class CommodityController {
         if(user == null){
             return Result.fail(so.sao.shop.supplier.config.Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
-        String isAdmin=user.getIsAdmin();
-        return commodityService.onShelves(id,isAdmin);
+        return commodityService.onShelves(id);
     }
 
     @ApiOperation(value="批量商品上架", notes="【负责人：张瑞兵】")
@@ -93,11 +87,7 @@ public class CommodityController {
         if (null == user) {
             return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
-        boolean isAdmin = false;
-        if (Constant.ADMIN_STATUS.equals(user.getIsAdmin())) {
-            isAdmin = true;
-        }
-        return commodityService.onShelvesBatch(ids, isAdmin);
+        return commodityService.onShelvesBatch(ids);
     }
 
     @ApiOperation(value="下架商品", notes="【负责人：张瑞兵】")
@@ -108,11 +98,7 @@ public class CommodityController {
         if (null == user) {
             return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
-        boolean isAdmin = false;
-        if (Constant.ADMIN_STATUS.equals(user.getIsAdmin())) {
-            isAdmin = true;
-        }
-        return commodityService.offShelves(id,isAdmin);
+        return commodityService.offShelves(id);
     }
 
     @ApiOperation(value="批量商品下架", notes="【负责人：张瑞兵】")
@@ -123,11 +109,7 @@ public class CommodityController {
         if (null == user) {
             return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
-        boolean isAdmin = false;
-        if (Constant.ADMIN_STATUS.equals(user.getIsAdmin())) {
-            isAdmin = true;
-        }
-        return commodityService.offShelvesBatch(ids, isAdmin);
+        return commodityService.offShelvesBatch(ids);
     }
 
     @ApiOperation(value="删除商品信息", notes="根据ID删除相应的商品【责任人：武凯江】")
@@ -194,5 +176,17 @@ public class CommodityController {
     @GetMapping(value="/getAudit/{id}")
     public Result getAuditDetail(@PathVariable Long id){
         return commodityService.findAuditDetail(id);
+    }
+
+    @ApiOperation(value="供应商首页-商品信息部分统计", notes="【责任人：赵延】")
+    @GetMapping(value="/countDetail")
+    public Result countCommDetail(HttpServletRequest request){
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        //判断是否非法登录
+        if (null == user) {
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
+        }
+        Long supplierId = user.getAccountId();
+        return commodityService.countCommDetail(supplierId);
     }
 }

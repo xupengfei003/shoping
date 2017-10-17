@@ -26,7 +26,7 @@ public interface CommodityService {
      * @param commodityUpdateInput 商品信息对象
      * @return 修改结果
      */
-    Result updateCommodity(CommodityUpdateInput commodityUpdateInput, Long supplierId, boolean isAdmin);
+    Result updateCommodity(CommodityUpdateInput commodityUpdateInput, Long supplierId);
 
     /**
      * 根据供应商商品ID获取商品详细信息
@@ -85,28 +85,28 @@ public interface CommodityService {
      * @param id
      * @return
      */
-    Result onShelves(Long id,String isAdmin);
+    Result onShelves(Long id);
 
     /**
      * 下架商品
      * @param id
      * @return
      */
-    Result offShelves(Long id, boolean isAdmin);
+    Result offShelves(Long id);
 
     /**
      * 批量上架商品
      * @param ids
      * @return
      */
-    Result onShelvesBatch(Long[] ids, boolean isAdmin);
+    Result onShelvesBatch(Long[] ids);
 
     /**
      * 批量下架商品
      * @param ids
      * @return
      */
-    Result offShelvesBatch(Long[] ids, boolean isAdmin);
+    Result offShelvesBatch(Long[] ids);
 
 
     /**
@@ -154,4 +154,11 @@ public interface CommodityService {
      * @return
      */
     Result findAuditDetail(Long id);
+
+    /**
+     * 供应商首页-供应商商品部分信息统计
+     * @param supplierId 供应商id
+     * @return
+     */
+    Result countCommDetail(Long supplierId);
 }

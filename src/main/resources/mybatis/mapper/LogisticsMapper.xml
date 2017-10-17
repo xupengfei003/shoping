@@ -9,4 +9,78 @@
         where code = #{comStr}
         and dict_type = 4
     </select>
+
+    <!--保存确认收货订单ID-->
+    <insert id="insertReceivedOrder" parameterType="java.util.Map">
+        INSERT
+        INTO received_purchase
+        (
+        order_id,
+        create_time
+        )
+        VALUES
+        (
+        #{map.orderId},
+        #{map.createTime}
+        )
+    </insert>
+
+    <!--从received_purchase表中查询出所有据当前时间大于等于7天的订单ID-->
+    <select id="findOrderIdByTime" parameterType="java.lang.String" resultType="java.lang.String">
+        SELECT order_id
+        FROM received_purchase
+        WHERE TIMESTAMPDIFF(DAY,create_time,TRIM(#{nowTime})) >= 7
+    </select>
+
+    <!--根据订单ID批量确认收货-->
+    <update id="receiveOrder" parameterType="java.util.Map">
+        UPDATE purchase
+        SET
+        order_status = 4,
+        updated_at = #{map.date},
+        order_receive_time = #{map.date}
+        WHERE order_id IN
+        <foreach collection="map.orderIds" item="orderId" open="(" close=")" separator="," index="i">
+            #{orderId}
+        </foreach>
+    </update>
+
+    <!--根据订单ID批量删除received_purchase表中已自动确认收货的数据-->
+    <delete id="deleteReceivedOrderByOrderId" parameterType="java.util.List">
+        DELETE FROM received_purchase
+        WHERE order_id IN
+        <foreach collection="orderIds" item="orderId" open="(" close=")" separator="," index="i">
+            #{orderId}
+        </foreach>
+    </delete>
+
+    <!--获取所有已发货的订单ID-->
+    <select id="findOrderInfoByOrderStatus" parameterType="java.lang.Integer"
+            resultType="so.sao.shop.supplier.pojo.vo.PurchaseInfoVo">
+        SELECT
+        order_id AS orderId,
+        order_shipment_number AS orderShipmentNumber
+        FROM purchase
+        WHERE order_status = #{orderStatus}
+    </select>
+
+    <!--批量更改二维码状态-->
+    <update id="updateQrcodesStatus" parameterType="java.util.Map">
+        UPDATE qrcode
+        SET
+        status = #{map.status},
+        disabled_at = #{map.date},
+        updated_at = #{map.date}
+        WHERE foreign_key IN
+        <foreach collection="map.orderIds" item="orderId" open="(" close=")" separator="," index="i">
+            #{orderId}
+        </foreach>
+    </update>
+    <!--更改订单状态为确认送达-->
+    <update id="updateOrderStatus" parameterType="java.util.Map">
+        UPDATE purchase
+        SET order_status = #{map.orderStatus},
+        updated_at = #{map.createTime}
+        WHERE order_id = #{map.orderId}
+    </update>
 </mapper>

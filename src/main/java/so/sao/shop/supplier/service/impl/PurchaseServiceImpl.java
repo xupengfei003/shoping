@@ -461,7 +461,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                 orderStatus = Constant.OrderMessageConfig.PAYMENT;
             } else if (status == Constant.OrderStatusConfig.PENDING_SHIP) {
                 orderStatus = Constant.OrderMessageConfig.PENDING_SHIP;
-            } else if (status == Constant.OrderStatusConfig.ISSUE_SHIP) {
+            } else if (status == Constant.OrderStatusConfig.ISSUE_SHIP || status == Constant.OrderStatusConfig.CONFIRM_RECEIVED) {
                 orderStatus = Constant.OrderMessageConfig.ISSUE_SHIP;
             } else if (status == Constant.OrderStatusConfig.RECEIVED) {
                 orderStatus = Constant.OrderMessageConfig.RECEIVED;
@@ -469,6 +469,10 @@ public class PurchaseServiceImpl implements PurchaseService {
                 orderStatus = Constant.OrderMessageConfig.REJECT;
             } else if (status == Constant.OrderStatusConfig.REFUNDED) {
                 orderStatus = Constant.OrderMessageConfig.REFUNDED;
+            } else if (status == Constant.OrderStatusConfig.CANCEL_ORDER) {
+                orderStatus = Constant.OrderMessageConfig.CANCEL_ORDER;
+            } else if (status == Constant.OrderStatusConfig.PAYMENT_CANCEL_ORDER) {
+                orderStatus = Constant.OrderMessageConfig.PAYMENT_CANCEL_ORDER;
             }
             cellTemp = row.createCell(4);
             cellTemp.setCellValue(orderStatus);
@@ -1448,5 +1452,109 @@ public class PurchaseServiceImpl implements PurchaseService {
             return receiveUrl + "?orderId=" + orderId;
         }
         return errorUrl;
+    }
+
+	 /**
+     * 根据供应商ID查询各类订单数量
+     * @param accountId
+     * @return
+     */
+    @Override
+    public Map<Object, Object> countOrderNumByOrderStatus(Long accountId) {
+        Map<Object, Object> map = purchaseDao.countOrderNumByOrderStatus(accountId);
+        return this.transformOfMap(map);
+    }
+
+    /**
+     * map中key值和value转化
+     *  key:订单各个状态对应的字符
+     *  value:订单各类状态对应的统计数据
+     * @param map
+     * @return
+     */
+    private Map<Object,Object> transformOfMap(Map<Object, Object> map) {
+        Map<Object,Object> resultMap = new HashMap();//返回参数
+        Map<Object,Object> valueMap = null;//入参中的value值（map）
+        Long count = null;//入参map中的value(value也为map)中的value值（统计数据）
+        String str = null;//各个订单状态对应的字符
+        Long totalCount = 0L;//统计数据之和(订单总量)
+        Long confirmCount = null;//记录已送达订单数量(计入已完成订单统计中)
+        //转化map中的Key和value值
+        for (int i = 1;i <= 9;i++){
+            if (i == 9 ){
+                i = 19;
+            }
+            valueMap = (Map<Object, Object>) map.get(i);
+            count = null == valueMap ? 0L : (Long) valueMap.get("count");
+            totalCount = totalCount + count;
+            if(i == 3){
+                confirmCount = count;
+            }
+            if (i == 19){
+                count = count + confirmCount;
+            }
+            str = this.getStrByOrderStatus(i);
+            resultMap.put(str,count);
+        }
+        resultMap.put("totalOrderNum",totalCount);
+        return resultMap;
+    }
+
+    /**
+     * 根据订单各个状态获取对应的字符
+     * @param i 订单状态
+     * @return
+     */
+    private String getStrByOrderStatus(int i) {
+        String str = null;
+        switch (i){
+            case 1:
+                str = "paymentOrderNum";
+                break;
+            case 2:
+                str = "pendingShipOrderNum";
+                break;
+            case 3:
+                str =  "issueShipOrderNum";
+                break;
+            case 4:
+                str =  "receivedOrderNum";
+                break;
+            case 5:
+                str =  "rejectOrderNum";
+                break;
+            case 6:
+                str =  "refundedOrderNum";
+                break;
+            case 7:
+                str =  "cancelOrderNum";
+                break;
+            case 8:
+                str =  "paymentCancelOrderNum";
+                break;
+            case 19:
+                str = "issueShipOrderNum";
+                break;
+        }
+        return str;
+    }
+    /**
+     * 更改物流信息
+     *
+     * @param logisticInfoUpdateInput 封装了订单ID，物流公司，物流单号
+     */
+    @Override
+    public boolean updateLogisticInfoByOrderId(LogisticInfoUpdateInput logisticInfoUpdateInput) {
+        Map<String,Object> map = new HashMap<>();
+        map.put("orderId",logisticInfoUpdateInput.getOrderId());
+        map.put("orderShipMethod",logisticInfoUpdateInput.getOrderShipMethod());
+        map.put("name",logisticInfoUpdateInput.getName());
+        map.put("number",logisticInfoUpdateInput.getNumber());
+        map.put("updateTime",new Date());
+        Integer count = purchaseDao.updateLogisticInfoByOrderId(map);
+        if(count == 0){
+            return false;
+        }
+        return true;
     }
 }
