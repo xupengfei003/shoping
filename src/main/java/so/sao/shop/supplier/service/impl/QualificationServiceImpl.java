@@ -67,7 +67,8 @@ public class QualificationServiceImpl implements QualificationService{
     public Result updateQualificationStatus(Integer accountId, Integer qualificationStatus, String reason) {
         if( !(Constant.QUALIFICATION_VERIFY_PASS == qualificationStatus)
                 && !(Constant.QUALIFICATION_VERIFY_NOT_PASS == qualificationStatus)
-                && !(Constant.QUALIFICATION_AWAIT_VERIFY == qualificationStatus ) ){
+                && !(Constant.QUALIFICATION_AWAIT_VERIFY == qualificationStatus )
+                && !(Constant.QUALIFICATION_NOT_VERIFY == qualificationStatus ) ){
             logger.info("无效的审核参数");
             return Result.fail("无效的审核参数");
         }
@@ -83,12 +84,11 @@ public class QualificationServiceImpl implements QualificationService{
      */
     @Override
     public Result getAccountQualificationStatus(Long accountId) {
-        QualificationOut qualificationOut = qualificationDao.getAccountQualificationStatus( accountId );
-        if(Ognl.isNull(qualificationOut)){
-            logger.info("暂无数据");
-            return Result.fail("暂无数据");
+        Integer qualificationStatus = qualificationDao.getAccountQualificationStatus( accountId );
+        if(null == qualificationStatus ){
+            qualificationStatus = 0;
         }
-        return Result.success("查询成功", qualificationOut );
+        return Result.success("查询成功",qualificationStatus );
     }
 
     @Override
@@ -309,13 +309,18 @@ public class QualificationServiceImpl implements QualificationService{
     }
 
     /**
-     * 更新资质状态消息已读状态
+     * 判断资质消息是否已读，更新资质状态消息为已读状态
      * @param accountId
      * @return
      */
     @Override
     public Result updateQualificationMessageRead(Integer accountId) {
-        qualificationDao.updateQualificationMessageRead( accountId );
-        return  Result.success("更新成功");
+        Integer isRead = qualificationDao.findQualificationStatusIsRead( accountId );
+        if( 0 == isRead ){
+            qualificationDao.updateQualificationMessageRead( accountId );
+        }
+        return  Result.success("查询成功",isRead);
     }
 }
+
+
