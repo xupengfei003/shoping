@@ -668,7 +668,7 @@ public class CommodityServiceImpl implements CommodityService {
         SupplierCommodity supplierCommodity=supplierCommodityDao.findOne(id);
         Long supplierId = supplierCommodity.getSupplierId();
         //判断供应商资质审核
-        if (Integer.parseInt(qualificationDao.getAccountQualificationStatus(supplierId).getQualificationStatus()) != Constant.QUALIFICATION_VERIFY_PASS){
+        if (Constant.QUALIFICATION_VERIFY_PASS.equals(qualificationDao.getAccountQualificationStatus(supplierId))){
             return Result.fail("抱歉，您还没通过资质信息审核，无法上架商品！",supplierId);
         }
         //判断配送范围和运费规则是否完整
@@ -737,7 +737,7 @@ public class CommodityServiceImpl implements CommodityService {
         }
         Long supplierId = supplierCommodityList.get(0).getSupplierId();
         //判断供应商资质审核
-        if (Integer.parseInt(qualificationDao.getAccountQualificationStatus(supplierId).getQualificationStatus()) != Constant.QUALIFICATION_VERIFY_PASS){
+        if (Constant.QUALIFICATION_VERIFY_PASS.equals(qualificationDao.getAccountQualificationStatus(supplierId))){
             return Result.fail("抱歉，您还没通过资质信息审核，无法上架商品！",supplierId);
         }
         //判断供应商是否已完善配送范围和运费规则
