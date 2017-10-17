@@ -81,10 +81,15 @@ public class POIExcelUtil {
 				nRow = sheet.createRow(pageRowNo++);    //新建行对象
 				nRow.setHeightInPoints(20);
 
-			for (int i = 0; i < o.length; i++) {
+				for (int i = 0; i < o.length; i++) {
 					nCell = nRow.createCell(i);
-					fillCellValue(nCell, o[i]);
-				  }
+					if(i == 0){
+						fillCellValue(nCell, rowNo);
+					}else {
+						fillCellValue(nCell, o[i]);
+					}
+
+				}
 			}
 
 			//输出excel
