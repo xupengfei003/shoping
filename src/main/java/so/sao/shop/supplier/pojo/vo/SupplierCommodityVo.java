@@ -63,7 +63,6 @@ public class SupplierCommodityVo {
     /**
      * 库存
      */
-    @NotNull(message = "库存不能为空")
     @Min(value = 0)
     @Max(value = 999999999)
     private Long inventory;
@@ -147,6 +146,16 @@ public class SupplierCommodityVo {
     @NotBlank(message = "有效期单位不能为空")
     @Length(max = 20,message = "有效期单位长度不能大于20")
     private String guaranteePeriodUnit;
+
+    /**
+     * 商品标签Id
+     */
+    private Long tagId;
+
+    /**
+     * 商品标签Name
+     */
+    private String tagName;
 
     /**
      * 图片集合
@@ -309,5 +318,21 @@ public class SupplierCommodityVo {
 
     public void setGuaranteePeriodUnit(String guaranteePeriodUnit) {
         this.guaranteePeriodUnit = guaranteePeriodUnit;
+    }
+
+    public Long getTagId() {
+        return tagId;
+    }
+
+    public void setTagId(Long tagId) {
+        this.tagId = tagId;
+    }
+
+    public String getTagName() {
+        return tagName;
+    }
+
+    public void setTagName(String tagName) {
+        this.tagName = tagName;
     }
 }
