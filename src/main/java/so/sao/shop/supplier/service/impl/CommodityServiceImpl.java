@@ -1700,6 +1700,7 @@ public class CommodityServiceImpl implements CommodityService {
      * @param id 审核表ID
      * @return
      */
+    @Override
     public Result findAuditDetail(Long id){
         int num = supplierCommodityTmpDao.countTemByScaId(id);
         List<CommImge> commImgeList  = null;
