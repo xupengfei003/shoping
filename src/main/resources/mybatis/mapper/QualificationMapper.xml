@@ -65,7 +65,7 @@
         WHERE q.delete = 0
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(name)">
             AND (
-            a.responsible LIKE CONCAT ('%',#{name},'%')
+            a.responsible_phone LIKE CONCAT ('%',#{name},'%')
             OR a.provider_name LIKE CONCAT ('%',#{name},'%')
             )
         </if>
