@@ -757,13 +757,6 @@ public class CommodityServiceImpl implements CommodityService {
         if (null == supplierCommodityList || supplierCommodityList.size() == 0) {
             return Result.fail("该商品无记录！");
         }
-        //供应商登录时校验资质与配送运费
-        if (supplierId2 != 0){
-            Result result = checkSupplier(supplierId2);
-            if (null != result){
-                return result;
-            }
-        }
         //判断该供应商商品数组中是否已处于待审核状态
         int num = supplierCommodityAuditDao.countByScidArrayAndAuditResult(ids);
         if (num > 0) {
@@ -778,19 +771,27 @@ public class CommodityServiceImpl implements CommodityService {
         Set<Long> passSet = new TreeSet<>();
         //存储符合的supplierId
         Set<Long> noPassSet = new TreeSet<>();
-        for (Long supplierId:suSet) {
-            //判断供应商资质审核
-            if (!Objects.equals(Constant.QUALIFICATION_VERIFY_PASS, qualificationDao.getAccountQualificationStatus(supplierId))){
-                noPassSet.add(supplierId);
-                continue;
+        //供应商登录时校验资质与配送运费
+        if (supplierId2 != 0L){
+            Result result = checkSupplier(supplierId2);
+            if (null != result){
+                return result;
             }
-            //判断供应商是否已完善配送范围和运费规则
-            boolean freightRulesFlag = checkFreightRules(supplierId);
-            if (!freightRulesFlag) {
-                noPassSet.add(supplierId);
-                continue;
+        } else {
+            for (Long supplierId:suSet) {
+                //判断供应商资质审核
+                if (!Objects.equals(Constant.QUALIFICATION_VERIFY_PASS, qualificationDao.getAccountQualificationStatus(supplierId))){
+                    noPassSet.add(supplierId);
+                    continue;
+                }
+                //判断供应商是否已完善配送范围和运费规则
+                boolean freightRulesFlag = checkFreightRules(supplierId);
+                if (!freightRulesFlag) {
+                    noPassSet.add(supplierId);
+                    continue;
+                }
+                passSet.add(supplierId);
             }
-            passSet.add(supplierId);
         }
         //需要操作的供应商商品审核记录
         List<SupplierCommodityAudit> list = new ArrayList<>();
