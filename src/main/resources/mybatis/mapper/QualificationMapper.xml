@@ -9,7 +9,7 @@
         qualification_status = #{qualificationStatus},
         reason = #{ reason },
         update_time = #{updateDate}
-        WHERE account_id = #{accountId};
+        WHERE qua.delete = 0 AND account_id = #{accountId};
     </update>
 
     <!-- 查询登录供应商的资质状态 -->
