@@ -1165,7 +1165,7 @@
             )
     </select>
     <!-- 获取多个商品库存信息 -->
-    <select id="getInventoryByIds" resultType="so.sao.shop.supplier.pojo.output.CommInventoryInfoOutput">
+    <select id="getInventoryByIds" resultType="so.sao.shop.supplier.pojo.output.CommInventoryInfoOutput" parameterType="java.util.List">
         SELECT
             id,
             inventory_minimum AS inventoryMinimum,
@@ -1209,7 +1209,7 @@
 	    )
     </update>
     <!-- 更新库存状态 -->
-    <update id="updateInventoryStatus" parameterType="java.lang.Long">
+    <update id="updateInventoryStatus">
         UPDATE
             supplier_commodity
         SET
