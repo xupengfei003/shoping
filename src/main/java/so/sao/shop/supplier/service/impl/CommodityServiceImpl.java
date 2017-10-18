@@ -200,7 +200,7 @@ public class CommodityServiceImpl implements CommodityService {
             sc.setUpdatedAt(new Date());
             sc.setInventory(CommConstant.INVENTORY_DEFAULT_VALUE);
             sc.setInventoryMinimum(CommConstant.INVENTORY_MINIMUM_DEFAULT_VALUE);
-            sc.setInventoryStatus(CommConstant.INVENTORY_NORMAL);
+            sc.setInventoryStatus(CommConstant.INVENTORY_WARNING);
             //若供应商被禁用，新增的商品是失效状态
             if(account.getAccountStatus() == CommConstant.ACCOUNT_INVALID_STATUS){
                 sc.setInvalidStatus(CommConstant.COMM_INVALID_STATUS);
