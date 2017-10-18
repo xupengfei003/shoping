@@ -1422,13 +1422,13 @@ public class PurchaseServiceImpl implements PurchaseService {
         }
 
     /**
-     * 判断购买商品数量是否满足最小起定量
+     * 判断购买商品数量是否满足最小起定量以及商品状态判断（是否为上架状态）
      * @param commOutput 商品对象
      * @param goodsNumber 购买商品的数量
      * @return
      */
     private boolean checkMinOrderQuantity(CommodityOutput commOutput, BigDecimal goodsNumber){
-        if (null != commOutput && null != goodsNumber && CommConstant.COMM_ST_ON_SHELVES == commOutput.getStatus() && 1 == commOutput.getInvalidStatus()){
+        if (null != commOutput && null != goodsNumber && CommConstant.COMM_ST_ON_SHELVES == commOutput.getStatus() && CommConstant.COMM_ST_OFF_SHELVES_AUDIT == commOutput.getStatus() && 1 == commOutput.getInvalidStatus()){
             if (commOutput.getMinOrderQuantity() > goodsNumber.intValue()){
                 return false;
             }else {
