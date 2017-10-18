@@ -95,7 +95,7 @@ public class CommodityExportOutput {
      * 生产日期
      */
 
-    private Date productionDate;
+    private String  productionDate;
 
     /**
      * 有效期
@@ -340,9 +340,9 @@ public class CommodityExportOutput {
 
     public void setCartonVal(Long cartonVal) {this.cartonVal = cartonVal;}
 
-    public Date getProductionDate() {return productionDate;}
+    public String getProductionDate() {return productionDate;}
 
-    public void setProductionDate(Date productionDate) {this.productionDate = productionDate;}
+    public void setProductionDate(String productionDate) {this.productionDate = productionDate;}
 
     public int getGuaranteePeriod() {return guaranteePeriod;}
 
