@@ -107,6 +107,11 @@ public class CommodityExportOutput {
      * 有效期单位
      */
     private String guaranteePeriodUnit;
+
+    /**
+     * 计量规格数值
+     */
+    private String measureSpecVal;
     /**
      * 企业名称
      */
@@ -352,6 +357,10 @@ public class CommodityExportOutput {
 
     public void setGuaranteePeriodUnit(String guaranteePeriodUnit) {this.guaranteePeriodUnit = guaranteePeriodUnit;}
 
+    public String getMeasureSpecVal() {return measureSpecVal;}
+
+    public void setMeasureSpecVal(String measureSpecVal) {this.measureSpecVal = measureSpecVal;}
+
     public Long getSupplierId() {return supplierId;}
 
     public void setSupplierId(Long supplierId) {this.supplierId = supplierId;}
@@ -380,7 +389,7 @@ public class CommodityExportOutput {
                         "," + originPlace +
                         "," + unitName +
                         "," + measureSpecName +
-                        "," +ruleValue+measureSpecName+"/"+  unitName+
+                        "," +measureSpecVal+measureSpecName+"/"+  unitName+
                         "," +cartonVal+unitName+"/"+  cartonName+
                         ",￥" + price +
                         ",￥" + unitPrice +

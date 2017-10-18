@@ -137,6 +137,7 @@
         IFNULL(t.production_date,'') AS  productionDate,
         IFNULL(t.guarantee_period,'') AS  guaranteePeriod,
         IFNULL(t.guarantee_period_unit,'') AS  guaranteePeriodUnit,
+        IFNULL(t.measure_spec_val,'') AS  measureSpecVal,
         (SELECT NAME FROM comm_category ca WHERE ca.id = t.category_one_id) AS categoryOneName,
         (SELECT NAME FROM comm_category ca WHERE ca.id = t.category_two_id) AS categoryTwoName,
         (SELECT NAME FROM comm_category ca WHERE ca.id = t.category_three_id) AS categoryThreeName,
@@ -175,6 +176,7 @@
         sctmp.production_date,
         sctmp.guarantee_period,
         sctmp.guarantee_period_unit,
+        sctmp.measure_spec_val,
         sctmp.remark
         FROM
         supplier_commodity_tmp sctmp
@@ -236,6 +238,7 @@
         sc.production_date,
         sc.guarantee_period,
         sc.guarantee_period_unit,
+        sc.measure_spec_val,
         sc.remark
         FROM
         supplier_commodity sc
@@ -300,6 +303,7 @@
         sc.production_date,
         sc.guarantee_period,
         sc.guarantee_period_unit,
+        sc.measure_spec_val,
         sc.remark
         FROM
         supplier_commodity sc
