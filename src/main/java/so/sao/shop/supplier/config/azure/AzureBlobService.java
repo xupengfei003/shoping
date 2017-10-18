@@ -275,7 +275,7 @@ public class AzureBlobService {
                             Thumbnails.of(realzippath+"/"+ fileStr.trim()).scale(1f).outputQuality(0.05f).toFile(realzippath+"/img/"+ fileStr.trim());
                             file = new File(realzippath+"/img/"+ fileStr.trim());
                         }else {
-                            file = new File(realzippath+ fileStr.trim());
+                            file = new File(realzippath+ "/"+fileStr.trim());
                         }
                         if (file.exists()) {
                             //获取上传文件的名称及文件类型
