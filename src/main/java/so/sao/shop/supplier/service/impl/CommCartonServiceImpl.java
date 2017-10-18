@@ -135,7 +135,7 @@ public class CommCartonServiceImpl implements CommCartonService {
         }
         //判断ID对应的商品标签supplierId与登录用户supplierId是否相同
         if (!supplierId.equals(commCarton.getSupplierId())) {
-            return Result.fail("您无权限操作此箱规单位！");
+            return Result.fail("公共箱规单位，不能操作！");
         }
         return null;
     }

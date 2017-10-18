@@ -1033,18 +1033,18 @@
                     supplier_commodity sc
                 LEFT JOIN (
                     SELECT
-                    t.id,
-                    t.sc_id,
-                    t.supplier_id,
-                    t.updated_at,
-                    t.created_at,
-                    t. STATUS,
-                    t.audit_result,
-                    t.audit_flag,
-                    t.audit_by,
-                    t.audit_opinion
+                        t.id,
+                        t.sc_id,
+                        t.supplier_id,
+                        t.updated_at,
+                        t.created_at,
+                        t. STATUS,
+                        t.audit_result,
+                        t.audit_flag,
+                        t.audit_by,
+                        t.audit_opinion
                     FROM
-                    supplier_commodity_audit t
+                        supplier_commodity_audit t
                     WHERE t. STATUS != 6) t1 ON sc.id = t1.sc_id
                     LEFT JOIN account a ON sc.supplier_id = a.account_id
                     LEFT JOIN commodity c ON sc.code69 = c.code69
@@ -1052,7 +1052,53 @@
                     LEFT JOIN comm_measure_spec cms ON sc.measure_spec_id = cms.id
                     LEFT JOIN comm_carton cc ON sc.carton_id = cc.id
                     LEFT JOIN comm_unit cu ON sc.unit_id = cu.id
-                    WHERE 1 = 1
+                    WHERE t1.id IS NULL
+                    <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierId)">
+                        AND sc.supplier_id = #{supplierId}
+                    </if>
+            UNION
+                SELECT
+                    sc.id AS id,
+                    sc.supplier_id,
+                    a.provider_name AS supplierName,
+                    sc.code69 AS code69,
+                    cb. NAME AS brandName,
+                    c. NAME AS commName,
+                    cms. NAME AS measureSpecName,
+                    sc.rule_val AS ruleVal,
+                    cc. NAME AS cartonName,
+                    sc.inventory_minimum AS inventoryMinimum,
+                    sc.inventory AS inventory,
+                    cu. NAME AS unitName,
+                    sc.inventory_status AS inventoryStatus,
+                    c.category_one_id AS categoryOneId,
+                    c.category_two_id AS categoryTwoId,
+                    c.category_three_id AS categoryThreeId,
+                    t1.status AS status
+                FROM
+                    supplier_commodity sc
+                LEFT JOIN (
+                    SELECT
+                        t.id,
+                        t.sc_id,
+                        t.supplier_id,
+                        t.updated_at,
+                        t.created_at,
+                        t. STATUS,
+                        t.audit_result,
+                        t.audit_flag,
+                        t.audit_by,
+                        t.audit_opinion
+                    FROM
+                        supplier_commodity_audit t
+                    WHERE t. STATUS != 6) t1 ON sc.id = t1.sc_id
+                    LEFT JOIN account a ON sc.supplier_id = a.account_id
+                    LEFT JOIN commodity c ON sc.code69 = c.code69
+                    LEFT JOIN comm_brand cb ON c.brand_id = cb.id
+                    LEFT JOIN comm_measure_spec cms ON sc.measure_spec_id = cms.id
+                    LEFT JOIN comm_carton cc ON sc.carton_id = cc.id
+                    LEFT JOIN comm_unit cu ON sc.unit_id = cu.id
+                    WHERE t1.id IS NOT NULL
                     <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierId)">
                         AND sc.supplier_id = #{supplierId}
                     </if>
@@ -1118,6 +1164,20 @@
                 AND sc.id = #{id}
             )
     </select>
+    <!-- 获取多个商品库存信息 -->
+    <select id="getInventoryByIds" resultType="so.sao.shop.supplier.pojo.output.CommInventoryInfoOutput">
+        SELECT
+            id,
+            inventory_minimum AS inventoryMinimum,
+            inventory
+        FROM
+            supplier_commodity
+        WHERE
+            id in
+        <foreach collection="goodsList" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
 
     <!-- 更新某商品库存信息 -->
     <update id="updateInventoryById" parameterType="so.sao.shop.supplier.pojo.input.CommInventoryInfoInput">
@@ -1130,6 +1190,7 @@
         WHERE
             id = #{id}
     </update>
+    <!-- 更新某商品库存信息 tmp -->
     <update id="updateInventoryByTmpScaId" parameterType="so.sao.shop.supplier.pojo.input.CommInventoryInfoInput">
         UPDATE
             supplier_commodity_tmp
@@ -1146,5 +1207,14 @@
                 JOIN supplier_commodity sc ON sca.sc_id = sc.id
                 AND sc.id = #{id}
 	    )
+    </update>
+    <!-- 更新库存状态 -->
+    <update id="updateInventoryStatus" parameterType="java.lang.Long">
+        UPDATE
+            supplier_commodity
+        SET
+            inventory_status = #{status}
+        WHERE
+            id = #{id}
     </update>
 </mapper>
