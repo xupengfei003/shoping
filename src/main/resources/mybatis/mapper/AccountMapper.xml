@@ -91,22 +91,20 @@
 
   <!-- 查询出省市区汉字字段-->
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
-    select 
-    <include refid="Base_Column_List" />, dict.name business_type ,p.name regist_address_province,
+    select
+    <include refid="Base_Column_List" />, p.name regist_address_province,
     c.name regist_address_city,d.name regist_address_district,
     cp.name contract_register_address_province,    cc.name contract_register_address_city,
     cd.name contract_register_address_district
     from account, sys_region p, sys_region c, sys_region d
-    , sys_region cp, sys_region cc, sys_region cd, dict_item dict
-   where account_id = #{accountId,jdbcType=BIGINT}
-     and regist_address_province = p.sr_id
-     and regist_address_city = c.sr_id
-     and regist_address_district = d.sr_id
-     and contract_register_address_province = cp.sr_id
-     and contract_register_address_city = cc.sr_id
-     and contract_register_address_district = cd.sr_id
-     and dict.code = business_type
-     and dict.dict_type = 3
+    , sys_region cp, sys_region cc, sys_region cd
+    where account_id = #{accountId,jdbcType=BIGINT}
+    AND regist_address_province = p.sr_id
+    AND regist_address_city = c.sr_id
+    AND regist_address_district = d.sr_id
+    AND contract_register_address_province = cp.sr_id
+    AND contract_register_address_city = cc.sr_id
+    AND contract_register_address_district = cd.sr_id
   </select>
 
   <!-- 查询出省市区编码字段-->
