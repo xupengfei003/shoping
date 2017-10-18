@@ -154,7 +154,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                     CommodityOutput commOutput = (CommodityOutput) result.getData();
                     //判断是否满足最小起订量
                     if (!this.checkMinOrderQuantity(commOutput,goodsNumber)){
-                        output.put("message",commOutput.getName()+"商品不满足最小起订量或已下架或该商品已失效");
+                        output.put("message",commOutput.getName()+"商品不满足最小起订量或未上架或该商品已失效");
                         return output;
                     }
                     //2.生成批量插入订单详情数据
@@ -1447,8 +1447,9 @@ public class PurchaseServiceImpl implements PurchaseService {
      * @return
      */
     private boolean checkMinOrderQuantity(CommodityOutput commOutput, BigDecimal goodsNumber){
-        boolean statusFlag = CommConstant.COMM_ST_ON_SHELVES == commOutput.getStatus() || CommConstant.COMM_ST_OFF_SHELVES_AUDIT == commOutput.getStatus();
-        if (null != commOutput && null != goodsNumber && statusFlag  && 1 == commOutput.getInvalidStatus()){
+        //待上架 下架 上架待审核 状态不可下单,上架，下架待审核，编辑状态可下单
+        boolean statusFlag = CommConstant.COMM_ST_NEW == commOutput.getStatus() || CommConstant.COMM_ST_OFF_SHELVES == commOutput.getStatus() || CommConstant.COMM_ST_ON_SHELVES_AUDIT == commOutput.getStatus() ;
+        if (null != commOutput && null != goodsNumber && !statusFlag  && 1 == commOutput.getInvalidStatus()){
             if (commOutput.getMinOrderQuantity() > goodsNumber.intValue()){
                 return false;
             }else {
