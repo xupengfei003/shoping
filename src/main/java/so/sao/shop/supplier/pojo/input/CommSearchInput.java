@@ -19,6 +19,12 @@ public class CommSearchInput {
     private String commCode69;
 
     /**
+     * 商家编码
+     */
+    private String code;
+
+
+    /**
      * 商品商家品牌
      */
     private String commBrand;
@@ -223,12 +229,20 @@ public class CommSearchInput {
         this.auditResult = auditResult;
     }
 
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
 
     @Override
     public String toString() {
         return "CommSearchInput{" +
                 "supplierId=" + supplierId +
                 ", commCode69='" + commCode69 + '\'' +
+                ", code='" + code + '\'' +
                 ", commBrand='" + commBrand + '\'' +
                 ", commName='" + commName + '\'' +
                 ", status=" + status +
