@@ -8,6 +8,7 @@ import so.sao.shop.supplier.pojo.input.CommInventoryInput;
 import so.sao.shop.supplier.pojo.output.CommInventoryInfoOutput;
 import so.sao.shop.supplier.pojo.output.CommInventoryOutput;
 import so.sao.shop.supplier.service.CommInventoryService;
+import so.sao.shop.supplier.util.Ognl;
 import so.sao.shop.supplier.util.PageTool;
 
 import javax.annotation.Resource;
@@ -72,5 +73,22 @@ public class CommInventoryServiceImpl implements CommInventoryService {
             supplierCommodityDao.updateInventoryByTmpScaId(commInventoryInfoInput);
         }
         supplierCommodityDao.updateInventoryById(commInventoryInfoInput);
+    }
+
+    /**
+     * 更新商品库存
+     * @param goodsList 商品ID list
+     * @throws Exception Exception
+     */
+    @Override
+    public void updateInventoryStatus(List<Long> goodsList) throws Exception {
+        List<CommInventoryInfoOutput> dataList = supplierCommodityDao.getInventoryByIds(goodsList);
+        if (Ognl.isNotNull(dataList) && dataList.size() > 0) {
+            dataList.forEach(commInventoryInfoOutput -> {
+                if (commInventoryInfoOutput.getInventory() <= commInventoryInfoOutput.getInventoryMinimum()) {
+                    supplierCommodityDao.updateInventoryStatus(commInventoryInfoOutput.getId());
+                }
+            });
+        }
     }
 }
