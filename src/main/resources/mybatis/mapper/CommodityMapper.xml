@@ -136,7 +136,7 @@
         IFNULL(t.carton_val,'') AS  cartonVal,
         IFNULL(t.production_date,'') AS  productionDate,
         IFNULL(t.guarantee_period,'') AS  guaranteePeriod,
-        IFNULL(t.guarantee_period_unit,'') AS  guaranteePeriod,
+        IFNULL(t.guarantee_period_unit,'') AS  guaranteePeriodUnit,
         (SELECT NAME FROM comm_category ca WHERE ca.id = t.category_one_id) AS categoryOneName,
         (SELECT NAME FROM comm_category ca WHERE ca.id = t.category_two_id) AS categoryTwoName,
         (SELECT NAME FROM comm_category ca WHERE ca.id = t.category_three_id) AS categoryThreeName,
