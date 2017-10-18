@@ -324,7 +324,7 @@ public interface SupplierCommodityDao {
      * @param goodsList
      * @return
      */
-    List<CommInventoryInfoOutput> getInventoryByIds(List<Long> goodsList);
+    List<CommInventoryInfoOutput> getInventoryByIds(@Param("goodsList") List<Long> goodsList);
 
     /**
      * 更新库存状态
