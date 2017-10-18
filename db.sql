@@ -65,7 +65,8 @@ ALTER TABLE `supplier_commodity`
   ADD COLUMN `measure_spec_val` INT(10)  NULL  COMMENT '计量规格数值' AFTER `inventory_status`,
   ADD COLUMN `production_date` DATETIME  NULL  COMMENT '生产日期' AFTER `measure_spec_val`,
   ADD COLUMN `guarantee_period` INT(10)  NULL  COMMENT '有效期' AFTER `production_date`,
-  ADD COLUMN `guarantee_period_unit` VARCHAR (10)  NULL  COMMENT '有效期单位' AFTER `guarantee_period`;
+  ADD COLUMN `guarantee_period_unit` VARCHAR (10)  NULL  COMMENT '有效期单位' AFTER `guarantee_period`,
+  MODIFY COLUMN inventory BIGINT(20);
 
 /*
 商品tmp表新增字段
@@ -78,5 +79,6 @@ ALTER TABLE `supplier_commodity_tmp`
   ADD COLUMN `measure_spec_val` INT(10)  NULL  COMMENT '计量规格数值' AFTER `inventory_status`,
   ADD COLUMN `production_date` DATETIME  NULL  COMMENT '生产日期' AFTER `measure_spec_val`,
   ADD COLUMN `guarantee_period` INT(10)  NULL  COMMENT '有效期' AFTER `production_date`,
-  ADD COLUMN `guarantee_period_unit` VARCHAR (10)  NULL  COMMENT '有效期单位' AFTER `guarantee_period`;
+  ADD COLUMN `guarantee_period_unit` VARCHAR (10)  NULL  COMMENT '有效期单位' AFTER `guarantee_period`,
+  MODIFY COLUMN inventory BIGINT(20);
 
