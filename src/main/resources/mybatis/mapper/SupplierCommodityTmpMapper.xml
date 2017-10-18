@@ -229,7 +229,7 @@
         LEFT JOIN comm_measure_spec cms ON sctmp.measure_spec_id = cms.id
         LEFT JOIN comm_unit cu ON sctmp.unit_id = cu.id
         LEFT JOIN comm_tag ct ON sctmp.tag_id = ct.id
-        LEFT JOIN comm_carton cn ON sc.carton_id = cn.id
+        LEFT JOIN comm_carton cn ON sctmp.carton_id = cn.id
         RIGHT JOIN supplier_commodity_audit sca ON sctmp.sca_id = sca.id
         WHERE sca.id = #{id}
     </select>
