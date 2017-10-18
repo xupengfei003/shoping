@@ -156,7 +156,8 @@ public class AuthServiceImpl implements AuthService {
         User u = userDao.findByUsername(phone);
         //判断当前登录人和接收密码手机是否一直
         if(u!=null&& StringUtils.isNotBlank(u.getUsername())){
-            String password = smsService.getVerCode();
+            //String password = smsService.getVerCode();
+            String password = "123456";
             //密码加密保存,忘记密码只能手机验证发送新密码
             userDao.updatePassword(u.getId(),new BCryptPasswordEncoder().encode(password), new Date());
             smsService.sendSms(Collections.singletonList(phone), Collections.singletonList("password"), Collections.singletonList(password), smsTemplateCode3);
