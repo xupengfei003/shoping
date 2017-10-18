@@ -86,7 +86,9 @@ public class CommInventoryServiceImpl implements CommInventoryService {
         if (Ognl.isNotNull(dataList) && dataList.size() > 0) {
             dataList.forEach(commInventoryInfoOutput -> {
                 if (commInventoryInfoOutput.getInventory() <= commInventoryInfoOutput.getInventoryMinimum()) {
-                    supplierCommodityDao.updateInventoryStatus(commInventoryInfoOutput.getId());
+                    supplierCommodityDao.updateInventoryStatus(commInventoryInfoOutput.getId(),1);
+                } else {
+                    supplierCommodityDao.updateInventoryStatus(commInventoryInfoOutput.getId(),0);
                 }
             });
         }

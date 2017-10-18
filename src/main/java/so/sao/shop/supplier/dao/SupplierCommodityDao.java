@@ -330,5 +330,5 @@ public interface SupplierCommodityDao {
      * 更新库存状态
      * @param id 商品ID
      */
-    void updateInventoryStatus(Long id);
+    void updateInventoryStatus(@Param("id") Long id, @Param("status") Integer status);
 }
