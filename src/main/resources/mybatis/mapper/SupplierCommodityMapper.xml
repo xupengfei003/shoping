@@ -459,6 +459,10 @@
             AND t.brandName  LIKE CONCAT ('%',#{commBrand},'%')
         </if>
 
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(code)">
+            AND t.code = #{code}
+        </if>
+
 
 
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(commName)">
