@@ -390,7 +390,7 @@ public class CommodityServiceImpl implements CommodityService {
                 sct.setCreatedBy(supplierId);
                 sct.setScaId(sca.getId());
                 sct.setInventory(sc.getInventory());
-                sct.setInventoryStatus(sc.getInvalidStatus());
+                sct.setInventoryStatus(sc.getInventoryStatus());
                 sct.setInventoryMinimum(sc.getInventoryMinimum());
                 supplierCommodityTmpDao.save(sct);
                 //修改后图片数据保存
