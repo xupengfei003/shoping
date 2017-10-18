@@ -1428,7 +1428,8 @@ public class PurchaseServiceImpl implements PurchaseService {
      * @return
      */
     private boolean checkMinOrderQuantity(CommodityOutput commOutput, BigDecimal goodsNumber){
-        if (null != commOutput && null != goodsNumber && CommConstant.COMM_ST_ON_SHELVES == commOutput.getStatus() && CommConstant.COMM_ST_OFF_SHELVES_AUDIT == commOutput.getStatus() && 1 == commOutput.getInvalidStatus()){
+        boolean statusFlag = CommConstant.COMM_ST_ON_SHELVES == commOutput.getStatus() || CommConstant.COMM_ST_OFF_SHELVES_AUDIT == commOutput.getStatus();
+        if (null != commOutput && null != goodsNumber && statusFlag  && 1 == commOutput.getInvalidStatus()){
             if (commOutput.getMinOrderQuantity() > goodsNumber.intValue()){
                 return false;
             }else {
