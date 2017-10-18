@@ -1129,10 +1129,10 @@ public class CommodityServiceImpl implements CommodityService {
             String unitPrice = map.get("*透云供货价");
             String price = map.get("*app订货价");
             String productionDate=map.get("*生产日期");
-            String guarantee=map.get("*有效期(天)");
+            String guaranteePeriod=map.get("*有效期(天)");
 
-            String guaranteePeriod=guarantee.substring(0,guarantee.length()-1);
-            String  guaranteePeriodUnit=guarantee.substring(guarantee.length()-1,guarantee.length());
+
+            String  guaranteePeriodUnit="天";
             String  minOrderQuantity = map.get("*最小起订量");
             String companyName= map.get("*企业名称");
             String  suppliercode = map.get("供应商id");
@@ -1178,6 +1178,7 @@ public class CommodityServiceImpl implements CommodityService {
             }
             commodityBatchInput.setBrandName(brand);
             commodityBatchInput.setName(name);
+
             if(code.matches(regex)){
                 supplierCommodityVo.setCode(code);
             }else {
@@ -1245,6 +1246,7 @@ public class CommodityServiceImpl implements CommodityService {
             if ( null != commCartonMap.get(cartonName) ) {
                 supplierCommodityVo.setCartonName(cartonName);
                 supplierCommodityVo.setCartonId( commCartonMap.get(cartonName) );
+                supplierCommodityVo.setCartonVal(Long.parseLong(cartonVal));
             } else {
                 Map<String, Object> errorMap =new HashMap<String, Object>();
                 errorMap.put("rowNum",rowNum);
@@ -1306,6 +1308,7 @@ public class CommodityServiceImpl implements CommodityService {
             }
             supplierCommodityVo.setGuaranteePeriod(Integer.parseInt(guaranteePeriod));
             supplierCommodityVo.setGuaranteePeriodUnit(guaranteePeriodUnit);
+
             supplierCommodityVo.setProductionDate(DateUtil.stringToDate(productionDate));
 
             commodityList.add(supplierCommodityVo);
