@@ -106,7 +106,7 @@ public class CommodityServiceImpl implements CommodityService {
     @Transactional(rollbackFor = Exception.class)
     public Result saveCommodity(@Valid CommodityInput commodityInput,Long supplierId){
         //获取当前供应商
-        Account account = accountDao.selectByPrimaryKey(supplierId);
+        Account account = accountDao.selectById(supplierId);
         if(null == account){
             return Result.fail("供应商不存在！");
         }
