@@ -793,6 +793,9 @@ public class CommodityServiceImpl implements CommodityService {
                 passSet.add(supplierId);
             }
         }
+        if (passSet.size() == 0){
+            return Result.fail("所选供应商未完成资质审核、配送范围或运费规则！");
+        }
         //需要操作的供应商商品审核记录
         List<SupplierCommodityAudit> list = new ArrayList<>();
         for (SupplierCommodity supplierCommodity:supplierCommodityList) {
