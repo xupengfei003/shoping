@@ -33,4 +33,11 @@ public interface CommInventoryService {
      * @throws Exception Exception
      */
     void updateInventoryById(CommInventoryInfoInput commInventoryInfoInput) throws Exception;
+
+    /**
+     * 更新商品库存
+     * @param goodsList 商品ID list
+     * @throws Exception Exception
+     */
+    void updateInventoryStatus(List<Long> goodsList) throws Exception;
 }
