@@ -107,6 +107,11 @@ public class CommodityExportOutput {
      * 有效期单位
      */
     private String guaranteePeriodUnit;
+
+    /**
+     * 计量规格数值
+     */
+    private String measureSpecVal;
     /**
      * 企业名称
      */
@@ -352,6 +357,10 @@ public class CommodityExportOutput {
 
     public void setGuaranteePeriodUnit(String guaranteePeriodUnit) {this.guaranteePeriodUnit = guaranteePeriodUnit;}
 
+    public String getMeasureSpecVal() {return measureSpecVal;}
+
+    public void setMeasureSpecVal(String measureSpecVal) {this.measureSpecVal = measureSpecVal;}
+
     public Long getSupplierId() {return supplierId;}
 
     public void setSupplierId(Long supplierId) {this.supplierId = supplierId;}
@@ -380,17 +389,44 @@ public class CommodityExportOutput {
                         "," + originPlace +
                         "," + unitName +
                         "," + measureSpecName +
-                        "," +ruleValue+measureSpecName+"/"+  unitName+
+                        "," +measureSpecVal+measureSpecName+"/"+  unitName+
                         "," +cartonVal+unitName+"/"+  cartonName+
                         ",￥" + price +
                         ",￥" + unitPrice +
                         "," + productionDate +
-                        "," + guaranteePeriod +
+                        "," + guaranteePeriodData(guaranteePeriod,guaranteePeriodUnit) +
                         "," + minOrderQuantity+
                         "," + companyName +
                         "," + supplierId +
                         "," + tagName +
                         "," + remark  ;
 
+    }
+    /**
+     * 天
+     */
+    public static final String  DAY ="天";
+    /**
+     * 月
+     */
+    public static final String  MONTH ="月";
+    /**
+     * 年
+     */
+    public static final String  YEEAR="年";
+    public static int guaranteePeriodData(int guaranteePeriod,String guaranteePeriodUnit){
+        int  st=guaranteePeriod;
+        switch (guaranteePeriodUnit){
+            case DAY:
+                st=guaranteePeriod;
+                break;
+            case MONTH:
+                st=guaranteePeriod*30;
+                break;
+            case YEEAR:
+                st=guaranteePeriod*365;
+                break;
+        }
+        return st;
     }
 }

@@ -9,7 +9,7 @@
         qualification_status = #{qualificationStatus},
         reason = #{ reason },
         update_time = #{updateDate}
-        WHERE account_id = #{accountId};
+        WHERE qua.delete = 0 AND account_id = #{accountId};
     </update>
 
     <!-- 查询登录供应商的资质状态 -->
@@ -65,7 +65,7 @@
         WHERE q.delete = 0
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(name)">
             AND (
-            a.responsible LIKE CONCAT ('%',#{name},'%')
+            a.responsible_phone LIKE CONCAT ('%',#{name},'%')
             OR a.provider_name LIKE CONCAT ('%',#{name},'%')
             )
         </if>
