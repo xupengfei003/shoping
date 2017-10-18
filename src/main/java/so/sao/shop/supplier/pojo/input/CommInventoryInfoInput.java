@@ -16,7 +16,6 @@ public class CommInventoryInfoInput {
     /**
      * 库存下限
      */
-    @NotNull(message = "库存下限不能为空")
     private Long inventoryMinimum;
 
     /**
@@ -28,7 +27,6 @@ public class CommInventoryInfoInput {
     /**
      * 库存增减量
      */
-    @NotNull(message = "库存增减量不能为空")
     private Long inventoryIncreasement;
 
     /**

@@ -1213,7 +1213,7 @@
         UPDATE
             supplier_commodity
         SET
-            inventory_status = 1
+            inventory_status = #{status}
         WHERE
             id = #{id}
     </update>
