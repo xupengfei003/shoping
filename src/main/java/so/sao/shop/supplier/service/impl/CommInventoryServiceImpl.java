@@ -42,15 +42,6 @@ public class CommInventoryServiceImpl implements CommInventoryService {
      */
     @Override
     public CommInventoryInfoOutput getInventoryById(Long id) throws Exception {
-        /*//根据商品的id查询出商品的状态
-        int status = supplierCommodityDao.findSupplierCommStatus(id);
-        //如果是商品的状态是 6 (编辑待审核),则根据供应商商品ID获取编辑后的商品信息
-        CommInventoryInfoOutput commInventoryInfoOutput;
-        if (status > 0) {
-            commInventoryInfoOutput = supplierCommodityDao.getInventoryByTmpId(id);
-        } else {
-            commInventoryInfoOutput = supplierCommodityDao.getInventoryById(id);
-        }*/
         return supplierCommodityDao.getInventoryById(id);
     }
 

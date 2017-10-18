@@ -47,9 +47,7 @@ public class CommInventoryController {
             commInventoryInput.setSupplierId(user.getAccountId());
             commInventoryInput.setFlag(0);
         } else { //管理员
-            if(Ognl.isNotNull(commInventoryInput.getSupplierId())) {
-                commInventoryInput.setFlag(1);
-            }
+            commInventoryInput.setFlag(1);
         }
         List<CommInventoryOutput> dataList = commInventoryService.search(commInventoryInput);
         return Result.success(Constant.MessageConfig.MSG_SUCCESS, new PageInfo<>(dataList));

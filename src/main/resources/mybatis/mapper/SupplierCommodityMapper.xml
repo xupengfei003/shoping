@@ -1107,17 +1107,24 @@
                         AND sc.supplier_id = #{supplierId}
                     </if>
                 ) t GROUP BY id HAVING 1 = 1
+
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(commCode69)">
+                AND t.code69 = #{commCode69}
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(commName)">
+                AND t.commName LIKE "${commName}%"
+            </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(inventoryStatus)">
                 AND t.inventoryStatus = #{inventoryStatus}
             </if>
             <if test="flag == 1">
                 <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(inputvalue)">
-                    AND (t.code69 LIKE "${inputvalue}%" OR t.commName LIKE "${inputvalue}%" OR t.supplierName LIKE "${inputvalue}%")
+                    AND (t.code69 = #{inputvalue} OR t.commName LIKE "${inputvalue}%" OR t.supplierName LIKE "${inputvalue}%")
                 </if>
             </if>
             <if test="flag == 0">
                 <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(inputvalue)">
-                    AND (t.code69 LIKE "${inputvalue}%" OR t.commName LIKE "${inputvalue}%")
+                    AND (t.code69 = #{inputvalue} OR t.commName LIKE "${inputvalue}%")
                 </if>
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierName)">
