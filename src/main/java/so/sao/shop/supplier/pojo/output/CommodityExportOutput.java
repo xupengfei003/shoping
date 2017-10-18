@@ -95,7 +95,7 @@ public class CommodityExportOutput {
      * 生产日期
      */
 
-    private Date productionDate;
+    private String  productionDate;
 
     /**
      * 有效期
@@ -340,9 +340,9 @@ public class CommodityExportOutput {
 
     public void setCartonVal(Long cartonVal) {this.cartonVal = cartonVal;}
 
-    public Date getProductionDate() {return productionDate;}
+    public String getProductionDate() {return productionDate;}
 
-    public void setProductionDate(Date productionDate) {this.productionDate = productionDate;}
+    public void setProductionDate(String productionDate) {this.productionDate = productionDate;}
 
     public int getGuaranteePeriod() {return guaranteePeriod;}
 
@@ -385,12 +385,39 @@ public class CommodityExportOutput {
                         ",￥" + price +
                         ",￥" + unitPrice +
                         "," + productionDate +
-                        "," + guaranteePeriod +
+                        "," + guaranteePeriodData(guaranteePeriod,guaranteePeriodUnit) +
                         "," + minOrderQuantity+
                         "," + companyName +
                         "," + supplierId +
                         "," + tagName +
                         "," + remark  ;
 
+    }
+    /**
+     * 天
+     */
+    public static final String  DAY ="天";
+    /**
+     * 月
+     */
+    public static final String  MONTH ="月";
+    /**
+     * 年
+     */
+    public static final String  YEEAR="年";
+    public static int guaranteePeriodData(int guaranteePeriod,String guaranteePeriodUnit){
+        int  st=guaranteePeriod;
+        switch (guaranteePeriodUnit){
+            case DAY:
+                st=guaranteePeriod;
+                break;
+            case MONTH:
+                st=guaranteePeriod*30;
+                break;
+            case YEEAR:
+                st=guaranteePeriod*365;
+                break;
+        }
+        return st;
     }
 }

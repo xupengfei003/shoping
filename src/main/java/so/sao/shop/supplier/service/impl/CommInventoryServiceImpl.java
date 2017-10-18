@@ -8,6 +8,7 @@ import so.sao.shop.supplier.pojo.input.CommInventoryInput;
 import so.sao.shop.supplier.pojo.output.CommInventoryInfoOutput;
 import so.sao.shop.supplier.pojo.output.CommInventoryOutput;
 import so.sao.shop.supplier.service.CommInventoryService;
+import so.sao.shop.supplier.util.Ognl;
 import so.sao.shop.supplier.util.PageTool;
 
 import javax.annotation.Resource;
@@ -41,15 +42,6 @@ public class CommInventoryServiceImpl implements CommInventoryService {
      */
     @Override
     public CommInventoryInfoOutput getInventoryById(Long id) throws Exception {
-        /*//根据商品的id查询出商品的状态
-        int status = supplierCommodityDao.findSupplierCommStatus(id);
-        //如果是商品的状态是 6 (编辑待审核),则根据供应商商品ID获取编辑后的商品信息
-        CommInventoryInfoOutput commInventoryInfoOutput;
-        if (status > 0) {
-            commInventoryInfoOutput = supplierCommodityDao.getInventoryByTmpId(id);
-        } else {
-            commInventoryInfoOutput = supplierCommodityDao.getInventoryById(id);
-        }*/
         return supplierCommodityDao.getInventoryById(id);
     }
 
@@ -72,5 +64,24 @@ public class CommInventoryServiceImpl implements CommInventoryService {
             supplierCommodityDao.updateInventoryByTmpScaId(commInventoryInfoInput);
         }
         supplierCommodityDao.updateInventoryById(commInventoryInfoInput);
+    }
+
+    /**
+     * 更新商品库存
+     * @param goodsList 商品ID list
+     * @throws Exception Exception
+     */
+    @Override
+    public void updateInventoryStatus(List<Long> goodsList) throws Exception {
+        List<CommInventoryInfoOutput> dataList = supplierCommodityDao.getInventoryByIds(goodsList);
+        if (Ognl.isNotNull(dataList) && dataList.size() > 0) {
+            dataList.forEach(commInventoryInfoOutput -> {
+                if (commInventoryInfoOutput.getInventory() <= commInventoryInfoOutput.getInventoryMinimum()) {
+                    supplierCommodityDao.updateInventoryStatus(commInventoryInfoOutput.getId(),1);
+                } else {
+                    supplierCommodityDao.updateInventoryStatus(commInventoryInfoOutput.getId(),0);
+                }
+            });
+        }
     }
 }

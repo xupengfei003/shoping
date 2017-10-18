@@ -194,7 +194,15 @@
             sctmp.code69 AS code69,
             c.origin_place AS originPlace,
             c.company_name AS companyName,
-            c.market_time AS marketTime,
+            sctmp.production_date AS productionDate,
+            sctmp.guarantee_period AS guaranteePeriod,
+            sctmp.guarantee_period_unit AS guaranteePeriodUnit,
+            sctmp.carton_id AS cartonId,
+            cn.name AS cartonName,
+            sctmp.carton_val AS cartonVal,
+            sctmp.measure_spec_val AS measureSpecVal,
+            sctmp.inventory_status AS inventoryStatus,
+            sctmp.inventory_minimum As inventoryMinimum,
             sctmp.tag_id AS tagId,
             ct.name AS tagName,
             sctmp.measure_spec_id AS measureSpecId,
@@ -221,6 +229,7 @@
         LEFT JOIN comm_measure_spec cms ON sctmp.measure_spec_id = cms.id
         LEFT JOIN comm_unit cu ON sctmp.unit_id = cu.id
         LEFT JOIN comm_tag ct ON sctmp.tag_id = ct.id
+        LEFT JOIN comm_carton cn ON sctmp.carton_id = cn.id
         RIGHT JOIN supplier_commodity_audit sca ON sctmp.sca_id = sca.id
         WHERE sca.id = #{id}
     </select>

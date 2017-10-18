@@ -23,10 +23,7 @@ import so.sao.shop.supplier.pojo.output.OrderCancelReasonOutput;
 import so.sao.shop.supplier.pojo.output.OrderRefuseReasonOutput;
 import so.sao.shop.supplier.pojo.output.PurchaseItemPrintOutput;
 import so.sao.shop.supplier.pojo.vo.*;
-import so.sao.shop.supplier.service.CommodityService;
-import so.sao.shop.supplier.service.FreightRulesService;
-import so.sao.shop.supplier.service.PurchaseService;
-import so.sao.shop.supplier.service.QrcodeService;
+import so.sao.shop.supplier.service.*;
 import so.sao.shop.supplier.util.*;
 
 import javax.annotation.Resource;
@@ -80,6 +77,8 @@ public class PurchaseServiceImpl implements PurchaseService {
     private FreightRulesDao freightRulesDao;//运费规则
     @Resource
     private FreightRulesService freightRulesService;
+    @Resource
+    private CommInventoryService commInventoryService;
     /**
      * 保存订单信息
      *
@@ -128,6 +127,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         List<PurchaseItem> listItem = new ArrayList<>();
         List<Notification> notificationList = new ArrayList<>();
         Map<Long, BigDecimal> inventoryMap = new HashMap<>();//存储商品编号和购买数量
+        List<Long> goodsIdList = new ArrayList<>();//商品ID集合
         //合并支付单号
         String payId = NumberGenerate.generateOrderId("yyMMddHHmmss");
         /**
@@ -142,6 +142,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             for (PurchaseItemVo purchaseItem : listPurchaseItem) {
                 //根据商品ID查询商户ID
                 Long goodsId = purchaseItem.getGoodsId();//商品ID
+                goodsIdList.add(goodsId);//将商品ID存入商品ID集合
                 Account accountUser = purchaseDao.findAccountById(goodsId);
                 //判断当前商品是否属于该商户
                 if (null != accountUser && sId.equals(accountUser.getAccountId())) {
@@ -224,6 +225,10 @@ public class PurchaseServiceImpl implements PurchaseService {
                 output.put("message", "更改失败");
                 return output;
             }
+            /**
+             * 库存预警 by bzh
+             */
+            commInventoryService.updateInventoryStatus(goodsIdList);
             int result = purchaseDao.savePurchase(listPurchase);
             int resultSum = purchaseItemDao.savePurchaseItem(listItem);
             BigDecimal totalMoney = new BigDecimal(0);//所有订单实付总金额
@@ -1172,13 +1177,20 @@ public class PurchaseServiceImpl implements PurchaseService {
             List<PurchaseItemVo> purchaseItemVoList = purchaseItemDao.getOrderDetailByPayId(cancelReasonInput.getOrderId());
             //更新仓库数量
             Map<BigInteger, BigDecimal> mapInput = new HashMap<>();
+            //商品ID集合
+            List<Long> goodsIdList = new ArrayList<>();
             purchaseItemVoList.forEach(purchaseItemVo -> {
                 mapInput.put(BigInteger.valueOf(purchaseItemVo.getGoodsId()), BigDecimal.valueOf(purchaseItemVo.getGoodsNumber()));
+                goodsIdList.add(purchaseItemVo.getGoodsId());
             });
             int count = supplierCommodityDao.updateInventoryByGoodsId(mapInput);
             if (count == 0) {
                 throw new Exception("取消失败（恢复库存失败）");
             }
+            /**
+             * 库存预警
+             */
+            commInventoryService.updateInventoryStatus(goodsIdList);
         }
         Map<String, Object> map = new HashMap<>();
         map.put("orderId", cancelReasonInput.getOrderId());//订单编号
@@ -1277,9 +1289,12 @@ public class PurchaseServiceImpl implements PurchaseService {
             }
             // 4.修改库存
             Map<BigInteger, BigDecimal> goodsInfo = new HashMap();
+            //商品ID集合
+            List<Long> goodsIdList = new ArrayList<>();
             List<PurchaseItemVo> purchaseItemVos = purchaseItemDao.getOrderDetailByOId(orderId);
             purchaseItemVos.forEach(item -> {
                 goodsInfo.put(BigInteger.valueOf(item.getGoodsId()), BigDecimal.valueOf(item.getGoodsNumber()));
+                goodsIdList.add(item.getGoodsId());
             });
             if (goodsInfo.size() == 0) {
                 result.put("flag", false);
@@ -1294,6 +1309,10 @@ public class PurchaseServiceImpl implements PurchaseService {
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly(); // 回滚
                 return result;
             }
+            /**
+             * 库存预警
+             */
+            commInventoryService.updateInventoryStatus(goodsIdList);
             // 5.推送退款消息
             pushNotification(orderId, Constant.OrderStatusConfig.REFUNDED);
             result.put("flag", true);

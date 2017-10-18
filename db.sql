@@ -64,8 +64,9 @@ ALTER TABLE `supplier_commodity`
   ADD COLUMN `inventory_status` INT(1) DEFAULT 0  NULL  COMMENT '库存状态，0-正常，1-预警' AFTER `inventory_minimum`,
   ADD COLUMN `measure_spec_val` INT(10)  NULL  COMMENT '计量规格数值' AFTER `inventory_status`,
   ADD COLUMN `production_date` DATETIME  NULL  COMMENT '生产日期' AFTER `measure_spec_val`,
-  ADD COLUMN `guarantee_period` INT(10)  NULL  COMMENT '有效期' AFTER `min_order_quantity`,
-  ADD COLUMN `guarantee_period_unit` VARCHAR (10)  NULL  COMMENT '有效期单位' AFTER `min_order_quantity`;
+  ADD COLUMN `guarantee_period` INT(10)  NULL  COMMENT '有效期' AFTER `production_date`,
+  ADD COLUMN `guarantee_period_unit` VARCHAR (10)  NULL  COMMENT '有效期单位' AFTER `guarantee_period`,
+  MODIFY COLUMN inventory BIGINT(20);
 
 /*
 商品tmp表新增字段
@@ -77,6 +78,7 @@ ALTER TABLE `supplier_commodity_tmp`
   ADD COLUMN `inventory_status` INT(1) DEFAULT 0  NULL  COMMENT '库存状态，0-正常，1-预警' AFTER `inventory_minimum`,
   ADD COLUMN `measure_spec_val` INT(10)  NULL  COMMENT '计量规格数值' AFTER `inventory_status`,
   ADD COLUMN `production_date` DATETIME  NULL  COMMENT '生产日期' AFTER `measure_spec_val`,
-  ADD COLUMN `guarantee_period` INT(10)  NULL  COMMENT '有效期' AFTER `min_order_quantity`,
-  ADD COLUMN `guarantee_period_unit` VARCHAR (10)  NULL  COMMENT '有效期单位' AFTER `min_order_quantity`;
+  ADD COLUMN `guarantee_period` INT(10)  NULL  COMMENT '有效期' AFTER `production_date`,
+  ADD COLUMN `guarantee_period_unit` VARCHAR (10)  NULL  COMMENT '有效期单位' AFTER `guarantee_period`,
+  MODIFY COLUMN inventory BIGINT(20);
 

@@ -47,11 +47,7 @@ public class CommInventoryController {
             commInventoryInput.setSupplierId(user.getAccountId());
             commInventoryInput.setFlag(0);
         } else { //管理员
-            if(Ognl.isNotNull(commInventoryInput.getSupplierId())) {
-                commInventoryInput.setFlag(1);
-            } else {
-                return Result.fail(Constant.MessageConfig.STORE_ID_NOT_NULL);
-            }
+            commInventoryInput.setFlag(1);
         }
         List<CommInventoryOutput> dataList = commInventoryService.search(commInventoryInput);
         return Result.success(Constant.MessageConfig.MSG_SUCCESS, new PageInfo<>(dataList));
@@ -77,10 +73,11 @@ public class CommInventoryController {
     @PostMapping("/updateInventory")
     @ApiOperation(value = "更新某商品库存信息", notes = "更新某商品库存信息")
     public Result updateInventoryById(@RequestBody @Valid CommInventoryInfoInput commInventoryInfoInput) throws Exception {
-        if (commInventoryInfoInput.getInventory() + commInventoryInfoInput.getInventoryIncreasement() < 0) {
+        Long inventoryIncreasement = (commInventoryInfoInput.getInventoryIncreasement() != null ? commInventoryInfoInput.getInventoryIncreasement() : 0);
+        if (commInventoryInfoInput.getInventory() + inventoryIncreasement < 0) {
             return Result.fail("库存量不能小于0");
         } else {
-            commInventoryInfoInput.setInventory(commInventoryInfoInput.getInventory() + commInventoryInfoInput.getInventoryIncreasement());
+            commInventoryInfoInput.setInventory(commInventoryInfoInput.getInventory() + inventoryIncreasement);
         }
         commInventoryService.updateInventoryById(commInventoryInfoInput);
         return Result.success("该商品库存设置成功");

@@ -106,7 +106,7 @@ public class CommodityServiceImpl implements CommodityService {
     @Transactional(rollbackFor = Exception.class)
     public Result saveCommodity(@Valid CommodityInput commodityInput,Long supplierId){
         //获取当前供应商
-        Account account = accountDao.selectByPrimaryKey(supplierId);
+        Account account = accountDao.selectById(supplierId);
         if(null == account){
             return Result.fail("供应商不存在！");
         }
@@ -390,7 +390,7 @@ public class CommodityServiceImpl implements CommodityService {
                 sct.setCreatedBy(supplierId);
                 sct.setScaId(sca.getId());
                 sct.setInventory(sc.getInventory());
-                sct.setInventoryStatus(sc.getInvalidStatus());
+                sct.setInventoryStatus(sc.getInventoryStatus());
                 sct.setInventoryMinimum(sc.getInventoryMinimum());
                 supplierCommodityTmpDao.save(sct);
                 //修改后图片数据保存
@@ -709,7 +709,7 @@ public class CommodityServiceImpl implements CommodityService {
         }
         //判断是否重复执行上架操作
         if(supplierCommodity.getStatus()==CommConstant.COMM_ST_ON_SHELVES){
-            return Result.success("不能进行重复上架操作！");
+            return Result.fail("不能进行重复上架操作！");
         }
         //插入审核记录前，将以前的审核记录flag变为0
         supplierCommodityAuditDao.updateAuditFlagByScId(id, CommConstant.AUDIT_RECORD);
@@ -738,7 +738,7 @@ public class CommodityServiceImpl implements CommodityService {
         }
         //不能重复下架
         if (CommConstant.COMM_ST_OFF_SHELVES == one.getStatus()){
-            return Result.success("不能进行重复下架操作！");
+            return Result.fail("不能进行重复下架操作！");
         }
         //更新scId对应的历史记录
         supplierCommodityAuditDao.updateAuditFlagByScId(id, CommConstant.AUDIT_RECORD);
@@ -1129,10 +1129,10 @@ public class CommodityServiceImpl implements CommodityService {
             String unitPrice = map.get("*透云供货价");
             String price = map.get("*app订货价");
             String productionDate=map.get("*生产日期");
-            String guarantee=map.get("*有效期(天)");
+            String guaranteePeriod=map.get("*有效期(天)");
 
-            String guaranteePeriod=guarantee.substring(0,guarantee.length()-1);
-            String  guaranteePeriodUnit=guarantee.substring(guarantee.length()-1,guarantee.length());
+
+            String  guaranteePeriodUnit="天";
             String  minOrderQuantity = map.get("*最小起订量");
             String companyName= map.get("*企业名称");
             String  suppliercode = map.get("供应商id");
@@ -1178,6 +1178,7 @@ public class CommodityServiceImpl implements CommodityService {
             }
             commodityBatchInput.setBrandName(brand);
             commodityBatchInput.setName(name);
+
             if(code.matches(regex)){
                 supplierCommodityVo.setCode(code);
             }else {
@@ -1245,6 +1246,7 @@ public class CommodityServiceImpl implements CommodityService {
             if ( null != commCartonMap.get(cartonName) ) {
                 supplierCommodityVo.setCartonName(cartonName);
                 supplierCommodityVo.setCartonId( commCartonMap.get(cartonName) );
+                supplierCommodityVo.setCartonVal(Long.parseLong(cartonVal));
             } else {
                 Map<String, Object> errorMap =new HashMap<String, Object>();
                 errorMap.put("rowNum",rowNum);
@@ -1306,6 +1308,7 @@ public class CommodityServiceImpl implements CommodityService {
             }
             supplierCommodityVo.setGuaranteePeriod(Integer.parseInt(guaranteePeriod));
             supplierCommodityVo.setGuaranteePeriodUnit(guaranteePeriodUnit);
+
             supplierCommodityVo.setProductionDate(DateUtil.stringToDate(productionDate));
 
             commodityList.add(supplierCommodityVo);
@@ -1544,7 +1547,7 @@ public class CommodityServiceImpl implements CommodityService {
             SupplierCommodity sc = BeanMapper.map(commodityVo, SupplierCommodity.class);
             sc.setRemark(commodityBatchInput.getRemark());
             sc.setTagId(commodityBatchInput.getTagId());
-            sc.setStatus(CommConstant.COMM_ST_NEW);
+            sc.setStatus(CommConstant.COMM_ST_OFF_SHELVES);
             sc.setSupplierId(supplierId);
             sc.setCreatedBy(supplierId);
             sc.setUpdatedBy(supplierId);
