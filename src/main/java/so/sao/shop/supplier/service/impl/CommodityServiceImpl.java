@@ -709,7 +709,7 @@ public class CommodityServiceImpl implements CommodityService {
         }
         //判断是否重复执行上架操作
         if(supplierCommodity.getStatus()==CommConstant.COMM_ST_ON_SHELVES){
-            return Result.success("不能进行重复上架操作！");
+            return Result.fail("不能进行重复上架操作！");
         }
         //插入审核记录前，将以前的审核记录flag变为0
         supplierCommodityAuditDao.updateAuditFlagByScId(id, CommConstant.AUDIT_RECORD);
@@ -738,7 +738,7 @@ public class CommodityServiceImpl implements CommodityService {
         }
         //不能重复下架
         if (CommConstant.COMM_ST_OFF_SHELVES == one.getStatus()){
-            return Result.success("不能进行重复下架操作！");
+            return Result.fail("不能进行重复下架操作！");
         }
         //更新scId对应的历史记录
         supplierCommodityAuditDao.updateAuditFlagByScId(id, CommConstant.AUDIT_RECORD);
@@ -1547,7 +1547,7 @@ public class CommodityServiceImpl implements CommodityService {
             SupplierCommodity sc = BeanMapper.map(commodityVo, SupplierCommodity.class);
             sc.setRemark(commodityBatchInput.getRemark());
             sc.setTagId(commodityBatchInput.getTagId());
-            sc.setStatus(CommConstant.COMM_ST_NEW);
+            sc.setStatus(CommConstant.COMM_ST_OFF_SHELVES);
             sc.setSupplierId(supplierId);
             sc.setCreatedBy(supplierId);
             sc.setUpdatedBy(supplierId);
