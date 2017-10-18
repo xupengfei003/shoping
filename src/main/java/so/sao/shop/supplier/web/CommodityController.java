@@ -87,7 +87,11 @@ public class CommodityController {
         if (null == user) {
             return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
-        return commodityService.onShelvesBatch(ids);
+        Long supplierId = user.getAccountId();
+        if (Constant.ADMIN_STATUS.equals(user.getIsAdmin())) {
+            supplierId = 0L;
+        }
+        return commodityService.onShelvesBatch(ids, supplierId);
     }
 
     @ApiOperation(value="下架商品", notes="【负责人：张瑞兵】")
