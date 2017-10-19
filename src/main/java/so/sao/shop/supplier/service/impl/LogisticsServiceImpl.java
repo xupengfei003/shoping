@@ -239,7 +239,7 @@ public class LogisticsServiceImpl implements LogisticsService {
         Map<String,Object> resultMap = new HashMap<>();
         Integer orderStatus = purchaseDao.getOrderStatus(orderId);
         Map<String,Object> map = new HashMap<>();
-        if(null != orderStatus && orderStatus == 3){
+        if(null != orderStatus && orderStatus == Constant.OrderStatusConfig.ISSUE_SHIP){
             map.put("orderId",orderId);
             map.put("createTime",new Date());
             map.put("orderStatus",Constant.OrderStatusConfig.CONFIRM_RECEIVED);
