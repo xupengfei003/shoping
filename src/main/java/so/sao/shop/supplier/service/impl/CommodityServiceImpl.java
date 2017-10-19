@@ -490,13 +490,7 @@ public class CommodityServiceImpl implements CommodityService {
      */
     @Override
     public Result simpleSearchCommodities(CommSimpleSearchInput commSimpleSearchInput, HttpServletRequest request) {
-        //入参校验
-//        Date beginCreateAt = commSimpleSearchInput.getBeginCreateAt();
-//        Date endCreateAt = commSimpleSearchInput.getEndCreateAt();
-//        String createAtMessage = DataCompare.createAtCheck(beginCreateAt, endCreateAt);
-//        if(!"".equals(createAtMessage)){
-//            return Result.fail(createAtMessage);
-//        }
+
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //开始分页
 
