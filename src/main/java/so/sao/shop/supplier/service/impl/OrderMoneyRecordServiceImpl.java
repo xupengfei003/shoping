@@ -901,8 +901,12 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
     @Override
     public Map<String, Object> countOrderMoneyRecords(Integer timeType,Long accountId) {
         Map<String,String> timeMap = this.getelectTime(timeType);
-        Map<Object, Object> dataMap = orderMoneyRecordDao.countOrderMoneyRecords(timeMap.get("startTime"),timeMap.get("endTime"),accountId);
-        return this.transformOfMap(dataMap);
+        String startTime = timeMap.get("startTime");
+        String endTime = timeMap.get("endTime");
+        Map<Object, Object> dataMap = orderMoneyRecordDao.countOrderMoneyRecords(startTime,endTime,accountId);
+        Map<String,Object> resultMap =  this.transformOfMap(dataMap);
+        resultMap.put("orderTotalMoney",NumberUtil.number2Thousand(purchaseDao.getTotalMoneyByAccountId(startTime,endTime,accountId)));
+        return resultMap;
     }
 
     /**
@@ -945,9 +949,9 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
         resultMap.put("settledMoney",NumberUtil.number2Thousand(settledMoney));
 
         valueMap = (Map<String,Object>)dataMap.get("0");//未结算
-        BigDecimal pendingSettlementMoney = this.getValueByMap(valueMap,"pendingSettlementMoney");//未结算金额
+        BigDecimal pendingSettlementMoney = this.getValueByMap(valueMap,"pendingSettlementMoney");//未结算
+        // 金额
         resultMap.put("pendingSettlementMoney",NumberUtil.number2Thousand(pendingSettlementMoney));
-        resultMap.put("orderTotalMoney",NumberUtil.number2Thousand(settledMoney.add(pendingSettlementMoney)));
         return resultMap;
     }
 
