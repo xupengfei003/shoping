@@ -217,7 +217,7 @@ public interface Constant {
         /**
          * 5
          */
-        public static final String REJECT = "已拒收";
+        public static final String REJECT = "已拒收待审核";
         /**
          * 6
          */
@@ -225,7 +225,7 @@ public interface Constant {
         /**
          * 7
          */
-        public static final String CANCEL_ORDER = "已付款已取消";
+        public static final String CANCEL_ORDER = "已取消待审核";
         /**
          * 8
          */
