@@ -103,7 +103,7 @@ public class AdminPurchaseController {
         //对比开始金额和结束金额
         if (DataCompare.compareMoney(purchaseSelectInput.getBeginMoney(), purchaseSelectInput.getEndMoney()))
             return Result.fail(Constant.MessageConfig.MoneyNOTLate);
-        purchaseService.exportExcel(request, response, pageNum, pageSize, accountId, purchaseSelectInput);
+        purchaseService.adminExportExcel(request, response, pageNum, pageSize, accountId, purchaseSelectInput);
         return Result.success(Constant.MessageConfig.MSG_SUCCESS);
     }
 
