@@ -83,7 +83,8 @@
         order_create_time,
         updated_at,
         order_payment_method,
-        order_payment_num
+        order_payment_num,
+        store_name
         FROM
         purchase
         <where>
