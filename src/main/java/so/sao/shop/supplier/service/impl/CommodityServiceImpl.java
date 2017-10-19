@@ -745,13 +745,14 @@ public class CommodityServiceImpl implements CommodityService {
     }
 
     /**
-     * 商品批量上架
+     * 管理员批量上架商品--管理员批量上架
      * @param ids 供应商商品id数组
+     * @param supplierId2 supplierId
      * @return
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Result onShelvesBatch(Long[] ids, Long supplierId2) {
+    public Result onShelvesBatchByAdmin(Long[] ids, Long supplierId2) {
         //根据id数组查询，过滤已删除的商品
         List<SupplierCommodity> supplierCommodityList = supplierCommodityDao.findSupplierCommodityByIds(ids);
         if (null == supplierCommodityList || supplierCommodityList.size() == 0) {
@@ -767,32 +768,27 @@ public class CommodityServiceImpl implements CommodityService {
         for (SupplierCommodity sc:supplierCommodityList) {
             suSet.add(sc.getSupplierId());
         }
-        //存储不符合的supplierId
+        //存储符合验证条件的supplierId
         Set<Long> passSet = new TreeSet<>();
-        //存储符合的supplierId
+        //存储不符合验证条件的supplierId
         Set<Long> noPassSet = new TreeSet<>();
-        //供应商登录时校验资质与配送运费
-        if (!supplierId2.equals(0L)){
-            Result result = checkSupplier(supplierId2);
-            if (null != result){
-                return result;
+        //管理员登录时校验所有供应商的资质、配送与运费
+        for (Long supplierId : suSet) {
+            //判断供应商资质审核
+            if (!Objects.equals(Constant.QUALIFICATION_VERIFY_PASS, qualificationDao.getAccountQualificationStatus(supplierId))) {
+                noPassSet.add(supplierId);
+                continue;
             }
-        } else {
-            for (Long supplierId:suSet) {
-                //判断供应商资质审核
-                if (!Objects.equals(Constant.QUALIFICATION_VERIFY_PASS, qualificationDao.getAccountQualificationStatus(supplierId))){
-                    noPassSet.add(supplierId);
-                    continue;
-                }
-                //判断供应商是否已完善配送范围和运费规则
-                boolean freightRulesFlag = checkFreightRules(supplierId);
-                if (!freightRulesFlag) {
-                    noPassSet.add(supplierId);
-                    continue;
-                }
-                passSet.add(supplierId);
+            //判断供应商是否已完善配送范围和运费规则
+            boolean freightRulesFlag = checkFreightRules(supplierId);
+            if (!freightRulesFlag) {
+                noPassSet.add(supplierId);
+                continue;
             }
+            //添加满足条件的supplerId
+            passSet.add(supplierId);
         }
+        //所有都不满足条件情况
         if (passSet.size() == 0){
             return Result.fail("所选供应商未完成资质审核、配送范围或运费规则！");
         }
@@ -815,9 +811,52 @@ public class CommodityServiceImpl implements CommodityService {
         supplierCommodityAuditDao.updateAuditFlagByList(list, CommConstant.AUDIT_RECORD);
         //添加新记录
         supplierCommodityAuditDao.saveBatch(list);
-        if(noPassSet.size() > 0 && noPassSet.size() > 0){
+        if(passSet.size() > 0 && noPassSet.size() > 0){
             return Result.success("部分商品上架成功，上架商品需要管理员审核，审核通过后会自动上架，稍后注意查询商品列表审核结果！");
         }
+        return Result.success("上架商品需要管理员审核，审核通过后会自动上架，稍后注意查询商品列表审核结果！");
+    }
+
+    /**
+     * 供应商批量上架商品--供应商批量上架
+     * @param ids 供应商商品id数组
+     * @param supplierId 供应商id
+     * @return
+     */
+    @Override
+    public Result onShelvesBatchBySupplier(Long[] ids, Long supplierId) {
+        //根据id数组查询，过滤已删除的商品
+        List<SupplierCommodity> supplierCommodityList = supplierCommodityDao.findSupplierCommodityByIds(ids);
+        if (null == supplierCommodityList || supplierCommodityList.size() == 0) {
+            return Result.fail("该商品无记录！");
+        }
+        //校验供应商资质审核、配送范围与配送运费
+        Result result = checkSupplier(supplierId);
+        if( null != result){
+            return result;
+        }
+        //判断该供应商商品数组中是否已处于待审核状态
+        int num = supplierCommodityAuditDao.countByScidArrayAndAuditResult(ids);
+        if (num > 0) {
+            return Result.fail("所选商品中包含待审核商品，请重新选择！");
+        }
+        //需要操作的供应商商品审核记录
+        List<SupplierCommodityAudit> list = new ArrayList<>();
+        for (SupplierCommodity supplierCommodity:supplierCommodityList) {
+            //过滤重复上架
+            if (CommConstant.COMM_ST_ON_SHELVES == supplierCommodity.getStatus()) {
+                continue;
+            }
+            SupplierCommodityAudit supplierCommodityAudit = makeSupplierCommodityAudit(supplierCommodity, CommConstant.COMM_ST_ON_SHELVES_AUDIT);
+            list.add(supplierCommodityAudit);
+        }
+        if(list.size() <= 0){
+            return Result.fail("不能进行重复上架操作！");
+        }
+        //更新scId对应的历史记录
+        supplierCommodityAuditDao.updateAuditFlagByList(list, CommConstant.AUDIT_RECORD);
+        //添加新记录
+        supplierCommodityAuditDao.saveBatch(list);
         return Result.success("上架商品需要管理员审核，审核通过后会自动上架，稍后注意查询商品列表审核结果！");
     }
 
