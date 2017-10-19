@@ -729,11 +729,13 @@
     <update id="updateLogisticInfoByOrderId" parameterType="java.util.Map">
         UPDATE purchase
         SET
+        <!--自配送修改-->
         <if test="map.orderShipMethod == 1">
             order_ship_method = #{map.orderShipMethod},
             distributor_name = #{map.name},
             distributor_mobile = #{map.number},
         </if>
+        <!--物流公司配送修改-->
         <if test="map.orderShipMethod == 2">
             order_ship_method = #{map.orderShipMethod},
             logistics_company = #{map.name},

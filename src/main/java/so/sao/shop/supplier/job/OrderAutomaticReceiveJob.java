@@ -84,22 +84,24 @@ public class OrderAutomaticReceiveJob {
          */
         Boolean lock = redisTemplate.opsForValue().setIfAbsent(Constant.REDIS_KEY_PREFIX + "LOGISTICS_AUTOMATIC_RECEIVE", "1");
         try {
-            List<PurchaseInfoVo> purchaseInfoVoList = logisticsService.findOrderInfoByOrderStatus(Constant.OrderStatusConfig.ISSUE_SHIP);
-            List<String> orderIds = new ArrayList<>();
-            for (PurchaseInfoVo purchaseInfoVo : purchaseInfoVoList) {
-                Result result = logisticsService.findLogisticInfo(purchaseInfoVo.getOrderShipmentNumber());
-                JSONObject jsonObject = JSONObject.fromObject(result.getData());
-                if(null != jsonObject && jsonObject.size() > 0){
-                    String state = String.valueOf(jsonObject.get("state"));
-                    if("3".equals(state)){
-                        //计算时间差
-                        if(compareDate(jsonObject)){
-                            orderIds.add(purchaseInfoVo.getOrderId());
+            if (null != lock && lock) {
+                List<PurchaseInfoVo> purchaseInfoVoList = logisticsService.findOrderInfoByOrderStatus(Constant.OrderStatusConfig.ISSUE_SHIP);
+                List<String> orderIds = new ArrayList<>();
+                for (PurchaseInfoVo purchaseInfoVo : purchaseInfoVoList) {
+                    Result result = logisticsService.findLogisticInfo(purchaseInfoVo.getOrderShipmentNumber());
+                    JSONObject jsonObject = JSONObject.fromObject(result.getData());
+                    if (null != jsonObject && jsonObject.size() > 0) {
+                        String state = String.valueOf(jsonObject.get("state"));
+                        if ("3".equals(state)) {
+                            //计算时间差
+                            if (compareDate(jsonObject)) {
+                                orderIds.add(purchaseInfoVo.getOrderId());
+                            }
                         }
                     }
                 }
+                logisticsService.receiveOrder(orderIds);//自动确认收货
             }
-            logisticsService.receiveOrder(orderIds);//自动确认收货
         } catch (Exception e){
             logger.error("系统异常", e);
         } finally {
