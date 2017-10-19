@@ -74,10 +74,11 @@ public class CommInventoryController {
     @ApiOperation(value = "更新某商品库存信息", notes = "更新某商品库存信息")
     public Result updateInventoryById(@RequestBody @Valid CommInventoryInfoInput commInventoryInfoInput) throws Exception {
         Long inventoryIncreasement = (commInventoryInfoInput.getInventoryIncreasement() != null ? commInventoryInfoInput.getInventoryIncreasement() : 0);
-        if (commInventoryInfoInput.getInventory() + inventoryIncreasement < 0) {
+        CommInventoryInfoOutput commInventoryInfoOutput = commInventoryService.getInventoryById(commInventoryInfoInput.getId());
+        if (commInventoryInfoOutput.getInventory() + inventoryIncreasement < 0) {
             return Result.fail("库存量不能小于0");
         } else {
-            commInventoryInfoInput.setInventory(commInventoryInfoInput.getInventory() + inventoryIncreasement);
+            commInventoryInfoInput.setInventory(commInventoryInfoOutput.getInventory() + inventoryIncreasement);
         }
         commInventoryService.updateInventoryById(commInventoryInfoInput);
         return Result.success("该商品库存设置成功");
