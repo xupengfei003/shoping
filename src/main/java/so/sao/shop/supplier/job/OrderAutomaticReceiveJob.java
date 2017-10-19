@@ -58,11 +58,8 @@ public class OrderAutomaticReceiveJob {
                         }
                     }
                 }
-                Integer count = 0;
                 if (null != orderIds && orderIds.size() > 0) {
-                    count = logisticsService.receiveOrder(orderIdsInput);//自动确认收货
-                }
-                if (count != 0) {
+                    logisticsService.receiveOrder(orderIdsInput);//自动确认收货
                     logisticsService.deleteReceivedOrderByOrderId(orderIds);//删除中间表中符合时间的订单信息
                 }
             }
