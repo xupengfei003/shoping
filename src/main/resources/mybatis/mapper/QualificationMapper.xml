@@ -119,7 +119,7 @@
         WHERE account_id = #{accountId}
     </update>
     <!-- 判断资质消息是否已读 -->
-    <select id="findQualificationStatusIsRead" parameterType="int" resultType="int">
+    <select id="findQualificationStatusIsRead" parameterType="long" resultType="int">
         SELECT is_read
         FROM ACCOUNT
         WHERE account_id = #{accountId}
