@@ -1,13 +1,25 @@
 package so.sao.shop.supplier.pojo.output;
 
 import java.math.BigDecimal;
+import java.util.Date;
+
+import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.NotBlank;
 import so.sao.shop.supplier.config.CommConstant;
 import so.sao.shop.supplier.util.DateUtil;
+
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 
 /**
  * Created by renle on 2017/7/20.
  */
 public class CommodityExportOutput {
+    /**
+     * 序号
+     */
+    private  int num;
     /**
      * 商品id
      */
@@ -26,6 +38,19 @@ public class CommodityExportOutput {
     private String tagName;
 
     /**
+     * 商品分类一级名称
+     */
+    private  String   categoryOneName;
+    /**
+     * 商品分类二级名称
+     */
+    private  String   categoryTwoName;
+    /**
+     * 商品分类三级名称
+     */
+    private  String   categoryThreeName;
+
+    /**
      * 品牌
      */
     private String brandName;
@@ -38,7 +63,7 @@ public class CommodityExportOutput {
      */
     private String supplierCode;
     /**
-     * 计量单位
+     * 库存单位
      */
     private String unitName;
     /**
@@ -50,6 +75,15 @@ public class CommodityExportOutput {
      */
     private String ruleValue;
     /**
+     * 箱规单位
+     */
+    private String cartonName;
+
+    /**
+     * 箱规数值
+     */
+    private Long cartonVal;
+    /**
      * 市场价
      */
     private BigDecimal price;
@@ -58,17 +92,46 @@ public class CommodityExportOutput {
      */
     private BigDecimal unitPrice;
     /**
+     * 生产日期
+     */
+
+    private String  productionDate;
+
+    /**
+     * 有效期
+     */
+
+    private int guaranteePeriod;
+
+    /**
+     * 有效期单位
+     */
+    private String guaranteePeriodUnit;
+
+    /**
+     * 计量规格数值
+     */
+    private String measureSpecVal;
+    /**
      * 企业名称
      */
     private String companyName;
     /**
-     * 上市时间
-     */
-    private String marketTime;
-    /**
      * 商品产地
      */
     private String originPlace;
+    /**
+     * 供应商id
+     */
+    private Long supplierId;
+    /**
+     * 商品简介
+     */
+    private String remark;
+    /**
+     * 图片
+     */
+    private String img;
 
     /**
      * 库存
@@ -186,14 +249,6 @@ public class CommodityExportOutput {
         this.companyName = companyName;
     }
 
-    public String getMarketTime() {
-        return marketTime;
-    }
-
-    public void setMarketTime(String marketTime) {
-        this.marketTime = DateUtil.subStringByIndex(marketTime , 10);
-    }
-
     public String getOriginPlace() {
         return originPlace;
     }
@@ -266,28 +321,112 @@ public class CommodityExportOutput {
 
     public void setInvalidStatus(int invalidStatus) {this.invalidStatusName =  CommConstant.getinvalidStatus(invalidStatus);}
 
+    public int getNum() {return num;}
+
+    public void setNum(int num) {this.num = num;}
+
+    public String getCategoryOneName() {return categoryOneName;}
+
+    public void setCategoryOneName(String categoryOneName) {this.categoryOneName = categoryOneName;}
+
+    public String getCategoryTwoName() {return categoryTwoName;}
+
+    public void setCategoryTwoName(String categoryTwoName) {this.categoryTwoName = categoryTwoName;}
+
+    public String getCategoryThreeName() {return categoryThreeName;}
+
+    public void setCategoryThreeName(String categoryThreeName) {this.categoryThreeName = categoryThreeName;}
+
+    public String getCartonName() {return cartonName;}
+
+    public void setCartonName(String cartonName) {this.cartonName = cartonName;}
+
+    public Long getCartonVal() {return cartonVal;}
+
+    public void setCartonVal(Long cartonVal) {this.cartonVal = cartonVal;}
+
+    public String getProductionDate() {return productionDate;}
+
+    public void setProductionDate(String productionDate) {this.productionDate = productionDate;}
+
+    public int getGuaranteePeriod() {return guaranteePeriod;}
+
+    public void setGuaranteePeriod(int guaranteePeriod) {this.guaranteePeriod = guaranteePeriod;}
+
+    public String getGuaranteePeriodUnit() {return guaranteePeriodUnit;}
+
+    public void setGuaranteePeriodUnit(String guaranteePeriodUnit) {this.guaranteePeriodUnit = guaranteePeriodUnit;}
+
+    public String getMeasureSpecVal() {return measureSpecVal;}
+
+    public void setMeasureSpecVal(String measureSpecVal) {this.measureSpecVal = measureSpecVal;}
+
+    public Long getSupplierId() {return supplierId;}
+
+    public void setSupplierId(Long supplierId) {this.supplierId = supplierId;}
+
+    public String getRemark() {return remark;}
+
+    public void setRemark(String remark) {this.remark = remark;}
+
+    public String getImg() {return img;}
+
+    public void setImg(String img) {this.img = img;}
+
     @Override
     public String toString() {
+
         return
-                code69 +
+                num +
+                        "," +code69 +
+                        "," +supplierCode +
+                        "," +commName +
+                        "," +img +
                         "," + brandName +
-                        "," + tagName +
-                        "," + commName  +
-                        "," + companyName +
+                        "," + categoryOneName +
+                        "," + categoryTwoName +
+                        "," + categoryThreeName +
                         "," + originPlace +
-                        "," + marketTime +
-                        "," + supplierCode +
                         "," + unitName +
                         "," + measureSpecName +
-                        "," + ruleValue +
+                        "," +measureSpecVal+measureSpecName+"/"+  unitName+
+                        "," +cartonVal+unitName+"/"+  cartonName+
                         ",￥" + price +
                         ",￥" + unitPrice +
-                        "," + (new Double(inventory)).intValue() +
+                        "," + productionDate +
+                        "," + guaranteePeriodData(guaranteePeriod,guaranteePeriodUnit) +
                         "," + minOrderQuantity+
-                        "," + statusName +
-                        "," + invalidStatusName +
-                        "," + createdAt +
-                        "," + updatedAt ;
+                        "," + companyName +
+                        "," + supplierId +
+                        "," + tagName +
+                        "," + remark  ;
 
+    }
+    /**
+     * 天
+     */
+    public static final String  DAY ="天";
+    /**
+     * 月
+     */
+    public static final String  MONTH ="月";
+    /**
+     * 年
+     */
+    public static final String  YEEAR="年";
+    public static int guaranteePeriodData(int guaranteePeriod,String guaranteePeriodUnit){
+        int  st=guaranteePeriod;
+        switch (guaranteePeriodUnit){
+            case DAY:
+                st=guaranteePeriod;
+                break;
+            case MONTH:
+                st=guaranteePeriod*30;
+                break;
+            case YEEAR:
+                st=guaranteePeriod*365;
+                break;
+        }
+        return st;
     }
 }

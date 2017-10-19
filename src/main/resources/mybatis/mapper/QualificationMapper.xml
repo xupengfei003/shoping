@@ -9,16 +9,15 @@
         qualification_status = #{qualificationStatus},
         reason = #{ reason },
         update_time = #{updateDate}
-        WHERE account_id = #{accountId};
+        WHERE qua.delete = 0 AND account_id = #{accountId};
     </update>
 
-    <!-- 查询登录供应商的资质状态, 资质消息是否已读 -->
-    <select id="getAccountQualificationStatus" parameterType="long"  resultType="so.sao.shop.supplier.pojo.output.QualificationOut">
+    <!-- 查询登录供应商的资质状态 -->
+    <select id="getAccountQualificationStatus" parameterType="long"  resultType="int">
       SELECT
-            qualification_status AS qualificationStatus,
-            is_read AS isRead
-      FROM qualification
-      WHERE  account_id = #{ accountId } ;
+            qualification_status AS qualificationStatus
+      FROM qualification qua
+      WHERE  qua.delete = 0 AND qua.account_id = #{ accountId } ;
   </select>
 
     <select id="findByAccountId" resultType="so.sao.shop.supplier.pojo.output.QualificationOut">
@@ -66,7 +65,7 @@
         WHERE q.delete = 0
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(name)">
             AND (
-            a.responsible LIKE CONCAT ('%',#{name},'%')
+            a.responsible_phone LIKE CONCAT ('%',#{name},'%')
             OR a.provider_name LIKE CONCAT ('%',#{name},'%')
             )
         </if>
@@ -74,16 +73,16 @@
             AND q.qualification_status = #{status}
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotNull(startCreateTime)">
-            AND q.create_time <![CDATA[>=]]> #{startCreateTime}
+            AND STR_TO_DATE(DATE_FORMAT(q.create_time,'%Y-%c-%d'),'%Y-%m-%d') <![CDATA[>=]]> STR_TO_DATE(#{startCreateTime},'%Y-%m-%d')
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotNull(endCreateTime)">
-            AND q.create_time <![CDATA[<=]]> #{endCreateTime}
+            AND STR_TO_DATE(DATE_FORMAT(q.create_time,'%Y-%c-%d'),'%Y-%m-%d') <![CDATA[<=]]> STR_TO_DATE(#{endCreateTime},'%Y-%m-%d')
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotNull(startUpdateTime)">
-            AND q.update_time <![CDATA[>=]]> #{startUpdateTime}
+            AND STR_TO_DATE(DATE_FORMAT(q.update_time,'%Y-%c-%d'),'%Y-%m-%d') <![CDATA[>=]]> STR_TO_DATE(#{startUpdateTime},'%Y-%m-%d')
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotNull(endUpdateTime)">
-            AND q.update_time <![CDATA[<=]]> #{endUpdateTime}
+            AND STR_TO_DATE(DATE_FORMAT(q.update_time,'%Y-%c-%d'),'%Y-%m-%d') <![CDATA[<=]]> STR_TO_DATE(#{endUpdateTime},'%Y-%m-%d')
         </if>
         ORDER BY q.qualification_status,q.create_time
     </select>
@@ -115,8 +114,15 @@
 
     <!-- 更新资质状态消息已读状态 -->
     <update id="updateQualificationMessageRead">
-        UPDATE qualification
+        UPDATE account
         SET is_read = 1
         WHERE account_id = #{accountId}
     </update>
+    <!-- 判断资质消息是否已读 -->
+    <select id="findQualificationStatusIsRead" parameterType="long" resultType="int">
+        SELECT is_read
+        FROM ACCOUNT
+        WHERE account_id = #{accountId}
+    </select>
+
 </mapper>

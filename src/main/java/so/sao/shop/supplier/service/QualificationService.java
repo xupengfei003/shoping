@@ -17,10 +17,10 @@ public interface QualificationService {
      * @param reason
      * @return
      */
-    Result updateQualificationStatus(Integer accountId, Integer qualificationStatus, String reason );
+    Result updateQualificationStatus(Long accountId, Integer qualificationStatus, String reason );
 
     /**
-     *查询登录供应商的资质状态,资质消息是否已读
+     *查询登录供应商的资质状态
      * @param accountId
      * @return
      */
@@ -66,5 +66,5 @@ public interface QualificationService {
      * @param accountId
      * @return Result
      */
-    Result updateQualificationMessageRead( Integer accountId );
+    Result updateQualificationMessageRead( Long accountId );
 }

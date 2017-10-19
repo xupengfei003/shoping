@@ -23,10 +23,7 @@ import so.sao.shop.supplier.pojo.output.OrderCancelReasonOutput;
 import so.sao.shop.supplier.pojo.output.OrderRefuseReasonOutput;
 import so.sao.shop.supplier.pojo.output.PurchaseItemPrintOutput;
 import so.sao.shop.supplier.pojo.vo.*;
-import so.sao.shop.supplier.service.CommodityService;
-import so.sao.shop.supplier.service.FreightRulesService;
-import so.sao.shop.supplier.service.PurchaseService;
-import so.sao.shop.supplier.service.QrcodeService;
+import so.sao.shop.supplier.service.*;
 import so.sao.shop.supplier.util.*;
 
 import javax.annotation.Resource;
@@ -80,6 +77,8 @@ public class PurchaseServiceImpl implements PurchaseService {
     private FreightRulesDao freightRulesDao;//运费规则
     @Resource
     private FreightRulesService freightRulesService;
+    @Resource
+    private CommInventoryService commInventoryService;
     /**
      * 保存订单信息
      *
@@ -128,6 +127,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         List<PurchaseItem> listItem = new ArrayList<>();
         List<Notification> notificationList = new ArrayList<>();
         Map<Long, BigDecimal> inventoryMap = new HashMap<>();//存储商品编号和购买数量
+        List<Long> goodsIdList = new ArrayList<>();//商品ID集合
         //合并支付单号
         String payId = NumberGenerate.generateOrderId("yyMMddHHmmss");
         /**
@@ -142,6 +142,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             for (PurchaseItemVo purchaseItem : listPurchaseItem) {
                 //根据商品ID查询商户ID
                 Long goodsId = purchaseItem.getGoodsId();//商品ID
+                goodsIdList.add(goodsId);//将商品ID存入商品ID集合
                 Account accountUser = purchaseDao.findAccountById(goodsId);
                 //判断当前商品是否属于该商户
                 if (null != accountUser && sId.equals(accountUser.getAccountId())) {
@@ -153,7 +154,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                     CommodityOutput commOutput = (CommodityOutput) result.getData();
                     //判断是否满足最小起订量
                     if (!this.checkMinOrderQuantity(commOutput,goodsNumber)){
-                        output.put("message",commOutput.getName()+"商品不满足最小起订量或已下架或该商品已失效");
+                        output.put("message",commOutput.getName()+"商品不满足最小起订量或未上架或该商品已失效");
                         return output;
                     }
                     //2.生成批量插入订单详情数据
@@ -224,6 +225,10 @@ public class PurchaseServiceImpl implements PurchaseService {
                 output.put("message", "更改失败");
                 return output;
             }
+            /**
+             * 库存预警 by bzh
+             */
+            commInventoryService.updateInventoryStatus(goodsIdList);
             int result = purchaseDao.savePurchase(listPurchase);
             int resultSum = purchaseItemDao.savePurchaseItem(listItem);
             BigDecimal totalMoney = new BigDecimal(0);//所有订单实付总金额
@@ -457,23 +462,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             cellTemp.setCellStyle(style);
             Integer status = purchase.getOrderStatus();
             String orderStatus = "";
-            if (status == Constant.OrderStatusConfig.PAYMENT) {
-                orderStatus = Constant.OrderMessageConfig.PAYMENT;
-            } else if (status == Constant.OrderStatusConfig.PENDING_SHIP) {
-                orderStatus = Constant.OrderMessageConfig.PENDING_SHIP;
-            } else if (status == Constant.OrderStatusConfig.ISSUE_SHIP || status == Constant.OrderStatusConfig.CONFIRM_RECEIVED) {
-                orderStatus = Constant.OrderMessageConfig.ISSUE_SHIP;
-            } else if (status == Constant.OrderStatusConfig.RECEIVED) {
-                orderStatus = Constant.OrderMessageConfig.RECEIVED;
-            } else if (status == Constant.OrderStatusConfig.REJECT) {
-                orderStatus = Constant.OrderMessageConfig.REJECT;
-            } else if (status == Constant.OrderStatusConfig.REFUNDED) {
-                orderStatus = Constant.OrderMessageConfig.REFUNDED;
-            } else if (status == Constant.OrderStatusConfig.CANCEL_ORDER) {
-                orderStatus = Constant.OrderMessageConfig.CANCEL_ORDER;
-            } else if (status == Constant.OrderStatusConfig.PAYMENT_CANCEL_ORDER) {
-                orderStatus = Constant.OrderMessageConfig.PAYMENT_CANCEL_ORDER;
-            }
+            orderStatus = getOrderStatusInExcel(status, orderStatus);
             cellTemp = row.createCell(4);
             cellTemp.setCellValue(orderStatus);
             cellTemp.setCellStyle(style);
@@ -511,25 +500,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             cellTemp.setCellStyle(style);
         }
         //输出Excel文件
-        OutputStream output = null;
-        try {
-            output = response.getOutputStream();
-            response.reset();
-            String agent = request.getHeader("USER-AGENT").toLowerCase();
-            response.setContentType("application/vnd.ms-excel");
-            String fileName = "订单统计" + System.currentTimeMillis();
-            String codedFileName = java.net.URLEncoder.encode(fileName, "UTF-8");
-            if (agent.contains("firefox")) {
-                response.setCharacterEncoding("utf-8");
-                response.setHeader("content-disposition", "attachment;filename=" + new String(fileName.getBytes(), "ISO8859-1") + ".xls");
-            } else {
-                response.setHeader("content-disposition", "attachment;filename=" + codedFileName + ".xls");
-            }
-            wb.write(output);
-            output.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        outputExcel(request, response, wb);
     }
 
     /**
@@ -1172,13 +1143,20 @@ public class PurchaseServiceImpl implements PurchaseService {
             List<PurchaseItemVo> purchaseItemVoList = purchaseItemDao.getOrderDetailByPayId(cancelReasonInput.getOrderId());
             //更新仓库数量
             Map<BigInteger, BigDecimal> mapInput = new HashMap<>();
+            //商品ID集合
+            List<Long> goodsIdList = new ArrayList<>();
             purchaseItemVoList.forEach(purchaseItemVo -> {
                 mapInput.put(BigInteger.valueOf(purchaseItemVo.getGoodsId()), BigDecimal.valueOf(purchaseItemVo.getGoodsNumber()));
+                goodsIdList.add(purchaseItemVo.getGoodsId());
             });
             int count = supplierCommodityDao.updateInventoryByGoodsId(mapInput);
             if (count == 0) {
                 throw new Exception("取消失败（恢复库存失败）");
             }
+            /**
+             * 库存预警
+             */
+            commInventoryService.updateInventoryStatus(goodsIdList);
         }
         Map<String, Object> map = new HashMap<>();
         map.put("orderId", cancelReasonInput.getOrderId());//订单编号
@@ -1277,9 +1255,12 @@ public class PurchaseServiceImpl implements PurchaseService {
             }
             // 4.修改库存
             Map<BigInteger, BigDecimal> goodsInfo = new HashMap();
+            //商品ID集合
+            List<Long> goodsIdList = new ArrayList<>();
             List<PurchaseItemVo> purchaseItemVos = purchaseItemDao.getOrderDetailByOId(orderId);
             purchaseItemVos.forEach(item -> {
                 goodsInfo.put(BigInteger.valueOf(item.getGoodsId()), BigDecimal.valueOf(item.getGoodsNumber()));
+                goodsIdList.add(item.getGoodsId());
             });
             if (goodsInfo.size() == 0) {
                 result.put("flag", false);
@@ -1294,6 +1275,10 @@ public class PurchaseServiceImpl implements PurchaseService {
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly(); // 回滚
                 return result;
             }
+            /**
+             * 库存预警
+             */
+            commInventoryService.updateInventoryStatus(goodsIdList);
             // 5.推送退款消息
             pushNotification(orderId, Constant.OrderStatusConfig.REFUNDED);
             result.put("flag", true);
@@ -1422,13 +1407,15 @@ public class PurchaseServiceImpl implements PurchaseService {
         }
 
     /**
-     * 判断购买商品数量是否满足最小起定量
+     * 判断购买商品数量是否满足最小起定量以及商品状态判断（是否为上架状态）
      * @param commOutput 商品对象
      * @param goodsNumber 购买商品的数量
      * @return
      */
     private boolean checkMinOrderQuantity(CommodityOutput commOutput, BigDecimal goodsNumber){
-        if (null != commOutput && null != goodsNumber && CommConstant.COMM_ST_ON_SHELVES == commOutput.getStatus() && 1 == commOutput.getInvalidStatus()){
+        //待上架 下架 上架待审核 状态不可下单,上架，下架待审核，编辑状态可下单
+        boolean statusFlag = CommConstant.COMM_ST_NEW == commOutput.getStatus() || CommConstant.COMM_ST_OFF_SHELVES == commOutput.getStatus() || CommConstant.COMM_ST_ON_SHELVES_AUDIT == commOutput.getStatus() ;
+        if (null != commOutput && null != goodsNumber && !statusFlag  && 1 == commOutput.getInvalidStatus()){
             if (commOutput.getMinOrderQuantity() > goodsNumber.intValue()){
                 return false;
             }else {
@@ -1556,5 +1543,171 @@ public class PurchaseServiceImpl implements PurchaseService {
             return false;
         }
         return true;
+    }
+
+    /**
+     * 管理员POI导出(当前页/所选页/全部)订单列表
+     *
+     * @param request   request
+     * @param response  response
+     * @param pageNum   pageNum
+     * @param accountId accountId
+     * @param pageSize  pageSize
+     */
+    @Override
+    public void adminExportExcel(HttpServletRequest request, HttpServletResponse response, String pageNum, Integer pageSize, Long accountId, PurchaseSelectInput purchaseSelectInput) throws Exception {
+
+        //创建HSSFWorkbook对象(excel的文档对象)
+        HSSFWorkbook wb = new HSSFWorkbook();
+        //声明一个单子并命名
+        HSSFSheet sheet = wb.createSheet("订单统计");
+        for (int i = 0; i < 10; i++) {
+            sheet.setColumnWidth(i, 25 * 256);
+        }
+        // 生成一个样式
+        HSSFCellStyle style = wb.createCellStyle();
+
+        //创建第一行（也可以称为表头）
+        HSSFRow row = sheet.createRow(0);
+        row.setHeightInPoints(30);
+        //样式字体居中
+        style.setAlignment(HSSFCellStyle.ALIGN_CENTER);
+        style.setVerticalAlignment(HSSFCellStyle.VERTICAL_CENTER);
+        //给表头第一行一次创建单元格
+
+        HSSFCell cell = row.createCell(0);
+        cell.setCellValue("供应商名称");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(1);
+        cell.setCellValue("订单编号");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(2);
+        cell.setCellValue("订单状态");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(3);
+        cell.setCellValue("订单金额");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(4);
+        cell.setCellValue("创建时间");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(5);
+        cell.setCellValue("支付时间");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(6);
+        cell.setCellValue("支付类型");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(7);
+        cell.setCellValue("支付流水号");
+        cell.setCellStyle(style);
+
+        List<Purchase> orderList;
+        List<Integer> pageNumList;
+
+        if (pageNum != null && pageNum.length() > 0 && pageSize != null) { //获取区间页列表
+            //java8新特性 逗号分隔字符串转List<Integer>
+            pageNumList = Arrays.asList(pageNum.split(",")).stream().map(s -> Integer.parseInt(s.trim())).collect(Collectors.toList());
+            if (pageNumList.size() > 1) {
+                Collections.sort(pageNumList);
+                orderList = (List<Purchase>) PageTool.getListByPage(purchaseDao.getOrderListByIds(purchaseSelectInput, accountId), pageNumList.get(0), pageNumList.get(1), pageSize);
+            } else { //获取当前页列表
+                orderList = (List<Purchase>) PageTool.getListByPage(purchaseDao.getOrderListByIds(purchaseSelectInput, accountId), pageNumList.get(0), pageNumList.get(0), pageSize);
+            }
+        } else { //查询全部列表
+            orderList = purchaseDao.getOrderListByIds(purchaseSelectInput, accountId);
+        }
+        //向单元格里填充数据
+        HSSFCell cellTemp = null;
+        for (int i = 0; i < orderList.size(); i++) {
+            Purchase purchase = orderList.get(i);
+            sheet.setColumnWidth(0, 20 * 256);
+            row = sheet.createRow(i + 1);
+            cellTemp = row.createCell(0);
+            cellTemp.setCellValue(purchase.getStoreName());
+            cellTemp.setCellStyle(style);
+            cellTemp = row.createCell(1);
+            cellTemp.setCellValue(purchase.getOrderId());
+            cellTemp.setCellStyle(style);
+            Integer status = purchase.getOrderStatus();
+            String orderStatus = "";
+            orderStatus = getOrderStatusInExcel(status, orderStatus);
+            cellTemp = row.createCell(2);
+            cellTemp.setCellValue(orderStatus);
+            cellTemp.setCellStyle(style);
+            cellTemp = row.createCell(3);
+            cellTemp.setCellValue("￥" + purchase.getOrderPrice());
+            cellTemp.setCellStyle(style);
+            cellTemp = row.createCell(4);
+            cellTemp.setCellValue(purchase.getOrderCreateTime() == null ? "" : StringUtil.fomateData(purchase.getOrderCreateTime(), "yyyy-MM-dd HH:mm:ss"));
+            cellTemp.setCellStyle(style);
+            cellTemp = row.createCell(5);
+            cellTemp.setCellValue(purchase.getOrderPaymentTime() == null ? "" : StringUtil.fomateData(purchase.getOrderCreateTime(), "yyyy-MM-dd HH:mm:ss"));
+            cellTemp.setCellStyle(style);
+            Integer paymentMethod = purchase.getOrderPaymentMethod();
+            String payment = "";
+            if (paymentMethod == Constant.PaymentStatusConfig.ALIPAY) {
+                payment = Constant.PaymentMsgConfig.ALIPAY;
+            } else if (paymentMethod == Constant.PaymentStatusConfig.WECHAT) {
+                payment = Constant.PaymentMsgConfig.WECHAT;
+            }
+            cellTemp = row.createCell(6);
+            cellTemp.setCellValue(payment);
+            cellTemp.setCellStyle(style);
+            cellTemp = row.createCell(7);
+            cellTemp.setCellValue(purchase.getOrderPaymentNum());
+            cellTemp.setCellStyle(style);
+        }
+        //输出Excel文件
+        outputExcel(request, response, wb);
+    }
+    //输出Excel文件
+    private void outputExcel(HttpServletRequest request, HttpServletResponse response, HSSFWorkbook wb) {
+        OutputStream output = null;
+        try {
+            output = response.getOutputStream();
+            response.reset();
+            String agent = request.getHeader("USER-AGENT").toLowerCase();
+            response.setContentType("application/vnd.ms-excel");
+            String fileName = "订单统计" + System.currentTimeMillis();
+            String codedFileName = java.net.URLEncoder.encode(fileName, "UTF-8");
+            if (agent.contains("firefox")) {
+                response.setCharacterEncoding("utf-8");
+                response.setHeader("content-disposition", "attachment;filename=" + new String(fileName.getBytes(), "ISO8859-1") + ".xls");
+            } else {
+                response.setHeader("content-disposition", "attachment;filename=" + codedFileName + ".xls");
+            }
+            wb.write(output);
+            output.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    //导出订单Excel订单状态翻译
+    private String getOrderStatusInExcel(Integer status, String orderStatus) {
+        if (status == Constant.OrderStatusConfig.PAYMENT) {
+            orderStatus = Constant.OrderMessageConfig.PAYMENT;
+        } else if (status == Constant.OrderStatusConfig.PENDING_SHIP) {
+            orderStatus = Constant.OrderMessageConfig.PENDING_SHIP;
+        } else if (status == Constant.OrderStatusConfig.ISSUE_SHIP || status == Constant.OrderStatusConfig.CONFIRM_RECEIVED) {
+            orderStatus = Constant.OrderMessageConfig.ISSUE_SHIP;
+        } else if (status == Constant.OrderStatusConfig.RECEIVED) {
+            orderStatus = Constant.OrderMessageConfig.RECEIVED;
+        } else if (status == Constant.OrderStatusConfig.REJECT) {
+            orderStatus = Constant.OrderMessageConfig.REJECT;
+        } else if (status == Constant.OrderStatusConfig.REFUNDED) {
+            orderStatus = Constant.OrderMessageConfig.REFUNDED;
+        } else if (status == Constant.OrderStatusConfig.CANCEL_ORDER) {
+            orderStatus = Constant.OrderMessageConfig.CANCEL_ORDER;
+        } else if (status == Constant.OrderStatusConfig.PAYMENT_CANCEL_ORDER) {
+            orderStatus = Constant.OrderMessageConfig.PAYMENT_CANCEL_ORDER;
+        }
+        return orderStatus;
     }
 }

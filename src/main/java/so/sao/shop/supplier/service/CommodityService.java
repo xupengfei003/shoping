@@ -99,7 +99,7 @@ public interface CommodityService {
      * @param ids
      * @return
      */
-    Result onShelvesBatch(Long[] ids);
+    Result onShelvesBatch(Long[] ids, Long supplierId);
 
     /**
      * 批量下架商品

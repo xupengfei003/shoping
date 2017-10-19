@@ -185,6 +185,124 @@ public class CommodityOutput {
      */
     private List<FreightRules> freightRulesList;
 
+    /**
+     * 库存下限
+     */
+    private Long inventoryMinimum;
+
+    /**
+     * 库存状态：0代表库存正常，1代表下限预警
+     */
+    private Integer inventoryStatus;
+
+    /**
+     * 生产日期
+     */
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date productionDate;
+
+    /**
+     * 计量规格数值
+     */
+    private Integer measureSpecVal;
+
+    /**
+     *有效期
+     */
+    private Integer guaranteePeriod;
+
+    /**
+     * 有效期单位
+     */
+    private String guaranteePeriodUnit;
+
+    /**
+     *箱规id
+     */
+    private Long cartonId;
+
+    /**
+     * 箱规单位
+     */
+    private String cartonName;
+
+    /**
+     * 箱规数值
+     */
+    private Integer cartonVal;
+
+    public Long getInventoryMinimum() {
+        return inventoryMinimum;
+    }
+
+    public void setInventoryMinimum(Long inventoryMinimum) {
+        this.inventoryMinimum = inventoryMinimum;
+    }
+
+    public Integer getInventoryStatus() {
+        return inventoryStatus;
+    }
+
+    public void setInventoryStatus(Integer inventoryStatus) {
+        this.inventoryStatus = inventoryStatus;
+    }
+
+    public Date getProductionDate() {
+        return productionDate;
+    }
+
+    public void setProductionDate(Date productionDate) {
+        this.productionDate = productionDate;
+    }
+
+    public Integer getMeasureSpecVal() {
+        return measureSpecVal;
+    }
+
+    public void setMeasureSpecVal(Integer measureSpecVal) {
+        this.measureSpecVal = measureSpecVal;
+    }
+
+    public Integer getGuaranteePeriod() {
+        return guaranteePeriod;
+    }
+
+    public void setGuaranteePeriod(Integer guaranteePeriod) {
+        this.guaranteePeriod = guaranteePeriod;
+    }
+
+    public String getGuaranteePeriodUnit() {
+        return guaranteePeriodUnit;
+    }
+
+    public void setGuaranteePeriodUnit(String guaranteePeriodUnit) {
+        this.guaranteePeriodUnit = guaranteePeriodUnit;
+    }
+
+    public Long getCartonId() {
+        return cartonId;
+    }
+
+    public void setCartonId(Long cartonId) {
+        this.cartonId = cartonId;
+    }
+
+    public String getCartonName() {
+        return cartonName;
+    }
+
+    public void setCartonName(String cartonName) {
+        this.cartonName = cartonName;
+    }
+
+    public Integer getCartonVal() {
+        return cartonVal;
+    }
+
+    public void setCartonVal(Integer cartonVal) {
+        this.cartonVal = cartonVal;
+    }
+
     public List<FreightRules> getFreightRulesList() {
         return freightRulesList;
     }

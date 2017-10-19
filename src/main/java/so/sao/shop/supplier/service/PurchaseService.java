@@ -260,4 +260,15 @@ public interface PurchaseService {
      * @param logisticInfoUpdateInput 封装了订单ID，物流公司，物流单号
      */
     boolean updateLogisticInfoByOrderId(LogisticInfoUpdateInput logisticInfoUpdateInput);
+
+    /**
+     * 管理员POI导出(当前页/所选页/全部)订单列表
+     *
+     * @param request   request
+     * @param response  response
+     * @param pageNum   pageNum
+     * @param accountId accountId
+     * @param pageSize  pageSize
+     */
+    void adminExportExcel(HttpServletRequest request, HttpServletResponse response, String pageNum, Integer pageSize, Long accountId, PurchaseSelectInput purchaseSelectInput) throws Exception;
 }

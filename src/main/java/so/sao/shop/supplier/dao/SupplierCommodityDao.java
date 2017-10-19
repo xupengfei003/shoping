@@ -305,4 +305,23 @@ public interface SupplierCommodityDao {
      * @param commInventoryInfoInput commInventoryInfoInput
      */
     void updateInventoryById(CommInventoryInfoInput commInventoryInfoInput);
+
+    /**
+     * tmp_更新某商品库存信息
+     * @param commInventoryInfoInput commInventoryInfoInput
+     */
+    void updateInventoryByTmpScaId(CommInventoryInfoInput commInventoryInfoInput);
+
+    /**
+     * 获取多个商品库存信息
+     * @param goodsList
+     * @return
+     */
+    List<CommInventoryInfoOutput> getInventoryByIds(@Param("goodsList") List<Long> goodsList);
+
+    /**
+     * 更新库存状态
+     * @param id 商品ID
+     */
+    void updateInventoryStatus(@Param("id") Long id, @Param("status") Integer status);
 }

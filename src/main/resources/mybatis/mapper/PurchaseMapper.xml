@@ -83,7 +83,8 @@
         order_create_time,
         updated_at,
         order_payment_method,
-        order_payment_num
+        order_payment_num,
+        store_name
         FROM
         purchase
         <where>
@@ -92,6 +93,9 @@
                 <if test="purchaseSelectInput.orderStatus == 3">
                     AND (order_status = TRIM(#{purchaseSelectInput.orderStatus})
                     OR order_status = 19)
+                </if>
+                <if test="purchaseSelectInput.orderStatus != 3">
+                    AND order_status = TRIM(#{purchaseSelectInput.orderStatus})
                 </if>
             </if>
             /*供应商*/
@@ -246,6 +250,9 @@
                 <if test="orderStatus == 3">
                     AND (order_status = TRIM(#{orderStatus})
                     OR order_status = 19)
+                </if>
+                <if test="orderStatus != 3">
+                    AND order_status = TRIM(#{orderStatus})
                 </if>
             </if>
             /*供应商*/

@@ -42,6 +42,11 @@ public interface Constant {
     public static final Integer QUALIFICATION_VERIFY_PASS = 2;
     public static final Integer QUALIFICATION_VERIFY_NOT_PASS = 3;
     /**
+     *标记消息已经读取： 1已经读取， 0 未读取
+     */
+    public static final Integer IS_NOT_READ = 0;
+    public static final Integer IS_READ = 1;
+    /**
      * code定义
      */
     interface CodeConfig{
@@ -212,7 +217,7 @@ public interface Constant {
         /**
          * 5
          */
-        public static final String REJECT = "已拒收";
+        public static final String REJECT = "已拒收待审核";
         /**
          * 6
          */
@@ -220,7 +225,7 @@ public interface Constant {
         /**
          * 7
          */
-        public static final String CANCEL_ORDER = "已付款已取消";
+        public static final String CANCEL_ORDER = "已取消待审核";
         /**
          * 8
          */
@@ -362,6 +367,10 @@ public interface Constant {
          * 商品计量规格名称最大长度
          */
         public static final int MAX_MEASURESPEC_NAME_LENGTH = 64;
+        /**
+         * 资质审核状态拒绝原因最大255
+         */
+        public static final int MAX_QUALIFICATIUON_REJECT_REASON_LENGTH = 255;
     }
 
     /**
@@ -394,39 +403,39 @@ public interface Constant {
         /**
          * 最大上传图片数量
          */
-        public static final int MaxImgNumber = 3;
+        public static final int MAX_IMG_NUMBER = 3;
 
         /*资质类型（1、开户银行许可证 2、营业执照3、授权报告 4、质检报告 5、食品流通许可证）*/
         /**
          * 质检报告
          */
-        public static final int BankLicense = 1;
+        public static final int BANK_LICENSE = 1;
         /**
          * 营业执照
          */
-        public static final int BusinessLicense = 2;
+        public static final int BUSINESS_LICENSE = 2;
         /**
          * 授权报告
          */
-        public static final int AuthorizationReport = 3;
+        public static final int AUTHORIZATION_REPORT = 3;
          /**
          * 质检报告
          */
-        public static final int InspectionReport = 4;
+        public static final int INSPECTION_REPORT = 4;
         /**
          * 食品流通许可证
          */
-        public static final int FoodDistributionLicense = 5;
+        public static final int FOOD_DISTRIBUTIONLICENSE = 5;
 
         /**
          * 所有资质文件最大图片数量
          */
-        public  static final int AllQualificationImgNum = 15;
+        public  static final int ALL_QUALIFICATION_IMG_NUM = 15;
 
         /**
          * 必传资质文件数量
          */
-        public  static final int MustAddQualification = 2;
+        public  static final int MUST_ADD_QUALIFICATION = 2;
 
     }
 }

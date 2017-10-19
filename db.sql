@@ -51,5 +51,44 @@ CREATE TABLE `received_purchase` (
 /*
 增加供应商是否首次登陆
  */
-ALTER TABLE `ty_supplier`.`account`
+ALTER TABLE `account`
   ADD COLUMN `is_read` INT(1) DEFAULT 0  NULL   COMMENT '是否已读（0、未读 1、已读）' AFTER `contract_name`;
+
+/*
+商品表新增字段
+ */
+ALTER TABLE `supplier_commodity`
+  ADD COLUMN `carton_id` BIGINT(20)  NULL  COMMENT '箱规单位id' AFTER `min_order_quantity`,
+  ADD COLUMN `carton_val` INT(10)  NULL  COMMENT '箱规数值' AFTER `carton_id`,
+  ADD COLUMN `inventory_minimum` INT(10) DEFAULT 0  NULL  COMMENT '库存下限值' AFTER `carton_val`,
+  ADD COLUMN `inventory_status` INT(1) DEFAULT 0  NULL  COMMENT '库存状态，0-正常，1-预警' AFTER `inventory_minimum`,
+  ADD COLUMN `measure_spec_val` INT(10)  NULL  COMMENT '计量规格数值' AFTER `inventory_status`,
+  ADD COLUMN `production_date` DATETIME  NULL  COMMENT '生产日期' AFTER `measure_spec_val`,
+  ADD COLUMN `guarantee_period` INT(10)  NULL  COMMENT '有效期' AFTER `production_date`,
+  ADD COLUMN `guarantee_period_unit` VARCHAR (10)  NULL  COMMENT '有效期单位' AFTER `guarantee_period`,
+  MODIFY COLUMN inventory BIGINT(20);
+
+/*
+商品tmp表新增字段
+ */
+ALTER TABLE `supplier_commodity_tmp`
+  ADD COLUMN `carton_id` BIGINT(20)  NULL  COMMENT '箱规单位id' AFTER `min_order_quantity`,
+  ADD COLUMN `carton_val` INT(10)  NULL  COMMENT '箱规数值' AFTER `carton_id`,
+  ADD COLUMN `inventory_minimum` INT(10) DEFAULT 0  NULL  COMMENT '库存下限值' AFTER `carton_val`,
+  ADD COLUMN `inventory_status` INT(1) DEFAULT 0  NULL  COMMENT '库存状态，0-正常，1-预警' AFTER `inventory_minimum`,
+  ADD COLUMN `measure_spec_val` INT(10)  NULL  COMMENT '计量规格数值' AFTER `inventory_status`,
+  ADD COLUMN `production_date` DATETIME  NULL  COMMENT '生产日期' AFTER `measure_spec_val`,
+  ADD COLUMN `guarantee_period` INT(10)  NULL  COMMENT '有效期' AFTER `production_date`,
+  ADD COLUMN `guarantee_period_unit` VARCHAR (10)  NULL  COMMENT '有效期单位' AFTER `guarantee_period`,
+  MODIFY COLUMN inventory BIGINT(20);
+
+/*
+省市区无三级菜单的市增加三级菜单
+ */
+INSERT INTO `sys_region` VALUES ('441901', '0', '523000', '市辖区', '441900', '113.7634339907565500', '23.0430238153682400', '2', '0');
+INSERT INTO `sys_region` VALUES ('442001', '0', '528400', '市辖区', '442000', '113.4220600207980600', '22.5451775145130000', '2', '0');
+INSERT INTO `sys_region` VALUES ('442102', '0', '', '市辖区', '442101', '116.6324890191240200', '20.7317264938579980', '2', '0');
+INSERT INTO `sys_region` VALUES ('460201', '0', '572000', '市辖区', '460200', '109.5227712813588400', '18.2577759148974860', '2', '0');
+INSERT INTO `sys_region` VALUES ('620201', '0', '735100', '市辖区', '620200', '98.2816345852569810', '39.8023973267335260', '2', '0');
+INSERT INTO `sys_region` VALUES ('820101', '0', '', '市辖区', '820100', '113.5664323351728800', '22.1950041592184670', '2', '0');
+INSERT INTO `sys_region` VALUES ('820201', '0', '', '市辖区', '820200', '113.5575191018249200', '22.2041179884433360', '2', '0');
