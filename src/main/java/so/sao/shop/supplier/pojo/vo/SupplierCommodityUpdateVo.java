@@ -23,7 +23,6 @@ public class SupplierCommodityUpdateVo {
     /**
      * 商家编码
      */
-    @NotBlank(message = "商品商家编码不能为空")
     @Length(max = 50,message = "商品商家编码长度不能大于50")
     private String code;
 
