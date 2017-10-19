@@ -95,11 +95,19 @@ public interface CommodityService {
     Result offShelves(Long id);
 
     /**
-     * 批量上架商品
-     * @param ids
+     * 管理员批量上架商品--管理员登录情况下批量上架
+     * @param ids 供应商商品id数组
      * @return
      */
-    Result onShelvesBatch(Long[] ids, Long supplierId);
+    Result onShelvesBatchByAdmin(Long[] ids);
+
+    /**
+     * 供应商批量上架商品--供应商登录情况下批量上架
+     * @param ids 供应商商品id数组
+     * @param supplierId 供应商id
+     * @return
+     */
+    Result onShelvesBatchBySupplier(Long[] ids, Long supplierId);
 
     /**
      * 批量下架商品
