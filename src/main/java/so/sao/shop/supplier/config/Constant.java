@@ -437,5 +437,11 @@ public interface Constant {
          */
         public  static final int MUST_ADD_QUALIFICATION = 2;
 
+        /*未删除*/
+        public  static final int NOT_DELETE = 0;
+
+        /*已删除*/
+        public  static final int DELETED = 1;
+
     }
 }

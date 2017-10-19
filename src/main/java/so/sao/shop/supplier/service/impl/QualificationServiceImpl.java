@@ -131,8 +131,10 @@ public class QualificationServiceImpl implements QualificationService{
                 if(blobUploadList.isEmpty()){
                     return result;
                 }else{
-                    String url = blobUploadList.get(0).getUrl();       //获取云端原图url
-                    String minImgUrl = blobUploadList.get(0).getMinImgUrl(); //获取云端缩略图url
+                    //获取云端原图url
+                    String url = blobUploadList.get(0).getUrl();
+                    //获取云端缩略图url
+                    String minImgUrl = blobUploadList.get(0).getMinImgUrl();
                     //获取云端名称
                     String cloudName = StringUtils.substringAfter(url, CommConstant.AZURE_CONTAINER+"/");
                     //获取缩略图云端名称
@@ -168,8 +170,9 @@ public class QualificationServiceImpl implements QualificationService{
         checkInputParam(qualificationInput);
         Qualification qualification = new Qualification();
         qualification.setAccountId(qualificationInput.getAccountId());
-        qualification.setQualificationStatus(1);   //设置资质状态为待审核
-        qualification.setDelete(0);
+        //设置资质状态为待审核
+        qualification.setQualificationStatus(Constant.QUALIFICATION_AWAIT_VERIFY);
+        qualification.setDelete(Constant.QualificationConfig.NOT_DELETE);
         qualification.setCreateTime(new Date());
         qualification.setUpdateTime(new Date());
         //供应商资质入库
@@ -189,7 +192,7 @@ public class QualificationServiceImpl implements QualificationService{
                 qualificationImages.setMinCloudName(qualificationImageVo.getMinCloudName());
                 qualificationImages.setUrl(qualificationImageVo.getUrl());
                 qualificationImages.setMinImgUrl(qualificationImageVo.getMinImgUrl());
-                qualificationImages.setDelete(0);
+                qualificationImages.setDelete(Constant.QualificationConfig.NOT_DELETE);
                 qualificationImages.setCreateTime(new Date());
                 qualificationImages.setUpdateTime(new Date());
                 list.add(qualificationImages);
