@@ -307,13 +307,6 @@ public interface SupplierCommodityDao {
     void updateInventoryById(CommInventoryInfoInput commInventoryInfoInput);
 
     /**
-     * tmp_获取某商品库存信息
-     * @param id 商品Id
-     * @return CommInventoryInfoOutput
-     */
-    CommInventoryInfoOutput getInventoryByTmpId(Long id);
-
-    /**
      * tmp_更新某商品库存信息
      * @param commInventoryInfoInput commInventoryInfoInput
      */
