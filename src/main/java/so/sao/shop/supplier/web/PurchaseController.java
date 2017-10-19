@@ -26,10 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.math.BigInteger;
 import java.text.ParseException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * <p>
@@ -492,8 +489,8 @@ public class PurchaseController {
         if(null == getOrderStatus){
             return false;
         }
-        if(null != getOrderStatus && Constant.OrderStatusConfig.CONFIRM_RECEIVED.equals(getOrderStatus)){
-            getOrderStatus = 3;
+        if(null != getOrderStatus && Objects.equals(Constant.OrderStatusConfig.CONFIRM_RECEIVED,getOrderStatus)){
+            getOrderStatus = Constant.OrderStatusConfig.ISSUE_SHIP;
         }
         String status = Constant.OrderStatusRule.RULES[getOrderStatus - 1];
         return status.contains(String.valueOf(orderStatus));
