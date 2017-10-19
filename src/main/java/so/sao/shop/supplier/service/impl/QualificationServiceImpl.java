@@ -65,7 +65,7 @@ public class QualificationServiceImpl implements QualificationService{
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Result updateQualificationStatus(Integer accountId, Integer qualificationStatus, String reason) {
+    public Result updateQualificationStatus(Long accountId, Integer qualificationStatus, String reason) {
         if( !(Objects.equals(Constant.QUALIFICATION_VERIFY_PASS, qualificationStatus))
                 && !(Objects.equals(Constant.QUALIFICATION_VERIFY_NOT_PASS, qualificationStatus))
                 && !(Objects.equals(Constant.QUALIFICATION_AWAIT_VERIFY, qualificationStatus))
@@ -318,8 +318,8 @@ public class QualificationServiceImpl implements QualificationService{
      * @return 0 需要弹框，1 不需要
      */
     @Override
-    public Result updateQualificationMessageRead(Integer accountId) {
-        Integer qualificationStatus = qualificationDao.getAccountQualificationStatus( accountId.longValue() );
+    public Result updateQualificationMessageRead(Long accountId) {
+        Integer qualificationStatus = qualificationDao.getAccountQualificationStatus( accountId );
         if( Objects.equals(Constant.QUALIFICATION_VERIFY_PASS, qualificationStatus) ){
             return  Result.success("资质审核已经通过",Constant.IS_READ);
         }

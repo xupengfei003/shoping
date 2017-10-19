@@ -35,7 +35,7 @@ public class QualificationController {
      */
     @ApiOperation(value = "资质审核", notes = "更新资质状态,时间,拒绝原因【负责人：许鹏飞】")
     @PutMapping("/updateQualificationStatus")
-    public Result updateQualificationStatus(@RequestParam(value = "accountId" ) Integer accountId,
+    public Result updateQualificationStatus(@RequestParam(value = "accountId" ) Long accountId,
                                             @RequestParam(value = "qualificationStatus") Integer qualificationStatus,
                                             @RequestParam(value = "reason", required = false ) String reason){
         Result result = qualificationService.updateQualificationStatus( accountId, qualificationStatus, reason );
@@ -127,7 +127,7 @@ public class QualificationController {
      */
     @ApiOperation(value = "资质审核", notes = "更新资质状态消息已读状态【负责人：许鹏飞】")
     @GetMapping("/updateQualificationMessageRead")
-    public Result updateQualificationMessageRead(@RequestParam(value = "accountId" ) Integer accountId ){
+    public Result updateQualificationMessageRead(@RequestParam(value = "accountId" ) Long accountId ){
         Result result = qualificationService.updateQualificationMessageRead( accountId );
         return result;
     }
