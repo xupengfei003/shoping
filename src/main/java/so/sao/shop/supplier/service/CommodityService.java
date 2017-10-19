@@ -97,10 +97,9 @@ public interface CommodityService {
     /**
      * 管理员批量上架商品--管理员登录情况下批量上架
      * @param ids 供应商商品id数组
-     * @param supplierId 供应商id（设置管理员供应商id为0）
      * @return
      */
-    Result onShelvesBatchByAdmin(Long[] ids, Long supplierId);
+    Result onShelvesBatchByAdmin(Long[] ids);
 
     /**
      * 供应商批量上架商品--供应商登录情况下批量上架

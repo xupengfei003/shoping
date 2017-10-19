@@ -89,9 +89,8 @@ public class CommodityController {
         }
         Long supplierId = user.getAccountId();
         if (Constant.ADMIN_STATUS.equals(user.getIsAdmin())) {
-            supplierId = 0L;
             //管理员批量上架
-            return commodityService.onShelvesBatchByAdmin(ids, supplierId);
+            return commodityService.onShelvesBatchByAdmin(ids);
         }
         //供应商批量上架
         return commodityService.onShelvesBatchBySupplier(ids, supplierId);

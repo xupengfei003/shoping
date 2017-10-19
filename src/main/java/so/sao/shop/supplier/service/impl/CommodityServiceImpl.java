@@ -747,12 +747,11 @@ public class CommodityServiceImpl implements CommodityService {
     /**
      * 管理员批量上架商品--管理员批量上架
      * @param ids 供应商商品id数组
-     * @param supplierId2 supplierId
      * @return
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Result onShelvesBatchByAdmin(Long[] ids, Long supplierId2) {
+    public Result onShelvesBatchByAdmin(Long[] ids) {
         //根据id数组查询，过滤已删除的商品
         List<SupplierCommodity> supplierCommodityList = supplierCommodityDao.findSupplierCommodityByIds(ids);
         if (null == supplierCommodityList || supplierCommodityList.size() == 0) {
