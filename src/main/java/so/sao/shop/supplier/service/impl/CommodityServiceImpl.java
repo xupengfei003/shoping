@@ -772,7 +772,7 @@ public class CommodityServiceImpl implements CommodityService {
         //存储符合的supplierId
         Set<Long> noPassSet = new TreeSet<>();
         //供应商登录时校验资质与配送运费
-        if (supplierId2 != 0L){
+        if (!supplierId2.equals(0L)){
             Result result = checkSupplier(supplierId2);
             if (null != result){
                 return result;
