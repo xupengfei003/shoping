@@ -1417,12 +1417,12 @@ public class CommodityServiceImpl implements CommodityService {
             if("".equals(minOrderQuantity)){
                 supplierCommodityVo.setMinOrderQuantity(1);
             }else {
-                if(Integer.parseInt(minOrderQuantity)>0 &&Integer.parseInt(minOrderQuantity) <= 999){
+                if(minOrderQuantity.matches(regexnum)&&Integer.parseInt(minOrderQuantity)>0 &&Integer.parseInt(minOrderQuantity) <= 999){
                     supplierCommodityVo.setMinOrderQuantity(Integer.parseInt(minOrderQuantity));
                 }else {
                     Map<String, Object> errorMap =new HashMap<String, Object>();
                     errorMap.put("rowNum",rowNum);
-                    errorMap.put("message","最小起订量应小于999");
+                    errorMap.put("message","最小起订量应为正整数大于0且小于999");
                     errorRowList.add(errorMap);
                     continue;
                 }
