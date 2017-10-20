@@ -58,10 +58,13 @@ public class OrderAutomaticReceiveJob {
                         }
                     }
                 }
-                if (null != orderIds && orderIds.size() > 0) {
+                if(null != orderIdsInput && orderIdsInput.size()>0){
                     logisticsService.receiveOrder(orderIdsInput);//自动确认收货
+                }
+                if (null != orderIds && orderIds.size() > 0) {
                     logisticsService.deleteReceivedOrderByOrderId(orderIds);//删除中间表中符合时间的订单信息
                 }
+
             }
         } catch (Exception e) {
             logger.error("系统异常", e);
