@@ -783,7 +783,7 @@ public class CommodityServiceImpl implements CommodityService {
         }
         //所有都不满足条件情况
         if (passSet.size() == 0){
-            return Result.fail("所选供应商未完成资质审核、配送范围或运费规则！");
+            return Result.fail("所选供应商存在还没通过资质审核、配送范围或运费规则，无法上架商品！");
         }
         //需要操作的供应商商品审核记录
         List<SupplierCommodityAudit> list = new ArrayList<>();
@@ -918,12 +918,12 @@ public class CommodityServiceImpl implements CommodityService {
     private Result checkSupplier(Long supplierId){
         //判断供应商资质审核
         if (!Objects.equals(Constant.QUALIFICATION_VERIFY_PASS, qualificationDao.getAccountQualificationStatus(supplierId))){
-            return Result.fail("抱歉，您还没通过资质信息审核，无法上架商品！",supplierId);
+            return Result.fail("抱歉，该供应商还没通过资质信息审核，无法上架商品！",supplierId);
         }
         //判断配送范围和运费规则是否完整
         Boolean freightRulesFlag = checkFreightRules(supplierId);
         if(!freightRulesFlag){
-            return Result.fail("该供应商未配置配送范围与运费规则，无法上架商品！");
+            return Result.fail("抱歉，该供应商未配置配送范围与运费规则，无法上架商品！");
         }
         return null;
     }
