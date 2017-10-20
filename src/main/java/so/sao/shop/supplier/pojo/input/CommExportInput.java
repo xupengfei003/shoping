@@ -37,16 +37,16 @@ public class CommExportInput {
     @ApiModelProperty(value = "最大价格")
     private BigDecimal maxPrice;
 
-    @ApiModelProperty(value = "创建开始时间")
+    @ApiModelProperty(value = "更新开始时间")
     @DateTimeFormat(pattern = "yyyy-MM-dd",iso= DateTimeFormat.ISO.DATE)
-    private Date beginCreateAt;
+    private Date beginUpdateAt;
 
-    @ApiModelProperty(value = "创建结束时间")
+    @ApiModelProperty(value = "更新结束时间")
     @DateTimeFormat(pattern = "yyyy-MM-dd",iso= DateTimeFormat.ISO.DATE)
-    private Date endCreateAt;
+    private Date endUpdateAt;
 
     @ApiModelProperty(value = "商品条码/商品名称模糊")
-    private String commCodeOrName;
+    private String inputvalue;
 
     @ApiModelProperty(value = "页数")
     private String pageNum;
@@ -79,13 +79,9 @@ public class CommExportInput {
         this.pageSize = pageSize;
     }
 
-    public String getCommCodeOrName() {
-        return commCodeOrName;
-    }
+    public String getInputvalue() {return inputvalue;}
 
-    public void setCommCodeOrName(String commCodeOrName) {
-        this.commCodeOrName = commCodeOrName;
-    }
+    public void setInputvalue(String inputvalue) {this.inputvalue = inputvalue;}
 
     public String getCommCode69() {
         return commCode69;
@@ -155,20 +151,13 @@ public class CommExportInput {
         this.maxPrice = maxPrice;
     }
 
-    public Date getBeginCreateAt() {
-        return beginCreateAt;
-    }
+    public Date getBeginUpdateAt() {return beginUpdateAt;}
 
-    public void setBeginCreateAt(Date beginCreateAt) {
-        this.beginCreateAt = beginCreateAt;
-    }
+    public void setBeginUpdateAt(Date beginUpdateAt) {this.beginUpdateAt = beginUpdateAt;}
 
-    public Date getEndCreateAt() {
-        return endCreateAt;
-    }
+    public Date getEndUpdateAt() {return endUpdateAt;}
 
-    public void setEndCreateAt(Date endCreateAt) {
-        this.endCreateAt = endCreateAt;
+    public void setEndUpdateAt(Date endUpdateAt) {
+        this.endUpdateAt = endUpdateAt;
     }
-
 }
