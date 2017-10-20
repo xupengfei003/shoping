@@ -1385,16 +1385,16 @@ public class CommodityServiceImpl implements CommodityService {
             supplierCommodityVo.setPrice(DataCompare.roundData(new BigDecimal(price), 2));
             supplierCommodityVo.setInventory(0L);
 
-            if (supplierCommodityVo.getPrice().compareTo(BigDecimal.ZERO) == -1) {
+            if (supplierCommodityVo.getPrice().compareTo(BigDecimal.ZERO) == -1&&supplierCommodityVo.getPrice().compareTo(CommConstant.MAX_VALUE) == 1) {
                 Map<String, Object> errorMap =new HashMap<String, Object>();
                 errorMap.put("rowNum",rowNum);
-                errorMap.put("message","供货价应大于0");
+                errorMap.put("message","供货价应大于0且小于99999999");
                 errorRowList.add(errorMap);
                 continue;
-            } else if (supplierCommodityVo.getUnitPrice().compareTo(BigDecimal.ZERO) == -1) {
+            } else if (supplierCommodityVo.getUnitPrice().compareTo(BigDecimal.ZERO) == -1&&supplierCommodityVo.getUnitPrice().compareTo(CommConstant.MAX_VALUE) == 1) {
                 Map<String, Object> errorMap =new HashMap<String, Object>();
                 errorMap.put("rowNum",rowNum);
-                errorMap.put("message","批发价应大于0");
+                errorMap.put("message","批发价应大于0且小于99999999");
                 errorRowList.add(errorMap);
                 continue;
             } else if (supplierCommodityVo.getUnitPrice().compareTo(supplierCommodityVo.getPrice()) == 1) {
@@ -1417,12 +1417,12 @@ public class CommodityServiceImpl implements CommodityService {
             if("".equals(minOrderQuantity)){
                 supplierCommodityVo.setMinOrderQuantity(1);
             }else {
-                if(Integer.parseInt(minOrderQuantity)>0 &&Integer.parseInt(minOrderQuantity) <= 999){
+                if(minOrderQuantity.matches(regexnum)&&Integer.parseInt(minOrderQuantity)>0 &&Integer.parseInt(minOrderQuantity) <= 999){
                     supplierCommodityVo.setMinOrderQuantity(Integer.parseInt(minOrderQuantity));
                 }else {
                     Map<String, Object> errorMap =new HashMap<String, Object>();
                     errorMap.put("rowNum",rowNum);
-                    errorMap.put("message","最小起订量应小于999");
+                    errorMap.put("message","最小起订量应为正整数大于0且小于999");
                     errorRowList.add(errorMap);
                     continue;
                 }

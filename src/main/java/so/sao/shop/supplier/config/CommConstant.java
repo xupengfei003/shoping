@@ -1,5 +1,7 @@
 package so.sao.shop.supplier.config;
 
+import java.math.BigDecimal;
+
 /**
  * 常量
  *
@@ -293,4 +295,8 @@ public class CommConstant {
      * 批量导出 每个工作表导出最大行数
      */
     public static final int MAX_ROWNUM = 600000;
+    /**
+     * 价格最大值
+     */
+    public static final BigDecimal MAX_VALUE = new BigDecimal(99999999);
 }
