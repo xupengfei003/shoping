@@ -118,7 +118,9 @@ public class ExcelReader {
                     // 如果是纯数字取得当前Cell的数值
                     if (HSSFDateUtil.isCellDateFormatted(cell)) {
                         //  如果是date类型则 ，获取该cell的date值
-                        cellvalue = HSSFDateUtil.getJavaDate(cell.getNumericCellValue()).toString();
+                        Date date = cell.getDateCellValue();
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                        cellvalue = sdf.format(date);
                     } else { // 纯数字
                         cellvalue = df.format(cell.getNumericCellValue());
                     }
