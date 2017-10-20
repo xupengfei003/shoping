@@ -1121,7 +1121,6 @@ public class CommodityServiceImpl implements CommodityService {
         for ( CommMeasureSpec  commMeasureSpec: commMeasureSpeclist ) {
             commMeasureSpecMap.put(commMeasureSpec.getName(),commMeasureSpec.getId());
         }
-
         List<CommUnit> commUnitList = commUnitDao.search(supplierId);
         Map<String,Long> commUnitMap = new HashMap<String,Long>();
         for ( CommUnit  commUnit: commUnitList ) {
@@ -1176,8 +1175,6 @@ public class CommodityServiceImpl implements CommodityService {
                 errorRowList.add(errorMap);
                 continue;
             }
-
-
             String unitPrice = map.get("*供货价");
             String price = map.get("*批发价");
             String productionDate=map.get("*生产日期");
@@ -1192,7 +1189,7 @@ public class CommodityServiceImpl implements CommodityService {
             String regexnum ="^[0-9]*$";
             String regex ="^[A-Za-z0-9]*$";
 
-            if(code69.matches(regexnum)){
+            if(code69.matches(regexnum)&&code69.length()<20){
                 //通过code69,supplierId,deleted=0判断商品是否存在
                 SupplierCommodity suppliercommodity = supplierCommodityDao.findSupplierCommodityInfo(code69, supplierId);
                 Commodity commodity = commodityDao.findCommInfoByCode69(code69);
@@ -1226,10 +1223,26 @@ public class CommodityServiceImpl implements CommodityService {
                 errorRowList.add(errorMap);
                 continue;
             }
-            commodityBatchInput.setBrandName(brand);
-            commodityBatchInput.setName(name);
+            if(brand.length()<128){
+                commodityBatchInput.setBrandName(brand);
+            }else {
+                Map<String, Object> errorMap =new HashMap<String, Object>();
+                errorMap.put("rowNum",rowNum);
+                errorMap.put("message","商品品牌只能输入128个字符");
+                errorRowList.add(errorMap);
+                continue;
+            }
 
-            if(code.matches(regex)){
+            if(name.length()<128){
+                commodityBatchInput.setName(name);
+            }else {
+                Map<String, Object> errorMap =new HashMap<String, Object>();
+                errorMap.put("rowNum",rowNum);
+                errorMap.put("message","商品名称只能输入128个字符");
+                errorRowList.add(errorMap);
+                continue;
+            }
+            if(code.matches(regex)&&code.length()<20){
                 supplierCommodityVo.setCode(code);
             }else {
                 Map<String, Object> errorMap =new HashMap<String, Object>();
@@ -1238,13 +1251,28 @@ public class CommodityServiceImpl implements CommodityService {
                 errorRowList.add(errorMap);
                 continue;
             }
-
             if ( null != mapTag.get(tag) ) {
                 commodityBatchInput.setTagId(mapTag.get(tag));
                 commodityBatchInput.setTagName(tag);
             }
-            commodityBatchInput.setOriginPlace(originPlace);
-            commodityBatchInput.setCompanyName(companyName);
+            if(originPlace.length()<128){
+                commodityBatchInput.setOriginPlace(originPlace);
+            }else {
+                Map<String, Object> errorMap =new HashMap<String, Object>();
+                errorMap.put("rowNum",rowNum);
+                errorMap.put("message","商品产地只能输入128个字符");
+                errorRowList.add(errorMap);
+                continue;
+            }
+            if(companyName.length()<128){
+                commodityBatchInput.setCompanyName(companyName);
+            }else {
+                Map<String, Object> errorMap =new HashMap<String, Object>();
+                errorMap.put("rowNum",rowNum);
+                errorMap.put("message","企业名称只能输入128个字符");
+                errorRowList.add(errorMap);
+                continue;
+            }
             CommCategory commCategoryone = commCategoryDao.findCommCategoryByNameAndPid(commCategoryOne, pid);
             if (null != commCategoryone) {
                 pid = commCategoryone.getId();
@@ -1279,7 +1307,7 @@ public class CommodityServiceImpl implements CommodityService {
                 continue;
             }
             commodityBatchInput.setRemark(remark);
-            supplierCommodityVo.setMeasureSpecVal(Long.parseLong(measureSpecVal));
+
             if ( null != commMeasureSpecMap.get(measureSpecName) ) {
                 supplierCommodityVo.setMeasureSpecName(measureSpecName);
                 supplierCommodityVo.setMeasureSpecId( commMeasureSpecMap.get(measureSpecName) );
@@ -1287,6 +1315,27 @@ public class CommodityServiceImpl implements CommodityService {
                 Map<String, Object> errorMap =new HashMap<String, Object>();
                 errorMap.put("rowNum",rowNum);
                 errorMap.put("message","规格单位不存在");
+                errorRowList.add(errorMap);
+                continue;
+            }
+
+
+            if(measureSpecVal.matches(regexnum)&&Integer.parseInt(measureSpecVal)>0&&Integer.parseInt(measureSpecVal)<9999){
+
+            } else {
+                Map<String, Object> errorMap =new HashMap<String, Object>();
+                errorMap.put("rowNum",rowNum);
+                errorMap.put("message","规格值应为正整数大于0且小于9999");
+                errorRowList.add(errorMap);
+                continue;
+            }
+            supplierCommodityVo.setMeasureSpecVal(Long.parseLong(measureSpecVal));
+            if(cartonVal.matches(regexnum)&&Integer.parseInt(cartonVal)>0&&Integer.parseInt(cartonVal)<9999){
+
+            } else {
+                Map<String, Object> errorMap =new HashMap<String, Object>();
+                errorMap.put("rowNum",rowNum);
+                errorMap.put("message","箱规值应为正整数大于0且小于9999");
                 errorRowList.add(errorMap);
                 continue;
             }
@@ -1298,25 +1347,6 @@ public class CommodityServiceImpl implements CommodityService {
                 Map<String, Object> errorMap =new HashMap<String, Object>();
                 errorMap.put("rowNum",rowNum);
                 errorMap.put("message","箱规单位不存在");
-                errorRowList.add(errorMap);
-                continue;
-            }
-
-            if(measureSpecVal.matches(regexnum)&&Integer.parseInt(measureSpecVal)>0&&Integer.parseInt(measureSpecVal)<9999){
-
-            } else {
-                Map<String, Object> errorMap =new HashMap<String, Object>();
-                errorMap.put("rowNum",rowNum);
-                errorMap.put("message","规格值应为正整数大于0且小于9999");
-                errorRowList.add(errorMap);
-                continue;
-            }
-            if(cartonVal.matches(regexnum)&&Integer.parseInt(cartonVal)>0&&Integer.parseInt(cartonVal)<9999){
-
-            } else {
-                Map<String, Object> errorMap =new HashMap<String, Object>();
-                errorMap.put("rowNum",rowNum);
-                errorMap.put("message","箱规值应为正整数大于0且小于9999");
                 errorRowList.add(errorMap);
                 continue;
             }

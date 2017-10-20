@@ -19,7 +19,7 @@ public class CommExportInput {
     private String sku;
 
     @ApiModelProperty(value = "商品商家编码")
-    private String suppCommCode;
+    private String code;
 
     @ApiModelProperty(value = "商品名称")
     private String commName;
@@ -28,6 +28,8 @@ public class CommExportInput {
     private Integer invalidStatus;
     @ApiModelProperty(value = "商品状态")
     private Integer status;
+    @ApiModelProperty(value = "审核结果")
+    private Integer auditResult;
     @ApiModelProperty(value = "商品科属id")
     private Long typeId;
 
@@ -47,6 +49,8 @@ public class CommExportInput {
 
     @ApiModelProperty(value = "商品条码/商品名称模糊")
     private String inputvalue;
+    @ApiModelProperty(value = "商品品牌")
+    private String commBrand;
 
     @ApiModelProperty(value = "页数")
     private String pageNum;
@@ -83,6 +87,10 @@ public class CommExportInput {
 
     public void setInputvalue(String inputvalue) {this.inputvalue = inputvalue;}
 
+    public String getCommBrand() {return commBrand;}
+
+    public void setCommBrand(String commBrand) {this.commBrand = commBrand;}
+
     public String getCommCode69() {
         return commCode69;
     }
@@ -99,13 +107,9 @@ public class CommExportInput {
         this.sku = sku;
     }
 
-    public String getSuppCommCode() {
-        return suppCommCode;
-    }
+    public String getCode() {return code;}
 
-    public void setSuppCommCode(String suppCommCode) {
-        this.suppCommCode = suppCommCode;
-    }
+    public void setCode(String code) {this.code = code;}
 
     public String getCommName() {
         return commName;
@@ -157,7 +161,9 @@ public class CommExportInput {
 
     public Date getEndUpdateAt() {return endUpdateAt;}
 
-    public void setEndUpdateAt(Date endUpdateAt) {
-        this.endUpdateAt = endUpdateAt;
-    }
+    public void setEndUpdateAt(Date endUpdateAt) {this.endUpdateAt = endUpdateAt;}
+
+    public Integer getAuditResult() {return auditResult;}
+
+    public void setAuditResult(Integer auditResult) {this.auditResult = auditResult;}
 }
