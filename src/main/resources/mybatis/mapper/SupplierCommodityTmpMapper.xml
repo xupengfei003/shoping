@@ -115,7 +115,7 @@
         status,
         min_order_quantity AS minOrderQuantity,
         carton_id AS cartonId,
-        carton_val AS cartonVal},
+        carton_val AS cartonVal,
         inventory_minimum AS inventoryMinimum,
         inventory_status AS inventoryStatus,
         measure_spec_val AS measureSpecVal,
