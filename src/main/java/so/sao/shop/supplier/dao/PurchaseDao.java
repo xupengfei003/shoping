@@ -271,4 +271,13 @@ public interface PurchaseDao {
      * @param map 封装了订单ID，物流公司，物流单号，更新时间
      */
     int updateLogisticInfoByOrderId(@Param("map") Map<String, Object> map);
+
+    /**
+     * 根据供应商ID获取时间段内的订单总金额(订单金额+运费),且统计的订单为已完成的
+     * @param startTime
+     * @param endTime
+     * @param accountId
+     * @return
+     */
+    BigDecimal getTotalMoneyByAccountId(@Param("startTime")String startTime,@Param("endTime") String endTime, @Param("accountId")Long accountId);
 }

@@ -744,4 +744,14 @@
         updated_at = #{map.updateTime}
         WHERE order_id = #{map.orderId}
     </update>
+
+    <!--根据供应商ID获取时间段内的订单总金额(订单金额+运费),且统计的订单为已完成的-->
+    <select id="getTotalMoneyByAccountId" resultType="java.math.BigDecimal">
+      SELECT sum(order_price + order_postage)
+      FROM purchase
+      WHERE store_id = #{accountId}
+      AND order_receive_time &gt;= TRIM(STR_TO_DATE(#{startTime},'%Y-%m-%d'))
+      AND order_receive_time &lt; TRIM(DATE_ADD(STR_TO_DATE(#{endTime},'%Y-%m-%d'),INTERVAL 1 DAY))
+      AND order_status = 4
+    </select>
 </mapper>
