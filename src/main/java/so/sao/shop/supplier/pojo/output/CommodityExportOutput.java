@@ -277,9 +277,7 @@ public class CommodityExportOutput {
         return unitPrice;
     }
 
-    public void setUnitPrice(BigDecimal unitPrice) {
-        this.unitPrice = unitPrice == null ? new BigDecimal(0.0) : unitPrice;
-    }
+    public void setUnitPrice(BigDecimal unitPrice) {this.unitPrice = unitPrice == null ? new BigDecimal(0.0) : unitPrice;}
 
     public Double getInventory() {
         return inventory;
@@ -381,7 +379,7 @@ public class CommodityExportOutput {
                         "," +code69 +
                         "," +supplierCode +
                         "," +commName +
-                        "," +img +
+                        "," +" " +
                         "," + brandName +
                         "," + categoryOneName +
                         "," + categoryTwoName +

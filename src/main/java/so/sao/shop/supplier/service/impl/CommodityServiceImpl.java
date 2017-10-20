@@ -1162,7 +1162,7 @@ public class CommodityServiceImpl implements CommodityService {
             }
 
             String unitPrice = map.get("*透云供货价");
-            String price = map.get("*app订货价");
+            String price = map.get("*门店批发价");
             String productionDate=map.get("*生产日期");
             String guaranteePeriod=map.get("*有效期(天)");
             String  guaranteePeriodUnit="天";
