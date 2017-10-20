@@ -197,5 +197,13 @@ public interface AccountDao {
      * @param freightRules
      */
     void updateRulesByFreightRules(@Param("accountId") Long account, @Param("freightRules") Integer freightRules);
+
+    /**
+     * 根据用户id，查找该用户对应的供应商ID
+     * @param userId
+     * @return
+     */
+    Long findSupplierIdByUserId (@Param("userId")Long userId);
+
 }
 

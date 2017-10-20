@@ -933,4 +933,21 @@
     freight_rules
     FROM account WHERE account_id = #{accountId}
   </select>
+  <!--根据userId查询供应商的supplierId-->
+  <!--该查询查询的是两个表account,和emp的的数据-->
+  <select id="findSupplierIdByUserId" resultType="Long">
+    SELECT
+      supplier_id as supplierId
+    FROM (
+      SELECT
+        account_id AS supplier_id
+      FROM account WHERE user_id = #{userId}
+      UNION
+      SELECT
+        account_id AS supplier_id
+      FROM emp WHERE user_id = #{userId}
+    ) t
+    LIMIT 1
+  </select>
+
 </mapper>

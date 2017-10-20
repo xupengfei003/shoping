@@ -503,7 +503,15 @@ public class CommodityServiceImpl implements CommodityService {
         if("admin".equals(role)){//管理员
             supplierId = commSimpleSearchInput.getSupplierId();
         }else{//供应商
-            supplierId = accountDao.findAccountByUserId(user.getId()).getAccountId();
+            /**
+             * 手机端查询的时候没有对应的supplierId，这里要从数据库查询。
+             */
+            supplierId = accountDao.findSupplierIdByUserId(user.getId());
+            //能走到下面这个条件应该是出现了脏数据
+            if(supplierId == null){
+                logger.debug("检查数据库的user表，accountid表，emp表，可能出现了脏数据！");
+                return Result.fail(Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
+            }
 
         }
 
@@ -560,8 +568,16 @@ public class CommodityServiceImpl implements CommodityService {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         commSearchInput.setRole(getRole(user));
         if(!"admin".equals(commSearchInput.getRole())){
-            commSearchInput.setSupplierId(accountDao.findAccountIdByUserId(user.getId()));
+             Long supplierId = accountDao.findSupplierIdByUserId(user.getId());
+            //能走到下面这个条件应该是出现了脏数据
+            if(supplierId == null){
+                logger.debug("检查数据库的user表，accountid表，emp表，可能出现了脏数据！");
+                return Result.fail(Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
+            }
+            commSearchInput.setSupplierId(supplierId);
         }
+
+
         //开始分页
         PageTool.startPage(commSearchInput.getPageNum(), commSearchInput.getPageSize());
         List<SuppCommSearchVo> respList = supplierCommodityDao.find(commSearchInput);
