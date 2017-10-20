@@ -141,7 +141,8 @@
         (SELECT NAME FROM comm_category ca WHERE ca.id = t.category_one_id) AS categoryOneName,
         (SELECT NAME FROM comm_category ca WHERE ca.id = t.category_two_id) AS categoryTwoName,
         (SELECT NAME FROM comm_category ca WHERE ca.id = t.category_three_id) AS categoryThreeName,
-        t.remark
+        t.remark,
+        t.audit_result
         FROM (SELECT
         t1.sc_id AS id,
         sctmp.supplier_id,
@@ -331,14 +332,20 @@
             AND (code69 = #{inputvalue}
             OR commName LIKE "%${inputvalue}%")
         </if>
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(suppCommCode)">
-            AND supplierCode = #{suppCommCode}
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(code)">
+            AND supplierCode = #{code}
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(commBrand)">
+            AND brandName  LIKE CONCAT ('%',#{commBrand},'%')
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(commName)">
             AND commName LIKE "%${commName}%"
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(status)">
             AND t.status = #{status}
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(auditResult)">
+            AND t.audit_result = #{auditResult}
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(invalidStatus)">
             AND t.invalid_status = #{invalidStatus}
