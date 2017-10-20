@@ -1385,16 +1385,16 @@ public class CommodityServiceImpl implements CommodityService {
             supplierCommodityVo.setPrice(DataCompare.roundData(new BigDecimal(price), 2));
             supplierCommodityVo.setInventory(0L);
 
-            if (supplierCommodityVo.getPrice().compareTo(BigDecimal.ZERO) == -1) {
+            if (supplierCommodityVo.getPrice().compareTo(BigDecimal.ZERO) == -1&&supplierCommodityVo.getPrice().compareTo(CommConstant.MAX_VALUE) == 1) {
                 Map<String, Object> errorMap =new HashMap<String, Object>();
                 errorMap.put("rowNum",rowNum);
-                errorMap.put("message","供货价应大于0");
+                errorMap.put("message","供货价应大于0且小于99999999");
                 errorRowList.add(errorMap);
                 continue;
-            } else if (supplierCommodityVo.getUnitPrice().compareTo(BigDecimal.ZERO) == -1) {
+            } else if (supplierCommodityVo.getUnitPrice().compareTo(BigDecimal.ZERO) == -1&&supplierCommodityVo.getUnitPrice().compareTo(CommConstant.MAX_VALUE) == 1) {
                 Map<String, Object> errorMap =new HashMap<String, Object>();
                 errorMap.put("rowNum",rowNum);
-                errorMap.put("message","批发价应大于0");
+                errorMap.put("message","批发价应大于0且小于99999999");
                 errorRowList.add(errorMap);
                 continue;
             } else if (supplierCommodityVo.getUnitPrice().compareTo(supplierCommodityVo.getPrice()) == 1) {
