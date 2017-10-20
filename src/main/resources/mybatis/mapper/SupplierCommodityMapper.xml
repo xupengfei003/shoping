@@ -1010,7 +1010,7 @@
                 LEFT JOIN comm_measure_spec cms ON sct.measure_spec_id = cms.id
                 LEFT JOIN comm_carton cc ON sct.carton_id = cc.id
                 LEFT JOIN comm_unit cu ON sct.unit_id = cu.id
-                WHERE 1 = 1
+                WHERE sct.deleted = 0
                 <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierId)">
                     AND sct.supplier_id = #{supplierId}
                 </if>
@@ -1056,7 +1056,7 @@
                     LEFT JOIN comm_measure_spec cms ON sc.measure_spec_id = cms.id
                     LEFT JOIN comm_carton cc ON sc.carton_id = cc.id
                     LEFT JOIN comm_unit cu ON sc.unit_id = cu.id
-                    WHERE t1.id IS NULL
+                    WHERE t1.id IS NULL AND sc.deleted = 0
                     <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierId)">
                         AND sc.supplier_id = #{supplierId}
                     </if>
@@ -1102,7 +1102,7 @@
                     LEFT JOIN comm_measure_spec cms ON sc.measure_spec_id = cms.id
                     LEFT JOIN comm_carton cc ON sc.carton_id = cc.id
                     LEFT JOIN comm_unit cu ON sc.unit_id = cu.id
-                    WHERE t1.id IS NOT NULL
+                    WHERE t1.id IS NOT NULL AND sc.deleted = 0
                     <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierId)">
                         AND sc.supplier_id = #{supplierId}
                     </if>
