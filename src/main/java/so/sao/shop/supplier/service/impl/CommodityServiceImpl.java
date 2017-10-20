@@ -1128,11 +1128,11 @@ public class CommodityServiceImpl implements CommodityService {
             String code=map.get("商品商家编码");
             String name = map.get("*商品名称");
             String img = map.get("*商品图片（1-10张）");
-            String brand = map.get("*品牌");
+            String brand = map.get("*商品品牌");
             String commCategoryOne = map.get("*商品分类一级");
             String commCategoryTwo = map.get("*商品分类二级");
             String commCategoryThree = map.get("*商品分类三级");
-            String originPlace = map.get("*产地");
+            String originPlace = map.get("*商品产地");
             String unitName = map.get("*库存单位");
             String measureSpecName = map.get("*规格单位");
             String measureSpec = map.get("*规格");
@@ -1161,8 +1161,9 @@ public class CommodityServiceImpl implements CommodityService {
                 continue;
             }
 
-            String unitPrice = map.get("*透云供货价");
-            String price = map.get("*门店批发价");
+
+            String unitPrice = map.get("*供货价");
+            String price = map.get("*批发价");
             String productionDate=map.get("*生产日期");
             String guaranteePeriod=map.get("*有效期(天)");
             String  guaranteePeriodUnit="天";
@@ -1170,10 +1171,11 @@ public class CommodityServiceImpl implements CommodityService {
             String companyName= map.get("*企业名称");
             String  suppliercode = map.get("供应商id");
             String tag = map.get("商品标签");
-            String remark = map.get("*商品简介");
-            String ruleVal = "("+measureSpecVal+measureSpecName+"*"+cartonVal+unitName+")"+"/"+cartonName;
+            String remark = map.get("*商品说明");
+
             String regexnum ="^[0-9]*$";
             String regex ="^[A-Za-z0-9]*$";
+
             if(code69.matches(regexnum)){
                 //通过code69,supplierId,deleted=0判断商品是否存在
                 SupplierCommodity suppliercommodity = supplierCommodityDao.findSupplierCommodityInfo(code69, supplierId);
@@ -1192,7 +1194,7 @@ public class CommodityServiceImpl implements CommodityService {
                         }else {
                             Map<String, Object> errorMap =new HashMap<String, Object>();
                             errorMap.put("rowNum",rowNum);
-                            errorMap.put("message","产地或者供应商名称为空");
+                            errorMap.put("message","商品产地或者企业名称为空");
                             errorRowList.add(errorMap);
                             continue;
                         }
@@ -1204,7 +1206,7 @@ public class CommodityServiceImpl implements CommodityService {
             } else {
                 Map<String, Object> errorMap =new HashMap<String, Object>();
                 errorMap.put("rowNum",rowNum);
-                errorMap.put("message","国际编码格式不正确");
+                errorMap.put("message","商品条码格式不正确");
                 errorRowList.add(errorMap);
                 continue;
             }
@@ -1216,7 +1218,7 @@ public class CommodityServiceImpl implements CommodityService {
             }else {
                 Map<String, Object> errorMap =new HashMap<String, Object>();
                 errorMap.put("rowNum",rowNum);
-                errorMap.put("message","供应商编码格式不正确");
+                errorMap.put("message","商品商家编码格式不正确");
                 errorRowList.add(errorMap);
                 continue;
             }
@@ -1283,6 +1285,26 @@ public class CommodityServiceImpl implements CommodityService {
                 errorRowList.add(errorMap);
                 continue;
             }
+
+            if(measureSpecVal.matches(regexnum)&&Integer.parseInt(measureSpecVal)>0&&Integer.parseInt(measureSpecVal)<9999){
+
+            } else {
+                Map<String, Object> errorMap =new HashMap<String, Object>();
+                errorMap.put("rowNum",rowNum);
+                errorMap.put("message","规格值应为正整数大于0且小于9999");
+                errorRowList.add(errorMap);
+                continue;
+            }
+            if(cartonVal.matches(regexnum)&&Integer.parseInt(cartonVal)>0&&Integer.parseInt(cartonVal)<9999){
+
+            } else {
+                Map<String, Object> errorMap =new HashMap<String, Object>();
+                errorMap.put("rowNum",rowNum);
+                errorMap.put("message","箱规值应为正整数大于0且小于9999");
+                errorRowList.add(errorMap);
+                continue;
+            }
+            String ruleVal = "("+measureSpecVal+measureSpecName+"*"+cartonVal+unitName+")"+"/"+cartonName;
             supplierCommodityVo.setRuleVal(ruleVal);
             commodityBatchInput.setImage(img);
             supplierCommodityVo.setUnitPrice(DataCompare.roundData(new BigDecimal(unitPrice), 2));
@@ -1292,19 +1314,19 @@ public class CommodityServiceImpl implements CommodityService {
             if (supplierCommodityVo.getPrice().compareTo(BigDecimal.ZERO) == -1) {
                 Map<String, Object> errorMap =new HashMap<String, Object>();
                 errorMap.put("rowNum",rowNum);
-                errorMap.put("message","透云供货价应大于0");
+                errorMap.put("message","供货价应大于0");
                 errorRowList.add(errorMap);
                 continue;
             } else if (supplierCommodityVo.getUnitPrice().compareTo(BigDecimal.ZERO) == -1) {
                 Map<String, Object> errorMap =new HashMap<String, Object>();
                 errorMap.put("rowNum",rowNum);
-                errorMap.put("message","app订货价应大于0");
+                errorMap.put("message","供货价应大于0");
                 errorRowList.add(errorMap);
                 continue;
             } else if (supplierCommodityVo.getUnitPrice().compareTo(supplierCommodityVo.getPrice()) == 1) {
                 Map<String, Object> errorMap =new HashMap<String, Object>();
                 errorMap.put("rowNum",rowNum);
-                errorMap.put("message","app订货价应大于等于透云供货价");
+                errorMap.put("message","供货价应大于等于供货价");
                 errorRowList.add(errorMap);
                 continue;
             }
