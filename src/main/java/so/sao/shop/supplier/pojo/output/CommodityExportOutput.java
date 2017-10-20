@@ -345,7 +345,7 @@ public class CommodityExportOutput {
 
     public String getProductionDate() {return productionDate;}
 
-    public void setProductionDate(String productionDate) {this.productionDate = productionDate;}
+    public void setProductionDate(String productionDate) {this.productionDate =  DateUtil.subStringByIndex(productionDate , 10);;}
 
     public int getGuaranteePeriod() {return guaranteePeriod;}
 
@@ -397,7 +397,7 @@ public class CommodityExportOutput {
                         "," + companyName +
                         "," + supplierId +
                         "," + tagName +
-                        "," + remark  ;
+                        "," + " "  ;
 
     }
     /**

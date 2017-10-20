@@ -327,9 +327,9 @@
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(commCode69)">
             AND code69 = #{commCode69}
         </if>
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(commCodeOrName)">
-            AND (code69 = #{commCodeOrName}
-            OR commName LIKE "%${commCodeOrName}%")
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(inputvalue)">
+            AND (code69 = #{inputvalue}
+            OR commName LIKE "%${inputvalue}%")
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(suppCommCode)">
             AND supplierCode = #{suppCommCode}
@@ -356,15 +356,15 @@
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(typeId)">
             AND categoryOneId = #{typeId}
         </if>
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(beginCreateAt) and @so.sao.shop.supplier.util.Ognl@isEmpty(endCreateAt)">
-            AND Date(createdAt)<![CDATA[ >= #{beginCreateAt}]]>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(beginUpdateAt) and @so.sao.shop.supplier.util.Ognl@isEmpty(endUpdateAt)">
+            AND Date(createdAt)<![CDATA[ >= #{beginUpdateAt}]]>
         </if>
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(endCreateAt) and @so.sao.shop.supplier.util.Ognl@isEmpty(beginCreateAt)">
-            AND  Date(createdAt)<![CDATA[<= #{endCreateAt}]]>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(endUpdateAt) and @so.sao.shop.supplier.util.Ognl@isEmpty(beginUpdateAt)">
+            AND  Date(createdAt)<![CDATA[<= #{endUpdateAt}]]>
         </if>
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(beginCreateAt) and @so.sao.shop.supplier.util.Ognl@isNotEmpty(endCreateAt)">
-            AND Date(createdAt) BETWEEN #{beginCreateAt}
-            AND #{endCreateAt}
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(beginUpdateAt) and @so.sao.shop.supplier.util.Ognl@isNotEmpty(endUpdateAt)">
+            AND Date(createdAt) BETWEEN #{beginUpdateAt}
+            AND #{endUpdateAt}
         </if>
         ORDER BY t.updated_at DESC ,t.id DESC
     </select>
