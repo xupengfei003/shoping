@@ -107,7 +107,8 @@ public class EmpServiceImpl implements EmpService {
 				if (user1 == null) {
 					User user = new User();
                     user.setUsername(emp.getEmpTel());
-                    String password = smsService.getVerCode();
+                    //String password = smsService.getVerCode();
+					String password = "123456";
                     BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
                     user.setPassword(encoder.encode(password));
                     user.setLastPasswordResetDate(new Date());
