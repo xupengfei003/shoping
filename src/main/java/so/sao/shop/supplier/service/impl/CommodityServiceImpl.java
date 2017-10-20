@@ -950,23 +950,18 @@ public class CommodityServiceImpl implements CommodityService {
             newFileName= deCompressFile(tempPath, filename, newFileName, excelmap);//解压缩文件
         }
         String excelpath = tempPath + newFileName +"/"+excelmap.get("excel").toString();
-
         //使用工具类 获取Excel 内容
         Map<String, Object> maps = ExcelReader.readExcelContent(excelpath,1);
-
         //Excel中正确记录信息
         Map<Integer,Map<String, String>> mapRight = ( Map<Integer,Map<String, String>>)maps.get("mapright");
         //Excel中错误行号
         List<Map<String, Object>> errorRowList =  (List<Map<String, Object>>) maps.get("maperror");
-
         List<CommodityBatchInput> commodityBatchInputs = new ArrayList<CommodityBatchInput>();
-
         // Excel 内容转 CommodityInput对象
         if(mapRight != null){
             //封装数据
             commodityBatchInputs = checkCellData(mapRight, errorRowList,tempPath + newFileName, supplierId );
         }
-
         List<CommodityImageVo> commodityImageVoList =new ArrayList<CommodityImageVo>();
         //入庫
         for (CommodityBatchInput commodityBatchInput : commodityBatchInputs) {
@@ -1005,15 +1000,12 @@ public class CommodityServiceImpl implements CommodityService {
         //多线程上传图片，更新相关图片表
         final String filePath = tempPath + newFileName;
         uploadImages(filePath,commodityImageVoList,supplierId);
-
-
         outmap.put("rightlist",commodityImportOutputList);
         outmap.put("errolist",errorRowList);
         return Result.success("完成导入！", outmap);
     }
     private void  uploadImages(String  filePath, List<CommodityImageVo> commodityImageVoList,Long supplierId){
         Map<Integer, List<CommodityImageVo>> reMap = convertMap(commodityImageVoList);
-
         // 创建一个可重用固定线程数的线程池
         ExecutorService pool = Executors.newFixedThreadPool(reMap.size() + 1);
         reMap.forEach((k, v)-> {
@@ -1039,13 +1031,10 @@ public class CommodityServiceImpl implements CommodityService {
                 if (cvMap.get(imgName) == null) {
                     cvMap.put(imgName, new ArrayList<>());
                 }
-
                 cvMap.get(imgName).add(cv);
             }
         }
-
         List<CommodityImageVo> list = new ArrayList<>();
-
         Map<Integer, List<CommodityImageVo>> reMap = new HashMap<>();
         Map<Long, CommodityImageVo> cMap = new HashMap<>();
         int num=0;
@@ -1054,7 +1043,6 @@ public class CommodityServiceImpl implements CommodityService {
                 cMap.put(cv.getScId(),cv);
             }
         }
-
         for (Map.Entry<Long,CommodityImageVo> lmap  : cMap.entrySet()) {
             list.add(lmap.getValue());
 
@@ -1063,7 +1051,6 @@ public class CommodityServiceImpl implements CommodityService {
                 num++;
                 list = new ArrayList<>();
             }
-
         }
 
         if(list.size() > 0){
@@ -1087,7 +1074,6 @@ public class CommodityServiceImpl implements CommodityService {
                     if(pool.isTerminated()){
                         logger.info("所有的子线程都结束了！");
                         FileUtil.deleteDirectory(filePath);
-
                         break;
                     }
 
@@ -1114,7 +1100,6 @@ public class CommodityServiceImpl implements CommodityService {
         for ( CommTag  tags: commAllTagList ) {
             mapTag.put(tags.getName(),tags.getId());
         }
-
         List<CommMeasureSpec> commMeasureSpeclist = commMeasureSpecDao.find(supplierId);
         Map<String,Long> commMeasureSpecMap = new HashMap<String,Long>();
         for ( CommMeasureSpec  commMeasureSpec: commMeasureSpeclist ) {
@@ -1131,7 +1116,6 @@ public class CommodityServiceImpl implements CommodityService {
         for ( CommCarton  commCarton: commCartonList ) {
             commCartonMap.put(commCarton.getName(),commCarton.getId());
         }
-
         for (Map.Entry<Integer,Map<String, String>> itmap : mapRight.entrySet()) {
             int rowNum = itmap.getKey();
             Map<String, String> map = itmap.getValue();
@@ -1178,11 +1162,9 @@ public class CommodityServiceImpl implements CommodityService {
             }
 
             String unitPrice = map.get("*透云供货价");
-            String price = map.get("*app订货价");
+            String price = map.get("*门店批发价");
             String productionDate=map.get("*生产日期");
             String guaranteePeriod=map.get("*有效期(天)");
-
-
             String  guaranteePeriodUnit="天";
             String  minOrderQuantity = map.get("*最小起订量");
             String companyName= map.get("*企业名称");
@@ -1190,7 +1172,6 @@ public class CommodityServiceImpl implements CommodityService {
             String tag = map.get("商品标签");
             String remark = map.get("*商品简介");
             String ruleVal = "("+measureSpecVal+measureSpecName+"*"+cartonVal+unitName+")"+"/"+cartonName;
-
             String regexnum ="^[0-9]*$";
             String regex ="^[A-Za-z0-9]*$";
             if(code69.matches(regexnum)){
@@ -1244,10 +1225,8 @@ public class CommodityServiceImpl implements CommodityService {
                 commodityBatchInput.setTagId(mapTag.get(tag));
                 commodityBatchInput.setTagName(tag);
             }
-
             commodityBatchInput.setOriginPlace(originPlace);
             commodityBatchInput.setCompanyName(companyName);
-
             CommCategory commCategoryone = commCategoryDao.findCommCategoryByNameAndPid(commCategoryOne, pid);
             if (null != commCategoryone) {
                 pid = commCategoryone.getId();
@@ -1281,7 +1260,6 @@ public class CommodityServiceImpl implements CommodityService {
                 errorRowList.add(errorMap);
                 continue;
             }
-
             commodityBatchInput.setRemark(remark);
             supplierCommodityVo.setMeasureSpecVal(Long.parseLong(measureSpecVal));
             if ( null != commMeasureSpecMap.get(measureSpecName) ) {
@@ -1305,11 +1283,8 @@ public class CommodityServiceImpl implements CommodityService {
                 errorRowList.add(errorMap);
                 continue;
             }
-
-
             supplierCommodityVo.setRuleVal(ruleVal);
             commodityBatchInput.setImage(img);
-
             supplierCommodityVo.setUnitPrice(DataCompare.roundData(new BigDecimal(unitPrice), 2));
             supplierCommodityVo.setPrice(DataCompare.roundData(new BigDecimal(price), 2));
             supplierCommodityVo.setInventory(0L);
@@ -1333,7 +1308,6 @@ public class CommodityServiceImpl implements CommodityService {
                 errorRowList.add(errorMap);
                 continue;
             }
-
             if ( null != commUnitMap.get(unitName) ) {
                 supplierCommodityVo.setUnitId( commUnitMap.get(unitName) );
                 supplierCommodityVo.setUnitName(unitName);
@@ -1359,12 +1333,9 @@ public class CommodityServiceImpl implements CommodityService {
             }
             supplierCommodityVo.setGuaranteePeriod(Integer.parseInt(guaranteePeriod));
             supplierCommodityVo.setGuaranteePeriodUnit(guaranteePeriodUnit);
-
             supplierCommodityVo.setProductionDate(DateUtil.stringToDate(productionDate));
-
             commodityList.add(supplierCommodityVo);
             commodityBatchInput.setCommodityList(commodityList);
-
             commodityBatchInputs.add(commodityBatchInput);
         }
         return  commodityBatchInputs;
@@ -1443,7 +1414,6 @@ public class CommodityServiceImpl implements CommodityService {
                             new File(tempPath).mkdirs();
                         }
                         file.transferTo(newFile);
-
                     }
                 }
             } catch (IOException e) {
@@ -1599,6 +1569,8 @@ public class CommodityServiceImpl implements CommodityService {
             sc.setRemark(commodityBatchInput.getRemark());
             sc.setTagId(commodityBatchInput.getTagId());
             sc.setStatus(CommConstant.COMM_ST_OFF_SHELVES);
+            sc.setInventoryMinimum(CommConstant.INVENTORY_MINIMUM_DEFAULT_VALUE);
+            sc.setInventoryStatus(CommConstant.INVENTORY_WARNING);
             sc.setSupplierId(supplierId);
             sc.setCreatedBy(supplierId);
             sc.setUpdatedBy(supplierId);
@@ -1629,14 +1601,12 @@ public class CommodityServiceImpl implements CommodityService {
         Long [] ids=commAuditInput.getIds();
         if(null==ids){
             return Result.fail("失败");
-
         }
         for(Long id:ids){
             SupplierCommodityAudit supplierCommodityAudit=supplierCommodityAuditDao.findSupplierCommodityAuditById(id);
             if(null ==  supplierCommodityAudit ){
                 continue;
             }
-
             int status= supplierCommodityAudit.getStatus();
             int auditResult =commAuditInput.getAuditResult();
             Long scId=supplierCommodityAudit.getScId();
@@ -1697,7 +1667,6 @@ public class CommodityServiceImpl implements CommodityService {
                     supplierCommodityDao.updateSupplierCommodityStatusById(scId,CommConstant.COMM_ST_OFF_SHELVES,new Date());
                     status=CommConstant.COMM_ST_OFF_SHELVES;
                 }
-
             }
             //更新audit表
             supplierCommodityAudit.setStatus(status);
@@ -1706,9 +1675,7 @@ public class CommodityServiceImpl implements CommodityService {
             supplierCommodityAudit.setAuditBy(commAuditInput.getUserId());
             supplierCommodityAudit.setUpdatedAt(new Date());
             supplierCommodityAuditDao.updateSupplierCommodityAuditById(supplierCommodityAudit);
-
         }
-
         return Result.success("成功");
     }
     /**
