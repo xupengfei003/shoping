@@ -29,7 +29,7 @@ public class SuppCommSearchVo {
     /**
      * 供应商id
      */
-//    private Long supplierId;
+    private Long supplierId;
     /**
      * 供应商名称
      */
@@ -290,12 +290,21 @@ public class SuppCommSearchVo {
         this.code = code;
     }
 
+    public Long getSupplierId() {
+        return supplierId;
+    }
+
+    public void setSupplierId(Long supplierId) {
+        this.supplierId = supplierId;
+    }
+
     @Override
     public String toString() {
         return "SuppCommSearchVo{" +
                 "id=" + id +
                 ", minImg='" + minImg + '\'' +
                 ", commId=" + commId +
+                ", supplierId=" + supplierId +
                 ", supplierName='" + supplierName + '\'' +
                 ", code69='" + code69 + '\'' +
                 ", code='" + code + '\'' +
