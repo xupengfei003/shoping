@@ -1196,6 +1196,7 @@
                 FROM
                     supplier_commodity_audit sca
                 JOIN supplier_commodity sc ON sca.sc_id = sc.id
+                WHERE sca.audit_flag = 1
                 AND sc.id = #{id}
 	    )
     </update>
