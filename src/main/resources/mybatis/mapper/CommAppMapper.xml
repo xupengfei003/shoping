@@ -192,6 +192,7 @@
        WHERE
 	          sc.code69 = c.code69
               AND sc.supplier_id = #{supplierId}
+              AND sc.deleted = 0
               AND sc.invalid_status = 1
               AND sc. STATUS = 2
               and cc. LEVEL = 3
@@ -209,8 +210,9 @@
         AND comm.code69
         IN
         (SELECT sc.code69 FROM supplier_commodity sc
-          WHERE
-          sc.`status`=2 AND sc.invalid_status=1
+          WHERE sc.deleted = 0
+          AND sc.status=2
+          AND sc.invalid_status=1
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierId)">
             AND sc.supplier_id = #{ supplierId }
         </if>  )
@@ -221,8 +223,8 @@
     <select id="findAllBrands" parameterType="int"  resultType="so.sao.shop.supplier.pojo.output.CommBrandOutput">
         SELECT DISTINCT brand.id, brand.name
         FROM comm_brand brand , commodity comm, supplier_commodity sc
-        WHERE
-        sc.invalid_status = 1
+        WHERE sc.deleted = 0
+        AND sc.invalid_status = 1
         AND sc.status = 2
         AND comm.brand_id = brand.id
         AND  sc.code69 = comm.code69
@@ -269,7 +271,9 @@
         , comm_category cc2
         , comm_category cc3
         , account acc
-        WHERE sc.invalid_status = 1
+        WHERE
+            sc.deleted = 0
+        AND sc.invalid_status = 1
         AND sc.status = 2
         AND sc.measure_spec_id = cms.id
         AND sc.unit_id = cu.id
@@ -346,6 +350,7 @@
         <where>
             sc.invalid_status = 1
             AND sc.status = 2
+            AND sc.deleted = 0
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierId)">
                 AND sc.supplier_id = #{supplierId}
             </if>
@@ -409,7 +414,7 @@
         FROM
         supplier_commodity sc INNER JOIN (commodity c LEFT JOIN comm_brand cb ON c.brand_id = cb.id) ON sc.code69 = c.code69
         LEFT JOIN comm_measure_spec cms ON sc.measure_spec_id = cms.id LEFT JOIN comm_unit cu ON sc.unit_id = cu.id LEFT JOIN comm_tag ct ON sc.tag_id = ct.id
-        WHERE sc.id = #{id} and sc.invalid_status = 1 AND sc.status = 2
+        WHERE sc.id = #{id} and sc.invalid_status = 1 AND sc.status = 2 AND sc.deleted = 0
     </select>
 
 
