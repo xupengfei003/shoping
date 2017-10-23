@@ -18,7 +18,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.dao.LogisticsDao;
+import so.sao.shop.supplier.dao.NotificationDao;
 import so.sao.shop.supplier.dao.PurchaseDao;
+import so.sao.shop.supplier.domain.Notification;
+import so.sao.shop.supplier.domain.Purchase;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.vo.PurchaseInfoVo;
 import so.sao.shop.supplier.service.LogisticsService;
@@ -26,6 +29,7 @@ import so.sao.shop.supplier.util.MD5Util;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.io.ObjectStreamClass;
 import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -41,6 +45,8 @@ public class LogisticsServiceImpl implements LogisticsService {
     private LogisticsDao logisticsDao;
     @Resource
     private PurchaseDao purchaseDao;
+    @Resource
+    private NotificationDao notificationDao;
     /**
      * 根据物流单好查询物流信息
      * @param num 物流单号
@@ -283,7 +289,12 @@ public class LogisticsServiceImpl implements LogisticsService {
         map.put("date",new Date());
         map.put("status",1);
         logisticsDao.updateQrcodesStatus(map);//更改二维码状态
-        return logisticsDao.receiveOrder(map);//确认收货
+        int num = logisticsDao.receiveOrder(map);//确认收货
+        // 推送收货消息
+        for(String orderId : orderIds){
+            pushNotification(orderId, Constant.OrderStatusConfig.RECEIVED);
+        }
+        return num;
     }
 
     /**
@@ -305,6 +316,48 @@ public class LogisticsServiceImpl implements LogisticsService {
     @Override
     public List<PurchaseInfoVo>  findOrderInfoByOrderStatus(Integer orderStatus) {
         return logisticsDao.findOrderInfoByOrderStatus(orderStatus);
+    }
+
+
+    //推送消息通知
+    private void pushNotification(String orderId, Integer orderStatus) {
+        Purchase purchase = purchaseDao.findById(orderId);
+        if (null != purchase) {
+            Notification notification = createNotification(purchase.getStoreId(), orderId, orderStatus);
+            if (null != notification) {
+                notificationDao.insert(notification);
+            }
+        }
+    }
+
+    //创建消息通知
+    private Notification createNotification(Long accountId, String orderId, Integer status) {
+        Notification notification = new Notification();
+        notification.setAccountId(accountId);
+        notification.setNotifiType(0);      //消息类型:0订单，1系统
+        notification.setNotifiStatus(0);    //消息状态:0未读,1已读
+        notification.setOrderId(orderId);
+        String notifiDetail = "";
+        if (Objects.equals(Constant.OrderStatusConfig.PAYMENT,status)) {
+            notifiDetail = Constant.NotifiConfig.PAYMENT_NOTIFI;
+        } else if (Objects.equals(Constant.OrderStatusConfig.PENDING_SHIP,status)) {
+            notifiDetail = Constant.NotifiConfig.PENDING_SHIP_NOTIFI;
+        } else if (Objects.equals(Constant.OrderStatusConfig.ISSUE_SHIP,status)) {
+            notifiDetail = Constant.NotifiConfig.ISSUE_SHIP_NOTIFI;
+        } else if (Objects.equals(Constant.OrderStatusConfig.RECEIVED,status)) {
+            notifiDetail = Constant.NotifiConfig.RECEIVED_NOTIFI;
+        } else if (Objects.equals(Constant.OrderStatusConfig.REJECT,status)) {
+            notifiDetail = Constant.NotifiConfig.REJECT_NOTIFI;
+        } else if (Objects.equals(Constant.OrderStatusConfig.REFUNDED,status)) {
+            notifiDetail = Constant.NotifiConfig.REFUNDED_NOTIFI;
+        } else if (Objects.equals(Constant.OrderStatusConfig.CANCEL_ORDER,status)) {
+            notifiDetail = Constant.NotifiConfig.CANCEL_ORDER;
+        } else if (Objects.equals(Constant.OrderStatusConfig.PAYMENT_CANCEL_ORDER,status)) {
+            notifiDetail = Constant.NotifiConfig.PAYMENT_CANCEL_ORDER;
+        }
+        notification.setNotifiDetail(notifiDetail + orderId);
+        notification.setCreatedAt(new Date());
+        return notification;
     }
 }
 
