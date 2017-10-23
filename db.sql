@@ -96,5 +96,5 @@ INSERT INTO `sys_region` VALUES ('820201', '0', '', '市辖区', '820200', '113.
 /*
 商品数据待上架修改为已下架
  */
-update supplier_commodity set status = 3 where status = 0
-update supplier_commodity_tmp set status = 3 where status = 0
+update supplier_commodity set status = 3 where status = 0;
+update supplier_commodity_tmp set status = 3 where status = 0;
