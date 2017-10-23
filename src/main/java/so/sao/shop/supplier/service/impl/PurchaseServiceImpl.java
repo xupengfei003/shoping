@@ -1177,14 +1177,16 @@ public class PurchaseServiceImpl implements PurchaseService {
             }
             // 将二维码状态改为失效，并记录失效时间
             qrcodeDao.updateStatus(cancelReasonInput.getOrderId(), 1, new Date(), new Date()); // status失效是1
+            //TODO 订单取消成功给该供应商推送一条消息
+            pushNotification(cancelReasonInput.getOrderId(), inputOrderStatus);
+        } else {
+            //查询所有订单
+            List<Purchase> purchaseList = purchaseDao.findByPayId(cancelReasonInput.getOrderId());
+            //TODO 订单取消成功给该供应商推送一条消息
+            for (Purchase purchase : purchaseList) {
+                pushNotification(purchase.getOrderId(), inputOrderStatus);
+            }
         }
-        //查询所有订单
-        List<Purchase> purchaseList = purchaseDao.findByPayId(cancelReasonInput.getOrderId());
-        //TODO 订单取消成功给该供应商推送一条消息
-        for (Purchase purchase : purchaseList){
-            pushNotification(purchase.getOrderId(), inputOrderStatus);
-        }
-        
     }
 
     /**
