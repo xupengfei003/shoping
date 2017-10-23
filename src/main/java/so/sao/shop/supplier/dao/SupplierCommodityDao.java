@@ -3,9 +3,14 @@ package so.sao.shop.supplier.dao;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import so.sao.shop.supplier.domain.SupplierCommodity;
+import so.sao.shop.supplier.pojo.input.CommInventoryInfoInput;
+import so.sao.shop.supplier.pojo.input.CommInventoryInput;
 import so.sao.shop.supplier.pojo.input.CommSearchInput;
+import so.sao.shop.supplier.pojo.output.CommInventoryInfoOutput;
+import so.sao.shop.supplier.pojo.output.CommInventoryOutput;
 import so.sao.shop.supplier.pojo.output.CommodityBannerOut;
 import so.sao.shop.supplier.pojo.output.CommodityOutput;
+import so.sao.shop.supplier.pojo.output.CountCommDetailOutput;
 import so.sao.shop.supplier.pojo.vo.SuppCommSearchVo;
 
 import java.util.Date;
@@ -151,8 +156,23 @@ public interface SupplierCommodityDao {
      * @param endCreateAt 创建时间（后）
      * @return 查询结果集
      */
-    List<SuppCommSearchVo> findSimple(@Param("supplierId")Long supplierId, @Param("inputvalue")String inputvalue,
-                                      @Param("beginCreateAt") Date beginCreateAt, @Param("endCreateAt") Date endCreateAt);
+//    List<SuppCommSearchVo> findSimple(@Param("supplierId")Long supplierId, @Param("inputvalue")String inputvalue,
+//                                      @Param("beginCreateAt") Date beginCreateAt, @Param("endCreateAt") Date endCreateAt);
+
+    /**
+     * 查询商品信息集合
+     * @param status
+     * @param inputvalue 输入值（商品条码/商品名称）
+     * @param auditResult
+     * @param role 角色
+     * @param supplierId
+     * @return
+     */
+    List<SuppCommSearchVo> findSimple(@Param("status") Integer status,
+                                      @Param("inputvalue") String inputvalue,
+                                      @Param("auditResult") Integer auditResult,
+                                      @Param("role") String role,
+                                      @Param("supplierId") Long supplierId);
 
     /**
      * 根据商品标签ID查询未删除状态的供应商商品
@@ -160,6 +180,13 @@ public interface SupplierCommodityDao {
      * @return int 在使用标签的商品数量
      */
     int countSupplierCommodityByTagId(@Param("tagId")Long tagId);
+
+    /**
+     * 根据箱规单位ID查询未删除状态的供应商商品
+     * @param cartonId 箱规单位ID
+     * @return int 在使用箱规单位的商品数量
+     */
+    int countSupplierCommodityByCartonId(@Param("cartonId")Long cartonId);
 
     /**
      * 根据计量规格主键commMeasureSpecId 查所有引用到的未删除状态的SupplierCommodity
@@ -253,6 +280,48 @@ public interface SupplierCommodityDao {
      */
     void updateSupplierCommodityStatusById(@Param("id")Long id, @Param("status") int status, @Param("updatedAt") Date updatedAt);
 
+    /**
+     * 供应商首页-供应商商品部分信息统计
+     * @param supplierId 供应商id
+     * @return 供应商商品部分统计出参对象
+     */
+    CountCommDetailOutput countCommDetail(Long supplierId);
+    /**
+     * 商品库存查询接口
+     * @param commInventoryInput 库存检索条件
+     * @return List<CommInventoryOutput>
+     */
+    List<CommInventoryOutput> searchCommInventory(CommInventoryInput commInventoryInput);
 
+    /**
+     * 获取某商品库存信息
+     * @param id 商品Id
+     * @return CommInventoryInfoOutput
+     */
+    CommInventoryInfoOutput getInventoryById(Long id);
 
+    /**
+     * 更新某商品库存信息
+     * @param commInventoryInfoInput commInventoryInfoInput
+     */
+    void updateInventoryById(CommInventoryInfoInput commInventoryInfoInput);
+
+    /**
+     * tmp_更新某商品库存信息
+     * @param commInventoryInfoInput commInventoryInfoInput
+     */
+    void updateInventoryByTmpScaId(CommInventoryInfoInput commInventoryInfoInput);
+
+    /**
+     * 获取多个商品库存信息
+     * @param goodsList
+     * @return
+     */
+    List<CommInventoryInfoOutput> getInventoryByIds(@Param("goodsList") List<Long> goodsList);
+
+    /**
+     * 更新库存状态
+     * @param id 商品ID
+     */
+    void updateInventoryStatus(@Param("id") Long id, @Param("status") Integer status);
 }

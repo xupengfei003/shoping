@@ -2,6 +2,7 @@ package so.sao.shop.supplier.util;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -91,4 +92,67 @@ public class DateUtil {
         }
         return originStr.substring(0 , index);
     }
+
+    /**
+     * 获取本周第一天
+     */
+    public static Date getTimesWeekmorning() {
+        Calendar cal = Calendar.getInstance();
+        cal.set(cal.get(Calendar.YEAR), cal.get(Calendar.MONDAY), cal.get(Calendar.DAY_OF_MONTH), 0, 0, 0);
+        cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+        return  cal.getTime();
+    }
+
+    /**
+     * 获取本周最后一天
+     */
+    public  static Date getTimesWeeknight() {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(getTimesWeekmorning());
+        cal.add(Calendar.DAY_OF_WEEK, 6);
+        return cal.getTime();
+    }
+
+    /**
+     * 获取指定时间所在月的第一天
+     */
+    public static Date firstDayOfMonth(Date date) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        c.set(Calendar.DAY_OF_MONTH, 1);
+        return c.getTime();
+    }
+
+    /**
+     * 获取指定时间所在月的最后一天
+     * @param date
+     * @return
+     */
+    public static Date lastDayOfMonth(Date date){
+        Calendar ca = Calendar.getInstance();
+        ca.set(Calendar.DAY_OF_MONTH, ca.getActualMaximum(Calendar.DAY_OF_MONTH));
+        return ca.getTime();
+    }
+
+    /**
+     * 获取指定时间--n个月之前的时间
+     */
+    public static Date subtractMonths(Date date, int n) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.MONTH, -(n-1));
+        return firstDayOfMonth(calendar.getTime());
+    }
+
+    /**
+     * 获取当前年的第一天时间
+     */
+    public static Date getFirstDayOfYear(){
+        Calendar calendar = Calendar.getInstance();
+        int currentYear = calendar.get(Calendar.YEAR);
+        calendar.clear();
+        calendar.set(Calendar.YEAR, currentYear);
+        return calendar.getTime();
+    }
+
 }

@@ -63,4 +63,11 @@
         WHERE  commC.name =#{commCategoryName} and commC.pid = #{pid}
     </select>
 
+    <!--查询表中所有数据-->
+    <select id="findAll" resultMap="baseCommCategory">
+        SELECT
+        cy.id,cy.name ,cy.level, cy.pid
+        FROM comm_category cy
+    </select>
+
 </mapper>

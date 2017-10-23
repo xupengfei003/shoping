@@ -2,20 +2,12 @@ package so.sao.shop.supplier.service;
 
 import com.github.pagehelper.PageInfo;
 import org.springframework.web.multipart.MultipartFile;
-import so.sao.shop.supplier.config.StorageConfig;
 import so.sao.shop.supplier.domain.Account;
-import so.sao.shop.supplier.pojo.BaseResult;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.*;
-import so.sao.shop.supplier.pojo.output.CommodityExportOutput;
-import so.sao.shop.supplier.pojo.output.CommodityOutput;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Created by QuJunLong on 2017/7/17.
@@ -34,7 +26,7 @@ public interface CommodityService {
      * @param commodityUpdateInput 商品信息对象
      * @return 修改结果
      */
-    Result updateCommodity(CommodityUpdateInput commodityUpdateInput, Long supplierId, boolean isAdmin);
+    Result updateCommodity(CommodityUpdateInput commodityUpdateInput, Long supplierId);
 
     /**
      * 根据供应商商品ID获取商品详细信息
@@ -61,16 +53,18 @@ public interface CommodityService {
      * 根据查询条件查询商品详情（高级搜索）
      * @author liugang
      * @param commSearchInput 高级搜索查询请求
+     * @param request
      * @return Result Result对象
      */
-    Result searchCommodities(CommSearchInput commSearchInput);
+    Result searchCommodities(CommSearchInput commSearchInput, HttpServletRequest request);
 
     /**
      * 根据查询条件查询商品详情(简单条件查询)
      * @param commSimpleSearchInput  简单条件查询请求
+     * @param request
      * @return
      */
-    Result simpleSearchCommodities(CommSimpleSearchInput commSimpleSearchInput);
+    Result simpleSearchCommodities(CommSimpleSearchInput commSimpleSearchInput, HttpServletRequest request);
 
     /**
      * 删除商品
@@ -91,28 +85,36 @@ public interface CommodityService {
      * @param id
      * @return
      */
-    Result onShelves(Long id,String isAdmin);
+    Result onShelves(Long id);
 
     /**
      * 下架商品
      * @param id
      * @return
      */
-    Result offShelves(Long id, boolean isAdmin);
+    Result offShelves(Long id);
 
     /**
-     * 批量上架商品
-     * @param ids
+     * 管理员批量上架商品--管理员登录情况下批量上架
+     * @param ids 供应商商品id数组
      * @return
      */
-    Result onShelvesBatch(Long[] ids, boolean isAdmin);
+    Result onShelvesBatchByAdmin(Long[] ids);
+
+    /**
+     * 供应商批量上架商品--供应商登录情况下批量上架
+     * @param ids 供应商商品id数组
+     * @param supplierId 供应商id
+     * @return
+     */
+    Result onShelvesBatchBySupplier(Long[] ids, Long supplierId);
 
     /**
      * 批量下架商品
      * @param ids
      * @return
      */
-    Result offShelvesBatch(Long[] ids, boolean isAdmin);
+    Result offShelvesBatch(Long[] ids);
 
 
     /**
@@ -160,4 +162,11 @@ public interface CommodityService {
      * @return
      */
     Result findAuditDetail(Long id);
+
+    /**
+     * 供应商首页-供应商商品部分信息统计
+     * @param supplierId 供应商id
+     * @return
+     */
+    Result countCommDetail(Long supplierId);
 }

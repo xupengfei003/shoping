@@ -43,16 +43,14 @@ public class ImagesUploadThread implements  Runnable{
         this.azureBlobService = azureBlobService;
         this.commodityDao = commodityDao;
     }
-
+    @Override
     public void run() {
         for(int g = 0;   g < commodityImageVoList.size(); g++ ){
             CommodityImageVo commodityImageVo=commodityImageVoList.get(g);
             String[] imgs = commodityImageVo.getImage().replaceAll("，", ",").split(",");
             List<String> imgList = Arrays.asList(imgs);
             // 上传图片
-
             List<CommImgeVo> commImgeVoList = batchUploadCommPicture(filePath, imgList,3);
-
 
                 //保存 ty_comm_imge    comm_imge   , 更新  supplier_commoidity
                 //保存公共库图片
@@ -88,7 +86,6 @@ public class ImagesUploadThread implements  Runnable{
     public  List<CommImgeVo> batchUploadCommPicture(String path , List<String> files, int number) {
         // 1.调用uploadFilesComm方法上传
         List<Result> uploadResult = azureBlobService.uploadFilesComm(path, files); // 上传图片
-
         List<CommImgeVo> commImgeVoList = new ArrayList<CommImgeVo>();
         // 2.分离出上传成功和失败的
         boolean isAllSuccess = false; // 是否全部上传成功

@@ -126,12 +126,6 @@ public interface AccountService {
     List<Account> findAccountList(Integer days, Date currentDate);
 
     /**
-     * 修改供应商状态并激活账户
-     * @param accountUpdateInput
-     */
-    Result updateAccountStatus(AccountUpdateInput accountUpdateInput);
-
-    /**
      * 根据AccountId查询供应商的物流运费规则
      * @param accountId
      * @return

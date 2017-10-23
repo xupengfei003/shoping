@@ -59,9 +59,11 @@
 
     <!--查询商品标签集合-->
     <select id="find" parameterType="java.lang.Long" resultMap="resultMap">
-        select
+        SELECT
         <include refid="baseColumns"/>
-        from comm_tag where supplier_id = #{1} or supplier_id = 0 order by updated_at DESC
+        FROM
+        (SELECT  * FROM comm_tag ct WHERE supplier_id IN(0,#{supplierId}) ORDER BY supplier_id DESC ) ct1
+        GROUP BY NAME ORDER BY updated_at desc
     </select>
 
     <!--根据id查询个数-->

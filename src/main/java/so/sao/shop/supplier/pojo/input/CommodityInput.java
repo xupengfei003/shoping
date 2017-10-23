@@ -19,7 +19,6 @@ import java.util.List;
 public class CommodityInput {
 
     /**
-     *
      * Excel 行号
      */
     private  int rowNum;
@@ -69,27 +68,11 @@ public class CommodityInput {
     private String remark;
 
     /**
-     * 商品标签Id
-     */
-    private Long tagId;
-    /**
-     * 商品标签Name
-     */
-    private String tagName;
-
-    /**
      * 企业名称
      */
     @NotBlank(message = "企业名称不能为空")
     @Length(max = 256,message = "企业名称长度不能大于256")
     private String companyName;
-
-    /**
-     * 上市时间
-     */
-    @NotNull(message = "上市时间不能为空")
-    @JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
-    private Date marketTime;
 
     /**
      * 商品产地
@@ -161,28 +144,12 @@ public class CommodityInput {
         this.remark = remark;
     }
 
-    public Long getTagId() {
-        return tagId;
-    }
-
-    public void setTagId(Long tagId) {
-        this.tagId = tagId;
-    }
-
     public String getCompanyName() {
         return companyName;
     }
 
     public void setCompanyName(String companyName) {
         this.companyName = companyName;
-    }
-
-    public Date getMarketTime() {
-        return marketTime;
-    }
-
-    public void setMarketTime(Date marketTime) {
-        this.marketTime = marketTime;
     }
 
     public String getOriginPlace() {
@@ -199,14 +166,6 @@ public class CommodityInput {
 
     public void setCommodityList(List<SupplierCommodityVo> commodityList) {
         this.commodityList = commodityList;
-    }
-
-    public String getTagName() {
-        return tagName;
-    }
-
-    public void setTagName(String tagName) {
-        this.tagName = tagName;
     }
 
     public Long getBrandId() {

@@ -1,6 +1,5 @@
 package so.sao.shop.supplier.service.impl;
 
-import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +41,8 @@ import java.util.stream.Collectors;
 @Service
 public class CommodityServiceImpl implements CommodityService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+
     @Autowired
     private CommCategoryDao commCategoryDao;
     @Autowired
@@ -66,6 +67,9 @@ public class CommodityServiceImpl implements CommodityService {
     private CommMeasureSpecDao commMeasureSpecDao;
 
     @Autowired
+    private CommCartonDao commCartonDao;
+
+    @Autowired
     private AzureBlobService azureBlobService;
 
     @Autowired
@@ -86,6 +90,9 @@ public class CommodityServiceImpl implements CommodityService {
     @Autowired
     private DistributionScopeDao distributionScopeDao;
 
+    @Autowired
+    private QualificationDao qualificationDao;
+
     @Value("${excel.tempaltepath}")
     private String urlFile;
 
@@ -99,7 +106,7 @@ public class CommodityServiceImpl implements CommodityService {
     @Transactional(rollbackFor = Exception.class)
     public Result saveCommodity(@Valid CommodityInput commodityInput,Long supplierId){
         //获取当前供应商
-        Account account = accountDao.selectByPrimaryKey(supplierId);
+        Account account = accountDao.selectById(supplierId);
         if(null == account){
             return Result.fail("供应商不存在！");
         }
@@ -123,19 +130,27 @@ public class CommodityServiceImpl implements CommodityService {
             }
         }
         for (SupplierCommodityVo commodityVo : commodityInput.getCommodityList()) {
-            //验证计量单位是否存在
-            if(null != commodityVo.getUnitId()){
-                int commUnitNum = commUnitDao.countById(commodityVo.getUnitId());
-                if(commUnitNum == 0){
-                    return Result.fail("包装单位不存在！商品条码：" + commodityVo.getCode69());
+            if(null != commodityVo.getTagId()){
+                //验证商品标签是否存在
+                int commTagNum = commTagDao.countById(commodityVo.getTagId());
+                if(commTagNum == 0){
+                    return Result.fail("商品标签不存在！商品条码：" + commodityVo.getCode69());
                 }
             }
+            //验证库存单位是否存在
+            int commUnitNum = commUnitDao.countById(commodityVo.getUnitId());
+            if(commUnitNum == 0){
+                return Result.fail("库存单位不存在！商品条码：" + commodityVo.getCode69());
+            }
             //验证计量规格是否存在
-            if(null != commodityVo.getMeasureSpecId()){
-                int commMeasureSpecNum = commMeasureSpecDao.countById(commodityVo.getMeasureSpecId());
-                if(commMeasureSpecNum == 0){
-                    return Result.fail("计量规格不存在！商品条码：" + commodityVo.getCode69());
-                }
+            int commMeasureSpecNum = commMeasureSpecDao.countById(commodityVo.getMeasureSpecId());
+            if(commMeasureSpecNum == 0){
+                return Result.fail("计量规格不存在！商品条码：" + commodityVo.getCode69());
+            }
+            //验证箱规单位是否存在
+            int commCartonNum = commCartonDao.countById(commodityVo.getCartonId());
+            if(commCartonNum == 0){
+                return Result.fail("箱规单位不存在！商品条码：" + commodityVo.getCode69());
             }
             String code69 = commodityVo.getCode69();
             //验证商品是否存在,不存在则新增商品
@@ -163,7 +178,6 @@ public class CommodityServiceImpl implements CommodityService {
                 if(null == commodity.getMarketTime() || null == commodity.getBrandId() || StringUtil.isNull(commodity.getCompanyName()) || StringUtil.isNull(commodity.getOriginPlace())){
                     commodity.setBrandId(brand.getId());
                     commodity.setOriginPlace(commodityInput.getOriginPlace());
-                    commodity.setMarketTime(commodityInput.getMarketTime());
                     commodity.setCompanyName(commodityInput.getCompanyName());
                     commodity.setUpdatedAt(new Date());
                     commodity.setUpdatedBy(supplierId);
@@ -178,13 +192,15 @@ public class CommodityServiceImpl implements CommodityService {
             //新增商品规格
             SupplierCommodity sc = BeanMapper.map(commodityVo, SupplierCommodity.class);
             sc.setRemark(commodityInput.getRemark());
-            sc.setTagId(commodityInput.getTagId());
-            sc.setStatus(CommConstant.COMM_ST_NEW);
+            sc.setStatus(CommConstant.COMM_ST_OFF_SHELVES);
             sc.setSupplierId(supplierId);
             sc.setCreatedBy(supplierId);
             sc.setUpdatedBy(supplierId);
             sc.setCreatedAt(new Date());
             sc.setUpdatedAt(new Date());
+            sc.setInventory(CommConstant.INVENTORY_DEFAULT_VALUE);
+            sc.setInventoryMinimum(CommConstant.INVENTORY_MINIMUM_DEFAULT_VALUE);
+            sc.setInventoryStatus(CommConstant.INVENTORY_WARNING);
             //若供应商被禁用，新增的商品是失效状态
             if(account.getAccountStatus() == CommConstant.ACCOUNT_INVALID_STATUS){
                 sc.setInvalidStatus(CommConstant.COMM_INVALID_STATUS);
@@ -246,13 +262,6 @@ public class CommodityServiceImpl implements CommodityService {
         if(!verifyAssociation(commCategoryOne, commCategoryTwo, commCategoryThree)){
             return Result.fail("商品科属之间的关联不正确！");
         }
-        if(null != commodityInput.getTagId()){
-            //验证商品标签是否存在
-            int commTagNum = commTagDao.countById(commodityInput.getTagId());
-            if(commTagNum == 0){
-                return Result.fail("商品标签不存在！");
-            }
-        }
         return Result.success("校验通过");
     }
 
@@ -294,7 +303,7 @@ public class CommodityServiceImpl implements CommodityService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Result updateCommodity(CommodityUpdateInput commodityUpdateInput, Long supplierId, boolean isAdmin){
+    public Result updateCommodity(CommodityUpdateInput commodityUpdateInput, Long supplierId){
         for (SupplierCommodityUpdateVo commodityVo : commodityUpdateInput.getCommodityList()) {
             long id =  commodityVo.getId();
             //验证商品是否存在
@@ -309,11 +318,11 @@ public class CommodityServiceImpl implements CommodityService {
             }
             //商品状态
             int status = supplierCommodityDao.findStatus(id);
-            //如果商品状态是待上架或下架，或者上架状态并且是管理员操作，可以直接修改
-            if(status == CommConstant.COMM_ST_NEW || status == CommConstant.COMM_ST_OFF_SHELVES || (status == CommConstant.COMM_ST_ON_SHELVES && isAdmin)){
-                if(null != commodityUpdateInput.getTagId()){
+            //如果商品状态是下架，可以直接修改
+            if(status == CommConstant.COMM_ST_OFF_SHELVES){
+                if(null != commodityVo.getTagId()){
                     //验证商品标签是否存在
-                    int commTagNum = commTagDao.countById(commodityUpdateInput.getTagId());
+                    int commTagNum = commTagDao.countById(commodityVo.getTagId());
                     if(commTagNum == 0){
                         return Result.fail("商品标签不存在！");
                     }
@@ -321,17 +330,21 @@ public class CommodityServiceImpl implements CommodityService {
                 //验证包装单位是否存在
                 int commUnitNum = commUnitDao.countById(commodityVo.getUnitId());
                 if (commUnitNum == 0) {
-                    return Result.fail("包装单位不存在！");
+                    return Result.fail("库存单位不存在！");
                 }
                 //验证计量规格是否存在
                 int commMeasureSpecNum = commMeasureSpecDao.countById(commodityVo.getMeasureSpecId());
                 if (commMeasureSpecNum == 0) {
                     return Result.fail("计量规格不存在！");
                 }
+                //验证箱规单位是否存在
+                int commCartonNum = commCartonDao.countById(commodityVo.getCartonId());
+                if(commCartonNum == 0){
+                    return Result.fail("箱规单位不存在！");
+                }
                 //修改商品规格
                 SupplierCommodity sc = BeanMapper.map(commodityVo, SupplierCommodity.class);
                 sc.setRemark(commodityUpdateInput.getRemark());
-                sc.setTagId(commodityUpdateInput.getTagId());
                 sc.setUpdatedBy(supplierId);
                 sc.setUpdatedAt(new Date());
                 sc.setId(commodityVo.getId());
@@ -371,12 +384,14 @@ public class CommodityServiceImpl implements CommodityService {
                 sct.setUpdatedAt(sc.getUpdatedAt());
                 sct.setInvalidStatus(sc.getInvalidStatus());
                 sct.setRemark(commodityUpdateInput.getRemark());
-                sct.setTagId(commodityUpdateInput.getTagId());
                 sct.setId(commodityVo.getId());
                 sct.setSupplierId(supplierId);
                 sct.setUpdatedBy(supplierId);
                 sct.setCreatedBy(supplierId);
                 sct.setScaId(sca.getId());
+                sct.setInventory(sc.getInventory());
+                sct.setInventoryStatus(sc.getInventoryStatus());
+                sct.setInventoryMinimum(sc.getInventoryMinimum());
                 supplierCommodityTmpDao.save(sct);
                 //修改后图片数据保存
                 List<CommImgeTmp> commImgeTmps = new ArrayList<>();
@@ -403,12 +418,20 @@ public class CommodityServiceImpl implements CommodityService {
         //存放查询到的商品详细信息
         CommodityOutput commodityOutput = null;
         List<CommImge> commImgeList;
-        if(auditReult > 0){ //商品有审核状态
+        //商品有审核状态
+        if(auditReult > 0){
             //根据商品的id查询出商品的状态
             int status = supplierCommodityDao.findSupplierCommStatus(id);
             //如果是商品的状态是 6 (编辑待审核),则根据供应商商品ID获取编辑后的商品信息
             if (status > 0) {
                 commodityOutput = supplierCommodityTmpDao.findDetailTmp(id);
+                if (Ognl.isNull(commodityOutput.getCartonId())){
+                    commodityOutput.setCartonName(null);
+                }else {
+                    // 查询箱规名称
+                    CommCarton commCarton = commCartonDao.findOne(commodityOutput.getCartonId());
+                    commodityOutput.setCartonName(commCarton.getName());
+                }
                 commodityOutput.setStatus(supplierCommodityDao.findAuditStatus(id));
                 if (null != commodityOutput) {
                     //根据供应商商品ID获取图片列表信息
@@ -423,12 +446,32 @@ public class CommodityServiceImpl implements CommodityService {
             }else {
                 //商品没状态不为 6(编辑待审核),则根据供应商商品ID获取商品信息
                 commodityOutput = supplierCommodityDao.findDetail(id);
+                if (Ognl.isNull(commodityOutput)){
+                    return Result.success("商品不存在", commodityOutput);
+                }
+                if (Ognl.isNull(commodityOutput.getCartonId())){
+                    commodityOutput.setCartonName(null);
+                }else {
+                    // 查询箱规名称
+                    CommCarton commCarton = commCartonDao.findOne(commodityOutput.getCartonId());
+                    commodityOutput.setCartonName(commCarton.getName());
+                }
                 commodityOutput.setStatus(supplierCommodityDao.findAuditStatus(id));
                 readImgData(id,commodityOutput); //获取图片信息
             }
         } else {
             //商品没有审核记录,则根据供应商商品ID获取商品信息
             commodityOutput = supplierCommodityDao.findDetail(id);
+            if (Ognl.isNull(commodityOutput)){
+                return Result.success("商品不存在", commodityOutput);
+            }
+            if (Ognl.isNull(commodityOutput.getCartonId())){
+                commodityOutput.setCartonName(null);
+            }else {
+                // 查询箱规名称
+                CommCarton commCarton = commCartonDao.findOne(commodityOutput.getCartonId());
+                commodityOutput.setCartonName(commCarton.getName());
+            }
             readImgData(id,commodityOutput); // 获取图片信息
         }
         return Result.success("查询成功", commodityOutput);
@@ -442,20 +485,40 @@ public class CommodityServiceImpl implements CommodityService {
      * 根据查询条件查询商品详情(简单条件查询)
      *
      * @param commSimpleSearchInput 简单查询请求
+     * @param request
      * @return
      */
     @Override
-    public Result simpleSearchCommodities(CommSimpleSearchInput commSimpleSearchInput) {
-        //入参校验
-        Date beginCreateAt = commSimpleSearchInput.getBeginCreateAt();
-        Date endCreateAt = commSimpleSearchInput.getEndCreateAt();
-        String createAtMessage = DataCompare.createAtCheck(beginCreateAt, endCreateAt);
-        if(!"".equals(createAtMessage)){
-            return Result.fail(createAtMessage);
-        }
+    public Result simpleSearchCommodities(CommSimpleSearchInput commSimpleSearchInput, HttpServletRequest request) {
+
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //开始分页
+
+        Integer status = commSimpleSearchInput.getStatus();
+        String inputvalue = commSimpleSearchInput.getInputvalue();
+        Integer auditResult = commSimpleSearchInput.getAuditResult();
+        String role = getRole(user);
+
+        Long supplierId;
+        if("admin".equals(role)){//管理员
+            supplierId = commSimpleSearchInput.getSupplierId();
+        }else{//供应商
+            /**
+             * 手机端查询的时候没有对应的supplierId，这里要从数据库查询。
+             */
+            supplierId = accountDao.findSupplierIdByUserId(user.getId());
+            //能走到下面这个条件应该是出现了脏数据
+            if(supplierId == null){
+                logger.debug("检查数据库的user表，accountid表，emp表，可能出现了脏数据！");
+                return Result.fail(Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
+            }
+
+        }
+
+
         PageTool.startPage(commSimpleSearchInput.getPageNum(), commSimpleSearchInput.getPageSize());
-        List<SuppCommSearchVo> respList = supplierCommodityDao.findSimple(commSimpleSearchInput.getSupplierId(), commSimpleSearchInput.getInputvalue(), beginCreateAt, endCreateAt);
+        List<SuppCommSearchVo> respList = supplierCommodityDao.findSimple(status,inputvalue,auditResult,role,supplierId);
+
         respList.forEach(suppCommSearchVo->{
             suppCommSearchVo.setStatus(CommConstant.getStatus(suppCommSearchVo.getStatusNum()));
             //转换金额为千分位
@@ -467,21 +530,54 @@ public class CommodityServiceImpl implements CommodityService {
     }
 
     /**
+     * 获取角色
+     * @param user
+     * @return
+     */
+    private String getRole(User user) {
+        String role = null;
+        if(Constant.ADMIN_STATUS.equals(user.getIsAdmin())){
+            role = "admin";
+        }
+        return role;
+    }
+
+    /**
      * 高级搜索
      * @param commSearchInput 高级搜索查询请求
+     * @param request
      * @return
      */
     @Override
-    public Result searchCommodities(CommSearchInput commSearchInput) {
-        //入参校验
+    public Result searchCommodities(CommSearchInput commSearchInput, HttpServletRequest request) {
+        /**
+         * 入参校验
+         * 1.价格不能为负数";
+         * 2.最小金额不能大于最大金额
+         */
         String priceMessage = DataCompare.priceCheck(commSearchInput.getMinPrice(), commSearchInput.getMaxPrice());
         if(!"".equals(priceMessage)){
             return Result.fail(priceMessage);
         }
-        String createAtMessage = DataCompare.createAtCheck(commSearchInput.getBeginCreateAt(),commSearchInput.getEndCreateAt());
+        //起始时间不能大于终止时间
+        String createAtMessage = DataCompare.createAtCheck(commSearchInput.getBeginUpdateAt(),commSearchInput.getEndUpdateAt());
         if(!"".equals(createAtMessage)){
             return Result.fail(createAtMessage);
         }
+
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        commSearchInput.setRole(getRole(user));
+        if(!"admin".equals(commSearchInput.getRole())){
+             Long supplierId = accountDao.findSupplierIdByUserId(user.getId());
+            //能走到下面这个条件应该是出现了脏数据
+            if(supplierId == null){
+                logger.debug("检查数据库的user表，accountid表，emp表，可能出现了脏数据！");
+                return Result.fail(Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
+            }
+            commSearchInput.setSupplierId(supplierId);
+        }
+
+
         //开始分页
         PageTool.startPage(commSearchInput.getPageNum(), commSearchInput.getPageSize());
         List<SuppCommSearchVo> respList = supplierCommodityDao.find(commSearchInput);
@@ -518,7 +614,7 @@ public class CommodityServiceImpl implements CommodityService {
             //删除商品,deleted更新为1
             supplierCommodityDao.deleteById(id, true, new Date());
         }
-        return Result.success("删除商品成功", map);
+        return Result.success("删除商品成功！", map);
     }
 
     /**
@@ -542,7 +638,7 @@ public class CommodityServiceImpl implements CommodityService {
                 int pendingNum = supplierCommodityAuditDao.countByScidAndAuditResult(id);
                 //商品需下架才可删除
                 if(supplierCommodity.getStatus() != CommConstant.COMM_ST_OFF_SHELVES || pendingNum > 0){
-                    return Result.fail("存在已上架或待上架或审核中的商品，请重新选择！");
+                    return Result.fail("存在已上架或审核中的商品，请重新选择！");
                 }else{
                     idList.add(id);
                 }
@@ -560,7 +656,7 @@ public class CommodityServiceImpl implements CommodityService {
             });
             supplierCommodityDao.deleteByIds(supplierCommodityList);
         }
-        return Result.success("删除商品成功", map);
+        return Result.success("删除商品成功！", map);
     }
 
     /**
@@ -599,44 +695,34 @@ public class CommodityServiceImpl implements CommodityService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Result onShelves(Long id,String isAdmin) {
+    public Result onShelves(Long id) {
         int count = supplierCommodityDao.countById(id);
         //判断有无该商品记录
         if(count == 0){
             return Result.fail("该商品无记录！");
         }
         SupplierCommodity supplierCommodity=supplierCommodityDao.findOne(id);
-        //判断配送范围和运费规则是否完整
-        Boolean flag=checkFreightRules(supplierCommodity.getSupplierId());
-        if(!flag){
-            return Result.fail("该供应商未配置配送范围与运费规则，无法上架商品！");
-        }
-        //判断是否重复执行上架操作
-        if(supplierCommodity.getStatus()==CommConstant.COMM_ST_ON_SHELVES){
-            return Result.success("不能进行重复上架操作！");
+        Long supplierId = supplierCommodity.getSupplierId();
+        Result result = checkSupplier(supplierId);
+        //校验供应商资质与配送运费
+        if( null != result){
+            return result;
         }
         //判断该商品是否处于审核中
         int num = supplierCommodityAuditDao.countByScidAndAuditResult(id);
         if (num>0){
             return Result.fail("该商品已提交管理员审核，暂不能进行任何操作！");
         }
-        //如果是管理员直接执行上架操作
-        if(isAdmin.equals(Constant.ADMIN_STATUS)){
-            SupplierCommodity supplierCommodity1 = new SupplierCommodity();
-            supplierCommodity1.setId(id);
-            supplierCommodity1.setStatus(CommConstant.COMM_ST_ON_SHELVES);
-            supplierCommodity1.setUpdatedAt(new Date());
-            //提交上架申请操作
-            supplierCommodityDao.onOrOffShelves(supplierCommodity1);
-            supplierCommodityAuditDao.updateAuditFlagByScId(id, CommConstant.AUDIT_RECORD);
-            return Result.success("商品上架操作成功！");
+        //判断是否重复执行上架操作
+        if(supplierCommodity.getStatus()==CommConstant.COMM_ST_ON_SHELVES){
+            return Result.fail("不能进行重复上架操作！");
         }
         //插入审核记录前，将以前的审核记录flag变为0
         supplierCommodityAuditDao.updateAuditFlagByScId(id, CommConstant.AUDIT_RECORD);
         SupplierCommodityAudit supplierCommodityAudit = makeSupplierCommodityAudit(supplierCommodity, CommConstant.COMM_ST_ON_SHELVES_AUDIT);
         //执行上架申请操作
         supplierCommodityAuditDao.save(supplierCommodityAudit);
-        return Result.success("上架商品需要管理员审核，审核通过后会自动上架，稍后查询商品列表审核结果");
+        return Result.success("上架商品需要管理员审核，审核通过后会自动上架，稍后查询商品列表审核结果！");
     }
 
     /**
@@ -646,7 +732,7 @@ public class CommodityServiceImpl implements CommodityService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Result offShelves(Long id, boolean isAdmin) {
+    public Result offShelves(Long id) {
         SupplierCommodity one = supplierCommodityDao.findOne(id);
         if (null == one) {
             return Result.fail("该商品无记录！");
@@ -656,23 +742,9 @@ public class CommodityServiceImpl implements CommodityService {
         if (num > 0) {
             return Result.fail("该商品已提交管理员审核，暂不能进行任何操作！");
         }
-        //待上架商品下架操作校验
-        if (CommConstant.COMM_ST_NEW == one.getStatus() ){
-            return Result.fail("存在待上架商品，请重新选择！");
-        }
         //不能重复下架
         if (CommConstant.COMM_ST_OFF_SHELVES == one.getStatus()){
-            return Result.success("不能进行重复下架操作！");
-        }
-        //管理员直接进行下架操作
-        if (isAdmin){
-            SupplierCommodity supplierCommodity = new SupplierCommodity();
-            supplierCommodity.setId(id);
-            supplierCommodity.setStatus(CommConstant.COMM_ST_OFF_SHELVES);
-            supplierCommodity.setUpdatedAt(new Date());
-            supplierCommodityDao.onOrOffShelves(supplierCommodity);
-            supplierCommodityAuditDao.updateAuditFlagByScId(id, CommConstant.AUDIT_RECORD);
-            return Result.success("商品下架操作成功！");
+            return Result.fail("不能进行重复下架操作！");
         }
         //更新scId对应的历史记录
         supplierCommodityAuditDao.updateAuditFlagByScId(id, CommConstant.AUDIT_RECORD);
@@ -683,22 +755,94 @@ public class CommodityServiceImpl implements CommodityService {
     }
 
     /**
-     * 商品批量上架
+     * 管理员批量上架商品--管理员批量上架
      * @param ids 供应商商品id数组
      * @return
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Result onShelvesBatch(Long[] ids, boolean isAdmin) {
+    public Result onShelvesBatchByAdmin(Long[] ids) {
         //根据id数组查询，过滤已删除的商品
         List<SupplierCommodity> supplierCommodityList = supplierCommodityDao.findSupplierCommodityByIds(ids);
         if (null == supplierCommodityList || supplierCommodityList.size() == 0) {
             return Result.fail("该商品无记录！");
         }
-        //判断供应商是否已完善配送范围和运费规则
-        boolean flag = checkFreightRules(supplierCommodityList.get(0).getSupplierId());
-        if (!flag) {
-            return Result.fail("该供应商未配置配送范围与运费规则，无法上架商品！");
+        //判断该供应商商品数组中是否已处于待审核状态
+        int num = supplierCommodityAuditDao.countByScidArrayAndAuditResult(ids);
+        if (num > 0) {
+            return Result.fail("所选商品中包含待审核商品，请重新选择！");
+        }
+        //存储supplierId
+        Set<Long> suSet = new TreeSet<>();
+        for (SupplierCommodity sc:supplierCommodityList) {
+            suSet.add(sc.getSupplierId());
+        }
+        //存储符合验证条件的supplierId
+        Set<Long> passSet = new TreeSet<>();
+        //存储不符合验证条件的supplierId
+        Set<Long> noPassSet = new TreeSet<>();
+        //管理员登录时校验所有供应商的资质、配送与运费
+        for (Long supplierId : suSet) {
+            //判断供应商资质审核
+            if (!Objects.equals(Constant.QUALIFICATION_VERIFY_PASS, qualificationDao.getAccountQualificationStatus(supplierId))) {
+                noPassSet.add(supplierId);
+                continue;
+            }
+            //判断供应商是否已完善配送范围和运费规则
+            boolean freightRulesFlag = checkFreightRules(supplierId);
+            if (!freightRulesFlag) {
+                noPassSet.add(supplierId);
+                continue;
+            }
+            //添加满足条件的supplerId
+            passSet.add(supplierId);
+        }
+        //所有都不满足条件情况
+        if (passSet.size() == 0){
+            return Result.fail("所选供应商存在还没通过资质审核、配送范围或运费规则，无法上架商品！");
+        }
+        //需要操作的供应商商品审核记录
+        List<SupplierCommodityAudit> list = new ArrayList<>();
+        for (SupplierCommodity supplierCommodity:supplierCommodityList) {
+            if(passSet.contains(supplierCommodity.getSupplierId())){
+                //过滤重复上架
+                if (CommConstant.COMM_ST_ON_SHELVES == supplierCommodity.getStatus()) {
+                    continue;
+                }
+                SupplierCommodityAudit supplierCommodityAudit = makeSupplierCommodityAudit(supplierCommodity, CommConstant.COMM_ST_ON_SHELVES_AUDIT);
+                list.add(supplierCommodityAudit);
+            }
+        }
+        if(list.size() <= 0){
+            return Result.fail("不能进行重复上架操作！");
+        }
+        //更新scId对应的历史记录
+        supplierCommodityAuditDao.updateAuditFlagByList(list, CommConstant.AUDIT_RECORD);
+        //添加新记录
+        supplierCommodityAuditDao.saveBatch(list);
+        if(passSet.size() > 0 && noPassSet.size() > 0){
+            return Result.success("部分商品上架成功，上架商品需要管理员审核，审核通过后会自动上架，稍后注意查询商品列表审核结果！");
+        }
+        return Result.success("上架商品需要管理员审核，审核通过后会自动上架，稍后注意查询商品列表审核结果！");
+    }
+
+    /**
+     * 供应商批量上架商品--供应商批量上架
+     * @param ids 供应商商品id数组
+     * @param supplierId 供应商id
+     * @return
+     */
+    @Override
+    public Result onShelvesBatchBySupplier(Long[] ids, Long supplierId) {
+        //根据id数组查询，过滤已删除的商品
+        List<SupplierCommodity> supplierCommodityList = supplierCommodityDao.findSupplierCommodityByIds(ids);
+        if (null == supplierCommodityList || supplierCommodityList.size() == 0) {
+            return Result.fail("该商品无记录！");
+        }
+        //校验供应商资质审核、配送范围与配送运费
+        Result result = checkSupplier(supplierId);
+        if( null != result){
+            return result;
         }
         //判断该供应商商品数组中是否已处于待审核状态
         int num = supplierCommodityAuditDao.countByScidArrayAndAuditResult(ids);
@@ -718,12 +862,6 @@ public class CommodityServiceImpl implements CommodityService {
         if(list.size() <= 0){
             return Result.fail("不能进行重复上架操作！");
         }
-        //管理员直接进行上架操作
-        if (isAdmin) {
-            //修改记录为历史记录
-            supplierCommodityAuditDao.updateAuditFlagByList(list, CommConstant.AUDIT_RECORD);
-            return onOrOffShelvesBatchByAdmin(supplierCommodityList, CommConstant.COMM_ST_ON_SHELVES);
-        }
         //更新scId对应的历史记录
         supplierCommodityAuditDao.updateAuditFlagByList(list, CommConstant.AUDIT_RECORD);
         //添加新记录
@@ -738,7 +876,7 @@ public class CommodityServiceImpl implements CommodityService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Result offShelvesBatch(Long[] ids, boolean isAdmin) {
+    public Result offShelvesBatch(Long[] ids) {
         //根据id数组查询，过滤已删除的商品
         List<SupplierCommodity> supplierCommodityList = supplierCommodityDao.findSupplierCommodityByIds(ids);
         if (null == supplierCommodityList || supplierCommodityList.size() == 0) {
@@ -756,22 +894,12 @@ public class CommodityServiceImpl implements CommodityService {
             if (CommConstant.COMM_ST_OFF_SHELVES == supplierCommodity.getStatus()) {
                 continue;
             }
-            //需要直接下架的商品存入list中
-            if(supplierCommodity.getStatus() == CommConstant.COMM_ST_NEW){
-                return Result.fail("存在待上架商品，请重新选择！");
-            }
             //需要下架审核的商品存入auditList中
             SupplierCommodityAudit supplierCommodityAudit = makeSupplierCommodityAudit(supplierCommodity, CommConstant.COMM_ST_OFF_SHELVES_AUDIT);
             auditList.add(supplierCommodityAudit);
         }
         if (auditList.size() <= 0){
             return Result.fail("不能进行重复下架操作！");
-        }
-        //管理员操作直接下架
-        if (isAdmin){
-            //修改记录为历史记录
-            supplierCommodityAuditDao.updateAuditFlagByList(auditList, CommConstant.AUDIT_RECORD);
-            return onOrOffShelvesBatchByAdmin(supplierCommodityList, CommConstant.COMM_ST_OFF_SHELVES);
         }
         //更新scId对应的历史记录
         supplierCommodityAuditDao.updateAuditFlagByList(auditList, CommConstant.AUDIT_RECORD);
@@ -799,27 +927,21 @@ public class CommodityServiceImpl implements CommodityService {
     }
 
     /**
-     * 管理员批量上下架操作
-     * @param list 供应商商品list
-     * @param status 上下架状态
-     * @return 结果result
+     * 校验供应商的资质审核与配送范围、运费规则
+     * @param supplierId 供应商ID
+     * @return result
      */
-    private Result onOrOffShelvesBatchByAdmin(List<SupplierCommodity> list, int status){
-        List<SupplierCommodity> OnOrOffShelvesList = new ArrayList<>();
-        for (SupplierCommodity supplierCommodity:list) {
-            //过滤重复上下架
-            if (status == supplierCommodity.getStatus()) {
-                continue;
-            }
-            supplierCommodity.setStatus(status);
-            supplierCommodity.setUpdatedAt(new Date());
-            OnOrOffShelvesList.add(supplierCommodity);
+    private Result checkSupplier(Long supplierId){
+        //判断供应商资质审核
+        if (!Objects.equals(Constant.QUALIFICATION_VERIFY_PASS, qualificationDao.getAccountQualificationStatus(supplierId))){
+            return Result.fail("抱歉，该供应商还没通过资质信息审核，无法上架商品！",supplierId);
         }
-        supplierCommodityDao.onOrOffShelvesBatch(OnOrOffShelvesList);
-        if (status == CommConstant.COMM_ST_ON_SHELVES) {
-            return Result.success("商品上架成功！");
+        //判断配送范围和运费规则是否完整
+        Boolean freightRulesFlag = checkFreightRules(supplierId);
+        if(!freightRulesFlag){
+            return Result.fail("抱歉，该供应商未配置配送范围与运费规则，无法上架商品！");
         }
-        return Result.success("商品下架成功！");
+        return null;
     }
 
     /**
@@ -844,23 +966,18 @@ public class CommodityServiceImpl implements CommodityService {
             newFileName= deCompressFile(tempPath, filename, newFileName, excelmap);//解压缩文件
         }
         String excelpath = tempPath + newFileName +"/"+excelmap.get("excel").toString();
-
         //使用工具类 获取Excel 内容
         Map<String, Object> maps = ExcelReader.readExcelContent(excelpath,1);
-
         //Excel中正确记录信息
         Map<Integer,Map<String, String>> mapRight = ( Map<Integer,Map<String, String>>)maps.get("mapright");
         //Excel中错误行号
-        List<Integer> errorRowList =  (List<Integer>) maps.get("maperror");
-
+        List<Map<String, Object>> errorRowList =  (List<Map<String, Object>>) maps.get("maperror");
         List<CommodityBatchInput> commodityBatchInputs = new ArrayList<CommodityBatchInput>();
-
         // Excel 内容转 CommodityInput对象
         if(mapRight != null){
             //封装数据
             commodityBatchInputs = checkCellData(mapRight, errorRowList,tempPath + newFileName, supplierId );
         }
-
         List<CommodityImageVo> commodityImageVoList =new ArrayList<CommodityImageVo>();
         //入庫
         for (CommodityBatchInput commodityBatchInput : commodityBatchInputs) {
@@ -871,7 +988,10 @@ public class CommodityServiceImpl implements CommodityService {
             Result baseResult =saveBatchCommodity(commodityBatchInput, supplierId);
             String code69 = commodityBatchInput.getCommodityList().get(0).getCode69();
             if(so.sao.shop.supplier.config.Constant.CodeConfig.CODE_SUCCESS != baseResult.getCode()){
-                errorRowList.add(rowNum);
+                Map<String, Object> errorMap =new HashMap<String, Object>();
+                errorMap.put("rowNum",rowNum);
+                errorMap.put("message",baseResult.getMessage());
+                errorRowList.add(errorMap);
             }else {
                 commodityImageVoList.add( (CommodityImageVo)baseResult.getData());
                 CommodityImportOutput commodityImportOutput = new CommodityImportOutput();
@@ -886,10 +1006,9 @@ public class CommodityServiceImpl implements CommodityService {
                 commodityImportOutput.setMeasureSpecName(commodityBatchInput.getCommodityList().get(0).getMeasureSpecName());
                 commodityImportOutput.setCompanyName(commodityBatchInput.getCompanyName());
                 commodityImportOutput.setOriginPlace(commodityBatchInput.getOriginPlace());
-                commodityImportOutput.setMarketTime(commodityBatchInput.getMarketTime());
+                commodityImportOutput.setInventory(0L);
                 commodityImportOutput.setName(commodityBatchInput.getName());
                 commodityImportOutput.setRuleVal(commodityBatchInput.getCommodityList().get(0).getRuleVal());
-                commodityImportOutput.setInventory(commodityBatchInput.getCommodityList().get(0).getInventory());
                 commodityImportOutput.setMinOrderQuantity(commodityBatchInput.getCommodityList().get(0).getMinOrderQuantity());
                 commodityImportOutputList.add(commodityImportOutput);
             }
@@ -897,15 +1016,12 @@ public class CommodityServiceImpl implements CommodityService {
         //多线程上传图片，更新相关图片表
         final String filePath = tempPath + newFileName;
         uploadImages(filePath,commodityImageVoList,supplierId);
-
-        Collections.sort(errorRowList);
         outmap.put("rightlist",commodityImportOutputList);
         outmap.put("errolist",errorRowList);
-        return Result.success("成功导入！", outmap);
+        return Result.success("完成导入！", outmap);
     }
     private void  uploadImages(String  filePath, List<CommodityImageVo> commodityImageVoList,Long supplierId){
         Map<Integer, List<CommodityImageVo>> reMap = convertMap(commodityImageVoList);
-
         // 创建一个可重用固定线程数的线程池
         ExecutorService pool = Executors.newFixedThreadPool(reMap.size() + 1);
         reMap.forEach((k, v)-> {
@@ -931,13 +1047,10 @@ public class CommodityServiceImpl implements CommodityService {
                 if (cvMap.get(imgName) == null) {
                     cvMap.put(imgName, new ArrayList<>());
                 }
-
                 cvMap.get(imgName).add(cv);
             }
         }
-
         List<CommodityImageVo> list = new ArrayList<>();
-
         Map<Integer, List<CommodityImageVo>> reMap = new HashMap<>();
         Map<Long, CommodityImageVo> cMap = new HashMap<>();
         int num=0;
@@ -946,7 +1059,6 @@ public class CommodityServiceImpl implements CommodityService {
                 cMap.put(cv.getScId(),cv);
             }
         }
-
         for (Map.Entry<Long,CommodityImageVo> lmap  : cMap.entrySet()) {
             list.add(lmap.getValue());
 
@@ -955,7 +1067,6 @@ public class CommodityServiceImpl implements CommodityService {
                 num++;
                 list = new ArrayList<>();
             }
-
         }
 
         if(list.size() > 0){
@@ -979,7 +1090,6 @@ public class CommodityServiceImpl implements CommodityService {
                     if(pool.isTerminated()){
                         logger.info("所有的子线程都结束了！");
                         FileUtil.deleteDirectory(filePath);
-
                         break;
                     }
 
@@ -997,7 +1107,7 @@ public class CommodityServiceImpl implements CommodityService {
      * @param filePath
      * @param supplierId
      */
-    private List<CommodityBatchInput>  checkCellData(Map<Integer,Map<String, String>> mapRight, List<Integer> errorRowList ,String filePath, long supplierId){
+    private List<CommodityBatchInput>  checkCellData(Map<Integer,Map<String, String>> mapRight,  List<Map<String, Object>>  errorRowList ,String filePath, long supplierId){
         List<CommodityBatchInput> commodityBatchInputs = new ArrayList<CommodityBatchInput>();
 
         //  获取所有标签
@@ -1006,19 +1116,21 @@ public class CommodityServiceImpl implements CommodityService {
         for ( CommTag  tags: commAllTagList ) {
             mapTag.put(tags.getName(),tags.getId());
         }
-
         List<CommMeasureSpec> commMeasureSpeclist = commMeasureSpecDao.find(supplierId);
         Map<String,Long> commMeasureSpecMap = new HashMap<String,Long>();
         for ( CommMeasureSpec  commMeasureSpec: commMeasureSpeclist ) {
             commMeasureSpecMap.put(commMeasureSpec.getName(),commMeasureSpec.getId());
         }
-
         List<CommUnit> commUnitList = commUnitDao.search(supplierId);
         Map<String,Long> commUnitMap = new HashMap<String,Long>();
         for ( CommUnit  commUnit: commUnitList ) {
             commUnitMap.put(commUnit.getName(),commUnit.getId());
         }
-
+        List<CommCarton> commCartonList = commCartonDao.find(supplierId);
+        Map<String,Long> commCartonMap = new HashMap<String,Long>();
+        for ( CommCarton  commCarton: commCartonList ) {
+            commCartonMap.put(commCarton.getName(),commCarton.getId());
+        }
         for (Map.Entry<Integer,Map<String, String>> itmap : mapRight.entrySet()) {
             int rowNum = itmap.getKey();
             Map<String, String> map = itmap.getValue();
@@ -1027,42 +1139,83 @@ public class CommodityServiceImpl implements CommodityService {
             List<SupplierCommodityVo> commodityList = new ArrayList<SupplierCommodityVo>();
             SupplierCommodityVo supplierCommodityVo = new SupplierCommodityVo();
             long pid = 0;
-            String code69 = map.get("商品条码");
-            String brand = map.get("商品品牌");
-            String name = map.get("商品名称");
-            String code = map.get("商家编码");
+            String code69 = map.get("*商品条码");
+            String code=map.get("商品商家编码");
+            String name = map.get("*商品名称");
+            String img = map.get("*商品图片（1-10张）");
+            String brand = map.get("*商品品牌");
+            String commCategoryOne = map.get("*商品分类一级");
+            String commCategoryTwo = map.get("*商品分类二级");
+            String commCategoryThree = map.get("*商品分类三级");
+            String originPlace = map.get("*商品产地");
+            String unitName = map.get("*库存单位");
+            String measureSpecName = map.get("*规格单位");
+            String measureSpec = map.get("*规格");
+            measureSpec= measureSpec.replaceAll("／","/");
+            String measureSpecVal ="";
+            if(measureSpec.contains(measureSpecName)){
+                measureSpecVal =measureSpec.substring(0,measureSpec.indexOf(measureSpecName.trim()));
+            }else {
+                Map<String, Object> errorMap =new HashMap<String, Object>();
+                errorMap.put("rowNum",rowNum);
+                errorMap.put("message","规格单位不一致");
+                errorRowList.add(errorMap);
+                continue;
+            }
+            String carton = map.get("*箱规");
+            carton= carton.replaceAll("／","/");
+            String cartonName=carton.substring(carton.indexOf("/")+1,carton.length());
+            String cartonVal="";
+            if(carton.contains(unitName)){
+                cartonVal=carton.substring(0,carton.indexOf(unitName.trim()));
+            }else {
+                Map<String, Object> errorMap =new HashMap<String, Object>();
+                errorMap.put("rowNum",rowNum);
+                errorMap.put("message","库存单位不一致");
+                errorRowList.add(errorMap);
+                continue;
+            }
+            if(!unitName.equals(measureSpec.substring(measureSpec.indexOf("/")+1,measureSpec.length()))){
+                Map<String, Object> errorMap =new HashMap<String, Object>();
+                errorMap.put("rowNum",rowNum);
+                errorMap.put("message","库存单位不一致");
+                errorRowList.add(errorMap);
+                continue;
+            }
+            String unitPrice = map.get("*供货价");
+            String price = map.get("*批发价");
+            String productionDate=map.get("*生产日期");
+            String guaranteePeriod=map.get("*有效期(天)");
+            String  guaranteePeriodUnit="天";
+            String  minOrderQuantity = map.get("*最小起订量");
+            String companyName= map.get("*企业名称");
+            String  suppliercode = map.get("供应商id");
             String tag = map.get("商品标签");
-            String originPlace = map.get("商品产地");
-            String companyName = map.get("企业名称");
-            String marketDate = map.get("上市时间");
-            String commCategoryOne = map.get("商品分类一级");
-            String commCategoryTwo = map.get("商品分类二级");
-            String commCategoryThree = map.get("商品分类三级");
-            String remark = map.get("商品描述");
-            String measureSpecName = map.get("计量规格");
-            String ruleVal = map.get("商品规格值");
-            String img = map.get("图片");
-            String unitPrice = map.get("成本价");
-            String price = map.get("市场价");
-            String inventory = map.get("库存");
-            String unitName = map.get("包装单位");
-            String  minOrderQuantity = map.get("最小起订量");
+            String remark = map.get("*商品说明");
+
             String regexnum ="^[0-9]*$";
             String regex ="^[A-Za-z0-9]*$";
-            if(code69.matches(regexnum)){
+
+            if(code69.matches(regexnum)&&code69.length()<20){
                 //通过code69,supplierId,deleted=0判断商品是否存在
                 SupplierCommodity suppliercommodity = supplierCommodityDao.findSupplierCommodityInfo(code69, supplierId);
                 Commodity commodity = commodityDao.findCommInfoByCode69(code69);
                 if (null != suppliercommodity) {
-                    errorRowList.add(rowNum);
+                    Map<String, Object> errorMap =new HashMap<String, Object>();
+                    errorMap.put("rowNum",rowNum);
+                    errorMap.put("message","商品条码已存在");
+                    errorRowList.add(errorMap);
                     continue;
                 }else  {
 
                     if(null == commodity){
-                        if((!"".equals(originPlace))&&(!"".equals(companyName))&&(!"".equals(marketDate))){
+                        if((!"".equals(originPlace))&&(!"".equals(companyName))){
                             supplierCommodityVo.setCode69(code69);
                         }else {
-                            errorRowList.add(rowNum);
+                            Map<String, Object> errorMap =new HashMap<String, Object>();
+                            errorMap.put("rowNum",rowNum);
+                            errorMap.put("message","商品产地或者企业名称为空");
+                            errorRowList.add(errorMap);
                             continue;
                         }
                     }else {
@@ -1071,33 +1224,80 @@ public class CommodityServiceImpl implements CommodityService {
 
                 }
             } else {
-                errorRowList.add(rowNum);
+                Map<String, Object> errorMap =new HashMap<String, Object>();
+                errorMap.put("rowNum",rowNum);
+                errorMap.put("message","商品条码不能为空并且不能大于20位的数字");
+                errorRowList.add(errorMap);
                 continue;
             }
-            commodityBatchInput.setBrandName(brand);
-            commodityBatchInput.setName(name);
-            if(code.matches(regex)){
+            if(brand.length()<128){
+                commodityBatchInput.setBrandName(brand);
+            }else {
+                Map<String, Object> errorMap =new HashMap<String, Object>();
+                errorMap.put("rowNum",rowNum);
+                errorMap.put("message","商品品牌长度不能超过128个字符");
+                errorRowList.add(errorMap);
+                continue;
+            }
+
+            if(name.length()<128){
+                commodityBatchInput.setName(name);
+            }else {
+                Map<String, Object> errorMap =new HashMap<String, Object>();
+                errorMap.put("rowNum",rowNum);
+                errorMap.put("message","商品名称长度不能超过128个字符");
+                errorRowList.add(errorMap);
+                continue;
+            }
+            if(code.matches(regex)&&code.length()<20){
                 supplierCommodityVo.setCode(code);
             }else {
-                errorRowList.add(rowNum);
+                Map<String, Object> errorMap =new HashMap<String, Object>();
+                errorMap.put("rowNum",rowNum);
+                errorMap.put("message","商品商家编码长度不能大于20位字母或数字");
+                errorRowList.add(errorMap);
                 continue;
             }
-
-            if ( null != mapTag.get(tag) ) {
-                commodityBatchInput.setTagId(mapTag.get(tag));
-                commodityBatchInput.setTagName(tag);
+            if(!"".equals(tag)){
+                if ( null != mapTag.get(tag) ) {
+                    commodityBatchInput.setTagId(mapTag.get(tag));
+                    commodityBatchInput.setTagName(tag);
+                }else {
+                    Map<String, Object> errorMap =new HashMap<String, Object>();
+                    errorMap.put("rowNum",rowNum);
+                    errorMap.put("message","此商品标签不存在");
+                    errorRowList.add(errorMap);
+                    continue;
+                }
             }
 
-            commodityBatchInput.setOriginPlace(originPlace);
-            commodityBatchInput.setCompanyName(companyName);
-            commodityBatchInput.setMarketTime(DateUtil.stringToDate(marketDate));
-
+            if(originPlace.length()<128){
+                commodityBatchInput.setOriginPlace(originPlace);
+            }else {
+                Map<String, Object> errorMap =new HashMap<String, Object>();
+                errorMap.put("rowNum",rowNum);
+                errorMap.put("message","商品产地长度不能超过128个字符");
+                errorRowList.add(errorMap);
+                continue;
+            }
+            if(companyName.length()<128){
+                commodityBatchInput.setCompanyName(companyName);
+            }else {
+                Map<String, Object> errorMap =new HashMap<String, Object>();
+                errorMap.put("rowNum",rowNum);
+                errorMap.put("message","企业名称长度不能超过128个字符");
+                errorRowList.add(errorMap);
+                continue;
+            }
             CommCategory commCategoryone = commCategoryDao.findCommCategoryByNameAndPid(commCategoryOne, pid);
             if (null != commCategoryone) {
                 pid = commCategoryone.getId();
                 commodityBatchInput.setCategoryOneId(commCategoryone.getId());
             } else {
-                errorRowList.add(rowNum);
+                Map<String, Object> errorMap =new HashMap<String, Object>();
+                errorMap.put("rowNum",rowNum);
+                errorMap.put("message","商品分类一级不存在");
+                errorRowList.add(errorMap);
                 continue;
             }
             CommCategory commCategorytwo = commCategoryDao.findCommCategoryByNameAndPid(commCategoryTwo, pid);
@@ -1105,7 +1305,10 @@ public class CommodityServiceImpl implements CommodityService {
                 pid = commCategorytwo.getId();
                 commodityBatchInput.setCategoryTwoId(commCategorytwo.getId());
             } else {
-                errorRowList.add(rowNum);
+                Map<String, Object> errorMap =new HashMap<String, Object>();
+                errorMap.put("rowNum",rowNum);
+                errorMap.put("message","商品分类二级不存在");
+                errorRowList.add(errorMap);
                 continue;
             }
 
@@ -1113,73 +1316,157 @@ public class CommodityServiceImpl implements CommodityService {
             if (null != commCategorythree) {
                 commodityBatchInput.setCategoryThreeId(commCategorythree.getId());
             } else {
-                errorRowList.add(rowNum);
+                Map<String, Object> errorMap =new HashMap<String, Object>();
+                errorMap.put("rowNum",rowNum);
+                errorMap.put("message","商品分类三级不存在");
+                errorRowList.add(errorMap);
                 continue;
             }
-
             commodityBatchInput.setRemark(remark);
+
             if ( null != commMeasureSpecMap.get(measureSpecName) ) {
                 supplierCommodityVo.setMeasureSpecName(measureSpecName);
                 supplierCommodityVo.setMeasureSpecId( commMeasureSpecMap.get(measureSpecName) );
             } else {
-                errorRowList.add(rowNum);
+                Map<String, Object> errorMap =new HashMap<String, Object>();
+                errorMap.put("rowNum",rowNum);
+                errorMap.put("message","规格单位不存在");
+                errorRowList.add(errorMap);
                 continue;
             }
 
-            supplierCommodityVo.setRuleVal(ruleVal);
-            commodityBatchInput.setImage(img);
 
+            if(measureSpecVal.matches(regexnum)&&measureSpecVal.length()<=4&&Integer.parseInt(measureSpecVal)>0&&Integer.parseInt(measureSpecVal)<=9999){
+
+            } else {
+                Map<String, Object> errorMap =new HashMap<String, Object>();
+                errorMap.put("rowNum",rowNum);
+                errorMap.put("message","规格值必须是1到9999的正整数");
+                errorRowList.add(errorMap);
+                continue;
+            }
+            supplierCommodityVo.setMeasureSpecVal(Long.parseLong(measureSpecVal));
+            if(cartonVal.matches(regexnum)&&cartonVal.length()<=4&&Integer.parseInt(cartonVal)>0&&Integer.parseInt(cartonVal)<=9999){
+
+            } else {
+                Map<String, Object> errorMap =new HashMap<String, Object>();
+                errorMap.put("rowNum",rowNum);
+                errorMap.put("message","箱规值必须是1到9999的正整数");
+                errorRowList.add(errorMap);
+                continue;
+            }
+            if ( null != commCartonMap.get(cartonName) ) {
+                supplierCommodityVo.setCartonName(cartonName);
+                supplierCommodityVo.setCartonId( commCartonMap.get(cartonName) );
+                supplierCommodityVo.setCartonVal(Long.parseLong(cartonVal));
+            } else {
+                Map<String, Object> errorMap =new HashMap<String, Object>();
+                errorMap.put("rowNum",rowNum);
+                errorMap.put("message","库存单位不存在");
+                errorRowList.add(errorMap);
+                continue;
+            }
+            String ruleVal = "("+measureSpecVal+measureSpecName+"*"+cartonVal+unitName+")"+"/"+cartonName;
+            supplierCommodityVo.setRuleVal(ruleVal);
+            img=img.replaceAll("，", ",");
+          String []  imgStr  =  img.split(",");
+        if(imgStr.length>0&&imgStr.length<11){
+            commodityBatchInput.setImage(img);
+        } else {
+            Map<String, Object> errorMap =new HashMap<String, Object>();
+            errorMap.put("rowNum",rowNum);
+            errorMap.put("message","图片应为1-10张");
+            errorRowList.add(errorMap);
+            continue;
+        }
+            String regexprice ="^[0.0-9.0]+$";
+        if(!unitPrice.matches(regexprice)){
+            Map<String, Object> errorMap =new HashMap<String, Object>();
+            errorMap.put("rowNum",rowNum);
+            errorMap.put("message","供货价不能是非数字，必须是1-99999999的数");
+            errorRowList.add(errorMap);
+            continue;
+        }
+            if(!price.matches(regexprice)){
+                Map<String, Object> errorMap =new HashMap<String, Object>();
+                errorMap.put("rowNum",rowNum);
+                errorMap.put("message","批发价不能是非数字，必须是1-99999999的数");
+                errorRowList.add(errorMap);
+                continue;
+            }
             supplierCommodityVo.setUnitPrice(DataCompare.roundData(new BigDecimal(unitPrice), 2));
             supplierCommodityVo.setPrice(DataCompare.roundData(new BigDecimal(price), 2));
-            if (inventory.trim().length() > 9) {
-                supplierCommodityVo.setInventory(-1.0);
-            } else {
-                if(inventory.trim().matches("^[0-9]*$")){
-                    supplierCommodityVo.setInventory(Double.valueOf(inventory));
-                }else {
-                    errorRowList.add(rowNum);
-                    continue;
-                }
-            }
-            if (supplierCommodityVo.getPrice().compareTo(BigDecimal.ZERO) == -1) {
-                errorRowList.add(rowNum);
+            supplierCommodityVo.setInventory(0L);
+            if (supplierCommodityVo.getPrice().compareTo(BigDecimal.ZERO) !=1||supplierCommodityVo.getPrice().compareTo(CommConstant.MAX_VALUE) == 1) {
+                Map<String, Object> errorMap =new HashMap<String, Object>();
+                errorMap.put("rowNum",rowNum);
+                errorMap.put("message","批发价必须是1-99999999的数");
+                errorRowList.add(errorMap);
                 continue;
-            } else if (supplierCommodityVo.getUnitPrice().compareTo(BigDecimal.ZERO) == -1) {
-                errorRowList.add(rowNum);
+            } else if (supplierCommodityVo.getUnitPrice().compareTo(BigDecimal.ZERO) != 1||supplierCommodityVo.getUnitPrice().compareTo(CommConstant.MAX_VALUE) == 1) {
+                Map<String, Object> errorMap =new HashMap<String, Object>();
+                errorMap.put("rowNum",rowNum);
+                errorMap.put("message","供货价必须是1-99999999的数");
+                errorRowList.add(errorMap);
                 continue;
             } else if (supplierCommodityVo.getUnitPrice().compareTo(supplierCommodityVo.getPrice()) == 1) {
-                errorRowList.add(rowNum);
-                continue;
-            } else if (supplierCommodityVo.getInventory() < 0) {
-                errorRowList.add(rowNum);
+                Map<String, Object> errorMap =new HashMap<String, Object>();
+                errorMap.put("rowNum",rowNum);
+                errorMap.put("message","批发价应大于等于供货价");
+                errorRowList.add(errorMap);
                 continue;
             }
-
             if ( null != commUnitMap.get(unitName) ) {
                 supplierCommodityVo.setUnitId( commUnitMap.get(unitName) );
                 supplierCommodityVo.setUnitName(unitName);
             } else {
-                errorRowList.add(rowNum);
+                Map<String, Object> errorMap =new HashMap<String, Object>();
+                errorMap.put("rowNum",rowNum);
+                errorMap.put("message","规格单位不存在");
+                errorRowList.add(errorMap);
                 continue;
             }
             if("".equals(minOrderQuantity)){
                 supplierCommodityVo.setMinOrderQuantity(1);
             }else {
-                if(Integer.parseInt(minOrderQuantity) <= 999){
+                if(minOrderQuantity.matches(regexnum)&&minOrderQuantity.length()<=3&&Integer.parseInt(minOrderQuantity)>0 &&Integer.parseInt(minOrderQuantity) <= 999){
                     supplierCommodityVo.setMinOrderQuantity(Integer.parseInt(minOrderQuantity));
                 }else {
-                    errorRowList.add(rowNum);
+                    Map<String, Object> errorMap =new HashMap<String, Object>();
+                    errorMap.put("rowNum",rowNum);
+                    errorMap.put("message","最小起订量必须是1到999的正整数");
+                    errorRowList.add(errorMap);
                     continue;
                 }
+            }
+            if(guaranteePeriod.matches(regex)&&guaranteePeriod.length()<=4&&Integer.parseInt(guaranteePeriod)>0&&Integer.parseInt(guaranteePeriod)<=9999){
+                supplierCommodityVo.setGuaranteePeriod(Integer.parseInt(guaranteePeriod));
+            }else {
+                Map<String, Object> errorMap =new HashMap<String, Object>();
+                errorMap.put("rowNum",rowNum);
+                errorMap.put("message","商品有效期必须是1到9999的正整数");
+                errorRowList.add(errorMap);
+                continue;
+            }
+
+            supplierCommodityVo.setGuaranteePeriodUnit(guaranteePeriodUnit);
+            if(DateUtil.isDate(productionDate)){
+                supplierCommodityVo.setProductionDate(DateUtil.stringToDate(productionDate));
+            }else {
+                Map<String, Object> errorMap =new HashMap<String, Object>();
+                errorMap.put("rowNum",rowNum);
+                errorMap.put("message","生产日期格式不正确");
+                errorRowList.add(errorMap);
+                continue;
             }
 
             commodityList.add(supplierCommodityVo);
             commodityBatchInput.setCommodityList(commodityList);
-
             commodityBatchInputs.add(commodityBatchInput);
         }
         return  commodityBatchInputs;
     }
+
 
 
     /**
@@ -1253,7 +1540,6 @@ public class CommodityServiceImpl implements CommodityService {
                             new File(tempPath).mkdirs();
                         }
                         file.transferTo(newFile);
-
                     }
                 }
             } catch (IOException e) {
@@ -1408,7 +1694,9 @@ public class CommodityServiceImpl implements CommodityService {
             SupplierCommodity sc = BeanMapper.map(commodityVo, SupplierCommodity.class);
             sc.setRemark(commodityBatchInput.getRemark());
             sc.setTagId(commodityBatchInput.getTagId());
-            sc.setStatus(CommConstant.COMM_ST_NEW);
+            sc.setStatus(CommConstant.COMM_ST_OFF_SHELVES);
+            sc.setInventoryMinimum(CommConstant.INVENTORY_MINIMUM_DEFAULT_VALUE);
+            sc.setInventoryStatus(CommConstant.INVENTORY_WARNING);
             sc.setSupplierId(supplierId);
             sc.setCreatedBy(supplierId);
             sc.setUpdatedBy(supplierId);
@@ -1427,19 +1715,24 @@ public class CommodityServiceImpl implements CommodityService {
         }
         return Result.success("校验通过", commodityImageVo);
     }
+    /**
+     * 批量审核
+     * @param request
+     * @param commAuditInput
+     * @return
+     */
+    @Override
     public Result auditBatch(HttpServletRequest request , CommAuditInput commAuditInput){
 
         Long [] ids=commAuditInput.getIds();
         if(null==ids){
             return Result.fail("失败");
-
         }
         for(Long id:ids){
             SupplierCommodityAudit supplierCommodityAudit=supplierCommodityAuditDao.findSupplierCommodityAuditById(id);
             if(null ==  supplierCommodityAudit ){
                 continue;
             }
-
             int status= supplierCommodityAudit.getStatus();
             int auditResult =commAuditInput.getAuditResult();
             Long scId=supplierCommodityAudit.getScId();
@@ -1500,7 +1793,6 @@ public class CommodityServiceImpl implements CommodityService {
                     supplierCommodityDao.updateSupplierCommodityStatusById(scId,CommConstant.COMM_ST_OFF_SHELVES,new Date());
                     status=CommConstant.COMM_ST_OFF_SHELVES;
                 }
-
             }
             //更新audit表
             supplierCommodityAudit.setStatus(status);
@@ -1509,9 +1801,7 @@ public class CommodityServiceImpl implements CommodityService {
             supplierCommodityAudit.setAuditBy(commAuditInput.getUserId());
             supplierCommodityAudit.setUpdatedAt(new Date());
             supplierCommodityAuditDao.updateSupplierCommodityAuditById(supplierCommodityAudit);
-
         }
-
         return Result.success("成功");
     }
     /**
@@ -1558,6 +1848,7 @@ public class CommodityServiceImpl implements CommodityService {
      * @param id 审核表ID
      * @return
      */
+    @Override
     public Result findAuditDetail(Long id){
         int num = supplierCommodityTmpDao.countTemByScaId(id);
         List<CommImge> commImgeList  = null;
@@ -1579,5 +1870,16 @@ public class CommodityServiceImpl implements CommodityService {
         auditDetail = supplierCommodityAuditDao.findAuditDetail(id);
         readImgData(auditDetail.getId(),auditDetail); // 获取图片信息
         return Result.success("查询审核记录详情成功！",auditDetail);
+    }
+
+    /**
+     * 供应商首页-供应商商品部分信息统计
+     * @param supplierId 供应商id
+     * @return
+     */
+    @Override
+    public Result countCommDetail(Long supplierId) {
+        CountCommDetailOutput countCommDetailOutput = supplierCommodityDao.countCommDetail(supplierId);
+        return  Result.success("查询成功!",countCommDetailOutput);
     }
 }

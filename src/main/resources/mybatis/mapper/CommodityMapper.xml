@@ -23,7 +23,6 @@
         comm.category_three_id AS categoryThreeId,
         comm.company_name AS companyName,
         comm.origin_place AS originPlace,
-        comm.market_time AS marketTime,
         comm.created_at AS createdAt,
         comm.created_by AS createdBy,
         comm.updated_at AS updatedAt,
@@ -109,9 +108,10 @@
     </update>
 
     <select id="findByIds" resultType="so.sao.shop.supplier.pojo.output.CommodityExportOutput">
+
         SELECT
         id AS id,
-        supplier_id,
+        supplier_id AS supplierId,
         IFNULL(t.code69,'') AS code69,
         IFNULL(t.code,'') AS supplierCode,
         IFNULL(t.brandName,'') AS brandName,
@@ -131,7 +131,18 @@
         IFNULL(t.origin_place,'') AS originPlace,
         IFNULL(t.market_time,'') AS marketTime,
         categoryOneId,
-        invalid_status AS  invalidStatus
+        invalid_status AS  invalidStatus,
+        NAME AS  cartonName,
+        IFNULL(t.carton_val,'') AS  cartonVal,
+        IFNULL(t.production_date,'') AS  productionDate,
+        IFNULL(t.guarantee_period,'') AS  guaranteePeriod,
+        IFNULL(t.guarantee_period_unit,'') AS  guaranteePeriodUnit,
+        IFNULL(t.measure_spec_val,'') AS  measureSpecVal,
+        (SELECT NAME FROM comm_category ca WHERE ca.id = t.category_one_id) AS categoryOneName,
+        (SELECT NAME FROM comm_category ca WHERE ca.id = t.category_two_id) AS categoryTwoName,
+        (SELECT NAME FROM comm_category ca WHERE ca.id = t.category_three_id) AS categoryThreeName,
+        t.remark,
+        t.audit_result
         FROM (SELECT
         t1.sc_id AS id,
         sctmp.supplier_id,
@@ -141,6 +152,9 @@
         cb.name AS brandName,
         c.name AS commName,
         c.category_one_id AS categoryOneId,
+        c.category_one_id ,
+        c.category_two_id ,
+        c.category_three_id ,
         cu.name AS unitName,
         cms.name AS measureSpecName,
         ct.name AS tagName,
@@ -157,7 +171,14 @@
         t1.audit_opinion,
         c.origin_place,
         c.company_name,
-        c.market_time
+        c.market_time,
+        cc.name ,
+        sctmp.carton_val,
+        sctmp.production_date,
+        sctmp.guarantee_period,
+        sctmp.guarantee_period_unit,
+        sctmp.measure_spec_val,
+        sctmp.remark
         FROM
         supplier_commodity_tmp sctmp
         INNER JOIN (
@@ -180,6 +201,8 @@
         LEFT JOIN comm_measure_spec cms ON sctmp.measure_spec_id = cms.id
         LEFT JOIN comm_tag ct ON sctmp.tag_id = ct.id
         LEFT JOIN comm_unit cu ON sctmp.unit_id = cu.id
+        LEFT JOIN comm_carton cc ON sctmp.carton_id = cc.id
+
         WHERE sctmp.supplier_id = #{supplierId}
         UNION
         SELECT
@@ -191,6 +214,9 @@
         cb.name AS brandName,
         c.name AS commName,
         c.category_one_id AS categoryOneId,
+        c.category_one_id ,
+        c.category_two_id ,
+        c.category_three_id ,
         cu.name AS unitName,
         cms.name AS measureSpecName,
         ct.name AS tagName,
@@ -207,7 +233,14 @@
         t1.audit_opinion,
         c.origin_place,
         c.company_name,
-        c.market_time
+        c.market_time,
+        cc.name ,
+        sc.carton_val,
+        sc.production_date,
+        sc.guarantee_period,
+        sc.guarantee_period_unit,
+        sc.measure_spec_val,
+        sc.remark
         FROM
         supplier_commodity sc
         LEFT JOIN (
@@ -230,8 +263,10 @@
         LEFT JOIN comm_measure_spec cms ON sc.measure_spec_id = cms.id
         LEFT JOIN comm_tag ct ON sc.tag_id = ct.id
         LEFT JOIN comm_unit cu ON sc.unit_id = cu.id
-        WHERE sc.deleted = 0 and sc.supplier_id = #{supplierId}
-        AND (t1.id is null and sc.`status` IN (0, 2, 3))
+        LEFT JOIN comm_carton cc ON sc.carton_id = cc.id
+
+        WHERE sc.deleted = 0 AND sc.supplier_id =  #{supplierId}
+        AND (t1.id IS NULL AND sc.`status` IN (0, 2, 3))
 
         UNION
 
@@ -244,6 +279,9 @@
         cb.name AS brandName,
         c.name AS commName,
         c.category_one_id AS categoryOneId,
+        c.category_one_id ,
+        c.category_two_id ,
+        c.category_three_id ,
         cu.name AS unitName,
         cms.name AS measureSpecName,
         ct.name AS tagName,
@@ -260,7 +298,14 @@
         t1.audit_opinion,
         c.origin_place,
         c.company_name,
-        c.market_time
+        c.market_time,
+        cc.name ,
+        sc.carton_val,
+        sc.production_date,
+        sc.guarantee_period,
+        sc.guarantee_period_unit,
+        sc.measure_spec_val,
+        sc.remark
         FROM
         supplier_commodity sc
         LEFT JOIN (
@@ -274,25 +319,33 @@
         LEFT JOIN comm_measure_spec cms ON sc.measure_spec_id = cms.id
         LEFT JOIN comm_tag ct ON sc.tag_id = ct.id
         LEFT JOIN comm_unit cu ON sc.unit_id = cu.id
+        LEFT JOIN comm_carton cc ON sc.carton_id = cc.id
+
         WHERE sc.deleted = 0 AND sc.supplier_id = #{supplierId}
-        AND (t1.id is not null and sc.`status` IN (0, 2, 3))
+        AND (t1.id IS NOT NULL AND sc.`status` IN (0, 2, 3))
         ) t
         GROUP BY id HAVING 1 = 1
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(commCode69)">
             AND code69 = #{commCode69}
         </if>
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(commCodeOrName)">
-            AND (code69 = #{commCodeOrName}
-            OR commName LIKE "%${commCodeOrName}%")
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(inputvalue)">
+            AND (code69 = #{inputvalue}
+            OR commName LIKE "%${inputvalue}%")
         </if>
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(suppCommCode)">
-            AND supplierCode = #{suppCommCode}
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(code)">
+            AND supplierCode = #{code}
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(commBrand)">
+            AND brandName  LIKE CONCAT ('%',#{commBrand},'%')
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(commName)">
             AND commName LIKE "%${commName}%"
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(status)">
             AND t.status = #{status}
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(auditResult)">
+            AND t.audit_result = #{auditResult}
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(invalidStatus)">
             AND t.invalid_status = #{invalidStatus}
@@ -310,15 +363,15 @@
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(typeId)">
             AND categoryOneId = #{typeId}
         </if>
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(beginCreateAt) and @so.sao.shop.supplier.util.Ognl@isEmpty(endCreateAt)">
-            AND Date(createdAt)<![CDATA[ >= #{beginCreateAt}]]>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(beginUpdateAt) and @so.sao.shop.supplier.util.Ognl@isEmpty(endUpdateAt)">
+            AND Date(createdAt)<![CDATA[ >= #{beginUpdateAt}]]>
         </if>
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(endCreateAt) and @so.sao.shop.supplier.util.Ognl@isEmpty(beginCreateAt)">
-            AND  Date(createdAt)<![CDATA[<= #{endCreateAt}]]>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(endUpdateAt) and @so.sao.shop.supplier.util.Ognl@isEmpty(beginUpdateAt)">
+            AND  Date(createdAt)<![CDATA[<= #{endUpdateAt}]]>
         </if>
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(beginCreateAt) and @so.sao.shop.supplier.util.Ognl@isNotEmpty(endCreateAt)">
-            AND Date(createdAt) BETWEEN #{beginCreateAt}
-            AND #{endCreateAt}
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(beginUpdateAt) and @so.sao.shop.supplier.util.Ognl@isNotEmpty(endUpdateAt)">
+            AND Date(createdAt) BETWEEN #{beginUpdateAt}
+            AND #{endUpdateAt}
         </if>
         ORDER BY t.updated_at DESC ,t.id DESC
     </select>

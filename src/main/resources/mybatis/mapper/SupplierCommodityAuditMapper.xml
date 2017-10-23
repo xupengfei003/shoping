@@ -15,6 +15,19 @@
         <result column="AUDIT_OPINION" property="auditOpinion"/>
     </resultMap>
 
+    <sql id="audit">
+        t.id,
+        t.sc_id,
+        t.supplier_id,
+        t.status,
+        t.audit_result,
+        t.created_at,
+        t.updated_at ,
+        t.audit_by ,
+        t.audit_flag ,
+        t.audit_opinion
+    </sql>
+
     <!--新增供应商商品审核记录-->
     <insert id="save" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO supplier_commodity_audit
@@ -137,6 +150,7 @@
         audit_by = #{auditBy}
         WHERE id = #{id}
     </update>
+
     <!-- 查询所有审核数据 -->
     <select id="findCommodityAudit" resultType="so.sao.shop.supplier.pojo.vo.CommodityAuditinputVo">
         SELECT
@@ -150,7 +164,6 @@
         t2.brandName AS brandName,
         t2.name AS name,
         t2.unitName AS unitName,
-        t2.measureSpecName AS measureSpecName,
         t2.ruleVal AS ruleVal,
         t2.inventory AS inventory,
         t2.price AS price,
@@ -173,7 +186,6 @@
         cb.name AS brandName,
         c.name AS name,
         cu.name AS unitName,
-        cms.name AS measureSpecName,
         sc.rule_val AS ruleVal,
         sc.inventory AS inventory,
         sc.price AS price,
@@ -185,11 +197,12 @@
         t1.audit_opinion AS auditOpinion,
         t1.status AS status
         FROM `supplier_commodity` sc
-        RIGHT JOIN (SELECT * FROM `supplier_commodity_audit` t WHERE t.`status` != 6) t1
+        RIGHT JOIN (SELECT
+        <include refid="audit"/>
+        FROM `supplier_commodity_audit` t WHERE t.`status` != 6) t1
         ON sc.`id` = t1.sc_id
         INNER JOIN account a ON t1.supplier_id=a.account_id
         INNER JOIN commodity c ON sc.code69 = c.code69
-        LEFT JOIN comm_measure_spec cms ON sc.measure_spec_id = cms.id
         LEFT JOIN comm_unit cu ON sc.unit_id = cu.id
         LEFT JOIN comm_brand cb ON c.brand_id = cb.id
         WHERE sc.`deleted` = 0
@@ -205,7 +218,6 @@
         cb.name AS brandName,
         c.name AS name,
         cu.name AS unitName,
-        cms.name AS measureSpecName,
         sctmp.rule_val AS ruleVal,
         sctmp.inventory AS inventory,
         sctmp.price AS price,
@@ -218,21 +230,11 @@
         t1.status AS status
         FROM `supplier_commodity_tmp` sctmp
         RIGHT JOIN (SELECT
-        t.`id`,
-        t.`sc_id`,
-        t.`supplier_id`,
-        t.`status`,
-        t.`audit_result`,
-        t.`created_at`,
-        t.`updated_at`,
-        t.`audit_by`,
-        t.`audit_flag`,
-        t.`audit_opinion`
+        <include refid="audit"/>
         FROM `supplier_commodity_audit` t WHERE t.`status` = 6) t1
         ON sctmp.`sca_id` = t1.id
         INNER JOIN account a ON t1.supplier_id=a.account_id
         INNER JOIN commodity c ON sctmp.code69 = c.code69
-        LEFT JOIN comm_measure_spec cms ON sctmp.measure_spec_id = cms.id
         LEFT JOIN comm_unit cu ON sctmp.unit_id = cu.id
         LEFT JOIN comm_brand cb ON c.brand_id = cb.id
         ) t2
@@ -246,6 +248,7 @@
         </where>
         ORDER BY t2.createdAt ASC
     </select>
+
     <!-- 查询审核记录详情 -->
     <select id="findAuditDetail" resultType="so.sao.shop.supplier.pojo.output.CommodityOutput">
         SELECT
@@ -263,7 +266,15 @@
             sc.code69 AS code69,
             c.origin_place AS originPlace,
             c.company_name AS companyName,
-            c.market_time AS marketTime,
+            sc.production_date AS productionDate,
+            sc.guarantee_period AS guaranteePeriod,
+            sc.guarantee_period_unit AS guaranteePeriodUnit,
+            sc.carton_id AS cartonId,
+            cn.name AS cartonName,
+            sc.carton_val AS cartonVal,
+            sc.measure_spec_val AS measureSpecVal,
+            sc.inventory_status AS inventoryStatus,
+            sc.inventory_minimum As inventoryMinimum,
             sc.tag_id AS tagId,
             ct.name AS tagName,
             sc.measure_spec_id AS measureSpecId,
@@ -289,6 +300,7 @@
              LEFT JOIN comm_measure_spec cms ON sc.measure_spec_id = cms.id
              LEFT JOIN comm_unit cu ON sc.unit_id = cu.id
              LEFT JOIN comm_tag ct ON sc.tag_id = ct.id
+             LEFT JOIN comm_carton cn ON sc.carton_id = cn.id
              RIGHT JOIN supplier_commodity_audit sca ON sc.id = sca.sc_id
              WHERE sca.id = #{id}
     </select>

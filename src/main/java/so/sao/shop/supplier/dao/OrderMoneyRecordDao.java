@@ -1,13 +1,16 @@
 package so.sao.shop.supplier.dao;
 
 
+import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Param;
 import so.sao.shop.supplier.domain.OrderMoneyRecord;
 import so.sao.shop.supplier.domain.Purchase;
 import so.sao.shop.supplier.pojo.input.OrderMoneyRecordInput;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by niewenchao on 2017/7/19.
@@ -118,4 +121,13 @@ public interface OrderMoneyRecordDao {
      */
     BigDecimal findTotalUnpaidMoney(@Param("accountId") Long accountId) throws Exception;
 
+    /**
+     * 供应商订单金额统计
+     * @param startTime 开始统计时间
+     * @param endTime   结束统计时间
+     * @param accountId 供应商ID
+     * @return
+     */
+    @MapKey(value = "state")
+    Map<Object,Object> countOrderMoneyRecords(@Param("startTime")String startTime,@Param("endTime") String endTime,@Param("accountId") Long accountId);
 }

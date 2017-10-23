@@ -1,5 +1,7 @@
 package so.sao.shop.supplier.config;
 
+import java.math.BigDecimal;
+
 /**
  * 常量
  *
@@ -40,6 +42,22 @@ public class CommConstant {
      * 编辑待审核
      */
     public static final int COMM_EDIT_AUDIT = 6;
+    /**
+     * 库存正常状态
+     */
+    public static final int INVENTORY_NORMAL = 0;
+    /**
+     * 库存预警状态
+     */
+    public static final int INVENTORY_WARNING = 1;
+    /**
+     * 库存默认值
+     */
+    public static final Double INVENTORY_DEFAULT_VALUE = 0.0;
+    /**
+     * 库存下限默认值
+     */
+    public static final long INVENTORY_MINIMUM_DEFAULT_VALUE = 0L;
     /**
      * 商品一级分类pid
      */
@@ -234,7 +252,7 @@ public class CommConstant {
      * 批量上传模板表头名称
      *
      */
-    public static final String[] EXCEL_TITLES ={"商品条码","商品品牌","商品名称","商家编码","商品标签","企业名称","商品产地","上市时间","商品分类一级","商品分类二级","商品分类三级","商品描述","计量规格","商品规格值","图片","成本价","市场价","库存","包装单位","最小起订量"};
+    public static final String[] EXCEL_TITLES ={"序号","*商品条码","商品商家编码","*商品名称","*商品图片（1-10张）","*商品品牌","*商品分类一级","*商品分类二级","*商品分类三级","*商品产地","*库存单位","*规格单位","*规格","*箱规","*供货价","*批发价","*生产日期","*有效期(天)","*最小起订量","*企业名称","供应商id","商品标签","*商品说明"};
 
     /**
      * 批量上传： 每条线程执行的条数
@@ -271,10 +289,14 @@ public class CommConstant {
      * 批量导出模板表头名称
      *
      */
-    public static final String[] EXCEL_OUT_TITLES ={"商品条码","商品品牌","商品标签","商品名称","企业名称","商品产地","上市时间","商品商家编码","包装单位","计量规格","规格值","市场价","成本价","库存量","最小起订量","商品状态","是否失效","创建时间","更新时间"};
+    public static final String[] EXCEL_OUT_TITLES ={"序号","*商品条码","商品商家编码","*商品名称","*商品图片（1-10张）","*商品品牌","*商品分类一级","*商品分类二级","*商品分类三级","*商品产地","*库存单位","*规格单位","*规格","*箱规","*供货价","*批发价","*生产日期","*有效期(天)","*最小起订量","*企业名称","供应商id","商品标签","*商品说明"};
 
     /**
      * 批量导出 每个工作表导出最大行数
      */
     public static final int MAX_ROWNUM = 600000;
+    /**
+     * 价格最大值
+     */
+    public static final BigDecimal MAX_VALUE = new BigDecimal(99999999);
 }

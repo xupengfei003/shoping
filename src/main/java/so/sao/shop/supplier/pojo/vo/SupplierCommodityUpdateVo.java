@@ -9,6 +9,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 public class SupplierCommodityUpdateVo {
@@ -22,8 +23,7 @@ public class SupplierCommodityUpdateVo {
     /**
      * 商家编码
      */
-    @NotBlank(message = "商品商家编码不能为空")
-    @Length(max = 50,message = "商品商家编码长度不能大于50")
+    @Length(max = 20,message = "商品商家编码长度不能大于20")
     private String code;
 
     /**
@@ -44,14 +44,6 @@ public class SupplierCommodityUpdateVo {
      */
     @NotNull(message = "包装单位不能为空")
     private Long unitId;
-
-    /**
-     * 库存
-     */
-    @NotNull(message = "库存不能为空")
-    @Min(value=0)
-    @Max(value = 999999999)
-    private Double inventory;
 
     /**
      * 缩略图
@@ -83,6 +75,59 @@ public class SupplierCommodityUpdateVo {
     @Min(value=0)
     @Max(value = 999)
     private  int minOrderQuantity;
+
+    /**
+     * 箱规单位ID
+     */
+    @NotNull(message = "箱规单位不能为空")
+    private Long cartonId;
+
+    /**
+     * 箱规单位
+     */
+    private String cartonName;
+
+    /**
+     * 箱规数值
+     */
+    @NotNull(message = "箱规数值不能为空")
+    @Min(value = 0)
+    @Max(value = 99999999)
+    private Long cartonVal;
+
+    /**
+     * 计量规格数值
+     */
+    @NotNull(message = "计量规格数值不能为空")
+    @Min(value = 0)
+    @Max(value = 99999999)
+    private Long measureSpecVal;
+
+    /**
+     * 生产日期
+     */
+    @NotNull(message = "生产日期不能为空")
+    private Date productionDate;
+
+    /**
+     * 有效期
+     */
+    @NotNull(message = "有效期不能为空")
+    @Min(value = 0)
+    @Max(value = 99999999)
+    private int guaranteePeriod;
+
+    /**
+     * 有效期单位
+     */
+    @NotBlank(message = "有效期单位不能为空")
+    @Length(max = 20,message = "有效期单位长度不能大于20")
+    private String guaranteePeriodUnit;
+
+    /**
+     * 商品标签Id
+     */
+    private Long tagId;
 
     /**
      * 图片集合
@@ -131,14 +176,6 @@ public class SupplierCommodityUpdateVo {
         this.unitId = unitId;
     }
 
-    public Double getInventory() {
-        return inventory;
-    }
-
-    public void setInventory(Double inventory) {
-        this.inventory = inventory;
-    }
-
     public String getMinImg() {
         return minImg;
     }
@@ -177,5 +214,69 @@ public class SupplierCommodityUpdateVo {
 
     public void setMinOrderQuantity(int minOrderQuantity) {
         this.minOrderQuantity = minOrderQuantity;
+    }
+
+    public Long getCartonId() {
+        return cartonId;
+    }
+
+    public void setCartonId(Long cartonId) {
+        this.cartonId = cartonId;
+    }
+
+    public String getCartonName() {
+        return cartonName;
+    }
+
+    public void setCartonName(String cartonName) {
+        this.cartonName = cartonName;
+    }
+
+    public Long getCartonVal() {
+        return cartonVal;
+    }
+
+    public void setCartonVal(Long cartonVal) {
+        this.cartonVal = cartonVal;
+    }
+
+    public Long getMeasureSpecVal() {
+        return measureSpecVal;
+    }
+
+    public void setMeasureSpecVal(Long measureSpecVal) {
+        this.measureSpecVal = measureSpecVal;
+    }
+
+    public Date getProductionDate() {
+        return productionDate;
+    }
+
+    public void setProductionDate(Date productionDate) {
+        this.productionDate = productionDate;
+    }
+
+    public int getGuaranteePeriod() {
+        return guaranteePeriod;
+    }
+
+    public void setGuaranteePeriod(int guaranteePeriod) {
+        this.guaranteePeriod = guaranteePeriod;
+    }
+
+    public String getGuaranteePeriodUnit() {
+        return guaranteePeriodUnit;
+    }
+
+    public void setGuaranteePeriodUnit(String guaranteePeriodUnit) {
+        this.guaranteePeriodUnit = guaranteePeriodUnit;
+    }
+
+    public Long getTagId() {
+        return tagId;
+    }
+
+    public void setTagId(Long tagId) {
+        this.tagId = tagId;
     }
 }
