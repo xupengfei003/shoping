@@ -150,7 +150,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                     totalNumber = totalNumber.add(goodsNumber);//商品总数量
                     String goodsAttribute = purchaseItem.getGoodsAttribute();//商品属性
                     //查询商品信息
-                    Result result = commodityService.getCommodity(goodsId);
+                    Result result = commodityService.getOldCommodity(goodsId);
                     CommodityOutput commOutput = (CommodityOutput) result.getData();
                     //判断是否满足最小起订量
                     if (!this.checkMinOrderQuantity(commOutput,goodsNumber)){
