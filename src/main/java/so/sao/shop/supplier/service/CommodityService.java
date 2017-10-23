@@ -169,4 +169,12 @@ public interface CommodityService {
      * @return
      */
     Result countCommDetail(Long supplierId);
+
+    /**
+     * 根据商品ID获取商品原始数据(不是最新数据)
+     * @param id
+     * @return
+     */
+    Result getOldCommodity(Long id);
+
 }

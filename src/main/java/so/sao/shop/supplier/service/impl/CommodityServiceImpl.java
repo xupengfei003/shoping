@@ -1882,4 +1882,76 @@ public class CommodityServiceImpl implements CommodityService {
         CountCommDetailOutput countCommDetailOutput = supplierCommodityDao.countCommDetail(supplierId);
         return  Result.success("查询成功!",countCommDetailOutput);
     }
+    /**
+     * 根据商品ID获取商品原始数据(不是最新数据)
+     * TODO 后期须优化
+     * @param id
+     * @return
+     */
+    @Override
+    public Result getOldCommodity(Long id) {
+        //根据商品 id 判断该商品有没有审核记录
+        int auditReult = supplierCommodityAuditDao.countByScidAndAuditResult(id);
+        //存放查询到的商品详细信息
+        CommodityOutput commodityOutput = null;
+        List<CommImge> commImgeList;
+        //商品有审核状态
+        if(auditReult > 0){
+            //根据商品的id查询出商品的状态
+            int status = supplierCommodityDao.findSupplierCommStatus(id);
+            //如果是商品的状态是 6 (编辑待审核),则根据供应商商品ID获取编辑后的商品信息
+            if (status > 0) {
+                commodityOutput = supplierCommodityDao.findDetail(id);
+                if (Ognl.isNull(commodityOutput.getCartonId())){
+                    commodityOutput.setCartonName(null);
+                }else {
+                    // 查询箱规名称
+                    CommCarton commCarton = commCartonDao.findOne(commodityOutput.getCartonId());
+                    commodityOutput.setCartonName(commCarton.getName());
+                }
+                commodityOutput.setStatus(supplierCommodityDao.findAuditStatus(id));
+                if (null != commodityOutput) {
+                    //根据供应商商品ID获取图片列表信息
+                    commImgeList = commImgeTmpDao.findImgTmp(commodityOutput.getScaId());
+                    List<CommImgeVo> commImgeVoList = new ArrayList<>();
+                    commImgeList.forEach(commImge -> {
+                        CommImgeVo commImgeVo = BeanMapper.map(commImge, CommImgeVo.class);
+                        commImgeVoList.add(commImgeVo);
+                    });
+                    commodityOutput.setImgeList(commImgeVoList);
+                }
+            }else {
+                //商品没状态不为 6(编辑待审核),则根据供应商商品ID获取商品信息
+                commodityOutput = supplierCommodityDao.findDetail(id);
+                if (Ognl.isNull(commodityOutput)){
+                    return Result.success("商品不存在", commodityOutput);
+                }
+                if (Ognl.isNull(commodityOutput.getCartonId())){
+                    commodityOutput.setCartonName(null);
+                }else {
+                    // 查询箱规名称
+                    CommCarton commCarton = commCartonDao.findOne(commodityOutput.getCartonId());
+                    commodityOutput.setCartonName(commCarton.getName());
+                }
+                commodityOutput.setStatus(supplierCommodityDao.findAuditStatus(id));
+                readImgData(id,commodityOutput); //获取图片信息
+            }
+        } else {
+            //商品没有审核记录,则根据供应商商品ID获取商品信息
+            commodityOutput = supplierCommodityDao.findDetail(id);
+            if (Ognl.isNull(commodityOutput)){
+                return Result.success("商品不存在", commodityOutput);
+            }
+            if (Ognl.isNull(commodityOutput.getCartonId())){
+                commodityOutput.setCartonName(null);
+            }else {
+                // 查询箱规名称
+                CommCarton commCarton = commCartonDao.findOne(commodityOutput.getCartonId());
+                commodityOutput.setCartonName(commCarton.getName());
+            }
+            readImgData(id,commodityOutput); // 获取图片信息
+        }
+        return Result.success("查询成功", commodityOutput);
+    }
+
 }
