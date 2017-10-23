@@ -976,10 +976,10 @@
                 cms.name AS measureSpecName,
                 sct.rule_val AS ruleVal,
                 cc.name AS cartonName,
-                sct.inventory_minimum AS inventoryMinimum,
-                sct.inventory AS inventory,
+                sc.inventory_minimum AS inventoryMinimum,
+                sc.inventory AS inventory,
                 cu.name AS unitName,
-                sct.inventory_status AS inventoryStatus,
+                sc.inventory_status AS inventoryStatus,
                 c.category_one_id AS categoryOneId,
                 c.category_two_id AS categoryTwoId,
                 c.category_three_id AS categoryThreeId,
@@ -1002,6 +1002,7 @@
                   supplier_commodity_audit t
                 WHERE
                     t.status = 6 AND t.audit_flag = 1) t1 ON sct.sca_id = t1.id
+                LEFT JOIN supplier_commodity sc on sc.id = t1.sc_id
                 LEFT JOIN account a ON sct.supplier_id = a.account_id
                 LEFT JOIN commodity c ON sct.code69 = c.code69
                 LEFT JOIN comm_brand cb ON c.brand_id = cb.id
