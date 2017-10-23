@@ -23,7 +23,7 @@ public class SupplierCommodityUpdateVo {
     /**
      * 商家编码
      */
-    @Length(max = 50,message = "商品商家编码长度不能大于50")
+    @Length(max = 20,message = "商品商家编码长度不能大于20")
     private String code;
 
     /**
