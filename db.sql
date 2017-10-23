@@ -92,3 +92,9 @@ INSERT INTO `sys_region` VALUES ('460201', '0', '572000', '市辖区', '460200',
 INSERT INTO `sys_region` VALUES ('620201', '0', '735100', '市辖区', '620200', '98.2816345852569810', '39.8023973267335260', '2', '0');
 INSERT INTO `sys_region` VALUES ('820101', '0', '', '市辖区', '820100', '113.5664323351728800', '22.1950041592184670', '2', '0');
 INSERT INTO `sys_region` VALUES ('820201', '0', '', '市辖区', '820200', '113.5575191018249200', '22.2041179884433360', '2', '0');
+
+/*
+商品数据待上架修改为已下架
+ */
+update supplier_commodity set status = 3 where status = 0
+update supplier_commodity_tmp set status = 3 where status = 0
