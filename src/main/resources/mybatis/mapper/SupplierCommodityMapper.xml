@@ -148,8 +148,6 @@
             guarantee_period_unit =  #{guaranteePeriodUnit},
             carton_id = #{cartonId},
             carton_val = #{cartonVal},
-            inventory_minimum = #{inventoryMinimum},
-            inventory_status = #{inventoryStatus},
             measure_spec_val = #{measureSpecVal},
             production_date = #{productionDate},
             guarantee_period = #{guaranteePeriod},
