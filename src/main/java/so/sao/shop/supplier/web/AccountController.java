@@ -174,7 +174,7 @@ public class AccountController {
     public Result getUserName(HttpServletRequest request){
         Map result = new HashMap();
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
-        Account account = accountService.selectById(user.getAccountId());
+        Account account = accountService.selectById0(user.getAccountId());
         result.put("username",account!=null?account.getProviderName():"");
         return Result.success("", result);
     }
@@ -413,23 +413,6 @@ public class AccountController {
         	return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
         return DownloadAzureFile.downloadFile(downloadUrl, realFileName, request, response);
-    }
-
-    /**
-     * 修改供应商状态并激活账户
-     * @param accountUpdateInput
-     * @param request
-     * @return
-     */
-    @PutMapping("/updateStatus")
-    @ApiOperation(value = "修改供应商状态",notes = "修改供应商状态【负责人：陈化静】")
-    public Result updateStatus(@Valid @RequestBody AccountUpdateInput accountUpdateInput, HttpServletRequest request){
-        User user = (User) request.getAttribute(Constant.REQUEST_USER);
-        //验证是否登录, 判断登录用户是否是管理员
-        if(user == null || !Constant.ADMIN_STATUS.equals(user.getIsAdmin()) ){
-            return Result.fail(Constant.MessageConfig.ADMIN_AUTHORITY_EERO);
-        }
-        return accountService.updateAccountStatus(accountUpdateInput);
     }
 
     /**

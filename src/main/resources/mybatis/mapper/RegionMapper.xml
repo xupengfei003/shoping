@@ -56,4 +56,23 @@
     </where>
   </select>
 
+
+  <!-- 通用查询映射结果 -->
+  <resultMap id="RegionResultMap" type="so.sao.shop.supplier.domain.Region">
+    <id column="sr_id" property="srId" />
+    <result column="name" property="name" />
+    <result column="parent_id" property="parentId" />
+    <result column="level" property="level" />
+  </resultMap>
+
+  <select id="getAllRegion" resultMap="RegionResultMap">
+    SELECT
+      sr_id,
+      name,
+      parent_id,
+      level
+    FROM
+      sys_region
+  </select>
+
 </mapper>

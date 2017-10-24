@@ -12,10 +12,11 @@
 
 <!-- find  查询所有计量规格 -->
     <select id="find" parameterType="long" resultMap="BaseMap">
-        SELECT id, NAME, supplier_id, created_at, updated_at
-        FROM comm_measure_spec
-        WHERE supplier_id = 0  OR  supplier_id = #{supplierId}
-        ORDER BY updated_at DESC
+        SELECT
+        id, NAME, supplier_id, created_at, updated_at
+        FROM
+        (SELECT  * FROM comm_measure_spec cms WHERE supplier_id IN(0,#{supplierId}) ORDER BY supplier_id DESC ) cms1
+        GROUP BY NAME ORDER BY updated_at desc
     </select>
 
     <!--根据id查询个数-->

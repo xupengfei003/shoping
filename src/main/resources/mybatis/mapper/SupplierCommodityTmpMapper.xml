@@ -49,7 +49,15 @@
             tag_id,
             min_order_quantity,
             sca_id,
-            invalid_status
+            invalid_status,
+            carton_id,
+            carton_val,
+            inventory_minimum,
+            inventory_status,
+            measure_spec_val,
+            production_date,
+            guarantee_period,
+            guarantee_period_unit
         )VALUES (
             #{supplierId},
             #{code},
@@ -71,7 +79,15 @@
             #{tagId},
             #{minOrderQuantity},
             #{scaId},
-            #{invalidStatus}
+            #{invalidStatus},
+            #{cartonId},
+            #{cartonVal},
+            #{inventoryMinimum},
+            #{inventoryStatus},
+            #{measureSpecVal},
+            #{productionDate},
+            #{guaranteePeriod},
+            #{guaranteePeriodUnit}
         )
     </insert>
 
@@ -97,7 +113,15 @@
         updated_by AS updatedBy,
         supplier_id AS supplierId,
         status,
-        min_order_quantity AS minOrderQuantity
+        min_order_quantity AS minOrderQuantity,
+        carton_id AS cartonId,
+        carton_val AS cartonVal,
+        inventory_minimum AS inventoryMinimum,
+        inventory_status AS inventoryStatus,
+        measure_spec_val AS measureSpecVal,
+        production_date AS productionDate,
+        guarantee_period AS guaranteePeriod,
+        guarantee_period_unit AS guaranteePeriodUnit
         FROM supplier_commodity_tmp
         WHERE  sca_id = #{id}
     </select>
@@ -135,6 +159,14 @@
             sctmp.status AS status,
             sctmp.invalid_status AS invalidStatus,
             sctmp.min_order_quantity AS minOrderQuantity,
+            sctmp.inventory_minimum AS inventoryMinimum,
+            sctmp.inventory_status AS inventoryStatus,
+            sctmp.production_date AS productionDate,
+            sctmp.measure_spec_val AS measureSpecVal,
+            sctmp.guarantee_period AS guaranteePeriod,
+            sctmp.guarantee_period_unit AS guaranteePeriodUnit,
+            sctmp.carton_id AS cartonId,
+            sctmp.carton_val AS cartonVal,
             (SELECT NAME FROM comm_category cc WHERE cc.id = c.category_one_id) AS categoryOneName,
             (SELECT NAME FROM comm_category cc WHERE cc.id = c.category_two_id) AS categoryTwoName,
             (SELECT NAME FROM comm_category cc WHERE cc.id = c.category_three_id) AS categoryThreeName
@@ -162,7 +194,15 @@
             sctmp.code69 AS code69,
             c.origin_place AS originPlace,
             c.company_name AS companyName,
-            c.market_time AS marketTime,
+            sctmp.production_date AS productionDate,
+            sctmp.guarantee_period AS guaranteePeriod,
+            sctmp.guarantee_period_unit AS guaranteePeriodUnit,
+            sctmp.carton_id AS cartonId,
+            cn.name AS cartonName,
+            sctmp.carton_val AS cartonVal,
+            sctmp.measure_spec_val AS measureSpecVal,
+            sctmp.inventory_status AS inventoryStatus,
+            sctmp.inventory_minimum As inventoryMinimum,
             sctmp.tag_id AS tagId,
             ct.name AS tagName,
             sctmp.measure_spec_id AS measureSpecId,
@@ -189,6 +229,7 @@
         LEFT JOIN comm_measure_spec cms ON sctmp.measure_spec_id = cms.id
         LEFT JOIN comm_unit cu ON sctmp.unit_id = cu.id
         LEFT JOIN comm_tag ct ON sctmp.tag_id = ct.id
+        LEFT JOIN comm_carton cn ON sctmp.carton_id = cn.id
         RIGHT JOIN supplier_commodity_audit sca ON sctmp.sca_id = sca.id
         WHERE sca.id = #{id}
     </select>

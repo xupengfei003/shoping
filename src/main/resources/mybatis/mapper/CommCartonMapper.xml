@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="so.sao.shop.supplier.dao.CommCartonDao">
+
+    <resultMap id="resultMap" type="so.sao.shop.supplier.domain.CommCarton">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="supplier_id" property="supplierId"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <sql id="baseColumns">
+        id AS id,
+        name AS name,
+        supplier_id AS supplier_id,
+        created_at AS created_at,
+        updated_at AS updated_at
+    </sql>
+
+    <!--新增箱规单位-->
+    <insert id="save" parameterType="so.sao.shop.supplier.domain.CommCarton">
+        insert into comm_carton
+        (name, supplier_id, created_at, updated_at)
+        values
+        (#{name}, #{supplierId}, #{createdAt}, #{updatedAt})
+    </insert>
+
+    <!--删除箱规单位-->
+    <delete id="deleteById" parameterType="java.lang.Long">
+        delete from comm_carton where id = #{id}
+    </delete>
+
+    <!--修改箱规单位-->
+    <update id="update" parameterType="so.sao.shop.supplier.domain.CommCarton">
+        update comm_carton set name = #{name}, updated_at=#{updatedAt} where id=#{id}
+    </update>
+
+    <!--根据id查询箱规单位-->
+    <select id="findOne" parameterType="java.lang.Long" resultMap="resultMap">
+        select
+        <include refid="baseColumns"/>
+        from comm_carton where id=#{id}
+    </select>
+
+    <!--根据名称和supplierId查询箱规单位-->
+    <select id="findByNameAndSupplierId" resultMap="resultMap">
+        select
+        <include refid="baseColumns"/>
+        from comm_carton where name=#{name} and supplier_id in (0,#{supplierId})
+    </select>
+
+    <!--根据名称和supplierId查询存在数量（存在性校验使用）-->
+    <select id="countByNameAndSupplierId" resultType="int">
+        select
+        COUNT(id) as num
+
+        from comm_carton where name=#{name} and supplier_id in (0,#{supplierId})
+    </select>
+
+    <!--查询箱规单位集合-->
+    <select id="find" parameterType="java.lang.Long" resultMap="resultMap">
+        SELECT
+        <include refid="baseColumns"/>
+        FROM
+        (SELECT  * FROM comm_carton cc WHERE supplier_id IN(0,#{supplierId}) ORDER BY supplier_id DESC ) cc1
+        GROUP BY NAME ORDER BY updated_at desc
+    </select>
+
+    <!--根据id查询个数-->
+    <select id="countById" resultType="int">
+        select
+        count(*)
+        from comm_carton where id = #{id}
+    </select>
+
+</mapper>

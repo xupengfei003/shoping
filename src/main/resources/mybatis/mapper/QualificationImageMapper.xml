@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="so.sao.shop.supplier.dao.QualificationImageDao">
+
+    <!--供应商资质图片入库-->
+    <insert id="save" useGeneratedKeys="true" keyProperty="id">
+        INSERT qualification_image (
+        qualification_id,
+        qualification_type,
+        cloud_name,
+        min_cloud_name,
+        file_name,
+        url,
+        min_img_url,
+        create_time,
+        update_time
+        )VALUES
+        <foreach collection ="imgs" item="img" index= "index" separator =",">
+            (
+            #{img.qualificationId},
+            #{img.qualificationType},
+            #{img.cloudName},
+            #{img.minCloudName},
+            #{img.fileName},
+            #{img.url},
+            #{img.minImgUrl},
+            #{img.createTime},
+            #{img.updateTime}
+            )
+        </foreach>
+    </insert>
+
+    <!--根据供应商资质ID删除资质图片（更新资质图片删除状态位）-->
+    <update id="delete">
+        UPDATE qualification_image qi
+        SET
+        qi.delete= 1
+        WHERE
+        qi.qualification_id = #{qualificationId}
+    </update>
+
+</mapper>

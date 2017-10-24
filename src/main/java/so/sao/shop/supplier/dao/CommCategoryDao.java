@@ -50,4 +50,11 @@ public interface CommCategoryDao {
      * @return CommCategory
      */
     CommCategory findById(@Param("id")Long id);
+
+    /**
+     * 查询商品类型表所有数据
+     * @return
+     */
+    List<CommCategory> findAll();
+
 }

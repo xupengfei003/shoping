@@ -24,7 +24,7 @@ public class ExcelReader {
     static private Workbook wb;
     static private Sheet sheet;
     static private Row row;
-    private static DecimalFormat df = new DecimalFormat("0");             //数字格式，防止长数字成为科学计数法形式，或者int变为double形式
+    private static DecimalFormat df = new DecimalFormat("0.##");             //数字格式，防止长数字成为科学计数法形式，或者int变为double形式
 
 
     /**
@@ -40,7 +40,7 @@ public class ExcelReader {
         //Excel中正确记录信息
         Map<Integer, Map<String, String>> mapRight = new HashMap<>();
         //Excel中错误行号
-        List<Integer> errorRowList = new ArrayList<Integer>();
+        List<Map<String, Object>> errorRowList = new ArrayList<Map<String, Object>>();
         Map<String, String> content = null;
         try {
             InputStream is;
@@ -70,14 +70,20 @@ public class ExcelReader {
             row = sheet.getRow(i);
             content = new LinkedHashMap<>();
             if (row == null) {
-                errorRowList.add(i + 1);
+                Map<String, Object> errorMap =new HashMap<String, Object>();
+                errorMap.put("rowNum",i+1);
+                errorMap.put("message","存在空单元格");
+                errorRowList.add(errorMap);
                 continue;
             }
             //获取表数据
             do {
-                if (!("商品标签".equals(titles[j]) || "商品产地".equals(titles[j]) || "企业名称".equals(titles[j]) || "上市时间".equals(titles[j])|| "最小起订量".equals(titles[j]))) {
+                if (!("商品标签".equals(titles[j]) || "商品商家编码".equals(titles[j]) || "供应商id".equals(titles[j]) )) {
                     if ("".equals(getCellFormatValue(row.getCell(j)).trim())) {
-                        errorRowList.add(i + 1);
+                        Map<String, Object> errorMap =new HashMap<String, Object>();
+                        errorMap.put("rowNum",i+1);
+                        errorMap.put("message",titles[j]+"不能为空");
+                        errorRowList.add(errorMap);
                         content = null;
                         break;
                     }
@@ -96,6 +102,7 @@ public class ExcelReader {
         return maps;
     }
 
+
     /**
      * 根据Cell类型设置数据
      * @param cell
@@ -111,7 +118,9 @@ public class ExcelReader {
                     // 如果是纯数字取得当前Cell的数值
                     if (HSSFDateUtil.isCellDateFormatted(cell)) {
                         //  如果是date类型则 ，获取该cell的date值
-                        cellvalue = HSSFDateUtil.getJavaDate(cell.getNumericCellValue()).toString();
+                        Date date = cell.getDateCellValue();
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                        cellvalue = sdf.format(date);
                     } else { // 纯数字
                         cellvalue = df.format(cell.getNumericCellValue());
                     }

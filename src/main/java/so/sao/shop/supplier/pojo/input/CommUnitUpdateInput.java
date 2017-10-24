@@ -16,7 +16,7 @@ public class CommUnitUpdateInput {
     /**
      * 商品单位名称
      */
-    @NotBlank(message = "商品单位名称不能为空")
+    @NotBlank(message = "库存单位名称不能为空")
     @Size(min = 1,max = Constant.CheckMaxLength.MAX_MEASURESPEC_NAME_LENGTH,message = "名称至少一位，不能超过"+ Constant.CheckMaxLength.MAX_MEASURESPEC_NAME_LENGTH +"位")
     private String name;
 

@@ -47,23 +47,19 @@ public class CommodityAuditinputVo {
      */
     private String  brandName;
     /**
-     * 包装单位名称
+     * 库存单位名称
      */
     private String unitName;
-    /**
-     * 计量规格名称
-     */
-    private String measureSpecName;
     /**
      * 规格值
      */
     private String ruleVal;
     /**
-     * 市场价
+     * 批发价
      */
     private BigDecimal price;
     /**
-     * 售价
+     * 供货价
      */
     private BigDecimal unitPrice;
     /**
@@ -71,16 +67,16 @@ public class CommodityAuditinputVo {
      */
     private Double inventory;
     /**
-     * 起订量
+     * 最小起订量
      */
     private int minOrderQuantity;
     /**
-     * 更新时间
+     * 更新时间--审核时间
      */
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date updatedAt;
     /**
-     * 创建时间
+     * 创建时间--提交审核时间
      */
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date createdAt;
@@ -167,14 +163,6 @@ public class CommodityAuditinputVo {
 
     public void setUnitName(String unitName) {
         this.unitName = unitName;
-    }
-
-    public String getMeasureSpecName() {
-        return measureSpecName;
-    }
-
-    public void setMeasureSpecName(String measureSpecName) {
-        this.measureSpecName = measureSpecName;
     }
 
     public String getRuleVal() {

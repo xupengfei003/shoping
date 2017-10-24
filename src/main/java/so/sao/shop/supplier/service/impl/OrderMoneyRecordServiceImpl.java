@@ -34,6 +34,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.FileInputStream;
 import java.math.BigDecimal;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -889,6 +890,83 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
             if (workbook != null) {
                 workbook.close();
             }
+        }
+    }
+
+    /**
+     * 供应商订单金额统计
+     * @param timeType 统计时间类型--时间类型（1.本周，2.当月，3.近三个月）
+     * @return
+     */
+    @Override
+    public Map<String, Object> countOrderMoneyRecords(Integer timeType,Long accountId) {
+        Map<String,String> timeMap = this.getelectTime(timeType);
+        String startTime = timeMap.get("startTime");
+        String endTime = timeMap.get("endTime");
+        Map<Object, Object> dataMap = orderMoneyRecordDao.countOrderMoneyRecords(startTime,endTime,accountId);
+        Map<String,Object> resultMap =  this.transformOfMap(dataMap);
+        resultMap.put("orderTotalMoney",NumberUtil.number2Thousand(purchaseDao.getTotalMoneyByAccountId(startTime,endTime,accountId)));
+        return resultMap;
+    }
+
+    /**
+     * 根据时间类型获取具体的检索时间段
+     * @param timeType
+     * @return
+     */
+    private Map<String,String> getelectTime(Integer timeType) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Map<String,String> timeMap = new HashMap<>();
+        Date date = new Date();
+        switch (timeType){
+            case 1:
+                timeMap.put("startTime",sdf.format(DateUtil.getTimesWeekmorning()));//本周第一天
+                timeMap.put("endTime",sdf.format(DateUtil.getTimesWeeknight()));//本周最后一天
+                break;
+            case 2:
+                timeMap.put("startTime",sdf.format(DateUtil.firstDayOfMonth(date)));//获取指定时间所在月的第一天
+                timeMap.put("endTime",sdf.format(DateUtil.lastDayOfMonth(date)));//获取指定时间所在月的最后一天
+                break;
+            case 3:
+                timeMap.put("startTime",sdf.format(DateUtil.subtractMonths(date,3)));//3个月前的第一天
+                timeMap.put("endTime",sdf.format(date));//目前日期
+                break;
+        }
+        return timeMap;
+    }
+
+    /**
+     * map中key值和value转化
+     *  key:结算状态对应的字符
+     *  value:结算状态对应的统计数据
+     * @param dataMap
+     * @return
+     */
+    private Map<String,Object> transformOfMap(Map<Object, Object> dataMap) {
+        Map<String ,Object> resultMap = new HashMap<>();//返回参数
+        Map<String,Object> valueMap = (Map<String,Object>)dataMap.get("1");//已结算
+        BigDecimal settledMoney = this.getValueByMap(valueMap,"settledMoney");//已结算金额
+        resultMap.put("settledMoney",NumberUtil.number2Thousand(settledMoney));
+
+        valueMap = (Map<String,Object>)dataMap.get("0");//未结算
+        BigDecimal pendingSettlementMoney = this.getValueByMap(valueMap,"pendingSettlementMoney");//未结算
+        // 金额
+        resultMap.put("pendingSettlementMoney",NumberUtil.number2Thousand(pendingSettlementMoney));
+        return resultMap;
+    }
+
+    /**
+     * 根据字符串获取相对应的value值
+     * @param valueMap
+     * @param str
+     * @return
+     */
+    private BigDecimal getValueByMap(Map<String, Object> valueMap, String str) {
+        BigDecimal money = new BigDecimal(0);
+        if (null == valueMap || valueMap.isEmpty() || null == valueMap.get(str)){//若该供应商没有已结算的统计数据
+            return money;
+        }else {
+            return (BigDecimal)valueMap.get(str);
         }
     }
 

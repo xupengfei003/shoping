@@ -26,10 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.math.BigInteger;
 import java.text.ParseException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * <p>
@@ -492,6 +489,9 @@ public class PurchaseController {
         if(null == getOrderStatus){
             return false;
         }
+        if(null != getOrderStatus && Objects.equals(Constant.OrderStatusConfig.CONFIRM_RECEIVED,getOrderStatus)){
+            getOrderStatus = Constant.OrderStatusConfig.ISSUE_SHIP;
+        }
         String status = Constant.OrderStatusRule.RULES[getOrderStatus - 1];
         return status.contains(String.valueOf(orderStatus));
     }
@@ -537,5 +537,37 @@ public class PurchaseController {
             return Result.fail("订单编号和用户Id都不能为空");
         }
         return Result.success(Constant.MessageConfig.MSG_SUCCESS, purchaseService.getReceiveUrl(orderId, userId));
+    }
+
+  /**
+     * 商户各类订单数量统计接口
+     * @return
+     */
+    @ApiOperation(value = "供应商各类订单数量统计接口",notes = "根据供应商ID获取该供应商割裂订单数量【负责人：郑振海】")
+    @GetMapping("/countOrderNumByOrderStatus")
+    public Result countOrderNumByOrderStatus(HttpServletRequest request){
+        //1.取出当前登录用户
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        if (null == user || Ognl.isEmpty(user.getAccountId())) {   //验证用户是否登陆
+            return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
+        }
+        Map<Object, Object> orderNum = purchaseService.countOrderNumByOrderStatus(user.getAccountId());
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS,orderNum);
+    }
+    /**
+     * 更改物流信息
+     *
+     * @param logisticInfoUpdateInput 封装了订单ID，物流公司，物流单号
+     * @return Result 结果
+     * @throws Exception
+     */
+    @ApiOperation(value = "更改物流信息", notes = "根据订单编号更改物流信息【负责人：白治华】")
+    @PostMapping("/updateLogisticInfoByOrderId")
+    public  Result updateLogisticInfoByOrderId(@RequestBody @Valid LogisticInfoUpdateInput logisticInfoUpdateInput) throws Exception {
+        boolean flag = purchaseService.updateLogisticInfoByOrderId(logisticInfoUpdateInput);
+        if (flag) {
+            return Result.success(Constant.MessageConfig.MSG_SUCCESS);
+        }
+        return Result.fail(Constant.MessageConfig.MSG_FAILURE);
     }
 }

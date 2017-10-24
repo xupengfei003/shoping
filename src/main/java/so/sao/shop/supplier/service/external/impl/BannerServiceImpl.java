@@ -280,3 +280,4 @@ public class BannerServiceImpl implements BannerService {
 	}
 
 }
+>>>>>>> develop

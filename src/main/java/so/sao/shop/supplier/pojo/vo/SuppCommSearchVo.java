@@ -21,7 +21,19 @@ public class SuppCommSearchVo {
     /**
      * SKU(商品ID)
      */
-    private String sku;
+//    private String sku;
+    /**
+     * sc表的id
+     */
+    private Long commId;
+    /**
+     * 供应商id
+     */
+    private Long supplierId;
+    /**
+     * 供应商名称
+     */
+    private String supplierName;
     /**
      * 商品编码
      */
@@ -96,13 +108,29 @@ public class SuppCommSearchVo {
     /**
      * 创建时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
-    private Date createdAt;
+//    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+//    private Date createdAt;
     /**
      *  更新时间
      */
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date updatedAt;
+
+    public String getSupplierName() {
+        return supplierName;
+    }
+
+    public void setSupplierName(String supplierName) {
+        this.supplierName = supplierName;
+    }
+
+    public Long getCommId() {
+        return commId;
+    }
+
+    public void setCommId(Long commId) {
+        this.commId = commId;
+    }
 
     public int getInvalidStatus() {
         return invalidStatus;
@@ -128,13 +156,7 @@ public class SuppCommSearchVo {
         this.minImg = minImg;
     }
 
-    public String getSku() {
-        return sku;
-    }
 
-    public void setSku(String sku) {
-        this.sku = sku;
-    }
 
     public String getCode69() {
         return code69;
@@ -144,13 +166,7 @@ public class SuppCommSearchVo {
         this.code69 = code69;
     }
 
-    public String getCode() {
-        return code;
-    }
 
-    public void setCode(String code) {
-        this.code = code;
-    }
 
     public String getBrandName() {
         return brandName;
@@ -216,13 +232,7 @@ public class SuppCommSearchVo {
         this.statusNum = statusNum;
     }
 
-    public Date getCreatedAt() {
-        return createdAt;
-    }
 
-    public void setCreatedAt(Date createdAt) {
-        this.createdAt = createdAt;
-    }
 
     public Date getUpdatedAt() {
         return updatedAt;
@@ -270,5 +280,49 @@ public class SuppCommSearchVo {
 
     public void setAuditResult(Integer auditResult) {
         this.auditResult = auditResult;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public Long getSupplierId() {
+        return supplierId;
+    }
+
+    public void setSupplierId(Long supplierId) {
+        this.supplierId = supplierId;
+    }
+
+    @Override
+    public String toString() {
+        return "SuppCommSearchVo{" +
+                "id=" + id +
+                ", minImg='" + minImg + '\'' +
+                ", commId=" + commId +
+                ", supplierId=" + supplierId +
+                ", supplierName='" + supplierName + '\'' +
+                ", code69='" + code69 + '\'' +
+                ", code='" + code + '\'' +
+                ", brandName='" + brandName + '\'' +
+                ", commName='" + commName + '\'' +
+                ", unitName='" + unitName + '\'' +
+                ", measureSpecName='" + measureSpecName + '\'' +
+                ", ruleVal='" + ruleVal + '\'' +
+                ", inventory='" + inventory + '\'' +
+                ", status='" + status + '\'' +
+                ", statusNum=" + statusNum +
+                ", invalidStatus=" + invalidStatus +
+                ", price='" + price + '\'' +
+                ", unitPrice='" + unitPrice + '\'' +
+                ", minOrderQuantity=" + minOrderQuantity +
+                ", auditOpinion='" + auditOpinion + '\'' +
+                ", auditResult=" + auditResult +
+                ", updatedAt=" + updatedAt +
+                '}';
     }
 }

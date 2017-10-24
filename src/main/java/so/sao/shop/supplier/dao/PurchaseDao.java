@@ -1,6 +1,7 @@
 package so.sao.shop.supplier.dao;
 
 
+import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Param;
 import so.sao.shop.supplier.domain.Account;
 import so.sao.shop.supplier.domain.Purchase;
@@ -255,4 +256,28 @@ public interface PurchaseDao {
      * @return 订单列表
      */
     List<Purchase> findPurchaseByUserId(@Param("orderId") String orderId, @Param("userId") String userId);
+
+       /**
+     * 根据供应商ID查询各类订单数量
+     * @param accountId
+     * @return
+     */
+    @MapKey(value = "order_status")
+    Map<Object, Object> countOrderNumByOrderStatus(Long accountId);
+
+    /**
+     * 更改物流信息
+     *
+     * @param map 封装了订单ID，物流公司，物流单号，更新时间
+     */
+    int updateLogisticInfoByOrderId(@Param("map") Map<String, Object> map);
+
+    /**
+     * 根据供应商ID获取时间段内的订单总金额(订单金额+运费),且统计的订单为已完成的
+     * @param startTime
+     * @param endTime
+     * @param accountId
+     * @return
+     */
+    BigDecimal getTotalMoneyByAccountId(@Param("startTime")String startTime,@Param("endTime") String endTime, @Param("accountId")Long accountId);
 }

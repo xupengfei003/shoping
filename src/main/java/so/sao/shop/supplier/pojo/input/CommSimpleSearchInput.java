@@ -12,6 +12,14 @@ public class CommSimpleSearchInput {
      */
 
     private Long supplierId;
+    /**
+     *审核结果：0代表未通过，1代表通过
+     */
+    private Integer auditResult;
+    /**
+     * 商品状态（2:上架、3:下架、4:上架待审核、5:下架待审核、6: 编辑待审核）
+     */
+    private Integer status;
 
     /**
      * 商品条码/商品名称模糊
@@ -86,5 +94,35 @@ public class CommSimpleSearchInput {
 
     public void setPageSize(Integer pageSize) {
         this.pageSize = pageSize;
+    }
+
+    public Integer getAuditResult() {
+        return auditResult;
+    }
+
+    public void setAuditResult(Integer auditResult) {
+        this.auditResult = auditResult;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
+    @Override
+    public String toString() {
+        return "CommSimpleSearchInput{" +
+                "supplierId=" + supplierId +
+                ", auditResult=" + auditResult +
+                ", status=" + status +
+                ", inputvalue='" + inputvalue + '\'' +
+                ", beginCreateAt=" + beginCreateAt +
+                ", endCreateAt=" + endCreateAt +
+                ", pageNum=" + pageNum +
+                ", pageSize=" + pageSize +
+                '}';
     }
 }

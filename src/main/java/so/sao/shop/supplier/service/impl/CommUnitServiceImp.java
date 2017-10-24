@@ -26,14 +26,14 @@ public class CommUnitServiceImp implements CommUnitService {
 
     @Override
     /**
-     * 添加商品单位
+     * 添加库存单位
      * @param supplierId 供应商id
-     * @param name 商品单位名称
+     * @param name 库存单位名称
      * @return 新增结果
      */
     @Transactional(rollbackFor = Exception.class)
     public Result saveCommUnit(Long supplierId, String  name){
-        //判断新增标商品单位与supplierId是否重复,不重复时进行新增，重复时返回重复信息
+        //判断新增库存单位与supplierId是否重复,不重复时进行新增，重复时返回重复信息
         Result result=checkUnitName(supplierId,name.trim());
         if(null!=result){
             return result;
@@ -45,23 +45,23 @@ public class CommUnitServiceImp implements CommUnitService {
             commUnit.setCreatedAt(new Date());
             commUnit.setUpdatedAt(new Date());
             commUnitDao.save(commUnit);
-            return Result.success("添加商品单位成功！");
+            return Result.success("添加库存单位成功！");
         }
     }
 
     /**
-     * 修改商品单位
+     * 修改库存单位
      * 业务逻辑
-     * 1.判断商品单位是否由管理员创建
-     * 2.判断修改的商品单位名称有无和存在的商品单位重复
+     * 1.判断库存单位是否由管理员创建
+     * 2.判断修改的库存单位名称有无和存在的库存单位重复
      * @param supplierId 供应商id
-     * @param commUnitUpdateInput 商品单位入参
+     * @param commUnitUpdateInput 库存单位入参
      * @return 修改结果
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result updateCommunit(Long supplierId, CommUnitUpdateInput commUnitUpdateInput)  {
-        //商品单位是否存在与操作权限判断
+        //库存单位是否存在与操作权限判断
         Result result=checkExistAndPermission(supplierId,commUnitUpdateInput.getId());
         if(null!=result){
             return result;
@@ -76,13 +76,13 @@ public class CommUnitServiceImp implements CommUnitService {
         commUnit.setUpdatedAt(new Date());
         //执行修改操作
         commUnitDao.update(commUnit);
-        return Result.success("商品单位修改成功！");
+        return Result.success("库存单位修改成功！");
     }
 
     /**
-     * 删除商品单位
+     * 删除库存单位
      * 业务逻辑
-     * 1.判断要删除的商品单位是否被supplier_commodity表引用（deleted状态是否1，1表示可以删除）
+     * 1.判断要删除的库存单位是否被supplier_commodity表引用（deleted状态是否1，1表示已删除）
      * 2.判断是否为管理员添加
      * 3.供应商只能删除自己创建的商品单位（未关联业务）
      * @param supplierId 供应商id
@@ -92,7 +92,7 @@ public class CommUnitServiceImp implements CommUnitService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result deleteCommUnit(Long  supplierId, Long  id) {
-        //商品单位是否存在与操作权限判断
+        //库存单位是否存在与操作权限判断
         Result result=checkExistAndPermission(supplierId,id);
         if (null!=result){
             return  result;
@@ -100,23 +100,23 @@ public class CommUnitServiceImp implements CommUnitService {
         //根据该ID在供应商商品表中查询是是否在被使用（delete=0未删除状态），在使用状态时不能进行删除操作
         int count=supplierCommodityDao.countByUnitId(id);
         if (count>0) {
-            return Result.fail("商品单位正在使用，暂时无法删除此商品单位！");
+            return Result.fail("库存单位正在使用，暂时无法删除此库存单位！");
         }
         commUnitDao.deleteById(id);
-        return Result.success("商品单位删除成功！");
+        return Result.success("库存单位删除成功！");
     }
     /**
-     * 查询商品单位集合（查询管理员和供应商单位）
+     * 查询库存单位集合（查询管理员和供应商单位）
      * @param supplierId 供应商id
-     * @return 商品单位对象集合
+     * @return 库存单位对象集合
      */
     @Override
     public Result searchCommUnit(Long supplierId) {
          List<CommUnit> commUnitList=commUnitDao.search(supplierId);
-            return Result.success("查询商品单位成功！",commUnitList);
+            return Result.success("查询库存单位成功！",commUnitList);
     }
     /**
-     * 商品包装单位存在性校验
+     * 库存单位存在性校验
      * @param supplierId
      * @param name
      * @return
@@ -124,17 +124,17 @@ public class CommUnitServiceImp implements CommUnitService {
     private Result checkUnitName(Long supplierId, String name ){
         int count=commUnitDao.countByNameAndSupplierId(supplierId,name);
         if(count>0){
-            return Result.fail("商品单位已存在！");
+            return Result.fail("库存单位已存在！");
         }
         return null;
     }
     private Result checkExistAndPermission(Long supplierId, Long id){
         CommUnit commUnit=commUnitDao.findOne(id);
         if(null==commUnit){
-            return Result.fail("该商品单位不存在！");
+            return Result.fail("该库存单位不存在！");
         }
         if(!supplierId.equals(commUnit.getSupplierId())){
-            return Result.fail("公共商品单位，不能操作！");
+            return Result.fail("公共库存单位，不能操作！");
         }
         return null;
     }

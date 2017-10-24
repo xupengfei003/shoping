@@ -40,25 +40,18 @@ public class Account {
 	/**
 	 * 供应商营业执照号
 	 */
-	@NotEmpty(message = "供应商营业执照号不能为空")
-	@Length(max = 255,message = "供应商营业执照长度不能超过255")
 	private String license;
 	/**
 	 * 供应商营业执照开始时间
 	 */
-	@NotNull(message = "供应商营业执照开始时间不能为空")
-	@JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
 	private Date licenseTimeCreate;
 	/**
 	 * 供应商营业执照截至时间
 	 */
-	@NotNull(message = "供应商营业执照截至时间不能为空")
-	@JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
 	private Date licenseTimeEnd;
 	/**
 	 * 供应商行业类型
 	 */
-	@NotEmpty(message = "供应商行业类型不能为空")
 	private String businessType;
 	/**
 	 * 供应商注册地址（省，市，区）
@@ -134,12 +127,12 @@ public class Account {
 	/**
 	 * 用户创建日期
 	 */
-	@JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
+	@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
 	private Date createDate;
 	/**
 	 * 用户修改日期
 	 */
-	@JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
+	@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
 	private Date updateDate;
 	/**
 	 * 备注
@@ -157,32 +150,22 @@ public class Account {
 	/**
 	 * 合同法人代表
 	 */
-	@NotEmpty(message = "合同法人代表不能为空")
-	@Length(max = 255,message = "合同法人代表长度不能超过255")
 	private String contractResponsible;
 	/**
 	 * 合同法人代表电话
 	 */
-	@NotEmpty(message = "合同法人代表电话不能为空")
-	@Pattern(regexp = "^1[34578]\\d{9}$", message = "请输入正确的手机号码")
 	private String contractResponsiblePhone;
 	/**
 	 * 合同营业执照号
 	 */
-	@NotEmpty(message = "合同营业执照号不能为空")
-	@Length(max = 255,message = "合同营业执照号长度不能超过255")
 	private String contractLicense;
 	/**
 	 * 合同营业执照开始日期
 	 */
-	@NotNull(message = "合同营业执照开始日期不能为空")
-	@JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
 	private Date contractLicenseCreate;
 	/**
 	 * 合同营业执照截至日期
 	 */
-	@NotNull(message = "合同营业执照截至日期不能为空")
-	@JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
 	private Date contractLicenseEnd;
 	/**
 	 * 合同注册地址（省，市，区）
@@ -191,23 +174,18 @@ public class Account {
 	/**
      * 合同注册地址（省）
      */
-    @NotEmpty(message="合同注册地址不能为空")
     private String contractRegisterAddressProvince;
     /**
      * 合同注册地址（市）
      */
-    @NotEmpty(message="合同注册地址不能为空")
     private String contractRegisterAddressCity;
     /**
      * 合同注册地址（区）
      */
-    @NotEmpty(message="合同注册地址不能为空")
     private String contractRegisterAddressDistrict;
 	/**
 	 * 合同注册详细地址（街道，门牌号）
 	 */
-	@NotEmpty(message = "合同注册详细地址不能为空")
-    @Length(max = 255,message = "合同注册详细地址长度不能超过255")
 	private String contractRegisterAddressDetail;
 
 	/**
@@ -267,6 +245,11 @@ public class Account {
 	 * 运费规则
 	 */
 	private int freightRules;
+
+	/**
+	 * 供应商资质审核状态
+	 */
+	private int qualificationStatus;
 
 	public int getMonthAgoType() {
 		return monthAgoType;
@@ -332,13 +315,6 @@ public class Account {
 		this.license = license == null ? null : license.trim();
 	}
 
-	public Date getLicenseTimeCreate() {
-		return licenseTimeCreate;
-	}
-
-	public void setLicenseTimeCreate(Date licenseTimeCreate) {
-		this.licenseTimeCreate = licenseTimeCreate;
-	}
 
 	public Date getLicenseTimeEnd() {
 		return licenseTimeEnd;
@@ -660,4 +636,21 @@ public class Account {
 	public void setFreightRules(int freightRules) {
 		this.freightRules = freightRules;
 	}
+
+	public Date getLicenseTimeCreate() {
+		return licenseTimeCreate;
+	}
+
+	public void setLicenseTimeCreate(Date licenseTimeCreate) {
+		this.licenseTimeCreate = licenseTimeCreate;
+	}
+
+	public int getQualificationStatus() {
+		return qualificationStatus;
+	}
+
+	public void setQualificationStatus(int qualificationStatus) {
+		this.qualificationStatus = qualificationStatus;
+	}
+
 }

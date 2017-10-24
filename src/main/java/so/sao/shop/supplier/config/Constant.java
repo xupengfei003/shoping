@@ -34,7 +34,18 @@ public interface Constant {
      * 判断是否是管理员 1是
      */
     public static final String ADMIN_STATUS = "1";
-
+    /**
+     * 资质审核： 0未提交审核，1待审核 2审核通过 3审核未通过
+     */
+    public static final Integer QUALIFICATION_NOT_VERIFY = 0;
+    public static final Integer QUALIFICATION_AWAIT_VERIFY = 1;
+    public static final Integer QUALIFICATION_VERIFY_PASS = 2;
+    public static final Integer QUALIFICATION_VERIFY_NOT_PASS = 3;
+    /**
+     *标记消息已经读取： 1已经读取， 0 未读取
+     */
+    public static final Integer IS_NOT_READ = 0;
+    public static final Integer IS_READ = 1;
     /**
      * code定义
      */
@@ -179,6 +190,10 @@ public interface Constant {
          * 待付款已取消
          */
         public static final Integer PAYMENT_CANCEL_ORDER = 8;
+        /**
+         * 确认送达
+         */
+        public static final Integer CONFIRM_RECEIVED = 19;
 
     }
 
@@ -202,7 +217,7 @@ public interface Constant {
         /**
          * 5
          */
-        public static final String REJECT = "已拒收";
+        public static final String REJECT = "已拒收待审核";
         /**
          * 6
          */
@@ -210,11 +225,15 @@ public interface Constant {
         /**
          * 7
          */
-        public static final String CANCEL_ORDER = "已付款已取消";
+        public static final String CANCEL_ORDER = "已取消待审核";
         /**
          * 8
          */
         public static final String PAYMENT_CANCEL_ORDER = "待付款已取消";
+        /**
+         * 19
+         */
+        public static final String CONFIRM_RECEIVED = "确认送达";
     }
     interface OrderStatusRule{
         /**
@@ -348,6 +367,10 @@ public interface Constant {
          * 商品计量规格名称最大长度
          */
         public static final int MAX_MEASURESPEC_NAME_LENGTH = 64;
+        /**
+         * 资质审核状态拒绝原因最大255
+         */
+        public static final int MAX_QUALIFICATIUON_REJECT_REASON_LENGTH = 255;
     }
 
     /**
@@ -373,5 +396,52 @@ public interface Constant {
          * 不包邮
          */
         public static final int NotExemption = 1;
+    }
+
+    /*供应商资质常量*/
+    interface QualificationConfig{
+        /**
+         * 最大上传图片数量
+         */
+        public static final int MAX_IMG_NUMBER = 3;
+
+        /*资质类型（1、开户银行许可证 2、营业执照3、授权报告 4、质检报告 5、食品流通许可证）*/
+        /**
+         * 质检报告
+         */
+        public static final int BANK_LICENSE = 1;
+        /**
+         * 营业执照
+         */
+        public static final int BUSINESS_LICENSE = 2;
+        /**
+         * 授权报告
+         */
+        public static final int AUTHORIZATION_REPORT = 3;
+         /**
+         * 质检报告
+         */
+        public static final int INSPECTION_REPORT = 4;
+        /**
+         * 食品流通许可证
+         */
+        public static final int FOOD_DISTRIBUTIONLICENSE = 5;
+
+        /**
+         * 所有资质文件最大图片数量
+         */
+        public  static final int ALL_QUALIFICATION_IMG_NUM = 15;
+
+        /**
+         * 必传资质文件数量
+         */
+        public  static final int MUST_ADD_QUALIFICATION = 2;
+
+        /*未删除*/
+        public  static final int NOT_DELETE = 0;
+
+        /*已删除*/
+        public  static final int DELETED = 1;
+
     }
 }

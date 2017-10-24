@@ -7,7 +7,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import java.util.Date;
 
 /**
- * 商品单位实体
+ * 库存单位实体
  * @author liugang
  */
 public class CommUnit {
@@ -16,9 +16,9 @@ public class CommUnit {
      */
     private Long id;
     /**
-     * 商品单位名称
+     * 库存单位名称
      */
-    @NotEmpty(message = "商品单位名不能为空")
+    @NotEmpty(message = "库存单位名不能为空")
     private String name;
     /**
      * 供应商ID
