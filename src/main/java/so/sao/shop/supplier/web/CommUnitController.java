@@ -31,16 +31,15 @@ public class CommUnitController {
      */
     @ApiOperation(value = "查询库存单位集合",notes = "根据参数返回符合要求的结果集【负责人：任志平】")
     @GetMapping(value="/search")
-    public Result search(HttpServletRequest request ){
+    public Result search(HttpServletRequest request,Long supplierId ){
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //判断user是否为空
        if(user == null ) {
             return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
-        Long supplierId = user.getAccountId();
-        //判断登录用户是否是管理员,登录用户是管理员时设置supplierId为0
-        if (Constant.ADMIN_STATUS.equals(user.getIsAdmin())){
-            supplierId = 0L;
+        //判断登录用户是否是供应商（供应商登陆时，supplierId从request中取，第二个参数supplierId前台传回0）
+        if (supplierId.equals(0L)) {
+            supplierId = user.getAccountId();
         }
         return commUnitService.searchCommUnit(supplierId);
     }

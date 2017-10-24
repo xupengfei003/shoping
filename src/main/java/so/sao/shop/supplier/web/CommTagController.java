@@ -88,16 +88,15 @@ public class CommTagController {
 
     @GetMapping(value = "search")
     @ApiOperation(value = "查询商品标签集合", notes = "查询供应商及公用的商品标签【负责人：赵延】")
-    public Result search(HttpServletRequest request) {
+    public Result search(HttpServletRequest request,Long supplierId) {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //判断是否非法登录
         if (null == user) {
             return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
-        Long supplierId = user.getAccountId();
-        //判断登录用户是否是管理员,登录用户是管理员时设置supplierId为0
-        if (Constant.ADMIN_STATUS.equals(user.getIsAdmin())) {
-            supplierId = 0L;
+        //判断登录用户是否是供应商（供应商登陆时，supplierId从request中取，第二个参数supplierId前台传回0）
+        if (supplierId.equals(0L)) {
+            supplierId = user.getAccountId();
         }
         return commTagService.searchCommTag(supplierId);
     }
