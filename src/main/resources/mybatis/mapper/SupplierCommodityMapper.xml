@@ -320,7 +320,7 @@
                 cu.name AS unitName,
                 cms.name AS measureSpecName,
                 sctmp.rule_val,
-                sctmp.inventory,
+                sc.inventory,
                 t1.status AS STATUS,
                 sctmp.invalid_status AS invalidStatus,
                 sctmp.price,
@@ -339,6 +339,7 @@
               WHERE t.status = 6  /**/
                 AND t.audit_flag = 1) t1 ON sctmp.sca_id = t1.id
             INNER JOIN commodity c ON sctmp.code69 = c.code69
+            LEFT JOIN supplier_commodity sc on sc.id = t1.sc_id
              LEFT JOIN comm_brand cb ON c.brand_id = cb.id
              LEFT JOIN comm_measure_spec cms ON sctmp.measure_spec_id = cms.id
              LEFT JOIN comm_unit cu ON sctmp.unit_id = cu.id
@@ -600,7 +601,7 @@
                 cu.name AS unitName,
                 cms.name AS measureSpecName,
                 sctmp.rule_val,
-                sctmp.inventory,
+                sc.inventory,
                 t1.status AS STATUS,
                 sctmp.invalid_status,
                 sctmp.price,
@@ -621,6 +622,7 @@
 
                 ) t1 ON sctmp.sca_id = t1.id
                 INNER JOIN commodity c ON sctmp.code69 = c.code69
+                LEFT JOIN supplier_commodity sc on sc.id = t1.sc_id
                 LEFT JOIN comm_brand cb ON c.brand_id = cb.id
                 LEFT JOIN comm_measure_spec cms ON sctmp.measure_spec_id = cms.id
                 LEFT JOIN comm_unit cu ON sctmp.unit_id = cu.id
