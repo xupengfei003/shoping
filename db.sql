@@ -98,3 +98,8 @@ INSERT INTO `sys_region` VALUES ('820201', '0', '', '市辖区', '820200', '113.
  */
 update supplier_commodity set status = 3 where status = 0;
 update supplier_commodity_tmp set status = 3 where status = 0;
+
+/*
+为公共商品库添加唯一索引
+ */
+ALTER TABLE `commodity` ADD UNIQUE INDEX `code69` (`code69`);

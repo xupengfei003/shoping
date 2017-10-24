@@ -29,12 +29,12 @@ public class CommCartonController {
     @ApiOperation(value = "新增箱规单位", notes = "新增箱规单位")
     public Result create(HttpServletRequest request, @RequestParam String name) {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
-        //判断是否非法登录
+        //判断是否登录,如果未登录，提示请先登录
         if (null == user) {
             return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
         Long supplierId = user.getAccountId();
-        //判断登录用户是否是管理员,登录用户是管理员时设置supplierId为0
+        //判断登录用户是否是管理员（admin_status=1),登录用户是管理员时设置supplierId为0
         if (Constant.ADMIN_STATUS.equals(user.getIsAdmin())) {
             supplierId = 0L;
         }
@@ -42,7 +42,7 @@ public class CommCartonController {
         if (null == name || Ognl.isEmpty(name.trim())) {
             return Result.fail("箱规单位不能为空！");
         }
-        //校验箱规单位名称长度
+        //校验箱规单位名称长度(64位）
         if (name.trim().length() > Constant.CheckMaxLength.MAX_TAG_NAME_LENGTH) {
             return Result.fail("箱规单位不能超过" + Constant.CheckMaxLength.MAX_TAG_NAME_LENGTH + "位！");
         }
@@ -83,16 +83,15 @@ public class CommCartonController {
 
     @GetMapping(value = "/search")
     @ApiOperation(value = "查询箱规单位集合", notes = "查询供应商及公用的箱规单位")
-    public Result search(HttpServletRequest request) {
+    public Result search(HttpServletRequest request, Long supplierId) {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //判断是否非法登录
         if (null == user) {
             return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
-        Long supplierId = user.getAccountId();
-        //判断登录用户是否是管理员,登录用户是管理员时设置supplierId为0
-        if (Constant.ADMIN_STATUS.equals(user.getIsAdmin())) {
-            supplierId = 0L;
+        //判断登录用户是否是供应商（供应商登陆时，supplierId从request中取，第二个参数supplierId前台传回0）
+        if (null==supplierId || supplierId.equals(0L)) {
+            supplierId = user.getAccountId();
         }
         return commCartonService.searchCommCartons(supplierId);
     }

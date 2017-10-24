@@ -31,19 +31,20 @@ public class CommMeasureSpecController {
     /**
      * 查询计量规格，查询出自己的和管理员前期添加的公共的
      * @param request 请求对象
+     * @param supplierId 供应商id
      * @return Result - List<CommMeasureSpec> 集合对象
      */
     @GetMapping(value = "/searchCommMeasureSpec")
     @ApiOperation(value = "查询计量规格", notes = "查询出自己的和管理员前期添加的公共的计量规格【负责人：许鹏飞】")
-    public Result search(HttpServletRequest request){
+    public Result search(HttpServletRequest request, Long supplierId){
         // 1. 先从请求对象中拿到供应商(用户)的ID
        User user = (User)request.getAttribute(Constant.REQUEST_USER);
         if (null == user) {   //验证用户是否登陆
             return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
-        long supplierId = user.getAccountId();
-        if(Constant.ADMIN_STATUS.equals(user.getIsAdmin())){
-            supplierId = 0L;
+        //判断登录用户是否是供应商（供应商登陆时，supplierId从request中取，第二个参数supplierId前台传回0）
+        if (null==supplierId || supplierId.equals(0L)) {
+            supplierId = user.getAccountId();
         }
         // 2. 根据用户ID(supplierId),查询到自己和管理员添加的所有的计量规格
         return commMeasureSpecService.getCommMeasureSpe(supplierId);
