@@ -7,7 +7,8 @@ import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.stereotype.Service;
-import so.sao.shop.supplier.dao.PermissionDao;
+
+import so.sao.shop.supplier.dao.authorized.PermissionDao;
 import so.sao.shop.supplier.domain.authorized.Permission;
 
 import java.util.ArrayList;
