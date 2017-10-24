@@ -43,7 +43,7 @@ public class CommMeasureSpecController {
             return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
         //判断登录用户是否是供应商（供应商登陆时，supplierId从request中取，第二个参数supplierId前台传回0）
-        if (supplierId.equals(0L)) {
+        if (null==supplierId || supplierId.equals(0L)) {
             supplierId = user.getAccountId();
         }
         // 2. 根据用户ID(supplierId),查询到自己和管理员添加的所有的计量规格
