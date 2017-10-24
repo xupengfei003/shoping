@@ -219,7 +219,7 @@
         c.name AS name,
         cu.name AS unitName,
         sctmp.rule_val AS ruleVal,
-        sctmp.inventory AS inventory,
+        sc.inventory AS inventory,
         sctmp.price AS price,
         sctmp.unit_price AS unitPrice,
         t1.created_at AS createdAt,
@@ -237,6 +237,7 @@
         INNER JOIN commodity c ON sctmp.code69 = c.code69
         LEFT JOIN comm_unit cu ON sctmp.unit_id = cu.id
         LEFT JOIN comm_brand cb ON c.brand_id = cb.id
+        LEFT JOIN supplier_commodity sc on sc.id = t1.sc_id
         ) t2
         <where>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(status)">
