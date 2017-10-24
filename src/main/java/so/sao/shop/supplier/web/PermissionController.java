@@ -5,7 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import so.sao.shop.supplier.domain.Permission;
+
+import so.sao.shop.supplier.domain.authorized.Permission;
 import so.sao.shop.supplier.service.PermissionService;
 
 import java.util.List;

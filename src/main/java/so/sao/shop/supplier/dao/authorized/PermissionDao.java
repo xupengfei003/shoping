@@ -1,5 +1,6 @@
-package so.sao.shop.supplier.dao;
+package so.sao.shop.supplier.dao.authorized;
 
+import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -15,6 +16,9 @@ import java.util.List;
  **/
 @Mapper
 public interface PermissionDao {
+
+	public void insert();
+	
     public List<Permission> findAll();
     public List<Permission> findByUserId(@Param("userId") Long userId);
 }

@@ -1,7 +1,8 @@
 package so.sao.shop.supplier.service;
 
 import org.apache.ibatis.annotations.Param;
-import so.sao.shop.supplier.domain.Permission;
+
+import so.sao.shop.supplier.domain.authorized.Permission;
 
 import java.util.List;
 

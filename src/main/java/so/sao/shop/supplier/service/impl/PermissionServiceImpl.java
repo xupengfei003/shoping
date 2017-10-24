@@ -3,7 +3,7 @@ package so.sao.shop.supplier.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import so.sao.shop.supplier.dao.PermissionDao;
-import so.sao.shop.supplier.domain.Permission;
+import so.sao.shop.supplier.domain.authorized.Permission;
 import so.sao.shop.supplier.service.PermissionService;
 
 import java.util.List;

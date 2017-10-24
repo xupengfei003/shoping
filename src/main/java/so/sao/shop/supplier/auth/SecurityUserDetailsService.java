@@ -8,8 +8,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import so.sao.shop.supplier.dao.PermissionDao;
 import so.sao.shop.supplier.dao.UserDao;
-import so.sao.shop.supplier.domain.Permission;
 import so.sao.shop.supplier.domain.User;
+import so.sao.shop.supplier.domain.authorized.Permission;
 
 import java.util.List;
 import java.util.stream.Collectors;
