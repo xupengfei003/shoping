@@ -8,7 +8,7 @@
         <result column="per_desc" jdbcType="VARCHAR" property="description"/>
     </resultMap>
     
-    <insert id="save">
+    <insert id="insert" parameterType="so.sao.shop.supplier.domain.authorized.Permission">
 		INSERT INTO permission(
 			        per_id,
 			        per_name,
@@ -26,7 +26,7 @@
 			   )
 	</insert>
 
-    <select id="findAll"  resultMap="PermissionResultMap">
+    <select id="findAll" resultMap="PermissionResultMap">
         SELECT per_id, per_name, per_desc, per_url
           FROM permission
     </select>
@@ -36,7 +36,7 @@
           FROM user u,
                user_roles ur ,
                role r,
-               role_permission rp  ,
+               role_permission rp,
                permission p
          WHERE u.user_id= ur.user_id
            AND ur.role_id=r.role_id
