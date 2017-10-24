@@ -37,27 +37,27 @@ import so.sao.shop.supplier.util.PageTool;
 public class BannerServiceImpl implements BannerService {
 
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-	
+
 	@Autowired
 	private BannerDao bannerDao;
-	
+
 	@Autowired
-    private AzureBlobService azureBlobService;
-	
+	private AzureBlobService azureBlobService;
+
 	@Autowired
 	private AccountDao accountDao;
-	
+
 	@Autowired
 	private SupplierCommodityDao supplierCommodityDao;
-	
+
 	/**
 	 * 新增轮播图
 	 * @param banner 轮播图对象
 	 */
 	@Override
 	public Result saveBanner(Banner banner) throws Exception {
-        Result x = thinkTime(banner);
-        if (x != null) return x;
+		Result x = thinkTime(banner);
+		if (x != null) return x;
 		//根据轮播位置和上架时间确定是否有轮播图存在
 		List<BannerOut> banners = bannerDao.findBanners(banner.getLocation(), banner.getOnShelvesTime());
 		if(banners != null && !banners.isEmpty()) {
@@ -79,27 +79,27 @@ public class BannerServiceImpl implements BannerService {
 	@Override
 	public Result uploadImage(MultipartFile multipartFile) {
 		//判断文件是否为空
-        if (multipartFile == null) {
-            return Result.fail("上传文件为空");
-        }
-        //获取文件名称
-        String fileName = multipartFile.getOriginalFilename();
-        //获取文件后缀名
-        String prefix=fileName.substring(fileName.lastIndexOf(".")+1);
-        //判断文件类型 jpg/png/jpeg
-        if(!("jpg".equals(prefix) || "JPG".equals(prefix)||"png".equals(prefix)||"PNG".equals(prefix)||"jpeg".equals(prefix)||"JPEG".equals(prefix))) {
-            return Result.fail("上传图片必须为jpg/png/jpeg格式");
-        }
-        //初始化返回结果
+		if (multipartFile == null) {
+			return Result.fail("上传文件为空");
+		}
+		//获取文件名称
+		String fileName = multipartFile.getOriginalFilename();
+		//获取文件后缀名
+		String prefix=fileName.substring(fileName.lastIndexOf(".")+1);
+		//判断文件类型 jpg/png/jpeg
+		if(!("jpg".equals(prefix) || "JPG".equals(prefix)||"png".equals(prefix)||"PNG".equals(prefix)||"jpeg".equals(prefix)||"JPEG".equals(prefix))) {
+			return Result.fail("上传图片必须为jpg/png/jpeg格式");
+		}
+		//初始化返回结果
 		List<CommBlobUpload> blobUploadList = new ArrayList<CommBlobUpload>();
 		Result result = azureBlobService.uploadFilesComm(new MultipartFile[] {multipartFile}, blobUploadList);
 		if(blobUploadList.isEmpty()){
-            return result;
-        }else{
-            return Result.success("文件上传成功", blobUploadList.get(0));
-        }
+			return result;
+		}else{
+			return Result.success("文件上传成功", blobUploadList.get(0));
+		}
 	}
-	
+
 	/**
 	 * 根据供应商名称查询供应商信息
 	 * @param commAccountBanInput 供应商查询参数
@@ -113,7 +113,7 @@ public class BannerServiceImpl implements BannerService {
 		if(Ognl.isNotNull(pageInfo)) {
 			return  Result.success("查询供应商成功", pageInfo);
 		}
-		 return Result.fail("没有符合条件的供应商");
+		return Result.fail("没有符合条件的供应商");
 	}
 
 	/**
@@ -123,8 +123,8 @@ public class BannerServiceImpl implements BannerService {
 	 */
 	@Override
 	public Result updateBanner(Banner banner) throws Exception {
-        Result x = thinkTime(banner);
-        if (x != null) return x;
+		Result x = thinkTime(banner);
+		if (x != null) return x;
 		//判断供应商状态
 		if("2".equals(banner.getUrlType())) {
 			Account account = accountDao.selectByPrimaryKey(Long.parseLong(banner.getUrlValue()));
@@ -145,34 +145,34 @@ public class BannerServiceImpl implements BannerService {
 		return Result.success("更新轮播图成功");
 	}
 
-    private Result thinkTime(Banner banner) throws ParseException {
-        if (!"2".equals(banner.getStatus())) {
-            //判断上架时间必须大于系统时间
-            if(sdf.parse(sdf.format(banner.getOnShelvesTime())).getTime() <= sdf.parse(sdf.format(new Date())).getTime()) {
-                return Result.fail("上架时间必须大于当前系统时间");
-            }
-        }else {
-            //判断上架时间必须大于系统时间
-            if(sdf.parse(sdf.format(banner.getOnShelvesTime())).getTime() != sdf.parse(sdf.format(new Date())).getTime()) {
-                return Result.fail("立即上架，上架时间必须等于当前系统时间");
-                }
-            }
-        //判断下架时间必须大于上架时间
-        if(banner.getOffShelfTime().getTime() - banner.getOnShelvesTime().getTime() < 0) {
-            return Result.fail("下架时间必须大于上架时间");
-        }
-        //判断上下架时间间隔
-        if((banner.getOffShelfTime().getTime() - banner.getOnShelvesTime().getTime())/(1000*3600*24)<1) {
-            return Result.fail("上下架时间必须间隔至少一天");
-        }
-        return null;
-    }
+	private Result thinkTime(Banner banner) throws ParseException {
+		if (!"2".equals(banner.getStatus())) {
+			//判断上架时间必须大于系统时间
+			if(sdf.parse(sdf.format(banner.getOnShelvesTime())).getTime() <= sdf.parse(sdf.format(new Date())).getTime()) {
+				return Result.fail("上架时间必须大于当前系统时间");
+			}
+		}else {
+			//判断上架时间必须大于系统时间
+			if(sdf.parse(sdf.format(banner.getOnShelvesTime())).getTime() != sdf.parse(sdf.format(new Date())).getTime()) {
+				return Result.fail("立即上架，上架时间必须等于当前系统时间");
+			}
+		}
+		//判断下架时间必须大于上架时间
+		if(banner.getOffShelfTime().getTime() - banner.getOnShelvesTime().getTime() < 0) {
+			return Result.fail("下架时间必须大于上架时间");
+		}
+		//判断上下架时间间隔
+		if((banner.getOffShelfTime().getTime() - banner.getOnShelvesTime().getTime())/(1000*3600*24)<1) {
+			return Result.fail("上下架时间必须间隔至少一天");
+		}
+		return null;
+	}
 
-    /**
-     * 根据商品名称商品类型查询商品信息
-     * @param commAccountBanInput 查询参数
-     * @return 查询结果
-     */
+	/**
+	 * 根据商品名称商品类型查询商品信息
+	 * @param commAccountBanInput 查询参数
+	 * @return 查询结果
+	 */
 	@Override
 	public Result getCommoditys(CommAccountBanInput commAccountBanInput) {
 		PageTool.startPage(commAccountBanInput.getPageNum(),commAccountBanInput.getPageSize());
@@ -184,7 +184,7 @@ public class BannerServiceImpl implements BannerService {
 		}
 		return Result.fail("没有符合条件的商品信息");
 	}
-	
+
 	/**
 	 * 根据id查询轮播图信息
 	 * @param id
@@ -198,7 +198,7 @@ public class BannerServiceImpl implements BannerService {
 		}
 		return Result.fail("没有符合条件的轮播图");
 	}
-	
+
 	/**
 	 * 根据条件查询轮播图
 	 * @param banner 参数
@@ -235,7 +235,7 @@ public class BannerServiceImpl implements BannerService {
 		bannerDao.deleteById(id);
 		return Result.success("删除轮播图成功");
 	}
-	
+
 	/**
 	 * 批量删除轮播图
 	 * @param ids
@@ -255,13 +255,13 @@ public class BannerServiceImpl implements BannerService {
 		bannerDao.updateByIds(ids,"4");
 		return Result.success("批量删除轮播图成功");
 	}
-	
+
 	/**
 	 * 根据上下架时间批量更新轮播图
 	 * @param onTime 上架时间
 	 * @param status 更新状态
 	 * @return 更新结果
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	@Override
 	public Result updateBanners(Date onTime, String status) throws Exception {
@@ -280,4 +280,3 @@ public class BannerServiceImpl implements BannerService {
 	}
 
 }
->>>>>>> develop
