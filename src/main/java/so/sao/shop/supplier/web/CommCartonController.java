@@ -90,7 +90,7 @@ public class CommCartonController {
             return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
         //判断登录用户是否是供应商（供应商登陆时，supplierId从request中取，第二个参数supplierId前台传回0）
-        if (supplierId.equals(0L)) {
+        if (null==supplierId || supplierId.equals(0L)) {
             supplierId = user.getAccountId();
         }
         return commCartonService.searchCommCartons(supplierId);
