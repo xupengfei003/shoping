@@ -444,4 +444,24 @@ public interface Constant {
         public  static final int DELETED = 1;
 
     }
+    
+    /**
+     * 权限相关常量
+     * @author acer
+     *
+     */
+    interface AuthConfig {
+    	/**
+    	 * 后台接口类型
+    	 */
+    	public static final Integer PERMISSION_TYPE_INTERFACE = 1;
+    	/**
+    	 * 前端菜单
+    	 */
+    	public static final Integer PERMISSION_TYPE_MENU = 2;
+    	/**
+    	 * 前端按钮
+    	 */
+    	public static final Integer PERMISSION_TYPE_BUTTON = 3;
+    }
 }

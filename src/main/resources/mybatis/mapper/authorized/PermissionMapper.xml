@@ -1,34 +1,36 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="so.sao.shop.supplier.dao.PermissionDao">
-    <resultMap id="PermissionResultMap" type="so.sao.shop.supplier.domain.Permission">
-        <id column="per_id" jdbcType="BIGINT" property="id"/>
-        <result column="per_name" jdbcType="VARCHAR" property="name"/>
-        <result column="per_url" jdbcType="VARCHAR" property="url"/>
-        <result column="per_desc" jdbcType="VARCHAR" property="description"/>
+<mapper namespace="so.sao.shop.supplier.dao.authorized.PermissionDao">
+
+    <resultMap id="PermissionResultMap" type="so.sao.shop.supplier.domain.authorized.Permission">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="code" jdbcType="INTEGER" property="code"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="type" jdbcType="INTEGER" property="type"/>
+        <result column="url" jdbcType="VARCHAR" property="url"/>
+        <result column="description" jdbcType="VARCHAR" property="description"/>
     </resultMap>
     
     <insert id="insert" parameterType="so.sao.shop.supplier.domain.authorized.Permission">
 		INSERT INTO permission(
-			        per_id,
-			        per_name,
-			        per_url,
-			        create_time,
-			        update_time,
-			        per_desc
+			        id,
+			        name,
+			        url,
+			        description,
+			        code,
+			        type
 			   )VALUES(
-					#{perId},
-					#{perName},
-					#{perUrl},
-					#{createTime},
-					#{updateTime},
-					#{perDesc}
+					#{id},
+					#{name},
+					#{url},
+					#{description},
+					#{code},
+					#{type}
 			   )
 	</insert>
 
     <select id="findAll" resultMap="PermissionResultMap">
-        SELECT per_id, per_name, per_desc, per_url
-          FROM permission
+        SELECT * FROM permission
     </select>
 
     <select id="findByUserId" parameterType="Long" resultMap="PermissionResultMap">
