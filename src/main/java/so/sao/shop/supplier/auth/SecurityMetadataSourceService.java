@@ -7,11 +7,17 @@ import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.stereotype.Service;
-import so.sao.shop.supplier.dao.PermissionDao;
-import so.sao.shop.supplier.domain.Permission;
+
+import so.sao.shop.supplier.dao.authorized.PermissionDao;
+import so.sao.shop.supplier.domain.authorized.Permission;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
 
 /**
  * 加载权限到map, 后续判断请求url是否在map中,在则调用decide判断是否有权，否则放行
