@@ -1,15 +1,19 @@
-package so.sao.shop.supplier.service;
+package so.sao.shop.supplier.dao;
 
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import so.sao.shop.supplier.domain.Permission;
 
 import java.util.List;
 
 /**
- * Created by acer on 2017/7/11.
- */
-public interface PermissionService {
-
+ * 权限dao
+ *
+ * @author
+ * @create 2017-07-08 21:35
+ **/
+@Mapper
+public interface PermissionDao {
     public List<Permission> findAll();
     public List<Permission> findByUserId(@Param("userId") Long userId);
 }

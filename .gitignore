@@ -21,6 +21,5 @@ test-output/
 .gradle/
 build/
 
-
 #STS
 bin/
