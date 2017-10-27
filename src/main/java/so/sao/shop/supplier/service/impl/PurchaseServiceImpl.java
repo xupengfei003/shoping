@@ -2,6 +2,7 @@ package so.sao.shop.supplier.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.apache.commons.beanutils.BeanMap;
 import org.apache.poi.hssf.usermodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -167,7 +168,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                     BigDecimal price = commOutput.getPrice();//市场价
                     BigDecimal unitPrice = commOutput.getUnitPrice();//成本价
                     item.setGoodsUnitPrice(price);
-                    totalMoney = totalMoney.add(goodsNumber.multiply(price));//订单实付金额
+                    totalMoney = totalMoney.add(goodsNumber.multiply(price));//商品金额小计（原：订单实付金额）
                     orderSettlemePrice = orderSettlemePrice.add(goodsNumber.multiply(unitPrice));//订单结算金额
                     item.setGoodsTatolPrice(goodsNumber.multiply(price));//单个商品总价
                     item.setGoodsImage(commOutput.getMinImg());//商品图片
@@ -267,32 +268,54 @@ public class PurchaseServiceImpl implements PurchaseService {
         Purchase purchase = purchaseDao.findById(orderId);
         if (purchase != null) {
             //PurchaseInfoVo 添加订单信息
+            purchaseInfoVo = BeanMapper.map(purchase,PurchaseInfoVo.class);
             if(purchase.getOrderPostage().compareTo(new BigDecimal(0)) == 0){
                 purchaseInfoVo.setOrderPostage("包邮");
             } else {
                 purchaseInfoVo.setOrderPostage("￥"+NumberUtil.number2Thousand(purchase.getOrderPostage()));
             }
-            purchaseInfoVo.setOrderId(purchase.getOrderId());
-            purchaseInfoVo.setOrderReceiverName(purchase.getOrderReceiverName());
-            purchaseInfoVo.setOrderReceiverMobile(purchase.getOrderReceiverMobile());
-            purchaseInfoVo.setOrderCreateTime(purchase.getOrderCreateTime());
-            purchaseInfoVo.setOrderPaymentMethod(purchase.getOrderPaymentMethod());
-            purchaseInfoVo.setOrderPaymentNum(purchase.getOrderPaymentNum());
-            purchaseInfoVo.setOrderPaymentTime(purchase.getOrderPaymentTime());
+            //商品金额小计
             purchaseInfoVo.setOrderPrice(NumberUtil.number2Thousand(purchase.getOrderPrice()));
-            purchaseInfoVo.setOrderStatus(purchase.getOrderStatus().shortValue());
-            purchaseInfoVo.setOrderShipMethod(purchase.getOrderShipMethod());
-            purchaseInfoVo.setOrderShipmentNumber(purchase.getOrderShipmentNumber());
-            purchaseInfoVo.setLogisticsCompany(purchase.getLogisticsCompany());
-            purchaseInfoVo.setDistributorName(purchase.getDistributorName());
-            purchaseInfoVo.setDistributorMobile(purchase.getDistributorMobile());
-            purchaseInfoVo.setDrawbackTime(purchase.getDrawbackTime());
-            purchaseInfoVo.setOrderAddress(purchase.getOrderAddress());
+            //折扣优惠
+            purchaseInfoVo.setDiscount(NumberUtil.number2Thousand(purchase.getDiscount()));
+            //合计金额
+            purchaseInfoVo.setOrderTotalPrice(NumberUtil.number2Thousand(purchase.getOrderTotalPrice()));
+            //实付金额
+            purchaseInfoVo.setPayAmount(NumberUtil.number2Thousand(purchase.getPayAmount()));
+            //退款金额
+            purchaseInfoVo.setDrawbackPrice(NumberUtil.number2Thousand(purchase.getDrawbackPrice()));
+//            purchaseInfoVo.setOrderId(purchase.getOrderId());
+//            purchaseInfoVo.setOrderReceiverName(purchase.getOrderReceiverName());
+//            purchaseInfoVo.setOrderReceiverMobile(purchase.getOrderReceiverMobile());
+//            purchaseInfoVo.setOrderCreateTime(purchase.getOrderCreateTime());
+//            purchaseInfoVo.setOrderPaymentMethod(purchase.getOrderPaymentMethod());
+//            purchaseInfoVo.setOrderPaymentNum(purchase.getOrderPaymentNum());
+//            purchaseInfoVo.setOrderPaymentTime(purchase.getOrderPaymentTime());
+//            //商品金额小计
+//            purchaseInfoVo.setOrderPrice(NumberUtil.number2Thousand(purchase.getOrderPrice()));
+//            purchaseInfoVo.setOrderStatus(purchase.getOrderStatus().shortValue());
+//            purchaseInfoVo.setOrderShipMethod(purchase.getOrderShipMethod());
+//            purchaseInfoVo.setOrderShipmentNumber(purchase.getOrderShipmentNumber());
+//            purchaseInfoVo.setLogisticsCompany(purchase.getLogisticsCompany());
+//            purchaseInfoVo.setDistributorName(purchase.getDistributorName());
+//            purchaseInfoVo.setDistributorMobile(purchase.getDistributorMobile());
+//            purchaseInfoVo.setDrawbackTime(purchase.getDrawbackTime());
+//            purchaseInfoVo.setOrderAddress(purchase.getOrderAddress());
+//            //折扣优惠
+//            purchaseInfoVo.setDiscount(NumberUtil.number2Thousand(purchase.getDiscount()));
+//            //合计金额
+//            purchaseInfoVo.setOrderTotalPrice(NumberUtil.number2Thousand(purchase.getOrderTotalPrice()));
+//            //实付金额
+//            purchaseInfoVo.setPayAmount(NumberUtil.number2Thousand(purchase.getPayAmount()));
+//            //退款金额
+//            purchaseInfoVo.setDrawbackPrice(NumberUtil.number2Thousand(purchase.getDrawbackPrice()));
             //添加订单明细列表
             List<PurchaseItemVo> purchaseItemVoList = purchaseItemDao.getOrderDetailByOId(purchase.getOrderId());
             //转换金额为千分位
             for (PurchaseItemVo purchaseItemVo : purchaseItemVoList) {
+                //商品总价
                 purchaseItemVo.setGoodsTatolPrice(NumberUtil.number2Thousand(new BigDecimal(purchaseItemVo.getGoodsTatolPrice())));
+                //app订货价(商品单价)
                 purchaseItemVo.setGoodsUnitPrice(NumberUtil.number2Thousand(new BigDecimal(purchaseItemVo.getGoodsUnitPrice())));
             }
             if (purchaseItemVoList != null && purchaseItemVoList.size() > 0) {
@@ -695,7 +718,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         // 3.封装返回对象
         PurchaseItemPrintOutput output = new PurchaseItemPrintOutput(); // 封装返回对象
         output = BeanMapper.map(purchasePrintVo, output.getClass()); // 将订单信息复制到output
-        output.setTotalPrice(purchasePrintVo.getOrderPostage().add(purchasePrintVo.getTotalPrice())); // 订单总金额=订单金额+运费
+        output.setTotalPrice(String.valueOf(purchasePrintVo.getOrderPostage().add(purchasePrintVo.getTotalPrice()))); // 订单总金额=订单金额+运费
         output.setOrderPostage(purchasePrintVo.getOrderPostage()); // 运费
         output.setPurchaseItemPrintVos(purchaseItemPrintVos); // 添加商品条目
 

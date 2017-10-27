@@ -9,6 +9,7 @@
         order_payment_time = #{payInput.orderPaymentTime},
         updated_at = #{payInput.updatedAt},
         order_status = #{payInput.orderStatus},
+        pay_amount = #{payInput.orderPrice},
         pay_status = #{payInput.payStatus}
         WHERE pay_id = #{payInput.orderId}
     </update>

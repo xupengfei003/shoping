@@ -55,7 +55,12 @@ public class PurchaseItemPrintVo {
     /**
      * 千分位商品总价（总价）
      */
-    private String goodsTatolPriceFormat;
+//    private String goodsTatolPriceFormat;
+
+    /**
+     * 库存单位
+     */
+    private String goodsUnitName;
 
     public String getGoodsName() {
         return goodsName;
@@ -113,19 +118,21 @@ public class PurchaseItemPrintVo {
         this.goodsNumber = goodsNumber;
     }
 
-    public BigDecimal getGoodsTatolPrice() {
-        return goodsTatolPrice;
+    public String getGoodsTatolPrice() {
+        return NumberUtil.number2Thousand(goodsTatolPrice);
     }
 
     public void setGoodsTatolPrice(BigDecimal goodsTatolPrice) {
         this.goodsTatolPrice = goodsTatolPrice;
     }
 
-    public String getGoodsTatolPriceFormat() {
-        return NumberUtil.number2Thousand(this.goodsTatolPrice);
+
+
+    public String getGoodsUnitName() {
+        return goodsUnitName;
     }
 
-    public void setGoodsTatolPriceFormat(String goodsTatolPriceFormat) {
-        this.goodsTatolPriceFormat = goodsTatolPriceFormat;
+    public void setGoodsUnitName(String goodsUnitName) {
+        this.goodsUnitName = goodsUnitName;
     }
 }
