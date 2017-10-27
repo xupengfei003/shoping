@@ -33,18 +33,24 @@
         SELECT * FROM permission
     </select>
 
-    <select id="findByUserId" parameterType="Long" resultMap="PermissionResultMap">
-        SELECT p.per_id, p.per_name, p.per_url, p.per_desc
-          FROM user u,
-               user_roles ur ,
-               role r,
-               role_permission rp,
-               permission p
-         WHERE u.user_id= ur.user_id
-           AND ur.role_id=r.role_id
-           AND rp.role_id=r.role_id
-           AND p.per_id =rp.per_id
-           AND u.user_id=#{userId}
+    <select id="findByUserId" parameterType="Long" resultMap="PermissionResultMap">  
+		SELECT
+			p.id,
+			p.name,
+			p.url,
+			p.description
+		FROM
+			USER u,
+			user_roles ur,
+			role r,
+			role_permission rp,
+			permission p
+		WHERE
+			u.user_id = ur.user_id
+		AND ur.role_id = r.id
+		AND rp.role_id = r.id
+		AND p.id = rp.per_id
+		AND u.user_id = #{userId}
     </select>
 
 </mapper>

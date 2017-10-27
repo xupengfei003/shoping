@@ -30,7 +30,7 @@ public class PermissionService implements IPermissionService {
 			if (permission.getUrl().equals(per.getUrl())) {
 				return ;
 			}
-		}		
+		}
 		this.insert(permission);
 	}
 	
