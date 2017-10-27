@@ -237,10 +237,10 @@ public class AccountController {
     @GetMapping(value = "/findAccount")
     @ApiOperation(value = "查询供应商列表" , notes = "负责人：唐文斌")
     public PageInfo search(@Validated AccountInput accountInput, HttpServletRequest request)  {
-//        User user = (User) request.getAttribute(Constant.REQUEST_USER);
-//        if(user==null || !user.getIsAdmin().equals(Constant.ADMIN_STATUS)){
-//            throw new RuntimeException("unauthorized access");
-//        }
+        User user = (User) request.getAttribute(Constant.REQUEST_USER);
+        if(user==null || !user.getIsAdmin().equals(Constant.ADMIN_STATUS)){
+            throw new RuntimeException("unauthorized access");
+        }
         List<Account> accountList = accountService.searchAccount(accountInput);
         return new PageInfo(accountList);
     }
