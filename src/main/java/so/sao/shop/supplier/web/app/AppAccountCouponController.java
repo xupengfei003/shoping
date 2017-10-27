@@ -3,6 +3,7 @@ package so.sao.shop.supplier.web.app;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,18 +25,25 @@ public class AppAccountCouponController {
 
     @Autowired
     private AppAccountCouponService appAccountCouponService;
-    @Autowired
-    private CouponService couponService;
 
-    @ApiOperation(value = "用户优惠券添加",notes = "用户优惠券添加【负责人：】")
+
+    /**
+     *
+     * @param shopId 门店id
+     * @param couponId 优惠券id
+     * @return
+     */
+    @ApiOperation(value = "领取优惠券",notes = "用户优惠券添加【负责人：王翼云】")
     @PostMapping("/save")
-    public Result save() {
-        return null;
+    public Result save(Long shopId,Long couponId) {
+        return appAccountCouponService.addAccountCoupon(shopId,couponId);
     }
 
-    @ApiOperation(value = "查询用户优惠券信息",notes = "查询用户优惠券信息【负责人：】")
-    @PostMapping("/get")
-    public Result getAccountCoupons() {
-        return null;
+    @ApiOperation(value = "查询用户优惠券信息",notes = "查询用户优惠券信息【负责人：王翼云】")
+    @GetMapping("/list")
+    public Result getAccountCoupons(Long shopId,Integer pageNum,Integer pageSize) {
+        return appAccountCouponService.getAccountCoupons(shopId,pageNum,pageSize);
     }
+
+
 }
