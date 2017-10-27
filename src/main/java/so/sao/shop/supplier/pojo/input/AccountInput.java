@@ -3,6 +3,7 @@ package so.sao.shop.supplier.pojo.input;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.DateTimeFormat.ISO;
 
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 /**
@@ -89,6 +90,11 @@ public class AccountInput {
      * 供应商状态
      */
     private String accountStatus;
+    /**
+     * 排序方式
+     */
+    @NotNull(message = "排序方式不能为空")
+    private Integer sort;
 
     public String getUploadMode() {
         return uploadMode;
@@ -233,5 +239,13 @@ public class AccountInput {
 
     public void setAccountStatus(String accountStatus) {
         this.accountStatus = accountStatus;
+    }
+
+    public Integer getSort() {
+        return sort;
+    }
+
+    public void setSort(Integer sort) {
+        this.sort = sort;
     }
 }
