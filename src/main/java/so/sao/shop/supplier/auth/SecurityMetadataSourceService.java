@@ -8,6 +8,7 @@ import org.springframework.security.web.access.intercept.FilterInvocationSecurit
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.stereotype.Service;
 
+import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.dao.authorized.PermissionDao;
 import so.sao.shop.supplier.domain.authorized.Permission;
 
@@ -16,6 +17,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -26,13 +28,12 @@ import javax.servlet.http.HttpServletRequest;
  * @create 2017-07-08 21:54
  **/
 @Service
-public class SecurityMetadataSourceService implements
-        FilterInvocationSecurityMetadataSource {
+public class SecurityMetadataSourceService implements FilterInvocationSecurityMetadataSource {
 
     @Autowired
     private PermissionDao permissionDao;
 
-    private HashMap<String, Collection<ConfigAttribute>> map = null;
+    private Map<String, Collection<ConfigAttribute>> map = null;
 
     /**
      * 加载权限表中所有权限
@@ -42,13 +43,15 @@ public class SecurityMetadataSourceService implements
         Collection<ConfigAttribute> array;
         ConfigAttribute cfg;
         List<Permission> permissions = permissionDao.findAll();
-        for (Permission permission : permissions) {
-            array = new ArrayList<>();
-            cfg = new SecurityConfig(permission.getName());
-            //此处只添加了用户的名字，其实还可以添加更多权限的信息，例如请求方法到ConfigAttribute的集合中去。此处添加的信息将会作为MyAccessDecisionManager类的decide的第三个参数。
-            array.add(cfg);
-            //用权限的getUrl() 作为map的key，用ConfigAttribute的集合作为 value，
-            map.put(permission.getUrl(), array);
+        for (Permission permission:permissions) {
+        	if(Constant.AuthConfig.PERMISSION_TYPE_INTERFACE.equals(permission.getType())) {
+                array = new ArrayList<>();
+                cfg = new SecurityConfig(permission.getName());
+                //此处只添加了用户的名字，其实还可以添加更多权限的信息，例如请求方法到ConfigAttribute的集合中去。此处添加的信息将会作为MyAccessDecisionManager类的decide的第三个参数。
+                array.add(cfg);
+                //用权限的getUrl() 作为map的key，用ConfigAttribute的集合作为 value，
+                map.put(permission.getUrl(), array);
+            }
         }
 
     }

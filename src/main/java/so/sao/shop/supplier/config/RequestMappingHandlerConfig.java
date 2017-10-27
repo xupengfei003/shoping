@@ -57,8 +57,9 @@ public class RequestMappingHandlerConfig {
 			
 			Permission permission = new Permission();
 			permission.setUrl(url);
+			permission.setName("test");
 			permission.setType(Constant.AuthConfig.PERMISSION_TYPE_INTERFACE);
-			permissionService.startInsert(permission);
+			//permissionService.startInsert(permission);
         }
     }
 }
