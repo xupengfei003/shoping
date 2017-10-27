@@ -2,4 +2,116 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="so.sao.shop.supplier.dao.external.CouponDao" >
 
+  <resultMap id="AllColumnMap" type="so.sao.shop.supplier.domain.external.Coupon">
+   <result column="id" property="id"/>
+   <result column="name" property="name"/>
+   <result column="category_id" property="categoryId"/>
+   <result column="discount_way" property="discountWay"/>
+   <result column="coupon_value" property="couponValue"/>
+   <result column="usable_value" property="usableValue"/>
+   <result column="send_start_time" property="sendStartTime"/>
+   <result column="send_end_time" property="sendEndTime"/>
+   <result column="use_start_time" property="useStartTime"/>
+   <result column="use_end_time" property="useEndTime"/>
+   <result column="create_num" property="createNum"/>
+   <result column="send_num" property="sendNum"/>
+   <result column="use_num" property="useNum"/>
+   <result column="status" property="status"/>
+   <result column="create_at" property="createAt"/>
+   <result column="update_at" property="updateAt"/>
+  </resultMap>
+    <sql id="all_column">
+        `id` ,
+        `name` ,
+        `category_id`,
+        `discount_way`,
+        `coupon_value`,
+        `usable_value`,
+        `send_start_time`,
+        `send_end_time`,
+        `use_start_time`,
+        `use_end_time`,
+        `create_num`,
+        `send_num`,
+        `use_num`,
+        `status`,
+        `create_at`,
+        `update_at`
+    </sql>
+
+
+    <select id="findCoupons" resultMap="AllColumnMap" >
+        SELECT
+          <include refid="all_column"/>
+        FROM coupon c
+        WHERE c.name  LIKE  CONCAT('%',#{name},'%')
+          <if test="status != null">
+          AND c.status  in
+              <foreach collection="status" item="item" index="index"
+                       open="(" close=")" separator=",">
+                  #{item}
+              </foreach>
+          </if>
+    </select>
+
+    <select id="findCouponsByName" resultMap="AllColumnMap" >
+        SELECT
+        <include refid="all_column"/>
+        FROM coupon c
+        WHERE c.name  = #{name}
+        LIMIT 1;
+    </select>
+
+
+    <insert id="insertCoupon"  >
+            INSERT INTO coupon (
+            `id`,
+            `name`,
+            `category_id`,
+            `discount_way`,
+            `coupon_value`,
+            `usable_value`,
+            `send_start_time`,
+            `send_end_time`,
+            `use_start_time`,
+            `use_end_time`,
+            `create_num`,
+            `send_num`,
+            `use_num`,
+            `status`,
+            `create_at`,
+            `update_at`
+            ) VALUES (
+            #{pojo.id},
+            #{pojo.name},
+            #{pojo.categoryId},
+            #{pojo.discountWay},
+            #{pojo.couponValue},
+            #{pojo.usableValue},
+            #{pojo.sendStartTime},
+            #{pojo.sendEndTime},
+            #{pojo.useStartTime},
+            #{pojo.useEndTime},
+            #{pojo.createNum},
+            #{pojo.sendNum},
+            #{pojo.useNum},
+            #{pojo.status},
+            #{pojo.createAt},
+            #{pojo.updateAt}
+            )
+    </insert>
+
+    <update id="updateCouponStatusById" >
+        UPDATE coupon c
+        SET c.status = 4
+        <if test="ids != null">
+            WHERE c.id  in
+            <foreach collection="ids" item="id" index="index"
+                     open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </if>
+    </update>
+
+
  </mapper>

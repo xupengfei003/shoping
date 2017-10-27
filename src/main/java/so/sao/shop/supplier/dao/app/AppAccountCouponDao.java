@@ -1,5 +1,6 @@
 package so.sao.shop.supplier.dao.app;
 
+import org.apache.ibatis.annotations.Param;
 import so.sao.shop.supplier.domain.AccountCoupon;
 
 import java.util.List;
@@ -23,7 +24,19 @@ public interface AppAccountCouponDao {
      * @param shopId
      * @return
      */
-    List<AccountCoupon> findAccountCouponsByUserId(Long shopId);
+    List<AccountCoupon> findAccountCouponsByUserId(@Param("accountId") Long shopId);
 
-    Integer addAccountCoupon(AccountCoupon accountCoupon);
+    /**
+     * 领取优惠券
+     * @param accountCoupon
+     * @return
+     */
+    Integer insertAccountCoupon(@Param("pojo") AccountCoupon accountCoupon);
+
+    /**
+     * 更新优惠券的状态为已使用
+     * @param id
+     * @return
+     */
+    Integer updateAccountCouponStatusById(@Param("id")Long id);
 }

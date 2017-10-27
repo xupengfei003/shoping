@@ -1,6 +1,7 @@
 package so.sao.shop.supplier.service.app.impl;
 
 import com.github.pagehelper.PageInfo;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import so.sao.shop.supplier.config.Constant;
@@ -12,6 +13,7 @@ import so.sao.shop.supplier.service.app.AppAccountCouponService;
 import so.sao.shop.supplier.util.PageTool;
 import so.sao.shop.supplier.util.PageUtil;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -44,7 +46,7 @@ public class AppAccountCouponServiceImpl implements AppAccountCouponService {
      * @return
      */
     @Override
-    public Result getAccountCoupons(Long shopId, Integer pageNum, Integer pageSize) {
+    public Result getAccountCoupons(@Param("shopId")Long shopId, Integer pageNum, Integer pageSize) {
         PageTool.startPage(pageNum,pageSize);
         List<AccountCoupon> list = appAccountCouponDao.findAccountCouponsByUserId(shopId);
         PageInfo pageInfo = new PageInfo<>();
@@ -61,9 +63,14 @@ public class AppAccountCouponServiceImpl implements AppAccountCouponService {
      * @return
      */
     @Override
-    public Result addAccountCoupon(Long shopId, Long couponId) {
+    public Result addAccountCoupon(@Param("shopId") Long shopId, @Param("couponId")Long couponId) {
         AccountCoupon accountCoupon = new AccountCoupon();
-        Integer i = appAccountCouponDao.addAccountCoupon(accountCoupon);
+        accountCoupon.setAccountId(shopId);
+        accountCoupon.setCouponId(couponId);
+        accountCoupon.setCreateAt(new Date());
+        accountCoupon.setStatus(0);
+        accountCoupon.setGetTime(new Date());
+        Integer i = appAccountCouponDao.insertAccountCoupon(accountCoupon);
         Result result  = Result.success(Constant.MessageConfig.MSG_SUCCESS);
         return result;
     }

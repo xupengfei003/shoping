@@ -2,4 +2,68 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="so.sao.shop.supplier.dao.app.AppAccountCouponDao" >
 
+ <!--auto generated Code-->
+ <resultMap id="AllColumnMap" type="so.sao.shop.supplier.domain.AccountCoupon">
+  <result column="id" property="id"/>
+  <result column="account_id" property="accountId"/>
+  <result column="coupon_id" property="couponId"/>
+  <result column="status" property="status"/>
+  <result column="use_time" property="useTime"/>
+  <result column="get_time" property="getTime"/>
+  <result column="create_at" property="createAt"/>
+  <result column="update_at" property="updateAt"/>
+ </resultMap>
+
+ <!--auto generated Code-->
+ <sql id="all_column">
+  `id`,
+  `account_id`,
+  `coupon_id`,
+  `status`,
+  `use_time`,
+  `get_time`,
+  `create_at`,
+  `update_at`
+ </sql>
+
+ <!--auto generated Code-->
+ <insert id="insertAccountCoupon">
+  INSERT INTO account_coupon (
+  `id`,
+  `account_id`,
+  `coupon_id`,
+  `status`,
+  `use_time`,
+  `get_time`,
+  `create_at`,
+  `update_at`
+  ) VALUES (
+  #{pojo.id},
+  #{pojo.accountId},
+  #{pojo.couponId},
+  #{pojo.status},
+  #{pojo.useTime},
+  #{pojo.getTime},
+  #{pojo.createAt},
+  #{pojo.updateAt}
+  )
+ </insert>
+<select id="findAccountCouponsByUserId" resultMap="AllColumnMap">
+  SELECT  <include refid="all_column"/>
+  FROM account_coupon ac
+  WHERE ac.account_id = #{accountId}
+</select>
+ <update id="updateAccountCouponStatusById" >
+  UPDATE account_coupon ac
+   SET ac.status = #{status}
+   WHERE id = #{id}
+ </update>
+ <!--更新优惠券为已过期-->
+ <update id="updateAccountCouponStatus" >
+  UPDATE account_coupon ac
+    LEFT JOIN coupon c ON  c.id = ac.coupon_id
+  SET ac.status = 4,
+      ac.update_at = now()
+  WHERE  now() > c.use_end_time
+ </update>
  </mapper>

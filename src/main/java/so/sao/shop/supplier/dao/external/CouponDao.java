@@ -1,5 +1,10 @@
 package so.sao.shop.supplier.dao.external;
 
+import org.apache.ibatis.annotations.Param;
+import so.sao.shop.supplier.domain.external.Coupon;
+
+import java.util.List;
+
 /**
  * <p>Version: shop-portal V0.9.0 </p>
  * <p>Title: CouponDao</p>
@@ -8,4 +13,22 @@ package so.sao.shop.supplier.dao.external;
  * @Date: Created in 2017/10/23 16:59
  */
 public interface CouponDao {
+    /**
+     * 查询优惠券列表
+     * @param name
+     * @param couponStatus
+     * @return
+     */
+    List<Coupon> findCoupons(@Param("name")String name, @Param("status") Integer[] couponStatus);
+
+    Integer insertCoupon(@Param("pojo")Coupon coupon);
+
+    Integer findCouponsByName(@Param("name")String name);
+
+    /**
+     * 批量更改优惠券状态为废弃
+     * @param couponIds
+     * @return
+     */
+    Integer updateCouponStatusById(@Param("ids")Long[] couponIds);
 }
