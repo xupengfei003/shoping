@@ -463,5 +463,13 @@ public interface Constant {
     	 * 前端按钮
     	 */
     	public static final Integer PERMISSION_TYPE_BUTTON = 3;
+    	/**
+    	 * 框架提供的api
+    	 */
+    	public static final Integer PERMISSION_TYPE_SYSTEM = 88;
+    	/**
+    	 * 业务系统特殊权限
+    	 */
+    	public static final Integer PERMISSION_TYPE_special_BUSINESS = 99;
     }
 }
