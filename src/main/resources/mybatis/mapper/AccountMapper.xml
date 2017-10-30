@@ -727,7 +727,13 @@
         h.qualificationStatus = #{qualificationStatus}
       </if>
     </where>
-    ORDER  BY  h.update_date DESC
+    ORDER  BY  h.create_date
+      <if test="sort == 0">
+        ASC
+      </if>
+      <if test="sort == 1">
+        DESC
+      </if>
   </select>
 
     <select id="findOne" resultMap="BaseResultMap" parameterType="long">
