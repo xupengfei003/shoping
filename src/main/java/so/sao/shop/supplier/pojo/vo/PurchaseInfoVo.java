@@ -99,6 +99,26 @@ public class PurchaseInfoVo {
     private String orderPostage;
 
     /**
+     * 折扣优惠
+     */
+    private String discount;
+
+    /**
+     * 合计金额
+     */
+    private String orderTotalPrice;
+
+    /**
+     * 实付金额
+     */
+    private String payAmount;
+
+    /**
+     * 退款金额
+     */
+    private String drawbackPrice;
+
+    /**
      * 订单明细列表
      */
     private List<PurchaseItemVo> purchaseItemVoList;
@@ -245,5 +265,37 @@ public class PurchaseInfoVo {
 
     public void setOrderPostage(String orderPostage) {
         this.orderPostage = orderPostage;
+    }
+
+    public String getDiscount() {
+        return discount;
+    }
+
+    public void setDiscount(String discount) {
+        this.discount = discount;
+    }
+
+    public String getOrderTotalPrice() {
+        return orderTotalPrice;
+    }
+
+    public void setOrderTotalPrice(String orderTotalPrice) {
+        this.orderTotalPrice = orderTotalPrice;
+    }
+
+    public String getPayAmount() {
+        return payAmount;
+    }
+
+    public void setPayAmount(String payAmount) {
+        this.payAmount = payAmount;
+    }
+
+    public String getDrawbackPrice() {
+        return drawbackPrice;
+    }
+
+    public void setDrawbackPrice(String drawbackPrice) {
+        this.drawbackPrice = drawbackPrice;
     }
 }

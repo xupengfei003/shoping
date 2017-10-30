@@ -118,9 +118,11 @@
             g.goods_attribute AS goodsAttribute,
             g.goods_unit_price AS goodsUnitPrice,
             g.goods_number AS goodsNumber,
-            g.goods_tatol_price AS goodsTatolPrice
+            g.goods_tatol_price AS goodsTatolPrice,
+            cu.name AS goodsUnitName
         FROM PURCHASE_ITEM g
         LEFT JOIN SUPPLIER_COMMODITY c ON g.goods_id = c.id
+        LEFT JOIN comm_unit cu ON c.unit_id = cu.id
         WHERE  ORDER_ID = #{orderId,jdbcType=BIGINT}
     </select>
 

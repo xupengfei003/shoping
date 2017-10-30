@@ -1,5 +1,7 @@
 package so.sao.shop.supplier.pojo.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -34,6 +36,7 @@ public class PurchasePrintVo {
     /**
      * 下单时间
      */
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date orderCreateTime;
 
     /**
@@ -65,6 +68,21 @@ public class PurchasePrintVo {
      * 运费
      */
     private BigDecimal orderPostage;
+
+    /**
+     * 折扣优惠
+     */
+    private BigDecimal discount;
+
+    /**
+     * 合计总价
+     */
+    private BigDecimal orderTotalPrice;
+
+    /**
+     * 实付金额
+     */
+    private BigDecimal payAmount;
 
     public BigDecimal getOrderPostage() {
         return orderPostage;
@@ -152,6 +170,30 @@ public class PurchasePrintVo {
 
     public void setProviderName(String providerName) {
         this.providerName = providerName;
+    }
+
+    public BigDecimal getDiscount() {
+        return discount;
+    }
+
+    public void setDiscount(BigDecimal discount) {
+        this.discount = discount;
+    }
+
+    public BigDecimal getOrderTotalPrice() {
+        return orderTotalPrice;
+    }
+
+    public void setOrderTotalPrice(BigDecimal orderTotalPrice) {
+        this.orderTotalPrice = orderTotalPrice;
+    }
+
+    public BigDecimal getPayAmount() {
+        return payAmount;
+    }
+
+    public void setPayAmount(BigDecimal payAmount) {
+        this.payAmount = payAmount;
     }
 
     @Override

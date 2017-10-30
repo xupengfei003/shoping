@@ -47,7 +47,7 @@ public class Purchase {
     private String userName;
 
     /**
-     * 订单实付金额
+     * 商品金额小计(原：订单实付金额)
      */
     private BigDecimal orderPrice;
 
@@ -200,6 +200,25 @@ public class Purchase {
      *
      */
     private BigDecimal orderPostage;
+
+    /**
+     * 折扣优惠
+     */
+    private BigDecimal discount;
+
+    /**
+     * 合计金额
+     */
+    private BigDecimal orderTotalPrice;
+
+    /**
+     * 实付金额
+     */
+    private BigDecimal payAmount;
+    /**
+     * 退款金额
+     */
+    private BigDecimal drawbackPrice;
 
     public String getAccountStatus() {
         return accountStatus;
@@ -487,5 +506,37 @@ public class Purchase {
 
     public void setOrderPostage(BigDecimal orderPostage) {
         this.orderPostage = orderPostage;
+    }
+
+    public BigDecimal getDiscount() {
+        return discount;
+    }
+
+    public void setDiscount(BigDecimal discount) {
+        this.discount = discount;
+    }
+
+    public BigDecimal getOrderTotalPrice() {
+        return orderTotalPrice;
+    }
+
+    public void setOrderTotalPrice(BigDecimal orderTotalPrice) {
+        this.orderTotalPrice = orderTotalPrice;
+    }
+
+    public BigDecimal getPayAmount() {
+        return payAmount;
+    }
+
+    public void setPayAmount(BigDecimal payAmount) {
+        this.payAmount = payAmount;
+    }
+
+    public BigDecimal getDrawbackPrice() {
+        return drawbackPrice;
+    }
+
+    public void setDrawbackPrice(BigDecimal drawbackPrice) {
+        this.drawbackPrice = drawbackPrice;
     }
 }

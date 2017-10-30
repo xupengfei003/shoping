@@ -103,6 +103,11 @@ public class PurchaseSelectInput {
      * 供应商名称
      */
     private String storeName;
+    /**
+     * 下单时间排序方式(默认为0，0.更新时间倒序排列，1.下单时间正序排列，-1.下单时间倒序排列)
+     */
+    private Integer flag;
+
     public String getOrderId() {
         return orderId;
     }
@@ -245,5 +250,13 @@ public class PurchaseSelectInput {
 
     public void setStoreName(String storeName) {
         this.storeName = storeName;
+    }
+
+    public Integer getFlag() {
+        return flag;
+    }
+
+    public void setFlag(Integer flag) {
+        this.flag = flag;
     }
 }
