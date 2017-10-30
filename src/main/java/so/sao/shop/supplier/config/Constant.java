@@ -175,7 +175,7 @@ public interface Constant {
          */
         public static final Integer RECEIVED = 4;
         /**
-         * 已拒收
+         * 已拒收退款审核
          */
         public static final Integer REJECT = 5;
         /**
@@ -183,7 +183,7 @@ public interface Constant {
          */
         public static final Integer REFUNDED = 6;
         /**
-         * 已付款已取消
+         * 已支付退款审核
          */
         public static final Integer CANCEL_ORDER = 7;
         /**
@@ -217,7 +217,7 @@ public interface Constant {
         /**
          * 5
          */
-        public static final String REJECT = "已拒收待审核";
+        public static final String REJECT = "已拒收退款审核";
         /**
          * 6
          */
@@ -225,7 +225,7 @@ public interface Constant {
         /**
          * 7
          */
-        public static final String CANCEL_ORDER = "已取消待审核";
+        public static final String CANCEL_ORDER = "已支付退款审核";
         /**
          * 8
          */

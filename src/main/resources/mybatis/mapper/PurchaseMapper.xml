@@ -342,7 +342,15 @@
                 AND store_id LIKE "${storeId}%"
             </if>
         </where>
-        ORDER BY updated_at DESC
+        <if test="flag == 0">
+            ORDER BY updated_at DESC
+        </if>
+        <if test="flag == 1">
+            ORDER BY order_create_time ASC
+        </if>
+        <if test="flag == -1">
+            ORDER BY order_create_time DESC
+        </if>
     </select>
 
     <!--更改订单状态-->
