@@ -20,7 +20,7 @@ import so.sao.shop.supplier.pojo.input.*;
 import so.sao.shop.supplier.pojo.output.*;
 import so.sao.shop.supplier.pojo.vo.*;
 import so.sao.shop.supplier.service.CommodityService;
-import so.sao.shop.supplier.service.CountSoldCommService;
+import so.sao.shop.supplier.service.app.AppCommSalesService;
 import so.sao.shop.supplier.util.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -73,7 +73,7 @@ public class CommodityServiceImpl implements CommodityService {
     private AzureBlobService azureBlobService;
 
     @Autowired
-    private CountSoldCommService countSoldCommService;
+    private AppCommSalesService appCommSalesService;
 
     @Autowired
     private SupplierCommodityTmpDao supplierCommodityTmpDao;

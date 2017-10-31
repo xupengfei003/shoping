@@ -11,7 +11,7 @@ import so.sao.shop.supplier.pojo.input.AddHotCommInput;
 import so.sao.shop.supplier.pojo.input.HotCommodityInput;
 import so.sao.shop.supplier.pojo.input.HotCommoditySaveInput;
 import so.sao.shop.supplier.pojo.output.AddHotCommOutput;
-import so.sao.shop.supplier.service.CountSoldCommService;
+import so.sao.shop.supplier.service.app.AppCommSalesService;
 import so.sao.shop.supplier.service.external.HotCommoditiesService;
 import so.sao.shop.supplier.util.BeanMapper;
 import so.sao.shop.supplier.util.PageTool;
@@ -24,7 +24,7 @@ public class HotCommoditiesServiceImpl implements HotCommoditiesService{
     @Autowired
     private HotCommoditiesDao hotCommoditiesDao;
     @Autowired
-    private CountSoldCommService countSoldCommService;
+    private AppCommSalesService appCommSalesService;
 
     /**
      * 查询所有热门商品列表
@@ -48,7 +48,7 @@ public class HotCommoditiesServiceImpl implements HotCommoditiesService{
 
         List<String> salesVolumes = null;
         try {
-            salesVolumes = countSoldCommService.countSoldCommNum( ArrGoodIds );
+            salesVolumes = appCommSalesService.countSoldCommNum( ArrGoodIds );
         } catch (Exception e) {
             return Result.fail("销量统计异常！",e);
         }
@@ -82,7 +82,7 @@ public class HotCommoditiesServiceImpl implements HotCommoditiesService{
 
         List<String> salesVolumes = null;
         try {
-            salesVolumes = countSoldCommService.countSoldCommNum( ArrGoodIds );
+            salesVolumes = appCommSalesService.countSoldCommNum( ArrGoodIds );
         } catch (Exception e) {
             return Result.fail("销量统计异常！",e);
         }
