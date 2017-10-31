@@ -31,3 +31,15 @@ CREATE TABLE `comm_sales` (
 /*初始化产品销量表，将所有商品表sc中未删除添加到商品销量表，并初始化实际和虚拟销量*/
 insert into comm_sales (sc_id) select sc.id from supplier_commodity sc where sc.deleted=0;
 update comm_sales cs set cs.actual_sales=0,cs.virtual_sales=round(rand()*(150-100)+100),create_at=now(),update_at=now();
+
+/*创建--供应商发票设置表*/
+CREATE TABLE `invoice_setting` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `supplier_id` bigint(20) DEFAULT NULL COMMENT '供应商ID',
+  `status` int(1) DEFAULT '0' COMMENT '开启状态，0-关闭，1-开启',
+  `invoice` int(1) DEFAULT '0' COMMENT '增值税普通发票，0-未选择，1-已选择',
+  `special_invoice` int(1) DEFAULT '0' COMMENT '增值税专用发票，0-未选择，1-已选择',
+  `created_at` datetime DEFAULT NULL COMMENT '创建时间',
+  `updated_at` datetime DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='供应商发票设置表'
