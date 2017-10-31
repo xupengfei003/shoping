@@ -5,9 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import so.sao.shop.supplier.config.CommConstant;
 import so.sao.shop.supplier.config.azure.AzureBlobService;
-import so.sao.shop.supplier.config.azure.BlobUpload;
 import so.sao.shop.supplier.dao.external.HotCategoriesDao;
 import so.sao.shop.supplier.domain.external.HotCategories;
 import so.sao.shop.supplier.exception.BusinessException;
@@ -24,7 +22,7 @@ import java.util.*;
  * Created by LiuGang at 2017/9/18
  */
 @Service
-public class HotCategoriesServiceImpl implements HotCategoriesService{
+public class HotCategoriesServiceImpl implements HotCategoriesService {
 
     @Autowired
     private HotCategoriesDao hotCategoriesDao;
@@ -117,16 +115,16 @@ public class HotCategoriesServiceImpl implements HotCategoriesService{
 
         //除更多分类以外热门分类必填校验
         for (int i = 0; i < hotCategories.size() - 1; i++) {
-            //二级分类不能为空
-            if (hotCategories.get(i).getCategoryTwoId() == null ||hotCategories.get(i).getCategoryTwoId().equals(0)|| Ognl.isEmpty(hotCategories.get(i).getCategoryTwoName())){
-                throw new BusinessException("二级分类不能为空");
+            //一级分类不能为空
+            if (hotCategories.get(i).getCategoryOneId() == null ||hotCategories.get(i).getCategoryOneId().equals(0)){
+                throw new BusinessException("一级分类不能为空");
             }else{
                 if (Ognl.isEmpty(hotCategories.get(i).getUrl()) || Ognl.isEmpty(hotCategories.get(i).getMinImg())){
                     throw  new BusinessException("icon图片不能为空");
                 }
             }
         }
-        //获取更多分类项的url合minImg,检验是否为空
+        //获取更多分类项的url和minImg,检验是否为空
         String url = hotCategories.get(hotCategories.size()-1).getUrl();
         String minImg = hotCategories.get(hotCategories.size()-1).getMinImg();
         if (Ognl.isEmpty(url) || Ognl.isEmpty(minImg)){
@@ -139,18 +137,22 @@ public class HotCategoriesServiceImpl implements HotCategoriesService{
      * @param hotCategories
      */
     private void checkHotCategoriesId(List<HotCategories> hotCategories){
-        //treeSet集合用于存放分类id(二级/三级分类的id)
+        //treeSet集合用于存放分类id(一级/二级/三级分类的id)
         Set<Long> categoryIds = new TreeSet<>();
-        //除更多分类外，若三级分类为空（id==null/0,name为空/空串，id则为二级分类id
+        //除更多分类外，若三级分类为空（id==null/0,name为空/空串，判断二级分类是否为空，为空则id为一级分类id
         for (int i = 0 ; i < hotCategories.size() - 1 ; i++){
-            if (hotCategories.get(i).getCategoryThreeId() == null || hotCategories.get(i).getCategoryThreeId().equals(0) || Ognl.isEmpty(hotCategories.get(i).getCategoryThreeName())){
-                categoryIds.add(hotCategories.get(i).getCategoryTwoId());
-            }else {
+            if (hotCategories.get(i).getCategoryThreeId()==null||hotCategories.get(i).getCategoryThreeId().equals(0L)){
+                if (hotCategories.get(i).getCategoryTwoId()==null||hotCategories.get(i).getCategoryTwoId().equals(0L)){
+                    categoryIds.add(hotCategories.get(i).getCategoryOneId());
+                }else {
+                    categoryIds.add(hotCategories.get(i).getCategoryTwoId());
+                }
+            } else {
                 categoryIds.add(hotCategories.get(i).getCategoryThreeId());
             }
-            }
-            if (categoryIds.size() < (hotCategories.size()-1)){
+        }
+        if (categoryIds.size() < (hotCategories.size()-1)){
             throw new BusinessException("存在重复分类，请检查修改后添加！");
-            }
+        }
     }
 }

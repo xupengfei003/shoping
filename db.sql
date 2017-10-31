@@ -12,6 +12,10 @@ ALTER TABLE purchase
 	ADD drawback_price DECIMAL(10,2) DEFAULT 0  NULL COMMENT '退款金额' AFTER `pay_amount`,
 	ADD prefix_order_status INT(1) DEFAULT 0  NULL COMMENT '上一个订单状态（只有5和7有该状态）' AFTER `drawback_price`;
 
+--更改key_word表关键字类型备注
+ALTER TABLE `key_word` MODIFY COLUMN key_word_type INT(1) COMMENT '关键字类型，0-供应商名称，1-商品名称，2-商品品牌';
+
+
 /*创建产品销量表*/
 CREATE TABLE `comm_sales` (
 	`id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
@@ -31,3 +35,16 @@ CREATE TABLE `comm_sales` (
 /*初始化产品销量表，将所有商品表sc中未删除添加到商品销量表，并初始化实际和虚拟销量*/
 insert into comm_sales (sc_id) select sc.id from supplier_commodity sc where sc.deleted=0;
 update comm_sales cs set cs.actual_sales=0,cs.virtual_sales=round(rand()*(150-100)+100),create_at=now(),update_at=now();
+
+/*创建发票内容表*/
+CREATE TABLE invoice_content (
+   id bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
+   invoice_content_name varchar(20) DEFAULT NULL COMMENT '发票内容名称',
+   operator varchar(50) DEFAULT NULL COMMENT '操作人（登录的账号名）',
+   sort int(2) DEFAULT NULL COMMENT '排序',
+   create_at datetime DEFAULT NULL COMMENT '创建时间',
+   update_at datetime DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (id)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='发票内容配置表'
+;
+
