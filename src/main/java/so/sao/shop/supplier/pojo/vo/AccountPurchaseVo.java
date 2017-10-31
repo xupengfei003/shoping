@@ -1,7 +1,9 @@
 package so.sao.shop.supplier.pojo.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import org.springframework.format.annotation.NumberFormat;
+import so.sao.shop.supplier.config.Constant;
+import so.sao.shop.supplier.util.NumberUtil;
+import so.sao.shop.supplier.util.StringUtil;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -21,55 +23,60 @@ public class AccountPurchaseVo {
     private String orderId;
 
     /**
-     * 收货人姓名
-     */
-    private String orderReceiverName;
-
-    /**
-     * 收货人电话
-     */
-    private String orderReceiverMobile;
-
-    /**
-     * 订单状态 1待付款2代发货3已发货4已收货5已拒收6已退款7已完成
+     * 订单状态 1.待付款2.待发货3.已发货4.已完成5.已拒收退款审核6.已退款7.已支付退款审核8.待付款已取消19.确认送达
      */
     private Integer orderStatus;
 
     /**
-     * 订单实付金额
+     * 商品金额小计
      */
-    private String orderPrice;
+    private BigDecimal orderPrice;
 
     /**
-     * 订单结算金额
+     * 运费金额
      */
-    private String orderSettlemePrice;
+    private BigDecimal orderPostage;
 
     /**
-     * 下单时间
+     * 折扣优惠
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
-    private Date orderCreateTime;
+    private BigDecimal discount;
 
     /**
-     * 订单支付时间
+     * 总计金额
+     */
+    private BigDecimal orderTotalPrice;
+
+    /**
+     * 实付金额
+     */
+    private BigDecimal payAmount;
+
+    /**
+     * 透云进货价小计
+     */
+    private BigDecimal orderSettlemePrice;
+
+    /**
+     * 结算金额
+     */
+    private BigDecimal tempSettlemePrice;
+
+    /**
+     * 付款时间
      */
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date orderPaymentTime;
 
     /**
-     * 支付流水号
-     */
-    private String orderPaymentNum;
-    /**
-     * 支付方式
+     * 支付类型 1.支付宝 2.微信
      */
     private Integer orderPaymentMethod;
 
     /**
-     * 邮费金额
+     * 付款流水号
      */
-    private String orderPostage;
+    private String orderPaymentNum;
 
     public String getOrderId() {
         return orderId;
@@ -77,22 +84,6 @@ public class AccountPurchaseVo {
 
     public void setOrderId(String orderId) {
         this.orderId = orderId;
-    }
-
-    public String getOrderReceiverName() {
-        return orderReceiverName;
-    }
-
-    public void setOrderReceiverName(String orderReceiverName) {
-        this.orderReceiverName = orderReceiverName;
-    }
-
-    public String getOrderReceiverMobile() {
-        return orderReceiverMobile;
-    }
-
-    public void setOrderReceiverMobile(String orderReceiverMobile) {
-        this.orderReceiverMobile = orderReceiverMobile;
     }
 
     public Integer getOrderStatus() {
@@ -104,19 +95,59 @@ public class AccountPurchaseVo {
     }
 
     public String getOrderPrice() {
-        return orderPrice;
+        return NumberUtil.number2Thousand(orderPrice);
     }
 
-    public void setOrderPrice(String orderPrice) {
+    public void setOrderPrice(BigDecimal orderPrice) {
         this.orderPrice = orderPrice;
     }
 
-    public Date getOrderCreateTime() {
-        return orderCreateTime;
+    public String getOrderPostage() {
+        return NumberUtil.number2Thousand(orderPostage);
     }
 
-    public void setOrderCreateTime(Date orderCreateTime) {
-        this.orderCreateTime = orderCreateTime;
+    public void setOrderPostage(BigDecimal orderPostage) {
+        this.orderPostage = orderPostage;
+    }
+
+    public String getDiscount() {
+        return NumberUtil.number2Thousand(discount);
+    }
+
+    public void setDiscount(BigDecimal discount) {
+        this.discount = discount;
+    }
+
+    public String getOrderTotalPrice() {
+        return NumberUtil.number2Thousand(orderTotalPrice);
+    }
+
+    public void setOrderTotalPrice(BigDecimal orderTotalPrice) {
+        this.orderTotalPrice = orderTotalPrice;
+    }
+
+    public String getPayAmount() {
+        return NumberUtil.number2Thousand(payAmount);
+    }
+
+    public void setPayAmount(BigDecimal payAmount) {
+        this.payAmount = payAmount;
+    }
+
+    public String getOrderSettlemePrice() {
+        return NumberUtil.number2Thousand(orderSettlemePrice);
+    }
+
+    public void setOrderSettlemePrice(BigDecimal orderSettlemePrice) {
+        this.orderSettlemePrice = orderSettlemePrice;
+    }
+
+    public String getTempSettlemePrice() {
+        return NumberUtil.number2Thousand(tempSettlemePrice);
+    }
+
+    public void setTempSettlemePrice(BigDecimal tempSettlemePrice) {
+        this.tempSettlemePrice = tempSettlemePrice;
     }
 
     public Date getOrderPaymentTime() {
@@ -127,14 +158,6 @@ public class AccountPurchaseVo {
         this.orderPaymentTime = orderPaymentTime;
     }
 
-    public String getOrderPaymentNum() {
-        return orderPaymentNum;
-    }
-
-    public void setOrderPaymentNum(String orderPaymentNum) {
-        this.orderPaymentNum = orderPaymentNum;
-    }
-
     public Integer getOrderPaymentMethod() {
         return orderPaymentMethod;
     }
@@ -143,36 +166,83 @@ public class AccountPurchaseVo {
         this.orderPaymentMethod = orderPaymentMethod;
     }
 
-    public String getOrderSettlemePrice() {
-        return orderSettlemePrice;
+    public String getOrderPaymentNum() {
+        return orderPaymentNum;
     }
 
-    public void setOrderSettlemePrice(String orderSettlemePrice) {
-        this.orderSettlemePrice = orderSettlemePrice;
+    public void setOrderPaymentNum(String orderPaymentNum) {
+        this.orderPaymentNum = orderPaymentNum;
     }
 
-    public String getOrderPostage() {
-        return orderPostage;
+    public static Object[] converData(AccountPurchaseVo accountPurchaseVo){
+        Object[] data = new Object[12];
+
+        if (null != accountPurchaseVo) {
+            //订单编号
+            data[0] = accountPurchaseVo.getOrderId();
+            //订单状态:1.待付款2.待发货3.已发货4.已完成5.已拒收退款审核6.已退款7.已支付退款审核8.待付款已取消19.确认送达
+            switch (accountPurchaseVo.getOrderStatus()) {
+                case 1:
+                    data[1] = "待付款";
+                    break;
+                case 2:
+                    data[1] = "待发货";
+                    break;
+                case 3:
+                    data[1] = "已发货";
+                    break;
+                case 4:
+                    data[1] = "已完成";
+                    break;
+                case 5:
+                    data[1] = "已拒收退款审核";
+                    break;
+                case 6:
+                    data[1] = "已退款";
+                    break;
+                case 7:
+                    data[1] = "已支付退款审核";
+                    break;
+                case 8:
+                    data[1] = "待付款已取消";
+                    break;
+                case 19:
+                    data[1] = "确认送达";
+                    break;
+                default:
+                    data[1] = "";
+                    break;
+            }
+
+            //商品金额小计
+            data[2] = accountPurchaseVo.getOrderPrice();
+            //运费金额
+            data[3] = accountPurchaseVo.getOrderPostage();
+            //折扣优惠
+            data[4] = accountPurchaseVo.getDiscount();
+            //总计金额
+            data[5] = accountPurchaseVo.getOrderTotalPrice();
+            //实付金额
+            data[6] = accountPurchaseVo.getPayAmount();
+            //透云进货价小计
+            data[7] = accountPurchaseVo.getOrderSettlemePrice();
+            //结算金额
+            data[8] = accountPurchaseVo.getTempSettlemePrice();
+            //付款时间
+            data[9] = accountPurchaseVo.getOrderPaymentTime() == null ? "" : StringUtil.fomateData(accountPurchaseVo.getOrderPaymentTime(), "yyyy-MM-dd HH:mm:ss");
+            //支付类型 1.支付宝 2.微信
+            Integer orderPaymentMethod = accountPurchaseVo.getOrderPaymentMethod();
+            if (orderPaymentMethod != null && orderPaymentMethod.equals(Constant.PaymentStatusConfig.ALIPAY)) {
+                data[10] = "支付宝";
+            } else if (orderPaymentMethod != null && orderPaymentMethod.equals(Constant.PaymentStatusConfig.WECHAT)) {
+                data[10] = "微信";
+            } else {
+                data[10] = "";
+            }
+            //付款流水号
+            data[11] = accountPurchaseVo.getOrderPaymentNum();
+        }
+        return data;
     }
 
-    public void setOrderPostage(String orderPostage) {
-        this.orderPostage = orderPostage;
-    }
-
-    @Override
-    public String toString() {
-        return "AccountPurchaseVo{" +
-                "orderId='" + orderId + '\'' +
-                ", orderReceiverName='" + orderReceiverName + '\'' +
-                ", orderReceiverMobile='" + orderReceiverMobile + '\'' +
-                ", orderStatus=" + orderStatus +
-                ", orderPrice=" + orderPrice +
-                ", orderSettlemePrice=" + orderSettlemePrice +
-                ", orderCreateTime=" + orderCreateTime +
-                ", orderPaymentTime=" + orderPaymentTime +
-                ", orderPaymentNum='" + orderPaymentNum + '\'' +
-                ", orderPaymentMethod=" + orderPaymentMethod +
-                ", orderPostage=" + orderPostage +
-                '}';
-    }
 }

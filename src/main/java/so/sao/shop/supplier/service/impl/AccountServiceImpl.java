@@ -312,13 +312,17 @@ public class AccountServiceImpl implements AccountService {
             }
             // c.将所得余额同步到账户表中
             Account account = new Account();
-            Date date = new Date();              //系统时间
-            account.setAccountId(accountId);     //账户
-            account.setBalance(uncountedMoney);  //用户余额
-            account.setUpdateDate(date);         //更新时间
+            Date date = new Date();
+            //账户id
+            account.setAccountId(accountId);
+            //用户余额
+            account.setBalance(uncountedMoney);
+            //更新时间
+            account.setUpdateDate(date);
             accountDao.updateUserBalance(account);
             // 返回数据
-            String balance = NumberUtil.number2Thousand(uncountedMoney);// 余额格式化
+            // 余额格式化
+            String balance = NumberUtil.number2Thousand(uncountedMoney);
             map.put("balance",balance);
         }
         //返回对象

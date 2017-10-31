@@ -39,6 +39,8 @@
         <result column="goods_attribute" property="goodsAttribute"/>
         <result column="goods_unit_price" property="goodsUnitPrice"/>
         <result column="goods_tatol_price" property="goodsTatolPrice"/>
+        <result column="goods_image" property="goodsImage"/>
+        <result column="brand_name" property="brandName"/>
     </resultMap>
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
@@ -102,7 +104,7 @@
     <select id="findPage" resultMap="PurchaseItemVo" parameterType="java.lang.String">
         <!--商品名称,商品商家编号,商品条码,购买数量,商品规格,单价,总额-->
         SELECT
-        p.GOODS_NAME,p.GOODS_NUMBER,p.GOODS_ATTRIBUTE,p.GOODS_UNIT_PRICE,p.GOODS_TATOL_PRICE,p.code69,s.code
+        p.GOODS_NAME,p.GOODS_NUMBER,p.GOODS_ATTRIBUTE,p.GOODS_UNIT_PRICE,p.GOODS_TATOL_PRICE,p.code69,s.code,p.GOODS_IMAGE,p.BRAND_NAME
         FROM PURCHASE_ITEM p
         LEFT JOIN supplier_commodity s ON s.id = p.goods_id
         WHERE ORDER_ID = #{orderId,jdbcType=BIGINT}
