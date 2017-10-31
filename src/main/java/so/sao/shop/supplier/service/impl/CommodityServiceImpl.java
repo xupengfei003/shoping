@@ -497,6 +497,7 @@ public class CommodityServiceImpl implements CommodityService {
         Integer status = commSimpleSearchInput.getStatus();
         String inputvalue = commSimpleSearchInput.getInputvalue();
         Integer auditResult = commSimpleSearchInput.getAuditResult();
+        Integer sortStatus = commSimpleSearchInput.getSortStatus();
         String role = getRole(user);
 
         Long supplierId;
@@ -517,7 +518,7 @@ public class CommodityServiceImpl implements CommodityService {
 
 
         PageTool.startPage(commSimpleSearchInput.getPageNum(), commSimpleSearchInput.getPageSize());
-        List<SuppCommSearchVo> respList = supplierCommodityDao.findSimple(status,inputvalue,auditResult,role,supplierId);
+        List<SuppCommSearchVo> respList = supplierCommodityDao.findSimple(status,inputvalue,auditResult,role,supplierId,sortStatus);
 
         respList.forEach(suppCommSearchVo->{
             suppCommSearchVo.setStatus(CommConstant.getStatus(suppCommSearchVo.getStatusNum()));
@@ -1182,8 +1183,8 @@ public class CommodityServiceImpl implements CommodityService {
                 errorRowList.add(errorMap);
                 continue;
             }
-            String unitPrice = map.get("*供货价");
-            String price = map.get("*批发价");
+            String unitPrice = map.get("*透云进货价");
+            String price = map.get("*app订货价");
             String productionDate=map.get("*生产日期");
             String guaranteePeriod=map.get("*有效期(天)");
             String  guaranteePeriodUnit="天";
@@ -1379,7 +1380,7 @@ public class CommodityServiceImpl implements CommodityService {
             errorRowList.add(errorMap);
             continue;
         }
-            String regexprice ="^[0.0-9.0]+$";
+            String regexprice ="-?[0-9]+.*[0-9]*";
         if(!unitPrice.matches(regexprice)){
             Map<String, Object> errorMap =new HashMap<String, Object>();
             errorMap.put("rowNum",rowNum);

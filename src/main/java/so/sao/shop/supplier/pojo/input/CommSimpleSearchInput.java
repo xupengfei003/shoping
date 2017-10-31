@@ -47,6 +47,10 @@ public class CommSimpleSearchInput {
      * 每页条数
      */
     private Integer pageSize;
+    /**
+     *排序字段
+     */
+    private Integer sortStatus;
 
     public Long getSupplierId() {
         return supplierId;
@@ -112,6 +116,10 @@ public class CommSimpleSearchInput {
         this.status = status;
     }
 
+    public Integer getSortStatus() {return sortStatus;}
+
+    public void setSortStatus(Integer sortStatus) {this.sortStatus = sortStatus;}
+
     @Override
     public String toString() {
         return "CommSimpleSearchInput{" +
@@ -123,6 +131,7 @@ public class CommSimpleSearchInput {
                 ", endCreateAt=" + endCreateAt +
                 ", pageNum=" + pageNum +
                 ", pageSize=" + pageSize +
+                ", sortStatus=" + sortStatus +
                 '}';
     }
 }

@@ -172,7 +172,9 @@ public interface SupplierCommodityDao {
                                       @Param("inputvalue") String inputvalue,
                                       @Param("auditResult") Integer auditResult,
                                       @Param("role") String role,
-                                      @Param("supplierId") Long supplierId);
+                                      @Param("supplierId") Long supplierId,
+                                      @Param("sortStatus") Integer sortStatus);
+
 
     /**
      * 根据商品标签ID查询未删除状态的供应商商品

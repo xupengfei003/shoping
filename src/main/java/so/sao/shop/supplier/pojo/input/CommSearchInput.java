@@ -1,6 +1,7 @@
 package so.sao.shop.supplier.pojo.input;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.ApiModelProperty;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
@@ -60,8 +61,16 @@ public class CommSearchInput {
      */
     private BigDecimal maxPrice;
     /**
-    * 更新时间[前]
-    */
+     * 透云进货价[低]
+     */
+    private BigDecimal minUnitPrice;
+    /**
+     * 透云进货价[高]
+     */
+    private BigDecimal maxUnitPrice;
+    /**
+     * 更新时间[前]
+     */
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss",iso= DateTimeFormat.ISO.DATE)
     private Date beginUpdateAt;
     /**
@@ -70,16 +79,16 @@ public class CommSearchInput {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss",iso= DateTimeFormat.ISO.DATE)
     private Date endUpdateAt;
     /**
-    * 当前页号
-    */
+     * 当前页号
+     */
     private Integer pageNum;
     /**
      * 页面大小
      */
     private Integer pageSize;
     /**
-    * 审核结果：0代表未通过，1代表通过
-    */
+     * 审核结果：0代表未通过，1代表通过
+     */
     private Integer auditResult;
     /**
      * 供应商名称
@@ -91,7 +100,10 @@ public class CommSearchInput {
      * 用来区分管理员的字段
      */
     private String role;
-
+    /**
+     * 排序字段
+     */
+    private Integer sortStatus;
 
     public String getSupplierName() {
         return supplierName;
@@ -237,6 +249,18 @@ public class CommSearchInput {
         this.code = code;
     }
 
+    public BigDecimal getMinUnitPrice() {return minUnitPrice;}
+
+    public void setMinUnitPrice(BigDecimal minUnitPrice) {this.minUnitPrice = minUnitPrice;}
+
+    public BigDecimal getMaxUnitPrice() {return maxUnitPrice;}
+
+    public void setMaxUnitPrice(BigDecimal maxUnitPrice) {this.maxUnitPrice = maxUnitPrice;}
+
+    public Integer getSortStatus() {return sortStatus;}
+
+    public void setSortStatus(Integer sortStatus) {this.sortStatus = sortStatus;}
+
     @Override
     public String toString() {
         return "CommSearchInput{" +
@@ -251,11 +275,14 @@ public class CommSearchInput {
                 ", typeThreeId=" + typeThreeId +
                 ", minPrice=" + minPrice +
                 ", maxPrice=" + maxPrice +
+                ", minUnitPrice=" + minUnitPrice +
+                ", maxUnitPrice=" + maxUnitPrice +
                 ", beginUpdateAt=" + beginUpdateAt +
                 ", endUpdateAt=" + endUpdateAt +
                 ", pageNum=" + pageNum +
                 ", pageSize=" + pageSize +
                 ", auditResult=" + auditResult +
+                ", sortStatus=" + sortStatus +
                 ", supplierName='" + supplierName + '\'' +
                 ", role='" + role + '\'' +
                 '}';
