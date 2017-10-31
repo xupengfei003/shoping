@@ -2,6 +2,7 @@ package so.sao.shop.supplier.dao.external;
 
 import org.apache.ibatis.annotations.Param;
 import so.sao.shop.supplier.domain.external.Coupon;
+import so.sao.shop.supplier.pojo.output.CouponOutputVo;
 
 import java.util.List;
 
@@ -30,5 +31,19 @@ public interface CouponDao {
      * @param couponIds
      * @return
      */
-    Integer updateCouponStatusById(@Param("ids")Long[] couponIds);
+    Integer updateCouponStatusById(@Param("ids")Long[] couponIds,@Param("status")Integer status);
+
+    /**
+     * 查找某个用户优惠券列表
+     * @param shopId
+     * @return
+     */
+    List<CouponOutputVo> findCouponsByShopId(@Param("shopId") Long shopId);
+
+    /**
+     * 更新优惠券数量
+     * @param couponId
+     * @param i
+     */
+    Integer updateCouponNum(Long couponId, Integer i);
 }

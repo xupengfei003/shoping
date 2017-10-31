@@ -39,8 +39,8 @@ public class CouponContorller {
     }
 
     @ApiOperation(value = "批量废弃优惠券",notes = "批量废弃优惠券【负责人：王翼云】")
-    @DeleteMapping("/delete/{ids}")
-    public Result discardCoupons(Long[] couponIds) {
+    @DeleteMapping("/delete")
+    public Result discardCoupons(@RequestParam("couponIds") Long[] couponIds) {
         return couponService.batchDiscardCouponsByIds(couponIds);
     }
 
@@ -49,4 +49,6 @@ public class CouponContorller {
     public Result searchCoupons(String name,Integer[] couponStatus,Integer pageNum,Integer pageSize) {
         return couponService.searchCoupons(name,couponStatus,pageNum,pageSize);
     }
+
+
 }

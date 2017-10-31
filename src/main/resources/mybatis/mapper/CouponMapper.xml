@@ -20,6 +20,27 @@
    <result column="create_at" property="createAt"/>
    <result column="update_at" property="updateAt"/>
   </resultMap>
+
+    <resultMap id="CouponOutputVo" type="so.sao.shop.supplier.pojo.output.CouponOutputVo">
+        <result column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="category_id" property="categoryId"/>
+        <result column="discount_way" property="discountWay"/>
+        <result column="coupon_value" property="couponValue"/>
+        <result column="usable_value" property="usableValue"/>
+        <result column="send_start_time" property="sendStartTime"/>
+        <result column="send_end_time" property="sendEndTime"/>
+        <result column="use_start_time" property="useStartTime"/>
+        <result column="use_end_time" property="useEndTime"/>
+        <result column="create_num" property="createNum"/>
+        <result column="send_num" property="sendNum"/>
+        <result column="use_num" property="useNum"/>
+        <result column="status" property="status"/>
+        <result column="create_at" property="createAt"/>
+        <result column="update_at" property="updateAt"/>
+        <result column="get_status" property="getStatus"/>
+    </resultMap>
+
     <sql id="all_column">
         `id` ,
         `name` ,
@@ -39,7 +60,7 @@
         `update_at`
     </sql>
 
-
+    <!--查找优惠券列表-->
     <select id="findCoupons" resultMap="AllColumnMap" >
         SELECT
           <include refid="all_column"/>
@@ -52,8 +73,9 @@
                   #{item}
               </foreach>
           </if>
+        ORDER BY c.create_at DESC
     </select>
-
+    <!--根据名称查找优惠券-->
     <select id="findCouponsByName" resultMap="AllColumnMap" >
         SELECT
         <include refid="all_column"/>
@@ -62,7 +84,7 @@
         LIMIT 1;
     </select>
 
-
+    <!--添加优惠券-->
     <insert id="insertCoupon"  >
             INSERT INTO coupon (
             `id`,
@@ -100,10 +122,11 @@
             #{pojo.updateAt}
             )
     </insert>
-
+    <!--更新优惠券状态-->
     <update id="updateCouponStatusById" >
         UPDATE coupon c
-        SET c.status = 4
+        SET c.status = #{status},
+            c.update_at = now()
         <if test="ids != null">
             WHERE c.id  in
             <foreach collection="ids" item="id" index="index"
@@ -113,5 +136,37 @@
         </if>
     </update>
 
+    <select id="findCouponsByShopId" resultMap="CouponOutputVo" >
+        SELECT
+            <include refid="all_column"/>,
+            CASE WHEN a.cid IS NOT NULL THEN
+                1
+            ELSE
+                0
+            END get_status
+        FROM
+            coupon c
+            LEFT JOIN (
+                          SELECT
+                              ac.coupon_id cid
+                          FROM
+                              account_coupon ac
+                          WHERE
+                              ac.user_id = #{shopId}
+                      ) a ON a.cid = c.id
+        where c.status = 0
+        ORDER BY c.create_at DESC
+    </select>
+
+    <update id="updateCouponNum" >
+        UPDATE coupon c
+        SET
+          c.send_num = (c.send_num-#{status}),
+          c.update_at = now()
+        WHERE
+          c.id=#{id}
+        AND
+          c.send_num > 0;
+    </update>
 
  </mapper>

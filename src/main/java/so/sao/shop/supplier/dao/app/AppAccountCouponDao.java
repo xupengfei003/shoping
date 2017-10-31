@@ -3,6 +3,7 @@ package so.sao.shop.supplier.dao.app;
 import org.apache.ibatis.annotations.Param;
 import so.sao.shop.supplier.domain.AccountCoupon;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -22,9 +23,10 @@ public interface AppAccountCouponDao {
     /**
      * 查询用户的优惠券列表（所有状态）
      * @param shopId
+     * @param usableValue
      * @return
      */
-    List<AccountCoupon> findAccountCouponsByUserId(@Param("accountId") Long shopId);
+    List<AccountCoupon> findAccountCouponsByUserId(@Param("accountId") Long shopId, @Param("usableValue") BigDecimal usableValue);
 
     /**
      * 领取优惠券
@@ -39,4 +41,12 @@ public interface AppAccountCouponDao {
      * @return
      */
     Integer updateAccountCouponStatusById(@Param("id")Long id);
+
+    /**
+     * 通过门店id和优惠券id查找用户优惠券
+     * @param shopId
+     * @param couponId
+     * @return
+     */
+    Integer findAccountCoupon(Long shopId, Long couponId);
 }

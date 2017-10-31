@@ -5,7 +5,7 @@
  <!--auto generated Code-->
  <resultMap id="AllColumnMap" type="so.sao.shop.supplier.domain.AccountCoupon">
   <result column="id" property="id"/>
-  <result column="account_id" property="accountId"/>
+  <result column="user_id" property="accountId"/>
   <result column="coupon_id" property="couponId"/>
   <result column="status" property="status"/>
   <result column="use_time" property="useTime"/>
@@ -30,7 +30,7 @@
  <insert id="insertAccountCoupon">
   INSERT INTO account_coupon (
   `id`,
-  `account_id`,
+  `user_id`,
   `coupon_id`,
   `status`,
   `use_time`,
@@ -48,14 +48,31 @@
   #{pojo.updateAt}
   )
  </insert>
+
 <select id="findAccountCouponsByUserId" resultMap="AllColumnMap">
-  SELECT  <include refid="all_column"/>
-  FROM account_coupon ac
-  WHERE ac.account_id = #{accountId}
+  SELECT ac.id AS id,
+         ac.user_id AS user_id,
+         ac.coupon_id AS coupon_id,
+         ac.status AS status,
+         ac.use_time AS use_time,
+         ac.get_time AS get_time,
+         ac.create_at AS create_at,
+         ac.update_at AS update_at
+  FROM account_coupon ac left join coupon c on c.id = ac.coupon_id
+  WHERE ac.user_id = #{accountId}
+  <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(usableValue)">
+      AND usable_value <![CDATA[ <= ]]> #{usableValue}
+      AND ac.status = 0
+  </if>
 </select>
+
+
+
+
  <update id="updateAccountCouponStatusById" >
   UPDATE account_coupon ac
-   SET ac.status = #{status}
+   SET ac.status = 1,
+       ac.use_time = now()
    WHERE id = #{id}
  </update>
  <!--更新优惠券为已过期-->
@@ -66,4 +83,18 @@
       ac.update_at = now()
   WHERE  now() > c.use_end_time
  </update>
+<!--查找用户拥有的某张优惠券-->
+    <select id="findAccountCoupon" resultMap="AllColumnMap">
+        SELECT ac.id AS id,
+        ac.user_id AS user_id,
+        ac.coupon_id AS coupon_id,
+        ac.status AS status,
+        ac.use_time AS use_time,
+        ac.get_time AS get_time,
+        ac.create_at AS create_at,
+        ac.update_at AS update_at
+        FROM account_coupon ac
+        WHERE ac.user_id = #{accountId}
+        AND ac.coupon_id = #{couponId}
+    </select>
  </mapper>

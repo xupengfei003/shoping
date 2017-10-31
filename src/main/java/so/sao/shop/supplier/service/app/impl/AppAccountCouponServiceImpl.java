@@ -4,15 +4,18 @@ import com.github.pagehelper.PageInfo;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.dao.app.AppAccountCouponDao;
 import so.sao.shop.supplier.dao.external.CouponDao;
 import so.sao.shop.supplier.domain.AccountCoupon;
+import so.sao.shop.supplier.domain.external.Coupon;
 import so.sao.shop.supplier.pojo.Result;
+import so.sao.shop.supplier.pojo.output.CouponOutputVo;
 import so.sao.shop.supplier.service.app.AppAccountCouponService;
 import so.sao.shop.supplier.util.PageTool;
-import so.sao.shop.supplier.util.PageUtil;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -41,14 +44,14 @@ public class AppAccountCouponServiceImpl implements AppAccountCouponService {
     /**
      * 获取我的优惠券里列表
      * @param shopId
-     * @param pageNum
-     * @param pageSize
-     * @return
+     * @param usableValue
+     *@param pageNum
+     * @param pageSize   @return
      */
     @Override
-    public Result getAccountCoupons(@Param("shopId")Long shopId, Integer pageNum, Integer pageSize) {
+    public Result getAccountCoupons(@Param("shopId") Long shopId, BigDecimal usableValue, Integer pageNum, Integer pageSize) {
         PageTool.startPage(pageNum,pageSize);
-        List<AccountCoupon> list = appAccountCouponDao.findAccountCouponsByUserId(shopId);
+        List<AccountCoupon> list = appAccountCouponDao.findAccountCouponsByUserId(shopId,usableValue);
         PageInfo pageInfo = new PageInfo<>();
         pageInfo.setList(list);
         Result result  = Result.success(Constant.MessageConfig.MSG_SUCCESS);
@@ -62,6 +65,7 @@ public class AppAccountCouponServiceImpl implements AppAccountCouponService {
      * @param couponId
      * @return
      */
+    @Transactional(rollbackFor = Exception.class )
     @Override
     public Result addAccountCoupon(@Param("shopId") Long shopId, @Param("couponId")Long couponId) {
         AccountCoupon accountCoupon = new AccountCoupon();
@@ -70,8 +74,45 @@ public class AppAccountCouponServiceImpl implements AppAccountCouponService {
         accountCoupon.setCreateAt(new Date());
         accountCoupon.setStatus(0);
         accountCoupon.setGetTime(new Date());
-        Integer i = appAccountCouponDao.insertAccountCoupon(accountCoupon);
+        Integer i = appAccountCouponDao.findAccountCoupon(shopId,couponId);
+        if (i != null && i.intValue() > 0){
+            Result result  = Result.fail("请勿重复领取！");
+            return result;
+        }
+        //优惠券中心数量减一
+        i = couponDao.updateCouponNum(couponId,1);
+        //用户优惠券记录加一
+        i = appAccountCouponDao.insertAccountCoupon(accountCoupon);
         Result result  = Result.success(Constant.MessageConfig.MSG_SUCCESS);
         return result;
+    }
+
+    /**
+     * 领券中心
+     * @param shopId
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
+    @Override
+    public Result getCouponCenter(Long shopId, Integer pageNum, Integer pageSize) {
+        PageTool.startPage(pageNum,pageSize);
+        List<CouponOutputVo> list = couponDao.findCouponsByShopId(shopId);
+        PageInfo pageInfo = new PageInfo<>();
+        pageInfo.setList(list);
+        Result result  = Result.success(Constant.MessageConfig.MSG_SUCCESS);
+        result.setData(pageInfo);
+        return result;
+    }
+
+    /**
+     * 使用优惠券
+     * @param accountCouponId
+     * @return
+     */
+    @Override
+    public Integer useAccountCoupon(Long accountCouponId){
+        appAccountCouponDao.updateAccountCouponStatusById(accountCouponId);
+        return null;
     }
 }

@@ -1,10 +1,8 @@
 package so.sao.shop.supplier.service.app;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import so.sao.shop.supplier.dao.app.AppAccountCouponDao;
-import so.sao.shop.supplier.dao.external.CouponDao;
 import so.sao.shop.supplier.pojo.Result;
+
+import java.math.BigDecimal;
 
 /**
  * <p>Version: shop-business V2.5.0 </p>
@@ -24,11 +22,11 @@ public interface AppAccountCouponService {
     /**
      * 获取我的优惠券列表
      * @param shopId
-     * @param pageNum
-     * @param pageSize
-     * @return
+     * @param usableValue
+     *@param pageNum
+     * @param pageSize   @return
      */
-    Result getAccountCoupons(Long shopId, Integer pageNum, Integer pageSize);
+    Result getAccountCoupons(Long shopId, BigDecimal usableValue, Integer pageNum, Integer pageSize);
 
     /**
      * 用户领取优惠券
@@ -37,4 +35,15 @@ public interface AppAccountCouponService {
      * @return
      */
     Result addAccountCoupon(Long shopId, Long couponId);
+
+    /**
+     * 查看用户领券中心列表
+     * @param shopId
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
+    Result getCouponCenter(Long shopId, Integer pageNum, Integer pageSize);
+
+    Integer useAccountCoupon(Long accountCouponId);
 }

@@ -73,13 +73,26 @@ public class CouponServiceImpl implements CouponService{
         return i != null && i > 0 ? true : false;
     }
 
+    /**
+     * 批量废弃优惠券
+     * @param couponIds
+     * @return
+     */
     @Override
     public Result batchDiscardCouponsByIds(Long[] couponIds) {
-        Integer i = couponDao.updateCouponStatusById(couponIds);
+        Integer i = couponDao.updateCouponStatusById(couponIds,4);
         Result result = Result.success(Constant.MessageConfig.MSG_SUCCESS);
         return result;
     }
 
+    /**
+     * 按照名称和状态搜索优惠券
+     * @param name
+     * @param couponStatus
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
     @Override
     public Result searchCoupons(String name, Integer[] couponStatus, Integer pageNum, Integer pageSize) {
         PageTool.startPage(pageNum,pageSize);
