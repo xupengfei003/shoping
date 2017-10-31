@@ -12,10 +12,15 @@ import so.sao.shop.supplier.util.PageTool;
 import java.util.*;
 
 /**
- * 搜素关键字Service实现类
+ * <p>Version: 运维平台 V0.9.0 </p>
+ * <p>Title: InvoiceContent</p>
+ * <p>Description:运维平台-关键字配置serviceImpl</p>
+ *
+ * @author: sha.chen
+ * @Date: Created in 2017/10/30 15:00
  */
 @Service
-public class KeyWordServiceImpl implements KeyWordService{
+public class KeyWordServiceImpl implements KeyWordService {
 
     @Autowired
     private KeyWordDao keyWordDao;
@@ -72,7 +77,7 @@ public class KeyWordServiceImpl implements KeyWordService{
      * @return
      */
     @Override
-    public Result searchKeyWords(Integer pageNum,Integer pageSize) {
+    public Result searchKeyWords(Integer pageNum, Integer pageSize) {
 
         PageTool.startPage(pageNum,pageSize);
         List<KeyWord> list = keyWordDao.findAll();

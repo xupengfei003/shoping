@@ -12,6 +12,8 @@ ALTER TABLE purchase
 	ADD drawback_price DECIMAL(10,2) DEFAULT 0  NULL COMMENT '退款金额' AFTER `pay_amount`,
 	ADD prefix_order_status INT(1) DEFAULT 0  NULL COMMENT '上一个订单状态（只有5和7有该状态）' AFTER `drawback_price`;
 
+
+
 /*创建产品销量表*/
 CREATE TABLE `comm_sales` (
 	`id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
@@ -31,3 +33,35 @@ CREATE TABLE `comm_sales` (
 /*初始化产品销量表，将所有商品表sc中未删除添加到商品销量表，并初始化实际和虚拟销量*/
 insert into comm_sales (sc_id) select sc.id from supplier_commodity sc where sc.deleted=0;
 update comm_sales cs set cs.actual_sales=0,cs.virtual_sales=round(rand()*(150-100)+100),create_at=now(),update_at=now();
+
+/*创建发票内容表*/
+CREATE TABLE invoice_content (
+   id bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
+   invoice_content_name varchar(20) DEFAULT NULL COMMENT '发票内容名称',
+   operator varchar(50) DEFAULT NULL COMMENT '操作人（登录的账号名）',
+   sort int(2) DEFAULT NULL COMMENT '排序',
+   create_at datetime DEFAULT NULL COMMENT '创建时间',
+   update_at datetime DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (id)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='发票内容配置表'
+;
+
+/*创建--供应商发票设置表*/
+CREATE TABLE `invoice_setting` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `supplier_id` bigint(20) DEFAULT NULL COMMENT '供应商ID',
+  `status` int(1) DEFAULT '0' COMMENT '开启状态，0-关闭，1-开启',
+  `invoice` int(1) DEFAULT '0' COMMENT '增值税普通发票，0-未选择，1-已选择',
+  `special_invoice` int(1) DEFAULT '0' COMMENT '增值税专用发票，0-未选择，1-已选择',
+  `created_at` datetime DEFAULT NULL COMMENT '创建时间',
+  `updated_at` datetime DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='供应商发票设置表'
+;
+/*更改key_word表关键字类型备注*/
+ALTER TABLE `key_word` MODIFY COLUMN key_word_type INT(1) COMMENT '关键字类型，0-供应商名称，1-商品名称，2-商品品牌';
+
+/*商品分类表增加状态status字段*/
+ALTER TABLE `comm_category`
+  ADD COLUMN `status` INT(1) DEFAULT 0  NULL  COMMENT '科属状态0隐藏，1展示' AFTER `updated_at`;
+
