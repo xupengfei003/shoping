@@ -61,3 +61,7 @@ CREATE TABLE `invoice_setting` (
 /*更改key_word表关键字类型备注*/
 ALTER TABLE `key_word` MODIFY COLUMN key_word_type INT(1) COMMENT '关键字类型，0-供应商名称，1-商品名称，2-商品品牌';
 
+/*商品分类表增加状态status字段*/
+ALTER TABLE `comm_category`
+  ADD COLUMN `status` INT(1) DEFAULT 0  NULL  COMMENT '科属状态0隐藏，1展示' AFTER `updated_at`;
+
