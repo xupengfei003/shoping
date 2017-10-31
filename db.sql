@@ -58,6 +58,6 @@ CREATE TABLE `invoice_setting` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='供应商发票设置表'
 ;
---更改key_word表关键字类型备注
+/*更改key_word表关键字类型备注*/
 ALTER TABLE `key_word` MODIFY COLUMN key_word_type INT(1) COMMENT '关键字类型，0-供应商名称，1-商品名称，2-商品品牌';
 
