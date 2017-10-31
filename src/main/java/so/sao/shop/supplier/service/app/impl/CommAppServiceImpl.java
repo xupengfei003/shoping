@@ -18,7 +18,7 @@ import so.sao.shop.supplier.pojo.input.CommodityAppInput;
 import so.sao.shop.supplier.pojo.output.*;
 import so.sao.shop.supplier.pojo.vo.CategoryVo;
 import so.sao.shop.supplier.pojo.vo.CommImgeVo;
-import so.sao.shop.supplier.service.CountSoldCommService;
+import so.sao.shop.supplier.service.app.AppCommSalesService;
 import so.sao.shop.supplier.service.app.CommAppService;
 import so.sao.shop.supplier.util.BeanMapper;
 import so.sao.shop.supplier.util.DataCompare;
@@ -36,7 +36,7 @@ public class CommAppServiceImpl implements CommAppService {
     @Autowired
     private AccountDao accountDao;
     @Autowired
-    private CountSoldCommService countSoldCommService;
+    private AppCommSalesService appCommSalesService;
     @Autowired
     private CommImgeDao commImgeDao;
     @Autowired
@@ -145,7 +145,7 @@ public class CommAppServiceImpl implements CommAppService {
         for (int i = 0; i < commList.size(); i++) {
             CommAppOutput commAppOutput = commList.get(i);
             String goodsId = commAppOutput.getId().toString();
-            List<String> countSold = countSoldCommService.countSoldCommNum(new String[]{goodsId});
+            List<String> countSold = appCommSalesService.countSoldCommNum(new String[]{goodsId});
             commAppOutput.setSaleNum(Integer.valueOf(countSold.get(0)));
         }
         PageInfo<CommAppOutput> pageInfo = new PageInfo(commList);
@@ -207,7 +207,7 @@ public class CommAppServiceImpl implements CommAppService {
                 for ( int i=0 ; i< commAppOutputList.size(); i++  ){
                     ArrGoodIds [i] = commAppOutputList.get(i).getId() + "";
                 }
-                List<String> salesNum = countSoldCommService.countSoldCommNum( ArrGoodIds );
+                List<String> salesNum = appCommSalesService.countSoldCommNum( ArrGoodIds );
                 // 拿到对应商品id 的销量， 并且赋值给CommAppOutput的销量属性
                 for( int i =0; i< commAppOutputList.size(); i++ ){
                     commAppOutputList.get(i).setSaleNum( Integer.valueOf( salesNum.get(i) ) );
@@ -260,7 +260,7 @@ public class CommAppServiceImpl implements CommAppService {
             //获取销量
             List<String> countSold= null;
             try {
-                countSold = countSoldCommService.countSoldCommNum(new String[]{commodityOutput.getId().toString()});
+                countSold = appCommSalesService.countSoldCommNum(new String[]{commodityOutput.getId().toString()});
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -315,7 +315,7 @@ public class CommAppServiceImpl implements CommAppService {
             //获取销量
             List<String> countSold= null;
             try {
-                countSold = countSoldCommService.countSoldCommNum(new String[]{commodityOutput.getId().toString()});
+                countSold = appCommSalesService.countSoldCommNum(new String[]{commodityOutput.getId().toString()});
             } catch (Exception e) {
                 e.printStackTrace();
             }
