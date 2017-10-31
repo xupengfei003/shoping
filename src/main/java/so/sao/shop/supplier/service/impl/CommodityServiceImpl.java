@@ -129,6 +129,8 @@ public class CommodityServiceImpl implements CommodityService {
                 commBrandDao.save(brand);
             }
         }
+        //商品规格id集合
+        String scIds = "";
         for (SupplierCommodityVo commodityVo : commodityInput.getCommodityList()) {
             if(null != commodityVo.getTagId()){
                 //验证商品标签是否存在
@@ -208,15 +210,22 @@ public class CommodityServiceImpl implements CommodityService {
                 sc.setInvalidStatus(CommConstant.COMM_ACTIVE_STATUS);
             }
             supplierCommodityDao.save(sc);
+            Long scId = sc.getId();
+            if(scIds.equals("")){
+                scIds += scId.toString();
+            }else{
+                scIds += "," + scId.toString();
+            }
             //保存图片
             List<CommImge> commImges = new ArrayList<>();
             commodityVo.getImgeList().forEach(imgeVo->{
                 CommImge imge = BeanMapper.map(imgeVo, CommImge.class);
-                imge.setScId(sc.getId());
+                imge.setScId(scId);
                 commImges.add(imge);
             });
             commImgeDao.batchSave(commImges);
         }
+        appCommSalesService.saveCommSales(scIds);
         return Result.success("添加商品成功");
     }
 
