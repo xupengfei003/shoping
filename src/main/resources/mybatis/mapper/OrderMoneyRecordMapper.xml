@@ -374,4 +374,13 @@
         </if>
     </select>
 
+    <!-- 账单明细列表头部页面总计金额 -->
+    <select id="countOrderTotalPrice" resultType="java.math.BigDecimal" parameterType="string">
+        SELECT
+          sum(p.order_total_price)
+        FROM
+          record_purchase rp
+        LEFT JOIN purchase p ON rp.order_id = p.order_id
+        WHERE rp.record_id = #{recordId}
+    </select>
 </mapper>

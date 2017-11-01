@@ -8,6 +8,7 @@ import so.sao.shop.supplier.pojo.output.OrderCancelReasonOutput;
 import so.sao.shop.supplier.pojo.output.OrderRefuseReasonOutput;
 import so.sao.shop.supplier.pojo.output.PurchaseItemPrintOutput;
 import so.sao.shop.supplier.pojo.vo.PurchaseInfoVo;
+import so.sao.shop.supplier.pojo.vo.PurchaseItemVo;
 import so.sao.shop.supplier.pojo.vo.PurchasesVo;
 
 import javax.servlet.http.HttpServletRequest;
@@ -271,4 +272,12 @@ public interface PurchaseService {
      * @param pageSize  pageSize
      */
     void adminExportExcel(HttpServletRequest request, HttpServletResponse response, String pageNum, Integer pageSize, Long accountId, PurchaseSelectInput purchaseSelectInput) throws Exception;
+
+    /**
+     * 根据订单ID集合获取订单详情集合
+     *
+     * @param orderIds 订单ID集合
+     * @return List<PurchaseInfoVo>
+     */
+    List<PurchaseItemVo> findPurchaseItemByIds(List<String> orderIds);
 }
