@@ -66,44 +66,67 @@ ALTER TABLE `comm_category`
   ADD COLUMN `status` INT(1) DEFAULT 0  NULL  COMMENT '科属状态0隐藏，1展示' AFTER `updated_at`;
 
 /*==============================================================*/
-/* Table: account_coupon                                        */
+/* Table: account_coupon    优惠券表                             */
 /*==============================================================*/
 create table account_coupon
 (
-  id                   bigint not null,
-  coupon_id            bigint,
-  user_id              bigint,
-  status               int,
-  use_time             datetime,
-  get_time             datetime,
-  create_at            datetime,
-  update_at            datetime,
+  id                   bigint not null comment '用户优惠券id
+            ',
+  coupon_id            bigint comment '优惠券id
+            ',
+  account_id           bigint comment '用户id（现阶段为门店id）
+            ',
+  status               int comment '优惠券状态0（可使用），1（已使用），2（未生效），3（已废弃）,4(已过期)
+            ',
+  use_time             datetime comment '使用时间
+            ',
+  get_time             datetime comment '领取时间
+            ',
+  create_at            datetime comment '记录创建时间
+            ',
+  update_at            datetime comment '更新时间
+            ',
   primary key (id)
 );
 
 /*==============================================================*/
-/* Table: coupon                                                */
+/* Table: coupon         用户优惠券表                             */
 /*==============================================================*/
 create table coupon
 (
-  id                   bigint not null,
-  name                 varchar(50),
-  status               int,
-  discount_way         int,
-  category_id          bigint,
-  coupon_value         decimal(10,2),
-  usable_value         decimal(10,2),
-  create_num           int,
-  send_num             int,
-  use_num              int,
-  send_start_time      datetime,
-  send_end_time        datetime,
-  use_start_time       datetime,
-  use_end_time         datetime,
-  create_at            datetime,
-  update_at            datetime,
+  id                   bigint not null comment '优惠券id',
+  name                 varchar(50) comment '优惠券名称',
+  status               int comment '优惠券状态0（已生效），1（未生效），2（已过期），3（已废弃）
+            ',
+  discount_way         int comment '折扣方式（1：折扣，2满减）
+
+            ',
+  category_id          bigint comment '优惠券适用类型，0为全品类',
+  coupon_value         decimal(10,2) comment '优惠券金额
+            ',
+  usable_value         decimal(10,2) comment '可用条件（金额）
+            ',
+  create_num           int comment '创建数量
+            ',
+  send_num             int comment '已发放数量（即已领取数量）
+            ',
+  use_num              int comment '已使用数量
+            ',
+  send_start_time      datetime comment '发放开始时间
+            ',
+  send_end_time        datetime comment '发放结束时间
+            ',
+  use_start_time       datetime comment '使用开始时间
+            ',
+  use_end_time         datetime comment '使用结束时间
+            ',
+  create_at            datetime comment '记录创建时间
+            ',
+  update_at            datetime comment '更新时间
+            ',
   primary key (id)
 );
+
 
 
 
