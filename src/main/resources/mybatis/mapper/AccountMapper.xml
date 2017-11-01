@@ -131,7 +131,7 @@
     where account_id = #{accountId,jdbcType=BIGINT}
   </update>
 
-  <insert id="insert" parameterType="so.sao.shop.supplier.domain.Account" >
+  <insert id="insert" parameterType="so.sao.shop.supplier.domain.Account" useGeneratedKeys="true" keyProperty="accountId">
     insert into account (account_id, user_id, provider_name,
       responsible, responsible_phone, license, 
       license_time_create, license_time_end, business_type, 

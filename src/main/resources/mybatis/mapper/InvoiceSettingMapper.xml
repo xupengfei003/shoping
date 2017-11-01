@@ -24,7 +24,7 @@
         insert into invoice_setting
         (supplier_id, status, invoice, special_invoice, created_at, updated_at)
         values
-        (#{supplierId}, 0, 0, 0, #{createdAt}, #{updatedAt})
+        (#{supplierId}, #{status}, #{invoice}, #{specialInvoice}, #{createdAt}, #{updatedAt})
     </insert>
 
     <!--修改供应商发票设置-->

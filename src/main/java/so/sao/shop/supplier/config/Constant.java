@@ -472,4 +472,35 @@ public interface Constant {
     	 */
     	public static final Integer PERMISSION_TYPE_special_BUSINESS = 99;
     }
+
+    /**
+     * 供应商发票设置状态常量
+     */
+    interface InvoiceSetting {
+        /**
+         * 供应商发票设置【开关】状态--开启
+         */
+        public static final Integer STATUS_ON = 1;
+        /**
+         * 供应商发票设置【开关】状态--关闭
+         */
+        public static final Integer STATUS_OFF = 0;
+        /**
+         * 供应商发票设置增值税【普通发票】状态--开启
+         */
+        public static final Integer INVOICE_ON = 1;
+        /**
+         * 供应商发票设置增值税【普通发票】状态--关闭
+         */
+        public static final Integer INVOICE_OFF = 0;
+        /**
+         * 供应商发票设置增值税【专用发票】状态--开启
+         */
+        public static final Integer SPECIAL_INVOICE_ON = 1;
+        /**
+         * 供应商发票设置增值税【专用发票】状态--关闭
+         */
+        public static final Integer SPECIAL_INVOICE_OFF = 0;
+
+    }
 }
