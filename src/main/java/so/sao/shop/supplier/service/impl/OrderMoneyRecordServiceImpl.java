@@ -725,9 +725,10 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
 		 * 2.分页
 		 *   a).使用PageTool工具类开启分页；
 		 * 3.根据条件，查询结算明细所对应的订单列表信息；
-		 * 4.根据结算明细id，查询该结算明细实体，根据结算状态获取待结算金额或结算金额；
-		 * 5.取得AccountPurchaseVo的分页信息；
-		 * 6.返回结果对象output；
+		 * 4.结算明细列表页面总计金额；
+		 * 5.根据结算明细id，查询该结算明细实体，根据结算状态获取待结算金额或结算金额；
+		 * 6.取得AccountPurchaseVo的分页信息；
+		 * 7.返回结果对象output；
 		 */
 
         //1.创建返回的对象output
@@ -740,9 +741,11 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
         //3.根据条件，查询结算明细所对应的订单列表信息
         List<AccountPurchaseVo> purchaseList = orderMoneyRecordDao.findPageOMRPurchase(recordId, orderId);
 
-        //4.根据结算明细id，查询该结算明细实体，根据结算状态获取待结算金额或结算金额
+        //4.结算明细列表页面总计金额
+        BigDecimal tmpTotalOrderTotalPrice = orderMoneyRecordDao.countOrderTotalPrice(recordId);
+
+        //5.根据结算明细id，查询该结算明细实体，根据结算状态获取待结算金额或结算金额
         BigDecimal tmpTotalOrderRevenue = new BigDecimal("0.00");
-        BigDecimal tmpTotalPostage = new BigDecimal("0.00");
         OrderMoneyRecord orderMoneyRecord = orderMoneyRecordDao.findOne(recordId);
         if (null != orderMoneyRecord) {
             String state = orderMoneyRecord.getState();
@@ -751,12 +754,11 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
             } else if ("1".equals(state)) {
                 tmpTotalOrderRevenue = orderMoneyRecord.getSettledAmount();
             }
-            tmpTotalPostage = orderMoneyRecord.getPostageTotalAmount();
         }
 
         PageInfo pageInfo = null;
         if (null != purchaseList && !purchaseList.isEmpty()) {
-            //5.取得Purchase的分页信息
+            //6.取得Purchase的分页信息
             pageInfo = new PageInfo<>(purchaseList);
         }
 
@@ -764,9 +766,9 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
         //订单结算总额
         output.setTotalOrderRevenue(NumberUtil.number2Thousand(tmpTotalOrderRevenue));
         //订单运费总额
-        output.setTotalPostage(NumberUtil.number2Thousand(tmpTotalPostage));
+        output.setTotalOrderTotalPrice(NumberUtil.number2Thousand(tmpTotalOrderTotalPrice));
 
-        //6.返回结果对象output
+        //7.返回结果对象output
         return output;
     }
 
@@ -881,8 +883,7 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
             //设置响应参数
             response.reset();
             response.setContentType("application/vnd.ms-excel;charset=utf-8");
-//			String filename = "供应商结算明细.xlsx";
-            String filename = "excel.xlsx";
+            String filename = "结算明细"+ StringUtil.fomateData(new Date(), "yyyyMMddHHmmss") +".xlsx";
             filename = new String(filename.getBytes("Utf-8"), "iso-8859-1");
             response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
             response.setCharacterEncoding("UTF-8");

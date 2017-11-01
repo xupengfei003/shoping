@@ -21,9 +21,9 @@ public class RecordToPurchaseOutput<T> {
     private String totalOrderRevenue;
 
     /**
-     * 订单运费总额
+     * 总计金额
      */
-    private String totalPostage;
+    private String totalOrderTotalPrice;
 
     public PageInfo<T> getPageInfo() {
         return pageInfo;
@@ -41,11 +41,11 @@ public class RecordToPurchaseOutput<T> {
         this.totalOrderRevenue = totalOrderRevenue;
     }
 
-    public String getTotalPostage() {
-        return totalPostage;
+    public String getTotalOrderTotalPrice() {
+        return totalOrderTotalPrice;
     }
 
-    public void setTotalPostage(String totalPostage) {
-        this.totalPostage = totalPostage;
+    public void setTotalOrderTotalPrice(String totalOrderTotalPrice) {
+        this.totalOrderTotalPrice = totalOrderTotalPrice;
     }
 }

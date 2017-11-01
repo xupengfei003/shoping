@@ -2,8 +2,9 @@ package so.sao.shop.supplier.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import org.apache.commons.beanutils.BeanMap;
 import org.apache.poi.hssf.usermodel.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -50,6 +51,7 @@ import java.util.stream.Collectors;
  */
 @Service
 public class PurchaseServiceImpl implements PurchaseService {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Resource
     private PurchaseDao purchaseDao;
     @Resource
@@ -398,7 +400,6 @@ public class PurchaseServiceImpl implements PurchaseService {
         }
         // 生成一个样式
         HSSFCellStyle style = wb.createCellStyle();
-
         //创建第一行（也可以称为表头）
         HSSFRow row = sheet.createRow(0);
         row.setHeightInPoints(30);
@@ -411,43 +412,59 @@ public class PurchaseServiceImpl implements PurchaseService {
         cell.setCellStyle(style);
 
         cell = row.createCell(1);
-        cell.setCellValue("支付时间");
-        cell.setCellStyle(style);
-
-        cell = row.createCell(2);
-        cell.setCellValue("收货人姓名");
-        cell.setCellStyle(style);
-
-        cell = row.createCell(3);
-        cell.setCellValue("收货人电话");
-        cell.setCellStyle(style);
-
-        cell = row.createCell(4);
         cell.setCellValue("订单状态");
         cell.setCellStyle(style);
 
-        cell = row.createCell(5);
-        cell.setCellValue("订单金额");
+        cell = row.createCell(2);
+        cell.setCellValue("商品金额小计");
         cell.setCellStyle(style);
 
-        cell = row.createCell(6);
+        cell = row.createCell(3);
         cell.setCellValue("运费金额");
         cell.setCellStyle(style);
 
+        cell = row.createCell(4);
+        cell.setCellValue("折扣优惠");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(5);
+        cell.setCellValue("合计金额");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(6);
+        cell.setCellValue("实付金额");
+        cell.setCellStyle(style);
+
         cell = row.createCell(7);
-        cell.setCellValue("创建时间");
+        cell.setCellValue("下单时间");
         cell.setCellStyle(style);
 
         cell = row.createCell(8);
-        cell.setCellValue("更新时间");
-        cell.setCellStyle(style);
-
-        cell = row.createCell(9);
         cell.setCellValue("支付类型");
         cell.setCellStyle(style);
 
-        cell = row.createCell(10);
+        cell = row.createCell(9);
         cell.setCellValue("支付流水号");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(10);
+        cell.setCellValue("支付时间");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(11);
+        cell.setCellValue("收货人姓名");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(12);
+        cell.setCellValue("收货人电话");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(13);
+        cell.setCellValue("收货时间");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(14);
+        cell.setCellValue("更新时间");
         cell.setCellStyle(style);
 
         List<Purchase> orderList;
@@ -474,52 +491,77 @@ public class PurchaseServiceImpl implements PurchaseService {
             cellTemp = row.createCell(0);
             cellTemp.setCellValue(purchase.getOrderId());
             cellTemp.setCellStyle(style);
-            cellTemp = row.createCell(1);
-            cellTemp.setCellValue(purchase.getOrderPaymentTime() == null ? "" : StringUtil.fomateData(purchase.getOrderCreateTime(), "yyyy-MM-dd HH:mm:ss"));
-            cellTemp.setCellStyle(style);
-            cellTemp = row.createCell(2);
-            cellTemp.setCellValue(purchase.getOrderReceiverName());
-            cellTemp.setCellStyle(style);
-            cellTemp = row.createCell(3);
-            cellTemp.setCellValue(purchase.getOrderReceiverMobile());
-            cellTemp.setCellStyle(style);
+
             Integer status = purchase.getOrderStatus();
             String orderStatus = "";
             orderStatus = getOrderStatusInExcel(status, orderStatus);
-            cellTemp = row.createCell(4);
+            cellTemp = row.createCell(1);
             cellTemp.setCellValue(orderStatus);
             cellTemp.setCellStyle(style);
-            cellTemp = row.createCell(5);
+
+            cellTemp = row.createCell(2);
             cellTemp.setCellValue("￥" + purchase.getOrderPrice());
             cellTemp.setCellStyle(style);
+
             if(purchase.getOrderPostage().compareTo(new BigDecimal(0)) == 1){
-                cellTemp = row.createCell(6);
+                cellTemp = row.createCell(3);
                 cellTemp.setCellValue("￥" + purchase.getOrderPostage());
                 cellTemp.setCellStyle(style);
             } else {
-                cellTemp = row.createCell(6);
+                cellTemp = row.createCell(3);
                 cellTemp.setCellValue("包邮");
                 cellTemp.setCellStyle(style);
             }
 
+            cellTemp = row.createCell(4);
+            cellTemp.setCellValue("￥" + purchase.getDiscount());
+            cellTemp.setCellStyle(style);
+
+            cellTemp = row.createCell(5);
+            cellTemp.setCellValue(purchase.getOrderTotalPrice() == null ? "￥ 0.00" : "￥" + purchase.getOrderTotalPrice());
+            cellTemp.setCellStyle(style);
+
+            cellTemp = row.createCell(6);
+            cellTemp.setCellValue(purchase.getPayAmount() == null ? "￥ 0.00" : "￥" + purchase.getPayAmount());
+            cellTemp.setCellStyle(style);
+
             cellTemp = row.createCell(7);
             cellTemp.setCellValue(purchase.getOrderCreateTime() == null ? "" : StringUtil.fomateData(purchase.getOrderCreateTime(), "yyyy-MM-dd HH:mm:ss"));
             cellTemp.setCellStyle(style);
-            cellTemp = row.createCell(8);
-            cellTemp.setCellValue(purchase.getUpdatedAt() == null ? "" : StringUtil.fomateData(purchase.getOrderCreateTime(), "yyyy-MM-dd HH:mm:ss"));
-            cellTemp.setCellStyle(style);
+
             Integer paymentMethod = purchase.getOrderPaymentMethod();
             String payment = "";
-            if (paymentMethod == Constant.PaymentStatusConfig.ALIPAY) {
+            if (Objects.equals(paymentMethod,Constant.PaymentStatusConfig.ALIPAY)) {
                 payment = Constant.PaymentMsgConfig.ALIPAY;
-            } else if (paymentMethod == Constant.PaymentStatusConfig.WECHAT) {
+            } else if (Objects.equals(paymentMethod,Constant.PaymentStatusConfig.WECHAT)) {
                 payment = Constant.PaymentMsgConfig.WECHAT;
             }
-            cellTemp = row.createCell(9);
+            cellTemp = row.createCell(8);
             cellTemp.setCellValue(payment);
             cellTemp.setCellStyle(style);
-            cellTemp = row.createCell(10);
+
+            cellTemp = row.createCell(9);
             cellTemp.setCellValue(purchase.getOrderPaymentNum());
+            cellTemp.setCellStyle(style);
+
+            cellTemp = row.createCell(10);
+            cellTemp.setCellValue(purchase.getOrderPaymentTime() == null ? "" : StringUtil.fomateData(purchase.getOrderPaymentTime(), "yyyy-MM-dd HH:mm:ss"));
+            cellTemp.setCellStyle(style);
+
+            cellTemp = row.createCell(11);
+            cellTemp.setCellValue(purchase.getOrderReceiverName());
+            cellTemp.setCellStyle(style);
+
+            cellTemp = row.createCell(12);
+            cellTemp.setCellValue(purchase.getOrderReceiverMobile());
+            cellTemp.setCellStyle(style);
+
+            cellTemp = row.createCell(13);
+            cellTemp.setCellValue(purchase.getOrderReceiveTime() == null ? "" : StringUtil.fomateData(purchase.getOrderReceiveTime(), "yyyy-MM-dd HH:mm:ss"));
+            cellTemp.setCellStyle(style);
+
+            cellTemp = row.createCell(14);
+            cellTemp.setCellValue(purchase.getUpdatedAt() == null ? "" : StringUtil.fomateData(purchase.getUpdatedAt(), "yyyy-MM-dd HH:mm:ss"));
             cellTemp.setCellStyle(style);
         }
         //输出Excel文件
@@ -1191,8 +1233,8 @@ public class PurchaseServiceImpl implements PurchaseService {
      * @return 返回Map：flag：成功true|失败false,message:信息
      * @throws Exception 异常
      */
-    @Transactional(rollbackFor = Exception.class)
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Map refundByOrderId(String orderId) throws Exception {
         Map result = new HashMap();
         // 1.根据订单状态验证是否可以退款
@@ -1209,10 +1251,15 @@ public class PurchaseServiceImpl implements PurchaseService {
             return result;
         }
         BigDecimal amount = new BigDecimal(0);
-        if (orderStatus == Constant.OrderStatusConfig.REJECT) { //已拒收 只退订单金额
-            amount = purchase.getOrderPrice();
-        } else if (orderStatus == Constant.OrderStatusConfig.CANCEL_ORDER){ //已取消 订单金额+运费
-            amount = purchase.getOrderPrice().add(purchase.getOrderPostage());
+        //该处amount取自订单的实付金额
+        //1.已拒收，只退订单金额，不退运费（实付金额-运费）
+        //2.已付款已取消，需要退运费，则退实付金额
+        if (Objects.equals(orderStatus,Constant.OrderStatusConfig.REJECT)) {
+//            amount = purchase.getOrderPrice();
+            amount = purchase.getPayAmount().subtract(purchase.getOrderPostage());
+        } else if (Objects.equals(orderStatus,Constant.OrderStatusConfig.CANCEL_ORDER)){
+//            amount = purchase.getOrderPrice().add(purchase.getOrderPostage());
+            amount = purchase.getPayAmount();
         }
         //添加退款原因
         String cancelReason = purchase.getOrderRefuseReason(); //买家拒绝理由
@@ -1230,6 +1277,8 @@ public class PurchaseServiceImpl implements PurchaseService {
             Date now = new Date();
             params.put("drawbackTime", now); // 退款时间
             params.put("updatedAt", now); // 更新时间
+            params.put("drawbackPrice", amount); // 退款金额
+            params.put("prefixOrderStatus", orderStatus); //该订单前一个状态
             int count = purchaseDao.refundByOrderId(params); // 修改订单状态为退款，修改退款时间为当前时间
             if (count == 0) {
                 result.put("flag", false);
@@ -1571,23 +1620,55 @@ public class PurchaseServiceImpl implements PurchaseService {
         cell.setCellStyle(style);
 
         cell = row.createCell(3);
-        cell.setCellValue("订单金额");
+        cell.setCellValue("商品金额小计");
         cell.setCellStyle(style);
 
         cell = row.createCell(4);
-        cell.setCellValue("创建时间");
+        cell.setCellValue("运费金额");
         cell.setCellStyle(style);
 
         cell = row.createCell(5);
-        cell.setCellValue("支付时间");
+        cell.setCellValue("折扣优惠");
         cell.setCellStyle(style);
 
         cell = row.createCell(6);
-        cell.setCellValue("支付类型");
+        cell.setCellValue("合计金额");
         cell.setCellStyle(style);
 
         cell = row.createCell(7);
+        cell.setCellValue("实付金额");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(8);
+        cell.setCellValue("下单时间");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(9);
+        cell.setCellValue("支付类型");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(10);
         cell.setCellValue("支付流水号");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(11);
+        cell.setCellValue("支付时间");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(12);
+        cell.setCellValue("收货人姓名");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(13);
+        cell.setCellValue("收货人电话");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(14);
+        cell.setCellValue("收货时间");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(15);
+        cell.setCellValue("更新时间");
         cell.setCellStyle(style);
 
         List<Purchase> orderList;
@@ -1617,38 +1698,94 @@ public class PurchaseServiceImpl implements PurchaseService {
             cellTemp = row.createCell(1);
             cellTemp.setCellValue(purchase.getOrderId());
             cellTemp.setCellStyle(style);
+
             Integer status = purchase.getOrderStatus();
             String orderStatus = "";
             orderStatus = getOrderStatusInExcel(status, orderStatus);
             cellTemp = row.createCell(2);
             cellTemp.setCellValue(orderStatus);
             cellTemp.setCellStyle(style);
+
             cellTemp = row.createCell(3);
             cellTemp.setCellValue("￥" + purchase.getOrderPrice());
             cellTemp.setCellStyle(style);
-            cellTemp = row.createCell(4);
+
+            if(purchase.getOrderPostage().compareTo(new BigDecimal(0)) == 1){
+                cellTemp = row.createCell(4);
+                cellTemp.setCellValue("￥" + purchase.getOrderPostage());
+                cellTemp.setCellStyle(style);
+            } else {
+                cellTemp = row.createCell(4);
+                cellTemp.setCellValue("包邮");
+                cellTemp.setCellStyle(style);
+            }
+
+            cellTemp = row.createCell(5);
+            cellTemp.setCellValue("￥" + purchase.getDiscount());
+            cellTemp.setCellStyle(style);
+
+            cellTemp = row.createCell(6);
+            cellTemp.setCellValue(purchase.getOrderTotalPrice() == null ? "￥ 0.00" : "￥" + purchase.getOrderTotalPrice());
+            cellTemp.setCellStyle(style);
+
+            cellTemp = row.createCell(7);
+            cellTemp.setCellValue(purchase.getPayAmount() == null ? "￥ 0.00" : "￥" + purchase.getPayAmount());
+            cellTemp.setCellStyle(style);
+
+            cellTemp = row.createCell(8);
             cellTemp.setCellValue(purchase.getOrderCreateTime() == null ? "" : StringUtil.fomateData(purchase.getOrderCreateTime(), "yyyy-MM-dd HH:mm:ss"));
             cellTemp.setCellStyle(style);
-            cellTemp = row.createCell(5);
-            cellTemp.setCellValue(purchase.getOrderPaymentTime() == null ? "" : StringUtil.fomateData(purchase.getOrderCreateTime(), "yyyy-MM-dd HH:mm:ss"));
-            cellTemp.setCellStyle(style);
+
             Integer paymentMethod = purchase.getOrderPaymentMethod();
             String payment = "";
-            if (paymentMethod == Constant.PaymentStatusConfig.ALIPAY) {
+            if (Objects.equals(paymentMethod,Constant.PaymentStatusConfig.ALIPAY)) {
                 payment = Constant.PaymentMsgConfig.ALIPAY;
-            } else if (paymentMethod == Constant.PaymentStatusConfig.WECHAT) {
+            } else if (Objects.equals(paymentMethod,Constant.PaymentStatusConfig.WECHAT)) {
                 payment = Constant.PaymentMsgConfig.WECHAT;
             }
-            cellTemp = row.createCell(6);
+            cellTemp = row.createCell(9);
             cellTemp.setCellValue(payment);
             cellTemp.setCellStyle(style);
-            cellTemp = row.createCell(7);
+
+            cellTemp = row.createCell(10);
             cellTemp.setCellValue(purchase.getOrderPaymentNum());
+            cellTemp.setCellStyle(style);
+
+            cellTemp = row.createCell(11);
+            cellTemp.setCellValue(purchase.getOrderPaymentTime() == null ? "" : StringUtil.fomateData(purchase.getOrderPaymentTime(), "yyyy-MM-dd HH:mm:ss"));
+            cellTemp.setCellStyle(style);
+
+            cellTemp = row.createCell(12);
+            cellTemp.setCellValue(purchase.getOrderReceiverName());
+            cellTemp.setCellStyle(style);
+
+            cellTemp = row.createCell(13);
+            cellTemp.setCellValue(purchase.getOrderReceiverMobile());
+            cellTemp.setCellStyle(style);
+
+            cellTemp = row.createCell(14);
+            cellTemp.setCellValue(purchase.getOrderReceiveTime() == null ? "" : StringUtil.fomateData(purchase.getOrderReceiveTime(), "yyyy-MM-dd HH:mm:ss"));
+            cellTemp.setCellStyle(style);
+
+            cellTemp = row.createCell(15);
+            cellTemp.setCellValue(purchase.getUpdatedAt() == null ? "" : StringUtil.fomateData(purchase.getUpdatedAt(), "yyyy-MM-dd HH:mm:ss"));
             cellTemp.setCellStyle(style);
         }
         //输出Excel文件
         outputExcel(request, response, wb);
     }
+
+    /**
+     * 根据订单ID集合获取订单详情集合
+     *
+     * @param orderIds 订单ID集合
+     * @return List<PurchaseInfoVo>
+     */
+    @Override
+    public List<PurchaseItemVo> findPurchaseItemByIds(List<String> orderIds) {
+        return purchaseDao.findPurchaseItemByIds(orderIds);
+    }
+
     //输出Excel文件
     private void outputExcel(HttpServletRequest request, HttpServletResponse response, HSSFWorkbook wb) {
         OutputStream output = null;
@@ -1657,7 +1794,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             response.reset();
             String agent = request.getHeader("USER-AGENT").toLowerCase();
             response.setContentType("application/vnd.ms-excel");
-            String fileName = "订单统计" + System.currentTimeMillis();
+            String fileName = "订单统计" + StringUtil.fomateData(new Date(), "yyyyMMddHHmmss");
             String codedFileName = java.net.URLEncoder.encode(fileName, "UTF-8");
             if (agent.contains("firefox")) {
                 response.setCharacterEncoding("utf-8");
@@ -1693,4 +1830,5 @@ public class PurchaseServiceImpl implements PurchaseService {
         }
         return orderStatus;
     }
+
 }

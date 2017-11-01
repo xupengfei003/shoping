@@ -58,6 +58,10 @@ CREATE TABLE `invoice_setting` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='供应商发票设置表'
 ;
+
+/*添加供应商发票设置表--供应商ID字段唯一索引*/
+ALTER TABLE `invoice_setting` ADD UNIQUE(`supplier_id`);
+
 /*更改key_word表关键字类型备注*/
 ALTER TABLE `key_word` MODIFY COLUMN key_word_type INT(1) COMMENT '关键字类型，0-供应商名称，1-商品名称，2-商品品牌';
 
