@@ -41,6 +41,6 @@
     <select id="findBySupplierId" resultType="so.sao.shop.supplier.pojo.output.InvoiceSettingOutput">
         select
         <include refid="baseColumns"/>
-        from invoice_setting where supplier_id = #{1}
+        from invoice_setting where supplier_id = #{supplierId}
     </select>
 </mapper>

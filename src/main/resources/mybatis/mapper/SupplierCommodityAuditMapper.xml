@@ -82,7 +82,7 @@
     <select id="countByScidAndAuditResult" resultType="int">
         select
         count(id) as num
-        from supplier_commodity_audit where audit_result = 2 AND sc_id = #{1}
+        from supplier_commodity_audit where audit_result = 2 AND sc_id = #{scId}
     </select>
 
     <!--根据scId数组和audit_result判断该供应商商品数组中是否有已处于待审核状态的商品-->
