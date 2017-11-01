@@ -107,6 +107,16 @@ public class CommAppController {
     }
 
 
+    @ApiOperation(value="模糊搜索商品", notes="根据商品名称，品牌名称，供应商名称模糊搜索商品【责任人：许鹏飞】")
+    @GetMapping(value="/searchCommsByName")
+    public Result searchComms(@RequestParam(required = false) String name,
+                              @RequestParam(required = false) Integer pageNum,
+                              @RequestParam(required = false) Integer pageSize ){
+        return commAppService.getComms(name, pageNum, pageSize);
+    }
+
+
+
 
 }
 

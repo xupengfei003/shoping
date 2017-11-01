@@ -245,16 +245,22 @@
         sc.min_img AS minImg,
         sc.code69 AS code69,
         sc.code AS CODE,
-        comm.origin_place AS originPlace,
-        cb.name AS brandName,
-        comm.name AS commName,
-        cu.name AS unitName,
-        tag.name AS tagName,
-        cms.name AS measureSpecName,
         sc.rule_val AS ruleVal,
         sc.price AS price,
         sc.unit_price AS unitPrice,
         sc.inventory AS inventory,
+        sc.production_date AS productionDate,
+        sc.guarantee_period AS guaranteePeriod,
+        sc.guarantee_period_unit AS guaranteePeriodUnit,
+        cb.name AS brandName,
+        comm.name AS commName,
+        comm.origin_place AS originPlace,
+        cu.name AS unitName,
+        tag.name AS tagName,
+        cms.name AS measureSpecName,
+        cc1.name AS categoryOneName,
+        cc2.name AS categoryTwoName,
+        cc3.name AS categoryThreeName,
         acc.provider_name AS providerName,
         acc.contract_register_address_city AS contractRegisterAddressCity,
         (SELECT NAME FROM sys_region r WHERE r.sr_id=acc.contract_register_address_city) AS contractRegisterAddressCityName,
@@ -268,6 +274,7 @@
         , comm_unit cu
         , commodity comm
         , comm_brand cb
+        , comm_category cc1
         , comm_category cc2
         , comm_category cc3
         , account acc
@@ -279,11 +286,15 @@
         AND sc.unit_id = cu.id
         AND comm.code69 = sc.code69
         AND comm.brand_id = cb.id
+        AND  comm.category_one_id = cc1.id
         AND  comm.category_two_id = cc2.id
         AND comm.category_three_id = cc3.id
         AND acc.account_id = sc.supplier_id
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierId)">
             AND sc.supplier_id = #{supplierId}
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(categoryOneId)">
+            AND comm.category_one_id = #{categoryOneId}
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(categoryTwoId)">
             AND comm.category_two_id = #{categoryTwoId}
@@ -408,6 +419,9 @@
         sc.status AS status,
         sc.invalid_status AS invalidStatus,
         sc.min_order_quantity AS  minOrderQuantity,
+        sc.production_date AS productionDate,
+        sc.guarantee_period AS guaranteePeriod，
+        sc.guarantee_period_unit AS guaranteePeriodUnit,
         (SELECT NAME FROM comm_category cc WHERE cc.id = c.category_one_id) AS categoryOneName,
         (SELECT NAME FROM comm_category cc WHERE cc.id = c.category_two_id) AS categoryTwoName,
         (SELECT NAME FROM comm_category cc WHERE cc.id = c.category_three_id) AS categoryThreeName
@@ -415,6 +429,61 @@
         supplier_commodity sc INNER JOIN (commodity c LEFT JOIN comm_brand cb ON c.brand_id = cb.id) ON sc.code69 = c.code69
         LEFT JOIN comm_measure_spec cms ON sc.measure_spec_id = cms.id LEFT JOIN comm_unit cu ON sc.unit_id = cu.id LEFT JOIN comm_tag ct ON sc.tag_id = ct.id
         WHERE sc.id = #{id} and sc.invalid_status = 1 AND sc.status = 2 AND sc.deleted = 0
+    </select>
+
+    <!--  findComms -->
+    <select id="findComms" parameterType="string" resultType="so.sao.shop.supplier.pojo.output.CommAppOutput">
+        SELECT
+        sc.id AS id,
+        sc.supplier_id AS supplierId,
+        sc.min_img AS minImg,
+        sc.code69 AS code69,
+        sc.code AS CODE,
+        sc.rule_val AS ruleVal,
+        sc.price AS price,
+        sc.unit_price AS unitPrice,
+        sc.inventory AS inventory,
+        sc.created_at AS createdAt,
+        sc.updated_at AS updatedAt,
+        sc.invalid_status AS invalidStatus,
+        sc.min_order_quantity AS minOrderQuantity,
+        sc.production_date AS productionDate,
+        sc.guarantee_period AS guaranteePeriod,
+        sc.guarantee_period_unit AS guaranteePeriodUnit,
+        cb.name AS brandName,
+        cu.name AS unitName,
+        tag.name AS tagName,
+        cms.name AS measureSpecName,
+        comm.origin_place AS originPlace,
+        comm.name AS commName,
+        acc.provider_name AS providerName,
+        acc.contract_register_address_city AS contractRegisterAddressCity,
+        cc2.name AS categoryTwoName,
+        cc3.name AS categoryThreeName,
+        (SELECT NAME FROM sys_region r WHERE r.sr_id=acc.contract_register_address_city) AS contractRegisterAddressCityName
+        FROM
+        supplier_commodity sc
+        LEFT JOIN comm_tag tag ON sc.tag_id = tag.id
+        , comm_measure_spec cms
+        , comm_unit cu
+        , commodity comm
+        , comm_brand cb
+        , comm_category cc2
+        , comm_category cc3
+        , account acc
+        WHERE sc.deleted = 0
+        AND sc.invalid_status = 1
+        AND sc.status = 2
+        AND sc.measure_spec_id = cms.id
+        AND sc.unit_id = cu.id
+        AND comm.code69 = sc.code69
+        AND comm.brand_id = cb.id
+        AND  comm.category_two_id = cc2.id
+        AND comm.category_three_id = cc3.id
+        AND acc.account_id = sc.supplier_id
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(name)">
+            AND  ( acc.provider_name LIKE '%${name}%' OR comm.name LIKE '%${name}%' OR  cb.name LIKE '%${name}%' )
+        </if>
     </select>
 
 
