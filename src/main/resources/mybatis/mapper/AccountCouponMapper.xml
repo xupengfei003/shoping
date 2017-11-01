@@ -2,4 +2,107 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="so.sao.shop.supplier.dao.app.AppAccountCouponDao" >
 
+ <!--auto generated Code-->
+ <resultMap id="AllColumnMap" type="so.sao.shop.supplier.domain.AccountCoupon">
+  <result column="id" property="id"/>
+  <result column="user_id" property="accountId"/>
+  <result column="coupon_id" property="couponId"/>
+  <result column="status" property="status"/>
+  <result column="use_time" property="useTime"/>
+  <result column="get_time" property="getTime"/>
+  <result column="create_at" property="createAt"/>
+  <result column="update_at" property="updateAt"/>
+ </resultMap>
+    <resultMap id="CouponOutputVo" type="so.sao.shop.supplier.pojo.output.CouponOutputVo">
+        <result column="id" property="couponId"/>
+        <result column="name" property="name"/>
+        <result column="coupon_value" property="couponValue"/>
+        <result column="usable_value" property="usableValue"/>
+        <result column="use_start_time" property="useStartTime"/>
+        <result column="use_end_time" property="useEndTime"/>
+        <result column="get_status" property="status"/>
+    </resultMap>
+ <!--auto generated Code-->
+ <sql id="all_column">
+  `id`,
+  `account_id`,
+  `coupon_id`,
+  `status`,
+  `use_time`,
+  `get_time`,
+  `create_at`,
+  `update_at`
+ </sql>
+
+ <!--auto generated Code-->
+ <insert id="insertAccountCoupon">
+  INSERT INTO account_coupon (
+  `id`,
+  `user_id`,
+  `coupon_id`,
+  `status`,
+  `use_time`,
+  `get_time`,
+  `create_at`,
+  `update_at`
+  ) VALUES (
+  #{pojo.id},
+  #{pojo.accountId},
+  #{pojo.couponId},
+  #{pojo.status},
+  #{pojo.useTime},
+  #{pojo.getTime},
+  #{pojo.createAt},
+  #{pojo.updateAt}
+  )
+ </insert>
+
+<select id="findAccountCouponsByUserId" resultMap="CouponOutputVo">
+  SELECT ac.coupon_id AS id,
+         ac.status AS get_status,
+          c.name ,
+          c.coupon_value ,
+          c.usable_value ,
+          c.use_start_time,
+          c.use_end_time
+  FROM account_coupon ac left join coupon c on c.id = ac.coupon_id
+  WHERE ac.user_id = #{accountId}
+  <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(usableValue)">
+      AND usable_value <![CDATA[ <= ]]> #{usableValue}
+      AND ac.status = 0
+  </if>
+</select>
+
+
+
+
+ <update id="updateAccountCouponStatusById" >
+  UPDATE account_coupon ac
+   SET ac.status = 1,
+       ac.use_time = now()
+   WHERE user_id = #{accountId}
+     AND coupon_id = #{couponId}
+ </update>
+ <!--更新优惠券为已过期-->
+ <update id="updateAccountCouponStatus" >
+  UPDATE account_coupon ac
+    LEFT JOIN coupon c ON  c.id = ac.coupon_id
+  SET ac.status = 4,
+      ac.update_at = now()
+  WHERE  now() > c.use_end_time
+ </update>
+<!--查找用户拥有的某张优惠券-->
+    <select id="findAccountCoupon" resultMap="AllColumnMap">
+        SELECT ac.id AS id,
+        ac.user_id AS user_id,
+        ac.coupon_id AS coupon_id,
+        ac.status AS status,
+        ac.use_time AS use_time,
+        ac.get_time AS get_time,
+        ac.create_at AS create_at,
+        ac.update_at AS update_at
+        FROM account_coupon ac
+        WHERE ac.user_id = #{accountId}
+        AND ac.coupon_id = #{couponId}
+    </select>
  </mapper>
