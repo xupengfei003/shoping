@@ -8,9 +8,13 @@ import so.sao.shop.supplier.dao.PayDao;
 import so.sao.shop.supplier.dao.PurchaseDao;
 import so.sao.shop.supplier.domain.Notification;
 import so.sao.shop.supplier.domain.Purchase;
+import so.sao.shop.supplier.pojo.input.AppCommSalesInput;
 import so.sao.shop.supplier.pojo.input.PayInput;
+import so.sao.shop.supplier.pojo.vo.PurchaseInfoVo;
+import so.sao.shop.supplier.pojo.vo.PurchaseItemVo;
 import so.sao.shop.supplier.service.PayService;
 import so.sao.shop.supplier.service.PurchaseService;
+import so.sao.shop.supplier.service.app.impl.AppCommSalesServiceImpl;
 import so.sao.shop.supplier.util.MD5Util;
 
 import javax.annotation.Resource;
@@ -32,6 +36,8 @@ public class PayServiceImpl implements PayService {
     private PurchaseDao purchaseDao;
     @Resource
     private PurchaseService purchaseService;
+    @Resource
+    private AppCommSalesServiceImpl appCommSalesService;
 
     /**
      * 支付回调接口
@@ -61,6 +67,21 @@ public class PayServiceImpl implements PayService {
             }.start();
             //TODO 为该供应商推送"待发货"消息通知
             sendNotice(payInput);
+            //更新商品销量
+            List<Purchase> purchaseList = purchaseDao.findByPayId(payInput.getOrderId());
+            List<String> orderIds = new ArrayList<>();
+            for (Purchase purchase : purchaseList) {
+                orderIds.add(purchase.getOrderId());
+            }
+            List<PurchaseItemVo> purchaseItemVoList = purchaseService.findPurchaseItemByIds(orderIds);
+            List<AppCommSalesInput> appCommSalesInputs = new ArrayList<>();
+            for (PurchaseItemVo purchaseItemVo : purchaseItemVoList){
+                AppCommSalesInput appCommSalesInput = new AppCommSalesInput();
+                appCommSalesInput.setGoodsId(purchaseItemVo.getGoodsId());
+                appCommSalesInput.setGoodsNum(purchaseItemVo.getGoodsNumber());
+                appCommSalesInputs.add(appCommSalesInput);
+            }
+            appCommSalesService.updateSalesNum(appCommSalesInputs);
         }
         return flagDao;
     }
