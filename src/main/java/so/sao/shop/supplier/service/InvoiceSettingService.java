@@ -1,7 +1,7 @@
 package so.sao.shop.supplier.service;
 
-import so.sao.shop.supplier.domain.InvoiceSetting;
 import so.sao.shop.supplier.pojo.Result;
+import so.sao.shop.supplier.pojo.input.InvoiceSettingUpdateInput;
 
 /**
  * <p>Version: New shop-1.0.0 V1.1.0 </p>
@@ -14,20 +14,22 @@ import so.sao.shop.supplier.pojo.Result;
 public interface InvoiceSettingService {
     /**
      * 新增供应商发票设置
-     * @param invoiceSetting 供应商发票设置实体
+     * @param supplierId 供应商ID
      */
-    void saveInvoiceSetting(InvoiceSetting invoiceSetting);
+    void saveInvoiceSetting(Long supplierId);
 
     /**
      * 修改供应商发票设置
-     * @param invoiceSetting 供应商发票设置实体
+     * @param invoiceSettingUpdateInput 供应商发票设置实体
+     * @param supplierId 供应商ID
+     * @return result
      */
-    void updateInvoiceSetting(InvoiceSetting invoiceSetting);
+    Result updateInvoiceSetting(InvoiceSettingUpdateInput invoiceSettingUpdateInput, Long supplierId);
 
     /**
      * 根据供应商Id查询供应商发票设置
      * @param supplierId 供应商Id
-     * @return 供应商发票设置
+     * @return result
      */
     Result searchBySupplierId(Long supplierId);
 }
