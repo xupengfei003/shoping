@@ -13,6 +13,11 @@ public class CommodityAppInput {
     private String[] brandIds;
 
     /**
+     * 一级类型Id
+     */
+    private Long categoryOneId;
+
+    /**
      * 二级类型Id
      */
     private Long categoryTwoId;
@@ -92,5 +97,13 @@ public class CommodityAppInput {
 
     public void setSupplierId(Long supplierId) {
         this.supplierId = supplierId;
+    }
+
+    public Long getCategoryOneId() {
+        return categoryOneId;
+    }
+
+    public void setCategoryOneId(Long categoryOneId) {
+        this.categoryOneId = categoryOneId;
     }
 }
