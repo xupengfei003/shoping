@@ -538,9 +538,10 @@
             </if>
             <!--查询条件-->
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(input.condition)">
-                AND(
-                ORDER_ID LIKE concat(TRIM(#{input.condition}),'%')
-                OR ORDER_PAYMENT_NUM LIKE concat(TRIM(#{input.condition}),'%')
+                AND (
+                  ORDER_ID LIKE concat(TRIM(#{input.condition}),'%')
+                  OR
+                  ORDER_PAYMENT_NUM LIKE concat(TRIM(#{input.condition}),'%')
                 )
             </if>
         </if>

@@ -802,31 +802,6 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
         return NumberUtil.number2Thousand(unsettled);
     }
 
-
-    /**
-     * 订单对象转换成PurchasesVo
-     *
-     * @param list
-     * @return
-     */
-    public List<PurchaseVo> convertPurchaseVo(List<Purchase> list) {
-        //新建要返回的List<PurchaseVo>
-        List<PurchaseVo> recordPurchaseVoList = new ArrayList<>();
-        for (Purchase purchase : list) {
-            PurchaseVo recordPurchaseVo = new PurchaseVo();
-            recordPurchaseVo.setOrderId(purchase.getOrderId());//订单编号
-            recordPurchaseVo.setOrderReceiverName(purchase.getOrderReceiverName());//收货人姓名
-            recordPurchaseVo.setOrderReceiverMobile(purchase.getOrderReceiverMobile());//收货人电话
-            recordPurchaseVo.setOrderPrice(NumberUtil.number2Thousand(purchase.getOrderPrice()));//订单金额
-            recordPurchaseVo.setOrderSettlemePrice(NumberUtil.number2Thousand(purchase.getOrderSettlemePrice()));//结算金额
-            recordPurchaseVo.setOrderPostage(NumberUtil.number2Thousand(purchase.getOrderPostage()));//运费金额
-            recordPurchaseVo.setOrderCreateTime(purchase.getOrderCreateTime() == null ? "" : StringUtil.fomateData(purchase.getOrderCreateTime(), "yyyy-MM-dd HH:mm:ss"));//订单创建时间
-            recordPurchaseVoList.add(recordPurchaseVo);
-        }
-        //返回转换之后的list
-        return recordPurchaseVoList;
-    }
-
     /**
      * 结算明细列表 导出excel
      *
