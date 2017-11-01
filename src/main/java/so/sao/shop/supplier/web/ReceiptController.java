@@ -10,6 +10,7 @@ import so.sao.shop.supplier.service.ReceiptService;
 import so.sao.shop.supplier.util.Ognl;
 
 import javax.annotation.Resource;
+import java.util.Date;
 
 /**
  * <p>Version: supplier2 V1.1.0 </p>
@@ -41,9 +42,13 @@ public class ReceiptController {
          */
         boolean flag = false;
         Receipt receiptDb = receiptService.getReceiptByUserIdAndType(receipt.getUserId(),receipt.getReceiptType());
+        Date date = new Date();
         if (Ognl.isEmpty(receiptDb)){
+            receipt.setCreateTime(date);
             flag = receiptService.insertReceipt(receipt);
         }else {
+            receipt.setReceiptId(receiptDb.getReceiptId());
+            receipt.setUpdateTime(date);
             flag = receiptService.updateReceiptByUserId(receipt);
         }
         return flag == true ? Result.success(Constant.MessageConfig.MSG_SUCCESS): Result.fail(Constant.MessageConfig.MSG_FAILURE);

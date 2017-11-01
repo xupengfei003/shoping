@@ -23,7 +23,7 @@
   </sql>
 
   <!--发票记录录入-->
-  <insert id="insertReceipt" parameterType="o.sao.shop.supplier.domain.Receipt">
+  <insert id="insertReceipt" parameterType="so.sao.shop.supplier.domain.Receipt">
      insert into receipt_user (receipt_type, company,
       taxpayer_number, receipt_content_id, receipt_content,
       register_adress, register_phone, deposit_bank,
