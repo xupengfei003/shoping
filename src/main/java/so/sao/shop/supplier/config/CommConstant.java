@@ -15,6 +15,10 @@ public class CommConstant {
      */
     public static final String[] imgArray ={"jpg","jpeg","png","gif"};
     /**
+     * 排序
+     */
+    public static int SORT = 1;
+    /**
      * 未上架
      */
     public static final int COMM_ST_NEW = 0;
@@ -115,6 +119,29 @@ public class CommConstant {
                 break;
         }
         return st;
+    }
+
+    /**
+     * 关键字配置模块，关键字类型
+     * 0-供应商名称，1-商品名称，2-商品品牌
+     */
+    public static final int KEY_WORD_TYPE_SUPPLIER = 0;
+    public static final int KEY_WORD_TYPE_COMMODITY = 1;
+    public static final int KEY_WORD_TYPE_BRAND = 2;
+    public static String getKeyWordType(int type){
+        String keyWordType = "商品名称";
+        switch(type){
+            case KEY_WORD_TYPE_SUPPLIER:
+                keyWordType = "供应商名称";
+                break;
+            case KEY_WORD_TYPE_COMMODITY:
+                keyWordType = "商品名称";
+                break;
+            case KEY_WORD_TYPE_BRAND:
+                keyWordType = "品牌名称";
+                break;
+        }
+        return keyWordType;
     }
          /*Page分页常量*/
 
@@ -252,7 +279,7 @@ public class CommConstant {
      * 批量上传模板表头名称
      *
      */
-    public static final String[] EXCEL_TITLES ={"序号","*商品条码","商品商家编码","*商品名称","*商品图片（1-10张）","*商品品牌","*商品分类一级","*商品分类二级","*商品分类三级","*商品产地","*库存单位","*规格单位","*规格","*箱规","*供货价","*批发价","*生产日期","*有效期(天)","*最小起订量","*企业名称","供应商id","商品标签","*商品说明"};
+    public static final String[] EXCEL_TITLES ={"序号","*商品条码","商品商家编码","*商品名称","*商品图片（1-10张）","*商品品牌","*商品分类一级","*商品分类二级","*商品分类三级","*商品产地","*库存单位","*规格单位","*规格","*箱规","*透云进货价","*app订货价","*生产日期","*有效期(天)","*最小起订量","*企业名称","供应商id","商品标签","*商品说明"};
 
     /**
      * 批量上传： 每条线程执行的条数
@@ -289,7 +316,7 @@ public class CommConstant {
      * 批量导出模板表头名称
      *
      */
-    public static final String[] EXCEL_OUT_TITLES ={"序号","*商品条码","商品商家编码","*商品名称","*商品图片（1-10张）","*商品品牌","*商品分类一级","*商品分类二级","*商品分类三级","*商品产地","*库存单位","*规格单位","*规格","*箱规","*供货价","*批发价","*生产日期","*有效期(天)","*最小起订量","*企业名称","供应商id","商品标签","*商品说明"};
+    public static final String[] EXCEL_OUT_TITLES ={"序号","*商品条码","商品商家编码","*商品名称","*商品图片（1-10张）","*商品品牌","*商品分类一级","*商品分类二级","*商品分类三级","*商品产地","*库存单位","*规格单位","*规格","*箱规","*透云进货价","*app订货价","*生产日期","*有效期(天)","*最小起订量","*企业名称","供应商id","商品标签","*商品说明"};
 
     /**
      * 批量导出 每个工作表导出最大行数

@@ -1,5 +1,7 @@
 package so.sao.shop.supplier.pojo.input;
 
+import io.swagger.annotations.ApiModelProperty;
+
 /**
  * Created by acer on 2017/9/19.
  * 查询商品状态入参实体类
@@ -21,7 +23,14 @@ public class CommodityAuditInput {
      *页面显示条数
      */
     private int pageSize;
-
+    /**
+     *商品名称/商品条码／供应商名称
+     */
+    private String inputvalue;
+    /**
+     *排序字段
+     */
+    private Integer sortStatus;
     public String getStatus() {
         return status;
     }
@@ -53,4 +62,12 @@ public class CommodityAuditInput {
     public void setPageSize(int pageSize) {
         this.pageSize = pageSize;
     }
+
+    public String getInputvalue() {return inputvalue;}
+
+    public void setInputvalue(String inputvalue) {this.inputvalue = inputvalue;}
+
+    public Integer getSortStatus() {return sortStatus;}
+
+    public void setSortStatus(Integer sortStatus) {this.sortStatus = sortStatus;}
 }

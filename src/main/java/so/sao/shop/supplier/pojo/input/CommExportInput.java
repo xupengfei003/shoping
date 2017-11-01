@@ -33,11 +33,16 @@ public class CommExportInput {
     @ApiModelProperty(value = "商品科属id")
     private Long typeId;
 
-    @ApiModelProperty(value = "最小价格")
+    @ApiModelProperty(value = "app订货价最小价格")
     private BigDecimal minPrice;
 
-    @ApiModelProperty(value = "最大价格")
+    @ApiModelProperty(value = "app订货价最大价格")
     private BigDecimal maxPrice;
+    @ApiModelProperty(value = "透云进货价最小价格")
+    private BigDecimal minUnitPrice;
+
+    @ApiModelProperty(value = "透云进货价最大价格")
+    private BigDecimal maxUnitPrice;
 
     @ApiModelProperty(value = "更新开始时间")
     @DateTimeFormat(pattern = "yyyy-MM-dd",iso= DateTimeFormat.ISO.DATE)
@@ -57,7 +62,8 @@ public class CommExportInput {
 
     @ApiModelProperty(value = "每页显示条数")
     private Integer pageSize;
-
+    @ApiModelProperty(value = "排序")
+    private Integer sortStatus;
 
     public Long getSupplierId() {
         return supplierId;
@@ -166,4 +172,16 @@ public class CommExportInput {
     public Integer getAuditResult() {return auditResult;}
 
     public void setAuditResult(Integer auditResult) {this.auditResult = auditResult;}
+
+    public Integer getSortStatus() {return sortStatus;}
+
+    public void setSortStatus(Integer sortStatus) {this.sortStatus = sortStatus;}
+
+    public BigDecimal getMinUnitPrice() {return minUnitPrice;}
+
+    public void setMinUnitPrice(BigDecimal minUnitPrice) {this.minUnitPrice = minUnitPrice;}
+
+    public BigDecimal getMaxUnitPrice() {return maxUnitPrice;}
+
+    public void setMaxUnitPrice(BigDecimal maxUnitPrice) {this.maxUnitPrice = maxUnitPrice;}
 }

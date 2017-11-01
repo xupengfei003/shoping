@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="so.sao.shop.supplier.dao.app.AppCommSalesDao">
+
+    <!--统计商品销量信息-->
+    <select id="countSoldCommNum" resultType="so.sao.shop.supplier.domain.CommSales">
+        SELECT
+        id AS id,
+        sc_id AS scId,
+        actual_sales AS actualSales,
+        virtual_sales AS virtualSales,
+        create_at AS createt,
+        update_at AS updateAt
+        FROM
+        comm_sales cs
+        WHERE
+        cs.sc_id
+        IN
+        <foreach collection="goodsIds" open="(" close=")" separator="," index="i" item="goodsId">
+            #{goodsId}
+        </foreach>
+    </select>
+
+    <!--修改商品销量-->
+    <update id="updateSalesNum" parameterType="java.util.List">
+        <foreach collection="commSalesInputs" open="" close="" separator=";" index="i" item="item">
+            UPDATE comm_sales cs
+            <set>
+              cs.actual_sales = cs.actual_sales + #{item.goodsNum},cs.virtual_sales = cs.virtual_sales + #{item.goodsNum},cs.update_at=now()
+            </set>
+            WHERE cs.sc_id = #{item.goodsId}
+        </foreach>
+    </update>
+
+    <!--新增商品销量信息-->
+    <insert id="saveCommSales" useGeneratedKeys="true" keyProperty="id">
+         INSERT INTO comm_sales (sc_id,actual_sales,virtual_sales,create_at,update_at)
+         VALUES
+        <foreach collection="goodsIds" separator="," index="i" item="goodsId">
+          (#{goodsId},0,round(rand()*(150-100)+100),now(),now())
+        </foreach>
+    </insert>
+
+
+</mapper>

@@ -20,7 +20,7 @@ import so.sao.shop.supplier.pojo.input.*;
 import so.sao.shop.supplier.pojo.output.*;
 import so.sao.shop.supplier.pojo.vo.*;
 import so.sao.shop.supplier.service.CommodityService;
-import so.sao.shop.supplier.service.CountSoldCommService;
+import so.sao.shop.supplier.service.app.AppCommSalesService;
 import so.sao.shop.supplier.util.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -73,7 +73,7 @@ public class CommodityServiceImpl implements CommodityService {
     private AzureBlobService azureBlobService;
 
     @Autowired
-    private CountSoldCommService countSoldCommService;
+    private AppCommSalesService appCommSalesService;
 
     @Autowired
     private SupplierCommodityTmpDao supplierCommodityTmpDao;
@@ -129,6 +129,8 @@ public class CommodityServiceImpl implements CommodityService {
                 commBrandDao.save(brand);
             }
         }
+        //商品规格id集合
+        String scIds = "";
         for (SupplierCommodityVo commodityVo : commodityInput.getCommodityList()) {
             if(null != commodityVo.getTagId()){
                 //验证商品标签是否存在
@@ -208,15 +210,22 @@ public class CommodityServiceImpl implements CommodityService {
                 sc.setInvalidStatus(CommConstant.COMM_ACTIVE_STATUS);
             }
             supplierCommodityDao.save(sc);
+            Long scId = sc.getId();
+            if(scIds.equals("")){
+                scIds += scId.toString();
+            }else{
+                scIds += "," + scId.toString();
+            }
             //保存图片
             List<CommImge> commImges = new ArrayList<>();
             commodityVo.getImgeList().forEach(imgeVo->{
                 CommImge imge = BeanMapper.map(imgeVo, CommImge.class);
-                imge.setScId(sc.getId());
+                imge.setScId(scId);
                 commImges.add(imge);
             });
             commImgeDao.batchSave(commImges);
         }
+        appCommSalesService.saveCommSales(scIds);
         return Result.success("添加商品成功");
     }
 
@@ -497,6 +506,7 @@ public class CommodityServiceImpl implements CommodityService {
         Integer status = commSimpleSearchInput.getStatus();
         String inputvalue = commSimpleSearchInput.getInputvalue();
         Integer auditResult = commSimpleSearchInput.getAuditResult();
+        Integer sortStatus = commSimpleSearchInput.getSortStatus();
         String role = getRole(user);
 
         Long supplierId;
@@ -517,7 +527,7 @@ public class CommodityServiceImpl implements CommodityService {
 
 
         PageTool.startPage(commSimpleSearchInput.getPageNum(), commSimpleSearchInput.getPageSize());
-        List<SuppCommSearchVo> respList = supplierCommodityDao.findSimple(status,inputvalue,auditResult,role,supplierId);
+        List<SuppCommSearchVo> respList = supplierCommodityDao.findSimple(status,inputvalue,auditResult,role,supplierId,sortStatus);
 
         respList.forEach(suppCommSearchVo->{
             suppCommSearchVo.setStatus(CommConstant.getStatus(suppCommSearchVo.getStatusNum()));
@@ -1182,8 +1192,8 @@ public class CommodityServiceImpl implements CommodityService {
                 errorRowList.add(errorMap);
                 continue;
             }
-            String unitPrice = map.get("*供货价");
-            String price = map.get("*批发价");
+            String unitPrice = map.get("*透云进货价");
+            String price = map.get("*app订货价");
             String productionDate=map.get("*生产日期");
             String guaranteePeriod=map.get("*有效期(天)");
             String  guaranteePeriodUnit="天";
@@ -1379,7 +1389,7 @@ public class CommodityServiceImpl implements CommodityService {
             errorRowList.add(errorMap);
             continue;
         }
-            String regexprice ="^[0.0-9.0]+$";
+            String regexprice ="-?[0-9]+.*[0-9]*";
         if(!unitPrice.matches(regexprice)){
             Map<String, Object> errorMap =new HashMap<String, Object>();
             errorMap.put("rowNum",rowNum);

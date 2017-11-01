@@ -61,7 +61,11 @@
 	distributor_mobile AS distributorMobile,
 	logistics_company AS logisticsCompany,
 	pay_status AS payStatus,
-	order_postage AS orderPostage
+	order_postage AS orderPostage,
+	discount AS discount,
+	order_total_price AS orderTotalPrice,
+	pay_amount AS payAmount,
+	drawback_price AS drawbackPrice
   </sql>
     <!-- 根据ID查询订单信息 -->
     <select id="findById" parameterType="java.lang.String" resultType="so.sao.shop.supplier.domain.Purchase">
@@ -235,9 +239,17 @@
         <result column="updated_at" property="updateTime"/>
         <result column="order_postage" property="orderPostage"/>
         <result column="store_name" property="storeName"/>
+        <result column="order_receive_time" property="orderReceiveTime"/>
+        <result column="discount" property="discount"/>
+        <result column="order_total_price" property="orderTotalPrice"/>
+        <result column="pay_amount" property="payAmount"/>
+        <result column="drawback_price" property="drawbackPrice"/>
     </resultMap>
     <sql id="Order_Column_List">
-        order_id, order_receiver_name, order_receiver_mobile, order_create_time, order_price, order_status,order_payment_time, order_payment_method, order_payment_num,updated_at,order_postage,store_name
+        order_id, order_receiver_name, order_receiver_mobile, order_create_time,
+        order_price, order_status,order_payment_time, order_payment_method,
+        order_payment_num,updated_at,order_postage,store_name,order_receive_time,
+        discount,order_total_price,pay_amount,drawback_price
     </sql>
     <select id="findPage" resultMap="OrderAllList" parameterType="so.sao.shop.supplier.pojo.input.PurchaseSelectInput">
         SELECT
@@ -293,10 +305,10 @@
             </if>
 
             <if test="beginMoney!=null">
-                AND order_price >= TRIM(#{beginMoney})
+                AND order_total_price >= TRIM(#{beginMoney})
             </if>
             <if test="endMoney != null">
-                <![CDATA[AND order_price <= TRIM(#{endMoney})]]>
+                <![CDATA[AND order_total_price <= TRIM(#{endMoney})]]>
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderPaymentBeginTime)">
                 AND order_payment_time >= TRIM(STR_TO_DATE(#{orderPaymentBeginTime},'%Y-%m-%d'))
@@ -330,7 +342,15 @@
                 AND store_id LIKE "${storeId}%"
             </if>
         </where>
-        ORDER BY updated_at DESC
+        <if test="flag == 0">
+            ORDER BY updated_at DESC
+        </if>
+        <if test="flag == 1">
+            ORDER BY order_create_time ASC
+        </if>
+        <if test="flag == -1">
+            ORDER BY order_create_time DESC
+        </if>
     </select>
 
     <!--更改订单状态-->
@@ -537,10 +557,14 @@
             q.url AS qrcodeUrl,
             P.order_postage AS orderPostage,
             q.status AS qrcodeStatus,
-            a.provider_name AS providerName
+--             a.provider_name AS providerName
+            p.store_name AS providerName,
+            p.discount AS discount,
+            p.order_total_price AS orderTotalPrice,
+            p.pay_amount AS payAmount
         FROM purchase p
         LEFT JOIN qrcode q ON p.order_id = q.foreign_key
-        LEFT JOIN account a ON p.store_id = a.account_id
+--         LEFT JOIN account a ON p.store_id = a.account_id
         WHERE p.order_id = #{orderId}
     </select>
 
