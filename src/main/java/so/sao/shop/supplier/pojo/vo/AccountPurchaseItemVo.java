@@ -1,6 +1,5 @@
 package so.sao.shop.supplier.pojo.vo;
 
-import org.springframework.format.annotation.NumberFormat;
 import so.sao.shop.supplier.util.NumberUtil;
 
 import java.math.BigDecimal;
@@ -36,12 +35,12 @@ public class AccountPurchaseItemVo {
     private String code69;
 
     /**
-     * 商品属性
+     * 规格值
      */
     private String goodsAttribute;
 
     /**
-     * 商品单价(科学计数法)
+     * app订货价(科学计数法)
      */
     private String goodsUnitPrice;
 
@@ -49,6 +48,16 @@ public class AccountPurchaseItemVo {
      * 商品总价(科学记数法)
      */
     private String goodsTatolPrice;
+
+    /**
+     * 商品图片
+     */
+    private String goodsImage;
+
+    /**
+     * 商品品牌
+     */
+    private String brandName;
 
     public String getGoodsName() {
         return goodsName;
@@ -107,6 +116,22 @@ public class AccountPurchaseItemVo {
         this.goodsTatolPrice = goodsTatolPrice;
     }
 
+    public String getGoodsImage() {
+        return goodsImage;
+    }
+
+    public void setGoodsImage(String goodsImage) {
+        this.goodsImage = goodsImage;
+    }
+
+    public String getBrandName() {
+        return brandName;
+    }
+
+    public void setBrandName(String brandName) {
+        this.brandName = brandName;
+    }
+
     @Override
     public String toString() {
         return "AccountPurchaseItemVo{" +
@@ -117,8 +142,8 @@ public class AccountPurchaseItemVo {
                 ", goodsAttribute='" + goodsAttribute + '\'' +
                 ", goodsUnitPrice='" + goodsUnitPrice + '\'' +
                 ", goodsTatolPrice='" + goodsTatolPrice + '\'' +
+                ", goodsImage='" + goodsImage + '\'' +
+                ", brandName='" + brandName + '\'' +
                 '}';
     }
-
-
 }

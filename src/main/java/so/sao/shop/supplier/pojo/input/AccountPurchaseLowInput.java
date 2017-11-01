@@ -21,7 +21,7 @@ public class AccountPurchaseLowInput {
     private String createEndTime;
 
     /**
-     * 查询条件(收货人名称/订单编号/流水号)
+     * 查询条件(订单编号/流水号)
      */
     private String condition;
 

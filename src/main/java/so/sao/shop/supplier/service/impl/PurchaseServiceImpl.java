@@ -536,7 +536,8 @@ public class PurchaseServiceImpl implements PurchaseService {
     public String findOrderStatus(Long storeId) {
         //商户ID存在，将计算的总金额赋值给历史总金额字段
         BigDecimal income = purchaseDao.findOrderStatus(storeId);
-        accountDao.updateUserPrice(income, storeId);//将查询到的总金额赋值给account表中的income(历史总收入)；
+        //将查询到的总金额赋值给account表中的income(历史总收入)；
+        accountDao.updateUserPrice(income, storeId);
         return NumberUtil.number2Thousand(income);
     }
 
@@ -557,8 +558,7 @@ public class PurchaseServiceImpl implements PurchaseService {
          * 2.设置分页
          * 3.访问持久化层，获取数据
          *      3.1 若获取到的结果集不为空：
-         *           ① 将结果集中的泛型（domain类）转化成vo类
-         *           ② 出参中封装分页信息（当前页码，总页码，总条数，结果集）、“成功”的code码和message
+         *           ① 出参中封装分页信息（当前页码，总页码，总条数，结果集）、“成功”的code码和message
          *      3.2 若获取到的结果集为空时
          *           ①.在出参对象中封装“未查询到结果集”的code码和message
          *
@@ -577,24 +577,15 @@ public class PurchaseServiceImpl implements PurchaseService {
         PageTool.startPage(pageNum, pageSize);
 
         //3.访问持久化层，获取数据
-        List<Purchase> purchaseList = purchaseDao.findPageByStoreId(input, storeId);
+        List<AccountPurchaseVo> purchaseList = purchaseDao.findPageByStoreId(input, storeId);
 
         Result result;//声明出参对象
         //3.1 若获取到的结果集不为空
         if (null != purchaseList && !purchaseList.isEmpty()) {
-            PageInfo<Purchase> pageInfo = new PageInfo<>(purchaseList);//分页对象
-            //①.将结果集中的泛型（domain类）转化成vo类
-            List<AccountPurchaseVo> purchaseVos = this.inversion(purchaseList);
-            //②.出参中封装分页信息（当前页码，总页码，总条数，结果集）、“成功”的code码和message
-            PageInfo<AccountPurchaseVo> pageInfoVo = new PageInfo<>();
-            pageInfoVo.setPageNum(pageInfo.getPageNum());//当前页码
-            pageInfoVo.setPageSize(pageInfo.getPageSize());//每页显示条数
-            pageInfoVo.setTotal(pageInfo.getTotal());//总条数
-            pageInfoVo.setPages(pageInfo.getPages());//总页码
-            pageInfoVo.setList(purchaseVos);//显示数据
-            pageInfoVo.setSize(pageInfo.getSize());//每页实际数据条数
-            result = Result.success(Constant.MessageConfig.MSG_SUCCESS, pageInfoVo);
-        } else {//3.2 若获取到的结果集为空时
+            //① 出参中封装分页信息（当前页码，总页码，总条数，结果集）、“成功”的code码和message
+            result = Result.success(Constant.MessageConfig.MSG_SUCCESS, new PageInfo<>(purchaseList));
+        } else {
+            //3.2 若获取到的结果集为空时
             // ①.在出参对象中封装“未查询到结果集”的code码和message
             result = Result.success(Constant.MessageConfig.MSG_NO_DATA);
         }
@@ -602,7 +593,7 @@ public class PurchaseServiceImpl implements PurchaseService {
     }
 
     /**
-     * 根据商家编号及查询条件（起始创建订单-结束创建订单时间/支付流水号/订单编号/收货人名称）查找所有相关订单记录(分页)
+     * 根据商家编号及查询条件（起始创建订单-结束创建订单时间/支付流水号/订单编号）查找所有相关订单记录(分页)
      *
      * @param pageNum  当前页码
      * @param pageSize 每页显示条数
@@ -618,8 +609,7 @@ public class PurchaseServiceImpl implements PurchaseService {
          * 2.设置分页
          * 3.访问持久化层，获取数据
          *      3.1 若获取到的结果集不为空：
-         *           ① 将结果集中的泛型（domain类）转化成vo类
-         *           ② 出参中封装分页信息（当前页码，总页码，总条数，结果集）、“成功”的code码和message
+         *           ① 出参中封装分页信息（当前页码，总页码，总条数，结果集）、“成功”的code码和message
          *      3.2 若获取到的结果集为空时
          *           ①.在出参对象中封装“未查询到结果集”的code码和message
          *
@@ -637,24 +627,13 @@ public class PurchaseServiceImpl implements PurchaseService {
         PageTool.startPage(pageNum, pageSize);
 
         //3.访问持久化层，获取数据
-        List<Purchase> purchaseList = purchaseDao.findPageByStoreIdLow(input, storeId);
+        List<AccountPurchaseVo> purchaseList = purchaseDao.findPageByStoreIdLow(input, storeId);
 
         Result result;//声明出参对象
         // 3.1 若获取到的结果集不为空：
         if (null != purchaseList && !purchaseList.isEmpty()) {
-            PageInfo<Purchase> pageInfo = new PageInfo<>(purchaseList);
-            //①.将结果集中的泛型（domain类）转化成vo类
-            List<AccountPurchaseVo> purchaseVos = this.inversion(purchaseList);
             //②.出参中封装分页信息（当前页码，总页码，总条数，结果集）、“成功”的code码和message
-            PageInfo<AccountPurchaseVo> pageInfoVo = new PageInfo<>();
-            pageInfoVo.setPageNum(pageInfo.getPageNum());//当前页码
-            pageInfoVo.setPageSize(pageInfo.getPageSize());//每页显示条数
-            pageInfoVo.setTotal(pageInfo.getTotal());//总条数
-            pageInfoVo.setPages(pageInfo.getPages());//总页码
-            pageInfoVo.setSize(pageInfo.getSize());//每页实际数据条数
-            pageInfoVo.setList(purchaseVos);//显示数据
-
-            result = Result.success(Constant.MessageConfig.MSG_SUCCESS, pageInfoVo);
+            result = Result.success(Constant.MessageConfig.MSG_SUCCESS, new PageInfo<>(purchaseList));
         } else {//3.2 若获取到的结果集为空时
             result = Result.success(Constant.MessageConfig.MSG_NO_DATA);
         }
@@ -844,6 +823,7 @@ public class PurchaseServiceImpl implements PurchaseService {
      * @throws Exception 可能是订单异常
      */
     @Transactional(rollbackFor = Exception.class)
+    @Override
     public void createReceivingQrcodeByPayId(String payId) throws Exception {
         List<Purchase> purchaseList = purchaseDao.findByPayId(payId); // 根据支付id查询订单列表
         // 1.根据支付id查询对应订单是否已经存在二维码
@@ -1119,34 +1099,6 @@ public class PurchaseServiceImpl implements PurchaseService {
     }
 
     /**
-     * 转化集合中的泛型
-     *
-     * @param purchaseList 转化前的集合
-     * @return 转化后的集合
-     */
-    private List<AccountPurchaseVo> inversion(List<Purchase> purchaseList) {
-        List<AccountPurchaseVo> purchaseVos = new ArrayList<>();//转化后的集合
-        AccountPurchaseVo purchaseVo = null;//转化后的对象
-        for (Purchase purchase : purchaseList) {
-            //循环转化数据
-            purchaseVo = new AccountPurchaseVo();
-            purchaseVo.setOrderId(purchase.getOrderId());//订单编号
-            purchaseVo.setOrderReceiverName(purchase.getOrderReceiverName());//收货人姓名
-            purchaseVo.setOrderReceiverMobile(purchase.getOrderReceiverMobile());//收货人联系方式
-            purchaseVo.setOrderStatus(purchase.getOrderStatus());//订单状态
-            purchaseVo.setOrderPrice(NumberUtil.number2Thousand(purchase.getOrderPrice()));//该次订单实付金额
-            purchaseVo.setOrderSettlemePrice(NumberUtil.number2Thousand(purchase.getOrderSettlemePrice()));//该次订单结算金额
-            purchaseVo.setOrderCreateTime(purchase.getOrderCreateTime());//订单产生时间
-            purchaseVo.setOrderPaymentTime(purchase.getOrderPaymentTime());//订单支付时间
-            purchaseVo.setOrderPaymentMethod(purchase.getOrderPaymentMethod());//支付方式
-            purchaseVo.setOrderPaymentNum(purchase.getOrderPaymentNum());//订单流水号
-            purchaseVo.setOrderPostage(NumberUtil.number2Thousand(purchase.getOrderPostage()));//运费金额
-            purchaseVos.add(purchaseVo);//将转化后的数据添加到集合中
-        }
-        return purchaseVos;
-    }
-
-    /**
      * 添加取消订单信息
      *
      * @param cancelReasonInput 封装了订单编号，取消理由
@@ -1240,6 +1192,7 @@ public class PurchaseServiceImpl implements PurchaseService {
      * @throws Exception 异常
      */
     @Transactional(rollbackFor = Exception.class)
+    @Override
     public Map refundByOrderId(String orderId) throws Exception {
         Map result = new HashMap();
         // 1.根据订单状态验证是否可以退款

@@ -126,7 +126,7 @@ public interface PurchaseDao {
      * @param storeId 商家编号
      * @return 查询的相关记录
      */
-    List<Purchase> findPageByStoreId(@Param("input") AccountPurchaseInput input, @Param("storeId") Long storeId);
+    List<AccountPurchaseVo> findPageByStoreId(@Param("input") AccountPurchaseInput input, @Param("storeId") Long storeId);
 
     /**
      * 根据商家编号查找所有相关订单记录(普通查询)
@@ -134,7 +134,7 @@ public interface PurchaseDao {
      * @param storeId 商家编号
      * @return 查询的相关记录
      */
-    List<Purchase> findPageByStoreIdLow(@Param("input")AccountPurchaseLowInput input,@Param("storeId") Long storeId);
+    List<AccountPurchaseVo> findPageByStoreIdLow(@Param("input")AccountPurchaseLowInput input,@Param("storeId") Long storeId);
 
     /**
      *
