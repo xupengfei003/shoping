@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="so.sao.shop.supplier.dao.InvoiceSettingDao">
+
+    <resultMap id="resultMap" type="so.sao.shop.supplier.domain.InvoiceSetting">
+        <id column="id" property="id"/>
+        <result column="supplier_id" property="supplierId"/>
+        <result column="status" property="status"/>
+        <result column="invoice" property="invoice"/>
+        <result column="special_invoice" property="specialInvoice"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <sql id="baseColumns">
+        supplier_id AS supplierId,
+        status AS status,
+        invoice AS invoice,
+        special_invoice AS specialInvoice
+    </sql>
+
+    <!--新增供应商发票设置-->
+    <insert id="save" parameterType="so.sao.shop.supplier.domain.InvoiceSetting">
+        insert into invoice_setting
+        (supplier_id, status, invoice, special_invoice, created_at, updated_at)
+        values
+        (#{supplierId}, 0, 0, 0, #{createdAt}, #{updatedAt})
+    </insert>
+
+    <!--修改供应商发票设置-->
+    <update id="update" parameterType="so.sao.shop.supplier.domain.InvoiceSetting">
+        update invoice_setting set
+         status = #{status},
+         invoice = #{invoice},
+         special_invoice = #{specialInvoice},
+         updated_at = #{updatedAt}
+        where supplier_id=#{supplierId}
+    </update>
+
+    <!--根据supplierId供应商发票设置-->
+    <select id="findBySupplierId" resultType="so.sao.shop.supplier.pojo.output.InvoiceSettingOutput">
+        select
+        <include refid="baseColumns"/>
+        from invoice_setting where supplier_id = #{1}
+    </select>
+</mapper>
