@@ -43,4 +43,11 @@
         <include refid="baseColumns"/>
         from invoice_setting where supplier_id = #{1}
     </select>
+
+    <!--app端根据supplierId供应商发票设置-->
+    <select id="getBySupplierId" resultType="so.sao.shop.supplier.pojo.output.AppInvoiceSettingOutput">
+        select
+        <include refid="baseColumns"/>
+        from invoice_setting where supplier_id = #{1}
+    </select>
 </mapper>

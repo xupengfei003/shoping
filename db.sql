@@ -14,6 +14,7 @@ ALTER TABLE purchase
 
 
 
+
 /*创建产品销量表*/
 CREATE TABLE `comm_sales` (
 	`id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT 'id',

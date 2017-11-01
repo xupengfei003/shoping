@@ -15,6 +15,7 @@ import so.sao.shop.supplier.pojo.output.OrderRefuseReasonOutput;
 import so.sao.shop.supplier.pojo.output.PurchaseItemPrintOutput;
 import so.sao.shop.supplier.pojo.vo.PurchaseInfoVo;
 import so.sao.shop.supplier.pojo.vo.PurchasesVo;
+import so.sao.shop.supplier.service.InvoiceSettingService;
 import so.sao.shop.supplier.service.PurchaseService;
 import so.sao.shop.supplier.util.DataCompare;
 import so.sao.shop.supplier.util.DateUtil;
@@ -43,6 +44,8 @@ public class PurchaseController {
 
     @Resource
     private PurchaseService purchaseService;
+    @Resource
+    private InvoiceSettingService invoiceSettingService;
     /**
      * 保存订单
      *
@@ -583,9 +586,9 @@ public class PurchaseController {
      * @throws Exception
      */
     @ApiOperation(value = "供应商是否支持发票接口", notes = "供应商是否支持发票接口【负责人：郑振海】")
-    @PostMapping("isOpenReceipt/{supplierId}")
+    @GetMapping("isOpenReceipt/{supplierId}")
     public  Result updateLogisticInfoByOrderId(@PathVariable("supplierId") Long supplierId) throws Exception {
 
-        return Result.fail(Constant.MessageConfig.MSG_FAILURE);
+        return invoiceSettingService.getBySupplierId(supplierId);
     }
 }

@@ -7,6 +7,7 @@ import so.sao.shop.supplier.dao.InvoiceSettingDao;
 import so.sao.shop.supplier.domain.InvoiceSetting;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.InvoiceSettingUpdateInput;
+import so.sao.shop.supplier.pojo.output.AppInvoiceSettingOutput;
 import so.sao.shop.supplier.pojo.output.InvoiceSettingOutput;
 import so.sao.shop.supplier.service.InvoiceSettingService;
 import so.sao.shop.supplier.util.BeanMapper;
@@ -66,5 +67,16 @@ public class InvoiceSettingServiceImpl implements InvoiceSettingService {
     public Result searchBySupplierId(Long supplierId) {
         InvoiceSettingOutput invoiceSettingOutput = invoiceSettingDao.findBySupplierId(supplierId);
         return Result.success("查询供应商发票设置成功！", invoiceSettingOutput);
+    }
+
+    /**
+     * 根据供应商Id查询供应商发票设置
+     * @param supplierId 供应商Id
+     * @return 供应商发票设置
+     */
+    @Override
+    public Result getBySupplierId(Long supplierId) {
+        AppInvoiceSettingOutput appInvoiceSettingOutput = invoiceSettingDao.getBySupplierId(supplierId);
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS, appInvoiceSettingOutput);
     }
 }
