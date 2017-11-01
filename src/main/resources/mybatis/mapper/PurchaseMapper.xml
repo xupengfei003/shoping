@@ -34,6 +34,10 @@
         <result column="cancel_type" property="cancelType"/>
         <result column="refuse_type" property="refuseType"/>
         <result column="order_postage" property="orderPostage"/>
+        <result column="discount" property="discount"/>
+        <result column="order_total_price" property="orderTotalPrice"/>
+        <result column="pay_amount" property="payAmount"/>
+        <result column="drawback_price" property="drawbackPrice"/>
     </resultMap>
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
@@ -81,6 +85,7 @@
         order_payment_time,
         order_receiver_name,
         order_receiver_mobile,
+        order_receive_time,
         order_status,
         order_price,
         order_postage,
@@ -88,7 +93,12 @@
         updated_at,
         order_payment_method,
         order_payment_num,
-        store_name
+        store_name,
+        deliver_goods_time,
+        discount,
+        order_total_price,
+        pay_amount,
+        drawback_price
         FROM
         purchase
         <where>
@@ -744,6 +754,8 @@
         SET
         order_status = #{refundMap.orderStatus},
         drawback_time = #{refundMap.drawbackTime},
+        drawback_price = #{refundMap.drawbackPrice},
+        prefix_order_status = #{refundMap.prefixOrderStatus},
         updated_at = #{refundMap.updatedAt}
         WHERE order_id = #{refundMap.orderId}
     </update>
@@ -811,5 +823,24 @@
       AND order_receive_time &gt;= TRIM(STR_TO_DATE(#{startTime},'%Y-%m-%d'))
       AND order_receive_time &lt; TRIM(DATE_ADD(STR_TO_DATE(#{endTime},'%Y-%m-%d'),INTERVAL 1 DAY))
       AND order_status = 4
+    </select>
+    <!-- 根据ID集合查询订单详情信息 -->
+    <select id="findPurchaseItemByIds" parameterType="java.lang.String" resultType="so.sao.shop.supplier.pojo.vo.PurchaseItemVo">
+        SELECT
+            pi.goods_image AS goodsImage,
+            pi.goods_name AS goodsName,
+            pi.goods_attribute AS goodsAttribute,
+            pi.goods_id AS goodsId,
+            pi.code69 AS code69,
+            pi.goods_number AS goodsNumber,
+            pi.goods_tatol_price AS goodsTatolPrice,
+            pi.brand_name AS brandName,
+            pi.goods_unit_price AS goodsUnitPrice
+        FROM purchase_item pi
+        JOIN purchase p ON p.order_id = pi.order_id
+        WHERE pi.order_id IN
+        <foreach collection="orderIds" item="orderId" index="index" open="(" close=")" separator=",">
+            #{orderId,jdbcType=VARCHAR}
+        </foreach>
     </select>
 </mapper>

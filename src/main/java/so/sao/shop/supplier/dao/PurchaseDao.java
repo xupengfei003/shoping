@@ -280,4 +280,11 @@ public interface PurchaseDao {
      * @return
      */
     BigDecimal getTotalMoneyByAccountId(@Param("startTime")String startTime,@Param("endTime") String endTime, @Param("accountId")Long accountId);
+    /**
+     * 根据订单ID集合获取订单详情集合
+     *
+     * @param orderIds 订单ID集合
+     * @return List<PurchaseInfoVo>
+     */
+    List<PurchaseItemVo> findPurchaseItemByIds(@Param("orderIds") List<String> orderIds);
 }
