@@ -41,10 +41,16 @@ public class CouponServiceImpl implements CouponService{
     @Override
     public Result addCoupon(Coupon coupon) {
         Result result = null;
+        //条件校验
+        if(!coupon.getUseStartTime().before(coupon.getUseEndTime())){
+            result  = Result.fail("开始时间与结束时间不正确");
+            return result;
+        }
         if(checkCouponName(coupon)){
             result  = Result.fail("优惠券名称重复");
             return result;
         }
+
         //默认是全部类别
         coupon.setCategoryId(0L);
         //默认未满减
@@ -69,8 +75,8 @@ public class CouponServiceImpl implements CouponService{
      * @return
      */
     private boolean checkCouponName(Coupon coupon) {
-        Integer i = couponDao.findCouponsByName(coupon.getName());
-        return i != null && i > 0 ? true : false;
+        List<Coupon> list = couponDao.findCouponsByName(coupon.getName());
+        return list != null && list.size() > 0 ? true : false;
     }
 
     /**

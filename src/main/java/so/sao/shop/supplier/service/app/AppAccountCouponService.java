@@ -45,5 +45,11 @@ public interface AppAccountCouponService {
      */
     Result getCouponCenter(Long shopId, Integer pageNum, Integer pageSize);
 
-    Integer useAccountCoupon(Long accountCouponId);
+    /**
+     * 使用优惠券
+     * @param shopId
+     * @param couponId
+     * @return
+     */
+    Result useAccountCoupon(Long shopId, Long couponId);
 }

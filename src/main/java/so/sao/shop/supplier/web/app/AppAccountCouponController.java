@@ -11,6 +11,9 @@ import so.sao.shop.supplier.pojo.input.AccountCouponInputVo;
 import so.sao.shop.supplier.service.app.AppAccountCouponService;
 import so.sao.shop.supplier.service.external.CouponService;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 
 /**
@@ -42,7 +45,7 @@ public class AppAccountCouponController {
 
     @ApiOperation(value = "查询用户优惠券信息",notes = "查询用户优惠券信息【负责人：王翼云】")
     @GetMapping("/list")
-    public Result getAccountCoupons(Long shopId, BigDecimal usableValue, Integer pageNum, Integer pageSize) {
+    public Result getAccountCoupons(Long shopId, BigDecimal usableValue, Integer pageNum,Integer pageSize) {
         return appAccountCouponService.getAccountCoupons(shopId,usableValue,pageNum,pageSize);
     }
 
@@ -50,6 +53,12 @@ public class AppAccountCouponController {
     @GetMapping("/couponCenter")
     public Result getCouponCenter(@RequestParam("shopId") Long shopId,Integer pageNum, Integer pageSize) {
         return appAccountCouponService.getCouponCenter(shopId,pageNum,pageSize);
+    }
+
+    @ApiOperation(value = "使用优惠券",notes = "使用优惠券【负责人：王翼云】")
+    @GetMapping("/useCoupon")
+    public Result getCouponCenter(@RequestParam("shopId") Long shopId,@RequestParam("couponId") Long couponId) {
+        return appAccountCouponService.useAccountCoupon(shopId,couponId);
     }
 
 }

@@ -26,7 +26,7 @@ public class AccountCoupon {
      */
     private Long couponId;
     /**
-     * 用户优惠券状态，0（可使用），1（已过期），2（已使用），3（已删除），4(已失效)
+     * 用户优惠券状态，0（可使用），1（已使用），2（未生效），3（已废弃），4(已过期)
      */
     private Integer status;
     /**

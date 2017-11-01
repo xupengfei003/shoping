@@ -41,8 +41,10 @@ public class CouponJob {
     @Scheduled(cron = "0 0 0 * * ?")
     public void excuteCouponStatusUpdate() {
         Boolean lock = redisTemplate.opsForValue().setIfAbsent(Constant.REDIS_KEY_PREFIX + "", "1");
+
         try{
             if (null != lock && lock) {
+                logger.info("优惠券更新完开始");
                 appAccountCouponService.dailyUpdateStatus();
                 couponService.dailyUpdateStatus();
                 logger.info("优惠券更新完成");
@@ -50,8 +52,8 @@ public class CouponJob {
         }catch (Exception e){
             logger.error("系统异常",e);
         }finally {
-
             if (null != lock && lock) {
+
                 redisTemplate.delete(Constant.REDIS_KEY_PREFIX + "");
             }
         }

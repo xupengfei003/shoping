@@ -1,7 +1,11 @@
 package so.sao.shop.supplier.domain.external;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -20,6 +24,7 @@ public class Coupon {
     /**
      * 购物券名称
      */
+    @NotEmpty
     private String name;
     /**
      * 优惠券适用类型，0为全品类
@@ -32,35 +37,43 @@ public class Coupon {
     /**
      * 优惠券减免金额/折率
      */
+    @NotNull
+    @DecimalMin(value = "0.00" ,message = "不能为负数")
     private BigDecimal couponValue;
     /**
      * 优惠券适用金额，满多少可用
      */
+    @DecimalMin(value = "0.00" ,message = "不能为负数")
     private BigDecimal usableValue;
     /**
      * 优惠券生效时间
      */
+
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date sendStartTime;
     /**
      * 优惠券失效时间
      */
+
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date sendEndTime;
     /**
      * 使用开始时间
      */
+    @NotNull
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date useStartTime;
     /**
      * 使用结束时间
      */
+    @NotNull
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date useEndTime;
     /**
      * 优惠券发放总数
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @NotNull
+    @Min(value = 1,message = "发放数量不能小于1")
     private Integer createNum;
     /**
      * 优惠券领取量

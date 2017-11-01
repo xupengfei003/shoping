@@ -3,6 +3,7 @@ package so.sao.shop.supplier.pojo.output;/**
  */
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import so.sao.shop.supplier.domain.external.Coupon;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -19,19 +20,11 @@ public class CouponOutputVo {
     /**
      * ID
      */
-    private Long id;
+    private Long couponId;
     /**
      * 购物券名称
      */
     private String name;
-    /**
-     * 优惠券适用类型，0为全品类
-     */
-    private Long categoryId;
-    /**
-     * 优惠券类型 1、满减   2、打折
-     */
-    private Integer discountWay;
     /**
      * 优惠券减免金额/折率
      */
@@ -40,16 +33,7 @@ public class CouponOutputVo {
      * 优惠券适用金额，满多少可用
      */
     private BigDecimal usableValue;
-    /**
-     * 优惠券生效时间
-     */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
-    private Date sendStartTime;
-    /**
-     * 优惠券失效时间
-     */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
-    private Date sendEndTime;
+
     /**
      * 使用开始时间
      */
@@ -60,53 +44,19 @@ public class CouponOutputVo {
      */
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date useEndTime;
-    /**
-     * 优惠券发放总数
-     */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
-    private Integer createNum;
-    /**
-     * 优惠券领取量
-     */
 
-    private Integer sendNum;
     /**
-     * 优惠券使用量
-     */
-    private Integer useNum;
-    /**
-     * 优惠券状态，0（已生效），1（未生效），2（已过期），3（已废弃）
+     * 优惠券领取状态，0（已生效），1（未生效），2（已过期）
      */
     private Integer status;
-    /**
-     * 创建时间
-     */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
-    private Date createAt;
-    /**
-     * 更新时间
-     */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
-    private Date updateAt;
-    /**
-     * 领取状态
-     */
-    private int getStatus;
 
-    public int getGetStatus() {
-        return getStatus;
+
+    public Long getCouponId() {
+        return couponId;
     }
 
-    public void setGetStatus(int getStatus) {
-        this.getStatus = getStatus;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
+    public void setCouponId(Long couponId) {
+        this.couponId = couponId;
     }
 
     public String getName() {
@@ -115,22 +65,6 @@ public class CouponOutputVo {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public Long getCategoryId() {
-        return categoryId;
-    }
-
-    public void setCategoryId(Long categoryId) {
-        this.categoryId = categoryId;
-    }
-
-    public Integer getDiscountWay() {
-        return discountWay;
-    }
-
-    public void setDiscountWay(Integer discountWay) {
-        this.discountWay = discountWay;
     }
 
     public BigDecimal getCouponValue() {
@@ -149,22 +83,6 @@ public class CouponOutputVo {
         this.usableValue = usableValue;
     }
 
-    public Date getSendStartTime() {
-        return sendStartTime;
-    }
-
-    public void setSendStartTime(Date sendStartTime) {
-        this.sendStartTime = sendStartTime;
-    }
-
-    public Date getSendEndTime() {
-        return sendEndTime;
-    }
-
-    public void setSendEndTime(Date sendEndTime) {
-        this.sendEndTime = sendEndTime;
-    }
-
     public Date getUseStartTime() {
         return useStartTime;
     }
@@ -181,30 +99,6 @@ public class CouponOutputVo {
         this.useEndTime = useEndTime;
     }
 
-    public Integer getCreateNum() {
-        return createNum;
-    }
-
-    public void setCreateNum(Integer createNum) {
-        this.createNum = createNum;
-    }
-
-    public Integer getSendNum() {
-        return sendNum;
-    }
-
-    public void setSendNum(Integer sendNum) {
-        this.sendNum = sendNum;
-    }
-
-    public Integer getUseNum() {
-        return useNum;
-    }
-
-    public void setUseNum(Integer useNum) {
-        this.useNum = useNum;
-    }
-
     public Integer getStatus() {
         return status;
     }
@@ -213,19 +107,5 @@ public class CouponOutputVo {
         this.status = status;
     }
 
-    public Date getCreateAt() {
-        return createAt;
-    }
 
-    public void setCreateAt(Date createAt) {
-        this.createAt = createAt;
-    }
-
-    public Date getUpdateAt() {
-        return updateAt;
-    }
-
-    public void setUpdateAt(Date updateAt) {
-        this.updateAt = updateAt;
-    }
 }

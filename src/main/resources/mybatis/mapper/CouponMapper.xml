@@ -22,23 +22,13 @@
   </resultMap>
 
     <resultMap id="CouponOutputVo" type="so.sao.shop.supplier.pojo.output.CouponOutputVo">
-        <result column="id" property="id"/>
+        <result column="id" property="couponId"/>
         <result column="name" property="name"/>
-        <result column="category_id" property="categoryId"/>
-        <result column="discount_way" property="discountWay"/>
         <result column="coupon_value" property="couponValue"/>
         <result column="usable_value" property="usableValue"/>
-        <result column="send_start_time" property="sendStartTime"/>
-        <result column="send_end_time" property="sendEndTime"/>
         <result column="use_start_time" property="useStartTime"/>
         <result column="use_end_time" property="useEndTime"/>
-        <result column="create_num" property="createNum"/>
-        <result column="send_num" property="sendNum"/>
-        <result column="use_num" property="useNum"/>
-        <result column="status" property="status"/>
-        <result column="create_at" property="createAt"/>
-        <result column="update_at" property="updateAt"/>
-        <result column="get_status" property="getStatus"/>
+        <result column="get_status" property="status"/>
     </resultMap>
 
     <sql id="all_column">
@@ -139,7 +129,9 @@
     <select id="findCouponsByShopId" resultMap="CouponOutputVo" >
         SELECT
             <include refid="all_column"/>,
-            CASE WHEN a.cid IS NOT NULL THEN
+            CASE
+            WHEN c.create_num = c.send_num THEN 2
+            WHEN a.cid IS NOT NULL THEN
                 1
             ELSE
                 0
@@ -158,15 +150,32 @@
         ORDER BY c.create_at DESC
     </select>
 
-    <update id="updateCouponNum" >
+    <update id="updateCouponSendNum" >
         UPDATE coupon c
         SET
-          c.send_num = (c.send_num-#{status}),
+          c.send_num = (c.send_num+#{number}),
           c.update_at = now()
         WHERE
           c.id=#{id}
         AND
-          c.send_num > 0;
+          c.send_num >= 0
+        AND
+          c.create_num > c.send_num
+    </update>
+
+    <update id="updateCouponUseNum" >
+        UPDATE coupon c
+        SET
+        c.use_num = (c.use_num+#{number}),
+        c.update_at = now()
+        WHERE
+        c.id=#{id}
+        AND
+        c.send_num >= 0
+        AND
+        c.send_num >= c.use_num
+        AND
+        c.create_num > c.send_num
     </update>
 
  </mapper>

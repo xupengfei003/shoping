@@ -1,7 +1,10 @@
 package so.sao.shop.supplier.dao.app;
 
 import org.apache.ibatis.annotations.Param;
+import so.sao.shop.supplier.domain.Account;
 import so.sao.shop.supplier.domain.AccountCoupon;
+import so.sao.shop.supplier.domain.external.Coupon;
+import so.sao.shop.supplier.pojo.output.CouponOutputVo;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -26,7 +29,7 @@ public interface AppAccountCouponDao {
      * @param usableValue
      * @return
      */
-    List<AccountCoupon> findAccountCouponsByUserId(@Param("accountId") Long shopId, @Param("usableValue") BigDecimal usableValue);
+    List<CouponOutputVo> findAccountCouponsByUserId(@Param("accountId") Long shopId, @Param("usableValue") BigDecimal usableValue);
 
     /**
      * 领取优惠券
@@ -37,10 +40,11 @@ public interface AppAccountCouponDao {
 
     /**
      * 更新优惠券的状态为已使用
-     * @param id
+     * @param shopId
+     * @param couponId
      * @return
      */
-    Integer updateAccountCouponStatusById(@Param("id")Long id);
+    Integer updateAccountCouponStatusById(@Param("accountId") Long shopId, @Param("couponId") Long couponId);
 
     /**
      * 通过门店id和优惠券id查找用户优惠券
@@ -48,5 +52,5 @@ public interface AppAccountCouponDao {
      * @param couponId
      * @return
      */
-    Integer findAccountCoupon(Long shopId, Long couponId);
+    List<AccountCoupon> findAccountCoupon(@Param("accountId") Long shopId, @Param("couponId") Long couponId);
 }

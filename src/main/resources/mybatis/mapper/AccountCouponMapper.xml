@@ -13,7 +13,15 @@
   <result column="create_at" property="createAt"/>
   <result column="update_at" property="updateAt"/>
  </resultMap>
-
+    <resultMap id="CouponOutputVo" type="so.sao.shop.supplier.pojo.output.CouponOutputVo">
+        <result column="id" property="couponId"/>
+        <result column="name" property="name"/>
+        <result column="coupon_value" property="couponValue"/>
+        <result column="usable_value" property="usableValue"/>
+        <result column="use_start_time" property="useStartTime"/>
+        <result column="use_end_time" property="useEndTime"/>
+        <result column="get_status" property="status"/>
+    </resultMap>
  <!--auto generated Code-->
  <sql id="all_column">
   `id`,
@@ -49,15 +57,14 @@
   )
  </insert>
 
-<select id="findAccountCouponsByUserId" resultMap="AllColumnMap">
-  SELECT ac.id AS id,
-         ac.user_id AS user_id,
-         ac.coupon_id AS coupon_id,
-         ac.status AS status,
-         ac.use_time AS use_time,
-         ac.get_time AS get_time,
-         ac.create_at AS create_at,
-         ac.update_at AS update_at
+<select id="findAccountCouponsByUserId" resultMap="CouponOutputVo">
+  SELECT ac.coupon_id AS id,
+         ac.status AS get_status,
+          c.name ,
+          c.coupon_value ,
+          c.usable_value ,
+          c.use_start_time,
+          c.use_end_time
   FROM account_coupon ac left join coupon c on c.id = ac.coupon_id
   WHERE ac.user_id = #{accountId}
   <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(usableValue)">
@@ -73,7 +80,8 @@
   UPDATE account_coupon ac
    SET ac.status = 1,
        ac.use_time = now()
-   WHERE id = #{id}
+   WHERE user_id = #{accountId}
+     AND coupon_id = #{couponId}
  </update>
  <!--更新优惠券为已过期-->
  <update id="updateAccountCouponStatus" >

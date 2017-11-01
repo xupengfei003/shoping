@@ -24,7 +24,7 @@ public interface CouponDao {
 
     Integer insertCoupon(@Param("pojo")Coupon coupon);
 
-    Integer findCouponsByName(@Param("name")String name);
+    List<Coupon> findCouponsByName(@Param("name")String name);
 
     /**
      * 批量更改优惠券状态为废弃
@@ -41,9 +41,17 @@ public interface CouponDao {
     List<CouponOutputVo> findCouponsByShopId(@Param("shopId") Long shopId);
 
     /**
-     * 更新优惠券数量
+     * 更新优惠券发放数量
      * @param couponId
-     * @param i
+     * @param number
      */
-    Integer updateCouponNum(Long couponId, Integer i);
+    Integer updateCouponSendNum(@Param("id")Long couponId,@Param("number") Integer number);
+
+    /**
+     * 更新优惠券使用数量
+     * @param couponId
+     * @param number
+     * @return
+     */
+    Integer updateCouponUseNum(@Param("id")Long couponId,@Param("number") Integer number);
 }
