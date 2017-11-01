@@ -117,8 +117,9 @@
         UPDATE coupon c
         SET c.status = #{status},
             c.update_at = now()
+        WHERE c.status = 0
         <if test="ids != null">
-            WHERE c.id  in
+            AND c.id  in
             <foreach collection="ids" item="id" index="index"
                      open="(" close=")" separator=",">
                 #{id}
@@ -177,5 +178,14 @@
         AND
         c.create_num > c.send_num
     </update>
+
+    <select id="findCouponById" resultMap="AllColumnMap" >
+        SELECT
+        <include refid="all_column"/>
+        FROM coupon c
+        WHERE c.id  = #{id}
+    </select>
+
+
 
  </mapper>

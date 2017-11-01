@@ -54,4 +54,6 @@ public interface CouponDao {
      * @return
      */
     Integer updateCouponUseNum(@Param("id")Long couponId,@Param("number") Integer number);
+
+    Coupon findCouponById(Long couponId);
 }

@@ -9,6 +9,7 @@ import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.dao.app.AppAccountCouponDao;
 import so.sao.shop.supplier.dao.external.CouponDao;
 import so.sao.shop.supplier.domain.AccountCoupon;
+import so.sao.shop.supplier.domain.external.Coupon;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.output.CouponOutputVo;
 import so.sao.shop.supplier.service.app.AppAccountCouponService;
@@ -73,8 +74,19 @@ public class AppAccountCouponServiceImpl implements AppAccountCouponService {
         accountCoupon.setCreateAt(new Date());
         accountCoupon.setStatus(0);
         accountCoupon.setGetTime(new Date());
+        Coupon coupon = couponDao.findCouponById(couponId);
+        if(coupon == null){
+            Result result  = Result.fail("未找到该优惠券！");
+            return result;
+        }
+
+        if(coupon.getSendNum().equals(coupon.getCreateNum())){
+            Result result  = Result.fail("已领完！");
+            return result;
+        }
 
         List<AccountCoupon> list = appAccountCouponDao.findAccountCoupon(shopId,couponId);
+
         if (list != null && list.size() > 0){
             Result result  = Result.fail("请勿重复领取！");
             return result;
