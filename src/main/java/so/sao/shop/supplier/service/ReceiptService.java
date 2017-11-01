@@ -1,21 +1,23 @@
-package so.sao.shop.supplier.dao;
+package so.sao.shop.supplier.service;
 
-
-import org.apache.ibatis.annotations.Param;
 import so.sao.shop.supplier.domain.Receipt;
 
 /**
- * 发票持久化层
- * @author zhenhai.zheng
+ * <p>Version: supplier V1.1.0 </p>
+ * <p>Title: ReceiptService</p>
+ * <p>Description: 发票与门店关系表 业务层</p>
+ *
+ * @author: zhenhai.zheng
+ * @Date: Created in 2017/11/1 10:07
  */
 
-public interface ReceiptDao {
+public interface ReceiptService {
 
     /**
      * 发票记录录入
      * @return
      */
-    int insertReceipt(Receipt receipt);
+    boolean insertReceipt(Receipt receipt);
 
     /**
      * 发票信息更改
@@ -23,7 +25,7 @@ public interface ReceiptDao {
      * @param receipt
      * @return
      */
-    int updateReceiptByUserId(Receipt receipt);
+    boolean updateReceiptByUserId(Receipt receipt);
 
     /**
      * 根据主键查询发票记录
@@ -38,5 +40,5 @@ public interface ReceiptDao {
      * @param receiptType 1增值税普通单位发票 2增值税专用发票
      * @return
      */
-    Receipt getReceiptByUserIdAndType(@Param("userId") Long userId,@Param("receiptType") Integer receiptType);
+    Receipt getReceiptByUserIdAndType(Long userId,Integer receiptType);
 }

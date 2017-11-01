@@ -576,4 +576,17 @@ public class PurchaseController {
         }
         return Result.fail(Constant.MessageConfig.MSG_FAILURE);
     }
+
+    /**
+     * 供应商是否支持发票接口
+     *
+     * @return Result 结果
+     * @throws Exception
+     */
+    @ApiOperation(value = "供应商是否支持发票接口", notes = "供应商是否支持发票接口【负责人：郑振海】")
+    @PostMapping("isOpenReceipt/{supplierId}")
+    public  Result updateLogisticInfoByOrderId(@PathVariable("supplierId") Long supplierId) throws Exception {
+
+        return Result.fail(Constant.MessageConfig.MSG_FAILURE);
+    }
 }
