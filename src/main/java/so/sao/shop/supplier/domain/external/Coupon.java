@@ -1,5 +1,12 @@
 package so.sao.shop.supplier.domain.external;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import org.hibernate.validator.constraints.NotEmpty;
+
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -17,6 +24,7 @@ public class Coupon {
     /**
      * 购物券名称
      */
+    @NotEmpty
     private String name;
     /**
      * 优惠券适用类型，0为全品类
@@ -25,34 +33,70 @@ public class Coupon {
     /**
      * 优惠券类型 1、满减   2、打折
      */
-    private Integer couponType;
+    private Integer discountWay;
     /**
      * 优惠券减免金额/折率
      */
-    private Double couponValue;
+    @NotNull
+    @DecimalMin(value = "0.00" ,message = "不能为负数")
+    private BigDecimal couponValue;
     /**
      * 优惠券适用金额，满多少可用
      */
-    private Integer couponUsePrice;
+    @DecimalMin(value = "0.00" ,message = "不能为负数")
+    private BigDecimal usableValue;
     /**
      * 优惠券生效时间
      */
-    private Date couponEffectiveTime;
+
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date sendStartTime;
     /**
      * 优惠券失效时间
      */
-    private Date couponInvalidTime;
+
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date sendEndTime;
     /**
-     * 优惠券状态，0（可使用），1（已过期），2（未生效），3（已删除）
+     * 使用开始时间
      */
-    private Integer couponStatus;
+    @NotNull
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date useStartTime;
+    /**
+     * 使用结束时间
+     */
+    @NotNull
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date useEndTime;
+    /**
+     * 优惠券发放总数
+     */
+    @NotNull
+    @Min(value = 1,message = "发放数量不能小于1")
+    private Integer createNum;
+    /**
+     * 优惠券领取量
+     */
+
+    private Integer sendNum;
+    /**
+     * 优惠券使用量
+     */
+    private Integer useNum;
+    /**
+     * 优惠券状态，0（已生效），1（未生效），2（已过期），3（已废弃）
+     */
+    private Integer status;
     /**
      * 创建时间
      */
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date createAt;
     /**
      * 更新时间
      */
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date updateAt;
 
     public Long getId() {
@@ -79,52 +123,92 @@ public class Coupon {
         this.categoryId = categoryId;
     }
 
-    public Integer getCouponType() {
-        return couponType;
+    public Integer getDiscountWay() {
+        return discountWay;
     }
 
-    public void setCouponType(Integer couponType) {
-        this.couponType = couponType;
+    public void setDiscountWay(Integer discountWay) {
+        this.discountWay = discountWay;
     }
 
-    public Double getCouponValue() {
+    public BigDecimal getCouponValue() {
         return couponValue;
     }
 
-    public void setCouponValue(Double couponValue) {
+    public void setCouponValue(BigDecimal couponValue) {
         this.couponValue = couponValue;
     }
 
-    public Integer getCouponUsePrice() {
-        return couponUsePrice;
+    public BigDecimal getUsableValue() {
+        return usableValue;
     }
 
-    public void setCouponUsePrice(Integer couponUsePrice) {
-        this.couponUsePrice = couponUsePrice;
+    public void setUsableValue(BigDecimal usableValue) {
+        this.usableValue = usableValue;
     }
 
-    public Date getCouponEffectiveTime() {
-        return couponEffectiveTime;
+    public Date getSendStartTime() {
+        return sendStartTime;
     }
 
-    public void setCouponEffectiveTime(Date couponEffectiveTime) {
-        this.couponEffectiveTime = couponEffectiveTime;
+    public void setSendStartTime(Date sendStartTime) {
+        this.sendStartTime = sendStartTime;
     }
 
-    public Date getCouponInvalidTime() {
-        return couponInvalidTime;
+    public Date getSendEndTime() {
+        return sendEndTime;
     }
 
-    public void setCouponInvalidTime(Date couponInvalidTime) {
-        this.couponInvalidTime = couponInvalidTime;
+    public void setSendEndTime(Date sendEndTime) {
+        this.sendEndTime = sendEndTime;
     }
 
-    public Integer getCouponStatus() {
-        return couponStatus;
+    public Date getUseStartTime() {
+        return useStartTime;
     }
 
-    public void setCouponStatus(Integer couponStatus) {
-        this.couponStatus = couponStatus;
+    public void setUseStartTime(Date useStartTime) {
+        this.useStartTime = useStartTime;
+    }
+
+    public Date getUseEndTime() {
+        return useEndTime;
+    }
+
+    public void setUseEndTime(Date useEndTime) {
+        this.useEndTime = useEndTime;
+    }
+
+    public Integer getCreateNum() {
+        return createNum;
+    }
+
+    public void setCreateNum(Integer createNum) {
+        this.createNum = createNum;
+    }
+
+    public Integer getSendNum() {
+        return sendNum;
+    }
+
+    public void setSendNum(Integer sendNum) {
+        this.sendNum = sendNum;
+    }
+
+    public Integer getUseNum() {
+        return useNum;
+    }
+
+    public void setUseNum(Integer useNum) {
+        this.useNum = useNum;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
     }
 
     public Date getCreateAt() {
@@ -141,5 +225,27 @@ public class Coupon {
 
     public void setUpdateAt(Date updateAt) {
         this.updateAt = updateAt;
+    }
+
+    @Override
+    public String toString() {
+        return "Coupon{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", categoryId=" + categoryId +
+                ", discountWay=" + discountWay +
+                ", couponValue=" + couponValue +
+                ", usableValue=" + usableValue +
+                ", sendStartTime=" + sendStartTime +
+                ", sendEndTime=" + sendEndTime +
+                ", useStartTime=" + useStartTime +
+                ", useEndTime=" + useEndTime +
+                ", createNum=" + createNum +
+                ", sendNum=" + sendNum +
+                ", useNum=" + useNum +
+                ", status=" + status +
+                ", createAt=" + createAt +
+                ", updateAt=" + updateAt +
+                '}';
     }
 }
