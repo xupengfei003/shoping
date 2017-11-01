@@ -420,7 +420,7 @@
         sc.invalid_status AS invalidStatus,
         sc.min_order_quantity AS  minOrderQuantity,
         sc.production_date AS productionDate,
-        sc.guarantee_period AS guaranteePeriod，
+        sc.guarantee_period AS guaranteePeriod,
         sc.guarantee_period_unit AS guaranteePeriodUnit,
         (SELECT NAME FROM comm_category cc WHERE cc.id = c.category_one_id) AS categoryOneName,
         (SELECT NAME FROM comm_category cc WHERE cc.id = c.category_two_id) AS categoryTwoName,
