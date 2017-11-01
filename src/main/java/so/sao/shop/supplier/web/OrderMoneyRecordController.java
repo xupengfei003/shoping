@@ -261,12 +261,12 @@ public class OrderMoneyRecordController {
 
 
     /**
-     * 结算明细列表 导出excel
+     * 结算账单列表 导出excel
      * @param request
      * @param response
      * @throws Exception
      */
-    @ApiOperation(value="导出结算明细excel", notes = "根据查询条件导出excel【负责人:王翼云】")
+    @ApiOperation(value="导出结算账单excel", notes = "根据查询条件导出excel【负责人:王翼云】")
     @GetMapping("/excel")
     public void exportExcel(HttpServletRequest request, HttpServletResponse response) throws Exception{
         orderMoneyRecordService.exportExcel(request,response);
@@ -288,6 +288,13 @@ public class OrderMoneyRecordController {
         }
         Map<String,Object> resultMap = orderMoneyRecordService.countOrderMoneyRecords(timeType,user.getAccountId());
         return Result.success(Constant.MessageConfig.MSG_SUCCESS,resultMap);
+    }
+
+
+    @ApiOperation(value="导出结算明细对应的订单列表", notes = "导出结算明细对应的订单列表【负责人:聂文超】")
+    @GetMapping("/orderMoneyRecord/recordToPurchasesExcel")
+    public void exportRecordToPurchasesExcel(String recordId, String orderId, String pageNum, String pageSize, HttpServletResponse response) throws Exception {
+        orderMoneyRecordService.exportRecordToPurchasesExcel(recordId, orderId, pageNum, pageSize, response);
     }
 
 }
