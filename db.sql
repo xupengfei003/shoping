@@ -65,3 +65,45 @@ ALTER TABLE `key_word` MODIFY COLUMN key_word_type INT(1) COMMENT '关键字类�
 ALTER TABLE `comm_category`
   ADD COLUMN `status` INT(1) DEFAULT 0  NULL  COMMENT '科属状态0隐藏，1展示' AFTER `updated_at`;
 
+/*==============================================================*/
+/* Table: account_coupon                                        */
+/*==============================================================*/
+create table account_coupon
+(
+  id                   bigint not null,
+  coupon_id            bigint,
+  user_id              bigint,
+  status               int,
+  use_time             datetime,
+  get_time             datetime,
+  create_at            datetime,
+  update_at            datetime,
+  primary key (id)
+);
+
+/*==============================================================*/
+/* Table: coupon                                                */
+/*==============================================================*/
+create table coupon
+(
+  id                   bigint not null,
+  name                 varchar(50),
+  status               int,
+  discount_way         int,
+  category_id          bigint,
+  coupon_value         decimal(10,2),
+  usable_value         decimal(10,2),
+  create_num           int,
+  send_num             int,
+  use_num              int,
+  send_start_time      datetime,
+  send_end_time        datetime,
+  use_start_time       datetime,
+  use_end_time         datetime,
+  create_at            datetime,
+  update_at            datetime,
+  primary key (id)
+);
+
+
+
