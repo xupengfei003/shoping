@@ -1,6 +1,7 @@
 package so.sao.shop.supplier.dao;
 
 import so.sao.shop.supplier.domain.InvoiceSetting;
+import so.sao.shop.supplier.pojo.output.InvoiceSettingOutput;
 
 /**
  * <p>Version: New shop-1.0.0 V1.1.0 </p>
@@ -24,9 +25,10 @@ public interface InvoiceSettingDao {
     void update(InvoiceSetting invoiceSetting);
 
     /**
-     * 根据supplierId查询供应商发票设置
-     * @param supplierId
+     * 根据供应商ID查询发票设置
+     * @param supplierId 供应商ID
+     * @return 发票设置出参对象
      */
-    InvoiceSetting findBySupplierId(Long supplierId);
+    InvoiceSettingOutput findBySupplierId(Long supplierId);
 
 }
