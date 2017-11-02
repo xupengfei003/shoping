@@ -100,10 +100,10 @@ public class CommAppController {
                                 @RequestParam(required = false) Integer pageNum, @RequestParam(required = false) Integer pageSize){
         return commAppService.listCommodities(supplierId,commName, pageNum, pageSize);
     }
-    @ApiOperation(value="查询商品", notes="根据商品名称模糊查询商品，返回商品列表")
-    @GetMapping(value="/getNames/{goodsName}")
-    public Result searchGoods(@PathVariable String goodsName){
-        return commAppService.getGoods(goodsName);
+    @ApiOperation(value="查询商品", notes="搜索接口（根据商品名称/供应商名称/品牌名称模糊匹配）【责任人：刘刚】")
+    @GetMapping(value="/getNames")
+    public Result searchGoods(@RequestParam String name, @RequestParam Integer nameType){
+        return commAppService.getGoods(name, nameType);
     }
 
 
