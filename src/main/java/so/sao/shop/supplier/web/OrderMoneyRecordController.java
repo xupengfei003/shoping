@@ -290,7 +290,15 @@ public class OrderMoneyRecordController {
         return Result.success(Constant.MessageConfig.MSG_SUCCESS,resultMap);
     }
 
-
+    /**
+     * 账单明细数据列表 导出Excel
+     * @param recordId 结算明细id
+     * @param orderId 订单id
+     * @param pageNum  页码
+     * @param pageSize 每页条数
+     * @param response
+     * @throws Exception
+     */
     @ApiOperation(value="导出结算明细对应的订单列表", notes = "导出结算明细对应的订单列表【负责人:聂文超】")
     @GetMapping("/orderMoneyRecord/recordToPurchasesExcel")
     public void exportRecordToPurchasesExcel(String recordId, String orderId, String pageNum, String pageSize, HttpServletResponse response) throws Exception {
