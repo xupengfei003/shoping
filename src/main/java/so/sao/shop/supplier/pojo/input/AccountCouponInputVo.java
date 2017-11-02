@@ -2,8 +2,8 @@ package so.sao.shop.supplier.pojo.input;/**
  * Created by wyy on 2017/10/30.
  */
 
-import com.sun.istack.internal.NotNull;
-import org.hibernate.validator.constraints.NotEmpty;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * <p>Version: supplier V1.1.0 </p>

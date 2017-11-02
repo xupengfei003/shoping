@@ -105,15 +105,13 @@ public class CouponServiceImpl implements CouponService{
      */
     @Override
     public Result searchCoupons(String name, Integer[] couponStatus, Integer pageNum, Integer pageSize){
+        //验证状态，couponStatus为空表示查询，过期和未过期的
         if(couponStatus.length == 0){
             couponStatus = new Integer[]{0,2};
         }
         PageTool.startPage(pageNum,pageSize);
         List<Coupon> couponList = couponDao.findCoupons(name,couponStatus);
-        //转换输出对象
-
-        PageInfo pageInfo = new PageInfo();
-        pageInfo.setList(couponList);
+        PageInfo pageInfo = new PageInfo(couponList);
         Result result  = Result.success(Constant.MessageConfig.MSG_SUCCESS);
         result.setData(pageInfo);
         return result;
