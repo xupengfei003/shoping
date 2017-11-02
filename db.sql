@@ -112,7 +112,7 @@ CREATE TABLE `coupon` (
 
 /*发票-门店关系表*/
 CREATE TABLE `receipt_user` (
-  `receipt_id` bigint(20) NOT NULL COMMENT '主键',
+  `receipt_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
   `receipt_type` int(1) NOT NULL COMMENT '发票类型--1增值税单位发票,2增值税专用发票',
   `company` varchar(255) NOT NULL COMMENT '单位名称',
   `taxpayer_number` bigint(20) NOT NULL COMMENT '纳税人识别号',
@@ -129,9 +129,10 @@ CREATE TABLE `receipt_user` (
   KEY `user_id_index` (`user_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='发票-门店关系表';
 
+
 /*发票-订单关系表*/
 CREATE TABLE `receipt_purchase` (
-  `id` bigint(20) NOT NULL,
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `order_id` varchar(30) DEFAULT NULL COMMENT '订单ID',
   `receipt_type` int(1) NOT NULL COMMENT '发票类型--0增值税个人发票,1增值税单位发票,2增值税专用发票',
   `company` varchar(255) DEFAULT NULL COMMENT '单位名称',
@@ -146,7 +147,8 @@ CREATE TABLE `receipt_purchase` (
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`),
   KEY `order_id_index` (`order_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='发票-订单关系表';
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='发票-订单关系表';
+
 
 
 

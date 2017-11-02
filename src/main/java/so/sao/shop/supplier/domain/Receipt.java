@@ -1,4 +1,11 @@
 package so.sao.shop.supplier.domain;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import org.hibernate.validator.constraints.NotBlank;
+import org.hibernate.validator.constraints.NotEmpty;
+
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 /**
@@ -15,16 +22,21 @@ public class Receipt {
     /**
      * 发票类型
      */
+    @NotNull(message = "发票类型不能为空")
+    @Min(value = 1,message = "发票类型异常")
+    @Max(value = 2,message = "发票类型异常")
     private Integer receiptType;
 
     /**
      * 单位名称
      */
+    @NotBlank(message = "单位名称不能为空")
     private String company;
 
     /**
      * 纳税人识别号
      */
+    @NotNull(message = "纳税人识别号不能为空")
     private Long taxpayerNumber;
 
     /**
@@ -65,11 +77,13 @@ public class Receipt {
     /**
      * 创建时间
      */
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date createTime;
 
     /**
      * 更新时间
      */
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date updateTime;
 
     public Long getReceiptId() {

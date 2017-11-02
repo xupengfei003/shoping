@@ -1,9 +1,11 @@
 package so.sao.shop.supplier.service.impl;
 
 import org.springframework.stereotype.Service;
+import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.dao.ReceiptDao;
 import so.sao.shop.supplier.domain.Receipt;
 import so.sao.shop.supplier.service.ReceiptService;
+import so.sao.shop.supplier.util.Ognl;
 
 import javax.annotation.Resource;
 
@@ -44,15 +46,15 @@ public class ReceiptServiceImpl implements ReceiptService {
      * @return
      */
     @Override
-    public boolean updateReceiptByUserId(Receipt receipt) {
+    public boolean updateReceiptById(Receipt receipt) {
 
         /**
          * 1.根据发票类型校验参数
-         *     若发票类型为1 表示增值税普通单位发票 单位名称，纳税人识别号，发票内容为必传参数
+         *     若发票类型为1 表示增值税普通单位发票 单位名称，纳税人识别号为必传参数
          *     若发票类型为2 表示增值税专用发票  单位名称，纳税人识别号，注册地址，注册电话，开户银行，银行账户为必传参数
          * 2.更改数据
          */
-        return receiptDao.updateReceiptByUserId(receipt) > 0 ? true : false;
+        return receiptDao.updateReceiptById(receipt) > 0 ? true : false;
     }
 
     /**
@@ -76,4 +78,5 @@ public class ReceiptServiceImpl implements ReceiptService {
 
         return receiptDao.getReceiptByUserIdAndType(userId,receiptType);
     }
+
 }

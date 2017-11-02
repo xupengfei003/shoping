@@ -23,7 +23,7 @@ public interface ReceiptDao {
      * @param receipt
      * @return
      */
-    int updateReceiptByUserId(Receipt receipt);
+    int updateReceiptById(Receipt receipt);
 
     /**
      * 根据主键查询发票记录

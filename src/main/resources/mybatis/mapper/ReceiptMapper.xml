@@ -17,25 +17,27 @@
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
   </resultMap>
   <sql id="Base_Column_List">
-    receipt_id, receipt_type, company, taxpayer_number, receipt_content_id, receipt_content,
-    register_adress, register_phone, deposit_bank, bank_amount, user_id, create_time,
-    update_time
+    receipt_id AS receiptId, receipt_type AS receiptType, company, taxpayer_number AS taxpayerNumber,
+    receipt_content_id AS receiptContentId, receipt_content AS receiptContent,
+    register_adress AS registerAdress, register_phone AS registerPhone, deposit_bank AS depositBank,
+    bank_amount AS bankAmount, user_id AS userId, create_time AS createTime,
+    update_time AS updateTime
   </sql>
 
   <!--发票记录录入-->
   <insert id="insertReceipt" parameterType="so.sao.shop.supplier.domain.Receipt">
-     insert into receipt_user (receipt_type, company,
+     insert into receipt_user (receipt_id,receipt_type, company,
       taxpayer_number, receipt_content_id, receipt_content,
       register_adress, register_phone, deposit_bank,
       bank_amount, user_id, create_time)
-    values (#{receiptType,jdbcType=INTEGER}, #{company,jdbcType=VARCHAR},
+    values (null,#{receiptType,jdbcType=INTEGER}, #{company,jdbcType=VARCHAR},
       #{taxpayerNumber,jdbcType=BIGINT}, #{receiptContentId,jdbcType=BIGINT}, #{receiptContent,jdbcType=VARCHAR},
       #{registerAdress,jdbcType=VARCHAR}, #{registerPhone,jdbcType=VARCHAR}, #{depositBank,jdbcType=VARCHAR},
       #{bankAmount,jdbcType=VARCHAR}, #{userId,jdbcType=BIGINT}, #{createTime,jdbcType=TIMESTAMP})
   </insert>
 
   <!--发票信息更改-->
-  <update id="updateReceiptByUserId" parameterType="java.lang.Long">
+  <update id="updateReceiptById" parameterType="so.sao.shop.supplier.domain.Receipt">
     update receipt_user
     set company = #{company,jdbcType=VARCHAR},
       taxpayer_number = #{taxpayerNumber,jdbcType=BIGINT},

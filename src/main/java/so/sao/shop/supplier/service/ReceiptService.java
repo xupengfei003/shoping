@@ -15,6 +15,7 @@ public interface ReceiptService {
 
     /**
      * 发票记录录入
+     * @param receipt 发票信息
      * @return
      */
     boolean insertReceipt(Receipt receipt);
@@ -22,10 +23,10 @@ public interface ReceiptService {
     /**
      * 发票信息更改
      *  根据发票ID修改发票记录
-     * @param receipt
+     * @param receipt 发票信息
      * @return
      */
-    boolean updateReceiptByUserId(Receipt receipt);
+    boolean updateReceiptById(Receipt receipt);
 
     /**
      * 根据主键查询发票记录

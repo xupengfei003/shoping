@@ -2,6 +2,7 @@ package so.sao.shop.supplier.web;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.domain.Receipt;
@@ -33,23 +34,35 @@ public class ReceiptController {
      */
     @ApiOperation(value = "发票记录录入或更改",notes = "发票记录录入或更改【负责人：郑振海】")
     @PostMapping("/createReceipt")
-    public Result createReceipt(Receipt receipt) {
+    public Result createReceipt(@Validated Receipt receipt) {
 
         /**
-         * 1.根据门店ID和发票类型搜索是否存在此门店相同类型的发票记录
-         * 2.1.若存在则调用更新方法
-         * 2.2.若不存在则调用创建方法
+         * 1.校验入参
+         * 2.根据门店ID和发票类型搜索是否存在此门店相同类型的发票记录
+         *  3.1.若存在则调用更新方法
+         *  3.2.若不存在则调用创建方法
          */
+
+        //1.检验入参
+        if (this.validatedParam(receipt)){
+            return Result.fail(Constant.MessageConfig.MSG_NOT_EMPTY);
+        }
+
+        //2.查询该门店该类发票类型是否存在相关记录
         boolean flag = false;
         Receipt receiptDb = receiptService.getReceiptByUserIdAndType(receipt.getUserId(),receipt.getReceiptType());
         Date date = new Date();
+
+        //3.1.如果不存在，执行插入操作
         if (Ognl.isEmpty(receiptDb)){
             receipt.setCreateTime(date);
             flag = receiptService.insertReceipt(receipt);
-        }else {
+        }
+        //3.2.如果不存在,执行更新操作
+        else {
             receipt.setReceiptId(receiptDb.getReceiptId());
             receipt.setUpdateTime(date);
-            flag = receiptService.updateReceiptByUserId(receipt);
+            flag = receiptService.updateReceiptById(receipt);
         }
         return flag == true ? Result.success(Constant.MessageConfig.MSG_SUCCESS): Result.fail(Constant.MessageConfig.MSG_FAILURE);
     }
@@ -70,13 +83,39 @@ public class ReceiptController {
          *   receiptType值为1或2
          * 2.调用业务层方法
          */
+
+        //1.入参校验
         if (Ognl.isEmpty(userId) || Ognl.isEmpty(receiptType)) {
             return Result.fail(Constant.MessageConfig.MSG_NOT_EMPTY);
         }
-        if (Constant.ReceiptConfig.RECEIPTTYPE_COMPANY.equals(receiptType) || Constant.ReceiptConfig.RECEIPTTYPE_SPECIAL.equals(receiptType)){
+        if (!(Constant.ReceiptConfig.RECEIPTTYPE_COMPANY.equals(receiptType) || Constant.ReceiptConfig.RECEIPTTYPE_SPECIAL.equals(receiptType))){
             return Result.fail(Constant.MessageConfig.PARAMETER_ABNORMITY);
         }
+
+        //2.调用业务层方法
         Receipt receipt = receiptService.getReceiptByUserIdAndType(userId,receiptType);
         return Result.success(Constant.MessageConfig.MSG_SUCCESS,receipt);
+    }
+
+    /**
+     * 参数校验
+     * @param receipt
+     * @return
+     */
+    private boolean validatedParam(Receipt receipt){
+        /**
+         * 根据发票类型校验参数
+         *     若发票类型为1 表示增值税普通单位发票 单位名称，纳税人识别号为必传参数(此处已在入参时校验)
+         *     若发票类型为2 表示增值税专用发票  单位名称，纳税人识别号，注册地址，注册电话，开户银行，银行账户为必传参数
+         */
+        if (Ognl.isNotEmpty(receipt)){
+            //发票类型为2
+            if (Constant.ReceiptConfig.RECEIPTTYPE_SPECIAL.equals(receipt.getReceiptType())){
+                boolean flag = Ognl.isEmpty(receipt.getRegisterAdress()) && Ognl.isEmpty(receipt.getRegisterPhone()) && Ognl.isEmpty(receipt.getDepositBank())
+                        && Ognl.isEmpty(receipt.getBankAmount());
+                return flag;
+            }
+        }
+        return false;
     }
 }
