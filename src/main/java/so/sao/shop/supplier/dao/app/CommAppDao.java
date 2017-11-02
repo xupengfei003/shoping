@@ -92,12 +92,12 @@ public interface CommAppDao {
      */
     List<CommodityOutput> listCommodities(@Param("supplierId") Long supplierId, @Param("commName") String commName);
     /**
-     * 根据商品名称模糊查询商品，返回商品列表
+     * 根据名称模糊查询商品，返回商品列表
      *
-     * @param goodsName 商品名称
+     * @param name 商品名称
      * @return
      */
-    List<Map> findGoodsByName(@Param("goodsName") String goodsName);
+    List<String> findGoodsByName(@Param("name") String name);
 
     /**
      * 查询商品
@@ -121,6 +121,12 @@ public interface CommAppDao {
      * @return
      */
     List<CategoryOutput> findSupplierCategories( @Param("supplierId") Long supplierId, @Param("level") Integer level );
+    /**
+     * 根据商品名称模糊查询商品，返回商品列表
+     * @param name 商品名称
+     * @return
+     */
+    List<String> findGoodsByGoodsName(@Param("name") String name);
 
     /**
      * 根据供应商ID查询其可用的所有商品分类信息或所有可用的商品分类信息
@@ -135,5 +141,18 @@ public interface CommAppDao {
      * @return
      */
     List<CategoryOutput> findOneLevel (@Param("id") Long id);
+    /**
+     * 根据品牌名称模糊查询品牌，返回品牌名称列表
+     * @param name 品牌名称
+     * @return
+     */
+    List<String> findGoodsByBrandName(@Param("name") String name);
+
+    /**
+     * 根据供应商名称模糊查询供应商，返回供应商名称列表
+     * @param name 供应商名称
+     * @return
+     */
+    List<String> findGoodsBySupplierName(@Param("name") String name);
 
 }

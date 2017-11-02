@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.dao.AccountDao;
 import so.sao.shop.supplier.dao.CommImgeDao;
 import so.sao.shop.supplier.dao.FreightRulesDao;
@@ -285,16 +286,36 @@ public class CommAppServiceImpl implements CommAppService {
     /**
      * 根据商品名称模糊查询商品，返回商品列表
      *
-     * @param goodsName 商品名称
-     * @return
+     * @param name 搜索名称
+     * @param nameType 名称类型(0:供应商名称，1：商品名称，2:品牌名称)
      */
     @Override
-    public Result getGoods(String goodsName) {
-        List<Map> goods = commAppDao.findGoodsByName(goodsName);
-        if( null == goods || goods.size() <= 0  ){
+    public Result getGoods(String name , int nameType) {
+        /*
+         *如果为0，查询供应商名称右模糊匹配的供应商名称列表，此供应商名下的商品为未删除，已上架，未失效状态
+         *如果为1，查询商品名称右模糊匹配的商品名称列表，商品为未删除，已上架，未失效状态
+         *如果为2，查询品牌名称右模糊匹配的品牌名称列表，此品牌下的商品为未删除，已上架，未失效状态
+         *如果名称类型传其他值，默认查所有与之匹配的商品名列表，品牌对应商品列表，供应商对应商品列表，商品为未删除，已上架，未失效状态
+         * */
+        List<String> names = new ArrayList<>();
+        switch (nameType){
+            case Constant.AppCommSearch.SEARCH_BY_SUPPLIER_NAME:
+                names = commAppDao.findGoodsBySupplierName(name);
+                break;
+            case Constant.AppCommSearch.SEARCH_BY_GOODS_NAME:
+                names = commAppDao.findGoodsByGoodsName(name);
+                break;
+            case Constant.AppCommSearch.SEARCH_BY_BRAND_NAME:
+                names = commAppDao.findGoodsByBrandName(name);
+                break;
+            default:
+                names = commAppDao.findGoodsByName(name);
+                break;
+        }
+        if( null == names || names.size() <= 0  ){
             return Result.fail("暂无数据");
         }
-        return Result.success("查询成功", goods );
+        return Result.success("查询成功", names );
     }
 
     /**
