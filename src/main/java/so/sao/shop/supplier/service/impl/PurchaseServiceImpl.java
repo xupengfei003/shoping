@@ -1273,13 +1273,19 @@ public class PurchaseServiceImpl implements PurchaseService {
             // 3.修改订单状态为退款，修改退款时间为当前时间
             Map params = new HashMap();
             params.put("orderId", orderId);
-            params.put("orderStatus", Constant.OrderStatusConfig.REFUNDED); // 已退款
+            // 已退款
+            params.put("orderStatus", Constant.OrderStatusConfig.REFUNDED);
             Date now = new Date();
-            params.put("drawbackTime", now); // 退款时间
-            params.put("updatedAt", now); // 更新时间
-            params.put("drawbackPrice", amount); // 退款金额
-            params.put("prefixOrderStatus", orderStatus); //该订单前一个状态
-            int count = purchaseDao.refundByOrderId(params); // 修改订单状态为退款，修改退款时间为当前时间
+            // 退款时间
+            params.put("drawbackTime", now);
+            // 更新时间
+            params.put("updatedAt", now);
+            // 退款金额
+            params.put("drawbackPrice", amount);
+            //该订单前一个状态
+            params.put("prefixOrderStatus", orderStatus);
+            // 修改订单状态为退款，修改退款时间为当前时间
+            int count = purchaseDao.refundByOrderId(params);
             if (count == 0) {
                 result.put("flag", false);
                 result.put("message", "退款失败（修改订单状态失败）");
@@ -1811,21 +1817,21 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     //导出订单Excel订单状态翻译
     private String getOrderStatusInExcel(Integer status, String orderStatus) {
-        if (status == Constant.OrderStatusConfig.PAYMENT) {
+        if (Objects.equals(status,Constant.OrderStatusConfig.PAYMENT)) {
             orderStatus = Constant.OrderMessageConfig.PAYMENT;
-        } else if (status == Constant.OrderStatusConfig.PENDING_SHIP) {
+        } else if (Objects.equals(status,Constant.OrderStatusConfig.PENDING_SHIP)) {
             orderStatus = Constant.OrderMessageConfig.PENDING_SHIP;
-        } else if (status == Constant.OrderStatusConfig.ISSUE_SHIP || status == Constant.OrderStatusConfig.CONFIRM_RECEIVED) {
+        } else if (Objects.equals(status,Constant.OrderStatusConfig.ISSUE_SHIP) || Objects.equals(status,Constant.OrderStatusConfig.CONFIRM_RECEIVED)) {
             orderStatus = Constant.OrderMessageConfig.ISSUE_SHIP;
-        } else if (status == Constant.OrderStatusConfig.RECEIVED) {
+        } else if (Objects.equals(status,Constant.OrderStatusConfig.RECEIVED)) {
             orderStatus = Constant.OrderMessageConfig.RECEIVED;
-        } else if (status == Constant.OrderStatusConfig.REJECT) {
+        } else if (Objects.equals(status,Constant.OrderStatusConfig.REJECT)) {
             orderStatus = Constant.OrderMessageConfig.REJECT;
-        } else if (status == Constant.OrderStatusConfig.REFUNDED) {
+        } else if (Objects.equals(status,Constant.OrderStatusConfig.REFUNDED)) {
             orderStatus = Constant.OrderMessageConfig.REFUNDED;
-        } else if (status == Constant.OrderStatusConfig.CANCEL_ORDER) {
+        } else if (Objects.equals(status,Constant.OrderStatusConfig.CANCEL_ORDER)) {
             orderStatus = Constant.OrderMessageConfig.CANCEL_ORDER;
-        } else if (status == Constant.OrderStatusConfig.PAYMENT_CANCEL_ORDER) {
+        } else if (Objects.equals(status,Constant.OrderStatusConfig.PAYMENT_CANCEL_ORDER)) {
             orderStatus = Constant.OrderMessageConfig.PAYMENT_CANCEL_ORDER;
         }
         return orderStatus;
