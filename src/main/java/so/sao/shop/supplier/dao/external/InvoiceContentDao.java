@@ -46,4 +46,9 @@ public interface InvoiceContentDao {
      * @return
      */
     int countInvoiceContent(@Param("invoiceContentName") String invoiceContentName);
+
+    /**
+     * 统计发票内容总条数
+     */
+    int countTotal();
 }
