@@ -68,64 +68,40 @@ ALTER TABLE `comm_category`
 /*==============================================================*/
 /* Table: account_coupon    优惠券表                             */
 /*==============================================================*/
-create table account_coupon
-(
-  id                   bigint not null comment '用户优惠券id
-            ',
-  coupon_id            bigint comment '优惠券id
-            ',
-  account_id           bigint comment '用户id（现阶段为门店id）
-            ',
-  status               int comment '优惠券状态0（可使用），1（已使用），2（未生效），3（已废弃）,4(已过期)
-            ',
-  use_time             datetime comment '使用时间
-            ',
-  get_time             datetime comment '领取时间
-            ',
-  create_at            datetime comment '记录创建时间
-            ',
-  update_at            datetime comment '更新时间
-            ',
-  primary key (id)
-);
-
+CREATE TABLE `account_coupon` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '用户优惠券id',
+  `coupon_id` bigint(20) DEFAULT NULL COMMENT '优惠券id',
+  `account_id` bigint(20) DEFAULT NULL COMMENT '用户id（现阶段为门店id）',
+  `status` int(11) DEFAULT NULL COMMENT '优惠券状态0（可使用），1（已使用），2（未生效），3（已废弃）,4(已过期)',
+  `use_time` datetime DEFAULT NULL COMMENT '使用时间',
+  `get_time` datetime DEFAULT NULL COMMENT '领取时间',
+  `create_at` datetime DEFAULT NULL COMMENT '记录创建时间',
+  `update_at` datetime DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*==============================================================*/
 /* Table: coupon         用户优惠券表                             */
 /*==============================================================*/
-create table coupon
-(
-  id                   bigint not null comment '优惠券id',
-  name                 varchar(50) comment '优惠券名称',
-  status               int comment '优惠券状态0（已生效），1（未生效），2（已过期），3（已废弃）
-            ',
-  discount_way         int comment '折扣方式（1：折扣，2满减）
-
-            ',
-  category_id          bigint comment '优惠券适用类型，0为全品类',
-  coupon_value         decimal(10,2) comment '优惠券金额
-            ',
-  usable_value         decimal(10,2) comment '可用条件（金额）
-            ',
-  create_num           int comment '创建数量
-            ',
-  send_num             int comment '已发放数量（即已领取数量）
-            ',
-  use_num              int comment '已使用数量
-            ',
-  send_start_time      datetime comment '发放开始时间
-            ',
-  send_end_time        datetime comment '发放结束时间
-            ',
-  use_start_time       datetime comment '使用开始时间
-            ',
-  use_end_time         datetime comment '使用结束时间
-            ',
-  create_at            datetime comment '记录创建时间
-            ',
-  update_at            datetime comment '更新时间
-            ',
-  primary key (id)
-);
+CREATE TABLE `coupon` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '优惠券id',
+  `name` varchar(50) COLLATE utf8_bin DEFAULT NULL COMMENT '优惠券名称',
+  `status` int(11) DEFAULT NULL COMMENT '优惠券状态0（已生效），1（未生效），2（已过期），3（已废弃）',
+  `discount_way` int(11) DEFAULT NULL COMMENT '折扣方式（1：折扣，2满减）',
+  `category_id` bigint(20) DEFAULT NULL COMMENT '优惠券适用类型，0为全品类',
+  `coupon_value` decimal(10,2) DEFAULT NULL COMMENT '优惠券金额',
+  `usable_value` decimal(10,2) DEFAULT NULL COMMENT '可用条件（金额）',
+  `create_num` int(11) DEFAULT NULL COMMENT '创建数量',
+  `send_num` int(11) DEFAULT NULL COMMENT '已发放数量（即已领取数量）',
+  `use_num` int(11) DEFAULT NULL COMMENT '已使用数量',
+  `send_start_time` datetime DEFAULT NULL COMMENT '发放开始时间',
+  `send_end_time` datetime DEFAULT NULL COMMENT '发放结束时间',
+  `use_start_time` datetime DEFAULT NULL COMMENT '使用开始时间',
+  `use_end_time` datetime DEFAULT NULL COMMENT '使用结束时间',
+  `create_at` datetime DEFAULT NULL COMMENT '记录创建时间',
+  `update_at` datetime DEFAULT NULL COMMENT '更新时间',
+  `operator` varchar(50) DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 
 

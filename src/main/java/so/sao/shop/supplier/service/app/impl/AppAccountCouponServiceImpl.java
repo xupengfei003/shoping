@@ -72,6 +72,7 @@ public class AppAccountCouponServiceImpl implements AppAccountCouponService {
         accountCoupon.setAccountId(shopId);
         accountCoupon.setCouponId(couponId);
         accountCoupon.setCreateAt(new Date());
+        accountCoupon.setUpdateAt(new Date());
         accountCoupon.setStatus(0);
         accountCoupon.setGetTime(new Date());
         Coupon coupon = couponDao.findCouponById(couponId);
