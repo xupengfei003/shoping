@@ -25,6 +25,7 @@ import so.sao.shop.supplier.pojo.input.AccountUpdateInput;
 import so.sao.shop.supplier.service.AccountService;
 import so.sao.shop.supplier.service.CommodityService;
 import so.sao.shop.supplier.service.FreightRulesService;
+import so.sao.shop.supplier.service.InvoiceSettingService;
 import so.sao.shop.supplier.util.*;
 
 import java.math.BigDecimal;
@@ -84,6 +85,9 @@ public class AccountServiceImpl implements AccountService {
      */
     @Autowired
     private AzureBlobService azureBlobService;
+
+    @Autowired
+    private InvoiceSettingService invoiceSettingService;
 
     /**
      * 第一次发送密码
@@ -403,6 +407,8 @@ public class AccountServiceImpl implements AccountService {
                     userDao.updatePassword(user.getId(), new BCryptPasswordEncoder().encode(password), new Date());
                     //插入供应商信息
                     accountDao.insert(account);
+                    //保存供应商发票设置初始状态
+                    invoiceSettingService.saveInvoiceSetting(account.getAccountId());
                     tpe.execute(new Runnable() {
                         @Override
                         public void run() {

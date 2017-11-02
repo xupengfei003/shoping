@@ -106,5 +106,13 @@ public interface CommAppDao {
      */
     CommodityOutput findDetail(@Param("id")long id);
 
+    /**
+     * 根据商品名称，品牌名称，供应商名称模糊搜索商品
+     * @param name
+     * @return
+     */
+    List<CommAppOutput>  findComms(@Param("name") String name);
+
+
 
 }

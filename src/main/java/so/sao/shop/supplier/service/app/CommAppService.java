@@ -116,4 +116,15 @@ public interface CommAppService {
   * @return
   */
  Result getCommodity(Long id);
+
+ /**
+  * 根据商品名称，品牌名称，供应商名称模糊搜索商品
+  * @param name
+  * @param pageNum
+  * @param pageSize
+  * @return
+  */
+ Result getComms(String name, Integer pageNum, Integer pageSize);
+
+
 }

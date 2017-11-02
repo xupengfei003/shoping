@@ -24,7 +24,7 @@
         insert into invoice_setting
         (supplier_id, status, invoice, special_invoice, created_at, updated_at)
         values
-        (#{supplierId}, 0, 0, 0, #{createdAt}, #{updatedAt})
+        (#{supplierId}, #{status}, #{invoice}, #{specialInvoice}, #{createdAt}, #{updatedAt})
     </insert>
 
     <!--修改供应商发票设置-->
@@ -39,6 +39,13 @@
 
     <!--根据supplierId供应商发票设置-->
     <select id="findBySupplierId" resultType="so.sao.shop.supplier.pojo.output.InvoiceSettingOutput">
+        select
+        <include refid="baseColumns"/>
+        from invoice_setting where supplier_id = #{supplierId}
+    </select>
+
+    <!--app端根据supplierId供应商发票设置-->
+    <select id="getBySupplierId" resultType="so.sao.shop.supplier.pojo.output.AppInvoiceSettingOutput">
         select
         <include refid="baseColumns"/>
         from invoice_setting where supplier_id = #{1}

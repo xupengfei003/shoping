@@ -22,6 +22,7 @@ import so.sao.shop.supplier.service.app.AppCommSalesService;
 import so.sao.shop.supplier.service.app.CommAppService;
 import so.sao.shop.supplier.util.BeanMapper;
 import so.sao.shop.supplier.util.DataCompare;
+import so.sao.shop.supplier.util.Ognl;
 import so.sao.shop.supplier.util.PageTool;
 
 import java.math.BigDecimal;
@@ -197,9 +198,13 @@ public class CommAppServiceImpl implements CommAppService {
      * @param commodityAppInput
      * @return
      */
+    @Override
     public PageInfo<CommAppOutput> searchCommodities( CommodityAppInput commodityAppInput){
         //开始分页
         PageTool.startPage( commodityAppInput.getPageNum(),commodityAppInput.getPageSize() );
+        if( null != commodityAppInput.getBrandIds() && commodityAppInput.getBrandIds().length == 0 ){
+            commodityAppInput.setBrandIds(null);
+        }
         List<CommAppOutput> commAppOutputList = commAppDao.findCommoditiesByConditionOrder( commodityAppInput );
         String [] ArrGoodIds = new String[commAppOutputList.size()];
         try {
@@ -293,7 +298,7 @@ public class CommAppServiceImpl implements CommAppService {
     }
 
     /**
-     * 根据供应商商品ID获取商品详情
+     * 【12】根据供应商商品ID获取商品详情
      * @param id
      * @return
      */
@@ -317,20 +322,69 @@ public class CommAppServiceImpl implements CommAppService {
             try {
                 countSold = appCommSalesService.countSoldCommNum(new String[]{commodityOutput.getId().toString()});
             } catch (Exception e) {
+                logger.info("商品销量获取异常",e);
                 e.printStackTrace();
             }
+            //将获取销量放入出参
+            commodityOutput.setSalesNumber(Integer.valueOf(countSold.get(0)));
             //获取账户account对象
             Account account=accountDao.selectById(commodityOutput.getSupplierId());
             if (null == account){
                 return Result.success("查询成功",commodityOutput);
             }
+            //  运费规则(0:通用规则 1:配送规则)
+            if( 0 ==  account.getFreightRules() ){
+                //  是否超出配送范围  1超出配送范围,0没有超出
+                 commodityOutput.setOutOfDeliveryRange(0);
+            }else {
+                commodityOutput.setOutOfDeliveryRange(1);
+            }
             commodityOutput.setProviderName(account.getProviderName());  //将获取供应商名称放入出参
             commodityOutput.setContractCity(account.getContractRegisterAddressCity());  //将获取供应商合同所在市放入出参
-            commodityOutput.setSalesNumber(Integer.valueOf(countSold.get(0)));     //将获取销量放入出参
-
+        }else {
+            return Result.fail("暂无数据");
         }
         return Result.success("查询成功", commodityOutput);
     }
+
+    /**
+     * 根据商品名称，品牌名称，供应商名称模糊搜索商品
+     * @param name
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
+    @Override
+    public Result getComms(String name, Integer pageNum, Integer pageSize) {
+        //开始分页
+        PageTool.startPage(pageNum,pageSize);
+        //效验参数
+        if( Ognl.isNotEmpty( name ) ){
+            name = name.trim();
+        }
+        List<CommAppOutput> commAppOutputs = commAppDao.findComms(name);
+        if( null == commAppOutputs || commAppOutputs.size()<=0 ){
+            return Result.fail("暂无数据");
+        }
+        String [] ArrGoodIds = new String[commAppOutputs.size()];
+        for ( int i=0 ; i< commAppOutputs.size(); i++  ){
+            ArrGoodIds [i] = commAppOutputs.get(i).getId() + "";
+        }
+        try{
+            List<String> salesNum = appCommSalesService.countSoldCommNum( ArrGoodIds );
+            // 拿到对应商品id 的销量， 并且赋值给CommAppOutput的销量属性
+            for( int i =0; i< commAppOutputs.size(); i++ ){
+                commAppOutputs.get(i).setSaleNum( Integer.valueOf( salesNum.get(i) ) );
+            }
+        }catch (Exception e){
+            logger.info("发生异常",e);
+            PageInfo<CommAppOutput> pageInfo = new PageInfo(commAppOutputs);
+            return Result.success("查询成功",pageInfo );
+        }
+        PageInfo<CommAppOutput> pageInfo = new PageInfo(commAppOutputs);
+        return Result.success("查询成功",pageInfo );
+    }
+
 
 
 }

@@ -52,7 +52,7 @@ public class CommAppController {
         return commAppService.getBrandName(name);
     }
 
-    @ApiOperation(value="根据id查询商品详情", notes="根据供应商商品表ID查询商品详情 【责任人：巨江坤】")
+    @ApiOperation(value="【12】根据id查询商品详情", notes="根据供应商商品表ID查询商品详情 【责任人：许鹏飞】")
     @GetMapping(value="/getCommodity/{id}")
     public Result getCommodity(@PathVariable Long id){
         return commAppService.getCommodity(id);
@@ -105,6 +105,16 @@ public class CommAppController {
     public Result searchGoods(@PathVariable String goodsName){
         return commAppService.getGoods(goodsName);
     }
+
+
+    @ApiOperation(value="模糊搜索商品", notes="根据商品名称，品牌名称，供应商名称模糊搜索商品【责任人：许鹏飞】")
+    @GetMapping(value="/searchCommsByName")
+    public Result searchComms(@RequestParam(required = false) String name,
+                              @RequestParam(required = false) Integer pageNum,
+                              @RequestParam(required = false) Integer pageSize ){
+        return commAppService.getComms(name, pageNum, pageSize);
+    }
+
 
 
 
