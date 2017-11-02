@@ -17,53 +17,43 @@ import java.util.Date;
  * @author: sha.chen
  * @Date: Created in 2017/10/30 15:00
  */
-
+@Getter
+@Setter
 @ToString
 public class InvoiceContent {
 
     /**
      * 发票内容id
      */
-    @Getter
-    @Setter
+
     private Long id;
 
     /**
      * 发票内容名称
      */
-    @Getter
-    @Setter
-    @Length(max = 20)
+
+    @Length(max = 20,message = "内容长度不能超过20个字符")
     private String invoiceContentName;
 
     /**
      * 操作人（即登陆的账号名）
      */
-    @Getter
-    @Setter
     private String operator;
 
     /**
      * 排序
      */
-    @Getter
-    @Setter
     private int sort;
 
     /**
      * 创建时间
      */
-    @Getter
-    @Setter
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GTM+8")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date createAt;
 
     /**
      * 更新时间
      */
-    @Getter
-    @Setter
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GTM+8")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date updateAt;
-
 }

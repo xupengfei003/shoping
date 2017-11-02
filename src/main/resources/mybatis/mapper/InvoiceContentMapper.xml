@@ -64,4 +64,9 @@
     <select id="countInvoiceContent" parameterType="string" resultType="int">
         SELECT COUNT(id) FROM invoice_content WHERE invoice_content_name = #{invoiceContentName}
     </select>
+
+    <!--统计发票内容列表条数-->
+    <select id="countTotal" resultType="int">
+        SELECT COUNT(id) FROM invoice_content
+    </select>
 </mapper>
