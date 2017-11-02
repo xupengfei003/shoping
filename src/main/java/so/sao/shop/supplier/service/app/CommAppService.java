@@ -105,10 +105,11 @@ public interface CommAppService {
  /**
   * 根据商品名称模糊查询商品，返回商品列表
   *
-  * @param goodsName 商品名称
+  * @param name 搜索名称
+  * @param nameType 名称类型(0:供应商名称，1：商品名称，2:品牌名称)
   * @return
   */
- Result getGoods(String goodsName);
+ Result getGoods(String name, int nameType);
 
  /**
   * 根据供应商商品ID获取商品详细信息
