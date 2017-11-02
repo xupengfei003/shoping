@@ -110,7 +110,7 @@
   <!-- 查询出省市区编码字段-->
   <select id="selectById" resultMap="BaseResultMap" parameterType="java.lang.Long" >
     select
-    <include refid="Base_Column_List" />, business_type ,regist_address_province,
+    <include refid="Base_Column_List" />, freight_rules, business_type ,regist_address_province,
     regist_address_city, regist_address_district,
     contract_register_address_province, contract_register_address_city,
     contract_register_address_district

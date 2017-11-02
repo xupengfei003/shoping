@@ -52,7 +52,7 @@ public class CommAppController {
         return commAppService.getBrandName(name);
     }
 
-    @ApiOperation(value="根据id查询商品详情", notes="根据供应商商品表ID查询商品详情 【责任人：巨江坤】")
+    @ApiOperation(value="【12】根据id查询商品详情", notes="根据供应商商品表ID查询商品详情 【责任人：许鹏飞】")
     @GetMapping(value="/getCommodity/{id}")
     public Result getCommodity(@PathVariable Long id){
         return commAppService.getCommodity(id);
