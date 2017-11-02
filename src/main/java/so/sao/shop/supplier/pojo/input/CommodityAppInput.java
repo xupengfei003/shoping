@@ -28,6 +28,11 @@ public class CommodityAppInput {
     private Long categoryThreeId;
 
     /**
+     * 匹配商品名称，供应商名称，品牌名
+     */
+    private String name;
+
+    /**
      * 页数
      */
     private Integer pageNum;
@@ -105,5 +110,13 @@ public class CommodityAppInput {
 
     public void setCategoryOneId(Long categoryOneId) {
         this.categoryOneId = categoryOneId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }
