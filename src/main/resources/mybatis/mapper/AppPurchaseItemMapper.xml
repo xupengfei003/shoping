@@ -14,7 +14,8 @@
         <result column="pay_id" property="payId"/>
     </resultMap>
     <sql id="App_Goods_Column_List">
-       g.goods_id, g.goods_image, g.goods_name, g.goods_unit_price, g.goods_number, g.goods_tatol_price, g.goods_attribute, p.order_id,p.pay_id
+       g.goods_id, g.goods_image, g.goods_name, g.goods_unit_price, g.goods_number,
+       g.goods_tatol_price, g.goods_attribute, p.order_id,p.pay_id
     </sql>
     <!--根据订单ID列表查询商品详情-->
     <select id="findOrderItemList" parameterType="java.util.List" resultMap="AppGoodsAllList">

@@ -1,11 +1,10 @@
 package so.sao.shop.supplier.dao.app;
 
 import org.apache.ibatis.annotations.Param;
+import so.sao.shop.supplier.domain.ReceiptPurchase;
 import so.sao.shop.supplier.pojo.vo.AppPurchasesVo;
 
-import java.math.BigInteger;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created by acer on 2017/9/6.
@@ -48,4 +47,14 @@ public interface AppPurchaseDao {
      * @throws Exception 异常
      */
     List<AppPurchasesVo> findOrderByOrderIds(@Param("orderIds") List<String> orderIds) throws Exception;
+
+    /**
+     * 根据订单编号查询发票信息
+     *
+     * @param orderIds 订单ID
+     * @return List<ReceiptPurchase> 发票信息列表
+     */
+    List<ReceiptPurchase> findReceiptByOrderIds(@Param("orderIds") List<String> orderIds);
+
+
 }

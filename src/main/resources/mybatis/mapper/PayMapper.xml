@@ -10,7 +10,8 @@
         updated_at = #{payInput.updatedAt},
         order_status = #{payInput.orderStatus},
         pay_amount = #{payInput.orderPrice},
-        pay_status = #{payInput.payStatus}
+        pay_status = #{payInput.payStatus},
+        pay_amount = order_total_price
         WHERE pay_id = #{payInput.orderId}
     </update>
 
@@ -38,4 +39,13 @@
         FROM purchase
         WHERE pay_id = #{payId}
     </select>
+    <!--更新实付金额-->
+    <update id="updatePayAmountByOrderId" parameterType="java.util.Map">
+        <foreach collection="payAmountMap" item="payAmount" index="orderId" open="" close="" separator=";">
+            UPDATE purchase
+            SET
+            pay_amount = #{payAmount}
+            WHERE order_id = #{orderId}
+        </foreach>
+    </update>
 </mapper>
