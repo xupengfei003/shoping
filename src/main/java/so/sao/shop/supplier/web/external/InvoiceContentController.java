@@ -44,6 +44,7 @@ public class InvoiceContentController {
     }
 
     @ApiOperation(value = "查询发票内容列表",notes = "查询发票内容列表")
+    @GetMapping(value="/searchAll")
     public Result searchAll(@RequestParam(required = false) Integer pageNum, @RequestParam(required = false) Integer pageSize){
         return invoiceContentService.searchInvoiceContents(pageNum,pageSize);
     }
