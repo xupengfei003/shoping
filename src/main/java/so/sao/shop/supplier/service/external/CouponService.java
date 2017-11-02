@@ -3,6 +3,9 @@ package so.sao.shop.supplier.service.external;
 import so.sao.shop.supplier.domain.external.Coupon;
 import so.sao.shop.supplier.pojo.Result;
 
+import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.InvocationTargetException;
+
 /**
  * <p>Version: shop-portal V0.9.0 </p>
  * <p>Title: CouponService</p>
@@ -20,6 +23,7 @@ public interface CouponService {
     /**
      * 添加优惠券
      * @param coupon
+
      * @return
      */
     Result addCoupon(Coupon coupon);

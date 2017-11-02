@@ -11,6 +11,7 @@ import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.service.external.CouponService;
 
 import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.InvocationTargetException;
 
 
 /**
@@ -30,11 +31,10 @@ public class CouponContorller {
     @Autowired
     private CouponService couponService;
 
-
     @ApiOperation(value = "添加优惠券",notes = "添加优惠券【负责人：王翼云】")
     @PostMapping(value = "/save" )
     public Result save(@RequestBody Coupon coupon) {
-        logger.debug(coupon.toString());
+
         return couponService.addCoupon(coupon);
     }
 
@@ -46,7 +46,7 @@ public class CouponContorller {
 
     @ApiOperation(value = "搜索优惠券列表信息",notes = "查询优惠券信息【负责人：王翼云】")
     @GetMapping("/search")
-    public Result searchCoupons(String name,Integer[] couponStatus,Integer pageNum,Integer pageSize) {
+    public Result searchCoupons(String name,Integer[] couponStatus,Integer pageNum,Integer pageSize, HttpServletRequest request){
         return couponService.searchCoupons(name,couponStatus,pageNum,pageSize);
     }
 

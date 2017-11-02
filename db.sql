@@ -105,6 +105,7 @@ CREATE TABLE `coupon` (
   `use_end_time` DATETIME NULL DEFAULT NULL COMMENT '使用结束时间',
   `create_at` DATETIME NULL DEFAULT NULL COMMENT '记录创建时间',
   `update_at` DATETIME NULL DEFAULT NULL COMMENT '更新时间',
+  `operator` varchar(50) DEFAULT NULL COMMENT '操作人',
   PRIMARY KEY (`id`)
 )
   COLLATE='utf8_general_ci'
@@ -149,8 +150,6 @@ CREATE TABLE `receipt_purchase` (
   PRIMARY KEY (`id`),
   KEY `order_id_index` (`order_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='发票-订单关系表';
-
-
 
 
 
