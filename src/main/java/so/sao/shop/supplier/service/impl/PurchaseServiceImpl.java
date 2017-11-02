@@ -288,31 +288,6 @@ public class PurchaseServiceImpl implements PurchaseService {
             purchaseInfoVo.setPayAmount(NumberUtil.number2Thousand(purchase.getPayAmount()));
             //退款金额
             purchaseInfoVo.setDrawbackPrice(NumberUtil.number2Thousand(purchase.getDrawbackPrice()));
-//            purchaseInfoVo.setOrderId(purchase.getOrderId());
-//            purchaseInfoVo.setOrderReceiverName(purchase.getOrderReceiverName());
-//            purchaseInfoVo.setOrderReceiverMobile(purchase.getOrderReceiverMobile());
-//            purchaseInfoVo.setOrderCreateTime(purchase.getOrderCreateTime());
-//            purchaseInfoVo.setOrderPaymentMethod(purchase.getOrderPaymentMethod());
-//            purchaseInfoVo.setOrderPaymentNum(purchase.getOrderPaymentNum());
-//            purchaseInfoVo.setOrderPaymentTime(purchase.getOrderPaymentTime());
-//            //商品金额小计
-//            purchaseInfoVo.setOrderPrice(NumberUtil.number2Thousand(purchase.getOrderPrice()));
-//            purchaseInfoVo.setOrderStatus(purchase.getOrderStatus().shortValue());
-//            purchaseInfoVo.setOrderShipMethod(purchase.getOrderShipMethod());
-//            purchaseInfoVo.setOrderShipmentNumber(purchase.getOrderShipmentNumber());
-//            purchaseInfoVo.setLogisticsCompany(purchase.getLogisticsCompany());
-//            purchaseInfoVo.setDistributorName(purchase.getDistributorName());
-//            purchaseInfoVo.setDistributorMobile(purchase.getDistributorMobile());
-//            purchaseInfoVo.setDrawbackTime(purchase.getDrawbackTime());
-//            purchaseInfoVo.setOrderAddress(purchase.getOrderAddress());
-//            //折扣优惠
-//            purchaseInfoVo.setDiscount(NumberUtil.number2Thousand(purchase.getDiscount()));
-//            //合计金额
-//            purchaseInfoVo.setOrderTotalPrice(NumberUtil.number2Thousand(purchase.getOrderTotalPrice()));
-//            //实付金额
-//            purchaseInfoVo.setPayAmount(NumberUtil.number2Thousand(purchase.getPayAmount()));
-//            //退款金额
-//            purchaseInfoVo.setDrawbackPrice(NumberUtil.number2Thousand(purchase.getDrawbackPrice()));
             //添加订单明细列表
             List<PurchaseItemVo> purchaseItemVoList = purchaseItemDao.getOrderDetailByOId(purchase.getOrderId());
             //转换金额为千分位
@@ -326,6 +301,11 @@ public class PurchaseServiceImpl implements PurchaseService {
                 purchaseInfoVo.setPurchaseItemVoList(purchaseItemVoList);
             } else {
                 purchaseInfoVo.setPurchaseItemVoList(new ArrayList<>());
+            }
+            ReceiptPurchase receiptPurchase = receiptPurchaseDao.findReceiptItemByOrderId(orderId);
+            purchaseInfoVo.setIsReceipt(0);
+            if(null != receiptPurchase){
+                purchaseInfoVo.setIsReceipt(1);
             }
         }
         return purchaseInfoVo;

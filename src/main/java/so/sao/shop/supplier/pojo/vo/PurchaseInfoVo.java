@@ -119,6 +119,11 @@ public class PurchaseInfoVo {
     private String drawbackPrice;
 
     /**
+     * 该订单是否有发票
+     */
+    private Integer isReceipt;
+
+    /**
      * 订单明细列表
      */
     private List<PurchaseItemVo> purchaseItemVoList;
@@ -297,5 +302,13 @@ public class PurchaseInfoVo {
 
     public void setDrawbackPrice(String drawbackPrice) {
         this.drawbackPrice = drawbackPrice;
+    }
+
+    public Integer getIsReceipt() {
+        return isReceipt;
+    }
+
+    public void setIsReceipt(Integer isReceipt) {
+        this.isReceipt = isReceipt;
     }
 }
