@@ -25,6 +25,7 @@
         <result column="STATUS" property="status"/>
         <result column="REMARK" property="remark"/>
         <result column="DESCRIPTION" property="description"/>
+        <result column="MIN_ORDER_QUANTITY" property="minOrderQuantity"/>
     </resultMap>
 
 
@@ -845,6 +846,7 @@
         id,
         supplier_id,
         price,
+        min_order_quantity,
         min_img,
         measure_spec_id,
         rule_val,

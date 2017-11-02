@@ -113,6 +113,27 @@ public interface CommAppDao {
      */
     List<CommAppOutput>  findComms(@Param("name") String name);
 
+    /**
+     * 根据科属的等级参数获取所有的1或2或3级科属或供应商名下的1或2或3级科属
+     *
+     * @param supplierId 供应商ID
+     * @param level 分类等级
+     * @return
+     */
+    List<CategoryOutput> findSupplierCategories( @Param("supplierId") Long supplierId, @Param("level") Integer level );
 
+    /**
+     * 根据供应商ID查询其可用的所有商品分类信息或所有可用的商品分类信息
+     * @param supplierId
+     * @return
+     */
+    List<CategoryOutput> findBySupplierId(@Param("supplierId") Long supplierId);
+
+    /**
+     * 根据一类分类ID查询
+     * @param id 一类分类ID
+     * @return
+     */
+    List<CategoryOutput> findOneLevel (@Param("id") Long id);
 
 }

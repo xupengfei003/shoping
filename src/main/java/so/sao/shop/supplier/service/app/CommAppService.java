@@ -126,5 +126,24 @@ public interface CommAppService {
   */
  Result getComms(String name, Integer pageNum, Integer pageSize);
 
+ /**
+  * 根据分类等级查询全部商品科属信息或供应商商品科属信息
+  *
+  * @param supplierId 供应商ID
+  * @param level 商品科属分类等级
+  * @return
+  * @throws Exception
+  */
+ Result getCategories(Long supplierId,Integer level) throws Exception;
+
+ /**
+  * 根据一级分类ID查询对应二级及三级分类信息
+  *
+  * @param supplierId 供应商ID
+  * @param id  一级分类ID
+  * @return
+  * @throws Exception
+  */
+ Result getTwoAndThreeCategories(Long supplierId, Long id) throws Exception;
 
 }

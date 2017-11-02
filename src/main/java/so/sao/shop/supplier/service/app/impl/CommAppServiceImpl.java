@@ -385,6 +385,134 @@ public class CommAppServiceImpl implements CommAppService {
         return Result.success("查询成功",pageInfo );
     }
 
+    /**
+     * 根据分类等级查询全部商品科属信息或供应商商品科属信息
+     *
+     * @param supplierId 供应商ID
+     * @param level 商品科属分类等级
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public Result getCategories(Long supplierId, Integer level) throws Exception {
+        List<CategoryOutput> list = commAppDao.findSupplierCategories(supplierId,level);
+        if(!Ognl.CollectionIsNotEmpty(list)){
+            return Result.success("没有查询到供应商该等级的商品科属信息");
+        }
+        return Result.success("查询成功",list);
+    }
 
+    /**
+     * 根据一级分类ID查询对应二级及三级分类信息
+     *
+     * @param supplierId 供应商ID
+     * @param id  一级分类ID
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public Result getTwoAndThreeCategories(Long supplierId, Long id) throws Exception {
+        /*
+            1.根据供应商ID查询其可用的所有商品分类信息或所有可用的商品分类信息
+            2.将查询结果根据ID分成单条,根据PID分组,根据level分组
+            3.若不传id,那么查出所有的2级分类及其三级分类，若传入id,找出其对应的二级和三级分类
+            4.若传入id,先验证是否为一级分类ID，再判断供应商的商品分类信息中是否有该一级分类ID
+            5.查询传入的一级分类Id下对应的2级和3级分类
+         */
+        // 返回用map
+        Map<String,Object> resultMap = new LinkedHashMap<>();
+        // 1.根据供应商ID查询其可用的所有商品分类信息或所有可用的商品分类信息
+        List<CategoryOutput> list = commAppDao.findBySupplierId(supplierId);
+        if (!Ognl.CollectionIsNotEmpty(list)){
+            return Result.success("成功",null);
+        }
+        // 2.将查询结果根据ID分成单条,根据PID分组,根据level分组
+        Map<Long ,CategoryOutput> map = new HashMap<>();
+        Map<Long ,List<CategoryOutput>> pMap = new HashMap<>();
+        Map<Integer ,List<CategoryOutput>> twoMap = new HashMap<>();
+        for (CategoryOutput comm:list) {
+            //根据ID分成单条
+            map.put(comm.getId(),comm);
+            //根据PID分组
+            if (Ognl.isNull(pMap.get(comm.getPid()))){
+                List<CategoryOutput> pList = new ArrayList<>();
+                pList.add(comm);
+                pMap.put(comm.getPid(),pList);
+            }else {
+                List<CategoryOutput> pList = pMap.get(comm.getPid());
+                pList.add(comm);
+                pMap.put(comm.getPid(),pList);
+            }
+            //根据level分组
+            if (Ognl.isNull(twoMap.get(comm.getLevel()))){
+                List<CategoryOutput> tList = new ArrayList<>();
+                tList.add(comm);
+                twoMap.put(comm.getLevel(),tList);
+            }else {
+                List<CategoryOutput> tList = twoMap.get(comm.getLevel());
+                tList.add(comm);
+                twoMap.put(comm.getLevel(),tList);
+            }
+        }
+        // 3.若不传id,那么查出所有的2级分类及其三级分类，若传入id,找出其对应的二级和三级分类
+        if (Ognl.isNull(id)){
+            //取出2级集合
+            List<CategoryOutput> twoList = twoMap.get(2);
+            List childrenList = new ArrayList();
+            //循环递归
+            for (CategoryOutput com:twoList) {
+                Map<String,Object> children= nodeTree(map,pMap,com.getId());
+                childrenList.add(children);
+            }
+            resultMap.put("options",childrenList);
+            return Result.success("成功",resultMap);
+        } else {
+            // 4.若传入id,先验证是否为一级分类ID，再判断供应商的商品分类信息中是否有该一级分类ID
+            // 验证是否为一级分类ID
+            List<CategoryOutput> oneLevelList = commAppDao.findOneLevel(id);
+            if (Ognl.isNull(oneLevelList) || 0 == oneLevelList.size()){
+                return Result.fail("传入的分类ID不是可用的一级ID");
+            }
+            // 判断供应商的商品分类信息中是否有该一级分类ID
+            if (Ognl.isNull(map.get(id))){
+                return Result.fail("传入的一级分类ID不是该供应商的一级分类ID");
+            }
+            // 5.查询传入的一级分类Id下对应的2级和3级分类
+            Map<String,Object> children= nodeTree(map,pMap,id);
+            List childrenList = new ArrayList();
+            childrenList.add(children);
+            resultMap.put("options",childrenList);
+            return Result.success("成功",resultMap);
+        }
+    }
+
+    /**
+     * 根据id查询其子节点集
+     * @param map
+     * @param pMap
+     * @param id
+     * @return
+     */
+    private Map<String,Object> nodeTree(Map<Long ,CategoryOutput> map,Map<Long ,List<CategoryOutput>> pMap ,Long id ){
+        Map<String,Object> resultMap = new LinkedHashMap<>();
+        //根据id获取节点对象
+        CategoryOutput commCategory= map.get(id);
+        //封装对象
+        resultMap.put("value",commCategory.getId());
+        resultMap.put("label",commCategory.getName());
+        //查询该id下的所有子节点
+        List<CategoryOutput> list= pMap.get(id);
+        if (Ognl.isNull(list)){
+            return resultMap;
+        }
+        //子节点集合
+        List childrenList = new ArrayList();
+        for (CategoryOutput comm:list) {
+            Map<String,Object> ccvo = nodeTree(map,pMap,comm.getId());
+            childrenList.add(ccvo);
+        }
+        resultMap.put("children",childrenList);
+        return resultMap;
+    }
 
 }

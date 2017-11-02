@@ -115,7 +115,38 @@ public class CommAppController {
         return commAppService.getComms(name, pageNum, pageSize);
     }
 
+    /**
+     * 根据分类等级查询全部商品科属信息或供应商商品科属信息
+     *
+     * @param supplierId 供应商ID
+     * @param level  商品科属分类等级
+     * @return
+     * @throws Exception
+     */
+    @ApiOperation(value = "根据分类等级查询全部商品科属信息或供应商商品科属信息", notes = "根据分类等级查询商品科属信息【责任人：方洲】")
+    @GetMapping(value = "/searchCategoriesByLevel")
+    public Result getCategoriesByLevel(Long supplierId,@RequestParam(required = true)Integer level) throws Exception {
+        // 校验分类等级参数，正确则进行查询，错误则返回查询失败
+        if (new Integer(1).equals(level) || new Integer(2).equals(level) || new Integer(3).equals(level)){
+            return commAppService.getCategories(supplierId,level);
+        } else {
+            return Result.fail("商品科属分类等级错误");
+        }
+    }
 
+    /**
+     * 根据一级分类ID查询对应二级及三级分类信息
+     *
+     * @param supplierId 供应商ID
+     * @param id  一级分类ID
+     * @return
+     * @throws Exception
+     */
+    @ApiOperation(value = "根据一级分类ID查询对应二级及三级分类信息", notes = "根据一级分类ID查询对应二级及三级分类信息【责任人：方洲】")
+    @GetMapping(value = "/twoAndThreeCategories")
+    public Result getTwoAndThreeCategories(Long supplierId,Long id) throws Exception {
+        return commAppService.getTwoAndThreeCategories(supplierId,id);
+    }
 
 
 }
