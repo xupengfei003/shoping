@@ -280,4 +280,11 @@ public interface PurchaseService {
      * @return List<PurchaseInfoVo>
      */
     List<PurchaseItemVo> findPurchaseItemByIds(List<String> orderIds);
+
+    /**
+     * 订单详情-发票详情
+     * @param orderId
+     * @return Result 结果
+     */
+    Result findReceiptItemByOrderId(String orderId);
 }

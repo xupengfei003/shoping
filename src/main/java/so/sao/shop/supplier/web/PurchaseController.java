@@ -586,9 +586,26 @@ public class PurchaseController {
      * @throws Exception
      */
     @ApiOperation(value = "供应商是否支持发票接口", notes = "供应商是否支持发票接口【负责人：郑振海】")
-    @GetMapping("isOpenReceipt/{supplierId}")
+    @GetMapping("/isOpenReceipt/{supplierId}")
     public  Result updateLogisticInfoByOrderId(@PathVariable("supplierId") Long supplierId) throws Exception {
 
         return invoiceSettingService.getBySupplierId(supplierId);
     }
+
+    /**
+     * 订单详情-发票详情
+     *
+     * @return Result 结果
+     */
+    @ApiOperation(value = "订单详情-发票详情接口", notes = "订单详情-发票详情接口【负责人：郑振海】")
+    @GetMapping("/receiptItem")
+    public  Result findReceiptItemByOrderId(String orderId) throws Exception {
+        //1.入参校验
+        if (Ognl.isEmpty(orderId)) {
+            return Result.fail(Constant.MessageConfig.MSG_NOT_EMPTY);
+        }
+        return purchaseService.findReceiptItemByOrderId(orderId);
+    }
+
+
 }

@@ -82,6 +82,8 @@ public class PurchaseServiceImpl implements PurchaseService {
     private FreightRulesService freightRulesService;
     @Resource
     private CommInventoryService commInventoryService;
+    @Resource
+    private ReceiptPurchaseDao receiptPurchaseDao;
     /**
      * 保存订单信息
      *
@@ -1831,4 +1833,14 @@ public class PurchaseServiceImpl implements PurchaseService {
         return orderStatus;
     }
 
+    /**
+     * 订单详情-发票详情
+     *
+     * @return Result 结果
+     */
+    @Override
+    public Result findReceiptItemByOrderId(String orderId) {
+
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS,receiptPurchaseDao.findReceiptItemByOrderId(orderId));
+    }
 }
