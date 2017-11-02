@@ -29,8 +29,6 @@ public class HotCategoriesServiceImpl implements HotCategoriesService {
     private HotCategoriesDao hotCategoriesDao;
     @Autowired
     private AzureBlobService azureBlobService;
-    @Autowired
-    private CommCategoryDao commCategoryDao;
     /**
      * 查询热门分类集合
      *
@@ -43,11 +41,6 @@ public class HotCategoriesServiceImpl implements HotCategoriesService {
         //开始分页
         PageTool.startPage(pageNum, pageSize);
         List<HotCategories> hotCategories = hotCategoriesDao.find();
-        for (HotCategories hotCate : hotCategories){
-            hotCate.setCategoryOneName(commCategoryDao.findById(hotCate.getCategoryOneId()).getName());
-            hotCate.setCategoryTwoName(commCategoryDao.findById(hotCate.getCategoryTwoId()).getName());
-            hotCate.setCategoryThreeName(commCategoryDao.findById(hotCate.getCategoryThreeId()).getName());
-        }
         //将查询列表放置到分页对象中
         PageInfo pageInfo = new PageInfo(hotCategories);
         if (hotCategories != null && hotCategories.size() > 0)
