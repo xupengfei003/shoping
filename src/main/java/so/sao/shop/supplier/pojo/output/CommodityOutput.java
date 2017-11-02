@@ -231,6 +231,12 @@ public class CommodityOutput {
      */
     private Integer cartonVal;
 
+    /**
+     *是否超出配送范围  1超出配送范围,0没有超出
+     */
+    private Integer OutOfDeliveryRange;
+
+
     public Long getInventoryMinimum() {
         return inventoryMinimum;
     }
@@ -620,5 +626,13 @@ public class CommodityOutput {
 
     public void setScaId(Long scaId) {
         this.scaId = scaId;
+    }
+
+    public Integer getOutOfDeliveryRange() {
+        return OutOfDeliveryRange;
+    }
+
+    public void setOutOfDeliveryRange(Integer outOfDeliveryRange) {
+        OutOfDeliveryRange = outOfDeliveryRange;
     }
 }

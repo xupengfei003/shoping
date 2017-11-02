@@ -298,7 +298,7 @@ public class CommAppServiceImpl implements CommAppService {
     }
 
     /**
-     * 根据供应商商品ID获取商品详情
+     * 【12】根据供应商商品ID获取商品详情
      * @param id
      * @return
      */
@@ -322,6 +322,7 @@ public class CommAppServiceImpl implements CommAppService {
             try {
                 countSold = appCommSalesService.countSoldCommNum(new String[]{commodityOutput.getId().toString()});
             } catch (Exception e) {
+                logger.info("商品销量获取异常",e);
                 e.printStackTrace();
             }
             //将获取销量放入出参
@@ -330,6 +331,13 @@ public class CommAppServiceImpl implements CommAppService {
             Account account=accountDao.selectById(commodityOutput.getSupplierId());
             if (null == account){
                 return Result.success("查询成功",commodityOutput);
+            }
+            //  运费规则(0:通用规则 1:配送规则)
+            if( 0 ==  account.getFreightRules() ){
+                //  是否超出配送范围  1超出配送范围,0没有超出
+                 commodityOutput.setOutOfDeliveryRange(0);
+            }else {
+                commodityOutput.setOutOfDeliveryRange(1);
             }
             commodityOutput.setProviderName(account.getProviderName());  //将获取供应商名称放入出参
             commodityOutput.setContractCity(account.getContractRegisterAddressCity());  //将获取供应商合同所在市放入出参
