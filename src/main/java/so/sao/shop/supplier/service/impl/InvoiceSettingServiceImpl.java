@@ -2,6 +2,7 @@ package so.sao.shop.supplier.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.dao.InvoiceSettingDao;
 import so.sao.shop.supplier.domain.InvoiceSetting;
@@ -33,6 +34,7 @@ public class InvoiceSettingServiceImpl implements InvoiceSettingService {
      * @param supplierId 供应商ID
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void saveInvoiceSetting(Long supplierId) {
         InvoiceSetting invoiceSetting = new InvoiceSetting();
         invoiceSetting.setSupplierId(supplierId);
@@ -50,6 +52,7 @@ public class InvoiceSettingServiceImpl implements InvoiceSettingService {
      * @param supplierId 供应商ID
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Result updateInvoiceSetting(InvoiceSettingUpdateInput invoiceSettingUpdateInput, Long supplierId) {
         InvoiceSetting invoiceSetting = BeanMapper.map(invoiceSettingUpdateInput, InvoiceSetting.class);
         invoiceSetting.setSupplierId(supplierId);

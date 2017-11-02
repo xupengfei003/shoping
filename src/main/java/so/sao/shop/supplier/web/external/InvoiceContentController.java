@@ -8,6 +8,8 @@ import so.sao.shop.supplier.domain.external.InvoiceContent;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.service.external.InvoiceContentService;
 
+import javax.validation.Valid;
+
 /**
  * <p>Version: 运维平台 V0.9.0 </p>
  * <p>Title: InvoiceContent</p>
@@ -26,14 +28,14 @@ public class InvoiceContentController {
 
     @ApiOperation(value = "添加发票内容",notes = "添加发票内容")
     @PostMapping(value = "/create")
-    public Result create(@RequestBody InvoiceContent invoiceContent){
+    public Result create(@RequestBody @Valid InvoiceContent invoiceContent){
 
         return invoiceContentService.saveInvocieContent(invoiceContent);
     }
 
     @ApiOperation(value = "编辑发票内容",notes = "编辑发票内容")
     @PutMapping(value = "/update")
-    public Result update(@RequestBody InvoiceContent invoiceContent){
+    public Result update(@RequestBody @Valid InvoiceContent invoiceContent){
         return invoiceContentService.updateInvoiceContent(invoiceContent);
     }
 

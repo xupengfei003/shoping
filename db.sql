@@ -152,4 +152,20 @@ CREATE TABLE `receipt_purchase` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='发票-订单关系表';
 
 
+/*添加【数据库已有的供应商】的发票设置数据*/
+INSERT INTO `invoice_setting` (
+  `supplier_id`,
+  `status`,
+  `invoice`,
+  `special_invoice`
+)
+SELECT
+  `account_id` AS `supplier_id`,
+  '0' AS `status`,
+  '1' AS `invoice`,
+  '0' AS `special_invoice`
+FROM
+  `account`
+;
+
 
