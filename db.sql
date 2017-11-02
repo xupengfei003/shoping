@@ -10,7 +10,8 @@ ALTER TABLE purchase
 	ADD order_total_price DECIMAL(10,2) COMMENT '合计总价' AFTER `discount`,
 	ADD pay_amount DECIMAL(10,2) COMMENT '实付金额' AFTER `order_total_price`,
 	ADD drawback_price DECIMAL(10,2) DEFAULT 0  NULL COMMENT '退款金额' AFTER `pay_amount`,
-	ADD prefix_order_status INT(1) DEFAULT 0  NULL COMMENT '上一个订单状态（只有5和7有该状态）' AFTER `drawback_price`;
+	ADD prefix_order_status INT(1) DEFAULT 0  NULL COMMENT '上一个订单状态（只有5和7有该状态）' AFTER `drawback_price`,
+	ADD coupon_id BIGINT(20) COMMENT '优惠券ID' AFTER `prefix_order_status`;
 
 
 

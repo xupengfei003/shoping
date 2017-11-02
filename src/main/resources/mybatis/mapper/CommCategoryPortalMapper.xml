@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="so.sao.shop.supplier.dao.external.CommCategoryPortalDao">
+
+    <resultMap id="baseCommCategory" type="so.sao.shop.supplier.domain.CommCategory">
+        <id column="id" property="id"/>
+        <result column="pid" property="pid"/>
+        <result column="name" property="name"/>
+        <result column="remark" property="remark"/>
+        <result column="level" property="level"/>
+        <result column="sort" property="sort"/>
+        <result column="deleted" property="deleted"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+        <result column="status" property="status"/>
+    </resultMap>
+
+    <sql id="baseColumns">
+        id AS id,
+        pid AS pid,
+        name AS name,
+        level AS level,
+        remark AS remark,
+        sort AS sort,
+        deleted AS deleted,
+        updated_at AS updated_at,
+        status AS status,
+        code
+    </sql>
+
+
+    <!--批量修改商品信息-->
+    <update id="updateCommCategorys" parameterType="java.util.List">
+        <foreach collection ="commCategoryPortalInputs" item="commCategoryPortalInput" index= "index" separator =";">
+            UPDATE `comm_category`
+            SET
+            `name` = #{commCategoryPortalInput.name},
+            `status` = #{commCategoryPortalInput.status},
+            `updated_at` = #{commCategoryPortalInput.updateTime}
+            WHERE `id` = #{commCategoryPortalInput.id}
+        </foreach>
+    </update>
+
+    <!--查询表中所有数据-->
+    <select id="findAll" resultMap="baseCommCategory">
+        SELECT
+        cy.id,cy.name ,cy.level, cy.pid, cy.status
+        FROM comm_category cy
+    </select>
+
+</mapper>

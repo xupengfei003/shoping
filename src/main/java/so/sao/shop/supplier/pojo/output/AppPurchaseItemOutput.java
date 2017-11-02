@@ -1,6 +1,7 @@
 package so.sao.shop.supplier.pojo.output;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import so.sao.shop.supplier.domain.ReceiptPurchase;
 import so.sao.shop.supplier.pojo.vo.AppPurchaseItemVo;
 import so.sao.shop.supplier.pojo.vo.AppPurchaseShipMethodVo;
 import so.sao.shop.supplier.util.NumberUtil;
@@ -89,6 +90,14 @@ public class AppPurchaseItemOutput {
      * 订单邮费 (0:包邮，非零显示具体金额)
      */
     private String orderPostage;
+    /**
+     * 折扣优惠
+     */
+    private String discount;
+    /**
+     * 优惠券ID
+     */
+    private Long couponId;
 
     /**
      * 商品信息
@@ -248,5 +257,20 @@ public class AppPurchaseItemOutput {
 
     public void setAppPurchaseShipMethods(List<AppPurchaseShipMethodVo> appPurchaseShipMethods) {
         this.appPurchaseShipMethods = appPurchaseShipMethods;
+    }
+    public String getDiscount() {
+        return NumberUtil.number2Thousand(new BigDecimal(discount));
+    }
+
+    public void setDiscount(String discount) {
+        this.discount = discount;
+    }
+
+    public Long getCouponId() {
+        return couponId;
+    }
+
+    public void setCouponId(Long couponId) {
+        this.couponId = couponId;
     }
 }
