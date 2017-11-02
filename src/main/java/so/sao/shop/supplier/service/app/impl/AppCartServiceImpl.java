@@ -141,6 +141,7 @@ public class AppCartServiceImpl implements AppCartService {
         appCartItem.setUnitName(commUnit.getName());              //计量单位名称
         appCartItem.setCommodityProperties(supplierCommodity.getSku());//sku
         appCartItem.setInventory(supplierCommodity.getInventory());    //库存数
+        appCartItem.setMinOrderQuantity(supplierCommodity.getMinOrderQuantity());//最小起订量
         // 4.校验供应商状态与商品状态
         if (Ognl.isNull(account.getAccountStatus()) || 1 != account.getAccountStatus()) {
             map.put("code", "0");
@@ -206,6 +207,7 @@ public class AppCartServiceImpl implements AppCartService {
         cartItemVo.setCreatedAt(createTime);
         cartItemVo.setUpdatedAt(updateTime);
         cartItemVo.setUserId(userId);
+        cartItemVo.setMinOrderQuantity(cartItem.getMinOrderQuantity());
         //返回转换之后的list
         return cartItemVo;
     }
@@ -566,7 +568,7 @@ public class AppCartServiceImpl implements AppCartService {
             String name = vo.getSupplierName();
             nameMap.put(key, name);
         }
-        // 组装数据
+        // 组装数据并查出供应商的最小起订金额
         List<AppCartItemOut> outList = new ArrayList<>();
         for (AppCartItemVo vo : voList) {
             // 判断输出List里面是否已存在该供应商ID,若存在,跳过此次循环

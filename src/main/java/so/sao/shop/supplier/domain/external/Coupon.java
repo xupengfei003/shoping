@@ -2,10 +2,12 @@ package so.sao.shop.supplier.domain.external;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.beans.factory.annotation.Required;
 
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -25,6 +27,7 @@ public class Coupon {
      * 购物券名称
      */
     @NotEmpty
+    @Size(min = 0,max = 20,message = "名称不能超过20个字符")
     private String name;
     /**
      * 优惠券适用类型，0为全品类
@@ -38,12 +41,12 @@ public class Coupon {
      * 优惠券减免金额/折率
      */
     @NotNull
-    @DecimalMin(value = "0.00" ,message = "不能为负数")
+    @DecimalMin(value = "0.01" ,message = "最小金额为0.01")
     private BigDecimal couponValue;
     /**
      * 优惠券适用金额，满多少可用
      */
-    @DecimalMin(value = "0.00" ,message = "不能为负数")
+    @DecimalMin(value = "0.01" ,message = "最小金额为0.01")
     private BigDecimal usableValue;
     /**
      * 优惠券生效时间
@@ -98,6 +101,16 @@ public class Coupon {
      */
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date updateAt;
+
+    private String operator;
+
+    public String getOperator() {
+        return operator;
+    }
+
+    public void setOperator(String operator) {
+        this.operator = operator;
+    }
 
     public Long getId() {
         return id;
@@ -246,6 +259,7 @@ public class Coupon {
                 ", status=" + status +
                 ", createAt=" + createAt +
                 ", updateAt=" + updateAt +
+                ", operator='" + operator + '\'' +
                 '}';
     }
 }

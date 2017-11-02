@@ -52,8 +52,7 @@ public class AppAccountCouponServiceImpl implements AppAccountCouponService {
     public Result getAccountCoupons(@Param("shopId") Long shopId, BigDecimal usableValue, Integer pageNum, Integer pageSize) {
         PageTool.startPage(pageNum,pageSize);
         List<CouponOutputVo> list = appAccountCouponDao.findAccountCouponsByUserId(shopId,usableValue);
-        PageInfo pageInfo = new PageInfo<>();
-        pageInfo.setList(list);
+        PageInfo pageInfo = new PageInfo<>(list);
         Result result  = Result.success(Constant.MessageConfig.MSG_SUCCESS);
         result.setData(pageInfo);
         return result;
@@ -72,6 +71,7 @@ public class AppAccountCouponServiceImpl implements AppAccountCouponService {
         accountCoupon.setAccountId(shopId);
         accountCoupon.setCouponId(couponId);
         accountCoupon.setCreateAt(new Date());
+        accountCoupon.setUpdateAt(new Date());
         accountCoupon.setStatus(0);
         accountCoupon.setGetTime(new Date());
         Coupon coupon = couponDao.findCouponById(couponId);
@@ -111,8 +111,7 @@ public class AppAccountCouponServiceImpl implements AppAccountCouponService {
     public Result getCouponCenter(Long shopId, Integer pageNum, Integer pageSize) {
         PageTool.startPage(pageNum,pageSize);
         List<CouponOutputVo> list = couponDao.findCouponsByShopId(shopId);
-        PageInfo pageInfo = new PageInfo<>();
-        pageInfo.setList(list);
+        PageInfo pageInfo = new PageInfo<>(list);
         Result result  = Result.success(Constant.MessageConfig.MSG_SUCCESS);
         result.setData(pageInfo);
         return result;

@@ -528,4 +528,27 @@ public interface Constant {
         public static final Integer SPECIAL_INVOICE_OFF = 0;
 
     }
+
+    /**
+     * 智售app商品查询常量
+     */
+    interface AppCommSearch{
+
+        /**
+         * 通过供应商名称查询
+         */
+        public static final int SEARCH_BY_SUPPLIER_NAME = 0;
+
+        /**
+         * 通过商品名称查询
+         */
+        public static final int SEARCH_BY_GOODS_NAME = 1;
+
+        /**
+         * 通过品牌名称查询
+         */
+        public static final int SEARCH_BY_BRAND_NAME = 2;
+
+
+    }
 }
