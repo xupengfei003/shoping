@@ -52,7 +52,7 @@ public class CommAppController {
         return commAppService.getBrandName(name);
     }
 
-    @ApiOperation(value="根据id查询商品详情", notes="根据供应商商品表ID查询商品详情 【责任人：巨江坤】")
+    @ApiOperation(value="【12】根据id查询商品详情", notes="根据供应商商品表ID查询商品详情 【责任人：许鹏飞】")
     @GetMapping(value="/getCommodity/{id}")
     public Result getCommodity(@PathVariable Long id){
         return commAppService.getCommodity(id);
@@ -100,10 +100,10 @@ public class CommAppController {
                                 @RequestParam(required = false) Integer pageNum, @RequestParam(required = false) Integer pageSize){
         return commAppService.listCommodities(supplierId,commName, pageNum, pageSize);
     }
-    @ApiOperation(value="查询商品", notes="根据商品名称模糊查询商品，返回商品列表")
-    @GetMapping(value="/getNames/{goodsName}")
-    public Result searchGoods(@PathVariable String goodsName){
-        return commAppService.getGoods(goodsName);
+    @ApiOperation(value="查询商品", notes="搜索接口（根据商品名称/供应商名称/品牌名称模糊匹配）【责任人：刘刚】")
+    @GetMapping(value="/getNames")
+    public Result searchGoods(@RequestParam String name, @RequestParam Integer nameType){
+        return commAppService.getGoods(name, nameType);
     }
 
 
@@ -115,7 +115,38 @@ public class CommAppController {
         return commAppService.getComms(name, pageNum, pageSize);
     }
 
+    /**
+     * 根据分类等级查询全部商品科属信息或供应商商品科属信息
+     *
+     * @param supplierId 供应商ID
+     * @param level  商品科属分类等级
+     * @return
+     * @throws Exception
+     */
+    @ApiOperation(value = "根据分类等级查询全部商品科属信息或供应商商品科属信息", notes = "根据分类等级查询商品科属信息【责任人：方洲】")
+    @GetMapping(value = "/searchCategoriesByLevel")
+    public Result getCategoriesByLevel(Long supplierId,@RequestParam(required = true)Integer level) throws Exception {
+        // 校验分类等级参数，正确则进行查询，错误则返回查询失败
+        if (new Integer(1).equals(level) || new Integer(2).equals(level) || new Integer(3).equals(level)){
+            return commAppService.getCategories(supplierId,level);
+        } else {
+            return Result.fail("商品科属分类等级错误");
+        }
+    }
 
+    /**
+     * 根据一级分类ID查询对应二级及三级分类信息
+     *
+     * @param supplierId 供应商ID
+     * @param id  一级分类ID
+     * @return
+     * @throws Exception
+     */
+    @ApiOperation(value = "根据一级分类ID查询对应二级及三级分类信息", notes = "根据一级分类ID查询对应二级及三级分类信息【责任人：方洲】")
+    @GetMapping(value = "/twoAndThreeCategories")
+    public Result getTwoAndThreeCategories(Long supplierId,Long id) throws Exception {
+        return commAppService.getTwoAndThreeCategories(supplierId,id);
+    }
 
 
 }

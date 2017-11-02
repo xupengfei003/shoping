@@ -210,12 +210,13 @@
         AND comm.code69
         IN
         (SELECT sc.code69 FROM supplier_commodity sc
-          WHERE sc.deleted = 0
-          AND sc.status=2
-          AND sc.invalid_status=1
+        WHERE sc.deleted = 0
+        AND sc.status=2
+        AND sc.invalid_status=1
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierId)">
             AND sc.supplier_id = #{ supplierId }
-        </if>  )
+        </if>
+        )
         ORDER BY cc.updated_at DESC
     </select>
 
@@ -372,20 +373,21 @@
         ORDER BY sc.updated_at DESC , sc.id DESC
     </select>
     <!--根据商品名称模糊查询商品-->
-    <select id="findGoodsByName" resultType="java.util.Map">
+    <select id="findGoodsByName" resultType="java.lang.String">
         SELECT DISTINCT c.name
-        FROM supplier_commodity sc,
-        commodity c
+        FROM supplier_commodity sc,commodity c,account a,comm_brand cb
         WHERE sc.code69 = c.code69
+        AND  sc.supplier_id = a.account_id
+        AND  c.brand_id = cb.id
         AND sc.deleted = 0
         AND sc.status = 2
         AND sc.invalid_status = 1
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(goodsName)">
-            AND c.name LIKE '${goodsName}%'
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(name)">
+            AND (c.name LIKE '${name}%' OR cb.name LIKE '${name}%' OR a.provider_name LIKE '${name}%')
         </if>
         limit 10
     </select>
-    <!--获取商品详情-->
+    <!--【12】根据供应商商品ID获取商品详情-->
     <select id="findDetail" resultType="so.sao.shop.supplier.pojo.output.CommodityOutput">
         SELECT
         sc.id AS id,
@@ -428,7 +430,7 @@
         FROM
         supplier_commodity sc INNER JOIN (commodity c LEFT JOIN comm_brand cb ON c.brand_id = cb.id) ON sc.code69 = c.code69
         LEFT JOIN comm_measure_spec cms ON sc.measure_spec_id = cms.id LEFT JOIN comm_unit cu ON sc.unit_id = cu.id LEFT JOIN comm_tag ct ON sc.tag_id = ct.id
-        WHERE sc.id = #{id} and sc.invalid_status = 1 AND sc.status = 2 AND sc.deleted = 0
+        WHERE sc.id = #{id} AND sc.status = 2 AND sc.deleted = 0
     </select>
 
     <!--  findComms -->
@@ -485,6 +487,114 @@
             AND  ( acc.provider_name LIKE '%${name}%' OR comm.name LIKE '%${name}%' OR  cb.name LIKE '%${name}%' )
         </if>
     </select>
+
+    <!--根据科属的等级参数获取所有的1或2或3级科属或供应商名下的1或2或3级科属-->
+    <select id="findSupplierCategories" resultType="so.sao.shop.supplier.pojo.output.CategoryOutput">
+        SELECT DISTINCT
+        cc.id, cc.name, cc.level, cc.pid
+        FROM comm_category cc, commodity comm
+        WHERE
+        cc.level = #{level}
+        AND ( cc.id = comm.category_one_id OR cc.id = comm.category_two_id OR cc.id = comm.category_three_id )
+        AND comm.code69
+        IN
+        (SELECT sc.code69 FROM supplier_commodity sc
+        WHERE sc.deleted = 0
+        AND sc.status=2
+        AND sc.invalid_status=1
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierId)">
+            AND sc.supplier_id = #{ supplierId }
+        </if>
+        )
+        ORDER BY cc.updated_at DESC
+    </select>
+
+    <!--根据供应商ID查询其可用的所有商品分类信息或所有可用的商品分类信息-->
+    <select id="findBySupplierId" resultType="so.sao.shop.supplier.pojo.output.CategoryOutput">
+        SELECT DISTINCT
+        cc.id, cc.name, cc.level, cc.pid
+        FROM comm_category cc, commodity comm
+        WHERE
+        comm.code69
+        IN
+        (SELECT sc.code69 FROM supplier_commodity sc
+        WHERE sc.deleted = 0
+        AND sc.status=2
+        AND sc.invalid_status=1
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierId)">
+            AND sc.supplier_id = #{ supplierId }
+        </if>
+        )
+        AND (  cc.id = comm.category_one_id OR cc.id = comm.category_two_id OR cc.id = comm.category_three_id )
+        ORDER BY cc.updated_at DESC
+    </select>
+
+    <!--查看传入Id是否为一类分类ID-->
+    <select id="findOneLevel" resultType="so.sao.shop.supplier.pojo.output.CategoryOutput">
+        SELECT DISTINCT
+        cc.id, cc.name, cc.level, cc.pid
+        FROM comm_category cc, commodity comm
+        WHERE
+        cc.level = 1
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(id)">
+            AND cc.id = #{id}
+        </if>
+        AND comm.code69
+        IN
+        (SELECT sc.code69 FROM supplier_commodity sc
+        WHERE sc.deleted = 0
+        AND sc.status=2
+        AND sc.invalid_status=1
+        )
+        AND (  cc.id = comm.category_one_id OR cc.id = comm.category_two_id OR cc.id = comm.category_three_id )
+    </select>
+
+
+    <!--根据商品名称模糊查询商品名称列表-->
+    <select id="findGoodsByGoodsName" resultType="java.lang.String">
+        SELECT DISTINCT c.name
+        FROM supplier_commodity sc,commodity c
+        WHERE sc.code69 = c.code69
+        AND sc.deleted = 0
+        AND sc.status = 2
+        AND sc.invalid_status = 1
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(name)">
+            AND c.name LIKE '${name}%'
+        </if>
+        limit 10
+    </select>
+
+    <!--根据品牌名称模糊查询品牌名称列表-->
+    <select id="findGoodsByBrandName" resultType="java.lang.String">
+        SELECT DISTINCT cb.name
+        FROM supplier_commodity sc,commodity c,comm_brand cb
+        WHERE sc.code69 = c.code69
+        AND  c.brand_id = cb.id
+        AND sc.deleted = 0
+        AND sc.status = 2
+        AND sc.invalid_status = 1
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(name)">
+            AND cb.name LIKE '${name}%'
+        </if>
+        limit 10
+    </select>
+
+    <!--根据供应商名称模糊查询供应商名称列表-->
+    <select id="findGoodsBySupplierName" resultType="java.lang.String">
+        SELECT DISTINCT a.provider_name
+        FROM supplier_commodity sc,account a
+        WHERE sc.supplier_id = a.account_id
+        AND sc.deleted = 0
+        AND sc.status = 2
+        AND sc.invalid_status = 1
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(name)">
+            AND a.provider_name LIKE '${name}%'
+        </if>
+        limit 10
+    </select>
+
+
+
 
 
 </mapper>

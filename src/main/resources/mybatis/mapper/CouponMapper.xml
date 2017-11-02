@@ -47,7 +47,8 @@
         `use_num`,
         `status`,
         `create_at`,
-        `update_at`
+        `update_at`,
+        `operator`
     </sql>
 
     <!--查找优惠券列表-->
@@ -92,7 +93,8 @@
             `use_num`,
             `status`,
             `create_at`,
-            `update_at`
+            `update_at`,
+            `operator`
             ) VALUES (
             #{pojo.id},
             #{pojo.name},
@@ -109,7 +111,8 @@
             #{pojo.useNum},
             #{pojo.status},
             #{pojo.createAt},
-            #{pojo.updateAt}
+            #{pojo.updateAt},
+            #{pojo.operator}
             )
     </insert>
     <!--更新优惠券状态-->
