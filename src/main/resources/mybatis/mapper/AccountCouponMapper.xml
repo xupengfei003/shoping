@@ -80,7 +80,7 @@
   UPDATE account_coupon ac
    SET ac.status = 1,
        ac.use_time = now()
-   WHERE user_id = #{accountId}
+   WHERE account_id = #{accountId}
      AND coupon_id = #{couponId}
  </update>
  <!--更新优惠券为已过期-->

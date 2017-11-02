@@ -220,6 +220,11 @@ public class Purchase {
      */
     private BigDecimal drawbackPrice;
 
+    /**
+     * 优惠券ID
+     */
+    private Long couponId;
+
     public String getAccountStatus() {
         return accountStatus;
     }
@@ -538,5 +543,13 @@ public class Purchase {
 
     public void setDrawbackPrice(BigDecimal drawbackPrice) {
         this.drawbackPrice = drawbackPrice;
+    }
+
+    public Long getCouponId() {
+        return couponId;
+    }
+
+    public void setCouponId(Long couponId) {
+        this.couponId = couponId;
     }
 }

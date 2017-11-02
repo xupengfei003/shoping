@@ -211,7 +211,10 @@
         order_payment_method,
         order_status,
         updated_at,
-        order_postage
+        order_postage,
+        discount,
+        order_total_price,
+        coupon_id
         )
         VALUES
         <foreach collection="list" item="item" index="index" separator=",">
@@ -231,7 +234,10 @@
             #{item.orderPaymentMethod},
             #{item.orderStatus},
             #{item.updatedAt},
-            #{item.orderPostage}
+            #{item.orderPostage},
+            #{item.discount},
+            #{item.orderTotalPrice},
+            #{item.couponId}
             )
         </foreach>
     </insert>
