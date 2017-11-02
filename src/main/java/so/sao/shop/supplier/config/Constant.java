@@ -155,6 +155,11 @@ public interface Constant {
          * 暂无数据
          */
         public static final String MSG_NO_DATA = "暂无数据";
+
+        /**
+         * 参数异常
+         */
+        public static final String PARAMETER_ABNORMITY = "参数异常";
     }
 
     interface OrderStatusConfig{
@@ -471,6 +476,26 @@ public interface Constant {
     	 * 业务系统特殊权限
     	 */
     	public static final Integer PERMISSION_TYPE_special_BUSINESS = 99;
+    }
+
+    /**
+     * 发票相关常量
+     * @author acer
+     *
+     */
+    interface ReceiptConfig {
+        /**
+         * 增值税普通个人发票
+         */
+        public static final Integer RECEIPTTYPE_PEISION = 0;
+        /**
+         * 增值税普通单位发票
+         */
+        public static final Integer RECEIPTTYPE_COMPANY = 1;
+        /**
+         * 增值税专用发票
+         */
+        public static final Integer RECEIPTTYPE_SPECIAL = 2;
     }
 
     /**

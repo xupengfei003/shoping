@@ -15,6 +15,7 @@ ALTER TABLE purchase
 
 
 
+
 /*创建产品销量表*/
 CREATE TABLE `comm_sales` (
 	`id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
@@ -109,6 +110,47 @@ CREATE TABLE `coupon` (
   COLLATE='utf8_general_ci'
   ENGINE=InnoDB
 ;
+
+/*发票-门店关系表*/
+CREATE TABLE `receipt_user` (
+  `receipt_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `receipt_type` int(1) NOT NULL COMMENT '发票类型--1增值税单位发票,2增值税专用发票',
+  `company` varchar(255) NOT NULL COMMENT '单位名称',
+  `taxpayer_number` bigint(20) NOT NULL COMMENT '纳税人识别号',
+  `receipt_content_id` bigint(20) DEFAULT NULL COMMENT '发票内容id',
+  `receipt_content` varchar(20) DEFAULT NULL COMMENT '发票内容',
+  `register_adress` varchar(150) DEFAULT NULL COMMENT '注册地址',
+  `register_phone` varchar(12) DEFAULT NULL COMMENT '注册电话',
+  `deposit_bank` varchar(16) DEFAULT NULL COMMENT '开户银行',
+  `bank_amount` varchar(16) DEFAULT NULL COMMENT '银行账户',
+  `user_id` bigint(20) NOT NULL COMMENT '门店ID',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`receipt_id`),
+  KEY `user_id_index` (`user_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='发票-门店关系表';
+
+
+/*发票-订单关系表*/
+CREATE TABLE `receipt_purchase` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `order_id` varchar(30) DEFAULT NULL COMMENT '订单ID',
+  `receipt_type` int(1) NOT NULL COMMENT '发票类型--0增值税个人发票,1增值税单位发票,2增值税专用发票',
+  `company` varchar(255) DEFAULT NULL COMMENT '单位名称',
+  `taxpayer_number` bigint(20) DEFAULT NULL COMMENT '纳税人识别号',
+  `receipt_content_id` bigint(20) DEFAULT NULL COMMENT '发票内容id',
+  `receipt_content` varchar(20) DEFAULT NULL COMMENT '发票内容',
+  `register_adress` varchar(150) DEFAULT NULL COMMENT '注册地址',
+  `register_phone` varchar(12) DEFAULT NULL COMMENT '注册电话',
+  `deposit_bank` varchar(16) DEFAULT NULL COMMENT '开户银行',
+  `bank_amount` varchar(16) DEFAULT NULL COMMENT '银行账户',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  KEY `order_id_index` (`order_id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='发票-订单关系表';
+
+
 
 
 

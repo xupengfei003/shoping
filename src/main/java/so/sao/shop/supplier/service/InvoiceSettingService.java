@@ -32,4 +32,12 @@ public interface InvoiceSettingService {
      * @return result
      */
     Result searchBySupplierId(Long supplierId);
+
+    /**
+     * app端-根据供应商Id查询供应商发票设置
+     * @param supplierId 供应商Id
+     * @return result
+     */
+    Result getBySupplierId(Long supplierId);
+
 }
