@@ -148,7 +148,7 @@
                           FROM
                               account_coupon ac
                           WHERE
-                              ac.user_id = #{shopId}
+                              ac.account_id = #{shopId}
                       ) a ON a.cid = c.id
         where c.status = 0
         ORDER BY c.create_at DESC
