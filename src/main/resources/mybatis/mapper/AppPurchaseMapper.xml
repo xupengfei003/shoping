@@ -107,7 +107,7 @@
         taxpayer_number AS taxpayerNumber,
         receipt_content_id AS receiptContentId,
         receipt_content AS receiptContent,
-        register_adress AS registerAddress,
+        register_adress AS registerAdress,
         register_phone AS registerPhone,
         deposit_bank AS depositBank,
         bank_amount AS bankAmount,
