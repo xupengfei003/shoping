@@ -129,6 +129,7 @@
                 AND state = #{state}
             </if>
         </where>
+        ORDER BY checkout_at DESC
     </select>
 
     <!--根据指定时间、状态查询结算明细列表 用于excel导出-->
@@ -157,7 +158,7 @@
                 AND state = #{state}
             </if>
         </where>
-
+        ORDER BY checkout_at DESC
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(limit)">
             limit ${limit}
         </if>

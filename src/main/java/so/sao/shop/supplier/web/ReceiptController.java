@@ -11,6 +11,7 @@ import so.sao.shop.supplier.service.ReceiptService;
 import so.sao.shop.supplier.util.Ognl;
 
 import javax.annotation.Resource;
+import javax.validation.Valid;
 import java.util.Date;
 
 /**
@@ -34,7 +35,7 @@ public class ReceiptController {
      */
     @ApiOperation(value = "发票记录录入或更改",notes = "发票记录录入或更改【负责人：郑振海】")
     @PostMapping("/createReceipt")
-    public Result createReceipt(@Validated Receipt receipt) {
+    public Result createReceipt(@RequestBody @Valid Receipt receipt) {
 
         /**
          * 1.校验入参

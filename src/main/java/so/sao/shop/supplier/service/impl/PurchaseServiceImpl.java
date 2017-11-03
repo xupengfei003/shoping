@@ -17,7 +17,10 @@ import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.config.StorageConfig;
 import so.sao.shop.supplier.config.azure.AzureBlobService;
 import so.sao.shop.supplier.dao.*;
+import so.sao.shop.supplier.dao.app.AppAccountCouponDao;
+import so.sao.shop.supplier.dao.external.CouponDao;
 import so.sao.shop.supplier.domain.*;
+import so.sao.shop.supplier.domain.external.Coupon;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.*;
 import so.sao.shop.supplier.pojo.output.CommodityOutput;
@@ -26,6 +29,7 @@ import so.sao.shop.supplier.pojo.output.OrderRefuseReasonOutput;
 import so.sao.shop.supplier.pojo.output.PurchaseItemPrintOutput;
 import so.sao.shop.supplier.pojo.vo.*;
 import so.sao.shop.supplier.service.*;
+import so.sao.shop.supplier.service.external.CouponService;
 import so.sao.shop.supplier.util.*;
 
 import javax.annotation.Resource;
@@ -38,6 +42,7 @@ import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -83,7 +88,12 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Resource
     private CommInventoryService commInventoryService;
     @Resource
-    private ReceiptPurchaseDao receiptPurchaseDao;
+    private ReceiptPurchaseDao receiptPurchaseDao; //订单发票
+    @Resource
+    private CouponDao couponDao; //优惠券中心
+    @Resource
+    private AppAccountCouponDao appAccountCouponDao; //用户优惠卷
+
     /**
      * 保存订单信息
      *
@@ -130,9 +140,11 @@ public class PurchaseServiceImpl implements PurchaseService {
         //b.循环商户ID生成订单
         List<Purchase> listPurchase = new ArrayList<>();
         List<PurchaseItem> listItem = new ArrayList<>();
-        List<Notification> notificationList = new ArrayList<>();
+        List<Notification> notificationList = new ArrayList<>();    //消息通知Entity
+        List<ReceiptPurchase> receiptPurchaseList = new ArrayList<>();  //订单发票Entity
         Map<Long, BigDecimal> inventoryMap = new HashMap<>();//存储商品编号和购买数量
         List<Long> goodsIdList = new ArrayList<>();//商品ID集合
+        BigDecimal orderTotalPrice = new BigDecimal(0); //所有订单合计
         //合并支付单号
         String payId = NumberGenerate.generateOrderId("yyMMddHHmmss");
         /**
@@ -204,6 +216,9 @@ public class PurchaseServiceImpl implements PurchaseService {
             purchaseDate.setOrderCreateTime(new Date());//下单时间
             purchaseDate.setOrderStatus(Constant.OrderStatusConfig.PAYMENT);//订单状态 1待付款2代发货3已发货4已收货5已拒收6已退款
             purchaseDate.setUpdatedAt(new Date());//更新时间
+            if (Ognl.isNotNull(purchase.getCouponId())) {
+                purchaseDate.setCouponId(purchase.getCouponId());   //添加优惠券ID
+            }
             //邮费计算
             Map map = this.getFreightRulesByAccountId(account.getAccountId(),totalMoney,BigDecimal.valueOf(totalNumber.intValue()),purchase);
             if ((Integer)map.get("status") == 1){
@@ -221,6 +236,19 @@ public class PurchaseServiceImpl implements PurchaseService {
             //给该供应商增加一条消息数据
             Notification notification = createNotification(sId, orderId, Constant.OrderStatusConfig.PAYMENT);
             notificationList.add(notification);
+            //计算所有订单订单合计
+            orderTotalPrice = orderTotalPrice.add(purchaseDate.getOrderPostage().add(purchaseDate.getOrderPrice()));
+            //TODO 订单发票录入-v1.1.0
+            if(Ognl.isNotNull(purchase.getReceiptPurchaseInputVoList()) && purchase.getReceiptPurchaseInputVoList().size() > 0){
+                purchase.getReceiptPurchaseInputVoList().forEach(receiptPurchaseInputVo -> {
+                    if (sId.equals(receiptPurchaseInputVo.getSupplierId())) {
+                        receiptPurchaseInputVo.setOrderId(orderId);
+                        receiptPurchaseInputVo.setCreateTime(new Date());
+                        ReceiptPurchase receiptPurchase = BeanMapper.map(receiptPurchaseInputVo, ReceiptPurchase.class);
+                        receiptPurchaseList.add(receiptPurchase);
+                    }
+                });
+            }
         }
         boolean flag = false;
         if (null != listPurchase && listPurchase.size() > 0 && null != listItem && listItem.size() > 0) {
@@ -234,8 +262,33 @@ public class PurchaseServiceImpl implements PurchaseService {
              * 库存预警 by bzh
              */
             commInventoryService.updateInventoryStatus(goodsIdList);
+            //TODO 计算优惠使用规则-v1.1.0
+            Coupon coupon = couponDao.findCouponById(purchase.getCouponId());
+            if (Ognl.isNotNull(coupon)) {
+                //获取当前时间
+                String currentTime = StringUtil.fomateData(new Date(), "yyyy-MM-dd HH:mm:ss");
+                String sendEndTime = StringUtil.fomateData(coupon.getSendEndTime(), "yyyy-MM-dd HH:mm:ss");
+                //将字符串格式的日期格式化
+                SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                if ((sdf.parse(sendEndTime)).compareTo(sdf.parse(currentTime)) >= 0) {
+                    //订单总金额是否大于等于优惠券金额
+                    if (orderTotalPrice.compareTo(coupon.getCouponValue()) == -1) {
+                        output.put("message", "不符合优惠券满减条件");
+                        return output;
+                    } else {
+                        listPurchase = CouponRulesUtil.couponRule(listPurchase, coupon.getCouponValue(), coupon.getUsableValue());
+                        appAccountCouponDao.updateAccountCouponStatusById(purchase.getUserId(), purchase.getCouponId());
+                    }
+                } else {
+                    output.put("message", "优惠券超出可使用时间");
+                    return output;
+                }
+            }
             int result = purchaseDao.savePurchase(listPurchase);
             int resultSum = purchaseItemDao.savePurchaseItem(listItem);
+            if (Ognl.isNotNull(receiptPurchaseList) && receiptPurchaseList.size() > 0) {
+                receiptPurchaseDao.insertReceiptItems(receiptPurchaseList);
+            }
             BigDecimal totalMoney = new BigDecimal(0);//所有订单实付总金额
             if (result > 0 && resultSum > 0) {
                 flag = true;
@@ -245,7 +298,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                 }
                 for (Purchase obj : listPurchase) {
                     //计算所有订单总金额
-                    totalMoney = totalMoney.add(obj.getOrderPrice().add(obj.getOrderPostage()));
+                    totalMoney = totalMoney.add(obj.getOrderPrice().add(obj.getOrderPostage()).subtract(obj.getDiscount()));
                 }
             } else {//保存订单失败，主动回滚
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();//主动回滚
@@ -288,31 +341,6 @@ public class PurchaseServiceImpl implements PurchaseService {
             purchaseInfoVo.setPayAmount(NumberUtil.number2Thousand(purchase.getPayAmount()));
             //退款金额
             purchaseInfoVo.setDrawbackPrice(NumberUtil.number2Thousand(purchase.getDrawbackPrice()));
-//            purchaseInfoVo.setOrderId(purchase.getOrderId());
-//            purchaseInfoVo.setOrderReceiverName(purchase.getOrderReceiverName());
-//            purchaseInfoVo.setOrderReceiverMobile(purchase.getOrderReceiverMobile());
-//            purchaseInfoVo.setOrderCreateTime(purchase.getOrderCreateTime());
-//            purchaseInfoVo.setOrderPaymentMethod(purchase.getOrderPaymentMethod());
-//            purchaseInfoVo.setOrderPaymentNum(purchase.getOrderPaymentNum());
-//            purchaseInfoVo.setOrderPaymentTime(purchase.getOrderPaymentTime());
-//            //商品金额小计
-//            purchaseInfoVo.setOrderPrice(NumberUtil.number2Thousand(purchase.getOrderPrice()));
-//            purchaseInfoVo.setOrderStatus(purchase.getOrderStatus().shortValue());
-//            purchaseInfoVo.setOrderShipMethod(purchase.getOrderShipMethod());
-//            purchaseInfoVo.setOrderShipmentNumber(purchase.getOrderShipmentNumber());
-//            purchaseInfoVo.setLogisticsCompany(purchase.getLogisticsCompany());
-//            purchaseInfoVo.setDistributorName(purchase.getDistributorName());
-//            purchaseInfoVo.setDistributorMobile(purchase.getDistributorMobile());
-//            purchaseInfoVo.setDrawbackTime(purchase.getDrawbackTime());
-//            purchaseInfoVo.setOrderAddress(purchase.getOrderAddress());
-//            //折扣优惠
-//            purchaseInfoVo.setDiscount(NumberUtil.number2Thousand(purchase.getDiscount()));
-//            //合计金额
-//            purchaseInfoVo.setOrderTotalPrice(NumberUtil.number2Thousand(purchase.getOrderTotalPrice()));
-//            //实付金额
-//            purchaseInfoVo.setPayAmount(NumberUtil.number2Thousand(purchase.getPayAmount()));
-//            //退款金额
-//            purchaseInfoVo.setDrawbackPrice(NumberUtil.number2Thousand(purchase.getDrawbackPrice()));
             //添加订单明细列表
             List<PurchaseItemVo> purchaseItemVoList = purchaseItemDao.getOrderDetailByOId(purchase.getOrderId());
             //转换金额为千分位
@@ -326,6 +354,11 @@ public class PurchaseServiceImpl implements PurchaseService {
                 purchaseInfoVo.setPurchaseItemVoList(purchaseItemVoList);
             } else {
                 purchaseInfoVo.setPurchaseItemVoList(new ArrayList<>());
+            }
+            ReceiptPurchase receiptPurchase = receiptPurchaseDao.findReceiptItemByOrderId(orderId);
+            purchaseInfoVo.setIsReceipt(0);
+            if(null != receiptPurchase){
+                purchaseInfoVo.setIsReceipt(1);
             }
         }
         return purchaseInfoVo;

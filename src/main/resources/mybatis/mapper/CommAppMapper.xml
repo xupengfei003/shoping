@@ -291,6 +291,9 @@
         AND  comm.category_two_id = cc2.id
         AND comm.category_three_id = cc3.id
         AND acc.account_id = sc.supplier_id
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty( name )">
+            AND ( comm.name LIKE '%${name}%' OR cb.name LIKE '%${name}%' OR acc.provider_name LIKE '%${name}%' )
+        </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierId)">
             AND sc.supplier_id = #{supplierId}
         </if>

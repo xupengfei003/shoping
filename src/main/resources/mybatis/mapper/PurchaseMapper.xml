@@ -211,7 +211,10 @@
         order_payment_method,
         order_status,
         updated_at,
-        order_postage
+        order_postage,
+        discount,
+        order_total_price,
+        coupon_id
         )
         VALUES
         <foreach collection="list" item="item" index="index" separator=",">
@@ -231,7 +234,10 @@
             #{item.orderPaymentMethod},
             #{item.orderStatus},
             #{item.updatedAt},
-            #{item.orderPostage}
+            #{item.orderPostage},
+            #{item.discount},
+            #{item.orderTotalPrice},
+            #{item.couponId}
             )
         </foreach>
     </insert>
@@ -680,6 +686,7 @@
         <result column="order_price" property="orderPrice"/>
         <result column="order_settleme_price" property="orderSettlemePrice"/>
         <result column="order_postage" property="orderPostage"/>
+        <result column="order_status" property="orderStatus"/>
     </resultMap>
 
     <!--查询该商户下已完成和拒收退款且按固定天数结算订单列表信息-->

@@ -30,4 +30,24 @@
     order_id = #{orderId,jdbcType=VARCHAR}
   </select>
 
+  <!--订单详情-发票详情批量录入-->
+  <insert id="insertReceiptItems" parameterType="java.util.List">
+    INSERT INTO `receipt_purchase`
+    (`id`, `order_id`, `receipt_type`, `company`, `taxpayer_number`, `receipt_content_id`, `receipt_content`, `register_adress`,
+    `register_phone`, `deposit_bank`, `bank_amount`, `create_time`, `update_time`)VALUES
+    <foreach collection ="receiptPurchases" item="receiptPurchase" index= "index" separator =",">
+      (NULL,#{receiptPurchase.orderId,jdbcType=VARCHAR},
+      #{receiptPurchase.receiptType,jdbcType=VARCHAR},
+      #{receiptPurchase.company,jdbcType=VARCHAR},
+      #{receiptPurchase.taxpayerNumber,jdbcType=VARCHAR},
+      #{receiptPurchase.receiptContentId,jdbcType=VARCHAR},
+      #{receiptPurchase.receiptContent,jdbcType=VARCHAR},
+      #{receiptPurchase.registerAdress,jdbcType=VARCHAR},
+      #{receiptPurchase.registerPhone,jdbcType=VARCHAR},
+      #{receiptPurchase.depositBank,jdbcType=VARCHAR},
+      #{receiptPurchase.bankAmount,jdbcType=VARCHAR},
+      #{receiptPurchase.createTime,jdbcType=VARCHAR},
+      NULL)
+    </foreach>
+  </insert>
 </mapper>

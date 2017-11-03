@@ -1,19 +1,22 @@
-package so.sao.shop.supplier.domain;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
+package so.sao.shop.supplier.pojo.input;
 
 import java.util.Date;
 
 /**
- * 发票与订单关系实体类
+ * 发票与订单关系实体类入参
  * @author zhenhai.zheng
  */
-public class ReceiptPurchase {
+public class ReceiptPurchaseInputVo {
 
     /**
      * 主键
      */
     private Long id;
+
+    /**
+     * 供应商Id
+     */
+    private Long supplierId;
 
     /**
      * 订单编号
@@ -68,13 +71,11 @@ public class ReceiptPurchase {
     /**
      * 创建时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date createTime;
 
     /**
      * 更新时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date updateTime;
 
     public Long getId() {
@@ -83,6 +84,14 @@ public class ReceiptPurchase {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getSupplierId() {
+        return supplierId;
+    }
+
+    public void setSupplierId(Long supplierId) {
+        this.supplierId = supplierId;
     }
 
     public String getOrderId() {

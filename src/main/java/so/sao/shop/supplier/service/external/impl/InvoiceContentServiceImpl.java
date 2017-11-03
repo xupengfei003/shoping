@@ -41,6 +41,10 @@ public class InvoiceContentServiceImpl implements InvoiceContentService {
         invoiceContent.setSort(CommConstant.SORT++);
         invoiceContent.setCreateAt(new Date());
         invoiceContent.setUpdateAt(new Date());
+        int countTotal = invoiceContentDao.countTotal();
+        if(countTotal>=10){
+            return Result.fail("发票内容不能超过10条");
+        }
         invoiceContentDao.save(invoiceContent);
         return Result.success("添加发票内容成功!");
     }
