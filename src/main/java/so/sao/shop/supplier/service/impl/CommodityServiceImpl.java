@@ -968,7 +968,9 @@ public class CommodityServiceImpl implements CommodityService {
         List<CommodityImportOutput> commodityImportOutputList = new ArrayList<CommodityImportOutput>();
         String tempPath = request.getSession().getServletContext().getRealPath("") + "/file/";// 文件上传到的文件夹
         String filename = transferTo(request, tempPath);//文件移动至tempPath路径下
-
+        if(!(filename.endsWith(".zip")||filename.endsWith(".ZIP"))){
+            return Result.fail("只支持.zip压缩包！", outmap);
+        }
         //接下来开始解压缩文件
         String newFileName = DateUtil.getStringDateTime();
         Map excelmap = new HashMap();
@@ -1680,6 +1682,8 @@ public class CommodityServiceImpl implements CommodityService {
             brand.setName(commodityBatchInput.getBrandName());
             commBrandDao.save(brand);
         }
+        //商品规格id集合
+        String scIds = "";
         for (SupplierCommodityVo commodityVo : commodityBatchInput.getCommodityList()) {
 
             String code69 = commodityVo.getCode69();
@@ -1721,8 +1725,15 @@ public class CommodityServiceImpl implements CommodityService {
             String sku =  CommUtil.createSku(commCategoryCode, commodity.getId(), supplierId);
             sc.setSku(sku);
             supplierCommodityDao.save(sc);
+            Long scId = sc.getId();
+            if(scIds.equals("")){
+                scIds += scId.toString();
+            }else{
+                scIds += "," + scId.toString();
+            }
             commodityImageVo.setScId(sc.getId());
         }
+        appCommSalesService.saveCommSales(scIds);
         return Result.success("校验通过", commodityImageVo);
     }
     /**
