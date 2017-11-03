@@ -499,9 +499,14 @@ public class CommAppServiceImpl implements CommAppService {
                 return Result.fail("传入的一级分类ID不是该供应商的一级分类ID");
             }
             // 5.查询传入的一级分类Id下对应的2级和3级分类
-            Map<String,Object> children= nodeTree(map,pMap,id);
+            //取出2级集合
+            List<CategoryOutput> pList = pMap.get(id);
             List childrenList = new ArrayList();
-            childrenList.add(children);
+            //循环递归
+            for (CategoryOutput com:pList) {
+                Map<String,Object> children= nodeTree(map,pMap,com.getId());
+                childrenList.add(children);
+            }
             resultMap.put("options",childrenList);
             return Result.success("成功",resultMap);
         }
