@@ -59,7 +59,7 @@ public class KeyWordServiceImpl implements KeyWordService {
      */
     @Override
     public Result updateKeyWord(KeyWord keyWord) {
-        int count = keyWordDao.countByKeyWordValue(keyWord.getKeyWordValue());
+        int count = keyWordDao.countByKeyWordValue(keyWord.getKeyWordValue().trim());
         if(count>0){
             return Result.fail("关键词名称已存在！");
         } else {
