@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.NotBlank;
 
 import java.util.Date;
 
@@ -32,6 +33,7 @@ public class InvoiceContent {
      * 发票内容名称
      */
 
+    @NotBlank(message = "发票内容不能为空")
     @Length(max = 20,message = "内容长度不能超过20个字符")
     private String invoiceContentName;
 
@@ -39,11 +41,6 @@ public class InvoiceContent {
      * 操作人（即登陆的账号名）
      */
     private String operator;
-
-    /**
-     * 排序
-     */
-    private int sort;
 
     /**
      * 创建时间

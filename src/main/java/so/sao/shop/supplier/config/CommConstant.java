@@ -14,10 +14,7 @@ public class CommConstant {
      * 未上架
      */
     public static final String[] imgArray ={"jpg","jpeg","png","gif"};
-    /**
-     * 排序
-     */
-    public static int SORT = 1;
+
     /**
      * 未上架
      */

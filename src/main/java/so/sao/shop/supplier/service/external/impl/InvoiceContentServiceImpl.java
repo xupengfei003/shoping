@@ -34,11 +34,11 @@ public class InvoiceContentServiceImpl implements InvoiceContentService {
      */
     @Override
     public Result saveInvocieContent(InvoiceContent invoiceContent) {
-        int count = invoiceContentDao.countInvoiceContent(invoiceContent.getInvoiceContentName());
-        if(count>0){
+        int count = invoiceContentDao.countInvoiceContent(invoiceContent.getInvoiceContentName().trim());
+        if (count > 0) {
             return Result.fail("发票内容已存在！");
         }
-        invoiceContent.setSort(CommConstant.SORT++);
+        invoiceContent.setInvoiceContentName(invoiceContent.getInvoiceContentName().trim());
         invoiceContent.setCreateAt(new Date());
         invoiceContent.setUpdateAt(new Date());
         int countTotal = invoiceContentDao.countTotal();
@@ -56,10 +56,11 @@ public class InvoiceContentServiceImpl implements InvoiceContentService {
      */
     @Override
     public Result updateInvoiceContent(InvoiceContent invoiceContent) {
-        int count = invoiceContentDao.countInvoiceContent(invoiceContent.getInvoiceContentName());
-        if(count>0){
+        int count = invoiceContentDao.countInvoiceContent(invoiceContent.getInvoiceContentName().trim());
+        if (count > 0) {
             return Result.fail("发票内容已存在！");
         }
+        invoiceContent.setInvoiceContentName(invoiceContent.getInvoiceContentName().trim());
         invoiceContent.setUpdateAt(new Date());
         invoiceContentDao.update(invoiceContent);
         return Result.success("编辑发票内容成功!");
@@ -89,4 +90,5 @@ public class InvoiceContentServiceImpl implements InvoiceContentService {
         PageInfo<InvoiceContent> pageInfo = new PageInfo<>(list);
         return Result.success("查询列表成功：",pageInfo);
     }
+
 }

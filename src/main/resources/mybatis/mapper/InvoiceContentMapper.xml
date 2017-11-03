@@ -5,7 +5,6 @@
         <result column="id" property="id"/>
         <result column="invoice_content_name" property="invoiceContentName"/>
         <result column="operator" property="operator"/>
-        <result column="sort" property="sort"/>
         <result column="create_at" property="createAt"/>
         <result column="update_at" property="updateAt"/>
     </resultMap>
@@ -14,7 +13,6 @@
         id AS id,
         invoice_content_name AS invoiceContentName,
         operator,
-        sort,
         create_at AS createAt,
         update_at AS updateAt
     </sql>
@@ -25,14 +23,12 @@
         (
         invoice_content_name,
         operator,
-        sort,
         create_at,
         update_at
         ) VALUES
         (
         #{invoiceContentName},
         #{operator},
-        #{sort},
         #{createAt},
         #{updateAt}
         )
@@ -57,7 +53,7 @@
         SELECT
         <include refid="baseColumn"/>
         FROM invoice_content
-        ORDER BY sort
+        ORDER BY update_at
     </select>
 
     <!--校验发票内容是否存在-->
