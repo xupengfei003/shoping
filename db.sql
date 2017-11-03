@@ -163,7 +163,7 @@ INSERT INTO `invoice_setting` (
 SELECT
   `account_id` AS `supplier_id`,
   '0' AS `status`,
-  '1' AS `invoice`,
+  '0' AS `invoice`,
   '0' AS `special_invoice`
 FROM
   `account`
