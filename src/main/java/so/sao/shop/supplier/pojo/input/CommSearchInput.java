@@ -2,11 +2,14 @@ package so.sao.shop.supplier.pojo.input;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
 import java.util.Date;
-
+@Getter
+@Setter
 public class CommSearchInput {
 
     /**
@@ -104,162 +107,6 @@ public class CommSearchInput {
      * 排序字段
      */
     private Integer sortStatus;
-
-    public String getSupplierName() {
-        return supplierName;
-    }
-
-    public void setSupplierName(String supplierName) {
-        this.supplierName = supplierName;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
-
-    public Long getSupplierId() {
-        return supplierId;
-    }
-
-    public void setSupplierId(Long supplierId) {
-        this.supplierId = supplierId;
-    }
-
-    public String getCommCode69() {
-        return commCode69;
-    }
-
-    public void setCommCode69(String commCode69) {
-        this.commCode69 = commCode69;
-    }
-
-    public String getCommBrand() {
-        return commBrand;
-    }
-
-    public void setCommBrand(String commBrand) {
-        this.commBrand = commBrand;
-    }
-
-    public String getCommName() {
-        return commName;
-    }
-
-    public void setCommName(String commName) {
-        this.commName = commName;
-    }
-
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
-
-    public Long getTypeOneId() {
-        return typeOneId;
-    }
-
-    public void setTypeOneId(Long typeOneId) {
-        this.typeOneId = typeOneId;
-    }
-
-    public Long getTypeTwoId() {
-        return typeTwoId;
-    }
-
-    public void setTypeTwoId(Long typeTwoId) {
-        this.typeTwoId = typeTwoId;
-    }
-
-    public Long getTypeThreeId() {
-        return typeThreeId;
-    }
-
-    public void setTypeThreeId(Long typeThreeId) {
-        this.typeThreeId = typeThreeId;
-    }
-
-    public BigDecimal getMinPrice() {
-        return minPrice;
-    }
-
-    public void setMinPrice(BigDecimal minPrice) {
-        this.minPrice = minPrice;
-    }
-
-    public BigDecimal getMaxPrice() {
-        return maxPrice;
-    }
-
-    public void setMaxPrice(BigDecimal maxPrice) {
-        this.maxPrice = maxPrice;
-    }
-
-    public Date getBeginUpdateAt() {
-        return beginUpdateAt;
-    }
-
-    public void setBeginUpdateAt(Date beginUpdateAt) {
-        this.beginUpdateAt = beginUpdateAt;
-    }
-
-    public Date getEndUpdateAt() {
-        return endUpdateAt;
-    }
-
-    public void setEndUpdateAt(Date endUpdateAt) {
-        this.endUpdateAt = endUpdateAt;
-    }
-
-    public Integer getPageNum() {
-        return pageNum;
-    }
-
-    public void setPageNum(Integer pageNum) {
-        this.pageNum = pageNum;
-    }
-
-    public Integer getPageSize() {
-        return pageSize;
-    }
-
-    public void setPageSize(Integer pageSize) {
-        this.pageSize = pageSize;
-    }
-
-    public Integer getAuditResult() {
-        return auditResult;
-    }
-
-    public void setAuditResult(Integer auditResult) {
-        this.auditResult = auditResult;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public BigDecimal getMinUnitPrice() {return minUnitPrice;}
-
-    public void setMinUnitPrice(BigDecimal minUnitPrice) {this.minUnitPrice = minUnitPrice;}
-
-    public BigDecimal getMaxUnitPrice() {return maxUnitPrice;}
-
-    public void setMaxUnitPrice(BigDecimal maxUnitPrice) {this.maxUnitPrice = maxUnitPrice;}
-
-    public Integer getSortStatus() {return sortStatus;}
-
-    public void setSortStatus(Integer sortStatus) {this.sortStatus = sortStatus;}
 
     @Override
     public String toString() {

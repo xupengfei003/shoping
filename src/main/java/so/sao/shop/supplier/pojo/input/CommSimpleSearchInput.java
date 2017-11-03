@@ -1,10 +1,13 @@
 package so.sao.shop.supplier.pojo.input;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
-
+@Getter
+@Setter
 public class CommSimpleSearchInput {
 
     /**
@@ -51,74 +54,6 @@ public class CommSimpleSearchInput {
      *排序字段
      */
     private Integer sortStatus;
-
-    public Long getSupplierId() {
-        return supplierId;
-    }
-
-    public void setSupplierId(Long supplierId) {
-        this.supplierId = supplierId;
-    }
-
-    public String getInputvalue() {
-        return inputvalue;
-    }
-
-    public void setInputvalue(String inputvalue) {
-        this.inputvalue = inputvalue;
-    }
-
-    public Date getBeginCreateAt() {
-        return beginCreateAt;
-    }
-
-    public void setBeginCreateAt(Date beginCreateAt) {
-        this.beginCreateAt = beginCreateAt;
-    }
-
-    public Date getEndCreateAt() {
-        return endCreateAt;
-    }
-
-    public void setEndCreateAt(Date endCreateAt) {
-        this.endCreateAt = endCreateAt;
-    }
-
-    public Integer getPageNum() {
-        return pageNum;
-    }
-
-    public void setPageNum(Integer pageNum) {
-        this.pageNum = pageNum;
-    }
-
-    public Integer getPageSize() {
-        return pageSize;
-    }
-
-    public void setPageSize(Integer pageSize) {
-        this.pageSize = pageSize;
-    }
-
-    public Integer getAuditResult() {
-        return auditResult;
-    }
-
-    public void setAuditResult(Integer auditResult) {
-        this.auditResult = auditResult;
-    }
-
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
-
-    public Integer getSortStatus() {return sortStatus;}
-
-    public void setSortStatus(Integer sortStatus) {this.sortStatus = sortStatus;}
 
     @Override
     public String toString() {
