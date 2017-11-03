@@ -54,6 +54,10 @@ public class InvoiceSettingServiceImpl implements InvoiceSettingService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result updateInvoiceSetting(InvoiceSettingUpdateInput invoiceSettingUpdateInput, Long supplierId) {
+        InvoiceSettingOutput invoiceSettingOutput = invoiceSettingDao.findBySupplierId(supplierId);
+        if(null == invoiceSettingOutput){
+            return Result.fail("暂无该供应商发票设置信息，请与管理员取得联系！");
+        }
         InvoiceSetting invoiceSetting = BeanMapper.map(invoiceSettingUpdateInput, InvoiceSetting.class);
         invoiceSetting.setSupplierId(supplierId);
         invoiceSetting.setUpdatedAt(new Date());
@@ -69,6 +73,9 @@ public class InvoiceSettingServiceImpl implements InvoiceSettingService {
     @Override
     public Result searchBySupplierId(Long supplierId) {
         InvoiceSettingOutput invoiceSettingOutput = invoiceSettingDao.findBySupplierId(supplierId);
+        if(null == invoiceSettingOutput){
+            return Result.fail("暂无该供应商发票设置信息，请与管理员取得联系！");
+        }
         return Result.success("查询供应商发票设置成功！", invoiceSettingOutput);
     }
 
