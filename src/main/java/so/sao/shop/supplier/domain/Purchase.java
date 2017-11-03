@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import so.sao.shop.supplier.util.Ognl;
 
 /**
  * <p>
@@ -514,6 +515,9 @@ public class Purchase {
     }
 
     public BigDecimal getDiscount() {
+        if (Ognl.isEmpty(discount)){
+            return new BigDecimal(0.00);
+        }
         return discount;
     }
 

@@ -1,5 +1,6 @@
 package so.sao.shop.supplier.pojo.input;
 
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 /**
@@ -16,6 +17,7 @@ public class ReceiptPurchaseInputVo {
     /**
      * 供应商Id
      */
+    @NotNull(message = "供应商ID不能为空")
     private Long supplierId;
 
     /**
@@ -26,6 +28,7 @@ public class ReceiptPurchaseInputVo {
     /**
      * 发票类型
      */
+    @NotNull(message = "发票类型不能为空")
     private Integer receiptType;
 
     /**

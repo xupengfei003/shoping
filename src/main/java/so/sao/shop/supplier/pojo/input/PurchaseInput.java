@@ -79,7 +79,8 @@ public class PurchaseInput {
     /**
      * 供应商发票列表
      */
-    private List<ReceiptPurchaseInputVo> receiptPurchaseInputVoList;
+    @Valid
+    private List<ReceiptPurchaseInputVo> listReceipts;
 
     public Long getUserId() {
         return userId;
@@ -157,11 +158,11 @@ public class PurchaseInput {
         this.couponId = couponId;
     }
 
-    public List<ReceiptPurchaseInputVo> getReceiptPurchaseInputVoList() {
-        return receiptPurchaseInputVoList;
+    public List<ReceiptPurchaseInputVo> getListReceipts() {
+        return listReceipts;
     }
 
-    public void setReceiptPurchaseInputVoList(List<ReceiptPurchaseInputVo> receiptPurchaseInputVoList) {
-        this.receiptPurchaseInputVoList = receiptPurchaseInputVoList;
+    public void setListReceipts(List<ReceiptPurchaseInputVo> listReceipts) {
+        this.listReceipts = listReceipts;
     }
 }

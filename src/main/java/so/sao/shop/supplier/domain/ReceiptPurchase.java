@@ -180,4 +180,5 @@ public class ReceiptPurchase {
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
     }
+
 }

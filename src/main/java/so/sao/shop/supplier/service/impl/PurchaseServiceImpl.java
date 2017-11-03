@@ -29,7 +29,6 @@ import so.sao.shop.supplier.pojo.output.OrderRefuseReasonOutput;
 import so.sao.shop.supplier.pojo.output.PurchaseItemPrintOutput;
 import so.sao.shop.supplier.pojo.vo.*;
 import so.sao.shop.supplier.service.*;
-import so.sao.shop.supplier.service.external.CouponService;
 import so.sao.shop.supplier.util.*;
 
 import javax.annotation.Resource;
@@ -239,8 +238,8 @@ public class PurchaseServiceImpl implements PurchaseService {
             //计算所有订单订单合计
             orderTotalPrice = orderTotalPrice.add(purchaseDate.getOrderPostage().add(purchaseDate.getOrderPrice()));
             //TODO 订单发票录入-v1.1.0
-            if(Ognl.isNotNull(purchase.getReceiptPurchaseInputVoList()) && purchase.getReceiptPurchaseInputVoList().size() > 0){
-                purchase.getReceiptPurchaseInputVoList().forEach(receiptPurchaseInputVo -> {
+            if(Ognl.isNotNull(purchase.getListReceipts()) && purchase.getListReceipts().size() > 0){
+                purchase.getListReceipts().forEach(receiptPurchaseInputVo -> {
                     if (sId.equals(receiptPurchaseInputVo.getSupplierId())) {
                         receiptPurchaseInputVo.setOrderId(orderId);
                         receiptPurchaseInputVo.setCreateTime(new Date());
@@ -265,28 +264,43 @@ public class PurchaseServiceImpl implements PurchaseService {
             //TODO 计算优惠使用规则-v1.1.0
             Coupon coupon = couponDao.findCouponById(purchase.getCouponId());
             if (Ognl.isNotNull(coupon)) {
-                //获取当前时间
-                String currentTime = StringUtil.fomateData(new Date(), "yyyy-MM-dd HH:mm:ss");
-                String sendEndTime = StringUtil.fomateData(coupon.getSendEndTime(), "yyyy-MM-dd HH:mm:ss");
-                //将字符串格式的日期格式化
-                SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-                if ((sdf.parse(sendEndTime)).compareTo(sdf.parse(currentTime)) >= 0) {
-                    //订单总金额是否大于等于优惠券金额
-                    if (orderTotalPrice.compareTo(coupon.getCouponValue()) == -1) {
-                        output.put("message", "不符合优惠券满减条件");
-                        return output;
+                List<AccountCoupon> accountCouponList = appAccountCouponDao.findAccountCoupon(purchase.getUserId(), coupon.getId());
+                if (Ognl.isNotNull(accountCouponList) && accountCouponList.size() > 0) {
+                    if (accountCouponList.get(0).getStatus().equals(0)) {
+                        //获取当前时间
+                        String currentTime = StringUtil.fomateData(new Date(), "yyyy-MM-dd HH:mm:ss");
+                        String sendEndTime = StringUtil.fomateData(coupon.getSendEndTime(), "yyyy-MM-dd HH:mm:ss");
+                        //将字符串格式的日期格式化
+                        SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                        if ((sdf.parse(sendEndTime)).compareTo(sdf.parse(currentTime)) >= 0) {
+                            //订单总金额是否大于等于优惠券金额
+                            if (orderTotalPrice.compareTo(coupon.getCouponValue()) == -1) {
+                                output.put("message", "不符合优惠券满减条件");
+                                return output;
+                            } else {
+                                listPurchase = CouponRulesUtil.couponRule(listPurchase, coupon.getCouponValue(), coupon.getUsableValue());
+                                appAccountCouponDao.updateAccountCouponStatusById(purchase.getUserId(), purchase.getCouponId());
+                            }
+                        } else {
+                            output.put("message", "优惠券超出可使用时间");
+                            return output;
+                        }
                     } else {
-                        listPurchase = CouponRulesUtil.couponRule(listPurchase, coupon.getCouponValue(), coupon.getUsableValue());
-                        appAccountCouponDao.updateAccountCouponStatusById(purchase.getUserId(), purchase.getCouponId());
+                        output.put("message", "该优惠券已使用");
+                        return output;
                     }
-                } else {
-                    output.put("message", "优惠券超出可使用时间");
-                    return output;
                 }
             }
             int result = purchaseDao.savePurchase(listPurchase);
             int resultSum = purchaseItemDao.savePurchaseItem(listItem);
             if (Ognl.isNotNull(receiptPurchaseList) && receiptPurchaseList.size() > 0) {
+                for (int i = 0; i < receiptPurchaseList.size()-1; i++) {
+                    for (int j = receiptPurchaseList.size()-1; j > i; j--) {
+                        if (receiptPurchaseList.get(j).getOrderId() == receiptPurchaseList.get(i).getOrderId()) {
+                            receiptPurchaseList.remove(j);
+                        }
+                    }
+                }
                 receiptPurchaseDao.insertReceiptItems(receiptPurchaseList);
             }
             BigDecimal totalMoney = new BigDecimal(0);//所有订单实付总金额
