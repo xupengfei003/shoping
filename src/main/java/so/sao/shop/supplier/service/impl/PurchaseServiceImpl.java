@@ -215,6 +215,8 @@ public class PurchaseServiceImpl implements PurchaseService {
             purchaseDate.setOrderCreateTime(new Date());//下单时间
             purchaseDate.setOrderStatus(Constant.OrderStatusConfig.PAYMENT);//订单状态 1待付款2代发货3已发货4已收货5已拒收6已退款
             purchaseDate.setUpdatedAt(new Date());//更新时间
+            purchaseDate.setDiscount(BigDecimal.valueOf(0));
+            purchaseDate.setOrderTotalPrice(totalMoney.add(purchaseDate.getOrderPostage()));
             if (Ognl.isNotNull(purchase.getCouponId())) {
                 purchaseDate.setCouponId(purchase.getCouponId());   //添加优惠券ID
             }
@@ -280,6 +282,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                             } else {
                                 listPurchase = CouponRulesUtil.couponRule(listPurchase, coupon.getCouponValue(), coupon.getUsableValue());
                                 appAccountCouponDao.updateAccountCouponStatusById(purchase.getUserId(), purchase.getCouponId());
+                                couponDao.updateCouponUseNum(purchase.getCouponId(),1);
                             }
                         } else {
                             output.put("message", "优惠券超出可使用时间");
