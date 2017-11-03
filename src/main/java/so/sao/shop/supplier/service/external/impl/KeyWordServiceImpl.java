@@ -37,12 +37,14 @@ public class KeyWordServiceImpl implements KeyWordService {
         if (null != result){
             return result;
         }
-
         //清空原数据表
         keyWordDao.delete();
         //设置排序及时间
         int sort = 1;
         for(KeyWord keyWord:keyWords){
+            if(keyWord.getKeyWordValue() != null){
+                keyWord.setKeyWordValue(keyWord.getKeyWordValue().trim());
+            }
             keyWord.setSort(sort++);
             keyWord.setCreateAt(new Date());
             keyWord.setUpdateAt(new Date());
@@ -63,6 +65,9 @@ public class KeyWordServiceImpl implements KeyWordService {
         if(count>0){
             return Result.fail("关键词名称已存在！");
         } else {
+            if(keyWord.getKeyWordValue() != null){
+                keyWord.setKeyWordValue(keyWord.getKeyWordValue().trim());
+            }
             keyWord.setUpdateAt(new Date());
             keyWordDao.update(keyWord);
             return Result.success("编辑关键词名称成功！");
@@ -97,8 +102,8 @@ public class KeyWordServiceImpl implements KeyWordService {
         } else {
             List<String> keyVuls = new ArrayList<>();
             for(KeyWord k : keyWords){
-                if(k.getKeyWordValue()!=null){
-                    keyVuls.add(k.getKeyWordValue());
+                if(k.getKeyWordValue() != null){
+                    keyVuls.add(k.getKeyWordValue().trim() + k.getKeyWordType());
                 }
             }
             //校验关键字名称是否重复
