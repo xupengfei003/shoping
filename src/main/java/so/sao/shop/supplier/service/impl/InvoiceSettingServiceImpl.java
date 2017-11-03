@@ -39,7 +39,7 @@ public class InvoiceSettingServiceImpl implements InvoiceSettingService {
         InvoiceSetting invoiceSetting = new InvoiceSetting();
         invoiceSetting.setSupplierId(supplierId);
         invoiceSetting.setStatus(Constant.InvoiceSetting.STATUS_OFF);
-        invoiceSetting.setInvoice(Constant.InvoiceSetting.INVOICE_ON);
+        invoiceSetting.setInvoice(Constant.InvoiceSetting.INVOICE_OFF);
         invoiceSetting.setSpecialInvoice(Constant.InvoiceSetting.SPECIAL_INVOICE_OFF);
         invoiceSetting.setCreatedAt(new Date());
         invoiceSetting.setUpdatedAt(new Date());
