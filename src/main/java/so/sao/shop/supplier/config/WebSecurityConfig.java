@@ -106,7 +106,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
-                .addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class)//添加JwtAuthenticationTokenFilter
+                //.addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class)//添加JwtAuthenticationTokenFilter
                 //.addFilterBefore(securityInterceptor(), FilterSecurityInterceptor.class)
                 .csrf().disable()//使用的是JWT，我们这里不需要csrf
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)//基于token，所以不需要session
@@ -118,13 +118,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         "/favicon.ico",
                         "/**/*.html",
                         "/**/*.css",
-                        "/**/*.js",
-                        "/webjars/**"
+                        "/**/*.js"
                 ).permitAll()//允许对于网站静态资源的无授权访问
-                .antMatchers(
-                		"/account/auth/**",
-                		"/swagger-resources/**",
-                		"/v2/api-docs").permitAll();//允许匿名访问获取token
+                .antMatchers("/account/auth/**").permitAll();//允许匿名访问获取token
                 //.anyRequest().authenticated();
                 /*.and()
                 .formLogin()
