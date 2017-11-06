@@ -80,7 +80,8 @@ public class QualificationServiceImpl implements QualificationService{
             return Result.fail("拒绝原因不能超过"+ Constant.CheckMaxLength.MAX_QUALIFICATIUON_REJECT_REASON_LENGTH +"位！");
         }
         Date updateDate = new Date();
-        qualificationDao.updateQualificationStatus( accountId, qualificationStatus, reason, updateDate );
+        Date createDate = null;
+        qualificationDao.updateQualificationStatus( accountId, qualificationStatus, reason, createDate,updateDate );
         return Result.success("更新成功");
     }
 
@@ -175,7 +176,7 @@ public class QualificationServiceImpl implements QualificationService{
         //若资质存在，修改资质状态为待审核,删除该资质ID下所有图片,若不存在直接进行资质添加
         if (qualificationOuts.size() > 0){
             Long qualificationId = qualificationOuts.get(0).getId();
-            qualificationDao.updateQualificationStatus(qualificationInput.getAccountId(),Constant.QUALIFICATION_AWAIT_VERIFY,null,new Date());
+            qualificationDao.updateQualificationStatus(qualificationInput.getAccountId(),Constant.QUALIFICATION_AWAIT_VERIFY,null,new Date(),new Date());
             //通过资质ID同步删除供应商资质图片信息（软删除）
             qualificationImageDao.delete(qualificationId);
         }else{

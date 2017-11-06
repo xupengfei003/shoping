@@ -8,6 +8,9 @@
         SET
         qualification_status = #{qualificationStatus},
         reason = #{ reason },
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotNull(createDate)">
+          create_time = #{createDate},
+        </if>
         update_time = #{updateDate}
         WHERE qua.delete = 0 AND account_id = #{accountId};
     </update>
