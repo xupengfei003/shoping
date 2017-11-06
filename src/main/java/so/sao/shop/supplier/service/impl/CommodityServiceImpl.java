@@ -1199,7 +1199,7 @@ public class CommodityServiceImpl implements CommodityService {
             String productionDate=map.get("*生产日期");
             String guaranteePeriod=map.get("*有效期(天)");
             String  guaranteePeriodUnit="天";
-            String  minOrderQuantity = map.get("*最小起订量");
+            String  minOrderQuantity = map.get("*起订量");
             String companyName= map.get("*企业名称");
             String  suppliercode = map.get("供应商id");
             String tag = map.get("商品标签");
