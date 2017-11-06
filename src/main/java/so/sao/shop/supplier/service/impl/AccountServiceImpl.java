@@ -180,6 +180,12 @@ public class AccountServiceImpl implements AccountService {
     public Result updateAccountAndUser(Account account) throws Exception{
         //查询修改前的供应商信息
         Account account1 = accountDao.selectById(account.getAccountId());
+        if(!account1.getResponsiblePhone().equals(account.getResponsiblePhone())){
+            Account account2 = accountDao.findAccountByPhone(account.getResponsiblePhone());
+            if (account2 != null){
+                return Result.fail("该供应商手机号码已经存在！");
+            }
+        }
         //修改用户信息
         userDao.update(account.getUserId(), account.getResponsiblePhone());
         //修改供应商信息

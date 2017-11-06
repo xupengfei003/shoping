@@ -955,5 +955,8 @@
     ) t
     LIMIT 1
   </select>
-
+  <!--根据电话查询该供应商信息-->
+  <select id="findAccountByPhone" resultMap="BaseResultMap">
+    SELECT account_id FROM account WHERE responsible_phone = #{phone}
+  </select>
 </mapper>
