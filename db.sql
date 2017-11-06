@@ -170,3 +170,7 @@ FROM
 ;
 
 
+
+/*修改轮播图轮播位为2位*/
+ALTER TABLE `banner`
+  CHANGE COLUMN `location` `location` CHAR(2) NULL DEFAULT NULL COMMENT '轮播位' AFTER `url`;
