@@ -42,7 +42,7 @@ public class Banner {
 	 * 轮播位
 	 */
 	@NotBlank(message = "轮播位置不能为空")
-	@Length(max = 1,message = "轮播位置只能传1/2/3")
+	@Length(max = 2,message = "轮播位置只能传1-10")
 	private String location;
 	/**
 	 * 上架时间
