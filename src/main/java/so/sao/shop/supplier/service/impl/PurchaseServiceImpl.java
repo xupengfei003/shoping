@@ -219,7 +219,6 @@ public class PurchaseServiceImpl implements PurchaseService {
             purchaseDate.setOrderStatus(Constant.OrderStatusConfig.PAYMENT);//订单状态 1待付款2代发货3已发货4已收货5已拒收6已退款
             purchaseDate.setUpdatedAt(new Date());//更新时间
             purchaseDate.setDiscount(BigDecimal.valueOf(0));
-            purchaseDate.setOrderTotalPrice(totalMoney.add(purchaseDate.getOrderPostage()));
             if (Ognl.isNotNull(purchase.getCouponId())) {
                 purchaseDate.setCouponId(purchase.getCouponId());   //添加优惠券ID
             }
@@ -230,6 +229,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             }else {
                 return map;
             }
+            purchaseDate.setOrderTotalPrice(totalMoney.add(purchaseDate.getOrderPostage()));
             listPurchase.add(purchaseDate);
             /*
                1.根据商品编号更改库存数量
