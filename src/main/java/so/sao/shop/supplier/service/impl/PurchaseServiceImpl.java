@@ -299,15 +299,12 @@ public class PurchaseServiceImpl implements PurchaseService {
             }
             int result = purchaseDao.savePurchase(listPurchase);
             int resultSum = purchaseItemDao.savePurchaseItem(listItem);
+            //list去重
             if (Ognl.isNotNull(receiptPurchaseList) && receiptPurchaseList.size() > 0) {
-                for (int i = 0; i < receiptPurchaseList.size()-1; i++) {
-                    for (int j = receiptPurchaseList.size()-1; j > i; j--) {
-                        if (receiptPurchaseList.get(j).getOrderId() == receiptPurchaseList.get(i).getOrderId()) {
-                            receiptPurchaseList.remove(j);
-                        }
-                    }
+                List<ReceiptPurchase> list = removeDuplicate(receiptPurchaseList);
+                if (Ognl.isNotNull(list) && list.size() > 0) {
+                    receiptPurchaseDao.insertReceiptItems(list);
                 }
-                receiptPurchaseDao.insertReceiptItems(receiptPurchaseList);
             }
             BigDecimal totalMoney = new BigDecimal(0);//所有订单实付总金额
             if (result > 0 && resultSum > 0) {
@@ -1901,5 +1898,17 @@ public class PurchaseServiceImpl implements PurchaseService {
     public Result findReceiptItemByOrderId(String orderId) {
 
         return Result.success(Constant.MessageConfig.MSG_SUCCESS,receiptPurchaseDao.findReceiptItemByOrderId(orderId));
+    }
+
+    private List<ReceiptPurchase> removeDuplicate(List<ReceiptPurchase> receiptPurchaseList) {
+        Set<ReceiptPurchase> set = new TreeSet<ReceiptPurchase>(new Comparator<ReceiptPurchase>() {
+            @Override
+            public int compare(ReceiptPurchase o1, ReceiptPurchase o2) {
+                //字符串,则按照asicc码升序排列
+                return o1.getOrderId().compareTo(o2.getOrderId());
+            }
+        });
+        set.addAll(receiptPurchaseList);
+        return new ArrayList<ReceiptPurchase>(set);
     }
 }
