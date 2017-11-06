@@ -44,7 +44,7 @@ public class CommCategoryPortalServiceImpl implements CommCategoryPortalService 
                 commCategoryPortalInput.setUpdateTime(new Date());
         }
         commCategoryPortalDao.updateCommCategorys(commCategoryListInput.getCommCategoryPortalInputs());
-        return Result.success("修改商品类别名称成功！");
+        return Result.success("修改商品分类信息成功！");
     }
 
     /**
