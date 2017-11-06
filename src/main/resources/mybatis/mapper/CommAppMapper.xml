@@ -376,7 +376,7 @@
         ORDER BY sc.updated_at DESC , sc.id DESC
     </select>
     <!--根据商品名称模糊查询商品-->
-    <select id="findGoodsByName" resultType="java.lang.String">
+    <select id="findGoodsByName" resultType="java.util.Map">
         SELECT DISTINCT c.name
         FROM supplier_commodity sc,commodity c,account a,comm_brand cb
         WHERE sc.code69 = c.code69
@@ -554,7 +554,7 @@
 
 
     <!--根据商品名称模糊查询商品名称列表-->
-    <select id="findGoodsByGoodsName" resultType="java.lang.String">
+    <select id="findGoodsByGoodsName" resultType="java.util.Map">
         SELECT DISTINCT c.name
         FROM supplier_commodity sc,commodity c
         WHERE sc.code69 = c.code69
@@ -568,7 +568,7 @@
     </select>
 
     <!--根据品牌名称模糊查询品牌名称列表-->
-    <select id="findGoodsByBrandName" resultType="java.lang.String">
+    <select id="findGoodsByBrandName" resultType="java.util.Map">
         SELECT DISTINCT cb.name
         FROM supplier_commodity sc,commodity c,comm_brand cb
         WHERE sc.code69 = c.code69
@@ -583,8 +583,8 @@
     </select>
 
     <!--根据供应商名称模糊查询供应商名称列表-->
-    <select id="findGoodsBySupplierName" resultType="java.lang.String">
-        SELECT DISTINCT a.provider_name
+    <select id="findGoodsBySupplierName" resultType="java.util.Map">
+        SELECT DISTINCT a.provider_name AS name
         FROM supplier_commodity sc,account a
         WHERE sc.supplier_id = a.account_id
         AND sc.deleted = 0
