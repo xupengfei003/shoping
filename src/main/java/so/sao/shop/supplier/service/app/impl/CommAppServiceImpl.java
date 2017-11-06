@@ -297,7 +297,7 @@ public class CommAppServiceImpl implements CommAppService {
          *如果为2，查询品牌名称右模糊匹配的品牌名称列表，此品牌下的商品为未删除，已上架，未失效状态
          *如果名称类型传其他值，默认查所有与之匹配的商品名列表，品牌对应商品列表，供应商对应商品列表，商品为未删除，已上架，未失效状态
          * */
-        List<String> names = new ArrayList<>();
+        List<Map> names = new ArrayList<>();
         switch (nameType){
             case Constant.AppCommSearch.SEARCH_BY_SUPPLIER_NAME:
                 names = commAppDao.findGoodsBySupplierName(name);

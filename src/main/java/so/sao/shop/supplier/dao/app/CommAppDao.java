@@ -97,7 +97,7 @@ public interface CommAppDao {
      * @param name 商品名称
      * @return
      */
-    List<String> findGoodsByName(@Param("name") String name);
+    List<Map> findGoodsByName(@Param("name") String name);
 
     /**
      * 查询商品
@@ -126,7 +126,7 @@ public interface CommAppDao {
      * @param name 商品名称
      * @return
      */
-    List<String> findGoodsByGoodsName(@Param("name") String name);
+    List<Map> findGoodsByGoodsName(@Param("name") String name);
 
     /**
      * 根据供应商ID查询其可用的所有商品分类信息或所有可用的商品分类信息
@@ -146,13 +146,13 @@ public interface CommAppDao {
      * @param name 品牌名称
      * @return
      */
-    List<String> findGoodsByBrandName(@Param("name") String name);
+    List<Map> findGoodsByBrandName(@Param("name") String name);
 
     /**
      * 根据供应商名称模糊查询供应商，返回供应商名称列表
      * @param name 供应商名称
      * @return
      */
-    List<String> findGoodsBySupplierName(@Param("name") String name);
+    List<Map> findGoodsBySupplierName(@Param("name") String name);
 
 }
