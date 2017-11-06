@@ -143,7 +143,7 @@ CREATE TABLE `receipt_purchase` (
   `receipt_content_id` bigint(20) DEFAULT NULL COMMENT '发票内容id',
   `receipt_content` varchar(20) DEFAULT NULL COMMENT '发票内容',
   `register_adress` varchar(150) DEFAULT NULL COMMENT '注册地址',
-  `register_phone` varchar(255) DEFAULT NULL COMMENT '注册电话',
+  `register_phone` varchar(12) DEFAULT NULL COMMENT '注册电话',
   `deposit_bank` varchar(255) DEFAULT NULL COMMENT '开户银行',
   `bank_amount` varchar(255) DEFAULT NULL COMMENT '银行账户',
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
