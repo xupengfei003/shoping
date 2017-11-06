@@ -106,10 +106,13 @@ public class PurchaseServiceImpl implements PurchaseService {
         output.put("status", Constant.CodeConfig.CODE_FAILURE);
         /*
             1.根据商户进行拆单
-                a.根据商品查出所有商户信息。
+                a.根据商品查出所有商户信息
                 b.循环商户ID生成订单
-            2.循环订单详情信息 生成批量插入订单详情数据，统计订单总价
+            2.循环订单详情信息 生成批量插入订单详情数据，统计商品金额小计
             3.生成订单数据
+                a.计算运费
+                b.计算优惠规则 折扣优惠,合计金额
+                c.保存订单发票信息
             4.给供应商推送消息
          */
         List<PurchaseItemVo> listPurchaseItem = purchase.getListPurchaseItem();//订单详情
