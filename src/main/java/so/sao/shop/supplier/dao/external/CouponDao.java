@@ -56,4 +56,9 @@ public interface CouponDao {
     Integer updateCouponUseNum(@Param("id")Long couponId,@Param("number") Integer number);
 
     Coupon findCouponById(Long couponId);
+
+    /**
+     * 更新表是否过期
+     */
+    void updateCoupon();
 }
