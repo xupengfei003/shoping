@@ -9,6 +9,7 @@ import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.dao.AccountDao;
 import so.sao.shop.supplier.dao.CommImgeDao;
 import so.sao.shop.supplier.dao.FreightRulesDao;
+import so.sao.shop.supplier.dao.InvoiceSettingDao;
 import so.sao.shop.supplier.dao.app.CommAppDao;
 import so.sao.shop.supplier.domain.Account;
 import so.sao.shop.supplier.domain.CommImge;
@@ -29,6 +30,7 @@ import so.sao.shop.supplier.util.PageTool;
 import java.math.BigDecimal;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class CommAppServiceImpl implements CommAppService {
@@ -43,6 +45,8 @@ public class CommAppServiceImpl implements CommAppService {
     private CommImgeDao commImgeDao;
     @Autowired
     private FreightRulesDao freightRulesDao;
+    @Autowired
+    private InvoiceSettingDao invoiceSettingDao;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -346,6 +350,7 @@ public class CommAppServiceImpl implements CommAppService {
                 logger.info("商品销量获取异常",e);
                 e.printStackTrace();
             }
+
             //将获取销量放入出参
             commodityOutput.setSalesNumber(Integer.valueOf(countSold.get(0)));
             //获取账户account对象
@@ -362,6 +367,15 @@ public class CommAppServiceImpl implements CommAppService {
             }
             commodityOutput.setProviderName(account.getProviderName());  //将获取供应商名称放入出参
             commodityOutput.setContractCity(account.getContractRegisterAddressCity());  //将获取供应商合同所在市放入出参
+
+            //根据供应商信息获取开票设置
+            InvoiceSettingOutput InvoiceSettingOutput = invoiceSettingDao.findBySupplierId(commodityOutput.getSupplierId());
+            // 设置供应商发票开启状态
+            commodityOutput.setIsOpen(InvoiceSettingOutput.getStatus());
+            //设置增值税普通发票状态
+            commodityOutput.setPlainInvoice(InvoiceSettingOutput.getInvoice());
+            //设置增值税专用发票状态
+            commodityOutput.setSpecialInvoice(InvoiceSettingOutput.getSpecialInvoice());
         }else {
             return Result.fail("暂无数据");
         }
@@ -448,33 +462,15 @@ public class CommAppServiceImpl implements CommAppService {
             return Result.success("成功",null);
         }
         // 2.将查询结果根据ID分成单条,根据PID分组,根据level分组
-        Map<Long ,CategoryOutput> map = new HashMap<>();
-        Map<Long ,List<CategoryOutput>> pMap = new HashMap<>();
-        Map<Integer ,List<CategoryOutput>> twoMap = new HashMap<>();
+        Map<Long ,CategoryOutput> map = new HashMap<>(16);
+        //根据ID分成单条
         for (CategoryOutput comm:list) {
-            //根据ID分成单条
             map.put(comm.getId(),comm);
-            //根据PID分组
-            if (Ognl.isNull(pMap.get(comm.getPid()))){
-                List<CategoryOutput> pList = new ArrayList<>();
-                pList.add(comm);
-                pMap.put(comm.getPid(),pList);
-            }else {
-                List<CategoryOutput> pList = pMap.get(comm.getPid());
-                pList.add(comm);
-                pMap.put(comm.getPid(),pList);
-            }
-            //根据level分组
-            if (Ognl.isNull(twoMap.get(comm.getLevel()))){
-                List<CategoryOutput> tList = new ArrayList<>();
-                tList.add(comm);
-                twoMap.put(comm.getLevel(),tList);
-            }else {
-                List<CategoryOutput> tList = twoMap.get(comm.getLevel());
-                tList.add(comm);
-                twoMap.put(comm.getLevel(),tList);
-            }
         }
+        //根据PID分组
+        Map<Long ,List<CategoryOutput>> pMap = list.stream().collect(Collectors.groupingBy(CategoryOutput::getPid));
+        //根据level分组
+        Map<Integer ,List<CategoryOutput>> twoMap = list.stream().collect(Collectors.groupingBy(CategoryOutput::getLevel));
         // 3.若不传id,那么查出所有的2级分类及其三级分类，若传入id,找出其对应的二级和三级分类
         if (Ognl.isNull(id)){
             //取出2级集合

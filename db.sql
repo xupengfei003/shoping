@@ -174,3 +174,10 @@ FROM
 /*修改轮播图轮播位为2位*/
 ALTER TABLE `banner`
   CHANGE COLUMN `location` `location` CHAR(2) NULL DEFAULT NULL COMMENT '轮播位' AFTER `url`;
+
+-- 更改订单表中的订单总金额和实付金额字段值
+UPDATE purchase p,(SELECT order_id,SUM(order_price + order_postage - discount) AS money FROM purchase GROUP BY order_id) pa SET p.`pay_amount` = pa.money,p.order_total_price = pa.money WHERE p.`order_id` = pa.order_id;
+-- 更改退款金额值
+UPDATE purchase SET drawback_price = pay_amount WHERE order_status = 6;
+-- 更改订单状态的前一个状态
+UPDATE purchase SET  prefix_order_status = IF(deliver_goods_time IS NULL,7,5) WHERE order_status = 6;
