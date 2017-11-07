@@ -53,7 +53,7 @@
         SELECT
         <include refid="baseColumn"/>
         FROM invoice_content
-        ORDER BY update_at
+        ORDER BY update_at DESC
     </select>
 
     <!--校验发票内容是否存在-->
