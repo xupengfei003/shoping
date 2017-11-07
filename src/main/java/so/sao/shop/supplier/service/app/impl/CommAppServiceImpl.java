@@ -9,6 +9,7 @@ import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.dao.AccountDao;
 import so.sao.shop.supplier.dao.CommImgeDao;
 import so.sao.shop.supplier.dao.FreightRulesDao;
+import so.sao.shop.supplier.dao.InvoiceSettingDao;
 import so.sao.shop.supplier.dao.app.CommAppDao;
 import so.sao.shop.supplier.domain.Account;
 import so.sao.shop.supplier.domain.CommImge;
@@ -43,6 +44,8 @@ public class CommAppServiceImpl implements CommAppService {
     private CommImgeDao commImgeDao;
     @Autowired
     private FreightRulesDao freightRulesDao;
+    @Autowired
+    private InvoiceSettingDao invoiceSettingDao;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -346,6 +349,7 @@ public class CommAppServiceImpl implements CommAppService {
                 logger.info("商品销量获取异常",e);
                 e.printStackTrace();
             }
+
             //将获取销量放入出参
             commodityOutput.setSalesNumber(Integer.valueOf(countSold.get(0)));
             //获取账户account对象
@@ -362,6 +366,15 @@ public class CommAppServiceImpl implements CommAppService {
             }
             commodityOutput.setProviderName(account.getProviderName());  //将获取供应商名称放入出参
             commodityOutput.setContractCity(account.getContractRegisterAddressCity());  //将获取供应商合同所在市放入出参
+
+            //根据供应商信息获取开票设置
+            InvoiceSettingOutput InvoiceSettingOutput = invoiceSettingDao.findBySupplierId(commodityOutput.getSupplierId());
+            // 设置供应商发票开启状态
+            commodityOutput.setIsOpen(InvoiceSettingOutput.getStatus());
+            //设置增值税普通发票状态
+            commodityOutput.setPlainInvoice(InvoiceSettingOutput.getInvoice());
+            //设置增值税专用发票状态
+            commodityOutput.setSpecialInvoice(InvoiceSettingOutput.getSpecialInvoice());
         }else {
             return Result.fail("暂无数据");
         }
