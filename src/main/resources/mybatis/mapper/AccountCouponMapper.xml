@@ -78,8 +78,9 @@
 
  <update id="updateAccountCouponStatusById" >
   UPDATE account_coupon ac
-   SET ac.status = 1,
-       ac.use_time = now()
+  SET ac.status = 1,
+      ac.use_time = now(),
+      ac.update = now()
    WHERE account_id = #{accountId}
      AND coupon_id = #{couponId}
  </update>
@@ -90,6 +91,9 @@
   SET ac.status = 4,
       ac.update_at = now()
   WHERE  now() > c.use_end_time
+  AND ac.status in (0,2)
+
+
  </update>
 <!--查找用户拥有的某张优惠券-->
     <select id="findAccountCoupon" resultMap="AllColumnMap">
@@ -105,4 +109,20 @@
         WHERE ac.account_id = #{accountId}
         AND ac.coupon_id = #{couponId}
     </select>
+
+    <!--更新优惠券为废弃-->
+    <update id="updateAccountCouponStatusByCouponId" >
+        UPDATE account_coupon ac
+        LEFT JOIN coupon c ON  c.id = ac.coupon_id
+        SET ac.status = 3,
+        ac.update_at = now()
+        WHERE c.status = 3
+        <if test="couponids != null)">
+            AND ac.coupon_id  in
+            <foreach collection="couponids" item="id" index="index"
+                     open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </if>
+    </update>
  </mapper>

@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import so.sao.shop.supplier.config.Constant;
+import so.sao.shop.supplier.dao.app.AppAccountCouponDao;
 import so.sao.shop.supplier.dao.external.CouponDao;
 import so.sao.shop.supplier.domain.User;
 import so.sao.shop.supplier.domain.external.Coupon;
@@ -36,12 +37,14 @@ public class CouponServiceImpl implements CouponService{
     @Autowired
     private CouponDao couponDao;
 
+    @Autowired
+    private AppAccountCouponDao appAccountCouponDao;
     /**
      *
      */
     @Override
     public void dailyUpdateStatus() {
-
+        couponDao.updateCoupon();
     }
 
     @Override
@@ -90,6 +93,7 @@ public class CouponServiceImpl implements CouponService{
     @Override
     public Result batchDiscardCouponsByIds(Long[] couponIds) {
         Integer i = couponDao.updateCouponStatusById(couponIds,3);
+                i = appAccountCouponDao.updateAccountCouponStatusByCouponId(couponIds);
         Result result = Result.success(Constant.MessageConfig.MSG_SUCCESS);
         return result;
     }

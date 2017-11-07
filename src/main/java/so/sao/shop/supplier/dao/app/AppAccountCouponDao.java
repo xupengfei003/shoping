@@ -53,4 +53,11 @@ public interface AppAccountCouponDao {
      * @return
      */
     List<AccountCoupon> findAccountCoupon(@Param("accountId") Long shopId, @Param("couponId") Long couponId);
+
+    /**
+     * 批量废弃
+     * @param couponIds
+     * @return
+     */
+    Integer updateAccountCouponStatusByCouponId(@Param("couponids")Long[] couponIds);
 }
