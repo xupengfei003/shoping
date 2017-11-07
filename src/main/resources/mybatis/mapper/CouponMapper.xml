@@ -191,4 +191,14 @@
 
 
 
+    <update id="updateCoupon" >
+        UPDATE coupon c
+        SET
+        c.status = 2,
+        c.update_at = now()
+        WHERE
+        now() > c.use_end_time
+        AND c.status IN (0,1)
+    </update>
+
  </mapper>

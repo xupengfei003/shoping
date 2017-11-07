@@ -123,6 +123,7 @@ public class AppAccountCouponServiceImpl implements AppAccountCouponService {
      * @param couponId
      * @return
      */
+    @Transactional(rollbackFor = Exception.class )
     @Override
     public Result useAccountCoupon(Long shopId, Long couponId){
         Integer i = 0;
