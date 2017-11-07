@@ -1,7 +1,5 @@
 package so.sao.shop.supplier.service.external.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import so.sao.shop.supplier.dao.external.CommCategoryPortalDao;
@@ -13,6 +11,7 @@ import so.sao.shop.supplier.service.external.CommCategoryPortalService;
 import so.sao.shop.supplier.util.Ognl;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  *<p>Version: supplier V1.1.0 </p>
@@ -24,16 +23,11 @@ import java.util.*;
 @Service
 public class CommCategoryPortalServiceImpl implements CommCategoryPortalService {
 
-    /**
-     * 初始化日志
-     */
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
     @Autowired
     private CommCategoryPortalDao commCategoryPortalDao;
 
     /**
-     * 批量修改商品分类名称和隐藏状态
+     * 批量修改商品分类名称和显示状态
      * @param commCategoryListInput
      * @throws Exception
      * @return Result
@@ -57,20 +51,10 @@ public class CommCategoryPortalServiceImpl implements CommCategoryPortalService 
         List<CommCategory> allList = commCategoryPortalDao.findAll();
         //根据ID分成单条,根据PID分组
         Map<Long ,CommCategory> map = new HashMap<>();
-        Map<Long ,List<CommCategory>> pMap = new HashMap<>();
+        Map<Long ,List<CommCategory>> pMap= allList.stream().collect(Collectors.groupingBy(CommCategory::getPid));
         for (CommCategory comm:allList) {
             //根据ID分成单条
             map.put(comm.getId(),comm);
-            //根据PID分组
-            if (Ognl.isNull(pMap.get(comm.getPid()))){
-                List<CommCategory> list = new ArrayList<>();
-                list.add(comm);
-                pMap.put(comm.getPid(),list);
-            }else {
-                List<CommCategory> list = pMap.get(comm.getPid());
-                list.add(comm);
-                pMap.put(comm.getPid(),list);
-            }
         }
         //取出pid为0的id
         List<CommCategory> topList = pMap.get(0L);

@@ -14,7 +14,7 @@ import java.util.Map;
  */
 public interface CommCategoryPortalService {
     /**
-     * 批量修改商品分类名称和隐藏状态
+     * 批量修改商品分类名称和显示状态
      * @param commCategoryListInput
      * @throws Exception
      */

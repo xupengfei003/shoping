@@ -1,5 +1,6 @@
 package so.sao.shop.supplier.pojo.input;
 
+import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.NotNull;
@@ -16,19 +17,20 @@ public class CommCategoryPortalInput {
     /**
      * 商品分类id
      */
-    @NotNull(message = "商品分类id不能为空")
+    @NotNull(message = "商品分类id不能为空!")
     private Long id;
 
     /**
      * 商品分类名称
      */
-    @NotBlank(message = "商品分类名称不能为空")
+    @NotBlank(message = "商品分类名称不能为空!")
+    @Length(max = 50,message = "商品分类名称大小不能超过50位!")
     private String name;
 
     /**
-     * 商品分类隐藏状态（0是隐藏，1是显示）
+     * 商品分类显示状态（0是隐藏，1是显示）
      */
-    @NotNull(message = "商品分类隐藏状态不能为空")
+    @NotNull(message = "商品分类显示状态不能为空!")
     private Integer status;
 
     /**

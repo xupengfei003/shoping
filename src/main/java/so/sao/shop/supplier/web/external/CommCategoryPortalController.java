@@ -31,7 +31,7 @@ public class CommCategoryPortalController {
     @Autowired
     private CommCategoryPortalService commCategoryPortalService;
 
-    @ApiOperation(value="批量修改商品分类名称和隐藏状态", notes="【责任人：韩超】")
+    @ApiOperation(value="批量修改商品分类名称和显示状态", notes="【责任人：韩超】")
     @PutMapping("/updateCommCategory")
     public Result updateCommCategorys(@Valid @RequestBody CommCategoryListInput commCategoryListInput) throws Exception {
         return commCategoryPortalService.updateCommCategorys(commCategoryListInput);
