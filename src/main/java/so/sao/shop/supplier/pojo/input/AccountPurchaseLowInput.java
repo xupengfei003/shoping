@@ -1,5 +1,9 @@
 package so.sao.shop.supplier.pojo.input;
 
+import org.hibernate.validator.constraints.NotEmpty;
+
+import javax.validation.constraints.Pattern;
+
 /**
  * <p>
  * 账户余额明细查询input类 (普通查询条件类)
@@ -25,6 +29,20 @@ public class AccountPurchaseLowInput {
      */
     private String condition;
 
+    /**
+     * 排序的字段 0 付款时间
+     */
+    @Pattern(regexp = "^[0]$", message = "排序字段不存在")
+    @NotEmpty(message = "排序字段码不能为空")
+    private String sortName;
+
+    /**
+     * 排序的次序 0 正序; 1 逆序
+     */
+    @Pattern(regexp = "^[0-1]$", message = "排序次序码错误")
+    @NotEmpty(message = "排序次序码不能为空")
+    private String sortType;
+
     public String getCreateBeginTime() {
         return createBeginTime;
     }
@@ -47,6 +65,22 @@ public class AccountPurchaseLowInput {
 
     public void setCondition(String condition) {
         this.condition = condition;
+    }
+
+    public String getSortName() {
+        return sortName;
+    }
+
+    public void setSortName(String sortName) {
+        this.sortName = sortName;
+    }
+
+    public String getSortType() {
+        return sortType;
+    }
+
+    public void setSortType(String sortType) {
+        this.sortType = sortType;
     }
 
     @Override
