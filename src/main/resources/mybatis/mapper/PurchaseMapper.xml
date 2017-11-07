@@ -120,7 +120,7 @@
                /* AND (order_receiver_name LIKE "${purchaseSelectInput.orderReceiverName}%"
                 OR order_receiver_mobile LIKE "${purchaseSelectInput.orderReceiverMobile}%")*/
                 AND (order_receiver_name LIKE CONCA('%',#{purchaseSelectInput.orderReceiverName},'%')
-                OR order_receiver_mobile LIKE CONCA('%',#{${purchaseSelectInput.orderReceiverMobile}%},'%'))
+                OR order_receiver_mobile LIKE CONCA('%',#{purchaseSelectInput.orderReceiverMobile},'%'))
 
             </if>
             /*管理员*/
@@ -297,7 +297,7 @@
 --                 AND (order_receiver_name LIKE "${orderReceiverName}%"
 --                 OR order_receiver_mobile LIKE "${orderReceiverMobile}%")
                 AND (order_receiver_name LIKE CONCA('%',#{orderReceiverName},'%')
-                OR order_receiver_mobile LIKE CONCAT ('%',#{orderReceiverMobile},'%'T ))
+                OR order_receiver_mobile LIKE CONCAT ('%',#{orderReceiverMobile},'%'))
             </if>
             /*管理员*/
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderReceiverName) and
