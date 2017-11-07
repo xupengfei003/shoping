@@ -274,7 +274,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                     if (accountCouponList.get(0).getStatus().equals(0)) {
                         //获取当前时间
                         String currentTime = StringUtil.fomateData(new Date(), "yyyy-MM-dd HH:mm:ss");
-                        String sendEndTime = StringUtil.fomateData(coupon.getSendEndTime(), "yyyy-MM-dd HH:mm:ss");
+                        String sendEndTime = StringUtil.fomateData(coupon.getUseEndTime(), "yyyy-MM-dd HH:mm:ss");
                         //将字符串格式的日期格式化
                         SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
                         if ((sdf.parse(sendEndTime)).compareTo(sdf.parse(currentTime)) >= 0) {

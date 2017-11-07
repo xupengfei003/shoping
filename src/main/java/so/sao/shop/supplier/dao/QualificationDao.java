@@ -25,7 +25,7 @@ public interface QualificationDao {
      * @param reason
      * @param updateDate
      */
-    void updateQualificationStatus(@Param("accountId") Long accountId, @Param("qualificationStatus")Integer qualificationStatus,@Param("reason") String reason, @Param("updateDate")Date updateDate );
+    void updateQualificationStatus(@Param("accountId") Long accountId, @Param("qualificationStatus")Integer qualificationStatus,@Param("reason") String reason,@Param("createDate")Date createDate, @Param("updateDate")Date updateDate );
 
     /**
      * 查询登录供应商的资质状态

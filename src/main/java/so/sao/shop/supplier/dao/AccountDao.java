@@ -204,6 +204,12 @@ public interface AccountDao {
      * @return
      */
     Long findSupplierIdByUserId (@Param("userId")Long userId);
+    /**
+     * 根据供应商手机号码，查找该供应商是否存在
+     * @param phone
+     * @return
+     */
+    Account findAccountByPhone(@Param("phone") String phone);
 
 }
 
