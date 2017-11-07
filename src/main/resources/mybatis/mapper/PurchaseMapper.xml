@@ -117,8 +117,11 @@
             @so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.orderReceiverMobile) and
             !@so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.storeName) and
             purchaseSelectInput.orderReceiverName == purchaseSelectInput.orderReceiverMobile">
-                AND (order_receiver_name LIKE "${purchaseSelectInput.orderReceiverName}%"
-                OR order_receiver_mobile LIKE "${purchaseSelectInput.orderReceiverMobile}%")
+               /* AND (order_receiver_name LIKE "${purchaseSelectInput.orderReceiverName}%"
+                OR order_receiver_mobile LIKE "${purchaseSelectInput.orderReceiverMobile}%")*/
+                AND (order_receiver_name LIKE CONCAT('%',#{purchaseSelectInput.orderReceiverName},'%')
+                OR order_receiver_mobile LIKE CONCAT('%',#{purchaseSelectInput.orderReceiverMobile},'%'))
+
             </if>
             /*管理员*/
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.orderReceiverName) and
@@ -126,20 +129,23 @@
             @so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.storeName) and
             purchaseSelectInput.orderReceiverName == purchaseSelectInput.orderReceiverMobile and
             purchaseSelectInput.orderReceiverName == purchaseSelectInput.storeName">
-                AND (order_receiver_name LIKE "${purchaseSelectInput.orderReceiverName}%"
+               /* AND (order_receiver_name LIKE "${purchaseSelectInput.orderReceiverName}%"
                 OR order_receiver_mobile LIKE "${purchaseSelectInput.orderReceiverMobile}%"
-                OR store_name LIKE "${purchaseSelectInput.storeName}%")
+                OR store_name LIKE "${purchaseSelectInput.storeName}%")*/
+                AND (order_receiver_name LIKE CONCAT('%',#{purchaseSelectInput.orderReceiverName},'%')
+                OR order_receiver_mobile LIKE CONCAT('%',#{purchaseSelectInput.orderReceiverMobile},'%')
+                OR store_name LIKE CONCAT('%',#{purchaseSelectInput.storeName},'%'))
             </if>
             <if test="purchaseSelectInput.orderReceiverName != purchaseSelectInput.orderReceiverMobile">
                 <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.orderReceiverName)">
-                    AND order_receiver_name LIKE "${purchaseSelectInput.orderReceiverName}%"
+                    AND order_receiver_name LIKE CONCAT('%',#{purchaseSelectInput.orderReceiverName},'%')
                 </if>
                 <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.orderReceiverMobile)">
-                    AND order_receiver_mobile LIKE "${purchaseSelectInput.orderReceiverMobile}%"
+                    AND order_receiver_mobile LIKE CONCAT('%',#{purchaseSelectInput.orderReceiverMobile},'%')
                 </if>
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.orderId)">
-                AND order_id LIKE "${purchaseSelectInput.orderId}%"
+                AND order_id LIKE CONCAT('%',#{purchaseSelectInput.orderId},'%')
             </if>
 
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.beginDate)">
@@ -179,11 +185,11 @@
                 AND order_payment_method = TRIM(#{purchaseSelectInput.orderPaymentMethod})
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.orderPaymentNum)">
-                AND order_payment_num LIKE "${purchaseSelectInput.orderPaymentNum}%"
+                AND order_payment_num LIKE CONCAT('%',#{purchaseSelectInput.orderPaymentNum},'%')
             </if>
 
             <if test="purchaseSelectInput.userId!=null">
-                AND user_id LIKE "${purchaseSelectInput.userId}%"
+                AND user_id LIKE CONCAT('%',#{purchaseSelectInput.userId},'%')
             </if>
             <if test="accountId != null">
                 AND store_id = #{accountId}
@@ -288,8 +294,10 @@
             @so.sao.shop.supplier.util.Ognl@isNotEmpty(orderReceiverMobile) and
             !@so.sao.shop.supplier.util.Ognl@isNotEmpty(storeName) and
             orderReceiverName == orderReceiverMobile">
-                AND (order_receiver_name LIKE "${orderReceiverName}%"
-                OR order_receiver_mobile LIKE "${orderReceiverMobile}%")
+--                 AND (order_receiver_name LIKE "${orderReceiverName}%"
+--                 OR order_receiver_mobile LIKE "${orderReceiverMobile}%")
+                AND (order_receiver_name LIKE CONCAT('%',#{orderReceiverName},'%')
+                OR order_receiver_mobile LIKE CONCAT ('%',#{orderReceiverMobile},'%'))
             </if>
             /*管理员*/
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderReceiverName) and
@@ -297,20 +305,23 @@
             @so.sao.shop.supplier.util.Ognl@isNotEmpty(storeName) and
             orderReceiverName == orderReceiverMobile and
             orderReceiverName == storeName">
-                AND (order_receiver_name LIKE "${orderReceiverName}%"
+                /*AND (order_receiver_name LIKE "${orderReceiverName}%"
                 OR order_receiver_mobile LIKE "${orderReceiverMobile}%"
-                OR store_name LIKE "${storeName}%")
+                OR store_name LIKE "${storeName}%")*/
+                AND (order_receiver_name LIKE CONCAT ('%',#{orderReceiverName},'%')
+                OR order_receiver_mobile LIKE CONCAT ('%',#{orderReceiverMobile},'%')
+                OR store_name LIKE CONCAT ('%',#{storeName},'%'))
             </if>
             <if test="orderReceiverName != orderReceiverMobile">
                 <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderReceiverName)">
-                    AND order_receiver_name LIKE "${orderReceiverName}%"
+                    AND order_receiver_name LIKE CONCAT ('%',#{orderReceiverName},'%')
                 </if>
                 <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderReceiverMobile)">
-                    AND order_receiver_mobile LIKE "${orderReceiverMobile}%"
+                    AND order_receiver_mobile LIKE CONCAT ('%',#{orderReceiverMobile},'%')
                 </if>
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderId)">
-                AND order_id LIKE "${orderId}%"
+                AND order_id LIKE CONCAT ('%',#{orderId},'%')
             </if>
 
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(beginDate)">
@@ -346,16 +357,16 @@
                 AND order_payment_method = TRIM(#{orderPaymentMethod})
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderPaymentNum)">
-                AND order_payment_num LIKE "${orderPaymentNum}%"
+                AND order_payment_num LIKE CONCAT ('%',#{orderPaymentNum},'%')
             </if>
 
 
             <if test="userId!=null">
-                AND user_id LIKE "${userId}%"
+                AND user_id LIKE CONCAT ('%',#{userId},'%')
             </if>
 
             <if test="storeId!=null">
-                AND store_id LIKE "${storeId}%"
+                AND store_id LIKE CONCAT ('%',#{storeId},'%')
             </if>
         </where>
         <if test="flag == 0">
