@@ -649,6 +649,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         /**
          * 1.校验条件类
          *      1.1 比较开始时间结束时间是否符合规则，不符合则返回提示信息
+         *      1.2 确认排序字段及排序次序
          * 2.设置分页
          * 3.访问持久化层，获取数据
          *      3.1 若获取到的结果集不为空：
@@ -667,6 +668,26 @@ public class PurchaseServiceImpl implements PurchaseService {
                 return Result.fail(Constant.MessageConfig.DateNOTLate);
             }
         }
+        // 1.2 确认排序字段及排序次序
+        //确认排序字段（0 付款时间）
+        String sortName = input.getSortName();
+        if (Ognl.isNotEmpty(sortName) && "0".equals(sortName)) {
+            input.setSortName("order_payment_time");
+        }
+
+        //确定排序次序（0 正序; 1 倒序）
+        switch (input.getSortType()) {
+            case "0":
+                input.setSortType("ASC");
+                break;
+            case "1":
+                input.setSortType("DESC");
+                break;
+            default:
+                input.setSortType("DESC");
+                break;
+        }
+
         //2.分页
         PageTool.startPage(pageNum, pageSize);
 
@@ -700,6 +721,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         /**
          * 1.校验条件类
          *      1.1 比较开始时间结束时间是否符合规则，不符合则返回提示信息
+         *      1.2 确认排序字段及排序次序
          * 2.设置分页
          * 3.访问持久化层，获取数据
          *      3.1 若获取到的结果集不为空：
@@ -715,6 +737,26 @@ public class PurchaseServiceImpl implements PurchaseService {
             if (DataCompare.compareDate(input.getCreateBeginTime(), input.getCreateEndTime())) {
                 return Result.fail(Constant.MessageConfig.DateNOTLate);
             }
+        }
+
+        // 1.2 确认排序字段及排序次序
+        //确认排序字段（0 付款时间）
+        String sortName = input.getSortName();
+        if (Ognl.isNotEmpty(sortName) && "0".equals(sortName)) {
+            input.setSortName("order_payment_time");
+        }
+
+        //确定排序次序（0 正序; 1 倒序）
+        switch (input.getSortType()) {
+            case "0":
+                input.setSortType("ASC");
+                break;
+            case "1":
+                input.setSortType("DESC");
+                break;
+            default:
+                input.setSortType("DESC");
+                break;
         }
 
         //2.分页
