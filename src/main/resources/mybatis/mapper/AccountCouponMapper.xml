@@ -80,7 +80,7 @@
   UPDATE account_coupon ac
   SET ac.status = 1,
       ac.use_time = now(),
-      ac.update = now()
+      ac.update_at = now()
    WHERE account_id = #{accountId}
      AND coupon_id = #{couponId}
  </update>
