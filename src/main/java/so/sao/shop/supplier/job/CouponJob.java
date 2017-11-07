@@ -38,7 +38,7 @@ public class CouponJob {
     /**
      * 每天零点更新优惠券表状态
      */
-    @Scheduled(cron = "0 * * * * *")
+    @Scheduled(cron = "0 0 0 * * *")
     public void excuteCouponStatusUpdate() {
         Boolean lock = redisTemplate.opsForValue().setIfAbsent(Constant.REDIS_KEY_PREFIX + "", "1");
 

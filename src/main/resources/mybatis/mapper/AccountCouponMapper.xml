@@ -117,7 +117,7 @@
         SET ac.status = 3,
         ac.update_at = now()
         WHERE c.status = 3
-        <if test="couponids != null)">
+        <if test="couponids != null">
             AND ac.coupon_id  in
             <foreach collection="couponids" item="id" index="index"
                      open="(" close=")" separator=",">
