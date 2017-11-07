@@ -50,4 +50,13 @@
         <include refid="baseColumns"/>
         from invoice_setting where supplier_id = #{1}
     </select>
+
+    <!--app端根据supplierId供应商发票设置-->
+    <select id="getById" resultType="so.sao.shop.supplier.pojo.output.AppCartItemOut">
+        select
+        status AS isOpen,
+        invoice AS plainInvoice,
+        special_invoice AS specialInvoice
+        from invoice_setting where supplier_id = #{supplierId}
+    </select>
 </mapper>

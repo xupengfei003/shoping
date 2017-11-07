@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.dao.*;
 import so.sao.shop.supplier.dao.app.AppCartItemDao;
 import so.sao.shop.supplier.domain.*;
@@ -32,6 +33,12 @@ public class AppCartServiceImpl implements AppCartService {
      */
     @Autowired
     AppCartItemDao cartItemDao;
+
+    /**
+     * 供应商发票设置DAO
+     */
+    @Autowired
+    InvoiceSettingDao invoiceSettingDao;
 
     /**
      * 供应商商品关系表对应dao
@@ -584,6 +591,25 @@ public class AppCartServiceImpl implements AppCartService {
             out.setAppCartItems(list);
             out.setList(new String[0]);
             out.setIsSelectShop(false);
+            AppCartItemOut aOut = null;
+            if (Ognl.isNotNull(key)){
+                aOut =invoiceSettingDao.getById(key);
+            }
+            if (Ognl.isNull(aOut)){
+                //是否支持开票
+                out.setIsOpen(Constant.InvoiceSetting.STATUS_OFF);
+                //普通发票
+                out.setPlainInvoice(Constant.InvoiceSetting.INVOICE_OFF);
+                //专用发票
+                out.setSpecialInvoice(Constant.InvoiceSetting.SPECIAL_INVOICE_OFF);
+            }else {
+                //是否支持开票
+                out.setIsOpen(aOut.getIsOpen());
+                //普通发票
+                out.setPlainInvoice(aOut.getPlainInvoice());
+                //专用发票
+                out.setSpecialInvoice(aOut.getSpecialInvoice());
+            }
             outList.add(out);
         }
         return outList;

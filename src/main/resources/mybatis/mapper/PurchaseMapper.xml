@@ -522,8 +522,13 @@
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(input.orderId)">
                 AND ORDER_ID = TRIM(#{input.orderId})
             </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(input.sortName)">
+                ORDER BY ${input.sortName}
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(input.sortType)">
+                ${input.sortType}
+            </if>
         </if>
-        ORDER BY ORDER_PAYMENT_TIME DESC
     </select>
 
     <!-- 分页条件检索账户管理下的订单明细 （普通查询）-->
@@ -561,8 +566,13 @@
                   ORDER_PAYMENT_NUM LIKE concat(TRIM(#{input.condition}),'%')
                 )
             </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(input.sortName)">
+                ORDER BY ${input.sortName}
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(input.sortType)">
+                ${input.sortType}
+            </if>
         </if>
-        ORDER BY ORDER_PAYMENT_TIME DESC
     </select>
 
     <!-- 查询订单状态 -->
