@@ -56,21 +56,32 @@
   #{pojo.updateAt}
   )
  </insert>
-
+<!--我的优惠券列表-->
 <select id="findAccountCouponsByUserId" resultMap="CouponOutputVo">
-  SELECT ac.coupon_id AS id,
-         ac.status AS get_status,
+    SELECT ac.coupon_id AS id,
+          ac.status AS get_status,
           c.name ,
           c.coupon_value ,
           c.usable_value ,
           c.use_start_time,
           c.use_end_time
-  FROM account_coupon ac left join coupon c on c.id = ac.coupon_id
-  WHERE ac.account_id = #{accountId}
-  <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(usableValue)">
+    <if test="@so.sao.shop.supplier.util.Ognl@isEmpty(usableValue)">
+          ,CASE  when ac.status = 0 THEN 1
+            when ac.status = 1 THEN 2
+            when ac.status = 2 THEN 3
+            when ac.status = 4 THEN 4
+            ELSE 5 END AS sort
+    </if>
+    FROM account_coupon ac left join coupon c on c.id = ac.coupon_id
+    WHERE ac.account_id = #{accountId}
+    <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(usableValue)">
       AND usable_value <![CDATA[ <= ]]> #{usableValue}
       AND ac.status = 0
-  </if>
+      ORDER BY use_start_time DESC
+    </if>
+    <if test="@so.sao.shop.supplier.util.Ognl@isEmpty(usableValue)">
+    ORDER BY sort ASC ,use_start_time DESC
+    </if>
 </select>
 
 
