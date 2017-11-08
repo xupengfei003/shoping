@@ -812,78 +812,51 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
     @Override
     public void exportExcel(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-        XSSFWorkbook workbook = null;
-        try {
+        String pageNum = request.getParameter("pageNum");
+        String pageSize = request.getParameter("pageSize");
+        String startTime = request.getParameter("startTime");
+        String endTime = request.getParameter("endTime");
+        String state = request.getParameter("state");
 
-            String pageNum = request.getParameter("pageNum");
-            String pageSize = request.getParameter("pageSize");
-            String startTime = request.getParameter("startTime");
-            String endTime = request.getParameter("endTime");
-            String state = request.getParameter("state");
+        //验证分页参数合法性
+        String limits = checkPageNumber(pageNum, pageSize);
 
-            logger.debug("【startTime 】" + startTime);
-            logger.debug("【endTime】" + endTime);
-
-            logger.debug("【pageNum 】" + pageNum);
-            logger.debug("【pageSize】" + pageSize);
-            logger.debug("【state 】" + state);
-            //验证分页参数合法性
-            String limits = checkPageNumber(pageNum, pageSize);
-
-
-            if (StringUtils.isEmpty(startTime) || StringUtils.isEmpty(endTime) || StringUtils.isEmpty(state)) {
-                throw new Exception();
-            }
-
-            Date startDate = new SimpleDateFormat("yyyy-MM-dd").parse(startTime);
-            Date endDate = new SimpleDateFormat("yyyy-MM-dd").parse(endTime);
-            //验证：起始日期不能大于大于终止日期
-            if (!endDate.after(startDate)) {
-                throw new Exception();
-            }
-
-            //整理传参数据
-            int year = Integer.valueOf(startTime.split("-")[0]).intValue();
-            int month = Integer.valueOf(startTime.split("-")[1]).intValue();
-
-
-            int nextMonth = month == 12 ? 1 : month + 1;
-            int nextYear = month == 12 ? year + 1 : year;
-
-            startTime = new String(year + "-" + month + "-01");
-            endTime = new String(nextYear + "-" + nextMonth + "-01");
-            logger.debug("【startTime 】" + startTime);
-            logger.debug("【endTime】" + endTime);
-
-            //设置响应参数
-            response.reset();
-            response.setContentType("application/vnd.ms-excel;charset=utf-8");
-            String filename = "结算明细"+ StringUtil.fomateData(new Date(), "yyyyMMddHHmmss") +".xlsx";
-            filename = new String(filename.getBytes("Utf-8"), "iso-8859-1");
-            response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
-            response.setCharacterEncoding("UTF-8");
-            response.setHeader("Content-Type", "application/octet-stream");
-            ServletOutputStream out = response.getOutputStream();
-            //根据条件查询数据
-            List<OrderMoneyRecord> records = orderMoneyRecordDao.findRecords(startTime, endTime, state, limits);
-            List<Object[]> data = new ArrayList<>();
-            String[] titles = {"供应商名称", "结账时间", "待结算金额（¥）", "已结算金额（¥）", "结算时间", "结算状态", "供应商账户", "银行流水号"};
-            for (int i = 0; i < records.size(); i++) {//转换数据格式
-                Object[] o = OrderMoneyRecord.converData(records.get(i));
-                logger.debug("【数据 为】 ： " + Arrays.toString(o));
-                data.add(o);
-            }
-            //生成excel文件
-            logger.debug("【excel 输出中。。】 ： ");
-            workbook = ExcelExportHelper.exportExcel(data, titles);
-//          输出excel
-            workbook.write(out);
-            logger.debug("【excel 输出中完毕】 ： ");
-        } finally {
-            if (workbook != null) {
-                workbook.close();
-            }
+        if (StringUtils.isEmpty(startTime) || StringUtils.isEmpty(endTime) || StringUtils.isEmpty(state)) {
+            throw new Exception();
         }
+
+        Date startDate = new SimpleDateFormat("yyyy-MM-dd").parse(startTime);
+        Date endDate = new SimpleDateFormat("yyyy-MM-dd").parse(endTime);
+        //验证：起始日期不能大于大于终止日期
+        if (!endDate.after(startDate)) {
+            throw new Exception();
+        }
+
+        //整理传参数据
+        int year = Integer.valueOf(startTime.split("-")[0]).intValue();
+        int month = Integer.valueOf(startTime.split("-")[1]).intValue();
+
+        int nextMonth = month == 12 ? 1 : month + 1;
+        int nextYear = month == 12 ? year + 1 : year;
+
+        startTime = new String(year + "-" + month + "-01");
+        endTime = new String(nextYear + "-" + nextMonth + "-01");
+
+        //设置Excel文件名称
+        String filename = "结算明细"+ StringUtil.fomateData(new Date(), "yyyyMMddHHmmss") +".xlsx";
+
+        //根据条件查询数据
+        List<OrderMoneyRecord> records = orderMoneyRecordDao.findRecords(startTime, endTime, state, limits);
+        List<Object[]> data = new ArrayList<>();
+        String[] titles = {"供应商名称", "结账时间", "待结算金额（¥）", "已结算金额（¥）", "结算时间", "结算状态", "供应商账户", "银行流水号"};
+        for (int i = 0; i < records.size(); i++) {
+            //转换数据格式
+            Object[] o = OrderMoneyRecord.converData(records.get(i));
+            data.add(o);
+        }
+
+        //生成excel文件
+        POIExcelUtil.exportExcel(data, titles, filename, response);
     }
 
     /**
@@ -1011,46 +984,33 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
      */
     @Override
     public void exportRecordToPurchasesExcel(String recordId, String orderId, String pageNum, String pageSize, HttpServletResponse response) throws Exception {
-        XSSFWorkbook workbook = null;
-        try {
 
-            //判断recordId不为空
-            if (Ognl.isEmpty(recordId)) {
-                return ;
-            }
+        //判断recordId不为空
+        if (Ognl.isEmpty(recordId)) {
+            return ;
+        }
 
-            //验证分页参数合法性
-            String limits = checkPageNumber(pageNum, pageSize);
+        //验证分页参数合法性
+        String limits = checkPageNumber(pageNum, pageSize);
 
-            //设置响应参数
-            response.reset();
-            response.setContentType("application/vnd.ms-excel;charset=utf-8");
-            String filename = "账单明细"+ StringUtil.fomateData(new Date(), "yyyyMMddHHmmss") +".xlsx";
-            filename = new String(filename.getBytes("Utf-8"), "iso-8859-1");
-            response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
-            response.setCharacterEncoding("UTF-8");
-            response.setHeader("Content-Type", "application/octet-stream");
-            ServletOutputStream out = response.getOutputStream();
-            //根据条件查询数据
-            List<AccountPurchaseVo> recordToPurchase = orderMoneyRecordDao.findPurchasesByRecordId(recordId, orderId, limits);
-            List<Object[]> data = new ArrayList<>();
-            String[] titles = {"订单编号", "订单状态", "商品金额小计（¥）", "运费金额（¥）", "折扣优惠（¥）", "总计金额（¥）", "实付金额（¥）",
-                               "透云进货价小计（¥）", "结算金额（¥）", "付款时间", "支付类型", "付款流水号"};
-            if (null != recordToPurchase && !recordToPurchase.isEmpty()) {
-                for (int i = 0; i < recordToPurchase.size(); i++) {//转换数据格式
-                    Object[] o = AccountPurchaseVo.converData(recordToPurchase.get(i));
-                    data.add(o);
-                }
-            }
-            //生成excel文件
-            workbook = ExcelExportHelper.exportExcel(data, titles);
-            //输出excel
-            workbook.write(out);
-        } finally {
-            if (workbook != null) {
-                workbook.close();
+        //设置Excel文件名称
+        String filename = "账单明细"+ StringUtil.fomateData(new Date(), "yyyyMMddHHmmss") +".xlsx";
+
+        //根据条件查询数据
+        List<AccountPurchaseVo> recordToPurchase = orderMoneyRecordDao.findPurchasesByRecordId(recordId, orderId, limits);
+        List<Object[]> data = new ArrayList<>();
+        String[] titles = {"订单编号", "订单状态", "商品金额小计（¥）", "运费金额（¥）", "折扣优惠（¥）", "总计金额（¥）", "实付金额（¥）",
+                           "透云进货价小计（¥）", "结算金额（¥）", "付款时间", "支付类型", "付款流水号"};
+        if (null != recordToPurchase && !recordToPurchase.isEmpty()) {
+            //转换数据格式
+            for (int i = 0; i < recordToPurchase.size(); i++) {
+                Object[] o = AccountPurchaseVo.converData(recordToPurchase.get(i));
+                data.add(o);
             }
         }
+
+        //生成excel文件
+        POIExcelUtil.exportExcel(data, titles, filename, response);
     }
 
 }

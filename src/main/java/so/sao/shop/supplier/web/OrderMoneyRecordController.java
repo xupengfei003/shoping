@@ -19,8 +19,7 @@ import so.sao.shop.supplier.util.Ognl;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -40,8 +39,7 @@ public class OrderMoneyRecordController {
      * 1.校验参数合法性
      *      1.1 如果入参对象为null,则返回失败信息
      *      1.2 判断起始时间、结束时间、结算状态不为空
-     *      1.3 判断时间格式是否正确
-     *      1.4 判断起始时间是否小于结束时间
+     *      1.3 判断起始时间是否小于结束时间
      * 2.查询结算明细列表
      *      2.1 未查找到结果
      *      2.2 查询成功，返回结果
@@ -54,7 +52,7 @@ public class OrderMoneyRecordController {
      */
     @ApiOperation(value = "查询结算明细列表", notes = "查询结算明细列表【负责人:聂文超】")
     @GetMapping(value = "/search")
-    public Result search(Integer pageNum, Integer pageSize, OrderMoneyRecordInput input) throws Exception {
+    public Result search(Integer pageNum, Integer pageSize, @Valid OrderMoneyRecordInput input) throws Exception {
 
         //1.校验参数合法性
         //1.1 如果入参对象为null,则返回失败信息
@@ -62,22 +60,18 @@ public class OrderMoneyRecordController {
             return Result.fail(Constant.MessageConfig.MSG_FAILURE);
         }
 
-        String startTime = input.getStartTime();
-        String endTime = input.getEndTime();
+        Date startTime = input.getStartTime();
+        Date endTime = input.getEndTime();
 
         //1.2 判断起始时间、结束时间、结算状态不为空
         if (Ognl.isEmpty(startTime) || Ognl.isEmpty(endTime) || Ognl.isEmpty(input.getState())) {
             return Result.fail(Constant.MessageConfig.MSG_NOT_EMPTY);
         }
 
-        //1.3 判断时间格式是否正确
-        if (!DateUtil.isDate(startTime) || !DateUtil.isDate(endTime)) {
-            return Result.fail(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
-        }
-
-        //1.4 判断起始时间是否小于结束时间
-        if (DataCompare.compareDate(startTime, endTime)) {
-            return Result.fail(Constant.MessageConfig.DateNOTLate);
+        //1.3 判断起始时间是否小于结束时间
+        String timeMsg = DataCompare.createAtCheck(startTime, endTime);
+        if (Ognl.isNotEmpty(timeMsg)) {
+            return Result.fail(timeMsg);
         }
 
         //2.查询结算明细列表
@@ -149,17 +143,11 @@ public class OrderMoneyRecordController {
         if (Ognl.isNull(user)) {
             return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
-        // 若传入起始时间，校验其是否是时间格式
-        if (Ognl.isNotEmpty(put.getStartTime()) && !DateUtil.isDate(put.getStartTime())) {
-            return Result.fail(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
-        }
-        // 若传入结束时间，校验其是否是时间格式
-        if (Ognl.isNotEmpty(put.getEndTime()) && !DateUtil.isDate(put.getEndTime())) {
-            return Result.fail(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
-        }
+
         // 若传入起始和结束时间，检查起始时间是否大于结束时间
-        if (DataCompare.compareDate(put.getStartTime(), put.getEndTime())) {
-            return Result.fail(Constant.MessageConfig.DateNOTLate);
+        String timeMsg = DataCompare.createAtCheck(put.getStartTime(), put.getEndTime());
+        if (Ognl.isNotEmpty(timeMsg)) {
+            return Result.fail(timeMsg);
         }
         // 查询数据
         Map<String, Object> map = orderMoneyRecordService.searchRecords(user.getAccountId(), put, pageNum, pageSize);

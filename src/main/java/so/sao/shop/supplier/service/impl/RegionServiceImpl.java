@@ -10,6 +10,7 @@ import so.sao.shop.supplier.service.RegionService;
 import so.sao.shop.supplier.util.Ognl;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -60,20 +61,10 @@ public class RegionServiceImpl implements RegionService {
 
         //根据srId分成单条,根据parentId分组
         Map<Integer, Region> map = new HashMap<>();
-        Map<Integer, List<Region>> pMap = new HashMap<>();
+        Map<Integer, List<Region>> pMap = allList.stream().collect(Collectors.groupingBy(Region::getParentId));
         for (Region region : allList) {
             //根据srId分成单条
             map.put(region.getSrId(), region);
-            //根据parentId分组
-            if (Ognl.isNull(pMap.get(region.getParentId()))) {
-                List<Region> list = new ArrayList<>();
-                list.add(region);
-                pMap.put(region.getParentId(), list);
-            } else {
-                List<Region> list = pMap.get(region.getParentId());
-                list.add(region);
-                pMap.put(region.getParentId(), list);
-            }
         }
 
         //取出parentId为0的List<Region>

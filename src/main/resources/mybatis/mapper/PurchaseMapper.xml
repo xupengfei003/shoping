@@ -502,17 +502,17 @@
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(input)">
             <!--订单产生时间-->
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(input.createBeginTime)">
-                AND ORDER_CREATE_TIME &gt;= TRIM(STR_TO_DATE(#{input.createBeginTime},'%Y-%m-%d'))
+                AND ORDER_CREATE_TIME &gt;= #{input.createBeginTime}
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(input.createEndTime)">
-                AND ORDER_CREATE_TIME &lt; TRIM(DATE_ADD(STR_TO_DATE(#{input.createEndTime},'%Y-%m-%d'),INTERVAL 1 DAY))
+                AND ORDER_CREATE_TIME &lt; date_add(#{input.createEndTime}, INTERVAL 1 DAY)
             </if>
             <!--订单支付时间-->
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(input.payBeginTime)">
-                AND ORDER_PAYMENT_TIME &gt;= TRIM(STR_TO_DATE(#{input.payBeginTime},'%Y-%m-%d'))
+                AND ORDER_PAYMENT_TIME &gt;= #{input.payBeginTime}
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(input.payEndTime)">
-                AND ORDER_PAYMENT_TIME &lt; TRIM(DATE_ADD(STR_TO_DATE(#{input.payEndTime},'%Y-%m-%d'),INTERVAL 1 DAY))
+                AND ORDER_PAYMENT_TIME &lt; date_add(#{input.payEndTime}, INTERVAL 1 DAY)
             </if>
             <!--支付方式(1、支付宝；2、微信)-->
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(input.orderPaymentMethod)">
@@ -553,10 +553,10 @@
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(input)">
             <!--订单产生时间-->
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(input.createBeginTime)">
-                AND ORDER_CREATE_TIME &gt;= TRIM(STR_TO_DATE(#{input.createBeginTime},'%Y-%m-%d'))
+                AND ORDER_CREATE_TIME &gt;= #{input.createBeginTime}
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(input.createEndTime)">
-                AND ORDER_CREATE_TIME &lt; TRIM(DATE_ADD(STR_TO_DATE(#{input.createEndTime},'%Y-%m-%d'),INTERVAL 1 DAY))
+                AND ORDER_CREATE_TIME &lt; date_add(#{input.createEndTime}, INTERVAL 1 DAY)
             </if>
             <!--查询条件-->
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(input.condition)">
