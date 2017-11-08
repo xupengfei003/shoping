@@ -661,11 +661,13 @@ public class PurchaseServiceImpl implements PurchaseService {
         //1.校验条件类
         if (Ognl.isNotEmpty(input)) {
             //1.1 比较开始时间结束时间是否符合规则，不符合则返回提示信息
-            if (DataCompare.compareDate(input.getCreateBeginTime(), input.getCreateEndTime())) {
-                return Result.fail(Constant.MessageConfig.DateNOTLate);
+            String createTimeMsg = DataCompare.createAtCheck(input.getCreateBeginTime(), input.getCreateEndTime());
+            if (Ognl.isNotEmpty(createTimeMsg)) {
+                return Result.fail(createTimeMsg);
             }
-            if (DataCompare.compareDate(input.getPayBeginTime(), input.getPayEndTime())) {
-                return Result.fail(Constant.MessageConfig.DateNOTLate);
+            String payTimeMsg = DataCompare.createAtCheck(input.getPayBeginTime(), input.getPayEndTime());
+            if (Ognl.isNotEmpty(payTimeMsg)) {
+                return Result.fail(payTimeMsg);
             }
         }
         // 1.2 确认排序字段及排序次序
@@ -734,8 +736,9 @@ public class PurchaseServiceImpl implements PurchaseService {
         //1.校验条件类
         if (Ognl.isNotEmpty(input)) {
             //比较开始时间和结束时间是否输入正常 若输入不正常返回提示信息
-            if (DataCompare.compareDate(input.getCreateBeginTime(), input.getCreateEndTime())) {
-                return Result.fail(Constant.MessageConfig.DateNOTLate);
+            String createTimeMsg = DataCompare.createAtCheck(input.getCreateBeginTime(), input.getCreateEndTime());
+            if (Ognl.isNotEmpty(createTimeMsg)) {
+                return Result.fail(createTimeMsg);
             }
         }
 

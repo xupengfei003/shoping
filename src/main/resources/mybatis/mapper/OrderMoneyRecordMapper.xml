@@ -120,10 +120,10 @@
         FROM order_money_record
         <where>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(startTime)">
-                AND checkout_at >= TRIM(STR_TO_DATE(#{startTime},'%Y-%m-%d'))
+                AND checkout_at >= #{startTime}
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(endTime)">
-                AND checkout_at &lt; TRIM(DATE_ADD(STR_TO_DATE(#{endTime},'%Y-%m-%d'),INTERVAL 1 DAY))
+                AND checkout_at &lt; date_add(#{endTime}, INTERVAL 1 DAY)
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(state)">
                 AND state = #{state}
@@ -278,10 +278,10 @@
         <!--按条件检索数据-->
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(put)">
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(put.startTime)">
-                And settled_at &gt;= TRIM(STR_TO_DATE(#{put.startTime},'%Y-%m-%d'))
+                And settled_at &gt;= #{put.startTime}
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(put.endTime)">
-                AND settled_at &lt; TRIM(DATE_ADD(STR_TO_DATE(#{put.endTime},'%Y-%m-%d'),INTERVAL 1 DAY))
+                AND settled_at &lt; date_add(#{put.endTime}, INTERVAL 1 DAY)
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(put.sortName)">
                 ORDER BY ${put.sortName}
@@ -311,10 +311,10 @@
         <!--按条件检索数据-->
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(put)">
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(put.startTime)">
-                And checkout_at &gt;= TRIM(STR_TO_DATE(#{put.startTime},'%Y-%m-%d'))
+                And checkout_at &gt;= #{put.startTime}
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(put.endTime)">
-                AND checkout_at &lt; TRIM(DATE_ADD(STR_TO_DATE(#{put.endTime},'%Y-%m-%d'),INTERVAL 1 DAY))
+                AND checkout_at &lt; date_add(#{put.endTime}, INTERVAL 1 DAY)
             </if>
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(put.sortName)">

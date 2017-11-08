@@ -9,16 +9,20 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 import so.sao.shop.supplier.config.CommConstant;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -165,24 +169,24 @@ public class POIExcelUtil {
 	 * @param cell
 	 * @param val
 	 */
-	private static void fillCellValue(HSSFCell cell, Object val) {
-		try{
-			if(val!=null) {
-				if(val instanceof Double) {
-					cell.setCellValue((Double)val);
-				} else if(val instanceof BigDecimal) {
-					cell.setCellValue(((BigDecimal)val).doubleValue());
-				} else if(val instanceof Integer) {
-					cell.setCellValue((Integer)val);
-				} else {
-					cell.setCellValue(val+"");
-				}
-			}
-		} catch (Exception ex) {
-			logger.error("写入单元格数据失败: [Row: " + cell.getRowIndex() + "; Cell: " + cell.getColumnIndex() + " | data: "
-					+ val + "]. ErrorMsg: " , ex);
-		}
-	}
+//	private static void fillCellValue(HSSFCell cell, Object val) {
+//		try{
+//			if(val!=null) {
+//				if(val instanceof Double) {
+//					cell.setCellValue((Double)val);
+//				} else if(val instanceof BigDecimal) {
+//					cell.setCellValue(((BigDecimal)val).doubleValue());
+//				} else if(val instanceof Integer) {
+//					cell.setCellValue((Integer)val);
+//				} else {
+//					cell.setCellValue(val+"");
+//				}
+//			}
+//		} catch (Exception ex) {
+//			logger.error("写入单元格数据失败: [Row: " + cell.getRowIndex() + "; Cell: " + cell.getColumnIndex() + " | data: "
+//					+ val + "]. ErrorMsg: " , ex);
+//		}
+//	}
 
 	/**
 	 * 行复制功能
@@ -224,6 +228,127 @@ public class POIExcelUtil {
 		// 不同数据类型处理
 		CellType srcCellType = srcCell.getCellTypeEnum();
 		distCell.setCellType(srcCellType);
+	}
+
+	/**
+	 * 生成excl文件
+	 * @param data 数据
+	 * @param titles 标题
+	 * @param filename 文件名
+	 * @param response
+	 * @return
+	 * @throws IOException
+	 */
+	public static void exportExcel(List<Object[]> data, String[] titles, String filename, HttpServletResponse response) throws Exception {
+		/**
+		 * 1、声明excel位置
+		 * 2、创建excel文件
+		 * 3、创建excel标题
+		 * 4、写入单元格内容
+		 * 5、返回生成的文件
+		 */
+		XSSFWorkbook workbook = null;
+		try {
+
+			//设置响应参数
+			response.reset();
+			response.setContentType("application/vnd.ms-excel;charset=utf-8");
+			filename = new String(filename.getBytes("Utf-8"), "iso-8859-1");
+			response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+			response.setCharacterEncoding("UTF-8");
+			response.setHeader("Content-Type", "application/octet-stream");
+			ServletOutputStream out = response.getOutputStream();
+
+			CellStyle defaulCellStyle = null;
+			CellStyle defaulTitleCellStyle = null;
+
+			//创建excel文件
+			workbook = new XSSFWorkbook();// 创建一个Excel文件
+			defaulTitleCellStyle = getDefaultTitleCellStyle(workbook);
+			defaulCellStyle = getDefaultCellStyle(workbook);
+			XSSFSheet sheet = workbook.createSheet("sheet1");// 创建一个Excel的Sheet
+
+			Row row = sheet.createRow(0);
+			Cell cell = null;
+
+			//创建标题行
+			for (int i = 0; i < titles.length; i++) {
+				cell = row.createCell(i);
+				cell.setCellValue(titles[i]);
+				sheet.setColumnWidth(i, 6000);//设置宽度
+				cell.setCellStyle(defaulTitleCellStyle);
+			}
+
+			//写入单元格内容
+			for (int i = 0; i < data.size(); i++) {
+				row = sheet.createRow(i + 1);
+				Object[] record = data.get(i);
+				for (int j = 0; j < record.length; j++) {
+					cell = row.createCell(j);
+					setCellValue(record[j], cell);
+					cell.setCellStyle(defaulCellStyle);
+				}
+			}
+			workbook.write(out);
+		} finally {
+			if (workbook != null) {
+				workbook.close();
+			}
+		}
+	}
+
+	/**
+	 * 默认的excel
+	 * @param workbook
+	 * @return
+	 */
+	private static CellStyle getDefaultTitleCellStyle(XSSFWorkbook workbook) {
+		XSSFCellStyle cellStyle =  workbook.createCellStyle();
+		cellStyle.setAlignment(XSSFCellStyle.ALIGN_CENTER);
+		return cellStyle;
+	}
+
+	/**
+	 * 默认的单元个样式
+	 * @param workbook
+	 * @return
+	 */
+	private static CellStyle getDefaultCellStyle(XSSFWorkbook workbook) {
+		XSSFCellStyle cellStyle =  workbook.createCellStyle();
+		cellStyle.setAlignment(XSSFCellStyle.ALIGN_CENTER);
+		return cellStyle;
+	}
+
+
+
+	/**
+	 * 为单元格设置值
+	 * @param o 值
+	 * @param cell 单元格
+	 */
+	private static void setCellValue(Object o, Cell cell) {
+		if(o == null){
+			cell.setCellValue("");
+			return;
+		}
+		switch (o.getClass().getName()){
+			case "java.lang.Integer":
+				cell.setCellValue(((Integer)o).doubleValue());
+				break;
+			case "java.lang.Double":
+				cell.setCellValue((Double)o);
+				break;
+			case "java.util.Date":
+				cell.setCellValue((Date)o);
+				break;
+			case "java.lang.Boolean":
+				cell.setCellValue((Boolean)o);
+				break;
+			default:
+				cell.setCellValue(String.valueOf(o));
+				break;
+		}
+
 	}
 
 }
