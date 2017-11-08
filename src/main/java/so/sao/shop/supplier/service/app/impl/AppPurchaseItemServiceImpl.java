@@ -108,7 +108,11 @@ public class AppPurchaseItemServiceImpl implements AppPurchaseItemService {
                 appPurchaseItemOutput.setOrderId(appPurchasesVos.getPayId());
                 appPurchaseItemOutput.setStoreId(null);
                 appPurchaseItemOutput.setStoreName(null);
-                appPurchaseItemOutput.setDiscount(String.valueOf(coupon.getCouponValue()));
+                if (null == coupon){
+                    appPurchaseItemOutput.setDiscount("0");
+                } else {
+                    appPurchaseItemOutput.setDiscount(String.valueOf(coupon.getCouponValue()));
+                }
             }
             //输出运费
             //1.如果运费为0，则显示“包邮”

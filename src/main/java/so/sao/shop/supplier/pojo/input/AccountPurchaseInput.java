@@ -1,8 +1,10 @@
 package so.sao.shop.supplier.pojo.input;
 
 import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.*;
+import java.util.Date;
 
 /**
  * <p>
@@ -17,22 +19,26 @@ public class AccountPurchaseInput {
     /**
      * 开始时间（支付时间）
      */
-    private String payBeginTime;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date payBeginTime;
 
     /**
      * 结束时间（支付时间）
      */
-    private String payEndTime;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date payEndTime;
 
     /**
      * 开始时间（创建时间）
      */
-    private String createBeginTime;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date createBeginTime;
 
     /**
      * 结束时间（创建时间）  
      */
-    private String createEndTime;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date createEndTime;
 
     /**
      * 支付方式(0.全部；1、支付宝；2、微信)
@@ -72,19 +78,19 @@ public class AccountPurchaseInput {
     @NotEmpty(message = "排序次序码不能为空")
     private String sortType;
 
-    public String getPayBeginTime() {
-        return  payBeginTime;
+    public Date getPayBeginTime() {
+        return payBeginTime;
     }
 
-    public void setPayBeginTime(String payBeginTime) {
+    public void setPayBeginTime(Date payBeginTime) {
         this.payBeginTime = payBeginTime;
     }
 
-    public String getPayEndTime() {
+    public Date getPayEndTime() {
         return payEndTime;
     }
 
-    public void setPayEndTime(String payEndTime) {
+    public void setPayEndTime(Date payEndTime) {
         this.payEndTime = payEndTime;
     }
 
@@ -112,19 +118,19 @@ public class AccountPurchaseInput {
         this.orderId = orderId;
     }
 
-    public String getCreateBeginTime() {
+    public Date getCreateBeginTime() {
         return createBeginTime;
     }
 
-    public void setCreateBeginTime(String createBeginTime) {
+    public void setCreateBeginTime(Date createBeginTime) {
         this.createBeginTime = createBeginTime;
     }
 
-    public String getCreateEndTime() {
+    public Date getCreateEndTime() {
         return createEndTime;
     }
 
-    public void setCreateEndTime(String createEndTime) {
+    public void setCreateEndTime(Date createEndTime) {
         this.createEndTime = createEndTime;
     }
 
