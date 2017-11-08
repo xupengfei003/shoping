@@ -727,12 +727,15 @@
         h.qualificationStatus = #{qualificationStatus}
       </if>
     </where>
-    ORDER  BY  h.create_date
+    ORDER  BY
+      <if test="sort == 3">
+          h.update_date  DESC
+      </if>
       <if test="sort == 0">
-        ASC
+        h.create_date ASC
       </if>
       <if test="sort == 1">
-        DESC
+        h.create_date DESC
       </if>
   </select>
 
