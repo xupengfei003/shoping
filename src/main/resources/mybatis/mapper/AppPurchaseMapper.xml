@@ -30,6 +30,9 @@
         <result column="logistics_company" property="logisticsCompany"/>
         <result column="discount" property="discount"/>
         <result column="coupon_id" property="couponId"/>
+        <result column="order_total_price" property="orderTotalPrice"/>
+        <result column="pay_amount" property="payAmount"/>
+        <result column="drawback_price" property="drawbackPrice"/>
     </resultMap>
 
     <sql id="App_Order_Column_List">
@@ -37,7 +40,8 @@
         order_receiver_mobile, order_address,order_price,order_shipment_number,pay_id,
         order_payment_time,order_refuse_time,drawback_time,deliver_goods_time,order_receive_time,
         order_cancel_time,order_payment_num,order_postage,user_id,store_id,user_name,order_ship_method,
-        distributor_name,distributor_mobile,logistics_company,coupon_id,discount
+        distributor_name,distributor_mobile,logistics_company,coupon_id,discount,order_total_price,
+        pay_amount,drawback_price
     </sql>
     <select id="findOrderList" resultMap="AppOrderAllList" parameterType="java.lang.Integer">
         SELECT
