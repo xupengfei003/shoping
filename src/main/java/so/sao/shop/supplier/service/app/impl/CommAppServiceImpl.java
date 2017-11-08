@@ -212,7 +212,6 @@ public class CommAppServiceImpl implements CommAppService {
         }
         List<CommAppOutput> commAppOutputList = commAppDao.findCommoditiesByConditionOrder( commodityAppInput );
         try {
-
             if( null != commAppOutputList && commAppOutputList.size() > 0 ){
                 String [] ArrGoodIds = new String[commAppOutputList.size()];
                 for ( int i=0 ; i< commAppOutputList.size(); i++  ){
