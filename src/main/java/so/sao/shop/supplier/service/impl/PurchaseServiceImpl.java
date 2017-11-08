@@ -269,33 +269,39 @@ public class PurchaseServiceImpl implements PurchaseService {
             //TODO 计算优惠使用规则-v1.1.0
             Coupon coupon = couponDao.findCouponById(purchase.getCouponId());
             if (Ognl.isNotNull(coupon)) {
-                List<AccountCoupon> accountCouponList = appAccountCouponDao.findAccountCoupon(purchase.getUserId(), coupon.getId());
-                if (Ognl.isNotNull(accountCouponList) && accountCouponList.size() > 0) {
-                    if (accountCouponList.get(0).getStatus().equals(0)) {
-                        //获取当前时间
-                        String currentTime = StringUtil.fomateData(new Date(), "yyyy-MM-dd HH:mm:ss");
-                        String sendEndTime = StringUtil.fomateData(coupon.getUseEndTime(), "yyyy-MM-dd HH:mm:ss");
-                        //将字符串格式的日期格式化
-                        SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-                        if ((sdf.parse(sendEndTime)).compareTo(sdf.parse(currentTime)) >= 0) {
-                            //订单总金额是否大于等于优惠券金额
-                            if (orderTotalPrice.compareTo(coupon.getUsableValue()) == -1) {
-                                output.put("message", "不符合优惠券满减条件");
-                                return output;
+                if (coupon.getUsableValue().compareTo(coupon.getCouponValue()) == 1) {
+                    List<AccountCoupon> accountCouponList = appAccountCouponDao.findAccountCoupon(purchase.getUserId(), coupon.getId());
+                    if (Ognl.isNotNull(accountCouponList) && accountCouponList.size() > 0) {
+                        if (accountCouponList.get(0).getStatus().equals(0)) {
+                            //获取当前时间
+                            String currentTime = StringUtil.fomateData(new Date(), "yyyy-MM-dd HH:mm:ss");
+                            String sendEndTime = StringUtil.fomateData(coupon.getUseEndTime(), "yyyy-MM-dd HH:mm:ss");
+                            //将字符串格式的日期格式化
+                            SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                            if ((sdf.parse(sendEndTime)).compareTo(sdf.parse(currentTime)) >= 0) {
+                                //订单总金额是否大于等于优惠券金额
+                                if (orderTotalPrice.compareTo(coupon.getUsableValue()) == -1) {
+                                    output.put("message", "不符合优惠券满减条件");
+                                    return output;
+                                } else {
+                                    listPurchase = CouponRulesUtil.couponRule(listPurchase, coupon.getUsableValue(), coupon.getCouponValue());
+                                    appAccountCouponDao.updateAccountCouponStatusById(purchase.getUserId(), purchase.getCouponId());
+                                    couponDao.updateCouponUseNum(purchase.getCouponId(),1);
+                                }
                             } else {
-                                listPurchase = CouponRulesUtil.couponRule(listPurchase, coupon.getUsableValue(), coupon.getCouponValue());
-                                appAccountCouponDao.updateAccountCouponStatusById(purchase.getUserId(), purchase.getCouponId());
-                                couponDao.updateCouponUseNum(purchase.getCouponId(),1);
+                                output.put("message", "优惠券超出可使用时间");
+                                return output;
                             }
                         } else {
-                            output.put("message", "优惠券超出可使用时间");
+                            output.put("message", "该优惠券已使用");
                             return output;
                         }
-                    } else {
-                        output.put("message", "该优惠券已使用");
-                        return output;
                     }
+                } else {
+                    output.put("message", "优惠券可用优惠金额不能大于满额");
+                    return output;
                 }
+
             }
             int result = purchaseDao.savePurchase(listPurchase);
             int resultSum = purchaseItemDao.savePurchaseItem(listItem);
