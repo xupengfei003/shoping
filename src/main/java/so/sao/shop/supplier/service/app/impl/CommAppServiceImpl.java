@@ -211,9 +211,10 @@ public class CommAppServiceImpl implements CommAppService {
             commodityAppInput.setBrandIds(null);
         }
         List<CommAppOutput> commAppOutputList = commAppDao.findCommoditiesByConditionOrder( commodityAppInput );
-        String [] ArrGoodIds = new String[commAppOutputList.size()];
         try {
+
             if( null != commAppOutputList && commAppOutputList.size() > 0 ){
+                String [] ArrGoodIds = new String[commAppOutputList.size()];
                 for ( int i=0 ; i< commAppOutputList.size(); i++  ){
                     ArrGoodIds [i] = commAppOutputList.get(i).getId() + "";
                 }
@@ -225,6 +226,7 @@ public class CommAppServiceImpl implements CommAppService {
                 // 判断 是否 指定 按照 销量 排序
                 if (null != commodityAppInput.getOrderPriceOrSalesNum()  &&  "orderSales".equalsIgnoreCase( commodityAppInput.getOrderPriceOrSalesNum() ) ){
                     Collections.sort(commAppOutputList , new Comparator<CommAppOutput>(){
+                        @Override
                         public int compare(CommAppOutput commOne, CommAppOutput commTwo) {
                             if( commOne.getSaleNum() < commTwo.getSaleNum() ){
                                 return 1;
