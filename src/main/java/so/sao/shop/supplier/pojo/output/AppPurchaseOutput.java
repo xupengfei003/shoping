@@ -39,7 +39,7 @@ public class AppPurchaseOutput {
     private Short orderStatus;
 
     /**
-     * 订单合计（订单实付金额）
+     * 商品金额小计
      */
     private String orderPrice;
     /**
@@ -113,7 +113,26 @@ public class AppPurchaseOutput {
      * 物流公司物流单号
      */
     private String orderShipmentNumber;
-
+    /**
+     * 折扣优惠
+     */
+    private String discount;
+    /**
+     * 优惠券ID
+     */
+    private Long couponId;
+    /**
+     * 合计总价
+     */
+    private String orderTotalPrice;
+    /**
+     * 实付金额
+     */
+    private String payAmount;
+    /**
+     * 退款金额
+     */
+    private String drawbackPrice;
     /**
      * 商品信息
      */
@@ -301,5 +320,45 @@ public class AppPurchaseOutput {
 
     public void setLogisticsCompany(String logisticsCompany) {
         this.logisticsCompany = logisticsCompany;
+    }
+
+    public String getDiscount() {
+        return discount;
+    }
+
+    public void setDiscount(String discount) {
+        this.discount = discount;
+    }
+
+    public Long getCouponId() {
+        return couponId;
+    }
+
+    public void setCouponId(Long couponId) {
+        this.couponId = couponId;
+    }
+
+    public String getOrderTotalPrice() {
+        return orderTotalPrice;
+    }
+
+    public void setOrderTotalPrice(String orderTotalPrice) {
+        this.orderTotalPrice = orderTotalPrice;
+    }
+
+    public String getPayAmount() {
+        return payAmount;
+    }
+
+    public void setPayAmount(String payAmount) {
+        this.payAmount = payAmount;
+    }
+
+    public String getDrawbackPrice() {
+        return drawbackPrice;
+    }
+
+    public void setDrawbackPrice(String drawbackPrice) {
+        this.drawbackPrice = drawbackPrice;
     }
 }
