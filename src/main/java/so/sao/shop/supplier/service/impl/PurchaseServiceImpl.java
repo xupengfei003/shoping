@@ -21,8 +21,6 @@ import so.sao.shop.supplier.dao.app.AppAccountCouponDao;
 import so.sao.shop.supplier.dao.external.CouponDao;
 import so.sao.shop.supplier.domain.*;
 import so.sao.shop.supplier.domain.external.Coupon;
-import so.sao.shop.supplier.kingdee.TradeParameter;
-import so.sao.shop.supplier.kingdee.order.Trade;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.*;
 import so.sao.shop.supplier.pojo.output.CommodityOutput;
