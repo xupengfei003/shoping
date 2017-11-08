@@ -45,7 +45,7 @@ public class CouponRulesUtil {
             afterTotal = afterTotal.add(orderPrice.subtract(purchase.getDiscount()));
         }
         //除不尽 误差值
-        BigDecimal error = afterTotal.add(usableValue).subtract(beforeTotal);
+        BigDecimal error = (afterTotal.add(couponValue)).subtract(beforeTotal);
         if (error.compareTo(BigDecimal.ZERO) != 0) {
             listPurchase.get(listPurchase.size()-1).setOrderTotalPrice(listPurchase.get(listPurchase.size()-1).getOrderTotalPrice().subtract(error));
             listPurchase.get(listPurchase.size()-1).setDiscount(listPurchase.get(listPurchase.size()-1).getDiscount().add(error));
