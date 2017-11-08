@@ -21,6 +21,8 @@ import so.sao.shop.supplier.dao.app.AppAccountCouponDao;
 import so.sao.shop.supplier.dao.external.CouponDao;
 import so.sao.shop.supplier.domain.*;
 import so.sao.shop.supplier.domain.external.Coupon;
+import so.sao.shop.supplier.kingdee.TradeParameter;
+import so.sao.shop.supplier.kingdee.order.Trade;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.*;
 import so.sao.shop.supplier.pojo.output.CommodityOutput;
@@ -279,11 +281,11 @@ public class PurchaseServiceImpl implements PurchaseService {
                         SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
                         if ((sdf.parse(sendEndTime)).compareTo(sdf.parse(currentTime)) >= 0) {
                             //订单总金额是否大于等于优惠券金额
-                            if (orderTotalPrice.compareTo(coupon.getCouponValue()) == -1) {
+                            if (orderTotalPrice.compareTo(coupon.getUsableValue()) == -1) {
                                 output.put("message", "不符合优惠券满减条件");
                                 return output;
                             } else {
-                                listPurchase = CouponRulesUtil.couponRule(listPurchase, coupon.getCouponValue(), coupon.getUsableValue());
+                                listPurchase = CouponRulesUtil.couponRule(listPurchase, coupon.getUsableValue(), coupon.getCouponValue());
                                 appAccountCouponDao.updateAccountCouponStatusById(purchase.getUserId(), purchase.getCouponId());
                                 couponDao.updateCouponUseNum(purchase.getCouponId(),1);
                             }
@@ -1941,7 +1943,6 @@ public class PurchaseServiceImpl implements PurchaseService {
 
         return Result.success(Constant.MessageConfig.MSG_SUCCESS,receiptPurchaseDao.findReceiptItemByOrderId(orderId));
     }
-
     private List<ReceiptPurchase> removeDuplicate(List<ReceiptPurchase> receiptPurchaseList) {
         Set<ReceiptPurchase> set = new TreeSet<ReceiptPurchase>(new Comparator<ReceiptPurchase>() {
             @Override
