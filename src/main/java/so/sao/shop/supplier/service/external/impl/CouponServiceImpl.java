@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.dao.app.AppAccountCouponDao;
 import so.sao.shop.supplier.dao.external.CouponDao;
@@ -47,6 +48,7 @@ public class CouponServiceImpl implements CouponService{
         couponDao.updateCoupon();
     }
 
+    @Transactional(rollbackFor = Exception.class )
     @Override
     public Result addCoupon(Coupon coupon) {
         Result result = null;
@@ -90,6 +92,7 @@ public class CouponServiceImpl implements CouponService{
      * @param couponIds
      * @return
      */
+    @Transactional(rollbackFor = Exception.class )
     @Override
     public Result batchDiscardCouponsByIds(Long[] couponIds) {
         Integer i = couponDao.updateCouponStatusById(couponIds,3);
