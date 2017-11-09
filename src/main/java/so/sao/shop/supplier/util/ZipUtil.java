@@ -6,8 +6,6 @@ import com.github.junrar.Archive;
 import com.github.junrar.rarfile.FileHeader;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.Expand;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 public class ZipUtil {
