@@ -31,9 +31,11 @@ public class DistributionScopeServiceImpl implements DistributionScopeService {
     AccountDao accountDao;
     @Autowired
     FreightRulesService freightRulesService;
+
     /**
      * 增加配送范围
-     * @param accountId 供应商ID
+     *
+     * @param accountId              供应商ID
      * @param distributionScopeInput 配送范围信息
      * @throws Exception Exception
      */
@@ -45,8 +47,8 @@ public class DistributionScopeServiceImpl implements DistributionScopeService {
          * 2.获取到上一步新增配送范围记录的主键,新增配送规则
          */
         //先根据区查询是否存在该区的配送范围，如果有添加失败，提示已添加
-        DistributionScope DbDistributionScope = distributionScopeDao.selectDistributionScopeByCode(accountId,distributionScopeInput.getAddressProvince(),distributionScopeInput.getAddressCity(),distributionScopeInput.getAddressDistrict());
-        if (null != DbDistributionScope){
+        DistributionScope DbDistributionScope = distributionScopeDao.selectDistributionScopeByCode(accountId, distributionScopeInput.getAddressProvince(), distributionScopeInput.getAddressCity(), distributionScopeInput.getAddressDistrict());
+        if (null != DbDistributionScope) {
             return false;
         }
         DistributionScope distributionScope = new DistributionScope();
@@ -56,7 +58,7 @@ public class DistributionScopeServiceImpl implements DistributionScopeService {
         distributionScope.setAddressDistrict(distributionScopeInput.getAddressDistrict());
         distributionScope.setRemark(distributionScopeInput.getRemark());
         distributionScope.setCreatedAt(new Date());
-        if(distributionScopeDao.insert(distributionScope) > 0){//新增配送范围
+        if (distributionScopeDao.insert(distributionScope) > 0) {//新增配送范围
             distributionScope.getId();//获取到上一步新增配送范围记录的主键
             FreightRules freightRules = new FreightRules();
             freightRules.setSupplierId(accountId);
@@ -75,9 +77,10 @@ public class DistributionScopeServiceImpl implements DistributionScopeService {
 
     /**
      * 分页获取供应商配送范围列表
+     *
      * @param accountId accountId
-     * @param pageNum pageNum
-     * @param pageSize pageSize
+     * @param pageNum   pageNum
+     * @param pageSize  pageSize
      * @return Result
      * @throws Exception Exception
      */
@@ -89,6 +92,7 @@ public class DistributionScopeServiceImpl implements DistributionScopeService {
 
     /**
      * 获取单个配送范围信息
+     *
      * @param id id
      * @return Result
      * @throws Exception Exception
@@ -102,7 +106,7 @@ public class DistributionScopeServiceImpl implements DistributionScopeService {
      * 更新某条配送范围信息
      *
      * @param accountId
-     * @param id 配送范围ID
+     * @param id                     配送范围ID
      * @param distributionScopeInput 配送范围实体
      * @return Result
      * @throws Exception Exception
@@ -117,19 +121,19 @@ public class DistributionScopeServiceImpl implements DistributionScopeService {
          */
         DistributionScope ds = distributionScopeDao.query(id);//根据配送范围ID查找相应记录
         //省市区未修改，只修改备注或未操作
-        if (Ognl.isNotNull(ds) && id.equals(ds.getId()) && ds.getAddressProvince().equals(distributionScopeInput.getAddressProvince()) && ds.getAddressCity().equals(distributionScopeInput.getAddressCity()) && ds.getAddressDistrict().equals(distributionScopeInput.getAddressDistrict())){
+        if (Ognl.isNotNull(ds) && id.equals(ds.getId()) && ds.getAddressProvince().equals(distributionScopeInput.getAddressProvince()) && ds.getAddressCity().equals(distributionScopeInput.getAddressCity()) && ds.getAddressDistrict().equals(distributionScopeInput.getAddressDistrict())) {
             ds.setRemark(distributionScopeInput.getRemark());
             ds.setUpdateAt(new Date());
             distributionScopeDao.update(ds);//更改配送范围记录
             return true;
         }
         //先根据区查询是否存在该区的配送范围，如果有添加失败，提示已添加
-        DistributionScope distributionScope = distributionScopeDao.selectDistributionScopeByCode(accountId,distributionScopeInput.getAddressProvince(),distributionScopeInput.getAddressCity(),distributionScopeInput.getAddressDistrict());
-        if (null != distributionScope){
+        DistributionScope distributionScope = distributionScopeDao.selectDistributionScopeByCode(accountId, distributionScopeInput.getAddressProvince(), distributionScopeInput.getAddressCity(), distributionScopeInput.getAddressDistrict());
+        if (null != distributionScope) {
             return false;
         }
 
-        if(Ognl.isNotNull(ds)){
+        if (Ognl.isNotNull(ds)) {
             //更新配送范围
             String province = distributionScopeInput.getAddressProvince();//省
             String city = distributionScopeInput.getAddressCity();//市
@@ -159,17 +163,18 @@ public class DistributionScopeServiceImpl implements DistributionScopeService {
 
     /**
      * 删除某条记录
+     *
      * @param id id
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean delete(Integer id,Long accountId) throws Exception {
+    public boolean delete(Integer id, Long accountId) throws Exception {
         /**
          * 1.根据商户ID查询当前商户默认运费规则类型
          * 2.判断商户默认运费规则类型是否为1(配送规则)
          */
         Integer rules = accountDao.findRulesById(accountId);
-        if (null == rules || rules != 1){
+        if (null == rules || rules != 1) {
             //删除配送范围某条记录
             distributionScopeDao.deleteByPrimaryKey(id);
             //删除配送规则某条记录

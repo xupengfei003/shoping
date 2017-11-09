@@ -15,6 +15,7 @@ public interface ReceiptService {
 
     /**
      * 发票记录录入
+     *
      * @param receipt 发票信息
      * @return
      */
@@ -22,7 +23,8 @@ public interface ReceiptService {
 
     /**
      * 发票信息更改
-     *  根据发票ID修改发票记录
+     * 根据发票ID修改发票记录
+     *
      * @param receipt 发票信息
      * @return
      */
@@ -30,6 +32,7 @@ public interface ReceiptService {
 
     /**
      * 根据主键查询发票记录
+     *
      * @param receiptId
      * @return
      */
@@ -37,9 +40,10 @@ public interface ReceiptService {
 
     /**
      * 根据门店ID和发票类型获取发票记录
+     *
      * @param userId
      * @param receiptType 1增值税普通单位发票 2增值税专用发票
      * @return
      */
-    Receipt getReceiptByUserIdAndType(Long userId,Integer receiptType);
+    Receipt getReceiptByUserIdAndType(Long userId, Integer receiptType);
 }
