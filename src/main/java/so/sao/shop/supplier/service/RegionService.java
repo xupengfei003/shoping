@@ -1,9 +1,5 @@
 package so.sao.shop.supplier.service;
 
-
-
-
-import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.output.RegionOutput;
 
 import java.util.Map;
@@ -17,7 +13,7 @@ import java.util.Map;
  * @since 2017-07-17
  */
 public interface RegionService {
-	RegionOutput getListForRegion(Integer parentId, Integer level);
+    RegionOutput getListForRegion(Integer parentId, Integer level);
 
     Map<String, Object> getAllRegion();
 }

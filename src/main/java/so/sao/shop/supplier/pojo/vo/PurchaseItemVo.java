@@ -51,7 +51,7 @@ public class PurchaseItemVo {
      */
     private String brandName;
     /**
-     * 商品单价
+     * app订货价（商品单价）
      */
     private String goodsUnitPrice;
 
@@ -128,4 +128,5 @@ public class PurchaseItemVo {
     public void setGoodsUnitPrice(String goodsUnitPrice) {
         this.goodsUnitPrice = goodsUnitPrice;
     }
+
 }

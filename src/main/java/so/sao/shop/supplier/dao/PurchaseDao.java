@@ -126,7 +126,7 @@ public interface PurchaseDao {
      * @param storeId 商家编号
      * @return 查询的相关记录
      */
-    List<Purchase> findPageByStoreId(@Param("input") AccountPurchaseInput input, @Param("storeId") Long storeId);
+    List<AccountPurchaseVo> findPageByStoreId(@Param("input") AccountPurchaseInput input, @Param("storeId") Long storeId);
 
     /**
      * 根据商家编号查找所有相关订单记录(普通查询)
@@ -134,7 +134,7 @@ public interface PurchaseDao {
      * @param storeId 商家编号
      * @return 查询的相关记录
      */
-    List<Purchase> findPageByStoreIdLow(@Param("input")AccountPurchaseLowInput input,@Param("storeId") Long storeId);
+    List<AccountPurchaseVo> findPageByStoreIdLow(@Param("input")AccountPurchaseLowInput input,@Param("storeId") Long storeId);
 
     /**
      *
@@ -280,4 +280,11 @@ public interface PurchaseDao {
      * @return
      */
     BigDecimal getTotalMoneyByAccountId(@Param("startTime")String startTime,@Param("endTime") String endTime, @Param("accountId")Long accountId);
+    /**
+     * 根据订单ID集合获取订单详情集合
+     *
+     * @param orderIds 订单ID集合
+     * @return List<PurchaseInfoVo>
+     */
+    List<PurchaseItemVo> findPurchaseItemByIds(@Param("orderIds") List<String> orderIds);
 }

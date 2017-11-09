@@ -85,17 +85,6 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
             BigDecimal goodsAllPrice = new BigDecimal(0);//当查询订单状态为1时，计算该订单下所有商品总价
             //合并返回结果
             for (AppPurchaseItemVo appPurchaseItemVo : appPurchaseItemVoList) {
-
-              /*  for (AppPurchasesVo appPurchasesVoA : orderListA) {
-                    //赋值给详情
-                    if (appPurchaseItemVo.getOrderId().equals(appPurchasesVoA.getOrderId())) {
-                        appPurchaseItemVo.setStoreName(appPurchasesVoA.getStoreName());
-                        appPurchaseItemVo.setStoreId(appPurchasesVoA.getStoreId());
-                        appPurchaseItemVo.setUserId(appPurchasesVoA.getUserId());
-                        appPurchaseItemVo.setUserName(appPurchasesVoA.getUserName());
-                        break;
-                    }
-                }*/
                 //订单状态为待付款
                 if (appPurchasesVo.getOrderStatus() == 1) {
                     if (appPurchaseItemVo.getPayId().equals(appPurchasesVo.getPayId())) {
@@ -119,6 +108,11 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
             appPurchaseOutput = BeanMapper.map(appPurchasesVo, AppPurchaseOutput.class);
             appPurchaseOutput.setAppPurchaseItemVos(appPurchaseItemVoListInner);
             appPurchaseOutput.setOrderPrice(NumberUtil.number2Thousand(appPurchasesVo.getOrderPrice()));
+            appPurchaseOutput.setCouponId(appPurchasesVo.getCouponId());
+            appPurchaseOutput.setDiscount(NumberUtil.number2Thousand(appPurchasesVo.getDiscount()));
+            appPurchaseOutput.setOrderTotalPrice(NumberUtil.number2Thousand(appPurchasesVo.getOrderTotalPrice()));
+            appPurchaseOutput.setPayAmount(NumberUtil.number2Thousand(appPurchasesVo.getPayAmount()));
+            appPurchaseOutput.setDrawbackPrice(NumberUtil.number2Thousand(appPurchasesVo.getDrawbackPrice()));
             appPurchaseOutput.setGoodsAllNum(goodsAllNum);
 
             //输出运费
@@ -156,21 +150,6 @@ public class AppPurchaseServiceImpl implements AppPurchaseService {
         pageInfo.setList(appPurchaseOutputs);
         return pageInfo;
     }
-
-    /*//获取不重复的订单ID
-    private List<String> getOrderIds(String orderStatus, List<AppPurchasesVo> orderListA) {
-        List<String> getOrderIdList = new ArrayList();
-
-        Set<String> set = new HashSet();
-        for (AppPurchasesVo appPurchasesVo : orderListA) {
-            if (set.add(appPurchasesVo.getPayId())) {
-                getOrderIdList.add(appPurchasesVo.getOrderId());
-            }
-        }
-
-        return getOrderIdList;
-    }*/
-
     //获取ID（订单状态为待付款（1）获取的是payID,订单状态为其他则获取的是orderId）
     private List<String> getId(String orderStatus, List<AppPurchasesVo> orderList) {
         List<String> orderIdList = new ArrayList<>();

@@ -1,5 +1,6 @@
 package so.sao.shop.supplier.pojo.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -107,6 +108,7 @@ public class SupplierCommodityUpdateVo {
      * 生产日期
      */
     @NotNull(message = "生产日期不能为空")
+    @JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
     private Date productionDate;
 
     /**

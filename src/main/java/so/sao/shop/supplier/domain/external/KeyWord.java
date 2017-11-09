@@ -1,7 +1,8 @@
 package so.sao.shop.supplier.domain.external;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import org.springframework.format.annotation.DateTimeFormat;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Date;
 
@@ -14,91 +15,53 @@ public class KeyWord {
     /**
      * 关键字表ID
      */
+
+    @Getter
+    @Setter
     private Long id;
 
     /**
-     * 关键字类型，0-商品科属，1-商品名称，2-商品品牌
+     * 关键字类型，0-供应商名称，1-商品名称，2-商品品牌
      */
+    @Getter
+    @Setter
     private int keyWordType;
 
     /**
      * 关键字名称
      */
+
+    @Getter
+    @Setter
     private String keyWordValue;
     /**
      * 操作人（登录的账号名）
      */
+    @Getter
+    @Setter
     private String operator;
 
     /**
      * 排序
      */
+    @Getter
+    @Setter
     private int sort;
     /**
      * 创建时间（精确到秒）
      */
+
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @Getter
+    @Setter
     private Date createAt;
 
     /**
      * 更新时间（精确到秒）
      */
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @Getter
+    @Setter
     private Date updateAt;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public int getKeyWordType() {
-        return keyWordType;
-    }
-
-    public void setKeyWordType(int keyWordType) {
-        this.keyWordType = keyWordType;
-    }
-
-    public int getSort() {
-        return sort;
-    }
-
-    public void setSort(int sort) {
-        this.sort = sort;
-    }
-
-    public String getKeyWordValue() {
-        return keyWordValue;
-    }
-
-    public void setKeyWordValue(String keyWordValue) {
-        this.keyWordValue = keyWordValue;
-    }
-
-    public String getOperator() {
-        return operator;
-    }
-
-    public void setOperator(String operator) {
-        this.operator = operator;
-    }
-
-    public Date getCreateAt() {
-        return createAt;
-    }
-
-    public void setCreateAt(Date createAt) {
-        this.createAt = createAt;
-    }
-
-    public Date getUpdateAt() {
-        return updateAt;
-    }
-
-    public void setUpdateAt(Date updateAt) {
-        this.updateAt = updateAt;
-    }
 }

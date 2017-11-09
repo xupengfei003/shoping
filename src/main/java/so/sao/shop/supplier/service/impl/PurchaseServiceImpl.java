@@ -3,6 +3,8 @@ package so.sao.shop.supplier.service.impl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.poi.hssf.usermodel.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -15,7 +17,10 @@ import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.config.StorageConfig;
 import so.sao.shop.supplier.config.azure.AzureBlobService;
 import so.sao.shop.supplier.dao.*;
+import so.sao.shop.supplier.dao.app.AppAccountCouponDao;
+import so.sao.shop.supplier.dao.external.CouponDao;
 import so.sao.shop.supplier.domain.*;
+import so.sao.shop.supplier.domain.external.Coupon;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.*;
 import so.sao.shop.supplier.pojo.output.CommodityOutput;
@@ -36,6 +41,7 @@ import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -49,6 +55,7 @@ import java.util.stream.Collectors;
  */
 @Service
 public class PurchaseServiceImpl implements PurchaseService {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Resource
     private PurchaseDao purchaseDao;
     @Resource
@@ -79,6 +86,13 @@ public class PurchaseServiceImpl implements PurchaseService {
     private FreightRulesService freightRulesService;
     @Resource
     private CommInventoryService commInventoryService;
+    @Resource
+    private ReceiptPurchaseDao receiptPurchaseDao; //订单发票
+    @Resource
+    private CouponDao couponDao; //优惠券中心
+    @Resource
+    private AppAccountCouponDao appAccountCouponDao; //用户优惠卷
+
     /**
      * 保存订单信息
      *
@@ -92,10 +106,13 @@ public class PurchaseServiceImpl implements PurchaseService {
         output.put("status", Constant.CodeConfig.CODE_FAILURE);
         /*
             1.根据商户进行拆单
-                a.根据商品查出所有商户信息。
+                a.根据商品查出所有商户信息
                 b.循环商户ID生成订单
-            2.循环订单详情信息 生成批量插入订单详情数据，统计订单总价
+            2.循环订单详情信息 生成批量插入订单详情数据，统计商品金额小计
             3.生成订单数据
+                a.计算运费
+                b.计算优惠规则 折扣优惠,合计金额
+                c.保存订单发票信息
             4.给供应商推送消息
          */
         List<PurchaseItemVo> listPurchaseItem = purchase.getListPurchaseItem();//订单详情
@@ -125,9 +142,11 @@ public class PurchaseServiceImpl implements PurchaseService {
         //b.循环商户ID生成订单
         List<Purchase> listPurchase = new ArrayList<>();
         List<PurchaseItem> listItem = new ArrayList<>();
-        List<Notification> notificationList = new ArrayList<>();
+        List<Notification> notificationList = new ArrayList<>();    //消息通知Entity
+        List<ReceiptPurchase> receiptPurchaseList = new ArrayList<>();  //订单发票Entity
         Map<Long, BigDecimal> inventoryMap = new HashMap<>();//存储商品编号和购买数量
         List<Long> goodsIdList = new ArrayList<>();//商品ID集合
+        BigDecimal orderTotalPrice = new BigDecimal(0); //所有订单合计
         //合并支付单号
         String payId = NumberGenerate.generateOrderId("yyMMddHHmmss");
         /**
@@ -153,8 +172,8 @@ public class PurchaseServiceImpl implements PurchaseService {
                     Result result = commodityService.getOldCommodity(goodsId);
                     CommodityOutput commOutput = (CommodityOutput) result.getData();
                     //判断是否满足最小起订量
-                    if (!this.checkMinOrderQuantity(commOutput,goodsNumber)){
-                        output.put("message",commOutput.getName()+"商品不满足最小起订量或未上架或该商品已失效");
+                    if (!this.checkMinOrderQuantity(commOutput, goodsNumber)) {
+                        output.put("message", commOutput.getName() + "商品不满足最小起订量或未上架或该商品已失效");
                         return output;
                     }
                     //2.生成批量插入订单详情数据
@@ -167,7 +186,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                     BigDecimal price = commOutput.getPrice();//市场价
                     BigDecimal unitPrice = commOutput.getUnitPrice();//成本价
                     item.setGoodsUnitPrice(price);
-                    totalMoney = totalMoney.add(goodsNumber.multiply(price));//订单实付金额
+                    totalMoney = totalMoney.add(goodsNumber.multiply(price));//商品金额小计（原：订单实付金额）
                     orderSettlemePrice = orderSettlemePrice.add(goodsNumber.multiply(unitPrice));//订单结算金额
                     item.setGoodsTatolPrice(goodsNumber.multiply(price));//单个商品总价
                     item.setGoodsImage(commOutput.getMinImg());//商品图片
@@ -199,13 +218,18 @@ public class PurchaseServiceImpl implements PurchaseService {
             purchaseDate.setOrderCreateTime(new Date());//下单时间
             purchaseDate.setOrderStatus(Constant.OrderStatusConfig.PAYMENT);//订单状态 1待付款2代发货3已发货4已收货5已拒收6已退款
             purchaseDate.setUpdatedAt(new Date());//更新时间
+            purchaseDate.setDiscount(BigDecimal.valueOf(0));
+            if (Ognl.isNotNull(purchase.getCouponId())) {
+                purchaseDate.setCouponId(purchase.getCouponId());   //添加优惠券ID
+            }
             //邮费计算
-            Map map = this.getFreightRulesByAccountId(account.getAccountId(),totalMoney,BigDecimal.valueOf(totalNumber.intValue()),purchase);
-            if ((Integer)map.get("status") == 1){
+            Map map = this.getFreightRulesByAccountId(account.getAccountId(), totalMoney, BigDecimal.valueOf(totalNumber.intValue()), purchase);
+            if ((Integer) map.get("status") == 1) {
                 purchaseDate.setOrderPostage((BigDecimal) map.get("totalMoney"));
-            }else {
+            } else {
                 return map;
             }
+            purchaseDate.setOrderTotalPrice(totalMoney.add(purchaseDate.getOrderPostage()));
             listPurchase.add(purchaseDate);
             /*
                1.根据商品编号更改库存数量
@@ -216,6 +240,19 @@ public class PurchaseServiceImpl implements PurchaseService {
             //给该供应商增加一条消息数据
             Notification notification = createNotification(sId, orderId, Constant.OrderStatusConfig.PAYMENT);
             notificationList.add(notification);
+            //计算所有订单订单合计
+            orderTotalPrice = orderTotalPrice.add(purchaseDate.getOrderPostage().add(purchaseDate.getOrderPrice()));
+            //TODO 订单发票录入-v1.1.0
+            if (Ognl.isNotNull(purchase.getListReceipts()) && purchase.getListReceipts().size() > 0) {
+                purchase.getListReceipts().forEach(receiptPurchaseInputVo -> {
+                    if (sId.equals(receiptPurchaseInputVo.getSupplierId())) {
+                        receiptPurchaseInputVo.setOrderId(orderId);
+                        receiptPurchaseInputVo.setCreateTime(new Date());
+                        ReceiptPurchase receiptPurchase = BeanMapper.map(receiptPurchaseInputVo, ReceiptPurchase.class);
+                        receiptPurchaseList.add(receiptPurchase);
+                    }
+                });
+            }
         }
         boolean flag = false;
         if (null != listPurchase && listPurchase.size() > 0 && null != listItem && listItem.size() > 0) {
@@ -229,8 +266,53 @@ public class PurchaseServiceImpl implements PurchaseService {
              * 库存预警 by bzh
              */
             commInventoryService.updateInventoryStatus(goodsIdList);
+            //TODO 计算优惠使用规则-v1.1.0
+            Coupon coupon = couponDao.findCouponById(purchase.getCouponId());
+            if (Ognl.isNotNull(coupon)) {
+                if (coupon.getUsableValue().compareTo(coupon.getCouponValue()) == 1) {
+                    List<AccountCoupon> accountCouponList = appAccountCouponDao.findAccountCoupon(purchase.getUserId(), coupon.getId());
+                    if (Ognl.isNotNull(accountCouponList) && accountCouponList.size() > 0) {
+                        if (accountCouponList.get(0).getStatus().equals(0)) {
+                            //获取当前时间
+                            String currentTime = StringUtil.fomateData(new Date(), "yyyy-MM-dd HH:mm:ss");
+                            String sendStartTime = StringUtil.fomateData(coupon.getUseStartTime(), "yyyy-MM-dd HH:mm:ss");
+                            String sendEndTime = StringUtil.fomateData(coupon.getUseEndTime(), "yyyy-MM-dd HH:mm:ss");
+                            //将字符串格式的日期格式化
+                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                            if ((sdf.parse(sendEndTime)).compareTo(sdf.parse(currentTime)) >= 0 && (sdf.parse(sendStartTime)).compareTo(sdf.parse(currentTime)) <= 0) {
+                                //订单总金额是否大于等于优惠券金额
+                                if (orderTotalPrice.compareTo(coupon.getUsableValue()) == -1) {
+                                    output.put("message", "不符合优惠券满减条件");
+                                    return output;
+                                } else {
+                                    listPurchase = CouponRulesUtil.couponRule(listPurchase, coupon.getUsableValue(), coupon.getCouponValue());
+                                    appAccountCouponDao.updateAccountCouponStatusById(purchase.getUserId(), purchase.getCouponId());
+                                    couponDao.updateCouponUseNum(purchase.getCouponId(), 1);
+                                }
+                            } else {
+                                output.put("message", "该优惠券不在使用时间内");
+                                return output;
+                            }
+                        } else {
+                            output.put("message", "该优惠券已使用");
+                            return output;
+                        }
+                    }
+                } else {
+                    output.put("message", "优惠券可用优惠金额不能大于满额");
+                    return output;
+                }
+
+            }
             int result = purchaseDao.savePurchase(listPurchase);
             int resultSum = purchaseItemDao.savePurchaseItem(listItem);
+            //list去重
+            if (Ognl.isNotNull(receiptPurchaseList) && receiptPurchaseList.size() > 0) {
+                List<ReceiptPurchase> list = removeDuplicate(receiptPurchaseList);
+                if (Ognl.isNotNull(list) && list.size() > 0) {
+                    receiptPurchaseDao.insertReceiptItems(list);
+                }
+            }
             BigDecimal totalMoney = new BigDecimal(0);//所有订单实付总金额
             if (result > 0 && resultSum > 0) {
                 flag = true;
@@ -240,7 +322,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                 }
                 for (Purchase obj : listPurchase) {
                     //计算所有订单总金额
-                    totalMoney = totalMoney.add(obj.getOrderPrice().add(obj.getOrderPostage()));
+                    totalMoney = totalMoney.add(obj.getOrderPrice().add(obj.getOrderPostage()).subtract(obj.getDiscount()));
                 }
             } else {//保存订单失败，主动回滚
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();//主动回滚
@@ -267,38 +349,40 @@ public class PurchaseServiceImpl implements PurchaseService {
         Purchase purchase = purchaseDao.findById(orderId);
         if (purchase != null) {
             //PurchaseInfoVo 添加订单信息
-            if(purchase.getOrderPostage().compareTo(new BigDecimal(0)) == 0){
+            purchaseInfoVo = BeanMapper.map(purchase, PurchaseInfoVo.class);
+            if (purchase.getOrderPostage().compareTo(new BigDecimal(0)) == 0) {
                 purchaseInfoVo.setOrderPostage("包邮");
             } else {
-                purchaseInfoVo.setOrderPostage("￥"+NumberUtil.number2Thousand(purchase.getOrderPostage()));
+                purchaseInfoVo.setOrderPostage("￥" + NumberUtil.number2Thousand(purchase.getOrderPostage()));
             }
-            purchaseInfoVo.setOrderId(purchase.getOrderId());
-            purchaseInfoVo.setOrderReceiverName(purchase.getOrderReceiverName());
-            purchaseInfoVo.setOrderReceiverMobile(purchase.getOrderReceiverMobile());
-            purchaseInfoVo.setOrderCreateTime(purchase.getOrderCreateTime());
-            purchaseInfoVo.setOrderPaymentMethod(purchase.getOrderPaymentMethod());
-            purchaseInfoVo.setOrderPaymentNum(purchase.getOrderPaymentNum());
-            purchaseInfoVo.setOrderPaymentTime(purchase.getOrderPaymentTime());
+            //商品金额小计
             purchaseInfoVo.setOrderPrice(NumberUtil.number2Thousand(purchase.getOrderPrice()));
-            purchaseInfoVo.setOrderStatus(purchase.getOrderStatus().shortValue());
-            purchaseInfoVo.setOrderShipMethod(purchase.getOrderShipMethod());
-            purchaseInfoVo.setOrderShipmentNumber(purchase.getOrderShipmentNumber());
-            purchaseInfoVo.setLogisticsCompany(purchase.getLogisticsCompany());
-            purchaseInfoVo.setDistributorName(purchase.getDistributorName());
-            purchaseInfoVo.setDistributorMobile(purchase.getDistributorMobile());
-            purchaseInfoVo.setDrawbackTime(purchase.getDrawbackTime());
-            purchaseInfoVo.setOrderAddress(purchase.getOrderAddress());
+            //折扣优惠
+            purchaseInfoVo.setDiscount(NumberUtil.number2Thousand(purchase.getDiscount()));
+            //合计金额
+            purchaseInfoVo.setOrderTotalPrice(NumberUtil.number2Thousand(purchase.getOrderTotalPrice()));
+            //实付金额
+            purchaseInfoVo.setPayAmount(NumberUtil.number2Thousand(purchase.getPayAmount()));
+            //退款金额
+            purchaseInfoVo.setDrawbackPrice(NumberUtil.number2Thousand(purchase.getDrawbackPrice()));
             //添加订单明细列表
             List<PurchaseItemVo> purchaseItemVoList = purchaseItemDao.getOrderDetailByOId(purchase.getOrderId());
             //转换金额为千分位
             for (PurchaseItemVo purchaseItemVo : purchaseItemVoList) {
+                //商品总价
                 purchaseItemVo.setGoodsTatolPrice(NumberUtil.number2Thousand(new BigDecimal(purchaseItemVo.getGoodsTatolPrice())));
+                //app订货价(商品单价)
                 purchaseItemVo.setGoodsUnitPrice(NumberUtil.number2Thousand(new BigDecimal(purchaseItemVo.getGoodsUnitPrice())));
             }
             if (purchaseItemVoList != null && purchaseItemVoList.size() > 0) {
                 purchaseInfoVo.setPurchaseItemVoList(purchaseItemVoList);
             } else {
                 purchaseInfoVo.setPurchaseItemVoList(new ArrayList<>());
+            }
+            ReceiptPurchase receiptPurchase = receiptPurchaseDao.findReceiptItemByOrderId(orderId);
+            purchaseInfoVo.setIsReceipt(0);
+            if (null != receiptPurchase) {
+                purchaseInfoVo.setIsReceipt(1);
             }
         }
         return purchaseInfoVo;
@@ -317,10 +401,10 @@ public class PurchaseServiceImpl implements PurchaseService {
         List<PurchasesVo> orderList = purchaseDao.findPage(purchaseSelectInput);
         //转换金额为千分位
         for (PurchasesVo purchasesVo : orderList) {
-            if(StringUtils.isEmpty(purchasesVo.getOrderPostage()) || "0.00".equals(purchasesVo.getOrderPostage())){
+            if (StringUtils.isEmpty(purchasesVo.getOrderPostage()) || "0.00".equals(purchasesVo.getOrderPostage())) {
                 purchasesVo.setOrderPostage("包邮");
             } else {
-                purchasesVo.setOrderPostage("￥"+NumberUtil.number2Thousand(new BigDecimal(purchasesVo.getOrderPostage())));
+                purchasesVo.setOrderPostage("￥" + NumberUtil.number2Thousand(new BigDecimal(purchasesVo.getOrderPostage())));
             }
             purchasesVo.setOrderPrice(NumberUtil.number2Thousand(new BigDecimal(purchasesVo.getOrderPrice())));
         }
@@ -375,7 +459,6 @@ public class PurchaseServiceImpl implements PurchaseService {
         }
         // 生成一个样式
         HSSFCellStyle style = wb.createCellStyle();
-
         //创建第一行（也可以称为表头）
         HSSFRow row = sheet.createRow(0);
         row.setHeightInPoints(30);
@@ -388,43 +471,59 @@ public class PurchaseServiceImpl implements PurchaseService {
         cell.setCellStyle(style);
 
         cell = row.createCell(1);
-        cell.setCellValue("支付时间");
-        cell.setCellStyle(style);
-
-        cell = row.createCell(2);
-        cell.setCellValue("收货人姓名");
-        cell.setCellStyle(style);
-
-        cell = row.createCell(3);
-        cell.setCellValue("收货人电话");
-        cell.setCellStyle(style);
-
-        cell = row.createCell(4);
         cell.setCellValue("订单状态");
         cell.setCellStyle(style);
 
-        cell = row.createCell(5);
-        cell.setCellValue("订单金额");
+        cell = row.createCell(2);
+        cell.setCellValue("商品金额小计");
         cell.setCellStyle(style);
 
-        cell = row.createCell(6);
+        cell = row.createCell(3);
         cell.setCellValue("运费金额");
         cell.setCellStyle(style);
 
+        cell = row.createCell(4);
+        cell.setCellValue("折扣优惠");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(5);
+        cell.setCellValue("合计金额");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(6);
+        cell.setCellValue("实付金额");
+        cell.setCellStyle(style);
+
         cell = row.createCell(7);
-        cell.setCellValue("创建时间");
+        cell.setCellValue("下单时间");
         cell.setCellStyle(style);
 
         cell = row.createCell(8);
-        cell.setCellValue("更新时间");
-        cell.setCellStyle(style);
-
-        cell = row.createCell(9);
         cell.setCellValue("支付类型");
         cell.setCellStyle(style);
 
-        cell = row.createCell(10);
+        cell = row.createCell(9);
         cell.setCellValue("支付流水号");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(10);
+        cell.setCellValue("支付时间");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(11);
+        cell.setCellValue("收货人姓名");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(12);
+        cell.setCellValue("收货人电话");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(13);
+        cell.setCellValue("收货时间");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(14);
+        cell.setCellValue("更新时间");
         cell.setCellStyle(style);
 
         List<Purchase> orderList;
@@ -451,52 +550,77 @@ public class PurchaseServiceImpl implements PurchaseService {
             cellTemp = row.createCell(0);
             cellTemp.setCellValue(purchase.getOrderId());
             cellTemp.setCellStyle(style);
-            cellTemp = row.createCell(1);
-            cellTemp.setCellValue(purchase.getOrderPaymentTime() == null ? "" : StringUtil.fomateData(purchase.getOrderCreateTime(), "yyyy-MM-dd HH:mm:ss"));
-            cellTemp.setCellStyle(style);
-            cellTemp = row.createCell(2);
-            cellTemp.setCellValue(purchase.getOrderReceiverName());
-            cellTemp.setCellStyle(style);
-            cellTemp = row.createCell(3);
-            cellTemp.setCellValue(purchase.getOrderReceiverMobile());
-            cellTemp.setCellStyle(style);
+
             Integer status = purchase.getOrderStatus();
             String orderStatus = "";
             orderStatus = getOrderStatusInExcel(status, orderStatus);
-            cellTemp = row.createCell(4);
+            cellTemp = row.createCell(1);
             cellTemp.setCellValue(orderStatus);
             cellTemp.setCellStyle(style);
-            cellTemp = row.createCell(5);
+
+            cellTemp = row.createCell(2);
             cellTemp.setCellValue("￥" + purchase.getOrderPrice());
             cellTemp.setCellStyle(style);
-            if(purchase.getOrderPostage().compareTo(new BigDecimal(0)) == 1){
-                cellTemp = row.createCell(6);
+
+            if (purchase.getOrderPostage().compareTo(new BigDecimal(0)) == 1) {
+                cellTemp = row.createCell(3);
                 cellTemp.setCellValue("￥" + purchase.getOrderPostage());
                 cellTemp.setCellStyle(style);
             } else {
-                cellTemp = row.createCell(6);
+                cellTemp = row.createCell(3);
                 cellTemp.setCellValue("包邮");
                 cellTemp.setCellStyle(style);
             }
 
+            cellTemp = row.createCell(4);
+            cellTemp.setCellValue("￥" + purchase.getDiscount());
+            cellTemp.setCellStyle(style);
+
+            cellTemp = row.createCell(5);
+            cellTemp.setCellValue(purchase.getOrderTotalPrice() == null ? "￥ 0.00" : "￥" + purchase.getOrderTotalPrice());
+            cellTemp.setCellStyle(style);
+
+            cellTemp = row.createCell(6);
+            cellTemp.setCellValue(purchase.getPayAmount() == null ? "￥ 0.00" : "￥" + purchase.getPayAmount());
+            cellTemp.setCellStyle(style);
+
             cellTemp = row.createCell(7);
             cellTemp.setCellValue(purchase.getOrderCreateTime() == null ? "" : StringUtil.fomateData(purchase.getOrderCreateTime(), "yyyy-MM-dd HH:mm:ss"));
             cellTemp.setCellStyle(style);
-            cellTemp = row.createCell(8);
-            cellTemp.setCellValue(purchase.getUpdatedAt() == null ? "" : StringUtil.fomateData(purchase.getOrderCreateTime(), "yyyy-MM-dd HH:mm:ss"));
-            cellTemp.setCellStyle(style);
+
             Integer paymentMethod = purchase.getOrderPaymentMethod();
             String payment = "";
-            if (paymentMethod == Constant.PaymentStatusConfig.ALIPAY) {
+            if (Objects.equals(paymentMethod, Constant.PaymentStatusConfig.ALIPAY)) {
                 payment = Constant.PaymentMsgConfig.ALIPAY;
-            } else if (paymentMethod == Constant.PaymentStatusConfig.WECHAT) {
+            } else if (Objects.equals(paymentMethod, Constant.PaymentStatusConfig.WECHAT)) {
                 payment = Constant.PaymentMsgConfig.WECHAT;
             }
-            cellTemp = row.createCell(9);
+            cellTemp = row.createCell(8);
             cellTemp.setCellValue(payment);
             cellTemp.setCellStyle(style);
-            cellTemp = row.createCell(10);
+
+            cellTemp = row.createCell(9);
             cellTemp.setCellValue(purchase.getOrderPaymentNum());
+            cellTemp.setCellStyle(style);
+
+            cellTemp = row.createCell(10);
+            cellTemp.setCellValue(purchase.getOrderPaymentTime() == null ? "" : StringUtil.fomateData(purchase.getOrderPaymentTime(), "yyyy-MM-dd HH:mm:ss"));
+            cellTemp.setCellStyle(style);
+
+            cellTemp = row.createCell(11);
+            cellTemp.setCellValue(purchase.getOrderReceiverName());
+            cellTemp.setCellStyle(style);
+
+            cellTemp = row.createCell(12);
+            cellTemp.setCellValue(purchase.getOrderReceiverMobile());
+            cellTemp.setCellStyle(style);
+
+            cellTemp = row.createCell(13);
+            cellTemp.setCellValue(purchase.getOrderReceiveTime() == null ? "" : StringUtil.fomateData(purchase.getOrderReceiveTime(), "yyyy-MM-dd HH:mm:ss"));
+            cellTemp.setCellStyle(style);
+
+            cellTemp = row.createCell(14);
+            cellTemp.setCellValue(purchase.getUpdatedAt() == null ? "" : StringUtil.fomateData(purchase.getUpdatedAt(), "yyyy-MM-dd HH:mm:ss"));
             cellTemp.setCellStyle(style);
         }
         //输出Excel文件
@@ -513,7 +637,8 @@ public class PurchaseServiceImpl implements PurchaseService {
     public String findOrderStatus(Long storeId) {
         //商户ID存在，将计算的总金额赋值给历史总金额字段
         BigDecimal income = purchaseDao.findOrderStatus(storeId);
-        accountDao.updateUserPrice(income, storeId);//将查询到的总金额赋值给account表中的income(历史总收入)；
+        //将查询到的总金额赋值给account表中的income(历史总收入)；
+        accountDao.updateUserPrice(income, storeId);
         return NumberUtil.number2Thousand(income);
     }
 
@@ -531,11 +656,11 @@ public class PurchaseServiceImpl implements PurchaseService {
         /**
          * 1.校验条件类
          *      1.1 比较开始时间结束时间是否符合规则，不符合则返回提示信息
+         *      1.2 确认排序字段及排序次序
          * 2.设置分页
          * 3.访问持久化层，获取数据
          *      3.1 若获取到的结果集不为空：
-         *           ① 将结果集中的泛型（domain类）转化成vo类
-         *           ② 出参中封装分页信息（当前页码，总页码，总条数，结果集）、“成功”的code码和message
+         *           ① 出参中封装分页信息（当前页码，总页码，总条数，结果集）、“成功”的code码和message
          *      3.2 若获取到的结果集为空时
          *           ①.在出参对象中封装“未查询到结果集”的code码和message
          *
@@ -543,35 +668,48 @@ public class PurchaseServiceImpl implements PurchaseService {
         //1.校验条件类
         if (Ognl.isNotEmpty(input)) {
             //1.1 比较开始时间结束时间是否符合规则，不符合则返回提示信息
-            if (DataCompare.compareDate(input.getCreateBeginTime(), input.getCreateEndTime())) {
-                return Result.fail(Constant.MessageConfig.DateNOTLate);
+            String createTimeMsg = DataCompare.createAtCheck(input.getCreateBeginTime(), input.getCreateEndTime());
+            if (Ognl.isNotEmpty(createTimeMsg)) {
+                return Result.fail(createTimeMsg);
             }
-            if (DataCompare.compareDate(input.getPayBeginTime(), input.getPayEndTime())) {
-                return Result.fail(Constant.MessageConfig.DateNOTLate);
+            String payTimeMsg = DataCompare.createAtCheck(input.getPayBeginTime(), input.getPayEndTime());
+            if (Ognl.isNotEmpty(payTimeMsg)) {
+                return Result.fail(payTimeMsg);
             }
         }
+        // 1.2 确认排序字段及排序次序
+        //确认排序字段（0 付款时间）
+        String sortName = input.getSortName();
+        if (Ognl.isNotEmpty(sortName) && "0".equals(sortName)) {
+            input.setSortName("order_payment_time");
+        }
+
+        //确定排序次序（0 正序; 1 倒序）
+        switch (input.getSortType()) {
+            case "0":
+                input.setSortType("ASC");
+                break;
+            case "1":
+                input.setSortType("DESC");
+                break;
+            default:
+                input.setSortType("DESC");
+                break;
+        }
+
         //2.分页
         PageTool.startPage(pageNum, pageSize);
 
         //3.访问持久化层，获取数据
-        List<Purchase> purchaseList = purchaseDao.findPageByStoreId(input, storeId);
+        List<AccountPurchaseVo> purchaseList = purchaseDao.findPageByStoreId(input, storeId);
 
         Result result;//声明出参对象
         //3.1 若获取到的结果集不为空
         if (null != purchaseList && !purchaseList.isEmpty()) {
-            PageInfo<Purchase> pageInfo = new PageInfo<>(purchaseList);//分页对象
-            //①.将结果集中的泛型（domain类）转化成vo类
-            List<AccountPurchaseVo> purchaseVos = this.inversion(purchaseList);
-            //②.出参中封装分页信息（当前页码，总页码，总条数，结果集）、“成功”的code码和message
-            PageInfo<AccountPurchaseVo> pageInfoVo = new PageInfo<>();
-            pageInfoVo.setPageNum(pageInfo.getPageNum());//当前页码
-            pageInfoVo.setPageSize(pageInfo.getPageSize());//每页显示条数
-            pageInfoVo.setTotal(pageInfo.getTotal());//总条数
-            pageInfoVo.setPages(pageInfo.getPages());//总页码
-            pageInfoVo.setList(purchaseVos);//显示数据
-            pageInfoVo.setSize(pageInfo.getSize());//每页实际数据条数
-            result = Result.success(Constant.MessageConfig.MSG_SUCCESS, pageInfoVo);
-        } else {//3.2 若获取到的结果集为空时
+            //① 出参中封装分页信息（当前页码，总页码，总条数，结果集）、“成功”的code码和message
+            result = Result.success(Constant.MessageConfig.MSG_SUCCESS, new PageInfo<>(purchaseList));
+        } else {
+            //3.2 若获取到的结果集为空时
             // ①.在出参对象中封装“未查询到结果集”的code码和message
             result = Result.success(Constant.MessageConfig.MSG_NO_DATA);
         }
@@ -579,7 +717,7 @@ public class PurchaseServiceImpl implements PurchaseService {
     }
 
     /**
-     * 根据商家编号及查询条件（起始创建订单-结束创建订单时间/支付流水号/订单编号/收货人名称）查找所有相关订单记录(分页)
+     * 根据商家编号及查询条件（起始创建订单-结束创建订单时间/支付流水号/订单编号）查找所有相关订单记录(分页)
      *
      * @param pageNum  当前页码
      * @param pageSize 每页显示条数
@@ -592,11 +730,11 @@ public class PurchaseServiceImpl implements PurchaseService {
         /**
          * 1.校验条件类
          *      1.1 比较开始时间结束时间是否符合规则，不符合则返回提示信息
+         *      1.2 确认排序字段及排序次序
          * 2.设置分页
          * 3.访问持久化层，获取数据
          *      3.1 若获取到的结果集不为空：
-         *           ① 将结果集中的泛型（domain类）转化成vo类
-         *           ② 出参中封装分页信息（当前页码，总页码，总条数，结果集）、“成功”的code码和message
+         *           ① 出参中封装分页信息（当前页码，总页码，总条数，结果集）、“成功”的code码和message
          *      3.2 若获取到的结果集为空时
          *           ①.在出参对象中封装“未查询到结果集”的code码和message
          *
@@ -605,33 +743,43 @@ public class PurchaseServiceImpl implements PurchaseService {
         //1.校验条件类
         if (Ognl.isNotEmpty(input)) {
             //比较开始时间和结束时间是否输入正常 若输入不正常返回提示信息
-            if (DataCompare.compareDate(input.getCreateBeginTime(), input.getCreateEndTime())) {
-                return Result.fail(Constant.MessageConfig.DateNOTLate);
+            String createTimeMsg = DataCompare.createAtCheck(input.getCreateBeginTime(), input.getCreateEndTime());
+            if (Ognl.isNotEmpty(createTimeMsg)) {
+                return Result.fail(createTimeMsg);
             }
+        }
+
+        // 1.2 确认排序字段及排序次序
+        //确认排序字段（0 付款时间）
+        String sortName = input.getSortName();
+        if (Ognl.isNotEmpty(sortName) && "0".equals(sortName)) {
+            input.setSortName("order_payment_time");
+        }
+
+        //确定排序次序（0 正序; 1 倒序）
+        switch (input.getSortType()) {
+            case "0":
+                input.setSortType("ASC");
+                break;
+            case "1":
+                input.setSortType("DESC");
+                break;
+            default:
+                input.setSortType("DESC");
+                break;
         }
 
         //2.分页
         PageTool.startPage(pageNum, pageSize);
 
         //3.访问持久化层，获取数据
-        List<Purchase> purchaseList = purchaseDao.findPageByStoreIdLow(input, storeId);
+        List<AccountPurchaseVo> purchaseList = purchaseDao.findPageByStoreIdLow(input, storeId);
 
         Result result;//声明出参对象
         // 3.1 若获取到的结果集不为空：
         if (null != purchaseList && !purchaseList.isEmpty()) {
-            PageInfo<Purchase> pageInfo = new PageInfo<>(purchaseList);
-            //①.将结果集中的泛型（domain类）转化成vo类
-            List<AccountPurchaseVo> purchaseVos = this.inversion(purchaseList);
             //②.出参中封装分页信息（当前页码，总页码，总条数，结果集）、“成功”的code码和message
-            PageInfo<AccountPurchaseVo> pageInfoVo = new PageInfo<>();
-            pageInfoVo.setPageNum(pageInfo.getPageNum());//当前页码
-            pageInfoVo.setPageSize(pageInfo.getPageSize());//每页显示条数
-            pageInfoVo.setTotal(pageInfo.getTotal());//总条数
-            pageInfoVo.setPages(pageInfo.getPages());//总页码
-            pageInfoVo.setSize(pageInfo.getSize());//每页实际数据条数
-            pageInfoVo.setList(purchaseVos);//显示数据
-
-            result = Result.success(Constant.MessageConfig.MSG_SUCCESS, pageInfoVo);
+            result = Result.success(Constant.MessageConfig.MSG_SUCCESS, new PageInfo<>(purchaseList));
         } else {//3.2 若获取到的结果集为空时
             result = Result.success(Constant.MessageConfig.MSG_NO_DATA);
         }
@@ -695,8 +843,6 @@ public class PurchaseServiceImpl implements PurchaseService {
         // 3.封装返回对象
         PurchaseItemPrintOutput output = new PurchaseItemPrintOutput(); // 封装返回对象
         output = BeanMapper.map(purchasePrintVo, output.getClass()); // 将订单信息复制到output
-        output.setTotalPrice(purchasePrintVo.getOrderPostage().add(purchasePrintVo.getTotalPrice())); // 订单总金额=订单金额+运费
-        output.setOrderPostage(purchasePrintVo.getOrderPostage()); // 运费
         output.setPurchaseItemPrintVos(purchaseItemPrintVos); // 添加商品条目
 
         return output;
@@ -821,6 +967,7 @@ public class PurchaseServiceImpl implements PurchaseService {
      * @throws Exception 可能是订单异常
      */
     @Transactional(rollbackFor = Exception.class)
+    @Override
     public void createReceivingQrcodeByPayId(String payId) throws Exception {
         List<Purchase> purchaseList = purchaseDao.findByPayId(payId); // 根据支付id查询订单列表
         // 1.根据支付id查询对应订单是否已经存在二维码
@@ -997,10 +1144,10 @@ public class PurchaseServiceImpl implements PurchaseService {
         List<CommBlobUpload> imgList = new ArrayList<>();
         //1.如果拒收图片不传入，则不进行图片格式转换；
         //2.如果没有拒收图片，则不存入数据库
-        if(refuseOrderInput.getRefuseImg().size()>0){
-            for(int i = 0;i<refuseOrderInput.getRefuseImg().size(); i++){
+        if (refuseOrderInput.getRefuseImg().size() > 0) {
+            for (int i = 0; i < refuseOrderInput.getRefuseImg().size(); i++) {
                 CommBlobUpload commBlobUpload = new CommBlobUpload();
-                String fileName = NumberGenerate.generateId() + System.currentTimeMillis() + "." +refuseOrderInput.getRefuseImg().get(i).getType();
+                String fileName = NumberGenerate.generateId() + System.currentTimeMillis() + "." + refuseOrderInput.getRefuseImg().get(i).getType();
                 commBlobUpload.setFileName(fileName);//图片名称
                 commBlobUpload.setUrl(refuseOrderInput.getRefuseImg().get(i).getUrl());//拒收图片URL
                 commBlobUpload.setMinImgUrl(refuseOrderInput.getRefuseImg().get(i).getMinImgUrl());//拒收缩略图
@@ -1010,8 +1157,8 @@ public class PurchaseServiceImpl implements PurchaseService {
                 imgList.add(commBlobUpload);
             }
         }
-        if(imgList.size()>0){
-            purchaseDao.insertRefuseImg(map,imgList);
+        if (imgList.size() > 0) {
+            purchaseDao.insertRefuseImg(map, imgList);
         }
         // 验证二维码是否存在，是否失效
         PurchasePrintVo purchasePrintVo = purchaseDao.findPrintOrderInfo(orderId); // 查询订单和二维码信息
@@ -1036,15 +1183,15 @@ public class PurchaseServiceImpl implements PurchaseService {
     public OrderRefuseReasonOutput searchRefuseReasonByOrderId(String orderId) throws Exception {
         OrderRefuseReasonVo orderRefuseReasonVo = purchaseDao.findRefuseReasonByOrderId(orderId);//查出拒收原因信息
         List<OrderRefuseImageVo> orderRefuseImageVoList = new ArrayList<>();
-        if(null != orderRefuseReasonVo){
+        if (null != orderRefuseReasonVo) {
             orderRefuseImageVoList = purchaseDao.findRefuseImageByOrderId(orderId);//查出拒收图片信息
         }
         OrderRefuseReasonOutput orderRefuseReasonOutput = new OrderRefuseReasonOutput();
         orderRefuseReasonOutput.setRefuseReason(Constant.MessageConfig.MSG_NO_DATA);//如果没有数据则返回“暂无数据”
         if (null != orderRefuseReasonVo) {
-            orderRefuseReasonOutput = BeanMapper.map(orderRefuseReasonVo,OrderRefuseReasonOutput.class);
+            orderRefuseReasonOutput = BeanMapper.map(orderRefuseReasonVo, OrderRefuseReasonOutput.class);
         }
-        if(orderRefuseImageVoList.size()>0){
+        if (orderRefuseImageVoList.size() > 0) {
             List<String> urlList = new ArrayList<>();
             orderRefuseImageVoList.forEach(orderRefuseImageVo -> {
                 urlList.add(orderRefuseImageVo.getRefuseImgUrl());
@@ -1096,34 +1243,6 @@ public class PurchaseServiceImpl implements PurchaseService {
     }
 
     /**
-     * 转化集合中的泛型
-     *
-     * @param purchaseList 转化前的集合
-     * @return 转化后的集合
-     */
-    private List<AccountPurchaseVo> inversion(List<Purchase> purchaseList) {
-        List<AccountPurchaseVo> purchaseVos = new ArrayList<>();//转化后的集合
-        AccountPurchaseVo purchaseVo = null;//转化后的对象
-        for (Purchase purchase : purchaseList) {
-            //循环转化数据
-            purchaseVo = new AccountPurchaseVo();
-            purchaseVo.setOrderId(purchase.getOrderId());//订单编号
-            purchaseVo.setOrderReceiverName(purchase.getOrderReceiverName());//收货人姓名
-            purchaseVo.setOrderReceiverMobile(purchase.getOrderReceiverMobile());//收货人联系方式
-            purchaseVo.setOrderStatus(purchase.getOrderStatus());//订单状态
-            purchaseVo.setOrderPrice(NumberUtil.number2Thousand(purchase.getOrderPrice()));//该次订单实付金额
-            purchaseVo.setOrderSettlemePrice(NumberUtil.number2Thousand(purchase.getOrderSettlemePrice()));//该次订单结算金额
-            purchaseVo.setOrderCreateTime(purchase.getOrderCreateTime());//订单产生时间
-            purchaseVo.setOrderPaymentTime(purchase.getOrderPaymentTime());//订单支付时间
-            purchaseVo.setOrderPaymentMethod(purchase.getOrderPaymentMethod());//支付方式
-            purchaseVo.setOrderPaymentNum(purchase.getOrderPaymentNum());//订单流水号
-            purchaseVo.setOrderPostage(NumberUtil.number2Thousand(purchase.getOrderPostage()));//运费金额
-            purchaseVos.add(purchaseVo);//将转化后的数据添加到集合中
-        }
-        return purchaseVos;
-    }
-
-    /**
      * 添加取消订单信息
      *
      * @param cancelReasonInput 封装了订单编号，取消理由
@@ -1134,7 +1253,7 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Transactional(rollbackFor = Exception.class)
     public void cancelOrder(CancelReasonInput cancelReasonInput) throws Exception {
         Integer orderStatus = purchaseDao.getOrderStatus(cancelReasonInput.getOrderId());
-        if(cancelReasonInput.getOrderId().length() == 28){
+        if (cancelReasonInput.getOrderId().length() == 28) {
             orderStatus = Constant.OrderStatusConfig.PAYMENT;
         }
         Integer inputOrderStatus = Constant.OrderStatusConfig.CANCEL_ORDER;
@@ -1168,7 +1287,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         //业务逻辑
         //1.当待支付取消订单时，没有产生二维码，不对二维码做处理；
         //2.当已支付订单取消时，由于产生了二维码，故取消时使二维码失效。
-        if(inputOrderStatus == 7){
+        if (inputOrderStatus == 7) {
             // 验证二维码是否存在，是否失效
             PurchasePrintVo purchasePrintVo = purchaseDao.findPrintOrderInfo(cancelReasonInput.getOrderId()); // 查询订单和二维码信息
             if (null == purchasePrintVo || null == purchasePrintVo.getQrcodeStatus()
@@ -1216,6 +1335,7 @@ public class PurchaseServiceImpl implements PurchaseService {
      * @return 返回Map：flag：成功true|失败false,message:信息
      * @throws Exception 异常
      */
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public Map refundByOrderId(String orderId) throws Exception {
         Map result = new HashMap();
@@ -1233,10 +1353,15 @@ public class PurchaseServiceImpl implements PurchaseService {
             return result;
         }
         BigDecimal amount = new BigDecimal(0);
-        if (orderStatus == Constant.OrderStatusConfig.REJECT) { //已拒收 只退订单金额
-            amount = purchase.getOrderPrice();
-        } else if (orderStatus == Constant.OrderStatusConfig.CANCEL_ORDER){ //已取消 订单金额+运费
-            amount = purchase.getOrderPrice().add(purchase.getOrderPostage());
+        //该处amount取自订单的实付金额
+        //1.已拒收，只退订单金额，不退运费（实付金额-运费）
+        //2.已付款已取消，需要退运费，则退实付金额
+        if (Objects.equals(orderStatus, Constant.OrderStatusConfig.REJECT)) {
+//            amount = purchase.getOrderPrice();
+            amount = purchase.getPayAmount().subtract(purchase.getOrderPostage());
+        } else if (Objects.equals(orderStatus, Constant.OrderStatusConfig.CANCEL_ORDER)) {
+//            amount = purchase.getOrderPrice().add(purchase.getOrderPostage());
+            amount = purchase.getPayAmount();
         }
         //添加退款原因
         String cancelReason = purchase.getOrderRefuseReason(); //买家拒绝理由
@@ -1246,15 +1371,23 @@ public class PurchaseServiceImpl implements PurchaseService {
         // 2.调用支付宝退款接口实现真正的退款
         // TODO: 2017/8/31 调用退款接口实现真正的退款,退款失败返回失败信息
         String refundMsg = AlipayRefundUtil.alipayRefundRequest(purchase.getOrderId(), purchase.getPayId(), purchase.getOrderPaymentNum(), amount, cancelReason);
-        if("SUCCESS".equals(refundMsg)){
+        if ("SUCCESS".equals(refundMsg)) {
             // 3.修改订单状态为退款，修改退款时间为当前时间
             Map params = new HashMap();
             params.put("orderId", orderId);
-            params.put("orderStatus", Constant.OrderStatusConfig.REFUNDED); // 已退款
+            // 已退款
+            params.put("orderStatus", Constant.OrderStatusConfig.REFUNDED);
             Date now = new Date();
-            params.put("drawbackTime", now); // 退款时间
-            params.put("updatedAt", now); // 更新时间
-            int count = purchaseDao.refundByOrderId(params); // 修改订单状态为退款，修改退款时间为当前时间
+            // 退款时间
+            params.put("drawbackTime", now);
+            // 更新时间
+            params.put("updatedAt", now);
+            // 退款金额
+            params.put("drawbackPrice", amount);
+            //该订单前一个状态
+            params.put("prefixOrderStatus", orderStatus);
+            // 修改订单状态为退款，修改退款时间为当前时间
+            int count = purchaseDao.refundByOrderId(params);
             if (count == 0) {
                 result.put("flag", false);
                 result.put("message", "退款失败（修改订单状态失败）");
@@ -1317,7 +1450,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         Map<String, String> map = MultipartFileUtil.generateImage(imgStr); // 失败抛出异常
         List<String> files = new ArrayList<>();
         files.add(map.get("name"));
-        List<CommBlobUpload> blobUploadEntities = batchUploadPic(map.get("path"), files , 3);
+        List<CommBlobUpload> blobUploadEntities = batchUploadPic(map.get("path"), files, 3);
         if (blobUploadEntities.size() != 1) {
             throw new Exception("上传图片到云端失败");
         }
@@ -1330,39 +1463,40 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     /**
      * 根据商户ID获取运费
+     *
      * @param accountId
-     * @param totalMoney  订单总金额
-     * @param number 订单总数量
+     * @param totalMoney 订单总金额
+     * @param number     订单总数量
      * @return
      */
-    private Map<String,Object> getFreightRulesByAccountId(Long accountId,BigDecimal totalMoney,BigDecimal number,PurchaseInput purchaseInput ){
+    private Map<String, Object> getFreightRulesByAccountId(Long accountId, BigDecimal totalMoney, BigDecimal number, PurchaseInput purchaseInput) {
         /**
          * 1.获取商户当前默认运费规则
          * 2.并根据运费规则计算运费
          */
-        Map<String ,Object> map = new HashMap<>();
-        map.put("status",0);
-        map.put("message","商户没有设置配送运费规则");
+        Map<String, Object> map = new HashMap<>();
+        map.put("status", 0);
+        map.put("message", "商户没有设置配送运费规则");
         Integer rules = accountDao.findRulesById(accountId);//获取商户当前默认运费规则
-        if (null == rules){
+        if (null == rules) {
             return map;
         }
-        if (0 == rules){//通用运费规则
-            List<FreightRules> freightRulesList = freightRulesDao.queryAll0(accountId,rules);//获取对应运费规则记录
+        if (0 == rules) {//通用运费规则
+            List<FreightRules> freightRulesList = freightRulesDao.queryAll0(accountId, rules);//获取对应运费规则记录
             if (null != freightRulesList && !freightRulesList.isEmpty()) {
-                return this.getexpenses(freightRulesList.get(0),totalMoney,number);
+                return this.getexpenses(freightRulesList.get(0), totalMoney, number);
             }
         }
-        if (1 == rules){//配送运送规则
-            List<FreightRules> freightRulesList = freightRulesDao.queryAll0(accountId,rules);//获取对应运费规则记录
-            if (null != freightRulesList && !freightRulesList.isEmpty()){
-                FreightRules freightRules = freightRulesService.matchAddress(purchaseInput.getProvince(),purchaseInput.getCity(),purchaseInput.getDistrict(),freightRulesList) ;//地址匹配的配送规则对象
-                if (Ognl.isEmpty(freightRules)){
-                    map.put("message","不在配送范围内");
+        if (1 == rules) {//配送运送规则
+            List<FreightRules> freightRulesList = freightRulesDao.queryAll0(accountId, rules);//获取对应运费规则记录
+            if (null != freightRulesList && !freightRulesList.isEmpty()) {
+                FreightRules freightRules = freightRulesService.matchAddress(purchaseInput.getProvince(), purchaseInput.getCity(), purchaseInput.getDistrict(), freightRulesList);//地址匹配的配送规则对象
+                if (Ognl.isEmpty(freightRules)) {
+                    map.put("message", "不在配送范围内");
                     return map;
                 }
                 //计算运费
-                return this.getexpenses(freightRules,totalMoney,number);
+                return this.getexpenses(freightRules, totalMoney, number);
             }
         }
         return map;//匹配失败
@@ -1370,62 +1504,64 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     /**
      * 运费计算
+     *
      * @param freightRules 配送规则
-     * @param totalMoney 订单总金额
-     * @param number 订单总数量
+     * @param totalMoney   订单总金额
+     * @param number       订单总数量
      * @return 运费及状态码
      */
-    private Map<String,Object> getexpenses(FreightRules freightRules,BigDecimal totalMoney,BigDecimal number){
-            Map<String ,Object> map = new HashMap<>();
-            map.put("status",0);
+    private Map<String, Object> getexpenses(FreightRules freightRules, BigDecimal totalMoney, BigDecimal number) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("status", 0);
 
-            if (null != freightRules && (null ==freightRules.getSendAmount() || freightRules.getSendAmount().compareTo(totalMoney) <= 0 )){//判断当前订单金额是否满足最起送金额
-                if (0 == freightRules.getWhetherShipping()){//包邮
-                    map.put("status",1);
-                    map.put("totalMoney",BigDecimal.valueOf(0));
-                    return map;
-                }
-                if (1 == freightRules.getWhetherShipping()){//不包邮
-                    //订单运费 =  基础单位运费 * 基础配送基数 + 超量单位运费 * 超量配送数量
-                    BigDecimal defaultAmount = freightRules.getDefaultAmount();
-                    BigDecimal defaultPiece = BigDecimal.valueOf(freightRules.getDefaultPiece());
-                    BigDecimal expenses = defaultAmount;//基础价格
-                    if (number.compareTo(BigDecimal.valueOf(freightRules.getDefaultPiece())) > 0){//订单数量大于基础配送数量
-                        BigDecimal excessPiece = BigDecimal.valueOf(freightRules.getExcessPiece());//超量配送数量
-                        BigDecimal excessAmount = freightRules.getExcessAmount();//超量单位运费
-                        BigDecimal excess = number.subtract(defaultPiece);//超出基础配送数量的部分
-                        if (excess.compareTo(excessPiece) <= 0 ){//判断订单超出基础配送数量部分是否超出超量配送数量
-                            expenses = expenses.add(excessAmount);
-                        }else{
-                            expenses = excess.remainder(excessPiece).compareTo(BigDecimal.valueOf(0)) == 0 ?
-                                    expenses.add(excessAmount.multiply(excess.divideToIntegralValue(excessPiece))) : expenses.add(excessAmount.multiply(excess.divideToIntegralValue(excessPiece).add(BigDecimal.valueOf(1))));
-                        }
-                    }
-                    map.put("status",1);
-                    map.put("totalMoney",expenses);
-                    return map;
-                }
-            }else {
-                map.put("message","当前订单不满足商户最小起送金额");
+        if (null != freightRules && (null == freightRules.getSendAmount() || freightRules.getSendAmount().compareTo(totalMoney) <= 0)) {//判断当前订单金额是否满足最起送金额
+            if (0 == freightRules.getWhetherShipping()) {//包邮
+                map.put("status", 1);
+                map.put("totalMoney", BigDecimal.valueOf(0));
                 return map;
             }
-        map.put("message",Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
-        return map;
+            if (1 == freightRules.getWhetherShipping()) {//不包邮
+                //订单运费 =  基础单位运费 * 基础配送基数 + 超量单位运费 * 超量配送数量
+                BigDecimal defaultAmount = freightRules.getDefaultAmount();
+                BigDecimal defaultPiece = BigDecimal.valueOf(freightRules.getDefaultPiece());
+                BigDecimal expenses = defaultAmount;//基础价格
+                if (number.compareTo(BigDecimal.valueOf(freightRules.getDefaultPiece())) > 0) {//订单数量大于基础配送数量
+                    BigDecimal excessPiece = BigDecimal.valueOf(freightRules.getExcessPiece());//超量配送数量
+                    BigDecimal excessAmount = freightRules.getExcessAmount();//超量单位运费
+                    BigDecimal excess = number.subtract(defaultPiece);//超出基础配送数量的部分
+                    if (excess.compareTo(excessPiece) <= 0) {//判断订单超出基础配送数量部分是否超出超量配送数量
+                        expenses = expenses.add(excessAmount);
+                    } else {
+                        expenses = excess.remainder(excessPiece).compareTo(BigDecimal.valueOf(0)) == 0 ?
+                                expenses.add(excessAmount.multiply(excess.divideToIntegralValue(excessPiece))) : expenses.add(excessAmount.multiply(excess.divideToIntegralValue(excessPiece).add(BigDecimal.valueOf(1))));
+                    }
+                }
+                map.put("status", 1);
+                map.put("totalMoney", expenses);
+                return map;
+            }
+        } else {
+            map.put("message", "当前订单不满足商户最小起送金额");
+            return map;
         }
+        map.put("message", Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
+        return map;
+    }
 
     /**
      * 判断购买商品数量是否满足最小起定量以及商品状态判断（是否为上架状态）
-     * @param commOutput 商品对象
+     *
+     * @param commOutput  商品对象
      * @param goodsNumber 购买商品的数量
      * @return
      */
-    private boolean checkMinOrderQuantity(CommodityOutput commOutput, BigDecimal goodsNumber){
+    private boolean checkMinOrderQuantity(CommodityOutput commOutput, BigDecimal goodsNumber) {
         //待上架 下架 上架待审核 状态不可下单,上架，下架待审核，编辑状态可下单
-        boolean statusFlag = CommConstant.COMM_ST_NEW == commOutput.getStatus() || CommConstant.COMM_ST_OFF_SHELVES == commOutput.getStatus() || CommConstant.COMM_ST_ON_SHELVES_AUDIT == commOutput.getStatus() ;
-        if (null != commOutput && null != goodsNumber && !statusFlag  && 1 == commOutput.getInvalidStatus()){
-            if (commOutput.getMinOrderQuantity() > goodsNumber.intValue()){
+        boolean statusFlag = CommConstant.COMM_ST_NEW == commOutput.getStatus() || CommConstant.COMM_ST_OFF_SHELVES == commOutput.getStatus() || CommConstant.COMM_ST_ON_SHELVES_AUDIT == commOutput.getStatus();
+        if (null != commOutput && null != goodsNumber && !statusFlag && 1 == commOutput.getInvalidStatus()) {
+            if (commOutput.getMinOrderQuantity() > goodsNumber.intValue()) {
                 return false;
-            }else {
+            } else {
                 return true;
             }
         }
@@ -1436,7 +1572,7 @@ public class PurchaseServiceImpl implements PurchaseService {
      * 根据订单编号和用户id验证用户的订单是否存在，存在返回二维码地址，否则返回失败地址
      *
      * @param orderId 订单编号
-     * @param userId 用户id
+     * @param userId  用户id
      * @return url地址
      */
     @Override
@@ -1448,8 +1584,9 @@ public class PurchaseServiceImpl implements PurchaseService {
         return errorUrl;
     }
 
-	 /**
+    /**
      * 根据供应商ID查询各类订单数量
+     *
      * @param accountId
      * @return
      */
@@ -1461,47 +1598,49 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     /**
      * map中key值和value转化
-     *  key:订单各个状态对应的字符
-     *  value:订单各类状态对应的统计数据
+     * key:订单各个状态对应的字符
+     * value:订单各类状态对应的统计数据
+     *
      * @param map
      * @return
      */
-    private Map<Object,Object> transformOfMap(Map<Object, Object> map) {
-        Map<Object,Object> resultMap = new HashMap();//返回参数
-        Map<Object,Object> valueMap = null;//入参中的value值（map）
+    private Map<Object, Object> transformOfMap(Map<Object, Object> map) {
+        Map<Object, Object> resultMap = new HashMap();//返回参数
+        Map<Object, Object> valueMap = null;//入参中的value值（map）
         Long count = null;//入参map中的value(value也为map)中的value值（统计数据）
         String str = null;//各个订单状态对应的字符
         Long totalCount = 0L;//统计数据之和(订单总量)
         Long confirmCount = null;//记录已送达订单数量(计入已完成订单统计中)
         //转化map中的Key和value值
-        for (int i = 1;i <= 9;i++){
-            if (i == 9 ){
+        for (int i = 1; i <= 9; i++) {
+            if (i == 9) {
                 i = 19;
             }
             valueMap = (Map<Object, Object>) map.get(i);
             count = null == valueMap ? 0L : (Long) valueMap.get("count");
             totalCount = totalCount + count;
-            if(i == 3){
+            if (i == 3) {
                 confirmCount = count;
             }
-            if (i == 19){
+            if (i == 19) {
                 count = count + confirmCount;
             }
             str = this.getStrByOrderStatus(i);
-            resultMap.put(str,count);
+            resultMap.put(str, count);
         }
-        resultMap.put("totalOrderNum",totalCount);
+        resultMap.put("totalOrderNum", totalCount);
         return resultMap;
     }
 
     /**
      * 根据订单各个状态获取对应的字符
+     *
      * @param i 订单状态
      * @return
      */
     private String getStrByOrderStatus(int i) {
         String str = null;
-        switch (i){
+        switch (i) {
             case 1:
                 str = "paymentOrderNum";
                 break;
@@ -1509,22 +1648,22 @@ public class PurchaseServiceImpl implements PurchaseService {
                 str = "pendingShipOrderNum";
                 break;
             case 3:
-                str =  "issueShipOrderNum";
+                str = "issueShipOrderNum";
                 break;
             case 4:
-                str =  "receivedOrderNum";
+                str = "receivedOrderNum";
                 break;
             case 5:
-                str =  "rejectOrderNum";
+                str = "rejectOrderNum";
                 break;
             case 6:
-                str =  "refundedOrderNum";
+                str = "refundedOrderNum";
                 break;
             case 7:
-                str =  "cancelOrderNum";
+                str = "cancelOrderNum";
                 break;
             case 8:
-                str =  "paymentCancelOrderNum";
+                str = "paymentCancelOrderNum";
                 break;
             case 19:
                 str = "issueShipOrderNum";
@@ -1532,6 +1671,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         }
         return str;
     }
+
     /**
      * 更改物流信息
      *
@@ -1539,14 +1679,14 @@ public class PurchaseServiceImpl implements PurchaseService {
      */
     @Override
     public boolean updateLogisticInfoByOrderId(LogisticInfoUpdateInput logisticInfoUpdateInput) {
-        Map<String,Object> map = new HashMap<>();
-        map.put("orderId",logisticInfoUpdateInput.getOrderId());
-        map.put("orderShipMethod",logisticInfoUpdateInput.getOrderShipMethod());
-        map.put("name",logisticInfoUpdateInput.getName());
-        map.put("number",logisticInfoUpdateInput.getNumber());
-        map.put("updateTime",new Date());
+        Map<String, Object> map = new HashMap<>();
+        map.put("orderId", logisticInfoUpdateInput.getOrderId());
+        map.put("orderShipMethod", logisticInfoUpdateInput.getOrderShipMethod());
+        map.put("name", logisticInfoUpdateInput.getName());
+        map.put("number", logisticInfoUpdateInput.getNumber());
+        map.put("updateTime", new Date());
         Integer count = purchaseDao.updateLogisticInfoByOrderId(map);
-        if(count == 0){
+        if (count == 0) {
             return false;
         }
         return true;
@@ -1595,23 +1735,55 @@ public class PurchaseServiceImpl implements PurchaseService {
         cell.setCellStyle(style);
 
         cell = row.createCell(3);
-        cell.setCellValue("订单金额");
+        cell.setCellValue("商品金额小计");
         cell.setCellStyle(style);
 
         cell = row.createCell(4);
-        cell.setCellValue("创建时间");
+        cell.setCellValue("运费金额");
         cell.setCellStyle(style);
 
         cell = row.createCell(5);
-        cell.setCellValue("支付时间");
+        cell.setCellValue("折扣优惠");
         cell.setCellStyle(style);
 
         cell = row.createCell(6);
-        cell.setCellValue("支付类型");
+        cell.setCellValue("合计金额");
         cell.setCellStyle(style);
 
         cell = row.createCell(7);
+        cell.setCellValue("实付金额");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(8);
+        cell.setCellValue("下单时间");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(9);
+        cell.setCellValue("支付类型");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(10);
         cell.setCellValue("支付流水号");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(11);
+        cell.setCellValue("支付时间");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(12);
+        cell.setCellValue("收货人姓名");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(13);
+        cell.setCellValue("收货人电话");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(14);
+        cell.setCellValue("收货时间");
+        cell.setCellStyle(style);
+
+        cell = row.createCell(15);
+        cell.setCellValue("更新时间");
         cell.setCellStyle(style);
 
         List<Purchase> orderList;
@@ -1641,38 +1813,94 @@ public class PurchaseServiceImpl implements PurchaseService {
             cellTemp = row.createCell(1);
             cellTemp.setCellValue(purchase.getOrderId());
             cellTemp.setCellStyle(style);
+
             Integer status = purchase.getOrderStatus();
             String orderStatus = "";
             orderStatus = getOrderStatusInExcel(status, orderStatus);
             cellTemp = row.createCell(2);
             cellTemp.setCellValue(orderStatus);
             cellTemp.setCellStyle(style);
+
             cellTemp = row.createCell(3);
             cellTemp.setCellValue("￥" + purchase.getOrderPrice());
             cellTemp.setCellStyle(style);
-            cellTemp = row.createCell(4);
+
+            if (purchase.getOrderPostage().compareTo(new BigDecimal(0)) == 1) {
+                cellTemp = row.createCell(4);
+                cellTemp.setCellValue("￥" + purchase.getOrderPostage());
+                cellTemp.setCellStyle(style);
+            } else {
+                cellTemp = row.createCell(4);
+                cellTemp.setCellValue("包邮");
+                cellTemp.setCellStyle(style);
+            }
+
+            cellTemp = row.createCell(5);
+            cellTemp.setCellValue("￥" + purchase.getDiscount());
+            cellTemp.setCellStyle(style);
+
+            cellTemp = row.createCell(6);
+            cellTemp.setCellValue(purchase.getOrderTotalPrice() == null ? "￥ 0.00" : "￥" + purchase.getOrderTotalPrice());
+            cellTemp.setCellStyle(style);
+
+            cellTemp = row.createCell(7);
+            cellTemp.setCellValue(purchase.getPayAmount() == null ? "￥ 0.00" : "￥" + purchase.getPayAmount());
+            cellTemp.setCellStyle(style);
+
+            cellTemp = row.createCell(8);
             cellTemp.setCellValue(purchase.getOrderCreateTime() == null ? "" : StringUtil.fomateData(purchase.getOrderCreateTime(), "yyyy-MM-dd HH:mm:ss"));
             cellTemp.setCellStyle(style);
-            cellTemp = row.createCell(5);
-            cellTemp.setCellValue(purchase.getOrderPaymentTime() == null ? "" : StringUtil.fomateData(purchase.getOrderCreateTime(), "yyyy-MM-dd HH:mm:ss"));
-            cellTemp.setCellStyle(style);
+
             Integer paymentMethod = purchase.getOrderPaymentMethod();
             String payment = "";
-            if (paymentMethod == Constant.PaymentStatusConfig.ALIPAY) {
+            if (Objects.equals(paymentMethod, Constant.PaymentStatusConfig.ALIPAY)) {
                 payment = Constant.PaymentMsgConfig.ALIPAY;
-            } else if (paymentMethod == Constant.PaymentStatusConfig.WECHAT) {
+            } else if (Objects.equals(paymentMethod, Constant.PaymentStatusConfig.WECHAT)) {
                 payment = Constant.PaymentMsgConfig.WECHAT;
             }
-            cellTemp = row.createCell(6);
+            cellTemp = row.createCell(9);
             cellTemp.setCellValue(payment);
             cellTemp.setCellStyle(style);
-            cellTemp = row.createCell(7);
+
+            cellTemp = row.createCell(10);
             cellTemp.setCellValue(purchase.getOrderPaymentNum());
+            cellTemp.setCellStyle(style);
+
+            cellTemp = row.createCell(11);
+            cellTemp.setCellValue(purchase.getOrderPaymentTime() == null ? "" : StringUtil.fomateData(purchase.getOrderPaymentTime(), "yyyy-MM-dd HH:mm:ss"));
+            cellTemp.setCellStyle(style);
+
+            cellTemp = row.createCell(12);
+            cellTemp.setCellValue(purchase.getOrderReceiverName());
+            cellTemp.setCellStyle(style);
+
+            cellTemp = row.createCell(13);
+            cellTemp.setCellValue(purchase.getOrderReceiverMobile());
+            cellTemp.setCellStyle(style);
+
+            cellTemp = row.createCell(14);
+            cellTemp.setCellValue(purchase.getOrderReceiveTime() == null ? "" : StringUtil.fomateData(purchase.getOrderReceiveTime(), "yyyy-MM-dd HH:mm:ss"));
+            cellTemp.setCellStyle(style);
+
+            cellTemp = row.createCell(15);
+            cellTemp.setCellValue(purchase.getUpdatedAt() == null ? "" : StringUtil.fomateData(purchase.getUpdatedAt(), "yyyy-MM-dd HH:mm:ss"));
             cellTemp.setCellStyle(style);
         }
         //输出Excel文件
         outputExcel(request, response, wb);
     }
+
+    /**
+     * 根据订单ID集合获取订单详情集合
+     *
+     * @param orderIds 订单ID集合
+     * @return List<PurchaseInfoVo>
+     */
+    @Override
+    public List<PurchaseItemVo> findPurchaseItemByIds(List<String> orderIds) {
+        return purchaseDao.findPurchaseItemByIds(orderIds);
+    }
+
     //输出Excel文件
     private void outputExcel(HttpServletRequest request, HttpServletResponse response, HSSFWorkbook wb) {
         OutputStream output = null;
@@ -1681,7 +1909,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             response.reset();
             String agent = request.getHeader("USER-AGENT").toLowerCase();
             response.setContentType("application/vnd.ms-excel");
-            String fileName = "订单统计" + System.currentTimeMillis();
+            String fileName = "订单统计" + StringUtil.fomateData(new Date(), "yyyyMMddHHmmss");
             String codedFileName = java.net.URLEncoder.encode(fileName, "UTF-8");
             if (agent.contains("firefox")) {
                 response.setCharacterEncoding("utf-8");
@@ -1698,23 +1926,46 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     //导出订单Excel订单状态翻译
     private String getOrderStatusInExcel(Integer status, String orderStatus) {
-        if (status == Constant.OrderStatusConfig.PAYMENT) {
+        if (Objects.equals(status, Constant.OrderStatusConfig.PAYMENT)) {
             orderStatus = Constant.OrderMessageConfig.PAYMENT;
-        } else if (status == Constant.OrderStatusConfig.PENDING_SHIP) {
+        } else if (Objects.equals(status, Constant.OrderStatusConfig.PENDING_SHIP)) {
             orderStatus = Constant.OrderMessageConfig.PENDING_SHIP;
-        } else if (status == Constant.OrderStatusConfig.ISSUE_SHIP || status == Constant.OrderStatusConfig.CONFIRM_RECEIVED) {
+        } else if (Objects.equals(status, Constant.OrderStatusConfig.ISSUE_SHIP) || Objects.equals(status, Constant.OrderStatusConfig.CONFIRM_RECEIVED)) {
             orderStatus = Constant.OrderMessageConfig.ISSUE_SHIP;
-        } else if (status == Constant.OrderStatusConfig.RECEIVED) {
+        } else if (Objects.equals(status, Constant.OrderStatusConfig.RECEIVED)) {
             orderStatus = Constant.OrderMessageConfig.RECEIVED;
-        } else if (status == Constant.OrderStatusConfig.REJECT) {
+        } else if (Objects.equals(status, Constant.OrderStatusConfig.REJECT)) {
             orderStatus = Constant.OrderMessageConfig.REJECT;
-        } else if (status == Constant.OrderStatusConfig.REFUNDED) {
+        } else if (Objects.equals(status, Constant.OrderStatusConfig.REFUNDED)) {
             orderStatus = Constant.OrderMessageConfig.REFUNDED;
-        } else if (status == Constant.OrderStatusConfig.CANCEL_ORDER) {
+        } else if (Objects.equals(status, Constant.OrderStatusConfig.CANCEL_ORDER)) {
             orderStatus = Constant.OrderMessageConfig.CANCEL_ORDER;
-        } else if (status == Constant.OrderStatusConfig.PAYMENT_CANCEL_ORDER) {
+        } else if (Objects.equals(status, Constant.OrderStatusConfig.PAYMENT_CANCEL_ORDER)) {
             orderStatus = Constant.OrderMessageConfig.PAYMENT_CANCEL_ORDER;
         }
         return orderStatus;
+    }
+
+    /**
+     * 订单详情-发票详情
+     *
+     * @return Result 结果
+     */
+    @Override
+    public Result findReceiptItemByOrderId(String orderId) {
+
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS, receiptPurchaseDao.findReceiptItemByOrderId(orderId));
+    }
+
+    private List<ReceiptPurchase> removeDuplicate(List<ReceiptPurchase> receiptPurchaseList) {
+        Set<ReceiptPurchase> set = new TreeSet<ReceiptPurchase>(new Comparator<ReceiptPurchase>() {
+            @Override
+            public int compare(ReceiptPurchase o1, ReceiptPurchase o2) {
+                //字符串,则按照asicc码升序排列
+                return o1.getOrderId().compareTo(o2.getOrderId());
+            }
+        });
+        set.addAll(receiptPurchaseList);
+        return new ArrayList<ReceiptPurchase>(set);
     }
 }

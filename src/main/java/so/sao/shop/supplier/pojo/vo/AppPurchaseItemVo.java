@@ -1,5 +1,7 @@
 package so.sao.shop.supplier.pojo.vo;
 
+import so.sao.shop.supplier.domain.ReceiptPurchase;
+import so.sao.shop.supplier.domain.external.Coupon;
 import so.sao.shop.supplier.util.NumberUtil;
 
 import java.math.BigDecimal;
@@ -8,23 +10,6 @@ import java.math.BigDecimal;
  * Created by acer on 2017/9/6.
  */
 public class AppPurchaseItemVo {
-//    /**
-//     * 商户ID
-//     */
-//    private String storeId;
-//    /**
-//     * 供应商名称
-//     */
-//    private String storeName;
-//
-//    /**
-//     * 门店ID
-//     */
-//    private String userId;
-//    /**
-//     * 门店名称
-//     */
-//    private String userName;
 
     /**
      * 商品ID
@@ -66,14 +51,10 @@ public class AppPurchaseItemVo {
      * 合并支付编号
      */
     private String payId;
-
-   /* public String getStoreName() {
-        return storeName;
-    }
-
-    public void setStoreName(String storeName) {
-        this.storeName = storeName;
-    }*/
+    /**
+     * 发票信息
+     */
+    private ReceiptPurchase receiptPurchase;
 
     public String getGoodsId() {
         return goodsId;
@@ -147,27 +128,11 @@ public class AppPurchaseItemVo {
         this.payId = payId;
     }
 
-    /*public String getUserId() {
-        return userId;
+    public ReceiptPurchase getReceiptPurchase() {
+        return receiptPurchase;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setReceiptPurchase(ReceiptPurchase receiptPurchase) {
+        this.receiptPurchase = receiptPurchase;
     }
-
-    public String getStoreId() {
-        return storeId;
-    }
-
-    public void setStoreId(String storeId) {
-        this.storeId = storeId;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }*/
 }

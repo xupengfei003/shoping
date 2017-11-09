@@ -120,7 +120,7 @@
 		 <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(status)">
 		 	AND status = #{status}
 		 </if>
-		 ORDER BY update_at DESC
+		 ORDER BY CONVERT(location,SIGNED),update_at DESC
 	</select>
 	<!-- 根据id删除轮播图 -->
 	<update id="deleteById">

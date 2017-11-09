@@ -14,6 +14,7 @@ import java.util.Map;
 public interface LogisticsService {
     /**
      * 根据物流单号查询物流信息
+     *
      * @param num 物流单号
      * @return
      */
@@ -24,7 +25,7 @@ public interface LogisticsService {
      *
      * @return
      */
-    Map<String,Object> insertReceivedOrder(String orderId) throws Exception;
+    Map<String, Object> insertReceivedOrder(String orderId) throws Exception;
 
     /**
      * 获取已收货7天的订单ID
@@ -54,5 +55,5 @@ public interface LogisticsService {
      * @param orderStatus 订单状态
      * @return List<PurchaseInfoVo>  订单信息列表
      */
-    List<PurchaseInfoVo>  findOrderInfoByOrderStatus(@Param("orderStatus") Integer orderStatus);
+    List<PurchaseInfoVo> findOrderInfoByOrderStatus(@Param("orderStatus") Integer orderStatus);
 }

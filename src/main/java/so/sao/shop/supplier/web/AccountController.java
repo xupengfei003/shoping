@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import so.sao.shop.supplier.domain.*;
@@ -235,7 +236,7 @@ public class AccountController {
      */
     @GetMapping(value = "/findAccount")
     @ApiOperation(value = "查询供应商列表" , notes = "负责人：唐文斌")
-    public PageInfo search(AccountInput accountInput, HttpServletRequest request)  {
+    public PageInfo search(@Validated AccountInput accountInput, HttpServletRequest request)  {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         if(user==null || !user.getIsAdmin().equals(Constant.ADMIN_STATUS)){
             throw new RuntimeException("unauthorized access");

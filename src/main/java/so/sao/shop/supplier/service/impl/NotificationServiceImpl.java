@@ -70,7 +70,7 @@ public class NotificationServiceImpl implements NotificationService {
     public List<Notification> search(Integer pageNum, Integer pageSize, Long accountId, Integer notifiType) throws Exception {
         PageTool.startPage(pageNum, pageSize);
         List<Notification> notificationList;
-        if(Ognl.isEmpty(accountId)){    //管理员
+        if (Ognl.isEmpty(accountId)) {    //管理员
             notificationList = notificationDao.searchAdminNotifi();
         } else {    //供应商
             notificationList = notificationDao.searchSupplierNotifi(accountId, notifiType);
@@ -160,10 +160,10 @@ public class NotificationServiceImpl implements NotificationService {
         if (null != dataList && dataList.size() > 0) {
             dataList.forEach(notification -> {
                 String detail = notification.getNotifiDetail();
-                if(notification.getNotifiType() == 0){ //订单消息 设定前端展示规则
+                if (notification.getNotifiType() == 0) { //订单消息 设定前端展示规则
                     if (null != detail && !"".equals(detail)) {
                         List<String> strings = Arrays.asList(detail.split(",")).stream().map(s -> s.trim()).collect(Collectors.toList());
-                        if(null != strings && strings.size()>0){
+                        if (null != strings && strings.size() > 0) {
                             notification.setTitle(strings.get(0));
                             notification.setContent(strings.get(1));
                         }

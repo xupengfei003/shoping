@@ -231,6 +231,26 @@ public class CommodityOutput {
      */
     private Integer cartonVal;
 
+    /**
+     *是否超出配送范围  1超出配送范围,0没有超出
+     */
+    private Integer OutOfDeliveryRange;
+
+    /**
+     * 供应商发票状态  1:支持,0:不支持
+     */
+    private int isOpen;
+    /**
+     * 增值税普通发票状态  1:支持,0:不支持
+     */
+    private int plainInvoice;
+    /**
+     * 增值税专用发票状态   1:支持,0:不支持
+     */
+    private int specialInvoice;
+
+
+
     public Long getInventoryMinimum() {
         return inventoryMinimum;
     }
@@ -620,5 +640,37 @@ public class CommodityOutput {
 
     public void setScaId(Long scaId) {
         this.scaId = scaId;
+    }
+
+    public Integer getOutOfDeliveryRange() {
+        return OutOfDeliveryRange;
+    }
+
+    public void setOutOfDeliveryRange(Integer outOfDeliveryRange) {
+        OutOfDeliveryRange = outOfDeliveryRange;
+    }
+
+    public int getIsOpen() {
+        return isOpen;
+    }
+
+    public void setIsOpen(int isOpen) {
+        this.isOpen = isOpen;
+    }
+
+    public int getPlainInvoice() {
+        return plainInvoice;
+    }
+
+    public void setPlainInvoice(int plainInvoice) {
+        this.plainInvoice = plainInvoice;
+    }
+
+    public int getSpecialInvoice() {
+        return specialInvoice;
+    }
+
+    public void setSpecialInvoice(int specialInvoice) {
+        this.specialInvoice = specialInvoice;
     }
 }

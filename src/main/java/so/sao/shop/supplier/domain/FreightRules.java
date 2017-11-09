@@ -7,6 +7,7 @@ import java.util.Date;
 
 /**
  * 费用规则实体
+ *
  * @author gxy on 2017/9/18.
  */
 public class FreightRules {
@@ -89,7 +90,6 @@ public class FreightRules {
 
     /**
      * 运费规则ID
-     *
      */
     private Integer distributionScopeId;
 

@@ -2,6 +2,7 @@ package so.sao.shop.supplier.pojo.input;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 /**
@@ -44,6 +45,11 @@ public class QualificationInput {
      * 每页的数量
      */
     private Integer pageSize;
+    /**
+     * 排序方式
+     */
+    @NotNull(message = "排序方式不能为空")
+    private Integer sort;
 
     public String getName() {
         return name;
@@ -107,5 +113,13 @@ public class QualificationInput {
 
     public void setPageSize(Integer pageSize) {
         this.pageSize = pageSize;
+    }
+
+    public Integer getSort() {
+        return sort;
+    }
+
+    public void setSort(Integer sort) {
+        this.sort = sort;
     }
 }
