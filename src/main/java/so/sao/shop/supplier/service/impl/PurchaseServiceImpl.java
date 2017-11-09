@@ -275,10 +275,11 @@ public class PurchaseServiceImpl implements PurchaseService {
                         if (accountCouponList.get(0).getStatus().equals(0)) {
                             //获取当前时间
                             String currentTime = StringUtil.fomateData(new Date(), "yyyy-MM-dd HH:mm:ss");
+                            String sendStartTime = StringUtil.fomateData(coupon.getUseStartTime(), "yyyy-MM-dd HH:mm:ss");
                             String sendEndTime = StringUtil.fomateData(coupon.getUseEndTime(), "yyyy-MM-dd HH:mm:ss");
                             //将字符串格式的日期格式化
                             SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-                            if ((sdf.parse(sendEndTime)).compareTo(sdf.parse(currentTime)) >= 0) {
+                            if ((sdf.parse(sendEndTime)).compareTo(sdf.parse(currentTime)) >= 0 && (sdf.parse(sendStartTime)).compareTo(sdf.parse(currentTime)) <= 0) {
                                 //订单总金额是否大于等于优惠券金额
                                 if (orderTotalPrice.compareTo(coupon.getUsableValue()) == -1) {
                                     output.put("message", "不符合优惠券满减条件");
@@ -289,7 +290,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                                     couponDao.updateCouponUseNum(purchase.getCouponId(),1);
                                 }
                             } else {
-                                output.put("message", "优惠券超出可使用时间");
+                                output.put("message", "该优惠券不在使用时间内");
                                 return output;
                             }
                         } else {
