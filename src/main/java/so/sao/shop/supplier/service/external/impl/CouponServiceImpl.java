@@ -1,7 +1,6 @@
 package so.sao.shop.supplier.service.external.impl;
 
 import com.github.pagehelper.PageInfo;
-import org.apache.commons.beanutils.BeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,16 +9,11 @@ import org.springframework.transaction.annotation.Transactional;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.dao.app.AppAccountCouponDao;
 import so.sao.shop.supplier.dao.external.CouponDao;
-import so.sao.shop.supplier.domain.User;
 import so.sao.shop.supplier.domain.external.Coupon;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.service.external.CouponService;
-import so.sao.shop.supplier.util.Ognl;
 import so.sao.shop.supplier.util.PageTool;
 
-import javax.servlet.http.HttpServletRequest;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
