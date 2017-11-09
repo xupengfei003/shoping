@@ -1,10 +1,6 @@
 package so.sao.shop.supplier.web;
 
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,7 +20,6 @@ import java.util.Map;
  * @author zhangruibing
  * @since 2017-07-17
  */
-@Api(value = "RegionController", tags = "行政区域")
 @RestController
 public class RegionController {
 
@@ -38,11 +33,6 @@ public class RegionController {
      * @param level    级别
      * @return
      */
-    @ApiOperation(value = "获取行政区域列表", notes = "获取行政区域列表")
-    @ApiImplicitParams({
-            @ApiImplicitParam(value = "parentId", name = "parentId", required = true, paramType = "query"),
-            @ApiImplicitParam(value = "level", name = "level", paramType = "query")
-    })
     @GetMapping(value = "/regions")
     public RegionOutput getRegion(Integer parentId, Integer level) {
         return regionService.getListForRegion(parentId, level);
@@ -54,7 +44,6 @@ public class RegionController {
      *
      * @return
      */
-    @ApiOperation(value = "获取省市区树形结构数据", notes = "获取省市区树形结构数据")
     @GetMapping(value = "/allRegion")
     public Result getAllRegion() throws Exception {
         Map<String, Object> map = regionService.getAllRegion();

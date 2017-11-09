@@ -1,7 +1,5 @@
 package so.sao.shop.supplier.web;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -20,13 +18,11 @@ import javax.servlet.http.HttpServletRequest;
  */
 @RestController
 @RequestMapping("/commCarton")
-@Api(description = "辅助设置-箱规单位管理【责任人：陈沙】")
 public class CommCartonController {
     @Autowired
     private CommCartonService commCartonService;
 
     @PostMapping(value = "/create")
-    @ApiOperation(value = "新增箱规单位", notes = "新增箱规单位")
     public Result create(HttpServletRequest request, @RequestParam String name) {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //判断是否登录,如果未登录，提示请先登录
@@ -50,7 +46,6 @@ public class CommCartonController {
     }
 
     @DeleteMapping(value = "/delete")
-    @ApiOperation(value = "删除箱规单位", notes = "根据ID删除箱规单位")
     public Result delete(HttpServletRequest request, @RequestParam Long id) {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //判断是否非法登录
@@ -66,7 +61,6 @@ public class CommCartonController {
     }
 
     @PutMapping(value = "/update")
-    @ApiOperation(value = "修改箱规单位", notes = "修改箱规单位信息")
     public Result update(HttpServletRequest request, @Validated @RequestBody CommCartonUpdateInput commCartonUpdateInput) {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //判断是否非法登录
@@ -82,7 +76,6 @@ public class CommCartonController {
     }
 
     @GetMapping(value = "/search")
-    @ApiOperation(value = "查询箱规单位集合", notes = "查询供应商及公用的箱规单位")
     public Result search(HttpServletRequest request, Long supplierId) {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //判断是否非法登录

@@ -1,8 +1,5 @@
 package so.sao.shop.supplier.web;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.pojo.Result;
@@ -20,7 +17,6 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/pay")
-@Api(description = "支付接口")
 public class PayController {
 
     @Resource
@@ -36,7 +32,6 @@ public class PayController {
      * @throws Exception 异常
      */
     @PostMapping(value = "/create")
-    @ApiOperation(value = "支付接口",notes = "")
     public Result create(@RequestBody @Valid PayInput payInput) throws Exception {
         //验证订单状态格式
         List<String> orderIdList = purchaseService.findOrderStatusByPayId(payInput.getOrderId());//获取该支付ID下的所有订单ID
@@ -59,7 +54,6 @@ public class PayController {
      * @throws Exception 异常
      */
     @PostMapping(value = "/createPaymentByOrderId")
-    @ApiOperation(value = "单订单支付接口",notes = "")
     public Result createPaymentByOrderId(@RequestBody @Valid PayInput payInput) throws Exception{
         //验证订单状态格式
         if(!verifyOrderStatus(payInput.getOrderId(),Constant.OrderStatusConfig.PENDING_SHIP)){
@@ -78,7 +72,6 @@ public class PayController {
      * @return Result 封装了结果
      */
     @GetMapping(value = "/getPayOrderTotalPrice/{orderId}")
-    @ApiOperation(value = "获取支付总金额",notes = "")
     public Result getPayOrderTotalPriceByPayId(@PathVariable String orderId){
         BigDecimal totalPrice = payService.getPayOrderTotalPriceByPayId(orderId);
         if (null != totalPrice) {

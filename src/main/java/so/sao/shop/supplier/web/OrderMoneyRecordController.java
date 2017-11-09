@@ -1,7 +1,5 @@
 package so.sao.shop.supplier.web;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import so.sao.shop.supplier.config.Constant;
@@ -26,7 +24,6 @@ import java.util.Map;
  * Created by niewenchao on 2017/7/19.
  */
 @RestController
-@Api(description = "结算明细")
 @RequestMapping(value = "/billingDetails")
 public class OrderMoneyRecordController {
 
@@ -50,7 +47,6 @@ public class OrderMoneyRecordController {
      * @return
      * @throws Exception
      */
-    @ApiOperation(value = "查询结算明细列表", notes = "查询结算明细列表【负责人:聂文超】")
     @GetMapping(value = "/search")
     public Result search(Integer pageNum, Integer pageSize, @Valid OrderMoneyRecordInput input) throws Exception {
 
@@ -100,7 +96,6 @@ public class OrderMoneyRecordController {
      * @return
      * @throws Exception
      */
-    @ApiOperation(value = "更新结算状态", notes = "更新结算状态【负责人:聂文超】")
     @PostMapping(value = "/orderMoneyRecord/updateState")
     public Result updateState(@RequestBody Map params) throws Exception {
         String recordId = (String) params.get("recordId");
@@ -134,7 +129,6 @@ public class OrderMoneyRecordController {
      * @param put
      * @return
      */
-    @ApiOperation(value = "根据账户ID查询已结算/待结算明细", notes = "根据账户ID查询已结算/待结算明细并分页【负责人：方洲】")
     @GetMapping(value = "/orderMoneyRecords")
     public Result searchOrderMoneyRecords(Integer pageNum, Integer pageSize, HttpServletRequest request, @Valid OrderMoneyRecordRankInput put) throws Exception {
         //获取用户
@@ -168,7 +162,6 @@ public class OrderMoneyRecordController {
      * @param orderId  订单id
      * @return
      */
-    @ApiOperation(value = "根据结算明细id查询该明细对应的订单列表", notes = "根据结算明细id查询该明细对应的订单列表，并根据pageNum和pageSize进行分页【负责人:聂文超】")
     @GetMapping(value = "/orderMoneyRecord/searchPurchasesByRecordId")
     public Result searchOMRPurchaseDetails(String recordId, Integer pageNum, Integer pageSize, String orderId) throws Exception {
 
@@ -192,7 +185,6 @@ public class OrderMoneyRecordController {
      * @param endTime   本月结束时间
      * @return settled_amount 已结算金额
      */
-    @ApiOperation(value = "根据开始时间和结束时间查询已结算金额", notes = "根据开始时间和结束时间,计算其已结算金额【负责人:巨江坤】")
     @GetMapping(value = "/orderMoneyRecord/settlement")
     public Result settlementMoney(String startTime, String endTime) throws Exception {
         //判断null和空值
@@ -223,7 +215,6 @@ public class OrderMoneyRecordController {
      * @param endTime   本月结束时间
      * @return totalMoney 待结算金额
      */
-    @ApiOperation(value = "根据开始时间和结束时间查询未结算金额", notes = "根据开始时间和结束时间,计算其未结算金额 【负责人:巨江坤】")
     @GetMapping(value = "/orderMoneyRecord/unsettled")
     public Result totalMoney(String startTime, String endTime) throws Exception {
         //判断null和空值
@@ -254,7 +245,6 @@ public class OrderMoneyRecordController {
      * @param response
      * @throws Exception
      */
-    @ApiOperation(value="导出结算账单excel", notes = "根据查询条件导出excel【负责人:王翼云】")
     @GetMapping("/excel")
     public void exportExcel(HttpServletRequest request, HttpServletResponse response) throws Exception{
         orderMoneyRecordService.exportExcel(request,response);
@@ -265,7 +255,6 @@ public class OrderMoneyRecordController {
      * @param timeType 统计时间类型--时间类型（1.本周，2.当月，3.近三个月）
      * @return
      */
-    @ApiOperation(value="供应商订单金额统计", notes = "供应商订单金额统计【负责人:郑振海】")
     @GetMapping("/countOrderMoneyRecords")
     public Result countOrderMoneyRecords(HttpServletRequest request,@RequestParam Integer timeType){
         //获取用户
@@ -287,7 +276,6 @@ public class OrderMoneyRecordController {
      * @param response
      * @throws Exception
      */
-    @ApiOperation(value="导出结算明细对应的订单列表", notes = "导出结算明细对应的订单列表【负责人:聂文超】")
     @GetMapping("/orderMoneyRecord/recordToPurchasesExcel")
     public void exportRecordToPurchasesExcel(String recordId, String orderId, String pageNum, String pageSize, HttpServletResponse response) throws Exception {
         orderMoneyRecordService.exportRecordToPurchasesExcel(recordId, orderId, pageNum, pageSize, response);

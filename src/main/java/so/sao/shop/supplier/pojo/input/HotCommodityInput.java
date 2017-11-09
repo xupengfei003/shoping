@@ -1,10 +1,9 @@
 package so.sao.shop.supplier.pojo.input;
 
-import io.swagger.annotations.ApiModelProperty;
 
 public class HotCommodityInput extends AddHotCommInput{
 
-    @ApiModelProperty(value = "排序方式")
+//    @ApiModelProperty(value = "排序方式")
     private Integer sortord ;
 
     public Integer getSortord() {

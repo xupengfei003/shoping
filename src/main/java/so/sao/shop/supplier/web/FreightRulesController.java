@@ -1,12 +1,9 @@
 package so.sao.shop.supplier.web;
 
 import com.github.pagehelper.PageInfo;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import so.sao.shop.supplier.config.Constant;
-import so.sao.shop.supplier.domain.Account;
 import so.sao.shop.supplier.domain.FreightRules;
 import so.sao.shop.supplier.domain.User;
 import so.sao.shop.supplier.pojo.Result;
@@ -27,7 +24,6 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/freightrules")
-@Api(description = "运费规则-所有接口【负责人：郑振海】")
 public class FreightRulesController {
     @Autowired
     FreightRulesService freightRulesService;
@@ -43,7 +39,6 @@ public class FreightRulesController {
      * @throws Exception Exception
      */
     @GetMapping("/queryAll")
-    @ApiOperation(value = "分页获取供应商运费规则列表", notes = "分页获取供应商运费规则列表 【负责人：郑振海】")
     public Result queryAll(HttpServletRequest request, Integer pageNum, Integer pageSize, Integer rulesType) throws Exception {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //判断是否登陆
@@ -67,7 +62,6 @@ public class FreightRulesController {
      * @throws Exception Exception
      */
     @GetMapping("/query/{id}")
-    @ApiOperation(value = "获取单个运费规则", notes = "获取单运费规则 【负责人：郑振海】")
     public Result query(@PathVariable Integer id) throws Exception{
         FreightRules freightRules = freightRulesService.query(id);
         return Result.success(Constant.MessageConfig.MSG_SUCCESS, freightRules);
@@ -80,7 +74,6 @@ public class FreightRulesController {
      * @throws Exception Exception
      */
     @PostMapping("/update/{id}")
-    @ApiOperation(value = "更新某条运费规则", notes = "更新某条运费规则 【负责人：郑振海】")
     public Result update(HttpServletRequest request,@PathVariable Integer id, @RequestBody @Valid FreightRulesInput freightRulesInput) throws Exception {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //判断是否登陆
@@ -101,7 +94,6 @@ public class FreightRulesController {
      * @return
      */
     @PostMapping("/insert")
-    @ApiOperation(value = "新增通用运费规则" , notes = "新增通用运费规则")
     public Result insert(HttpServletRequest request,@RequestBody @Valid FreightRulesInput freightRulesInput){
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //判断是否登陆
@@ -122,7 +114,6 @@ public class FreightRulesController {
      * @throws Exception Exception
      */
     @PostMapping("/delete/{id}")
-    @ApiOperation(value = "删除通用配送规则记录", notes = "删除通用配送规则记录")
     public Result delete(HttpServletRequest request,@PathVariable Integer id) throws Exception {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //判断是否登陆
