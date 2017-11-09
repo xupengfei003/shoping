@@ -85,7 +85,7 @@ public class PurchaseItemPrintOutput {
     /**
      * 运费
      */
-    private BigDecimal orderPostage;
+    private String orderPostage;
 
     /**
      * 运费金额中文
@@ -95,7 +95,7 @@ public class PurchaseItemPrintOutput {
     /**
      * 折扣优惠
      */
-    private BigDecimal discount;
+    private String discount;
 
     /**
      * 折扣金额中文
@@ -105,7 +105,7 @@ public class PurchaseItemPrintOutput {
     /**
      * 合计总价
      */
-    private BigDecimal orderTotalPrice;
+    private String orderTotalPrice;
 
     /**
      * 合计总价中文
@@ -115,7 +115,7 @@ public class PurchaseItemPrintOutput {
     /**
      * 实付金额
      */
-    private BigDecimal payAmount;
+    private String payAmount;
 
     /**
      * 实付金额中文
@@ -128,10 +128,10 @@ public class PurchaseItemPrintOutput {
     private List<PurchaseItemPrintVo> purchaseItemPrintVos;
 
     public String getOrderPostage() {
-        return NumberUtil.number2Thousand(orderPostage);
+        return NumberUtil.number2Thousand(new BigDecimal(orderPostage));
     }
 
-    public void setOrderPostage(BigDecimal orderPostage) {
+    public void setOrderPostage(String orderPostage) {
         this.orderPostage = orderPostage;
     }
 
@@ -223,22 +223,6 @@ public class PurchaseItemPrintOutput {
         this.receivingAddress = receivingAddress;
     }
 
-//    public String getTotalPriceFormat() {
-//        return NumberUtil.number2Thousand(this.totalPrice);
-//    }
-//
-//    public void setTotalPriceFormat(String totalPriceFormat) {
-//        this.totalPriceFormat = totalPriceFormat;
-//    }
-
-//    public String getOrderCreateTimeStr() {
-//        return StringUtil.fomateData(this.orderCreateTime, "yyyy年MM月dd日");
-//    }
-//
-//    public void setOrderCreateTimeStr(String orderCreateTimeStr) {
-//        this.orderCreateTimeStr = orderCreateTimeStr;
-//    }
-
     public String getProviderName() {
         return providerName;
     }
@@ -247,32 +231,32 @@ public class PurchaseItemPrintOutput {
         this.providerName = providerName;
     }
 
-    public BigDecimal getDiscount() {
-        return discount;
+    public String getDiscount() {
+        return NumberUtil.number2Thousand(new BigDecimal(discount));
     }
 
-    public void setDiscount(BigDecimal discount) {
+    public void setDiscount(String discount) {
         this.discount = discount;
     }
 
-    public BigDecimal getOrderTotalPrice() {
-        return orderTotalPrice;
+    public String getOrderTotalPrice() {
+        return NumberUtil.number2Thousand(new BigDecimal(orderTotalPrice));
     }
 
-    public void setOrderTotalPrice(BigDecimal orderTotalPrice) {
+    public void setOrderTotalPrice(String orderTotalPrice) {
         this.orderTotalPrice = orderTotalPrice;
     }
 
-    public BigDecimal getPayAmount() {
-        return payAmount;
+    public String getPayAmount() {
+        return NumberUtil.number2Thousand(new BigDecimal(payAmount));
     }
 
-    public void setPayAmount(BigDecimal payAmount) {
+    public void setPayAmount(String payAmount) {
         this.payAmount = payAmount;
     }
 
     public String getOrderPostageCN() {
-        return NumberUtil.number2CN(this.orderPostage);
+        return NumberUtil.number2CN(new BigDecimal(this.orderPostage));
     }
 
     public void setOrderPostageCN(String orderPostageCN) {
@@ -280,7 +264,7 @@ public class PurchaseItemPrintOutput {
     }
 
     public String getDiscountCN() {
-        return NumberUtil.number2CN(this.discount);
+        return NumberUtil.number2CN(new BigDecimal(this.discount));
     }
 
     public void setDiscountCN(String discountCN) {
@@ -288,7 +272,7 @@ public class PurchaseItemPrintOutput {
     }
 
     public String getOrderTotalPriceCN() {
-        return NumberUtil.number2CN(this.orderTotalPrice);
+        return NumberUtil.number2CN(new BigDecimal(this.orderTotalPrice));
     }
 
     public void setOrderTotalPriceCN(String orderTotalPriceCN) {
@@ -296,7 +280,7 @@ public class PurchaseItemPrintOutput {
     }
 
     public String getPayAmountCN() {
-        return NumberUtil.number2CN(this.payAmount);
+        return NumberUtil.number2CN(new BigDecimal(this.payAmount));
     }
 
     public void setPayAmountCN(String payAmountCN) {
