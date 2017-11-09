@@ -13,7 +13,6 @@ import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.output.CategoryOutput;
 import so.sao.shop.supplier.service.CommCategoryService;
-import so.sao.shop.supplier.util.Ognl;
 
 import java.util.List;
 import java.util.Map;

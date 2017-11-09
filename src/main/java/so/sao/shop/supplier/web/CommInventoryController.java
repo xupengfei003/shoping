@@ -10,7 +10,6 @@ import so.sao.shop.supplier.domain.User;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.CommInventoryInfoInput;
 import so.sao.shop.supplier.pojo.input.CommInventoryInput;
-import so.sao.shop.supplier.pojo.input.PurchaseInput;
 import so.sao.shop.supplier.pojo.output.CommInventoryInfoOutput;
 import so.sao.shop.supplier.pojo.output.CommInventoryOutput;
 import so.sao.shop.supplier.service.CommInventoryService;
@@ -18,7 +17,6 @@ import so.sao.shop.supplier.util.Ognl;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.math.BigInteger;
 import java.util.List;
 
 /**
