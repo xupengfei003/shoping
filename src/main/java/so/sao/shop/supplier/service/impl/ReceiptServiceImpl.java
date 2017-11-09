@@ -1,11 +1,9 @@
 package so.sao.shop.supplier.service.impl;
 
 import org.springframework.stereotype.Service;
-import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.dao.ReceiptDao;
 import so.sao.shop.supplier.domain.Receipt;
 import so.sao.shop.supplier.service.ReceiptService;
-import so.sao.shop.supplier.util.Ognl;
 
 import javax.annotation.Resource;
 
@@ -25,6 +23,7 @@ public class ReceiptServiceImpl implements ReceiptService {
 
     /**
      * 发票记录录入
+     *
      * @return
      */
     @Override
@@ -36,12 +35,13 @@ public class ReceiptServiceImpl implements ReceiptService {
          *     若发票类型为2 表示增值税专用发票  单位名称，纳税人识别号，注册地址，注册电话，开户银行，银行账户为必传参数
          * 2.插入数据
          */
-        return receiptDao.insertReceipt(receipt) > 0 ? true : false ;
+        return receiptDao.insertReceipt(receipt) > 0 ? true : false;
     }
 
     /**
      * 发票信息更改
-     *  根据发票ID修改发票记录
+     * 根据发票ID修改发票记录
+     *
      * @param receipt
      * @return
      */
@@ -59,6 +59,7 @@ public class ReceiptServiceImpl implements ReceiptService {
 
     /**
      * 根据主键查询发票记录
+     *
      * @param receiptId
      * @return
      */
@@ -69,6 +70,7 @@ public class ReceiptServiceImpl implements ReceiptService {
 
     /**
      * 根据门店ID和发票类型获取发票记录
+     *
      * @param userId
      * @param receiptType 1增值税普通单位发票 2增值税专用发票
      * @return
@@ -76,7 +78,7 @@ public class ReceiptServiceImpl implements ReceiptService {
     @Override
     public Receipt getReceiptByUserIdAndType(Long userId, Integer receiptType) {
 
-        return receiptDao.getReceiptByUserIdAndType(userId,receiptType);
+        return receiptDao.getReceiptByUserIdAndType(userId, receiptType);
     }
 
 }

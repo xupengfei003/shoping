@@ -3,7 +3,6 @@ package so.sao.shop.supplier.pojo.output;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import so.sao.shop.supplier.pojo.vo.PurchaseItemPrintVo;
 import so.sao.shop.supplier.util.NumberUtil;
-import so.sao.shop.supplier.util.StringUtil;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -15,7 +14,7 @@ import java.util.List;
  * @author hengle.yang
  * @since 2017/8/10 18:00
  */
-public class PurchaseItemPrintOutput{
+public class PurchaseItemPrintOutput {
 
     /**
      * 供应商名称
@@ -45,7 +44,7 @@ public class PurchaseItemPrintOutput{
     /**
      * 下单时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date orderCreateTime;
 
     /**

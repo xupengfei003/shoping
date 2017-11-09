@@ -65,7 +65,7 @@ public class AccountPurchaseVo {
     /**
      * 付款时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date orderPaymentTime;
 
     /**
@@ -174,7 +174,7 @@ public class AccountPurchaseVo {
         this.orderPaymentNum = orderPaymentNum;
     }
 
-    public static Object[] converData(AccountPurchaseVo accountPurchaseVo){
+    public static Object[] converData(AccountPurchaseVo accountPurchaseVo) {
         Object[] data = new Object[12];
 
         if (null != accountPurchaseVo) {

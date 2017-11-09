@@ -1,11 +1,11 @@
 package so.sao.shop.supplier.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import so.sao.shop.supplier.util.Ognl;
+
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
-import so.sao.shop.supplier.util.Ognl;
 
 /**
  * <p>
@@ -85,7 +85,7 @@ public class Purchase {
     /**
      * 下单时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date orderCreateTime;
 
     /**
@@ -96,7 +96,7 @@ public class Purchase {
     /**
      * 订单支付时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date orderPaymentTime;
 
     /**
@@ -107,7 +107,7 @@ public class Purchase {
     /**
      * 卖家拒绝时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date orderRefuseTime;
 
     /**
@@ -143,7 +143,7 @@ public class Purchase {
     /**
      * 退款时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date drawbackTime;
 
     /**
@@ -164,13 +164,13 @@ public class Purchase {
     /**
      * 更新时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date updatedAt;
 
     /**
      * 收货时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date orderReceiveTime;
 
     /**
@@ -180,12 +180,12 @@ public class Purchase {
     /**
      * 发货时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date deliverGoodsTime;
     /**
      * 取消时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date orderCancelTime;
     /**
      * 取消类型
@@ -197,8 +197,7 @@ public class Purchase {
     private String refuseType;
 
     /**
-     *订单邮费(0:包邮，非零显示具体金额)
-     *
+     * 订单邮费(0:包邮，非零显示具体金额)
      */
     private BigDecimal orderPostage;
 
@@ -515,7 +514,7 @@ public class Purchase {
     }
 
     public BigDecimal getDiscount() {
-        if (Ognl.isEmpty(discount)){
+        if (Ognl.isEmpty(discount)) {
             return new BigDecimal(0.00);
         }
         return discount;

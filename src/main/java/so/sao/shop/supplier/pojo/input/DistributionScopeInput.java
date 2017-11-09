@@ -14,21 +14,21 @@ public class DistributionScopeInput {
      * 省
      */
     @NotBlank(message = "省不能为空")
-    @Pattern(regexp = "^.{0}$|^.{6}$",message = "省份code码为6位")
+    @Pattern(regexp = "^.{0}$|^.{6}$", message = "省份code码为6位")
     private String addressProvince;
 
     /**
      * 市
      */
     //@NotBlank(message = "市不能为空")
-    @Pattern(regexp = "^.{0}$|^.{6}$",message = "市code码为6位")
+    @Pattern(regexp = "^.{0}$|^.{6}$", message = "市code码为6位")
     private String addressCity;
 
     /**
      * 区
      */
     //@NotBlank(message = "区不能为空")
-    @Pattern(regexp = "^.{0}$|^.{6}$",message = "区code码为6位")
+    @Pattern(regexp = "^.{0}$|^.{6}$", message = "区code码为6位")
     private String addressDistrict;
 
     /**

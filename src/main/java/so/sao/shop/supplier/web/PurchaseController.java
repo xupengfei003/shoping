@@ -45,6 +45,7 @@ public class PurchaseController {
     private PurchaseService purchaseService;
     @Resource
     private InvoiceSettingService invoiceSettingService;
+
     /**
      * 保存订单
      *
@@ -101,11 +102,11 @@ public class PurchaseController {
             }
         }
         //对比开始时间和结束时间
-        if (restrictDate(dateList)){
+        if (restrictDate(dateList)) {
             return Result.fail(Constant.MessageConfig.DateNOTLate);
         }
         //对比开始金额和结束金额
-        if (DataCompare.compareMoney(purchaseSelectInput.getBeginMoney(), purchaseSelectInput.getEndMoney())){
+        if (DataCompare.compareMoney(purchaseSelectInput.getBeginMoney(), purchaseSelectInput.getEndMoney())) {
             return Result.fail(Constant.MessageConfig.MoneyNOTLate);
         }
         purchaseService.exportExcel(request, response, pageNum, pageSize, accountId, purchaseSelectInput);
@@ -469,13 +470,13 @@ public class PurchaseController {
     private boolean verifyOrderStatus(String orderId, Integer orderStatus) {
         Integer getOrderStatus = purchaseService.findOrderStatus(orderId);
         //合并取消
-        if(orderId.length() == 28){
+        if (orderId.length() == 28) {
             getOrderStatus = Constant.OrderStatusConfig.PAYMENT;
         }
-        if(null == getOrderStatus){
+        if (null == getOrderStatus) {
             return false;
         }
-        if(null != getOrderStatus && Objects.equals(Constant.OrderStatusConfig.CONFIRM_RECEIVED,getOrderStatus)){
+        if (null != getOrderStatus && Objects.equals(Constant.OrderStatusConfig.CONFIRM_RECEIVED, getOrderStatus)) {
             getOrderStatus = Constant.OrderStatusConfig.ISSUE_SHIP;
         }
         String status = Constant.OrderStatusRule.RULES[getOrderStatus - 1];
@@ -513,7 +514,7 @@ public class PurchaseController {
      * 根据订单编号和用户id验证用户的订单是否存在，存在返回二维码地址，否则返回失败地址
      *
      * @param orderId 订单编号
-     * @param userId 用户id
+     * @param userId  用户id
      * @return
      */
     @ApiOperation(value = "验证二维码", notes = "根据订单编号和用户id验证用户的订单是否存在【负责人：杨恒乐】")
@@ -525,21 +526,23 @@ public class PurchaseController {
         return Result.success(Constant.MessageConfig.MSG_SUCCESS, purchaseService.getReceiveUrl(orderId, userId));
     }
 
-  /**
+    /**
      * 商户各类订单数量统计接口
+     *
      * @return
      */
-    @ApiOperation(value = "供应商各类订单数量统计接口",notes = "根据供应商ID获取该供应商割裂订单数量【负责人：郑振海】")
+    @ApiOperation(value = "供应商各类订单数量统计接口", notes = "根据供应商ID获取该供应商割裂订单数量【负责人：郑振海】")
     @GetMapping("/countOrderNumByOrderStatus")
-    public Result countOrderNumByOrderStatus(HttpServletRequest request){
+    public Result countOrderNumByOrderStatus(HttpServletRequest request) {
         //1.取出当前登录用户
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         if (null == user || Ognl.isEmpty(user.getAccountId())) {   //验证用户是否登陆
             return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
         Map<Object, Object> orderNum = purchaseService.countOrderNumByOrderStatus(user.getAccountId());
-        return Result.success(Constant.MessageConfig.MSG_SUCCESS,orderNum);
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS, orderNum);
     }
+
     /**
      * 更改物流信息
      *
@@ -549,7 +552,7 @@ public class PurchaseController {
      */
     @ApiOperation(value = "更改物流信息", notes = "根据订单编号更改物流信息【负责人：白治华】")
     @PostMapping("/updateLogisticInfoByOrderId")
-    public  Result updateLogisticInfoByOrderId(@RequestBody @Valid LogisticInfoUpdateInput logisticInfoUpdateInput) throws Exception {
+    public Result updateLogisticInfoByOrderId(@RequestBody @Valid LogisticInfoUpdateInput logisticInfoUpdateInput) throws Exception {
         boolean flag = purchaseService.updateLogisticInfoByOrderId(logisticInfoUpdateInput);
         if (flag) {
             return Result.success(Constant.MessageConfig.MSG_SUCCESS);
@@ -565,7 +568,7 @@ public class PurchaseController {
      */
     @ApiOperation(value = "供应商是否支持发票接口", notes = "供应商是否支持发票接口【负责人：郑振海】")
     @GetMapping("/isOpenReceipt/{supplierId}")
-    public  Result updateLogisticInfoByOrderId(@PathVariable("supplierId") Long supplierId) throws Exception {
+    public Result updateLogisticInfoByOrderId(@PathVariable("supplierId") Long supplierId) throws Exception {
 
         return invoiceSettingService.getBySupplierId(supplierId);
     }
@@ -577,7 +580,7 @@ public class PurchaseController {
      */
     @ApiOperation(value = "订单详情-发票详情接口", notes = "订单详情-发票详情接口【负责人：郑振海】")
     @GetMapping("/receiptItem")
-    public  Result findReceiptItemByOrderId(String orderId) throws Exception {
+    public Result findReceiptItemByOrderId(String orderId) throws Exception {
         //1.入参校验
         if (Ognl.isEmpty(orderId)) {
             return Result.fail(Constant.MessageConfig.MSG_NOT_EMPTY);
