@@ -84,6 +84,10 @@ public class AppAccountCouponServiceImpl implements AppAccountCouponService {
             Result result  = Result.fail("已领完！");
             return result;
         }
+        //如果在使用开始时间前领取，不可使用
+        if(new Date().before(coupon.getUseStartTime())){
+            accountCoupon.setStatus(2);
+        }
 
         List<AccountCoupon> list = appAccountCouponDao.findAccountCoupon(shopId,couponId);
 
@@ -107,6 +111,7 @@ public class AppAccountCouponServiceImpl implements AppAccountCouponService {
      * @param pageSize
      * @return
      */
+
     @Override
     public Result getCouponCenter(Long shopId, Integer pageNum, Integer pageSize) {
         PageTool.startPage(pageNum,pageSize);

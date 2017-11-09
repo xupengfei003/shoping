@@ -33,6 +33,10 @@ public class CouponOutputVo {
      * 优惠券适用金额，满多少可用
      */
     private BigDecimal usableValue;
+    /**
+     * 剩余数量
+     */
+    private Integer surplus;
 
     /**
      * 使用开始时间
@@ -50,6 +54,13 @@ public class CouponOutputVo {
      */
     private Integer status;
 
+    public Integer getSurplus() {
+        return surplus;
+    }
+
+    public void setSurplus(Integer surplus) {
+        this.surplus = surplus;
+    }
 
     public Long getCouponId() {
         return couponId;
