@@ -4,6 +4,7 @@
     <springProperty scope="context" name="logStdout" source="log.stdout"/>
     <springProperty scope="context" name="logLevel" source="log.level" defaultValue="info"/>
     <springProperty scope="context" name="logGelfOut" source="log.gelf.out" defaultValue="true"/>
+    <springProperty scope="context" name="logGraylogHost" source="log.graylog.host" defaultValue="log-internal.storify.cc"/>
     <springProperty scope="context" name="logGraylogPort" source="log.graylog.port" defaultValue="12201"/>
 
     <include resource="org/springframework/boot/logging/logback/defaults.xml" />
@@ -15,7 +16,7 @@
     </if>
 
     <appender name="GELF" class="de.siegmar.logbackgelf.GelfUdpAppender">
-        <graylogHost>log-internal.storify.cc</graylogHost>
+        <graylogHost>${logGraylogHost}</graylogHost>
         <graylogPort>${logGraylogPort}</graylogPort>
         <maxChunkSize>508</maxChunkSize>
         <useCompression>true</useCompression>
