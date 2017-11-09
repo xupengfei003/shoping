@@ -108,6 +108,42 @@ public class CommAppOutput{
      */
     private  Integer saleNum;
 
+    /**
+     * 最小起订量
+     */
+    private Integer minOrderQuantity;
+
+    /**
+     *  1 类科属名称
+     */
+    private String categoryOneName;
+
+    /**
+     * 二类科属名称
+     */
+    private String categoryTwoName;
+
+    /**
+     *三类科属名称
+     */
+    private String categoryThreeName;
+
+    /**
+     * 生产日期
+     */
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date productionDate;
+
+    /**
+     *有效期
+     */
+    private Integer guaranteePeriod;
+
+    /**
+     * 有效期单位
+     */
+    private String guaranteePeriodUnit;
+
     public Integer getSaleNum() {
         return saleNum;
     }
@@ -282,5 +318,61 @@ public class CommAppOutput{
 
     public void setSupplierId(Long supplierId) {
         this.supplierId = supplierId;
+    }
+
+    public Integer getMinOrderQuantity() {
+        return minOrderQuantity;
+    }
+
+    public void setMinOrderQuantity(Integer minOrderQuantity) {
+        this.minOrderQuantity = minOrderQuantity;
+    }
+
+    public String getCategoryTwoName() {
+        return categoryTwoName;
+    }
+
+    public void setCategoryTwoName(String categoryTwoName) {
+        this.categoryTwoName = categoryTwoName;
+    }
+
+    public String getCategoryThreeName() {
+        return categoryThreeName;
+    }
+
+    public void setCategoryThreeName(String categoryThreeName) {
+        this.categoryThreeName = categoryThreeName;
+    }
+
+    public String getCategoryOneName() {
+        return categoryOneName;
+    }
+
+    public void setCategoryOneName(String categoryOneName) {
+        this.categoryOneName = categoryOneName;
+    }
+
+    public Date getProductionDate() {
+        return productionDate;
+    }
+
+    public void setProductionDate(Date productionDate) {
+        this.productionDate = productionDate;
+    }
+
+    public Integer getGuaranteePeriod() {
+        return guaranteePeriod;
+    }
+
+    public void setGuaranteePeriod(Integer guaranteePeriod) {
+        this.guaranteePeriod = guaranteePeriod;
+    }
+
+    public String getGuaranteePeriodUnit() {
+        return guaranteePeriodUnit;
+    }
+
+    public void setGuaranteePeriodUnit(String guaranteePeriodUnit) {
+        this.guaranteePeriodUnit = guaranteePeriodUnit;
     }
 }

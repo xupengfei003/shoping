@@ -3,6 +3,7 @@ package so.sao.shop.supplier.web;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.domain.User;
@@ -78,7 +79,7 @@ public class QualificationController {
      */
     @ApiOperation(value = "查询资质列表",notes = "查询资质列表【负责人：张腾飞】")
     @GetMapping("/search")
-    public Result search(HttpServletRequest request,QualificationInput qualificationInput){
+    public Result search(HttpServletRequest request,@Validated QualificationInput qualificationInput){
         return qualificationService.searchQualifications(qualificationInput);
     }
 

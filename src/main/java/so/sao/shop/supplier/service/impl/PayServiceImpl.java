@@ -8,9 +8,13 @@ import so.sao.shop.supplier.dao.PayDao;
 import so.sao.shop.supplier.dao.PurchaseDao;
 import so.sao.shop.supplier.domain.Notification;
 import so.sao.shop.supplier.domain.Purchase;
+import so.sao.shop.supplier.pojo.input.AppCommSalesInput;
 import so.sao.shop.supplier.pojo.input.PayInput;
+import so.sao.shop.supplier.pojo.vo.PurchaseInfoVo;
+import so.sao.shop.supplier.pojo.vo.PurchaseItemVo;
 import so.sao.shop.supplier.service.PayService;
 import so.sao.shop.supplier.service.PurchaseService;
+import so.sao.shop.supplier.service.app.impl.AppCommSalesServiceImpl;
 import so.sao.shop.supplier.util.MD5Util;
 
 import javax.annotation.Resource;
@@ -32,6 +36,8 @@ public class PayServiceImpl implements PayService {
     private PurchaseDao purchaseDao;
     @Resource
     private PurchaseService purchaseService;
+    @Resource
+    private AppCommSalesServiceImpl appCommSalesService;
 
     /**
      * 支付回调接口
@@ -61,6 +67,26 @@ public class PayServiceImpl implements PayService {
             }.start();
             //TODO 为该供应商推送"待发货"消息通知
             sendNotice(payInput);
+            //更新商品销量
+            List<Purchase> purchaseList = purchaseDao.findByPayId(payInput.getOrderId());
+            List<String> orderIds = new ArrayList<>();
+            //存储订单ID和实付金额关系
+            Map<String,Object> payAmountMap = new HashMap<>();
+            purchaseList.forEach(purchase -> {
+                orderIds.add(purchase.getOrderId());
+                payAmountMap.put(purchase.getOrderId(),purchase.getOrderTotalPrice());
+            });
+            List<PurchaseItemVo> purchaseItemVoList = purchaseService.findPurchaseItemByIds(orderIds);
+            List<AppCommSalesInput> appCommSalesInputs = new ArrayList<>();
+            for (PurchaseItemVo purchaseItemVo : purchaseItemVoList){
+                AppCommSalesInput appCommSalesInput = new AppCommSalesInput();
+                appCommSalesInput.setGoodsId(purchaseItemVo.getGoodsId());
+                appCommSalesInput.setGoodsNum(purchaseItemVo.getGoodsNumber());
+                appCommSalesInputs.add(appCommSalesInput);
+            }
+            appCommSalesService.updateSalesNum(appCommSalesInputs);
+            //更新实付金额
+            payDao.updatePayAmountByOrderId(payAmountMap);
         }
         return flagDao;
     }
@@ -112,7 +138,11 @@ public class PayServiceImpl implements PayService {
         return false;
     }
 
-    //发送消息
+    /**
+     * 发送消息
+     *
+     * @param payInput
+     */
     private void sendNotice(PayInput payInput) {
         List<Purchase> purchaseList = purchaseDao.findByPayId(payInput.getOrderId());
         List<Notification> notificationList = new ArrayList<>();
@@ -131,16 +161,28 @@ public class PayServiceImpl implements PayService {
         }
     }
 
-    //合并入参
-    private Map<String, Object> mergePaymentInfo(PayInput payInput) throws Exception {
+    /**
+     * 合并入参
+     *
+     * @param payInput 封装了支付回参信息
+     * @return Map 封装了入参信息
+     */
+    private Map<String, Object> mergePaymentInfo(PayInput payInput){
         Map<String, Object> map = new HashMap<>();
-        map.put("orderPaymentTime", new Date());//支付时间
-        map.put("updatedAt", new Date());//更新时间
-        map.put("orderStatus", Constant.OrderStatusConfig.PENDING_SHIP);//订单状态
-        map.put("orderId", payInput.getOrderId());//订单编号
-        map.put("orderPaymentNum", payInput.getOrderPaymentNum());//支付流水号
-        map.put("orderPaymentMethod", payInput.getOrderPaymentMethod());//支付方式
-        map.put("payStatus", 1);//支付状态  0.未支付状态  1.已支付状态
+        //支付时间
+        map.put("orderPaymentTime", new Date());
+        //更新时间
+        map.put("updatedAt", new Date());
+        //订单状态
+        map.put("orderStatus", Constant.OrderStatusConfig.PENDING_SHIP);
+        //订单编号
+        map.put("orderId", payInput.getOrderId());
+        //支付流水号
+        map.put("orderPaymentNum", payInput.getOrderPaymentNum());
+        //支付方式
+        map.put("orderPaymentMethod", payInput.getOrderPaymentMethod());
+        //支付状态  0.未支付状态  1.已支付状态
+        map.put("payStatus", 1);
         return map;
     }
 

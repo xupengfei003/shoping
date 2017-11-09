@@ -110,7 +110,7 @@
   <!-- 查询出省市区编码字段-->
   <select id="selectById" resultMap="BaseResultMap" parameterType="java.lang.Long" >
     select
-    <include refid="Base_Column_List" />, business_type ,regist_address_province,
+    <include refid="Base_Column_List" />, freight_rules, business_type ,regist_address_province,
     regist_address_city, regist_address_district,
     contract_register_address_province, contract_register_address_city,
     contract_register_address_district
@@ -131,7 +131,7 @@
     where account_id = #{accountId,jdbcType=BIGINT}
   </update>
 
-  <insert id="insert" parameterType="so.sao.shop.supplier.domain.Account" >
+  <insert id="insert" parameterType="so.sao.shop.supplier.domain.Account" useGeneratedKeys="true" keyProperty="accountId">
     insert into account (account_id, user_id, provider_name,
       responsible, responsible_phone, license, 
       license_time_create, license_time_end, business_type, 
@@ -727,7 +727,16 @@
         h.qualificationStatus = #{qualificationStatus}
       </if>
     </where>
-    ORDER  BY  h.update_date DESC
+    ORDER  BY
+      <if test="sort == 3">
+          h.update_date  DESC
+      </if>
+      <if test="sort == 0">
+        h.create_date ASC
+      </if>
+      <if test="sort == 1">
+        h.create_date DESC
+      </if>
   </select>
 
     <select id="findOne" resultMap="BaseResultMap" parameterType="long">
@@ -949,5 +958,8 @@
     ) t
     LIMIT 1
   </select>
-
+  <!--根据电话查询该供应商信息-->
+  <select id="findAccountByPhone" resultMap="BaseResultMap">
+    SELECT account_id FROM account WHERE responsible_phone = #{phone}
+  </select>
 </mapper>

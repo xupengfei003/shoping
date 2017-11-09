@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="so.sao.shop.supplier.dao.ReceiptDao">
+  <resultMap id="BaseResultMap" type="so.sao.shop.supplier.domain.Receipt">
+    <id column="receipt_id" jdbcType="BIGINT" property="receiptId" />
+    <result column="receipt_type" jdbcType="INTEGER" property="receiptType" />
+    <result column="company" jdbcType="VARCHAR" property="company" />
+    <result column="taxpayer_number" jdbcType="BIGINT" property="taxpayerNumber" />
+    <result column="receipt_content_id" jdbcType="BIGINT" property="receiptContentId" />
+    <result column="receipt_content" jdbcType="VARCHAR" property="receiptContent" />
+    <result column="register_adress" jdbcType="VARCHAR" property="registerAdress" />
+    <result column="register_phone" jdbcType="VARCHAR" property="registerPhone" />
+    <result column="deposit_bank" jdbcType="VARCHAR" property="depositBank" />
+    <result column="bank_amount" jdbcType="VARCHAR" property="bankAmount" />
+    <result column="user_id" jdbcType="BIGINT" property="userId" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    receipt_id AS receiptId, receipt_type AS receiptType, company, taxpayer_number AS taxpayerNumber,
+    receipt_content_id AS receiptContentId, receipt_content AS receiptContent,
+    register_adress AS registerAdress, register_phone AS registerPhone, deposit_bank AS depositBank,
+    bank_amount AS bankAmount, user_id AS userId, create_time AS createTime,
+    update_time AS updateTime
+  </sql>
+
+  <!--发票记录录入-->
+  <insert id="insertReceipt" parameterType="so.sao.shop.supplier.domain.Receipt">
+     insert into receipt_user (receipt_id,receipt_type, company,
+      taxpayer_number, receipt_content_id, receipt_content,
+      register_adress, register_phone, deposit_bank,
+      bank_amount, user_id, create_time)
+    values (null,#{receiptType,jdbcType=INTEGER}, #{company,jdbcType=VARCHAR},
+      #{taxpayerNumber,jdbcType=BIGINT}, #{receiptContentId,jdbcType=BIGINT}, #{receiptContent,jdbcType=VARCHAR},
+      #{registerAdress,jdbcType=VARCHAR}, #{registerPhone,jdbcType=VARCHAR}, #{depositBank,jdbcType=VARCHAR},
+      #{bankAmount,jdbcType=VARCHAR}, #{userId,jdbcType=BIGINT}, #{createTime,jdbcType=TIMESTAMP})
+  </insert>
+
+  <!--发票信息更改-->
+  <update id="updateReceiptById" parameterType="so.sao.shop.supplier.domain.Receipt">
+    update receipt_user
+    set company = #{company,jdbcType=VARCHAR},
+      taxpayer_number = #{taxpayerNumber,jdbcType=BIGINT},
+      receipt_content_id = #{receiptContentId,jdbcType=BIGINT},
+      receipt_content = #{receiptContent,jdbcType=VARCHAR},
+      register_adress = #{registerAdress,jdbcType=VARCHAR},
+      register_phone = #{registerPhone,jdbcType=VARCHAR},
+      deposit_bank = #{depositBank,jdbcType=VARCHAR},
+      bank_amount = #{bankAmount,jdbcType=VARCHAR},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where receipt_id = #{receiptId,jdbcType=BIGINT}
+  </update>
+
+  <!--根据主键查询发票记录-->
+  <select id="getReceiptById" resultType="so.sao.shop.supplier.domain.Receipt">
+    select
+    <include refid="Base_Column_List" />
+    from receipt_user
+    where receipt_id = #{receiptId,jdbcType=BIGINT}
+  </select>
+
+  <!--根据门店ID和发票类型获取发票记录-->
+  <select id="getReceiptByUserIdAndType" resultType="so.sao.shop.supplier.domain.Receipt">
+    select
+    <include refid="Base_Column_List" />
+    from receipt_user
+    where user_id = #{userId,jdbcType=BIGINT}
+    and receipt_type = #{receiptType,jdbcType=INTEGER}
+  </select>
+</mapper>

@@ -2,7 +2,6 @@ package so.sao.shop.supplier.pojo.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -43,7 +42,7 @@ public class PurchaseInfoVo {
     /**
      * 下单时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date orderCreateTime;
 
     /**
@@ -54,7 +53,7 @@ public class PurchaseInfoVo {
     /**
      * 支付时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date orderPaymentTime;
 
     /**
@@ -70,7 +69,7 @@ public class PurchaseInfoVo {
     /**
      * 退款时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date drawbackTime;
 
     /**
@@ -97,6 +96,31 @@ public class PurchaseInfoVo {
      * 订单邮费 (0:包邮，非零显示具体金额)
      */
     private String orderPostage;
+
+    /**
+     * 折扣优惠
+     */
+    private String discount;
+
+    /**
+     * 合计金额
+     */
+    private String orderTotalPrice;
+
+    /**
+     * 实付金额
+     */
+    private String payAmount;
+
+    /**
+     * 退款金额
+     */
+    private String drawbackPrice;
+
+    /**
+     * 该订单是否有发票
+     */
+    private Integer isReceipt;
 
     /**
      * 订单明细列表
@@ -245,5 +269,45 @@ public class PurchaseInfoVo {
 
     public void setOrderPostage(String orderPostage) {
         this.orderPostage = orderPostage;
+    }
+
+    public String getDiscount() {
+        return discount;
+    }
+
+    public void setDiscount(String discount) {
+        this.discount = discount;
+    }
+
+    public String getOrderTotalPrice() {
+        return orderTotalPrice;
+    }
+
+    public void setOrderTotalPrice(String orderTotalPrice) {
+        this.orderTotalPrice = orderTotalPrice;
+    }
+
+    public String getPayAmount() {
+        return payAmount;
+    }
+
+    public void setPayAmount(String payAmount) {
+        this.payAmount = payAmount;
+    }
+
+    public String getDrawbackPrice() {
+        return drawbackPrice;
+    }
+
+    public void setDrawbackPrice(String drawbackPrice) {
+        this.drawbackPrice = drawbackPrice;
+    }
+
+    public Integer getIsReceipt() {
+        return isReceipt;
+    }
+
+    public void setIsReceipt(Integer isReceipt) {
+        this.isReceipt = isReceipt;
     }
 }

@@ -4,7 +4,6 @@ import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.util.StringUtils;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.domain.User;
@@ -15,6 +14,7 @@ import so.sao.shop.supplier.pojo.output.OrderRefuseReasonOutput;
 import so.sao.shop.supplier.pojo.output.PurchaseItemPrintOutput;
 import so.sao.shop.supplier.pojo.vo.PurchaseInfoVo;
 import so.sao.shop.supplier.pojo.vo.PurchasesVo;
+import so.sao.shop.supplier.service.InvoiceSettingService;
 import so.sao.shop.supplier.service.PurchaseService;
 import so.sao.shop.supplier.util.DataCompare;
 import so.sao.shop.supplier.util.DateUtil;
@@ -43,6 +43,8 @@ public class PurchaseController {
 
     @Resource
     private PurchaseService purchaseService;
+    @Resource
+    private InvoiceSettingService invoiceSettingService;
 
     /**
      * 保存订单
@@ -100,10 +102,13 @@ public class PurchaseController {
             }
         }
         //对比开始时间和结束时间
-        if (restrictDate(dateList)) return Result.fail(Constant.MessageConfig.DateNOTLate);
+        if (restrictDate(dateList)) {
+            return Result.fail(Constant.MessageConfig.DateNOTLate);
+        }
         //对比开始金额和结束金额
-        if (DataCompare.compareMoney(purchaseSelectInput.getBeginMoney(), purchaseSelectInput.getEndMoney()))
+        if (DataCompare.compareMoney(purchaseSelectInput.getBeginMoney(), purchaseSelectInput.getEndMoney())) {
             return Result.fail(Constant.MessageConfig.MoneyNOTLate);
+        }
         purchaseService.exportExcel(request, response, pageNum, pageSize, accountId, purchaseSelectInput);
         return Result.success(Constant.MessageConfig.MSG_SUCCESS);
     }
@@ -144,10 +149,13 @@ public class PurchaseController {
             }
         }
         //对比开始时间和结束时间
-        if (restrictDate(dateList)) return Result.fail(Constant.MessageConfig.DateNOTLate);
+        if (restrictDate(dateList)) {
+            return Result.fail(Constant.MessageConfig.DateNOTLate);
+        }
         //对比开始金额和结束金额
-        if (DataCompare.compareMoney(purchaseSelectInput.getBeginMoney(), purchaseSelectInput.getEndMoney()))
+        if (DataCompare.compareMoney(purchaseSelectInput.getBeginMoney(), purchaseSelectInput.getEndMoney())) {
             return Result.fail(Constant.MessageConfig.MoneyNOTLate);
+        }
         //查询订单
         if (rows == null || rows <= 0) {
             rows = 10;
@@ -211,7 +219,7 @@ public class PurchaseController {
      */
     @ApiOperation(value = "收入明细查询(高级查询)", notes = " 根据商户id及查询条件（起始创建订单-结束创建订单时间/起始下单时间-结束下单时间/支付方式;订单编号/收货人名称/收货人联系方式）分页显示订单【负责人:郑振海】")
     @GetMapping(value = "/account/PurchasesHigh")
-    public Result searchHigh(Integer pageNum, Integer pageSize, @Validated AccountPurchaseInput input, HttpServletRequest request) throws ParseException {
+    public Result searchHigh(Integer pageNum, Integer pageSize, @Valid AccountPurchaseInput input, HttpServletRequest request) throws ParseException {
         //1.取出当前登录用户
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         if (null == user || Ognl.isEmpty(user.getAccountId())) {   //验证用户是否登陆
@@ -219,18 +227,6 @@ public class PurchaseController {
         }
         //2.校验入参中的条件检索类
         if (Ognl.isNotEmpty(input)) {
-            if (Ognl.isNotEmpty(input.getPayBeginTime()) && !DateUtil.isDate(input.getPayBeginTime())) {//开始时间（支付时间）
-                return Result.fail(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
-            }
-            if (Ognl.isNotEmpty(input.getPayEndTime()) && !DateUtil.isDate(input.getPayEndTime())) {//结束时间（支付时间）
-                return Result.fail(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
-            }
-            if (Ognl.isNotEmpty(input.getCreateBeginTime()) && !DateUtil.isDate(input.getCreateBeginTime())) {//开始时间（创建时间）
-                return Result.fail(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
-            }
-            if (Ognl.isNotEmpty(input.getCreateEndTime()) && !DateUtil.isDate(input.getCreateEndTime())) {//结束时间（创建时间）
-                return Result.fail(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
-            }
             if (Ognl.isNotEmpty(input.getOrderPaymentMethod()) && 0 == input.getOrderPaymentMethod()) {//支付方式
                 input.setOrderPaymentMethod(null);
             }
@@ -242,8 +238,7 @@ public class PurchaseController {
     /**
      * 账户收入明细查询(普通查询)
      * 1.取出当前登录用户
-     * 2.校验入参中的条件检索类
-     * 3.访问业务层，获取数据
+     * 2.访问业务层，获取数据
      *
      * @param pageNum  当前页码
      * @param pageSize 每页显示条数
@@ -252,22 +247,14 @@ public class PurchaseController {
      */
     @ApiOperation(value = "收入明细查询(普通查询)", notes = " 根据商户id及查询条件（起始创建订单-结束创建订单时间/支付流水号/订单编号/收货人名称）分页显示订单【负责人:郑振海】")
     @GetMapping(value = "/account/PurchasesLow")
-    public Result searchLow(Integer pageNum, Integer pageSize, AccountPurchaseLowInput input, HttpServletRequest request) throws ParseException {
+    public Result searchLow(Integer pageNum, Integer pageSize, @Valid AccountPurchaseLowInput input, HttpServletRequest request) throws ParseException {
         //1.取出当前登录用户
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         if (null == user || Ognl.isEmpty(user.getAccountId())) {   //验证用户是否登陆
             return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
-        //2.校验入参中的条件检索类
-        if (Ognl.isNotEmpty(input)) {
-            if (Ognl.isNotEmpty(input.getCreateBeginTime()) && !DateUtil.isDate(input.getCreateBeginTime())) {//开始时间（创建时间）
-                return Result.fail(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
-            }
-            if (Ognl.isNotEmpty(input.getCreateEndTime()) && !DateUtil.isDate(input.getCreateEndTime())) {//结束时间（创建时间）
-                return Result.fail(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
-            }
-        }
-        //3.访问业务层。获取数据
+
+        //2.访问业务层。获取数据
         return purchaseService.searchPurchasesLow(pageNum, pageSize, input, user.getAccountId());
     }
 
@@ -483,13 +470,13 @@ public class PurchaseController {
     private boolean verifyOrderStatus(String orderId, Integer orderStatus) {
         Integer getOrderStatus = purchaseService.findOrderStatus(orderId);
         //合并取消
-        if(orderId.length() == 28){
+        if (orderId.length() == 28) {
             getOrderStatus = Constant.OrderStatusConfig.PAYMENT;
         }
-        if(null == getOrderStatus){
+        if (null == getOrderStatus) {
             return false;
         }
-        if(null != getOrderStatus && Objects.equals(Constant.OrderStatusConfig.CONFIRM_RECEIVED,getOrderStatus)){
+        if (null != getOrderStatus && Objects.equals(Constant.OrderStatusConfig.CONFIRM_RECEIVED, getOrderStatus)) {
             getOrderStatus = Constant.OrderStatusConfig.ISSUE_SHIP;
         }
         String status = Constant.OrderStatusRule.RULES[getOrderStatus - 1];
@@ -527,7 +514,7 @@ public class PurchaseController {
      * 根据订单编号和用户id验证用户的订单是否存在，存在返回二维码地址，否则返回失败地址
      *
      * @param orderId 订单编号
-     * @param userId 用户id
+     * @param userId  用户id
      * @return
      */
     @ApiOperation(value = "验证二维码", notes = "根据订单编号和用户id验证用户的订单是否存在【负责人：杨恒乐】")
@@ -539,21 +526,23 @@ public class PurchaseController {
         return Result.success(Constant.MessageConfig.MSG_SUCCESS, purchaseService.getReceiveUrl(orderId, userId));
     }
 
-  /**
+    /**
      * 商户各类订单数量统计接口
+     *
      * @return
      */
-    @ApiOperation(value = "供应商各类订单数量统计接口",notes = "根据供应商ID获取该供应商割裂订单数量【负责人：郑振海】")
+    @ApiOperation(value = "供应商各类订单数量统计接口", notes = "根据供应商ID获取该供应商割裂订单数量【负责人：郑振海】")
     @GetMapping("/countOrderNumByOrderStatus")
-    public Result countOrderNumByOrderStatus(HttpServletRequest request){
+    public Result countOrderNumByOrderStatus(HttpServletRequest request) {
         //1.取出当前登录用户
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         if (null == user || Ognl.isEmpty(user.getAccountId())) {   //验证用户是否登陆
             return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
         Map<Object, Object> orderNum = purchaseService.countOrderNumByOrderStatus(user.getAccountId());
-        return Result.success(Constant.MessageConfig.MSG_SUCCESS,orderNum);
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS, orderNum);
     }
+
     /**
      * 更改物流信息
      *
@@ -563,11 +552,41 @@ public class PurchaseController {
      */
     @ApiOperation(value = "更改物流信息", notes = "根据订单编号更改物流信息【负责人：白治华】")
     @PostMapping("/updateLogisticInfoByOrderId")
-    public  Result updateLogisticInfoByOrderId(@RequestBody @Valid LogisticInfoUpdateInput logisticInfoUpdateInput) throws Exception {
+    public Result updateLogisticInfoByOrderId(@RequestBody @Valid LogisticInfoUpdateInput logisticInfoUpdateInput) throws Exception {
         boolean flag = purchaseService.updateLogisticInfoByOrderId(logisticInfoUpdateInput);
         if (flag) {
             return Result.success(Constant.MessageConfig.MSG_SUCCESS);
         }
         return Result.fail(Constant.MessageConfig.MSG_FAILURE);
     }
+
+    /**
+     * 供应商是否支持发票接口
+     *
+     * @return Result 结果
+     * @throws Exception
+     */
+    @ApiOperation(value = "供应商是否支持发票接口", notes = "供应商是否支持发票接口【负责人：郑振海】")
+    @GetMapping("/isOpenReceipt/{supplierId}")
+    public Result updateLogisticInfoByOrderId(@PathVariable("supplierId") Long supplierId) throws Exception {
+
+        return invoiceSettingService.getBySupplierId(supplierId);
+    }
+
+    /**
+     * 订单详情-发票详情
+     *
+     * @return Result 结果
+     */
+    @ApiOperation(value = "订单详情-发票详情接口", notes = "订单详情-发票详情接口【负责人：郑振海】")
+    @GetMapping("/receiptItem")
+    public Result findReceiptItemByOrderId(String orderId) throws Exception {
+        //1.入参校验
+        if (Ognl.isEmpty(orderId)) {
+            return Result.fail(Constant.MessageConfig.MSG_NOT_EMPTY);
+        }
+        return purchaseService.findReceiptItemByOrderId(orderId);
+    }
+
+
 }

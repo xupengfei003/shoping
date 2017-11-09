@@ -34,6 +34,10 @@
         <result column="cancel_type" property="cancelType"/>
         <result column="refuse_type" property="refuseType"/>
         <result column="order_postage" property="orderPostage"/>
+        <result column="discount" property="discount"/>
+        <result column="order_total_price" property="orderTotalPrice"/>
+        <result column="pay_amount" property="payAmount"/>
+        <result column="drawback_price" property="drawbackPrice"/>
     </resultMap>
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
@@ -61,7 +65,11 @@
 	distributor_mobile AS distributorMobile,
 	logistics_company AS logisticsCompany,
 	pay_status AS payStatus,
-	order_postage AS orderPostage
+	order_postage AS orderPostage,
+	discount AS discount,
+	order_total_price AS orderTotalPrice,
+	pay_amount AS payAmount,
+	drawback_price AS drawbackPrice
   </sql>
     <!-- 根据ID查询订单信息 -->
     <select id="findById" parameterType="java.lang.String" resultType="so.sao.shop.supplier.domain.Purchase">
@@ -77,6 +85,7 @@
         order_payment_time,
         order_receiver_name,
         order_receiver_mobile,
+        order_receive_time,
         order_status,
         order_price,
         order_postage,
@@ -84,7 +93,12 @@
         updated_at,
         order_payment_method,
         order_payment_num,
-        store_name
+        store_name,
+        deliver_goods_time,
+        discount,
+        order_total_price,
+        pay_amount,
+        drawback_price
         FROM
         purchase
         <where>
@@ -103,8 +117,11 @@
             @so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.orderReceiverMobile) and
             !@so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.storeName) and
             purchaseSelectInput.orderReceiverName == purchaseSelectInput.orderReceiverMobile">
-                AND (order_receiver_name LIKE "${purchaseSelectInput.orderReceiverName}%"
-                OR order_receiver_mobile LIKE "${purchaseSelectInput.orderReceiverMobile}%")
+               /* AND (order_receiver_name LIKE "${purchaseSelectInput.orderReceiverName}%"
+                OR order_receiver_mobile LIKE "${purchaseSelectInput.orderReceiverMobile}%")*/
+                AND (order_receiver_name LIKE CONCAT('%',#{purchaseSelectInput.orderReceiverName},'%')
+                OR order_receiver_mobile LIKE CONCAT('%',#{purchaseSelectInput.orderReceiverMobile},'%'))
+
             </if>
             /*管理员*/
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.orderReceiverName) and
@@ -112,20 +129,23 @@
             @so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.storeName) and
             purchaseSelectInput.orderReceiverName == purchaseSelectInput.orderReceiverMobile and
             purchaseSelectInput.orderReceiverName == purchaseSelectInput.storeName">
-                AND (order_receiver_name LIKE "${purchaseSelectInput.orderReceiverName}%"
+               /* AND (order_receiver_name LIKE "${purchaseSelectInput.orderReceiverName}%"
                 OR order_receiver_mobile LIKE "${purchaseSelectInput.orderReceiverMobile}%"
-                OR store_name LIKE "${purchaseSelectInput.storeName}%")
+                OR store_name LIKE "${purchaseSelectInput.storeName}%")*/
+                AND (order_receiver_name LIKE CONCAT('%',#{purchaseSelectInput.orderReceiverName},'%')
+                OR order_receiver_mobile LIKE CONCAT('%',#{purchaseSelectInput.orderReceiverMobile},'%')
+                OR store_name LIKE CONCAT('%',#{purchaseSelectInput.storeName},'%'))
             </if>
             <if test="purchaseSelectInput.orderReceiverName != purchaseSelectInput.orderReceiverMobile">
                 <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.orderReceiverName)">
-                    AND order_receiver_name LIKE "${purchaseSelectInput.orderReceiverName}%"
+                    AND order_receiver_name LIKE CONCAT('%',#{purchaseSelectInput.orderReceiverName},'%')
                 </if>
                 <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.orderReceiverMobile)">
-                    AND order_receiver_mobile LIKE "${purchaseSelectInput.orderReceiverMobile}%"
+                    AND order_receiver_mobile LIKE CONCAT('%',#{purchaseSelectInput.orderReceiverMobile},'%')
                 </if>
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.orderId)">
-                AND order_id LIKE "${purchaseSelectInput.orderId}%"
+                AND order_id LIKE CONCAT('%',#{purchaseSelectInput.orderId},'%')
             </if>
 
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.beginDate)">
@@ -165,11 +185,11 @@
                 AND order_payment_method = TRIM(#{purchaseSelectInput.orderPaymentMethod})
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(purchaseSelectInput.orderPaymentNum)">
-                AND order_payment_num LIKE "${purchaseSelectInput.orderPaymentNum}%"
+                AND order_payment_num LIKE CONCAT('%',#{purchaseSelectInput.orderPaymentNum},'%')
             </if>
 
             <if test="purchaseSelectInput.userId!=null">
-                AND user_id LIKE "${purchaseSelectInput.userId}%"
+                AND user_id LIKE CONCAT('%',#{purchaseSelectInput.userId},'%')
             </if>
             <if test="accountId != null">
                 AND store_id = #{accountId}
@@ -197,7 +217,10 @@
         order_payment_method,
         order_status,
         updated_at,
-        order_postage
+        order_postage,
+        discount,
+        order_total_price,
+        coupon_id
         )
         VALUES
         <foreach collection="list" item="item" index="index" separator=",">
@@ -217,7 +240,10 @@
             #{item.orderPaymentMethod},
             #{item.orderStatus},
             #{item.updatedAt},
-            #{item.orderPostage}
+            #{item.orderPostage},
+            #{item.discount},
+            #{item.orderTotalPrice},
+            #{item.couponId}
             )
         </foreach>
     </insert>
@@ -235,9 +261,17 @@
         <result column="updated_at" property="updateTime"/>
         <result column="order_postage" property="orderPostage"/>
         <result column="store_name" property="storeName"/>
+        <result column="order_receive_time" property="orderReceiveTime"/>
+        <result column="discount" property="discount"/>
+        <result column="order_total_price" property="orderTotalPrice"/>
+        <result column="pay_amount" property="payAmount"/>
+        <result column="drawback_price" property="drawbackPrice"/>
     </resultMap>
     <sql id="Order_Column_List">
-        order_id, order_receiver_name, order_receiver_mobile, order_create_time, order_price, order_status,order_payment_time, order_payment_method, order_payment_num,updated_at,order_postage,store_name
+        order_id, order_receiver_name, order_receiver_mobile, order_create_time,
+        order_price, order_status,order_payment_time, order_payment_method,
+        order_payment_num,updated_at,order_postage,store_name,order_receive_time,
+        discount,order_total_price,pay_amount,drawback_price
     </sql>
     <select id="findPage" resultMap="OrderAllList" parameterType="so.sao.shop.supplier.pojo.input.PurchaseSelectInput">
         SELECT
@@ -260,8 +294,10 @@
             @so.sao.shop.supplier.util.Ognl@isNotEmpty(orderReceiverMobile) and
             !@so.sao.shop.supplier.util.Ognl@isNotEmpty(storeName) and
             orderReceiverName == orderReceiverMobile">
-                AND (order_receiver_name LIKE "${orderReceiverName}%"
-                OR order_receiver_mobile LIKE "${orderReceiverMobile}%")
+--                 AND (order_receiver_name LIKE "${orderReceiverName}%"
+--                 OR order_receiver_mobile LIKE "${orderReceiverMobile}%")
+                AND (order_receiver_name LIKE CONCAT('%',#{orderReceiverName},'%')
+                OR order_receiver_mobile LIKE CONCAT ('%',#{orderReceiverMobile},'%'))
             </if>
             /*管理员*/
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderReceiverName) and
@@ -269,20 +305,23 @@
             @so.sao.shop.supplier.util.Ognl@isNotEmpty(storeName) and
             orderReceiverName == orderReceiverMobile and
             orderReceiverName == storeName">
-                AND (order_receiver_name LIKE "${orderReceiverName}%"
+                /*AND (order_receiver_name LIKE "${orderReceiverName}%"
                 OR order_receiver_mobile LIKE "${orderReceiverMobile}%"
-                OR store_name LIKE "${storeName}%")
+                OR store_name LIKE "${storeName}%")*/
+                AND (order_receiver_name LIKE CONCAT ('%',#{orderReceiverName},'%')
+                OR order_receiver_mobile LIKE CONCAT ('%',#{orderReceiverMobile},'%')
+                OR store_name LIKE CONCAT ('%',#{storeName},'%'))
             </if>
             <if test="orderReceiverName != orderReceiverMobile">
                 <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderReceiverName)">
-                    AND order_receiver_name LIKE "${orderReceiverName}%"
+                    AND order_receiver_name LIKE CONCAT ('%',#{orderReceiverName},'%')
                 </if>
                 <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderReceiverMobile)">
-                    AND order_receiver_mobile LIKE "${orderReceiverMobile}%"
+                    AND order_receiver_mobile LIKE CONCAT ('%',#{orderReceiverMobile},'%')
                 </if>
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderId)">
-                AND order_id LIKE "${orderId}%"
+                AND order_id LIKE CONCAT ('%',#{orderId},'%')
             </if>
 
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(beginDate)">
@@ -293,10 +332,10 @@
             </if>
 
             <if test="beginMoney!=null">
-                AND order_price >= TRIM(#{beginMoney})
+                AND order_total_price >= TRIM(#{beginMoney})
             </if>
             <if test="endMoney != null">
-                <![CDATA[AND order_price <= TRIM(#{endMoney})]]>
+                <![CDATA[AND order_total_price <= TRIM(#{endMoney})]]>
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderPaymentBeginTime)">
                 AND order_payment_time >= TRIM(STR_TO_DATE(#{orderPaymentBeginTime},'%Y-%m-%d'))
@@ -318,19 +357,27 @@
                 AND order_payment_method = TRIM(#{orderPaymentMethod})
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderPaymentNum)">
-                AND order_payment_num LIKE "${orderPaymentNum}%"
+                AND order_payment_num LIKE CONCAT ('%',#{orderPaymentNum},'%')
             </if>
 
 
             <if test="userId!=null">
-                AND user_id LIKE "${userId}%"
+                AND user_id LIKE CONCAT ('%',#{userId},'%')
             </if>
 
             <if test="storeId!=null">
-                AND store_id LIKE "${storeId}%"
+                AND store_id LIKE CONCAT ('%',#{storeId},'%')
             </if>
         </where>
-        ORDER BY updated_at DESC
+        <if test="flag == 0">
+            ORDER BY updated_at DESC
+        </if>
+        <if test="flag == 1">
+            ORDER BY order_create_time ASC
+        </if>
+        <if test="flag == -1">
+            ORDER BY order_create_time DESC
+        </if>
     </select>
 
     <!--更改订单状态-->
@@ -403,114 +450,129 @@
         WHERE rp.record_id = #{recordId};
     </update>
 
-    <!--根据商家id统计该账户名下订单状态（已完成）+ 账户状态（未结算）订单结算金额累计之和-->
+    <!--账户余额：根据商家id统计该账户名下订单状态（已完成）+ 账户状态（未结算）订单结算金额累计之和-->
     <select id="findUncountedMoney" resultType="java.math.BigDecimal" parameterType="java.lang.Long">
-        SELECT SUM(order_settleme_price + order_postage)
+        SELECT SUM(CASE WHEN order_status=6 THEN order_postage WHEN order_status=4 THEN (order_settleme_price + order_postage) END) AS temp_settleme_price
         FROM purchase
-        WHERE store_id=#{storeId} AND order_status=4 AND account_status &lt; 2;
+        WHERE (order_status=4 OR (order_status=6 AND prefix_order_status=5)) AND account_status &lt; 2 AND store_id=#{storeId}
     </select>
 
-    <!-- 查询订单状态计算已完成订单总金额 -->
+    <!-- 结算金额：查询订单状态为已完成（成本价+运费）和 拒收退款（运费）之和 -->
     <select id="findOrderStatus" resultType="java.math.BigDecimal" parameterType="java.lang.Long">
-        SELECT SUM(order_settleme_price + order_postage)
+        SELECT SUM(CASE WHEN ORDER_STATUS=6 THEN ORDER_POSTAGE WHEN ORDER_STATUS=4 THEN (ORDER_SETTLEME_PRICE + ORDER_POSTAGE) END) AS TEMP_SETTLEME_PRICE
         FROM PURCHASE
-        <where>
-            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(storeId)">
-                STORE_ID = #{storeId}
-            </if>
-            AND order_status = 4
-        </where>
+        WHERE (ORDER_STATUS=4 OR (ORDER_STATUS=6 AND PREFIX_ORDER_STATUS=5)) AND STORE_ID = #{storeId}
     </select>
+
+    <!-- 账户收入明细查询映射结果 -->
+    <resultMap id="AccountPurchaseVoResultMap" type="so.sao.shop.supplier.pojo.vo.AccountPurchaseVo">
+        <id column="order_id" property="orderId"/>
+        <result column="order_status" property="orderStatus"/>
+        <result column="order_price" property="orderPrice"/>
+        <result column="order_postage" property="orderPostage"/>
+        <result column="discount"  property="discount"/>
+        <result column="order_total_price" property="orderTotalPrice"/>
+        <result column="pay_amount" property="payAmount"/>
+        <result column="order_settleme_price" property="orderSettlemePrice"/>
+        <result column="temp_settleme_price" property="tempSettlemePrice"/>
+        <result column="order_payment_time" property="orderPaymentTime"/>
+        <result column="order_payment_method" property="orderPaymentMethod"/>
+        <result column="order_payment_num" property="orderPaymentNum"/>
+    </resultMap>
 
     <!-- 分页条件检索账户管理下的订单明细 （高级查询）-->
-    <select id="findPageByStoreId" resultMap="BaseResultMap">
+    <select id="findPageByStoreId" resultMap="AccountPurchaseVoResultMap">
         SELECT
           ORDER_ID,
-          ORDER_RECEIVER_NAME,
-          ORDER_RECEIVER_MOBILE,
           ORDER_STATUS,
           ORDER_PRICE,
+          ORDER_POSTAGE,
+          DISCOUNT,
+          ORDER_TOTAL_PRICE,
+          PAY_AMOUNT,
           ORDER_SETTLEME_PRICE,
-          ORDER_CREATE_TIME,
+          CASE WHEN ORDER_STATUS=6 THEN ORDER_POSTAGE WHEN ORDER_STATUS=4 THEN (ORDER_SETTLEME_PRICE + ORDER_POSTAGE) END AS TEMP_SETTLEME_PRICE,
           ORDER_PAYMENT_TIME,
           ORDER_PAYMENT_METHOD,
-          ORDER_PAYMENT_NUM,
-          ORDER_POSTAGE
+          ORDER_PAYMENT_NUM
         FROM PURCHASE
         WHERE STORE_ID = #{storeId,jdbcType=BIGINT}
-        AND ORDER_STATUS=4
+        AND (ORDER_STATUS=4 OR (ORDER_STATUS=6 AND PREFIX_ORDER_STATUS=5))
         <!--按条件检索数据-->
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(input)">
             <!--订单产生时间-->
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(input.createBeginTime)">
-                AND ORDER_CREATE_TIME &gt;= TRIM(STR_TO_DATE(#{input.createBeginTime},'%Y-%m-%d'))
+                AND ORDER_CREATE_TIME &gt;= #{input.createBeginTime}
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(input.createEndTime)">
-                AND ORDER_CREATE_TIME &lt; TRIM(DATE_ADD(STR_TO_DATE(#{input.createEndTime},'%Y-%m-%d'),INTERVAL 1 DAY))
+                AND ORDER_CREATE_TIME &lt; date_add(#{input.createEndTime}, INTERVAL 1 DAY)
             </if>
             <!--订单支付时间-->
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(input.payBeginTime)">
-                AND ORDER_PAYMENT_TIME &gt;= TRIM(STR_TO_DATE(#{input.payBeginTime},'%Y-%m-%d'))
+                AND ORDER_PAYMENT_TIME &gt;= #{input.payBeginTime}
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(input.payEndTime)">
-                AND ORDER_PAYMENT_TIME &lt; TRIM(DATE_ADD(STR_TO_DATE(#{input.payEndTime},'%Y-%m-%d'),INTERVAL 1 DAY))
+                AND ORDER_PAYMENT_TIME &lt; date_add(#{input.payEndTime}, INTERVAL 1 DAY)
             </if>
             <!--支付方式(1、支付宝；2、微信)-->
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(input.orderPaymentMethod)">
                 AND ORDER_PAYMENT_METHOD = #{input.orderPaymentMethod}
             </if>
-            <!--收货人名称-->
-            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(input.orderReceiverName)">
-                AND ORDER_RECEIVER_NAME = TRIM(#{input.orderReceiverName})
-            </if>
-            <!--收货人联系方式-->
-            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(input.orderReceiverMobile)">
-                AND ORDER_RECEIVER_MOBILE = TRIM(#{input.orderReceiverMobile})
-            </if>
             <!--订单编号-->
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(input.orderId)">
                 AND ORDER_ID = TRIM(#{input.orderId})
             </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(input.sortName)">
+                ORDER BY ${input.sortName}
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(input.sortType)">
+                ${input.sortType}
+            </if>
         </if>
-        ORDER BY ORDER_PAYMENT_TIME DESC
     </select>
 
     <!-- 分页条件检索账户管理下的订单明细 （普通查询）-->
-    <select id="findPageByStoreIdLow" resultMap="BaseResultMap">
+    <select id="findPageByStoreIdLow" resultMap="AccountPurchaseVoResultMap">
         SELECT
           ORDER_ID,
-          ORDER_RECEIVER_NAME,
-          ORDER_RECEIVER_MOBILE,
           ORDER_STATUS,
           ORDER_PRICE,
+          ORDER_POSTAGE,
+          DISCOUNT,
+          ORDER_TOTAL_PRICE,
+          PAY_AMOUNT,
           ORDER_SETTLEME_PRICE,
-          ORDER_CREATE_TIME,
+          CASE WHEN ORDER_STATUS=6 THEN ORDER_POSTAGE WHEN ORDER_STATUS=4 THEN (ORDER_SETTLEME_PRICE + ORDER_POSTAGE) END AS TEMP_SETTLEME_PRICE,
           ORDER_PAYMENT_TIME,
           ORDER_PAYMENT_METHOD,
-          ORDER_PAYMENT_NUM,
-          ORDER_POSTAGE
+          ORDER_PAYMENT_NUM
         FROM PURCHASE
         WHERE STORE_ID = #{storeId,jdbcType=BIGINT}
-        AND ORDER_STATUS = 4
+        AND (ORDER_STATUS=4 OR (ORDER_STATUS=6 AND PREFIX_ORDER_STATUS=5))
         <!--按条件检索数据-->
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(input)">
             <!--订单产生时间-->
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(input.createBeginTime)">
-                AND ORDER_CREATE_TIME &gt;= TRIM(STR_TO_DATE(#{input.createBeginTime},'%Y-%m-%d'))
+                AND ORDER_CREATE_TIME &gt;= #{input.createBeginTime}
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(input.createEndTime)">
-                AND ORDER_CREATE_TIME &lt; TRIM(DATE_ADD(STR_TO_DATE(#{input.createEndTime},'%Y-%m-%d'),INTERVAL 1 DAY))
+                AND ORDER_CREATE_TIME &lt; date_add(#{input.createEndTime}, INTERVAL 1 DAY)
             </if>
             <!--查询条件-->
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(input.condition)">
-                AND(
-                ORDER_ID LIKE concat(TRIM(#{input.condition}),'%')
-                OR ORDER_RECEIVER_NAME LIKE concat(TRIM(#{input.condition}),'%')
-                OR ORDER_PAYMENT_NUM LIKE concat(TRIM(#{input.condition}),'%')
+                AND (
+                  ORDER_ID LIKE concat(TRIM(#{input.condition}),'%')
+                  OR
+                  ORDER_PAYMENT_NUM LIKE concat(TRIM(#{input.condition}),'%')
                 )
             </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(input.sortName)">
+                ORDER BY ${input.sortName}
+            </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(input.sortType)">
+                ${input.sortType}
+            </if>
         </if>
-        ORDER BY ORDER_PAYMENT_TIME DESC
     </select>
 
     <!-- 查询订单状态 -->
@@ -533,10 +595,14 @@
             q.url AS qrcodeUrl,
             P.order_postage AS orderPostage,
             q.status AS qrcodeStatus,
-            a.provider_name AS providerName
+--             a.provider_name AS providerName
+            p.store_name AS providerName,
+            p.discount AS discount,
+            p.order_total_price AS orderTotalPrice,
+            p.pay_amount AS payAmount
         FROM purchase p
         LEFT JOIN qrcode q ON p.order_id = q.foreign_key
-        LEFT JOIN account a ON p.store_id = a.account_id
+--         LEFT JOIN account a ON p.store_id = a.account_id
         WHERE p.order_id = #{orderId}
     </select>
 
@@ -604,20 +670,35 @@
         WHERE order_id = #{orderId}
     </select>
 
-    <!--查询该商户下已完成且按自然月结算订单列表信息-->
+    <!--查询该商户下已完成和拒收退款且按自然月结算订单列表信息-->
     <select id="findPurchaseMonth" resultMap="findPurchaseList">
         SELECT
           order_id,
           order_price,
           order_settleme_price,
-          order_postage
+          order_postage,
+          order_status
         FROM
           purchase
         WHERE
           order_status = 4 AND account_status = '0'
         AND order_receive_time >= date_sub(concat(DATE_FORMAT(#{currentDate},'%Y-%m-'),'01'), INTERVAL 1 MONTH)
         AND order_receive_time &lt; concat(DATE_FORMAT(#{currentDate},'%Y-%m-'),'01')
-        AND store_id = #{storeId};
+        AND store_id = #{storeId}
+        UNION ALL
+        SELECT
+          order_id,
+          order_price,
+          order_settleme_price,
+          order_postage,
+          order_status
+        FROM
+          purchase
+        WHERE
+          order_status = 6 AND account_status = '0' AND prefix_order_status = 5
+        AND drawback_time >= date_sub(concat(DATE_FORMAT(#{currentDate},'%Y-%m-'),'01'), INTERVAL 1 MONTH)
+        AND drawback_time &lt; concat(DATE_FORMAT(#{currentDate},'%Y-%m-'),'01')
+        AND store_id = #{storeId}
     </select>
 
     <!-- 按自然月或固定天数查询映射结果集 -->
@@ -626,22 +707,38 @@
         <result column="order_price" property="orderPrice"/>
         <result column="order_settleme_price" property="orderSettlemePrice"/>
         <result column="order_postage" property="orderPostage"/>
+        <result column="order_status" property="orderStatus"/>
     </resultMap>
 
-    <!--查询该商户下已完成且按固定天数结算订单列表信息-->
+    <!--查询该商户下已完成和拒收退款且按固定天数结算订单列表信息-->
     <select id="findPurchaseFixedTime" resultMap="findPurchaseList">
       SELECT
         order_id,
         order_price,
         order_settleme_price,
-        order_postage
+        order_postage,
+        order_status
       FROM
         purchase
       WHERE
         order_status = 4 AND account_status = '0'
       AND order_receive_time >= date_sub(DATE_FORMAT(#{lastSettlementDate}, '%Y-%m-%d'), INTERVAL #{remittanced} DAY)
       AND order_receive_time &lt; DATE_FORMAT(#{lastSettlementDate},'%Y-%m-%d')
-      AND store_id = #{storeId};
+      AND store_id = #{storeId}
+      UNION ALL
+      SELECT
+        order_id,
+        order_price,
+        order_settleme_price,
+        order_postage,
+        order_status
+      FROM
+        purchase
+      WHERE
+        order_status = 6 AND account_status = '0' AND prefix_order_status = 5
+      AND drawback_time >= date_sub(DATE_FORMAT(#{lastSettlementDate}, '%Y-%m-%d'), INTERVAL #{remittanced} DAY)
+      AND drawback_time &lt; DATE_FORMAT(#{lastSettlementDate},'%Y-%m-%d')
+      AND store_id = #{storeId}
     </select>
 
     <!--根据订单编号添加该订单取消理由相关信息-->
@@ -686,6 +783,8 @@
         SET
         order_status = #{refundMap.orderStatus},
         drawback_time = #{refundMap.drawbackTime},
+        drawback_price = #{refundMap.drawbackPrice},
+        prefix_order_status = #{refundMap.prefixOrderStatus},
         updated_at = #{refundMap.updatedAt}
         WHERE order_id = #{refundMap.orderId}
     </update>
@@ -747,11 +846,34 @@
 
     <!--根据供应商ID获取时间段内的订单总金额(订单金额+运费),且统计的订单为已完成的-->
     <select id="getTotalMoneyByAccountId" resultType="java.math.BigDecimal">
-      SELECT sum(order_price + order_postage)
+      SELECT
+        sum(case when order_status=6 then order_postage when order_status=4 then (order_settleme_price + order_postage) end) as temp_settleme_price
       FROM purchase
       WHERE store_id = #{accountId}
-      AND order_receive_time &gt;= TRIM(STR_TO_DATE(#{startTime},'%Y-%m-%d'))
+      AND ((order_receive_time &gt;= TRIM(STR_TO_DATE(#{startTime},'%Y-%m-%d'))
       AND order_receive_time &lt; TRIM(DATE_ADD(STR_TO_DATE(#{endTime},'%Y-%m-%d'),INTERVAL 1 DAY))
-      AND order_status = 4
+      AND order_status = 4)
+      OR (drawback_time &gt;= TRIM(STR_TO_DATE(#{startTime},'%Y-%m-%d'))
+      AND drawback_time &lt; TRIM(DATE_ADD(STR_TO_DATE(#{endTime},'%Y-%m-%d'),INTERVAL 1 DAY))
+      AND order_status = 6 AND prefix_order_status = 5))
+    </select>
+    <!-- 根据ID集合查询订单详情信息 -->
+    <select id="findPurchaseItemByIds" parameterType="java.lang.String" resultType="so.sao.shop.supplier.pojo.vo.PurchaseItemVo">
+        SELECT
+            pi.goods_image AS goodsImage,
+            pi.goods_name AS goodsName,
+            pi.goods_attribute AS goodsAttribute,
+            pi.goods_id AS goodsId,
+            pi.code69 AS code69,
+            pi.goods_number AS goodsNumber,
+            pi.goods_tatol_price AS goodsTatolPrice,
+            pi.brand_name AS brandName,
+            pi.goods_unit_price AS goodsUnitPrice
+        FROM purchase_item pi
+        JOIN purchase p ON p.order_id = pi.order_id
+        WHERE pi.order_id IN
+        <foreach collection="orderIds" item="orderId" index="index" open="(" close=")" separator=",">
+            #{orderId,jdbcType=VARCHAR}
+        </foreach>
     </select>
 </mapper>

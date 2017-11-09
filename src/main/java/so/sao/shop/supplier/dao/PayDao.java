@@ -44,4 +44,10 @@ public interface PayDao {
      */
     BigDecimal findPayOrderTotalPrice(@Param("payId") String payId);
 
+    /**
+     * 根据订单ID更新实付金额
+     *
+     * @param payAmountMap 封装类订单ID和实付金额
+     */
+    void updatePayAmountByOrderId(@Param("payAmountMap") Map<String,Object> payAmountMap);
 }

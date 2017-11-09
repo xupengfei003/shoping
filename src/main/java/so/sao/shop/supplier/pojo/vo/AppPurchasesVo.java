@@ -118,6 +118,26 @@ public class AppPurchasesVo {
      * 物流公司物流单号
      */
     private String orderShipmentNumber;
+    /**
+     * 折扣优惠
+     */
+    private BigDecimal discount;
+    /**
+     * 优惠券ID
+     */
+    private Long couponId;
+    /**
+     * 合计总价
+     */
+    private BigDecimal orderTotalPrice;
+    /**
+     * 实付金额
+     */
+    private BigDecimal payAmount;
+    /**
+     * 退款金额
+     */
+    private BigDecimal drawbackPrice;
     public String getOrderReceiverName() {
         return orderReceiverName;
     }
@@ -316,5 +336,45 @@ public class AppPurchasesVo {
 
     public void setLogisticsCompany(String logisticsCompany) {
         this.logisticsCompany = logisticsCompany;
+    }
+
+    public BigDecimal getDiscount() {
+        return discount;
+    }
+
+    public void setDiscount(BigDecimal discount) {
+        this.discount = discount;
+    }
+
+    public Long getCouponId() {
+        return couponId;
+    }
+
+    public void setCouponId(Long couponId) {
+        this.couponId = couponId;
+    }
+
+    public BigDecimal getOrderTotalPrice() {
+        return orderTotalPrice;
+    }
+
+    public void setOrderTotalPrice(BigDecimal orderTotalPrice) {
+        this.orderTotalPrice = orderTotalPrice;
+    }
+
+    public BigDecimal getPayAmount() {
+        return payAmount;
+    }
+
+    public void setPayAmount(BigDecimal payAmount) {
+        this.payAmount = payAmount;
+    }
+
+    public BigDecimal getDrawbackPrice() {
+        return drawbackPrice;
+    }
+
+    public void setDrawbackPrice(BigDecimal drawbackPrice) {
+        this.drawbackPrice = drawbackPrice;
     }
 }

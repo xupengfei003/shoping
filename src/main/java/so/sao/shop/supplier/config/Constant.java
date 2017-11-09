@@ -155,6 +155,11 @@ public interface Constant {
          * 暂无数据
          */
         public static final String MSG_NO_DATA = "暂无数据";
+
+        /**
+         * 参数异常
+         */
+        public static final String PARAMETER_ABNORMITY = "参数异常";
     }
 
     interface OrderStatusConfig{
@@ -175,7 +180,7 @@ public interface Constant {
          */
         public static final Integer RECEIVED = 4;
         /**
-         * 已拒收
+         * 已拒收退款审核
          */
         public static final Integer REJECT = 5;
         /**
@@ -183,7 +188,7 @@ public interface Constant {
          */
         public static final Integer REFUNDED = 6;
         /**
-         * 已付款已取消
+         * 已支付退款审核
          */
         public static final Integer CANCEL_ORDER = 7;
         /**
@@ -442,6 +447,79 @@ public interface Constant {
 
         /*已删除*/
         public  static final int DELETED = 1;
+
+    }
+    /**
+     * 发票相关常量
+     * @author acer
+     *
+     */
+    interface ReceiptConfig {
+        /**
+         * 增值税普通个人发票
+         */
+        public static final Integer RECEIPTTYPE_PEISION = 0;
+        /**
+         * 增值税普通单位发票
+         */
+        public static final Integer RECEIPTTYPE_COMPANY = 1;
+        /**
+         * 增值税专用发票
+         */
+        public static final Integer RECEIPTTYPE_SPECIAL = 2;
+    }
+
+    /**
+     * 供应商发票设置状态常量
+     */
+    interface InvoiceSetting {
+        /**
+         * 供应商发票设置【开关】状态--开启
+         */
+        public static final Integer STATUS_ON = 1;
+        /**
+         * 供应商发票设置【开关】状态--关闭
+         */
+        public static final Integer STATUS_OFF = 0;
+        /**
+         * 供应商发票设置增值税【普通发票】状态--开启
+         */
+        public static final Integer INVOICE_ON = 1;
+        /**
+         * 供应商发票设置增值税【普通发票】状态--关闭
+         */
+        public static final Integer INVOICE_OFF = 0;
+        /**
+         * 供应商发票设置增值税【专用发票】状态--开启
+         */
+        public static final Integer SPECIAL_INVOICE_ON = 1;
+        /**
+         * 供应商发票设置增值税【专用发票】状态--关闭
+         */
+        public static final Integer SPECIAL_INVOICE_OFF = 0;
+
+    }
+
+    /**
+     * 智售app商品查询常量
+     */
+    interface AppCommSearch{
+
+        /**
+         * 通过供应商名称查询
+         */
+        public static final int SEARCH_BY_SUPPLIER_NAME = 0;
+
+        /**
+         * 通过商品名称查询
+         */
+        public static final int SEARCH_BY_GOODS_NAME = 1;
+
+        /**
+         * 通过品牌名称查询
+         */
+        public static final int SEARCH_BY_BRAND_NAME = 2;
+
 
     }
 }

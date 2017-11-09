@@ -120,15 +120,16 @@
         FROM order_money_record
         <where>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(startTime)">
-                AND checkout_at >= TRIM(STR_TO_DATE(#{startTime},'%Y-%m-%d'))
+                AND checkout_at >= #{startTime}
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(endTime)">
-                AND checkout_at &lt; TRIM(DATE_ADD(STR_TO_DATE(#{endTime},'%Y-%m-%d'),INTERVAL 1 DAY))
+                AND checkout_at &lt; date_add(#{endTime}, INTERVAL 1 DAY)
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(state)">
                 AND state = #{state}
             </if>
         </where>
+        ORDER BY checkout_at DESC
     </select>
 
     <!--根据指定时间、状态查询结算明细列表 用于excel导出-->
@@ -157,38 +158,48 @@
                 AND state = #{state}
             </if>
         </where>
-
+        ORDER BY checkout_at DESC
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(limit)">
             limit ${limit}
         </if>
     </select>
 
-    <!--findPageOMRPurchase()查询映射结果集-->
-    <resultMap id="PageOMRPurchaseList" type="so.sao.shop.supplier.domain.Purchase">
+    <!-- findPageOMRPurchase()查询映射结果集 -->
+    <resultMap id="PageOMRPurchaseList" type="so.sao.shop.supplier.pojo.vo.AccountPurchaseVo">
         <id column="order_id" property="orderId"/>
-        <result column="order_receiver_name" property="orderReceiverName"/>
-        <result column="order_receiver_mobile" property="orderReceiverMobile"/>
+        <result column="order_status" property="orderStatus"/>
         <result column="order_price" property="orderPrice"/>
-        <result column="order_settleme_price" property="orderSettlemePrice"/>
         <result column="order_postage" property="orderPostage"/>
-        <result column="order_create_time" property="orderCreateTime"/>
+        <result column="discount"  property="discount"/>
+        <result column="order_total_price" property="orderTotalPrice"/>
+        <result column="pay_amount" property="payAmount"/>
+        <result column="order_settleme_price" property="orderSettlemePrice"/>
+        <result column="temp_settleme_price" property="tempSettlemePrice"/>
+        <result column="order_payment_time" property="orderPaymentTime"/>
+        <result column="order_payment_method" property="orderPaymentMethod"/>
+        <result column="order_payment_num" property="orderPaymentNum"/>
     </resultMap>
 
     <!--根据结算明细id和订单id查询该结算明细对应的订单列表-->
     <select id="findPageOMRPurchase" resultMap="PageOMRPurchaseList">
         SELECT
-        p.order_id,
-        p.order_receiver_name,
-        p.order_receiver_mobile,
-        p.order_price,
-        p.order_settleme_price,
-        p.order_postage,
-        p.order_create_time
+          p.order_id,
+          p.order_status,
+          p.order_price,
+          p.order_postage,
+          p.discount,
+          p.order_total_price,
+          p.pay_amount,
+          p.order_settleme_price,
+          case when p.order_status=6 then p.order_postage when p.order_status=4 then (p.order_settleme_price + p.order_postage) end as temp_settleme_price,
+          p.order_payment_time,
+          p.order_payment_method,
+          p.order_payment_num
         FROM
           record_purchase rp
         LEFT JOIN purchase p ON rp.order_id = p.order_id
         WHERE
-        rp.record_id = #{recordId}
+          rp.record_id = #{recordId}
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderId)">
             AND p.order_id = #{orderId}
         </if>
@@ -267,10 +278,10 @@
         <!--按条件检索数据-->
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(put)">
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(put.startTime)">
-                And settled_at &gt;= TRIM(STR_TO_DATE(#{put.startTime},'%Y-%m-%d'))
+                And settled_at &gt;= #{put.startTime}
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(put.endTime)">
-                AND settled_at &lt; TRIM(DATE_ADD(STR_TO_DATE(#{put.endTime},'%Y-%m-%d'),INTERVAL 1 DAY))
+                AND settled_at &lt; date_add(#{put.endTime}, INTERVAL 1 DAY)
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(put.sortName)">
                 ORDER BY ${put.sortName}
@@ -300,10 +311,10 @@
         <!--按条件检索数据-->
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(put)">
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(put.startTime)">
-                And checkout_at &gt;= TRIM(STR_TO_DATE(#{put.startTime},'%Y-%m-%d'))
+                And checkout_at &gt;= #{put.startTime}
             </if>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(put.endTime)">
-                AND checkout_at &lt; TRIM(DATE_ADD(STR_TO_DATE(#{put.endTime},'%Y-%m-%d'),INTERVAL 1 DAY))
+                AND checkout_at &lt; date_add(#{put.endTime}, INTERVAL 1 DAY)
             </if>
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(put.sortName)">
@@ -327,6 +338,7 @@
     FROM order_money_record
     WHERE user_id = #{accountId} AND state = '0';
     </select>
+
     <!--根据供应商ID及时间段对该供应商订单的金额进行统计-->
     <select id="countOrderMoneyRecords" resultType="java.util.Map">
         SELECT state ,SUM(settled_amount) AS settledMoney ,SUM(total_money) AS pendingSettlementMoney
@@ -335,4 +347,41 @@
         GROUP BY state;
     </select>
 
+    <!--根据结算明细id,导出账单明细列表-->
+    <select id="findPurchasesByRecordId" resultMap="PageOMRPurchaseList">
+        SELECT
+          p.order_id,
+          p.order_status,
+          p.order_price,
+          p.order_postage,
+          p.discount,
+          p.order_total_price,
+          p.pay_amount,
+          p.order_settleme_price,
+          case when p.order_status=6 then p.order_postage when p.order_status=4 then (p.order_settleme_price + p.order_postage) end as temp_settleme_price,
+          p.order_payment_time,
+          p.order_payment_method,
+          p.order_payment_num
+        FROM
+          record_purchase rp
+        LEFT JOIN purchase p ON rp.order_id = p.order_id
+        WHERE
+          rp.record_id = #{recordId}
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(orderId)">
+            AND p.order_id = #{orderId}
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(limits)">
+            limit ${limits}
+        </if>
+    </select>
+
+    <!-- 账单明细列表头部页面总计金额 -->
+    <select id="countOrderTotalPrice" resultType="java.math.BigDecimal" parameterType="string">
+        SELECT
+          sum(p.order_total_price)
+        FROM
+          record_purchase rp
+        LEFT JOIN purchase p ON rp.order_id = p.order_id
+        WHERE rp.record_id = #{recordId}
+    </select>
 </mapper>

@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="so.sao.shop.supplier.dao.external.CouponDao" >
+
+  <resultMap id="AllColumnMap" type="so.sao.shop.supplier.domain.external.Coupon">
+   <result column="id" property="id"/>
+   <result column="name" property="name"/>
+   <result column="category_id" property="categoryId"/>
+   <result column="discount_way" property="discountWay"/>
+   <result column="coupon_value" property="couponValue"/>
+   <result column="usable_value" property="usableValue"/>
+   <result column="send_start_time" property="sendStartTime"/>
+   <result column="send_end_time" property="sendEndTime"/>
+   <result column="use_start_time" property="useStartTime"/>
+   <result column="use_end_time" property="useEndTime"/>
+   <result column="create_num" property="createNum"/>
+   <result column="send_num" property="sendNum"/>
+   <result column="use_num" property="useNum"/>
+   <result column="status" property="status"/>
+   <result column="create_at" property="createAt"/>
+   <result column="update_at" property="updateAt"/>
+  </resultMap>
+
+    <resultMap id="CouponOutputVo" type="so.sao.shop.supplier.pojo.output.CouponOutputVo">
+        <result column="id" property="couponId"/>
+        <result column="name" property="name"/>
+        <result column="coupon_value" property="couponValue"/>
+        <result column="usable_value" property="usableValue"/>
+        <result column="use_start_time" property="useStartTime"/>
+        <result column="use_end_time" property="useEndTime"/>
+        <result column="get_status" property="status"/>
+        <result column="surplus" property="surplus"/>
+    </resultMap>
+
+    <sql id="all_column">
+        `id` ,
+        `name` ,
+        `category_id`,
+        `discount_way`,
+        `coupon_value`,
+        `usable_value`,
+        `send_start_time`,
+        `send_end_time`,
+        `use_start_time`,
+        `use_end_time`,
+        `create_num`,
+        `send_num`,
+        `use_num`,
+        `status`,
+        `create_at`,
+        `update_at`,
+        `operator`
+    </sql>
+
+    <!--查找优惠券列表-->
+    <select id="findCoupons" resultMap="AllColumnMap" >
+        SELECT
+          <include refid="all_column"/>
+          ,c.create_num - c.send_num AS surplus
+        FROM coupon c
+        WHERE c.name  LIKE  CONCAT('%',#{name},'%')
+          <if test="status != null">
+          AND c.status  in
+              <foreach collection="status" item="item" index="index"
+                       open="(" close=")" separator=",">
+                  #{item}
+              </foreach>
+          </if>
+        ORDER BY c.create_at DESC
+    </select>
+    <!--根据名称查找优惠券-->
+    <select id="findCouponsByName" resultMap="AllColumnMap" >
+        SELECT
+        <include refid="all_column"/>
+        FROM coupon c
+        WHERE c.name  = #{name}
+        LIMIT 1;
+    </select>
+
+    <!--添加优惠券-->
+    <insert id="insertCoupon"  >
+            INSERT INTO coupon (
+            `id`,
+            `name`,
+            `category_id`,
+            `discount_way`,
+            `coupon_value`,
+            `usable_value`,
+            `send_start_time`,
+            `send_end_time`,
+            `use_start_time`,
+            `use_end_time`,
+            `create_num`,
+            `send_num`,
+            `use_num`,
+            `status`,
+            `create_at`,
+            `update_at`,
+            `operator`
+            ) VALUES (
+            #{pojo.id},
+            #{pojo.name},
+            #{pojo.categoryId},
+            #{pojo.discountWay},
+            #{pojo.couponValue},
+            #{pojo.usableValue},
+            #{pojo.sendStartTime},
+            #{pojo.sendEndTime},
+            #{pojo.useStartTime},
+            #{pojo.useEndTime},
+            #{pojo.createNum},
+            #{pojo.sendNum},
+            #{pojo.useNum},
+            #{pojo.status},
+            #{pojo.createAt},
+            #{pojo.updateAt},
+            #{pojo.operator}
+            )
+    </insert>
+    <!--更新优惠券状态-->
+    <update id="updateCouponStatusById" >
+        UPDATE coupon c
+        SET c.status = #{status},
+            c.update_at = now()
+        WHERE c.status = 0
+        <if test="ids != null">
+            AND c.id  in
+            <foreach collection="ids" item="id" index="index"
+                     open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </if>
+    </update>
+
+    <select id="findCouponsByShopId" resultMap="CouponOutputVo" >
+        SELECT
+            <include refid="all_column"/>,
+            CASE
+            WHEN c.create_num = c.send_num THEN 2
+            WHEN a.cid IS NOT NULL THEN
+                1
+            ELSE
+                0
+            END get_status
+            ,c.create_num - c.send_num AS surplus
+        FROM
+            coupon c
+            LEFT JOIN (
+                          SELECT
+                              ac.coupon_id cid
+                          FROM
+                              account_coupon ac
+                          WHERE
+                              ac.account_id = #{shopId}
+                      ) a ON a.cid = c.id
+        where c.status = 0
+        ORDER BY get_status ASC ,c.create_at DESC
+    </select>
+
+    <update id="updateCouponSendNum" >
+        UPDATE coupon c
+        SET
+          c.send_num = (c.send_num+#{number}),
+          c.update_at = now()
+        WHERE
+          c.id=#{id}
+        AND
+          c.send_num >= 0
+        AND
+          c.create_num > c.send_num
+    </update>
+
+    <update id="updateCouponUseNum" >
+        UPDATE coupon c
+        SET
+        c.use_num = (c.use_num+#{number}),
+        c.update_at = now()
+        WHERE
+        c.id=#{id}
+        AND
+        c.send_num >= 0
+        AND
+        c.send_num >= c.use_num
+        AND
+        c.create_num > c.send_num
+    </update>
+
+    <select id="findCouponById" resultMap="AllColumnMap" >
+        SELECT
+        <include refid="all_column"/>
+        FROM coupon c
+        WHERE c.id  = #{id}
+    </select>
+
+
+
+    <update id="updateCoupon" >
+        UPDATE coupon c
+        SET
+        c.status = 2,
+        c.update_at = now()
+        WHERE
+        now() > c.use_end_time
+        AND c.status IN (0,1)
+    </update>
+
+ </mapper>

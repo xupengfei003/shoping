@@ -28,6 +28,11 @@
         <result column="distributor_name" property="distributorName"/>
         <result column="distributor_mobile" property="distributorMobile"/>
         <result column="logistics_company" property="logisticsCompany"/>
+        <result column="discount" property="discount"/>
+        <result column="coupon_id" property="couponId"/>
+        <result column="order_total_price" property="orderTotalPrice"/>
+        <result column="pay_amount" property="payAmount"/>
+        <result column="drawback_price" property="drawbackPrice"/>
     </resultMap>
 
     <sql id="App_Order_Column_List">
@@ -35,7 +40,8 @@
         order_receiver_mobile, order_address,order_price,order_shipment_number,pay_id,
         order_payment_time,order_refuse_time,drawback_time,deliver_goods_time,order_receive_time,
         order_cancel_time,order_payment_num,order_postage,user_id,store_id,user_name,order_ship_method,
-        distributor_name,distributor_mobile,logistics_company
+        distributor_name,distributor_mobile,logistics_company,coupon_id,discount,order_total_price,
+        pay_amount,drawback_price
     </sql>
     <select id="findOrderList" resultMap="AppOrderAllList" parameterType="java.lang.Integer">
         SELECT
@@ -94,6 +100,27 @@
         AND order_id IN
         <foreach collection="orderIds" open="(" close=")" separator="," item="orderId" index="i">
             #{orderId}
+        </foreach>
+    </select>
+    <select id="findReceiptByOrderIds" parameterType="java.util.List" resultType="so.sao.shop.supplier.domain.ReceiptPurchase">
+        SELECT
+        id AS id,
+        order_id AS orderId,
+        receipt_type AS receiptType,
+        company AS company,
+        taxpayer_number AS taxpayerNumber,
+        receipt_content_id AS receiptContentId,
+        receipt_content AS receiptContent,
+        register_adress AS registerAdress,
+        register_phone AS registerPhone,
+        deposit_bank AS depositBank,
+        bank_amount AS bankAmount,
+        create_time AS createTime,
+        update_time AS updateTime
+        FROM receipt_purchase
+        WHERE order_id IN
+        <foreach collection="orderIds" item="orderId" open="(" close=")" separator="," index="i">
+            #{orderId,jdbcType=VARCHAR}
         </foreach>
     </select>
 </mapper>

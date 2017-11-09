@@ -1,6 +1,7 @@
 package so.sao.shop.supplier.pojo.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import so.sao.shop.supplier.util.NumberUtil;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -30,7 +31,7 @@ public class PurchasesVo {
     private Short orderStatus;
 
     /**
-     * 订单金额
+     * 订单金额(商品金额小计)
      */
     private String orderPrice;
 
@@ -47,7 +48,7 @@ public class PurchasesVo {
     private Date orderPaymentTime;
 
     /**
-     * 支付方式
+     * 支付方式(支付类型)
      */
     private Integer orderPaymentMethod;
 
@@ -69,6 +70,28 @@ public class PurchasesVo {
      * 供应商名称
      */
     private String storeName;
+    /**
+     * 收货时间
+     */
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date orderReceiveTime;
+    /**
+     * 折扣优惠
+     */
+    private BigDecimal discount;
+    /**
+     * 合计金额
+     */
+    private BigDecimal orderTotalPrice;
+    /**
+     * 实付金额
+     */
+    private BigDecimal payAmount;
+    /**
+     * 退款金额
+     */
+    private BigDecimal drawbackPrice;
+
     public String getOrderId() {
         return orderId;
     }
@@ -163,5 +186,45 @@ public class PurchasesVo {
 
     public void setStoreName(String storeName) {
         this.storeName = storeName;
+    }
+
+    public Date getOrderReceiveTime() {
+        return orderReceiveTime;
+    }
+
+    public void setOrderReceiveTime(Date orderReceiveTime) {
+        this.orderReceiveTime = orderReceiveTime;
+    }
+
+    public String getDiscount() {
+        return NumberUtil.number2Thousand(discount);
+    }
+
+    public void setDiscount(BigDecimal discount) {
+        this.discount = discount;
+    }
+
+    public String getOrderTotalPrice() {
+        return NumberUtil.number2Thousand(orderTotalPrice);
+    }
+
+    public void setOrderTotalPrice(BigDecimal orderTotalPrice) {
+        this.orderTotalPrice = orderTotalPrice;
+    }
+
+    public String getPayAmount() {
+        return NumberUtil.number2Thousand(payAmount);
+    }
+
+    public void setPayAmount(BigDecimal payAmount) {
+        this.payAmount = payAmount;
+    }
+
+    public String getDrawbackPrice() {
+        return NumberUtil.number2Thousand(drawbackPrice);
+    }
+
+    public void setDrawbackPrice(BigDecimal drawbackPrice) {
+        this.drawbackPrice = drawbackPrice;
     }
 }

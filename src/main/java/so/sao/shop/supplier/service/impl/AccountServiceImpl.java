@@ -25,6 +25,7 @@ import so.sao.shop.supplier.pojo.input.AccountUpdateInput;
 import so.sao.shop.supplier.service.AccountService;
 import so.sao.shop.supplier.service.CommodityService;
 import so.sao.shop.supplier.service.FreightRulesService;
+import so.sao.shop.supplier.service.InvoiceSettingService;
 import so.sao.shop.supplier.util.*;
 
 import java.math.BigDecimal;
@@ -84,6 +85,9 @@ public class AccountServiceImpl implements AccountService {
      */
     @Autowired
     private AzureBlobService azureBlobService;
+
+    @Autowired
+    private InvoiceSettingService invoiceSettingService;
 
     /**
      * 第一次发送密码
@@ -176,6 +180,12 @@ public class AccountServiceImpl implements AccountService {
     public Result updateAccountAndUser(Account account) throws Exception{
         //查询修改前的供应商信息
         Account account1 = accountDao.selectById(account.getAccountId());
+        if(!account1.getResponsiblePhone().equals(account.getResponsiblePhone())){
+            Account account2 = accountDao.findAccountByPhone(account.getResponsiblePhone());
+            if (account2 != null){
+                return Result.fail("该供应商手机号码已经存在！");
+            }
+        }
         //修改用户信息
         userDao.update(account.getUserId(), account.getResponsiblePhone());
         //修改供应商信息
@@ -312,13 +322,17 @@ public class AccountServiceImpl implements AccountService {
             }
             // c.将所得余额同步到账户表中
             Account account = new Account();
-            Date date = new Date();              //系统时间
-            account.setAccountId(accountId);     //账户
-            account.setBalance(uncountedMoney);  //用户余额
-            account.setUpdateDate(date);         //更新时间
+            Date date = new Date();
+            //账户id
+            account.setAccountId(accountId);
+            //用户余额
+            account.setBalance(uncountedMoney);
+            //更新时间
+            account.setUpdateDate(date);
             accountDao.updateUserBalance(account);
             // 返回数据
-            String balance = NumberUtil.number2Thousand(uncountedMoney);// 余额格式化
+            // 余额格式化
+            String balance = NumberUtil.number2Thousand(uncountedMoney);
             map.put("balance",balance);
         }
         //返回对象
@@ -399,6 +413,8 @@ public class AccountServiceImpl implements AccountService {
                     userDao.updatePassword(user.getId(), new BCryptPasswordEncoder().encode(password), new Date());
                     //插入供应商信息
                     accountDao.insert(account);
+                    //保存供应商发票设置初始状态
+                    invoiceSettingService.saveInvoiceSetting(account.getAccountId());
                     tpe.execute(new Runnable() {
                         @Override
                         public void run() {

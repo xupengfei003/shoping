@@ -5,7 +5,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,9 +13,6 @@ import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.output.RegionOutput;
 import so.sao.shop.supplier.service.RegionService;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedOutputStream;
 import java.util.Map;
 
 
@@ -37,8 +33,9 @@ public class RegionController {
 
     /**
      * 获取行政区域列表
+     *
      * @param parentId 父id
-     * @param level 级别
+     * @param level    级别
      * @return
      */
     @ApiOperation(value = "获取行政区域列表", notes = "获取行政区域列表")
@@ -54,6 +51,7 @@ public class RegionController {
 
     /**
      * 查询省市区所有数据，并返回树形结构
+     *
      * @return
      */
     @ApiOperation(value = "获取省市区树形结构数据", notes = "获取省市区树形结构数据")

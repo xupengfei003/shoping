@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="so.sao.shop.supplier.dao.ReceiptPurchaseDao">
+  <resultMap id="BaseResultMap" type="so.sao.shop.supplier.domain.ReceiptPurchase">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="order_id" jdbcType="VARCHAR" property="orderId" />
+    <result column="receipt_type" jdbcType="INTEGER" property="receiptType" />
+    <result column="company" jdbcType="VARCHAR" property="company" />
+    <result column="taxpayer_number" jdbcType="BIGINT" property="taxpayerNumber" />
+    <result column="receipt_content_id" jdbcType="BIGINT" property="receiptContentId" />
+    <result column="receipt_content" jdbcType="VARCHAR" property="receiptContent" />
+    <result column="register_adress" jdbcType="VARCHAR" property="registerAdress" />
+    <result column="register_phone" jdbcType="VARCHAR" property="registerPhone" />
+    <result column="deposit_bank" jdbcType="VARCHAR" property="depositBank" />
+    <result column="bank_amount" jdbcType="VARCHAR" property="bankAmount" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, order_id AS orderId, receipt_type AS receiptType, company, taxpayer_number AS taxpayerNumber, receipt_content_id AS receiptContentId, receipt_content AS receiptContent,
+    register_adress AS registerAdress, register_phone AS registerPhone, deposit_bank AS depositBank, bank_amount AS bankAmount, create_time AS createTime, update_time AS updateTime
+  </sql>
+  <!--订单详情-发票详情-->
+  <select id="findReceiptItemByOrderId" resultType="so.sao.shop.supplier.domain.ReceiptPurchase" parameterType="java.lang.String">
+    select
+      <include refid="Base_Column_List"/>
+    from
+    receipt_purchase
+    where
+    order_id = #{orderId,jdbcType=VARCHAR}
+  </select>
+
+  <!--订单详情-发票详情批量录入-->
+  <insert id="insertReceiptItems" parameterType="java.util.List">
+    INSERT INTO `receipt_purchase`
+    (`id`, `order_id`, `receipt_type`, `company`, `taxpayer_number`, `receipt_content_id`, `receipt_content`, `register_adress`,
+    `register_phone`, `deposit_bank`, `bank_amount`, `create_time`, `update_time`)VALUES
+    <foreach collection ="receiptPurchases" item="receiptPurchase" index= "index" separator =",">
+      (NULL,#{receiptPurchase.orderId,jdbcType=VARCHAR},
+      #{receiptPurchase.receiptType,jdbcType=VARCHAR},
+      #{receiptPurchase.company,jdbcType=VARCHAR},
+      #{receiptPurchase.taxpayerNumber,jdbcType=VARCHAR},
+      #{receiptPurchase.receiptContentId,jdbcType=VARCHAR},
+      #{receiptPurchase.receiptContent,jdbcType=VARCHAR},
+      #{receiptPurchase.registerAdress,jdbcType=VARCHAR},
+      #{receiptPurchase.registerPhone,jdbcType=VARCHAR},
+      #{receiptPurchase.depositBank,jdbcType=VARCHAR},
+      #{receiptPurchase.bankAmount,jdbcType=VARCHAR},
+      #{receiptPurchase.createTime,jdbcType=VARCHAR},
+      NULL)
+    </foreach>
+  </insert>
+</mapper>

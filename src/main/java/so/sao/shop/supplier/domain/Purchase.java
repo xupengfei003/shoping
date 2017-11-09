@@ -1,10 +1,11 @@
 package so.sao.shop.supplier.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import so.sao.shop.supplier.util.Ognl;
+
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
 
 /**
  * <p>
@@ -47,7 +48,7 @@ public class Purchase {
     private String userName;
 
     /**
-     * 订单实付金额
+     * 商品金额小计(原：订单实付金额)
      */
     private BigDecimal orderPrice;
 
@@ -84,7 +85,7 @@ public class Purchase {
     /**
      * 下单时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date orderCreateTime;
 
     /**
@@ -95,7 +96,7 @@ public class Purchase {
     /**
      * 订单支付时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date orderPaymentTime;
 
     /**
@@ -106,7 +107,7 @@ public class Purchase {
     /**
      * 卖家拒绝时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date orderRefuseTime;
 
     /**
@@ -142,7 +143,7 @@ public class Purchase {
     /**
      * 退款时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date drawbackTime;
 
     /**
@@ -163,13 +164,13 @@ public class Purchase {
     /**
      * 更新时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date updatedAt;
 
     /**
      * 收货时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date orderReceiveTime;
 
     /**
@@ -179,12 +180,12 @@ public class Purchase {
     /**
      * 发货时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date deliverGoodsTime;
     /**
      * 取消时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date orderCancelTime;
     /**
      * 取消类型
@@ -196,10 +197,33 @@ public class Purchase {
     private String refuseType;
 
     /**
-     *订单邮费(0:包邮，非零显示具体金额)
-     *
+     * 订单邮费(0:包邮，非零显示具体金额)
      */
     private BigDecimal orderPostage;
+
+    /**
+     * 折扣优惠
+     */
+    private BigDecimal discount;
+
+    /**
+     * 合计金额
+     */
+    private BigDecimal orderTotalPrice;
+
+    /**
+     * 实付金额
+     */
+    private BigDecimal payAmount;
+    /**
+     * 退款金额
+     */
+    private BigDecimal drawbackPrice;
+
+    /**
+     * 优惠券ID
+     */
+    private Long couponId;
 
     public String getAccountStatus() {
         return accountStatus;
@@ -487,5 +511,48 @@ public class Purchase {
 
     public void setOrderPostage(BigDecimal orderPostage) {
         this.orderPostage = orderPostage;
+    }
+
+    public BigDecimal getDiscount() {
+        if (Ognl.isEmpty(discount)) {
+            return new BigDecimal(0.00);
+        }
+        return discount;
+    }
+
+    public void setDiscount(BigDecimal discount) {
+        this.discount = discount;
+    }
+
+    public BigDecimal getOrderTotalPrice() {
+        return orderTotalPrice;
+    }
+
+    public void setOrderTotalPrice(BigDecimal orderTotalPrice) {
+        this.orderTotalPrice = orderTotalPrice;
+    }
+
+    public BigDecimal getPayAmount() {
+        return payAmount;
+    }
+
+    public void setPayAmount(BigDecimal payAmount) {
+        this.payAmount = payAmount;
+    }
+
+    public BigDecimal getDrawbackPrice() {
+        return drawbackPrice;
+    }
+
+    public void setDrawbackPrice(BigDecimal drawbackPrice) {
+        this.drawbackPrice = drawbackPrice;
+    }
+
+    public Long getCouponId() {
+        return couponId;
+    }
+
+    public void setCouponId(Long couponId) {
+        this.couponId = couponId;
     }
 }

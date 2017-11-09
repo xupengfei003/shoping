@@ -136,7 +136,7 @@ public class EmpServiceImpl implements EmpService {
 		} finally {
 			redisTemplate.delete(Constant.REDIS_KEY_PREFIX+emp.getEmpTel());
 		}
-        return Result.fail("员工信息插入失败！");
+        return Result.fail("员工信息已存在！");
 	}
 
 	/**

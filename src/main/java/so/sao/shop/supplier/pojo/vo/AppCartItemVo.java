@@ -107,6 +107,19 @@ public class AppCartItemVo {
      */
     private String remaining;
 
+    /**
+     *  最小起订量
+     */
+    private int minOrderQuantity;
+
+    public int getMinOrderQuantity() {
+        return minOrderQuantity;
+    }
+
+    public void setMinOrderQuantity(int minOrderQuantity) {
+        this.minOrderQuantity = minOrderQuantity;
+    }
+
     public Long getUserId() {
         return userId;
     }

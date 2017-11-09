@@ -27,6 +27,10 @@ public class CountCommDetailOutput {
      */
     private int offShelvesAuditNum;
     /**
+     * 编辑待审核数量
+     */
+    private int editAuditNum;
+    /**
      * sku数量
      */
     private int skuNum;
@@ -69,6 +73,14 @@ public class CountCommDetailOutput {
 
     public void setOffShelvesAuditNum(int offShelvesAuditNum) {
         this.offShelvesAuditNum = offShelvesAuditNum;
+    }
+
+    public int getEditAuditNum() {
+        return editAuditNum;
+    }
+
+    public void setEditAuditNum(int editAuditNum) {
+        this.editAuditNum = editAuditNum;
     }
 
     public int getSkuNum() {
