@@ -29,6 +29,7 @@
         <result column="use_start_time" property="useStartTime"/>
         <result column="use_end_time" property="useEndTime"/>
         <result column="get_status" property="status"/>
+        <result column="surplus" property="surplus"/>
     </resultMap>
 
     <sql id="all_column">
@@ -55,6 +56,7 @@
     <select id="findCoupons" resultMap="AllColumnMap" >
         SELECT
           <include refid="all_column"/>
+          ,c.create_num - c.send_num AS surplus
         FROM coupon c
         WHERE c.name  LIKE  CONCAT('%',#{name},'%')
           <if test="status != null">
@@ -140,6 +142,7 @@
             ELSE
                 0
             END get_status
+            ,c.create_num - c.send_num AS surplus
         FROM
             coupon c
             LEFT JOIN (
