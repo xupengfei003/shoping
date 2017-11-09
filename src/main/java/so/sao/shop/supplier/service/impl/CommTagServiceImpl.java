@@ -1,11 +1,8 @@
 package so.sao.shop.supplier.service.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.dao.CommTagDao;
 import so.sao.shop.supplier.dao.SupplierCommodityDao;
 import so.sao.shop.supplier.domain.CommTag;
@@ -30,10 +27,10 @@ public class CommTagServiceImpl implements CommTagService {
     @Autowired
     private SupplierCommodityDao supplierCommodityDao;
 
-    /**
-     * 初始化日志
-     */
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+//    /**
+//     * 初始化日志
+//     */
+//    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
      * 新增商品标签
