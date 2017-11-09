@@ -154,7 +154,7 @@
                               ac.account_id = #{shopId}
                       ) a ON a.cid = c.id
         where c.status = 0
-        ORDER BY c.create_at DESC
+        ORDER BY get_status ASC ,c.create_at DESC
     </select>
 
     <update id="updateCouponSendNum" >

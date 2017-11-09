@@ -3,17 +3,12 @@ package so.sao.shop.supplier.web.app;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.AccountCouponInputVo;
 import so.sao.shop.supplier.service.app.AppAccountCouponService;
-import so.sao.shop.supplier.service.external.CouponService;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 
 /**
