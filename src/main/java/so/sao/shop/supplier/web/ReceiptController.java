@@ -2,7 +2,6 @@ package so.sao.shop.supplier.web;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.domain.Receipt;
@@ -31,9 +30,10 @@ public class ReceiptController {
 
     /**
      * 发票记录录入或更改
+     *
      * @return
      */
-    @ApiOperation(value = "发票记录录入或更改",notes = "发票记录录入或更改【负责人：郑振海】")
+    @ApiOperation(value = "发票记录录入或更改", notes = "发票记录录入或更改【负责人：郑振海】")
     @PostMapping("/createReceipt")
     public Result createReceipt(@RequestBody @Valid Receipt receipt) {
 
@@ -45,17 +45,17 @@ public class ReceiptController {
          */
 
         //1.检验入参
-        if (this.validatedParam(receipt)){
+        if (this.validatedParam(receipt)) {
             return Result.fail(Constant.MessageConfig.MSG_NOT_EMPTY);
         }
 
         //2.查询该门店该类发票类型是否存在相关记录
         boolean flag = false;
-        Receipt receiptDb = receiptService.getReceiptByUserIdAndType(receipt.getUserId(),receipt.getReceiptType());
+        Receipt receiptDb = receiptService.getReceiptByUserIdAndType(receipt.getUserId(), receipt.getReceiptType());
         Date date = new Date();
 
         //3.1.如果不存在，执行插入操作
-        if (Ognl.isEmpty(receiptDb)){
+        if (Ognl.isEmpty(receiptDb)) {
             receipt.setCreateTime(date);
             flag = receiptService.insertReceipt(receipt);
         }
@@ -65,16 +65,17 @@ public class ReceiptController {
             receipt.setUpdateTime(date);
             flag = receiptService.updateReceiptById(receipt);
         }
-        return flag == true ? Result.success(Constant.MessageConfig.MSG_SUCCESS): Result.fail(Constant.MessageConfig.MSG_FAILURE);
+        return flag == true ? Result.success(Constant.MessageConfig.MSG_SUCCESS) : Result.fail(Constant.MessageConfig.MSG_FAILURE);
     }
 
     /**
      * 根据门店ID和发票类型获取发票记录
+     *
      * @param userId
      * @param receiptType 1增值税普通单位发票 2增值税专用发票
      * @return
      */
-    @ApiOperation(value = "根据门店ID和发票类型获取发票记录",notes = "根据门店ID和发票类型获取发票记录【负责人：郑振海】")
+    @ApiOperation(value = "根据门店ID和发票类型获取发票记录", notes = "根据门店ID和发票类型获取发票记录【负责人：郑振海】")
     @GetMapping("/getReceipt/{userId}")
     public Result getReceiptByUserIdAndType(@PathVariable("userId") Long userId, Integer receiptType) {
 
@@ -89,29 +90,30 @@ public class ReceiptController {
         if (Ognl.isEmpty(userId) || Ognl.isEmpty(receiptType)) {
             return Result.fail(Constant.MessageConfig.MSG_NOT_EMPTY);
         }
-        if (!(Constant.ReceiptConfig.RECEIPTTYPE_COMPANY.equals(receiptType) || Constant.ReceiptConfig.RECEIPTTYPE_SPECIAL.equals(receiptType))){
+        if (!(Constant.ReceiptConfig.RECEIPTTYPE_COMPANY.equals(receiptType) || Constant.ReceiptConfig.RECEIPTTYPE_SPECIAL.equals(receiptType))) {
             return Result.fail(Constant.MessageConfig.PARAMETER_ABNORMITY);
         }
 
         //2.调用业务层方法
-        Receipt receipt = receiptService.getReceiptByUserIdAndType(userId,receiptType);
-        return Result.success(Constant.MessageConfig.MSG_SUCCESS,receipt);
+        Receipt receipt = receiptService.getReceiptByUserIdAndType(userId, receiptType);
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS, receipt);
     }
 
     /**
      * 参数校验
+     *
      * @param receipt
      * @return
      */
-    private boolean validatedParam(Receipt receipt){
+    private boolean validatedParam(Receipt receipt) {
         /**
          * 根据发票类型校验参数
          *     若发票类型为1 表示增值税普通单位发票 单位名称，纳税人识别号为必传参数(此处已在入参时校验)
          *     若发票类型为2 表示增值税专用发票  单位名称，纳税人识别号，注册地址，注册电话，开户银行，银行账户为必传参数
          */
-        if (Ognl.isNotEmpty(receipt)){
+        if (Ognl.isNotEmpty(receipt)) {
             //发票类型为2
-            if (Constant.ReceiptConfig.RECEIPTTYPE_SPECIAL.equals(receipt.getReceiptType())){
+            if (Constant.ReceiptConfig.RECEIPTTYPE_SPECIAL.equals(receipt.getReceiptType())) {
                 boolean flag = Ognl.isEmpty(receipt.getRegisterAdress()) && Ognl.isEmpty(receipt.getRegisterPhone()) && Ognl.isEmpty(receipt.getDepositBank())
                         && Ognl.isEmpty(receipt.getBankAmount());
                 return flag;

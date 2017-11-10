@@ -66,12 +66,8 @@ public class QualificationServiceImpl implements QualificationService{
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result updateQualificationStatus(Long accountId, Integer qualificationStatus, String reason) {
-        if( !(Objects.equals(Constant.QUALIFICATION_VERIFY_PASS, qualificationStatus))
-                && !(Objects.equals(Constant.QUALIFICATION_VERIFY_NOT_PASS, qualificationStatus))
-                && !(Objects.equals(Constant.QUALIFICATION_AWAIT_VERIFY, qualificationStatus))
-                && !(Objects.equals(Constant.QUALIFICATION_NOT_VERIFY, qualificationStatus)) ){
-            logger.info("无效的审核参数");
-            return Result.fail("无效的审核参数");
+        if(qualificationStatus<0 || qualificationStatus>3){
+            return Result.fail("资质状态无效，请传入正确的资质状态");
         }
         if( Ognl.isNotEmpty( reason ) ){
             reason = reason.trim();
@@ -164,7 +160,6 @@ public class QualificationServiceImpl implements QualificationService{
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result saveQualification(QualificationSaveInput qualificationInput) {
-        Result result = new Result();
         //入参校验
         checkInputParam(qualificationInput);
 
@@ -220,9 +215,7 @@ public class QualificationServiceImpl implements QualificationService{
 
         //供应商资质图片入库
         qualificationImageDao.save(list);
-        result.setCode(Constant.CodeConfig.CODE_SUCCESS);
-        result.setMessage("添加供应商资质成功");
-        return result;
+        return Result.success("添加供应商资质成功");
     }
 
     /**
@@ -234,16 +227,13 @@ public class QualificationServiceImpl implements QualificationService{
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result deleteQualification(Long accountID) {
-        Result result = new Result();
         //通过供应商ID查询资质ID
         Long qualificationId = qualificationDao.findByAccountId(accountID).get(0).getId();
         //通过供应商ID删除该供应商下的所有资质信息（软删除）
         qualificationDao.delete(accountID);
         //通过资质ID同步删除供应商资质图片信息（软删除）
         qualificationImageDao.delete(qualificationId);
-        result.setCode(Constant.CodeConfig.CODE_SUCCESS);
-        result.setMessage("删除供应商资质信息成功");
-        return result;
+        return Result.success("删除供应商资质信息成功");
     }
 
     /**

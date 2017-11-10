@@ -1,6 +1,5 @@
 package so.sao.shop.supplier.service.impl;
 
-import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,11 +12,8 @@ import so.sao.shop.supplier.pojo.output.RecordToPurchaseItemOutput;
 import so.sao.shop.supplier.pojo.vo.AccountPurchaseItemVo;
 import so.sao.shop.supplier.pojo.vo.PurchaseInListVo;
 import so.sao.shop.supplier.service.PurchaseItemService;
-import so.sao.shop.supplier.util.NumberUtil;
 import so.sao.shop.supplier.util.PageTool;
 
-import java.math.BigDecimal;
-import java.text.NumberFormat;
 import java.util.List;
 
 /**
@@ -33,9 +29,10 @@ public class PurchaseItemServiceImpl implements PurchaseItemService {
 
     /**
      * 根据订单编号查询所有相关的订单明细记录（分页）
-     * @param pageNum 当前页码
+     *
+     * @param pageNum  当前页码
      * @param pageSize 每页显示条数
-     * @param orderId 订单编号
+     * @param orderId  订单编号
      * @return 相关记录的集合
      */
     @Override
@@ -50,27 +47,27 @@ public class PurchaseItemServiceImpl implements PurchaseItemService {
 
         //1.获取该订单编号对应的数据
         Purchase purchase = purchaseDao.findById(orderId);
-        if (null == purchase){
+        if (null == purchase) {
             return Result.success(Constant.MessageConfig.MSG_NO_DATA);
         }
 
         //2. 分页
-        PageTool.startPage(pageNum,pageSize);
+        PageTool.startPage(pageNum, pageSize);
 
         //3. 访问持久化层获取数据
         List<AccountPurchaseItemVo> purchaseItemList = purchaseItemDao.findPage(orderId);
-        if(null != purchaseItemList && !purchaseItemList.isEmpty()){
+        if (null != purchaseItemList && !purchaseItemList.isEmpty()) {
             //分页信息
             PageInfo<AccountPurchaseItemVo> pageInfo = new PageInfo<>(purchaseItemList);
             //订单明细所属的订单信息
-            PurchaseInListVo purchaseInListVo = new PurchaseInListVo(purchase.getOrderId(),purchase.getOrderPrice(),purchase.getOrderReceiverName());
+            PurchaseInListVo purchaseInListVo = new PurchaseInListVo(purchase.getOrderId(), purchase.getOrderPrice(), purchase.getOrderReceiverName());
             //出参中的数据对象
             RecordToPurchaseItemOutput output = new RecordToPurchaseItemOutput();
             //将展示数据封装到出参数据对象中
             output.setPurchaseInListVo(purchaseInListVo);
             //将分页对象封装到出参对象中
             output.setPageInfo(pageInfo);
-            return Result.success(Constant.MessageConfig.MSG_SUCCESS,output);
+            return Result.success(Constant.MessageConfig.MSG_SUCCESS, output);
         }
         return Result.success(Constant.MessageConfig.MSG_NO_DATA);
 

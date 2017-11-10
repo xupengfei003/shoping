@@ -2,7 +2,6 @@ package so.sao.shop.supplier.domain.external;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.hibernate.validator.constraints.NotEmpty;
-import org.springframework.beans.factory.annotation.Required;
 
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Min;

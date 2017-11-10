@@ -1,7 +1,5 @@
 package so.sao.shop.supplier.service.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,10 +25,10 @@ public class CommCartonServiceImpl implements CommCartonService {
     @Autowired
     private SupplierCommodityDao supplierCommodityDao;
 
-    /**
-     * 初始化日志
-     */
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+//    /**
+//     * 初始化日志
+//     */
+//    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
      * 新增商品箱规单位

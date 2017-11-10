@@ -1,7 +1,7 @@
 package so.sao.shop.supplier.domain;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.hibernate.validator.constraints.NotBlank;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -10,6 +10,7 @@ import java.util.Date;
 
 /**
  * 发票实体类   发票与用户关系
+ *
  * @author zhenhai.zheng
  */
 public class Receipt {
@@ -23,8 +24,8 @@ public class Receipt {
      * 发票类型
      */
     @NotNull(message = "发票类型不能为空")
-    @Min(value = 1,message = "发票类型异常")
-    @Max(value = 2,message = "发票类型异常")
+    @Min(value = 1, message = "发票类型异常")
+    @Max(value = 2, message = "发票类型异常")
     private Integer receiptType;
 
     /**
@@ -77,13 +78,13 @@ public class Receipt {
     /**
      * 创建时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime;
 
     /**
      * 更新时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date updateTime;
 
     public Long getReceiptId() {

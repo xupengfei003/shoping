@@ -5,6 +5,7 @@ import java.util.Date;
 
 /**
  * 发票与订单关系实体类入参
+ *
  * @author zhenhai.zheng
  */
 public class ReceiptPurchaseInputVo {

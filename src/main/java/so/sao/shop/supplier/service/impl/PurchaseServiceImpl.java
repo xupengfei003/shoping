@@ -172,8 +172,8 @@ public class PurchaseServiceImpl implements PurchaseService {
                     Result result = commodityService.getOldCommodity(goodsId);
                     CommodityOutput commOutput = (CommodityOutput) result.getData();
                     //判断是否满足最小起订量
-                    if (!this.checkMinOrderQuantity(commOutput,goodsNumber)){
-                        output.put("message",commOutput.getName()+"商品不满足最小起订量或未上架或该商品已失效");
+                    if (!this.checkMinOrderQuantity(commOutput, goodsNumber)) {
+                        output.put("message", commOutput.getName() + "商品不满足最小起订量或未上架或该商品已失效");
                         return output;
                     }
                     //2.生成批量插入订单详情数据
@@ -223,10 +223,10 @@ public class PurchaseServiceImpl implements PurchaseService {
                 purchaseDate.setCouponId(purchase.getCouponId());   //添加优惠券ID
             }
             //邮费计算
-            Map map = this.getFreightRulesByAccountId(account.getAccountId(),totalMoney,BigDecimal.valueOf(totalNumber.intValue()),purchase);
-            if ((Integer)map.get("status") == 1){
+            Map map = this.getFreightRulesByAccountId(account.getAccountId(), totalMoney, BigDecimal.valueOf(totalNumber.intValue()), purchase);
+            if ((Integer) map.get("status") == 1) {
                 purchaseDate.setOrderPostage((BigDecimal) map.get("totalMoney"));
-            }else {
+            } else {
                 return map;
             }
             purchaseDate.setOrderTotalPrice(totalMoney.add(purchaseDate.getOrderPostage()));
@@ -243,7 +243,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             //计算所有订单订单合计
             orderTotalPrice = orderTotalPrice.add(purchaseDate.getOrderPostage().add(purchaseDate.getOrderPrice()));
             //TODO 订单发票录入-v1.1.0
-            if(Ognl.isNotNull(purchase.getListReceipts()) && purchase.getListReceipts().size() > 0){
+            if (Ognl.isNotNull(purchase.getListReceipts()) && purchase.getListReceipts().size() > 0) {
                 purchase.getListReceipts().forEach(receiptPurchaseInputVo -> {
                     if (sId.equals(receiptPurchaseInputVo.getSupplierId())) {
                         receiptPurchaseInputVo.setOrderId(orderId);
@@ -269,33 +269,40 @@ public class PurchaseServiceImpl implements PurchaseService {
             //TODO 计算优惠使用规则-v1.1.0
             Coupon coupon = couponDao.findCouponById(purchase.getCouponId());
             if (Ognl.isNotNull(coupon)) {
-                List<AccountCoupon> accountCouponList = appAccountCouponDao.findAccountCoupon(purchase.getUserId(), coupon.getId());
-                if (Ognl.isNotNull(accountCouponList) && accountCouponList.size() > 0) {
-                    if (accountCouponList.get(0).getStatus().equals(0)) {
-                        //获取当前时间
-                        String currentTime = StringUtil.fomateData(new Date(), "yyyy-MM-dd HH:mm:ss");
-                        String sendEndTime = StringUtil.fomateData(coupon.getUseEndTime(), "yyyy-MM-dd HH:mm:ss");
-                        //将字符串格式的日期格式化
-                        SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-                        if ((sdf.parse(sendEndTime)).compareTo(sdf.parse(currentTime)) >= 0) {
-                            //订单总金额是否大于等于优惠券金额
-                            if (orderTotalPrice.compareTo(coupon.getCouponValue()) == -1) {
-                                output.put("message", "不符合优惠券满减条件");
-                                return output;
+                if (coupon.getUsableValue().compareTo(coupon.getCouponValue()) == 1) {
+                    List<AccountCoupon> accountCouponList = appAccountCouponDao.findAccountCoupon(purchase.getUserId(), coupon.getId());
+                    if (Ognl.isNotNull(accountCouponList) && accountCouponList.size() > 0) {
+                        if (accountCouponList.get(0).getStatus().equals(0)) {
+                            //获取当前时间
+                            String currentTime = StringUtil.fomateData(new Date(), "yyyy-MM-dd HH:mm:ss");
+                            String sendStartTime = StringUtil.fomateData(coupon.getUseStartTime(), "yyyy-MM-dd HH:mm:ss");
+                            String sendEndTime = StringUtil.fomateData(coupon.getUseEndTime(), "yyyy-MM-dd HH:mm:ss");
+                            //将字符串格式的日期格式化
+                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                            if ((sdf.parse(sendEndTime)).compareTo(sdf.parse(currentTime)) >= 0 && (sdf.parse(sendStartTime)).compareTo(sdf.parse(currentTime)) <= 0) {
+                                //订单总金额是否大于等于优惠券金额
+                                if (orderTotalPrice.compareTo(coupon.getUsableValue()) == -1) {
+                                    output.put("message", "不符合优惠券满减条件");
+                                    return output;
+                                } else {
+                                    listPurchase = CouponRulesUtil.couponRule(listPurchase, coupon.getUsableValue(), coupon.getCouponValue());
+                                    appAccountCouponDao.updateAccountCouponStatusById(purchase.getUserId(), purchase.getCouponId());
+                                    couponDao.updateCouponUseNum(purchase.getCouponId(), 1);
+                                }
                             } else {
-                                listPurchase = CouponRulesUtil.couponRule(listPurchase, coupon.getCouponValue(), coupon.getUsableValue());
-                                appAccountCouponDao.updateAccountCouponStatusById(purchase.getUserId(), purchase.getCouponId());
-                                couponDao.updateCouponUseNum(purchase.getCouponId(),1);
+                                output.put("message", "该优惠券不在使用时间内");
+                                return output;
                             }
                         } else {
-                            output.put("message", "优惠券超出可使用时间");
+                            output.put("message", "该优惠券已使用");
                             return output;
                         }
-                    } else {
-                        output.put("message", "该优惠券已使用");
-                        return output;
                     }
+                } else {
+                    output.put("message", "优惠券可用优惠金额不能大于满额");
+                    return output;
                 }
+
             }
             int result = purchaseDao.savePurchase(listPurchase);
             int resultSum = purchaseItemDao.savePurchaseItem(listItem);
@@ -342,11 +349,11 @@ public class PurchaseServiceImpl implements PurchaseService {
         Purchase purchase = purchaseDao.findById(orderId);
         if (purchase != null) {
             //PurchaseInfoVo 添加订单信息
-            purchaseInfoVo = BeanMapper.map(purchase,PurchaseInfoVo.class);
-            if(purchase.getOrderPostage().compareTo(new BigDecimal(0)) == 0){
+            purchaseInfoVo = BeanMapper.map(purchase, PurchaseInfoVo.class);
+            if (purchase.getOrderPostage().compareTo(new BigDecimal(0)) == 0) {
                 purchaseInfoVo.setOrderPostage("包邮");
             } else {
-                purchaseInfoVo.setOrderPostage("￥"+NumberUtil.number2Thousand(purchase.getOrderPostage()));
+                purchaseInfoVo.setOrderPostage("￥" + NumberUtil.number2Thousand(purchase.getOrderPostage()));
             }
             //商品金额小计
             purchaseInfoVo.setOrderPrice(NumberUtil.number2Thousand(purchase.getOrderPrice()));
@@ -374,7 +381,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             }
             ReceiptPurchase receiptPurchase = receiptPurchaseDao.findReceiptItemByOrderId(orderId);
             purchaseInfoVo.setIsReceipt(0);
-            if(null != receiptPurchase){
+            if (null != receiptPurchase) {
                 purchaseInfoVo.setIsReceipt(1);
             }
         }
@@ -394,10 +401,10 @@ public class PurchaseServiceImpl implements PurchaseService {
         List<PurchasesVo> orderList = purchaseDao.findPage(purchaseSelectInput);
         //转换金额为千分位
         for (PurchasesVo purchasesVo : orderList) {
-            if(StringUtils.isEmpty(purchasesVo.getOrderPostage()) || "0.00".equals(purchasesVo.getOrderPostage())){
+            if (StringUtils.isEmpty(purchasesVo.getOrderPostage()) || "0.00".equals(purchasesVo.getOrderPostage())) {
                 purchasesVo.setOrderPostage("包邮");
             } else {
-                purchasesVo.setOrderPostage("￥"+NumberUtil.number2Thousand(new BigDecimal(purchasesVo.getOrderPostage())));
+                purchasesVo.setOrderPostage("￥" + NumberUtil.number2Thousand(new BigDecimal(purchasesVo.getOrderPostage())));
             }
             purchasesVo.setOrderPrice(NumberUtil.number2Thousand(new BigDecimal(purchasesVo.getOrderPrice())));
         }
@@ -555,7 +562,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             cellTemp.setCellValue("￥" + purchase.getOrderPrice());
             cellTemp.setCellStyle(style);
 
-            if(purchase.getOrderPostage().compareTo(new BigDecimal(0)) == 1){
+            if (purchase.getOrderPostage().compareTo(new BigDecimal(0)) == 1) {
                 cellTemp = row.createCell(3);
                 cellTemp.setCellValue("￥" + purchase.getOrderPostage());
                 cellTemp.setCellStyle(style);
@@ -583,9 +590,9 @@ public class PurchaseServiceImpl implements PurchaseService {
 
             Integer paymentMethod = purchase.getOrderPaymentMethod();
             String payment = "";
-            if (Objects.equals(paymentMethod,Constant.PaymentStatusConfig.ALIPAY)) {
+            if (Objects.equals(paymentMethod, Constant.PaymentStatusConfig.ALIPAY)) {
                 payment = Constant.PaymentMsgConfig.ALIPAY;
-            } else if (Objects.equals(paymentMethod,Constant.PaymentStatusConfig.WECHAT)) {
+            } else if (Objects.equals(paymentMethod, Constant.PaymentStatusConfig.WECHAT)) {
                 payment = Constant.PaymentMsgConfig.WECHAT;
             }
             cellTemp = row.createCell(8);
@@ -661,11 +668,13 @@ public class PurchaseServiceImpl implements PurchaseService {
         //1.校验条件类
         if (Ognl.isNotEmpty(input)) {
             //1.1 比较开始时间结束时间是否符合规则，不符合则返回提示信息
-            if (DataCompare.compareDate(input.getCreateBeginTime(), input.getCreateEndTime())) {
-                return Result.fail(Constant.MessageConfig.DateNOTLate);
+            String createTimeMsg = DataCompare.createAtCheck(input.getCreateBeginTime(), input.getCreateEndTime());
+            if (Ognl.isNotEmpty(createTimeMsg)) {
+                return Result.fail(createTimeMsg);
             }
-            if (DataCompare.compareDate(input.getPayBeginTime(), input.getPayEndTime())) {
-                return Result.fail(Constant.MessageConfig.DateNOTLate);
+            String payTimeMsg = DataCompare.createAtCheck(input.getPayBeginTime(), input.getPayEndTime());
+            if (Ognl.isNotEmpty(payTimeMsg)) {
+                return Result.fail(payTimeMsg);
             }
         }
         // 1.2 确认排序字段及排序次序
@@ -734,8 +743,9 @@ public class PurchaseServiceImpl implements PurchaseService {
         //1.校验条件类
         if (Ognl.isNotEmpty(input)) {
             //比较开始时间和结束时间是否输入正常 若输入不正常返回提示信息
-            if (DataCompare.compareDate(input.getCreateBeginTime(), input.getCreateEndTime())) {
-                return Result.fail(Constant.MessageConfig.DateNOTLate);
+            String createTimeMsg = DataCompare.createAtCheck(input.getCreateBeginTime(), input.getCreateEndTime());
+            if (Ognl.isNotEmpty(createTimeMsg)) {
+                return Result.fail(createTimeMsg);
             }
         }
 
@@ -833,8 +843,6 @@ public class PurchaseServiceImpl implements PurchaseService {
         // 3.封装返回对象
         PurchaseItemPrintOutput output = new PurchaseItemPrintOutput(); // 封装返回对象
         output = BeanMapper.map(purchasePrintVo, output.getClass()); // 将订单信息复制到output
-        output.setTotalPrice(String.valueOf(purchasePrintVo.getOrderPostage().add(purchasePrintVo.getTotalPrice()))); // 订单总金额=订单金额+运费
-        output.setOrderPostage(purchasePrintVo.getOrderPostage()); // 运费
         output.setPurchaseItemPrintVos(purchaseItemPrintVos); // 添加商品条目
 
         return output;
@@ -1136,10 +1144,10 @@ public class PurchaseServiceImpl implements PurchaseService {
         List<CommBlobUpload> imgList = new ArrayList<>();
         //1.如果拒收图片不传入，则不进行图片格式转换；
         //2.如果没有拒收图片，则不存入数据库
-        if(refuseOrderInput.getRefuseImg().size()>0){
-            for(int i = 0;i<refuseOrderInput.getRefuseImg().size(); i++){
+        if (refuseOrderInput.getRefuseImg().size() > 0) {
+            for (int i = 0; i < refuseOrderInput.getRefuseImg().size(); i++) {
                 CommBlobUpload commBlobUpload = new CommBlobUpload();
-                String fileName = NumberGenerate.generateId() + System.currentTimeMillis() + "." +refuseOrderInput.getRefuseImg().get(i).getType();
+                String fileName = NumberGenerate.generateId() + System.currentTimeMillis() + "." + refuseOrderInput.getRefuseImg().get(i).getType();
                 commBlobUpload.setFileName(fileName);//图片名称
                 commBlobUpload.setUrl(refuseOrderInput.getRefuseImg().get(i).getUrl());//拒收图片URL
                 commBlobUpload.setMinImgUrl(refuseOrderInput.getRefuseImg().get(i).getMinImgUrl());//拒收缩略图
@@ -1149,8 +1157,8 @@ public class PurchaseServiceImpl implements PurchaseService {
                 imgList.add(commBlobUpload);
             }
         }
-        if(imgList.size()>0){
-            purchaseDao.insertRefuseImg(map,imgList);
+        if (imgList.size() > 0) {
+            purchaseDao.insertRefuseImg(map, imgList);
         }
         // 验证二维码是否存在，是否失效
         PurchasePrintVo purchasePrintVo = purchaseDao.findPrintOrderInfo(orderId); // 查询订单和二维码信息
@@ -1175,15 +1183,15 @@ public class PurchaseServiceImpl implements PurchaseService {
     public OrderRefuseReasonOutput searchRefuseReasonByOrderId(String orderId) throws Exception {
         OrderRefuseReasonVo orderRefuseReasonVo = purchaseDao.findRefuseReasonByOrderId(orderId);//查出拒收原因信息
         List<OrderRefuseImageVo> orderRefuseImageVoList = new ArrayList<>();
-        if(null != orderRefuseReasonVo){
+        if (null != orderRefuseReasonVo) {
             orderRefuseImageVoList = purchaseDao.findRefuseImageByOrderId(orderId);//查出拒收图片信息
         }
         OrderRefuseReasonOutput orderRefuseReasonOutput = new OrderRefuseReasonOutput();
         orderRefuseReasonOutput.setRefuseReason(Constant.MessageConfig.MSG_NO_DATA);//如果没有数据则返回“暂无数据”
         if (null != orderRefuseReasonVo) {
-            orderRefuseReasonOutput = BeanMapper.map(orderRefuseReasonVo,OrderRefuseReasonOutput.class);
+            orderRefuseReasonOutput = BeanMapper.map(orderRefuseReasonVo, OrderRefuseReasonOutput.class);
         }
-        if(orderRefuseImageVoList.size()>0){
+        if (orderRefuseImageVoList.size() > 0) {
             List<String> urlList = new ArrayList<>();
             orderRefuseImageVoList.forEach(orderRefuseImageVo -> {
                 urlList.add(orderRefuseImageVo.getRefuseImgUrl());
@@ -1245,7 +1253,7 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Transactional(rollbackFor = Exception.class)
     public void cancelOrder(CancelReasonInput cancelReasonInput) throws Exception {
         Integer orderStatus = purchaseDao.getOrderStatus(cancelReasonInput.getOrderId());
-        if(cancelReasonInput.getOrderId().length() == 28){
+        if (cancelReasonInput.getOrderId().length() == 28) {
             orderStatus = Constant.OrderStatusConfig.PAYMENT;
         }
         Integer inputOrderStatus = Constant.OrderStatusConfig.CANCEL_ORDER;
@@ -1279,7 +1287,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         //业务逻辑
         //1.当待支付取消订单时，没有产生二维码，不对二维码做处理；
         //2.当已支付订单取消时，由于产生了二维码，故取消时使二维码失效。
-        if(inputOrderStatus == 7){
+        if (inputOrderStatus == 7) {
             // 验证二维码是否存在，是否失效
             PurchasePrintVo purchasePrintVo = purchaseDao.findPrintOrderInfo(cancelReasonInput.getOrderId()); // 查询订单和二维码信息
             if (null == purchasePrintVo || null == purchasePrintVo.getQrcodeStatus()
@@ -1348,10 +1356,10 @@ public class PurchaseServiceImpl implements PurchaseService {
         //该处amount取自订单的实付金额
         //1.已拒收，只退订单金额，不退运费（实付金额-运费）
         //2.已付款已取消，需要退运费，则退实付金额
-        if (Objects.equals(orderStatus,Constant.OrderStatusConfig.REJECT)) {
+        if (Objects.equals(orderStatus, Constant.OrderStatusConfig.REJECT)) {
 //            amount = purchase.getOrderPrice();
             amount = purchase.getPayAmount().subtract(purchase.getOrderPostage());
-        } else if (Objects.equals(orderStatus,Constant.OrderStatusConfig.CANCEL_ORDER)){
+        } else if (Objects.equals(orderStatus, Constant.OrderStatusConfig.CANCEL_ORDER)) {
 //            amount = purchase.getOrderPrice().add(purchase.getOrderPostage());
             amount = purchase.getPayAmount();
         }
@@ -1363,7 +1371,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         // 2.调用支付宝退款接口实现真正的退款
         // TODO: 2017/8/31 调用退款接口实现真正的退款,退款失败返回失败信息
         String refundMsg = AlipayRefundUtil.alipayRefundRequest(purchase.getOrderId(), purchase.getPayId(), purchase.getOrderPaymentNum(), amount, cancelReason);
-        if("SUCCESS".equals(refundMsg)){
+        if ("SUCCESS".equals(refundMsg)) {
             // 3.修改订单状态为退款，修改退款时间为当前时间
             Map params = new HashMap();
             params.put("orderId", orderId);
@@ -1442,7 +1450,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         Map<String, String> map = MultipartFileUtil.generateImage(imgStr); // 失败抛出异常
         List<String> files = new ArrayList<>();
         files.add(map.get("name"));
-        List<CommBlobUpload> blobUploadEntities = batchUploadPic(map.get("path"), files , 3);
+        List<CommBlobUpload> blobUploadEntities = batchUploadPic(map.get("path"), files, 3);
         if (blobUploadEntities.size() != 1) {
             throw new Exception("上传图片到云端失败");
         }
@@ -1455,39 +1463,40 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     /**
      * 根据商户ID获取运费
+     *
      * @param accountId
-     * @param totalMoney  订单总金额
-     * @param number 订单总数量
+     * @param totalMoney 订单总金额
+     * @param number     订单总数量
      * @return
      */
-    private Map<String,Object> getFreightRulesByAccountId(Long accountId,BigDecimal totalMoney,BigDecimal number,PurchaseInput purchaseInput ){
+    private Map<String, Object> getFreightRulesByAccountId(Long accountId, BigDecimal totalMoney, BigDecimal number, PurchaseInput purchaseInput) {
         /**
          * 1.获取商户当前默认运费规则
          * 2.并根据运费规则计算运费
          */
-        Map<String ,Object> map = new HashMap<>();
-        map.put("status",0);
-        map.put("message","商户没有设置配送运费规则");
+        Map<String, Object> map = new HashMap<>();
+        map.put("status", 0);
+        map.put("message", "商户没有设置配送运费规则");
         Integer rules = accountDao.findRulesById(accountId);//获取商户当前默认运费规则
-        if (null == rules){
+        if (null == rules) {
             return map;
         }
-        if (0 == rules){//通用运费规则
-            List<FreightRules> freightRulesList = freightRulesDao.queryAll0(accountId,rules);//获取对应运费规则记录
+        if (0 == rules) {//通用运费规则
+            List<FreightRules> freightRulesList = freightRulesDao.queryAll0(accountId, rules);//获取对应运费规则记录
             if (null != freightRulesList && !freightRulesList.isEmpty()) {
-                return this.getexpenses(freightRulesList.get(0),totalMoney,number);
+                return this.getexpenses(freightRulesList.get(0), totalMoney, number);
             }
         }
-        if (1 == rules){//配送运送规则
-            List<FreightRules> freightRulesList = freightRulesDao.queryAll0(accountId,rules);//获取对应运费规则记录
-            if (null != freightRulesList && !freightRulesList.isEmpty()){
-                FreightRules freightRules = freightRulesService.matchAddress(purchaseInput.getProvince(),purchaseInput.getCity(),purchaseInput.getDistrict(),freightRulesList) ;//地址匹配的配送规则对象
-                if (Ognl.isEmpty(freightRules)){
-                    map.put("message","不在配送范围内");
+        if (1 == rules) {//配送运送规则
+            List<FreightRules> freightRulesList = freightRulesDao.queryAll0(accountId, rules);//获取对应运费规则记录
+            if (null != freightRulesList && !freightRulesList.isEmpty()) {
+                FreightRules freightRules = freightRulesService.matchAddress(purchaseInput.getProvince(), purchaseInput.getCity(), purchaseInput.getDistrict(), freightRulesList);//地址匹配的配送规则对象
+                if (Ognl.isEmpty(freightRules)) {
+                    map.put("message", "不在配送范围内");
                     return map;
                 }
                 //计算运费
-                return this.getexpenses(freightRules,totalMoney,number);
+                return this.getexpenses(freightRules, totalMoney, number);
             }
         }
         return map;//匹配失败
@@ -1495,62 +1504,64 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     /**
      * 运费计算
+     *
      * @param freightRules 配送规则
-     * @param totalMoney 订单总金额
-     * @param number 订单总数量
+     * @param totalMoney   订单总金额
+     * @param number       订单总数量
      * @return 运费及状态码
      */
-    private Map<String,Object> getexpenses(FreightRules freightRules,BigDecimal totalMoney,BigDecimal number){
-            Map<String ,Object> map = new HashMap<>();
-            map.put("status",0);
+    private Map<String, Object> getexpenses(FreightRules freightRules, BigDecimal totalMoney, BigDecimal number) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("status", 0);
 
-            if (null != freightRules && (null ==freightRules.getSendAmount() || freightRules.getSendAmount().compareTo(totalMoney) <= 0 )){//判断当前订单金额是否满足最起送金额
-                if (0 == freightRules.getWhetherShipping()){//包邮
-                    map.put("status",1);
-                    map.put("totalMoney",BigDecimal.valueOf(0));
-                    return map;
-                }
-                if (1 == freightRules.getWhetherShipping()){//不包邮
-                    //订单运费 =  基础单位运费 * 基础配送基数 + 超量单位运费 * 超量配送数量
-                    BigDecimal defaultAmount = freightRules.getDefaultAmount();
-                    BigDecimal defaultPiece = BigDecimal.valueOf(freightRules.getDefaultPiece());
-                    BigDecimal expenses = defaultAmount;//基础价格
-                    if (number.compareTo(BigDecimal.valueOf(freightRules.getDefaultPiece())) > 0){//订单数量大于基础配送数量
-                        BigDecimal excessPiece = BigDecimal.valueOf(freightRules.getExcessPiece());//超量配送数量
-                        BigDecimal excessAmount = freightRules.getExcessAmount();//超量单位运费
-                        BigDecimal excess = number.subtract(defaultPiece);//超出基础配送数量的部分
-                        if (excess.compareTo(excessPiece) <= 0 ){//判断订单超出基础配送数量部分是否超出超量配送数量
-                            expenses = expenses.add(excessAmount);
-                        }else{
-                            expenses = excess.remainder(excessPiece).compareTo(BigDecimal.valueOf(0)) == 0 ?
-                                    expenses.add(excessAmount.multiply(excess.divideToIntegralValue(excessPiece))) : expenses.add(excessAmount.multiply(excess.divideToIntegralValue(excessPiece).add(BigDecimal.valueOf(1))));
-                        }
-                    }
-                    map.put("status",1);
-                    map.put("totalMoney",expenses);
-                    return map;
-                }
-            }else {
-                map.put("message","当前订单不满足商户最小起送金额");
+        if (null != freightRules && (null == freightRules.getSendAmount() || freightRules.getSendAmount().compareTo(totalMoney) <= 0)) {//判断当前订单金额是否满足最起送金额
+            if (0 == freightRules.getWhetherShipping()) {//包邮
+                map.put("status", 1);
+                map.put("totalMoney", BigDecimal.valueOf(0));
                 return map;
             }
-        map.put("message",Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
-        return map;
+            if (1 == freightRules.getWhetherShipping()) {//不包邮
+                //订单运费 =  基础单位运费 * 基础配送基数 + 超量单位运费 * 超量配送数量
+                BigDecimal defaultAmount = freightRules.getDefaultAmount();
+                BigDecimal defaultPiece = BigDecimal.valueOf(freightRules.getDefaultPiece());
+                BigDecimal expenses = defaultAmount;//基础价格
+                if (number.compareTo(BigDecimal.valueOf(freightRules.getDefaultPiece())) > 0) {//订单数量大于基础配送数量
+                    BigDecimal excessPiece = BigDecimal.valueOf(freightRules.getExcessPiece());//超量配送数量
+                    BigDecimal excessAmount = freightRules.getExcessAmount();//超量单位运费
+                    BigDecimal excess = number.subtract(defaultPiece);//超出基础配送数量的部分
+                    if (excess.compareTo(excessPiece) <= 0) {//判断订单超出基础配送数量部分是否超出超量配送数量
+                        expenses = expenses.add(excessAmount);
+                    } else {
+                        expenses = excess.remainder(excessPiece).compareTo(BigDecimal.valueOf(0)) == 0 ?
+                                expenses.add(excessAmount.multiply(excess.divideToIntegralValue(excessPiece))) : expenses.add(excessAmount.multiply(excess.divideToIntegralValue(excessPiece).add(BigDecimal.valueOf(1))));
+                    }
+                }
+                map.put("status", 1);
+                map.put("totalMoney", expenses);
+                return map;
+            }
+        } else {
+            map.put("message", "当前订单不满足商户最小起送金额");
+            return map;
         }
+        map.put("message", Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
+        return map;
+    }
 
     /**
      * 判断购买商品数量是否满足最小起定量以及商品状态判断（是否为上架状态）
-     * @param commOutput 商品对象
+     *
+     * @param commOutput  商品对象
      * @param goodsNumber 购买商品的数量
      * @return
      */
-    private boolean checkMinOrderQuantity(CommodityOutput commOutput, BigDecimal goodsNumber){
+    private boolean checkMinOrderQuantity(CommodityOutput commOutput, BigDecimal goodsNumber) {
         //待上架 下架 上架待审核 状态不可下单,上架，下架待审核，编辑状态可下单
-        boolean statusFlag = CommConstant.COMM_ST_NEW == commOutput.getStatus() || CommConstant.COMM_ST_OFF_SHELVES == commOutput.getStatus() || CommConstant.COMM_ST_ON_SHELVES_AUDIT == commOutput.getStatus() ;
-        if (null != commOutput && null != goodsNumber && !statusFlag  && 1 == commOutput.getInvalidStatus()){
-            if (commOutput.getMinOrderQuantity() > goodsNumber.intValue()){
+        boolean statusFlag = CommConstant.COMM_ST_NEW == commOutput.getStatus() || CommConstant.COMM_ST_OFF_SHELVES == commOutput.getStatus() || CommConstant.COMM_ST_ON_SHELVES_AUDIT == commOutput.getStatus();
+        if (null != commOutput && null != goodsNumber && !statusFlag && 1 == commOutput.getInvalidStatus()) {
+            if (commOutput.getMinOrderQuantity() > goodsNumber.intValue()) {
                 return false;
-            }else {
+            } else {
                 return true;
             }
         }
@@ -1561,7 +1572,7 @@ public class PurchaseServiceImpl implements PurchaseService {
      * 根据订单编号和用户id验证用户的订单是否存在，存在返回二维码地址，否则返回失败地址
      *
      * @param orderId 订单编号
-     * @param userId 用户id
+     * @param userId  用户id
      * @return url地址
      */
     @Override
@@ -1573,8 +1584,9 @@ public class PurchaseServiceImpl implements PurchaseService {
         return errorUrl;
     }
 
-	 /**
+    /**
      * 根据供应商ID查询各类订单数量
+     *
      * @param accountId
      * @return
      */
@@ -1586,47 +1598,49 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     /**
      * map中key值和value转化
-     *  key:订单各个状态对应的字符
-     *  value:订单各类状态对应的统计数据
+     * key:订单各个状态对应的字符
+     * value:订单各类状态对应的统计数据
+     *
      * @param map
      * @return
      */
-    private Map<Object,Object> transformOfMap(Map<Object, Object> map) {
-        Map<Object,Object> resultMap = new HashMap();//返回参数
-        Map<Object,Object> valueMap = null;//入参中的value值（map）
+    private Map<Object, Object> transformOfMap(Map<Object, Object> map) {
+        Map<Object, Object> resultMap = new HashMap();//返回参数
+        Map<Object, Object> valueMap = null;//入参中的value值（map）
         Long count = null;//入参map中的value(value也为map)中的value值（统计数据）
         String str = null;//各个订单状态对应的字符
         Long totalCount = 0L;//统计数据之和(订单总量)
         Long confirmCount = null;//记录已送达订单数量(计入已完成订单统计中)
         //转化map中的Key和value值
-        for (int i = 1;i <= 9;i++){
-            if (i == 9 ){
+        for (int i = 1; i <= 9; i++) {
+            if (i == 9) {
                 i = 19;
             }
             valueMap = (Map<Object, Object>) map.get(i);
             count = null == valueMap ? 0L : (Long) valueMap.get("count");
             totalCount = totalCount + count;
-            if(i == 3){
+            if (i == 3) {
                 confirmCount = count;
             }
-            if (i == 19){
+            if (i == 19) {
                 count = count + confirmCount;
             }
             str = this.getStrByOrderStatus(i);
-            resultMap.put(str,count);
+            resultMap.put(str, count);
         }
-        resultMap.put("totalOrderNum",totalCount);
+        resultMap.put("totalOrderNum", totalCount);
         return resultMap;
     }
 
     /**
      * 根据订单各个状态获取对应的字符
+     *
      * @param i 订单状态
      * @return
      */
     private String getStrByOrderStatus(int i) {
         String str = null;
-        switch (i){
+        switch (i) {
             case 1:
                 str = "paymentOrderNum";
                 break;
@@ -1634,22 +1648,22 @@ public class PurchaseServiceImpl implements PurchaseService {
                 str = "pendingShipOrderNum";
                 break;
             case 3:
-                str =  "issueShipOrderNum";
+                str = "issueShipOrderNum";
                 break;
             case 4:
-                str =  "receivedOrderNum";
+                str = "receivedOrderNum";
                 break;
             case 5:
-                str =  "rejectOrderNum";
+                str = "rejectOrderNum";
                 break;
             case 6:
-                str =  "refundedOrderNum";
+                str = "refundedOrderNum";
                 break;
             case 7:
-                str =  "cancelOrderNum";
+                str = "cancelOrderNum";
                 break;
             case 8:
-                str =  "paymentCancelOrderNum";
+                str = "paymentCancelOrderNum";
                 break;
             case 19:
                 str = "issueShipOrderNum";
@@ -1657,6 +1671,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         }
         return str;
     }
+
     /**
      * 更改物流信息
      *
@@ -1664,14 +1679,14 @@ public class PurchaseServiceImpl implements PurchaseService {
      */
     @Override
     public boolean updateLogisticInfoByOrderId(LogisticInfoUpdateInput logisticInfoUpdateInput) {
-        Map<String,Object> map = new HashMap<>();
-        map.put("orderId",logisticInfoUpdateInput.getOrderId());
-        map.put("orderShipMethod",logisticInfoUpdateInput.getOrderShipMethod());
-        map.put("name",logisticInfoUpdateInput.getName());
-        map.put("number",logisticInfoUpdateInput.getNumber());
-        map.put("updateTime",new Date());
+        Map<String, Object> map = new HashMap<>();
+        map.put("orderId", logisticInfoUpdateInput.getOrderId());
+        map.put("orderShipMethod", logisticInfoUpdateInput.getOrderShipMethod());
+        map.put("name", logisticInfoUpdateInput.getName());
+        map.put("number", logisticInfoUpdateInput.getNumber());
+        map.put("updateTime", new Date());
         Integer count = purchaseDao.updateLogisticInfoByOrderId(map);
-        if(count == 0){
+        if (count == 0) {
             return false;
         }
         return true;
@@ -1810,7 +1825,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             cellTemp.setCellValue("￥" + purchase.getOrderPrice());
             cellTemp.setCellStyle(style);
 
-            if(purchase.getOrderPostage().compareTo(new BigDecimal(0)) == 1){
+            if (purchase.getOrderPostage().compareTo(new BigDecimal(0)) == 1) {
                 cellTemp = row.createCell(4);
                 cellTemp.setCellValue("￥" + purchase.getOrderPostage());
                 cellTemp.setCellStyle(style);
@@ -1838,9 +1853,9 @@ public class PurchaseServiceImpl implements PurchaseService {
 
             Integer paymentMethod = purchase.getOrderPaymentMethod();
             String payment = "";
-            if (Objects.equals(paymentMethod,Constant.PaymentStatusConfig.ALIPAY)) {
+            if (Objects.equals(paymentMethod, Constant.PaymentStatusConfig.ALIPAY)) {
                 payment = Constant.PaymentMsgConfig.ALIPAY;
-            } else if (Objects.equals(paymentMethod,Constant.PaymentStatusConfig.WECHAT)) {
+            } else if (Objects.equals(paymentMethod, Constant.PaymentStatusConfig.WECHAT)) {
                 payment = Constant.PaymentMsgConfig.WECHAT;
             }
             cellTemp = row.createCell(9);
@@ -1911,21 +1926,21 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     //导出订单Excel订单状态翻译
     private String getOrderStatusInExcel(Integer status, String orderStatus) {
-        if (Objects.equals(status,Constant.OrderStatusConfig.PAYMENT)) {
+        if (Objects.equals(status, Constant.OrderStatusConfig.PAYMENT)) {
             orderStatus = Constant.OrderMessageConfig.PAYMENT;
-        } else if (Objects.equals(status,Constant.OrderStatusConfig.PENDING_SHIP)) {
+        } else if (Objects.equals(status, Constant.OrderStatusConfig.PENDING_SHIP)) {
             orderStatus = Constant.OrderMessageConfig.PENDING_SHIP;
-        } else if (Objects.equals(status,Constant.OrderStatusConfig.ISSUE_SHIP) || Objects.equals(status,Constant.OrderStatusConfig.CONFIRM_RECEIVED)) {
+        } else if (Objects.equals(status, Constant.OrderStatusConfig.ISSUE_SHIP) || Objects.equals(status, Constant.OrderStatusConfig.CONFIRM_RECEIVED)) {
             orderStatus = Constant.OrderMessageConfig.ISSUE_SHIP;
-        } else if (Objects.equals(status,Constant.OrderStatusConfig.RECEIVED)) {
+        } else if (Objects.equals(status, Constant.OrderStatusConfig.RECEIVED)) {
             orderStatus = Constant.OrderMessageConfig.RECEIVED;
-        } else if (Objects.equals(status,Constant.OrderStatusConfig.REJECT)) {
+        } else if (Objects.equals(status, Constant.OrderStatusConfig.REJECT)) {
             orderStatus = Constant.OrderMessageConfig.REJECT;
-        } else if (Objects.equals(status,Constant.OrderStatusConfig.REFUNDED)) {
+        } else if (Objects.equals(status, Constant.OrderStatusConfig.REFUNDED)) {
             orderStatus = Constant.OrderMessageConfig.REFUNDED;
-        } else if (Objects.equals(status,Constant.OrderStatusConfig.CANCEL_ORDER)) {
+        } else if (Objects.equals(status, Constant.OrderStatusConfig.CANCEL_ORDER)) {
             orderStatus = Constant.OrderMessageConfig.CANCEL_ORDER;
-        } else if (Objects.equals(status,Constant.OrderStatusConfig.PAYMENT_CANCEL_ORDER)) {
+        } else if (Objects.equals(status, Constant.OrderStatusConfig.PAYMENT_CANCEL_ORDER)) {
             orderStatus = Constant.OrderMessageConfig.PAYMENT_CANCEL_ORDER;
         }
         return orderStatus;
@@ -1939,7 +1954,7 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Override
     public Result findReceiptItemByOrderId(String orderId) {
 
-        return Result.success(Constant.MessageConfig.MSG_SUCCESS,receiptPurchaseDao.findReceiptItemByOrderId(orderId));
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS, receiptPurchaseDao.findReceiptItemByOrderId(orderId));
     }
 
     private List<ReceiptPurchase> removeDuplicate(List<ReceiptPurchase> receiptPurchaseList) {

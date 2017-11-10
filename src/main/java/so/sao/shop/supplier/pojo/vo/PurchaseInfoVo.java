@@ -2,7 +2,6 @@ package so.sao.shop.supplier.pojo.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -43,7 +42,7 @@ public class PurchaseInfoVo {
     /**
      * 下单时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date orderCreateTime;
 
     /**
@@ -54,7 +53,7 @@ public class PurchaseInfoVo {
     /**
      * 支付时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date orderPaymentTime;
 
     /**
@@ -70,7 +69,7 @@ public class PurchaseInfoVo {
     /**
      * 退款时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date drawbackTime;
 
     /**

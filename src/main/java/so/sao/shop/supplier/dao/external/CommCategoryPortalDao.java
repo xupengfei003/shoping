@@ -17,7 +17,7 @@ import java.util.List;
 @Mapper
 public interface CommCategoryPortalDao {
     /**
-     * 批量修改商品分类名称和隐藏状态
+     * 批量修改商品分类名称和显示状态
      * @param commCategoryPortalInputs
      * @return 返回受影响行数
      */

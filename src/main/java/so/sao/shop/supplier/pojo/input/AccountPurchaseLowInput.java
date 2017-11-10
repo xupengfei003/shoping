@@ -1,8 +1,10 @@
 package so.sao.shop.supplier.pojo.input;
 
 import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.Pattern;
+import java.util.Date;
 
 /**
  * <p>
@@ -17,12 +19,14 @@ public class AccountPurchaseLowInput {
     /**
      * 开始时间（创建时间）  用于判断时间格式
      */
-    private String createBeginTime;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date createBeginTime;
 
     /**
      * 结束时间（创建时间）  用于判断时间格式
      */
-    private String createEndTime;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date createEndTime;
 
     /**
      * 查询条件(订单编号/流水号)
@@ -43,19 +47,19 @@ public class AccountPurchaseLowInput {
     @NotEmpty(message = "排序次序码不能为空")
     private String sortType;
 
-    public String getCreateBeginTime() {
+    public Date getCreateBeginTime() {
         return createBeginTime;
     }
 
-    public void setCreateBeginTime(String createBeginTime) {
+    public void setCreateBeginTime(Date createBeginTime) {
         this.createBeginTime = createBeginTime;
     }
 
-    public String getCreateEndTime() {
+    public Date getCreateEndTime() {
         return createEndTime;
     }
 
-    public void setCreateEndTime(String createEndTime) {
+    public void setCreateEndTime(Date createEndTime) {
         this.createEndTime = createEndTime;
     }
 
