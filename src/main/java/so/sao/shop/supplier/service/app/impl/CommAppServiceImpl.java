@@ -340,7 +340,7 @@ public class CommAppServiceImpl implements CommAppService {
                 CommImgeVo commImgeVo = BeanMapper.map(commImge, CommImgeVo.class);
                 commImgeVoList.add(commImgeVo);
             });
-            List<FreightRules> freightRulesList = freightRulesDao.queryAll(commodityOutput.getSupplierId(),null);
+            List<FreightRules> freightRulesList = freightRulesDao.queryAll0(commodityOutput.getSupplierId(),null);
             commodityOutput.setFreightRulesList(freightRulesList);
             commodityOutput.setImgeList(commImgeVoList);  //将获取图片信息放入出参
             //获取销量
