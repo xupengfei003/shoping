@@ -95,8 +95,6 @@ public class CommSearchInput {
      * 供应商名称
      */
     private String supplierName;
-
-
     /**
      * 用来区分管理员的字段
      */

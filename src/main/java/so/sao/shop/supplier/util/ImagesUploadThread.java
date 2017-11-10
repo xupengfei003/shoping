@@ -80,7 +80,6 @@ public class ImagesUploadThread implements  Runnable{
                     supplierCommodityDao.updateMinImg(commImgeVoList.get(0).getThumbnailUrl(), new Date(), supplierId, commodityImageVo.getScId());
                 }
             }
-
     }
 
     public  List<CommImgeVo> batchUploadCommPicture(String path , List<String> files, int number) {
@@ -132,8 +131,4 @@ public class ImagesUploadThread implements  Runnable{
         }
         return commImgeVoList;
     }
-
-
-
-
 }
