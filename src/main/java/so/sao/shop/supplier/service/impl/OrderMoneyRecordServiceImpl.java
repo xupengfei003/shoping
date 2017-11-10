@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
+import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.dao.AccountDao;
 import so.sao.shop.supplier.dao.OrderMoneyRecordDao;
 import so.sao.shop.supplier.dao.PurchaseDao;
@@ -22,6 +23,7 @@ import so.sao.shop.supplier.pojo.input.OrderMoneyRecordRankInput;
 import so.sao.shop.supplier.pojo.output.OrderMoneyRecordOutput;
 import so.sao.shop.supplier.pojo.output.RecordToPurchaseOutput;
 import so.sao.shop.supplier.pojo.vo.AccountOrderMoneyRecordVO;
+import so.sao.shop.supplier.pojo.vo.AccountPurchaseVo;
 import so.sao.shop.supplier.pojo.vo.OrderMoneyRecordVo;
 import so.sao.shop.supplier.pojo.vo.PurchaseVo;
 import so.sao.shop.supplier.service.OrderMoneyRecordService;
@@ -30,11 +32,7 @@ import so.sao.shop.supplier.util.*;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.FileInputStream;
 import java.math.BigDecimal;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -200,7 +198,8 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
             }
         } else if ("2".equals(remittanceType)) {
             //2)、按固定时间结算
-            updateLastSettDate = currentDate;//设置上一次结帐时间
+            //设置上一次结帐时间
+            updateLastSettDate = currentDate;
 
             if (null == lastSettlementDate) {
                 //判断上一次结算时间，如果为空的话，则设置上一次结算时间为创建时间
@@ -230,7 +229,8 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
         //2、设置更新供应商账户数据，并添加到对应的列表
         Account updateAccount = new Account();
         updateAccount.setAccountId(accountId);
-        updateAccount.setLastSettlementDate(updateLastSettDate);//上一次结帐日期
+        //上一次结帐日期
+        updateAccount.setLastSettlementDate(updateLastSettDate);
         updateAccount.setUpdateDate(currentDate);
         accountUpdateList.add(updateAccount);
     }
@@ -251,7 +251,8 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
             return;
         }
 
-        String recordId = NumberGenerate.generateId();//生成结算明细id
+        //生成结算明细id
+        String recordId = NumberGenerate.generateId();
 
         //设置结算明细与订单关联数据、订单更新数据，并添加到对应的list中
         Map<String, BigDecimal> tmpMap = setRecordPurchaseValues(purchaseList, recordPurchaseList, purchaseUpdateList, recordId);
@@ -277,21 +278,36 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
         BigDecimal tmpOrderPostage = map.get("orderPostage");
         OrderMoneyRecord omr = new OrderMoneyRecord();
         omr.setRecordId(recordId);
-        omr.setUserId(account.getAccountId());// 账户id
-        omr.setBankName(account.getBankName());// 开户行
-        omr.setBankNameBranch("");// 开户支行
-        omr.setBankAccount(account.getBankNum());// 银行卡号
-        omr.setTotalMoney(tmpOrderSettlemePrice.add(tmpOrderPostage));// 待结算金额
-        omr.setState("0");// 状态
-        omr.setCreatedAt(currentDate);// 创建时间
-        omr.setUpdatedAt(currentDate);// 更新时间
-        omr.setSerialNumber("");//流水号
-        omr.setProviderName(account.getProviderName());//供应商名称
-        omr.setSettledAmount(new BigDecimal("0.00"));//已结算金额
-        omr.setBankUserName(account.getBankUserName());//开户人姓名
-        omr.setCheckoutAt(checkOutDate);//结账时间
-        omr.setPostageTotalAmount(tmpOrderPostage);//运费总金额
-        omr.setOrderTotalAmount(tmpOrderSettlemePrice);//订单总金额
+        // 账户id
+        omr.setUserId(account.getAccountId());
+        // 开户行
+        omr.setBankName(account.getBankName());
+        // 开户支行
+        omr.setBankNameBranch("");
+        // 银行卡号
+        omr.setBankAccount(account.getBankNum());
+        // 待结算金额
+        omr.setTotalMoney(tmpOrderSettlemePrice.add(tmpOrderPostage));
+        // 结算状态
+        omr.setState("0");
+        // 创建时间
+        omr.setCreatedAt(currentDate);
+        // 更新时间
+        omr.setUpdatedAt(currentDate);
+        //流水号
+        omr.setSerialNumber("");
+        //供应商名称
+        omr.setProviderName(account.getProviderName());
+        //已结算金额
+        omr.setSettledAmount(new BigDecimal("0.00"));
+        //开户人姓名
+        omr.setBankUserName(account.getBankUserName());
+        //结账时间
+        omr.setCheckoutAt(checkOutDate);
+        //运费总金额
+        omr.setPostageTotalAmount(tmpOrderPostage);
+        //订单成本金额
+        omr.setOrderTotalAmount(tmpOrderSettlemePrice);
         orderMoneyRecordList.add(omr);
     }
 
@@ -312,16 +328,22 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
             RecordPurchase recordPurchase = new RecordPurchase();
             recordPurchase.setRecordId(recordId);
             recordPurchase.setOrderId(purchase.getOrderId());
-            recordPurchaseList.add(recordPurchase);//结算明细与订单关联数据添加到recordPurchaseList
+            //结算明细与订单关联数据添加到recordPurchaseList
+            recordPurchaseList.add(recordPurchase);
 
-            BigDecimal orderSettlemePrice = purchase.getOrderSettlemePrice();
-            if (null == orderSettlemePrice) {
-                orderSettlemePrice = new BigDecimal("0.00");
+            Integer orderStatus = purchase.getOrderStatus();
+            if (Ognl.isNotNull(orderStatus) && orderStatus.equals(Constant.OrderStatusConfig.RECEIVED)) {
+                //订单状态为 4已完成 的结算成本金额
+                BigDecimal orderSettlemePrice = purchase.getOrderSettlemePrice();
+                if (null == orderSettlemePrice) {
+                    orderSettlemePrice = new BigDecimal("0.00");
+                }
+                //统计purchaseList订单列表的成本金额
+                tmpOrderSettlemePrice = tmpOrderSettlemePrice.add(orderSettlemePrice);
             }
-            //统计purchaseList订单列表的订单金额
-            tmpOrderSettlemePrice = tmpOrderSettlemePrice.add(orderSettlemePrice);
 
-            BigDecimal orderPostage = purchase.getOrderPostage();//运费
+            //运费
+            BigDecimal orderPostage = purchase.getOrderPostage();
             if (null == orderPostage) {
                 orderPostage = new BigDecimal("0.00");
             }
@@ -329,7 +351,8 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
             tmpOrderPostage = tmpOrderPostage.add(orderPostage);
 
             purchase.setUpdatedAt(new Date());
-            purchaseUpdateList.add(purchase);//订单更新数据添加到purchaseUpdateList
+            //订单更新数据添加到purchaseUpdateList
+            purchaseUpdateList.add(purchase);
         }
         map.put("orderSettlemePrice", tmpOrderSettlemePrice);
         map.put("orderPostage", tmpOrderPostage);
@@ -702,9 +725,9 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
 		 * 2.分页
 		 *   a).使用PageTool工具类开启分页；
 		 * 3.根据条件，查询结算明细所对应的订单列表信息；
-		 * 4.根据结算明细id，查询该结算明细实体，根据结算状态获取待结算金额或结算金额；
-		 * 5.取得Purchase的分页信息；
-		 * 6.对象转换为PurchaseVo；
+		 * 4.结算明细列表页面总计金额；
+		 * 5.根据结算明细id，查询该结算明细实体，根据结算状态获取待结算金额或结算金额；
+		 * 6.取得AccountPurchaseVo的分页信息；
 		 * 7.返回结果对象output；
 		 */
 
@@ -716,11 +739,13 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
         PageTool.startPage(pageNum, pageSize);
 
         //3.根据条件，查询结算明细所对应的订单列表信息
-        List<Purchase> purchaseList = orderMoneyRecordDao.findPageOMRPurchase(recordId, orderId);
+        List<AccountPurchaseVo> purchaseList = orderMoneyRecordDao.findPageOMRPurchase(recordId, orderId);
 
-        //4.根据结算明细id，查询该结算明细实体，根据结算状态获取待结算金额或结算金额
+        //4.结算明细列表页面总计金额
+        BigDecimal tmpTotalOrderTotalPrice = orderMoneyRecordDao.countOrderTotalPrice(recordId);
+
+        //5.根据结算明细id，查询该结算明细实体，根据结算状态获取待结算金额或结算金额
         BigDecimal tmpTotalOrderRevenue = new BigDecimal("0.00");
-        BigDecimal tmpTotalPostage = new BigDecimal("0.00");
         OrderMoneyRecord orderMoneyRecord = orderMoneyRecordDao.findOne(recordId);
         if (null != orderMoneyRecord) {
             String state = orderMoneyRecord.getState();
@@ -729,27 +754,21 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
             } else if ("1".equals(state)) {
                 tmpTotalOrderRevenue = orderMoneyRecord.getSettledAmount();
             }
-            tmpTotalPostage = orderMoneyRecord.getPostageTotalAmount();
         }
 
         PageInfo pageInfo = null;
         if (null != purchaseList && !purchaseList.isEmpty()) {
-            //5.取得Purchase的分页信息
+            //6.取得Purchase的分页信息
             pageInfo = new PageInfo<>(purchaseList);
-
-            //6.对象转换为PurchaseVo
-            List<PurchaseVo> purchaseVoList = convertPurchaseVo(purchaseList);
-
-            pageInfo.setList(purchaseVoList);
         }
 
         output.setPageInfo(pageInfo);
         //订单结算总额
         output.setTotalOrderRevenue(NumberUtil.number2Thousand(tmpTotalOrderRevenue));
         //订单运费总额
-        output.setTotalPostage(NumberUtil.number2Thousand(tmpTotalPostage));
+        output.setTotalOrderTotalPrice(NumberUtil.number2Thousand(tmpTotalOrderTotalPrice));
 
-        //8.返回结果对象output
+        //7.返回结果对象output
         return output;
     }
 
@@ -783,31 +802,6 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
         return NumberUtil.number2Thousand(unsettled);
     }
 
-
-    /**
-     * 订单对象转换成PurchasesVo
-     *
-     * @param list
-     * @return
-     */
-    public List<PurchaseVo> convertPurchaseVo(List<Purchase> list) {
-        //新建要返回的List<PurchaseVo>
-        List<PurchaseVo> recordPurchaseVoList = new ArrayList<>();
-        for (Purchase purchase : list) {
-            PurchaseVo recordPurchaseVo = new PurchaseVo();
-            recordPurchaseVo.setOrderId(purchase.getOrderId());//订单编号
-            recordPurchaseVo.setOrderReceiverName(purchase.getOrderReceiverName());//收货人姓名
-            recordPurchaseVo.setOrderReceiverMobile(purchase.getOrderReceiverMobile());//收货人电话
-            recordPurchaseVo.setOrderPrice(NumberUtil.number2Thousand(purchase.getOrderPrice()));//订单金额
-            recordPurchaseVo.setOrderSettlemePrice(NumberUtil.number2Thousand(purchase.getOrderSettlemePrice()));//结算金额
-            recordPurchaseVo.setOrderPostage(NumberUtil.number2Thousand(purchase.getOrderPostage()));//运费金额
-            recordPurchaseVo.setOrderCreateTime(purchase.getOrderCreateTime() == null ? "" : StringUtil.fomateData(purchase.getOrderCreateTime(), "yyyy-MM-dd HH:mm:ss"));//订单创建时间
-            recordPurchaseVoList.add(recordPurchaseVo);
-        }
-        //返回转换之后的list
-        return recordPurchaseVoList;
-    }
-
     /**
      * 结算明细列表 导出excel
      *
@@ -818,79 +812,51 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
     @Override
     public void exportExcel(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-        XSSFWorkbook workbook = null;
-        try {
+        String pageNum = request.getParameter("pageNum");
+        String pageSize = request.getParameter("pageSize");
+        String startTime = request.getParameter("startTime");
+        String endTime = request.getParameter("endTime");
+        String state = request.getParameter("state");
 
-            String pageNum = request.getParameter("pageNum");
-            String pageSize = request.getParameter("pageSize");
-            String startTime = request.getParameter("startTime");
-            String endTime = request.getParameter("endTime");
-            String state = request.getParameter("state");
+        //验证分页参数合法性
+        String limits = checkPageNumber(pageNum, pageSize);
 
-            logger.debug("【startTime 】" + startTime);
-            logger.debug("【endTime】" + endTime);
-
-            logger.debug("【pageNum 】" + pageNum);
-            logger.debug("【pageSize】" + pageSize);
-            logger.debug("【state 】" + state);
-            //验证分页参数合法性
-            String limits = checkPageNumber(pageNum, pageSize);
-
-
-            if (StringUtils.isEmpty(startTime) || StringUtils.isEmpty(endTime) || StringUtils.isEmpty(state)) {
-                throw new Exception();
-            }
-
-            Date startDate = new SimpleDateFormat("yyyy-MM-dd").parse(startTime);
-            Date endDate = new SimpleDateFormat("yyyy-MM-dd").parse(endTime);
-            //验证：起始日期不能大于大于终止日期
-            if (!endDate.after(startDate)) {
-                throw new Exception();
-            }
-
-            //整理传参数据
-            int year = Integer.valueOf(startTime.split("-")[0]).intValue();
-            int month = Integer.valueOf(startTime.split("-")[1]).intValue();
-
-
-            int nextMonth = month == 12 ? 1 : month + 1;
-            int nextYear = month == 12 ? year + 1 : year;
-
-            startTime = new String(year + "-" + month + "-01");
-            endTime = new String(nextYear + "-" + nextMonth + "-01");
-            logger.debug("【startTime 】" + startTime);
-            logger.debug("【endTime】" + endTime);
-
-            //设置响应参数
-            response.reset();
-            response.setContentType("application/vnd.ms-excel;charset=utf-8");
-//			String filename = "供应商结算明细.xlsx";
-            String filename = "excel.xlsx";
-            filename = new String(filename.getBytes("Utf-8"), "iso-8859-1");
-            response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
-            response.setCharacterEncoding("UTF-8");
-            response.setHeader("Content-Type", "application/octet-stream");
-            ServletOutputStream out = response.getOutputStream();
-            //根据条件查询数据
-            List<OrderMoneyRecord> records = orderMoneyRecordDao.findRecords(startTime, endTime, state, limits);
-            List<Object[]> data = new ArrayList<>();
-            String[] titles = {"供应商名称", "结账时间", "待结算金额（¥）", "已结算金额（¥）", "结算时间", "结算状态", "供应商账户", "银行流水号"};
-            for (int i = 0; i < records.size(); i++) {//转换数据格式
-                Object[] o = OrderMoneyRecord.converData(records.get(i));
-                logger.debug("【数据 为】 ： " + Arrays.toString(o));
-                data.add(o);
-            }
-            //生成excel文件
-            logger.debug("【excel 输出中。。】 ： ");
-            workbook = ExcelExportHelper.exportExcel(data, titles);
-//          输出excel
-            workbook.write(out);
-            logger.debug("【excel 输出中完毕】 ： ");
-        } finally {
-            if (workbook != null) {
-                workbook.close();
-            }
+        if (StringUtils.isEmpty(startTime) || StringUtils.isEmpty(endTime) || StringUtils.isEmpty(state)) {
+            throw new Exception();
         }
+
+        Date startDate = new SimpleDateFormat("yyyy-MM-dd").parse(startTime);
+        Date endDate = new SimpleDateFormat("yyyy-MM-dd").parse(endTime);
+        //验证：起始日期不能大于大于终止日期
+        if (!endDate.after(startDate)) {
+            throw new Exception();
+        }
+
+        //整理传参数据
+        int year = Integer.valueOf(startTime.split("-")[0]).intValue();
+        int month = Integer.valueOf(startTime.split("-")[1]).intValue();
+
+        int nextMonth = month == 12 ? 1 : month + 1;
+        int nextYear = month == 12 ? year + 1 : year;
+
+        startTime = new String(year + "-" + month + "-01");
+        endTime = new String(nextYear + "-" + nextMonth + "-01");
+
+        //设置Excel文件名称
+        String filename = "结算明细"+ StringUtil.fomateData(new Date(), "yyyyMMddHHmmss") +".xlsx";
+
+        //根据条件查询数据
+        List<OrderMoneyRecord> records = orderMoneyRecordDao.findRecords(startTime, endTime, state, limits);
+        List<Object[]> data = new ArrayList<>();
+        String[] titles = {"供应商名称", "结账时间", "待结算金额（¥）", "已结算金额（¥）", "结算时间", "结算状态", "供应商账户", "银行流水号"};
+        for (int i = 0; i < records.size(); i++) {
+            //转换数据格式
+            Object[] o = OrderMoneyRecord.converData(records.get(i));
+            data.add(o);
+        }
+
+        //生成excel文件
+        POIExcelUtil.exportExcel(data, titles, filename, response);
     }
 
     /**
@@ -1005,6 +971,46 @@ public class OrderMoneyRecordServiceImpl implements OrderMoneyRecordService {
         int offset = (startPage - 1) * Integer.valueOf(pageSize).intValue();//偏移量
         int limit = pageRange * Integer.valueOf(pageSize).intValue();//总条数
         return offset + "," + limit;
+    }
+
+    /**
+     * 导出结算明细对应的订单列表
+     * @param recordId  结算明细id
+     * @param orderId   订单id
+     * @param pageNum   页码
+     * @param pageSize  每页条数
+     * @param response
+     * @throws Exception
+     */
+    @Override
+    public void exportRecordToPurchasesExcel(String recordId, String orderId, String pageNum, String pageSize, HttpServletResponse response) throws Exception {
+
+        //判断recordId不为空
+        if (Ognl.isEmpty(recordId)) {
+            return ;
+        }
+
+        //验证分页参数合法性
+        String limits = checkPageNumber(pageNum, pageSize);
+
+        //设置Excel文件名称
+        String filename = "账单明细"+ StringUtil.fomateData(new Date(), "yyyyMMddHHmmss") +".xlsx";
+
+        //根据条件查询数据
+        List<AccountPurchaseVo> recordToPurchase = orderMoneyRecordDao.findPurchasesByRecordId(recordId, orderId, limits);
+        List<Object[]> data = new ArrayList<>();
+        String[] titles = {"订单编号", "订单状态", "商品金额小计（¥）", "运费金额（¥）", "折扣优惠（¥）", "总计金额（¥）", "实付金额（¥）",
+                           "透云进货价小计（¥）", "结算金额（¥）", "付款时间", "支付类型", "付款流水号"};
+        if (null != recordToPurchase && !recordToPurchase.isEmpty()) {
+            //转换数据格式
+            for (int i = 0; i < recordToPurchase.size(); i++) {
+                Object[] o = AccountPurchaseVo.converData(recordToPurchase.get(i));
+                data.add(o);
+            }
+        }
+
+        //生成excel文件
+        POIExcelUtil.exportExcel(data, titles, filename, response);
     }
 
 }

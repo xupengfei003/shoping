@@ -272,7 +272,7 @@ public class AzureBlobService {
                         File srcFileJPG = new File(realzippath+"/"+ fileStr.trim());
                         long srcFileSizeJPG = srcFileJPG.length();
                         File file = null;
-                        if(srcFileSizeJPG > 1024 * 1024){
+                        if(srcFileSizeJPG > 500 * 1024){
                             //图片尺寸不变，压缩图片文件大小outputQuality实现,参数1为最高质量
                             Thumbnails.of(realzippath+"/"+ fileStr.trim()).scale(1f).outputQuality(0.05f).toFile(realzippath+"/img/"+ fileStr.trim());
                             file = new File(realzippath+"/img/"+ fileStr.trim());

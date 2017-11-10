@@ -64,7 +64,6 @@ public class PurchaseItem {
 
     /**
      * 合并支付ID
-     *
      */
     private String payId;
 

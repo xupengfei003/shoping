@@ -92,12 +92,12 @@ public interface CommAppDao {
      */
     List<CommodityOutput> listCommodities(@Param("supplierId") Long supplierId, @Param("commName") String commName);
     /**
-     * 根据商品名称模糊查询商品，返回商品列表
+     * 根据名称模糊查询商品，返回商品列表
      *
-     * @param goodsName 商品名称
+     * @param name 商品名称
      * @return
      */
-    List<Map> findGoodsByName(@Param("goodsName") String goodsName);
+    List<Map> findGoodsByName(@Param("name") String name);
 
     /**
      * 查询商品
@@ -106,5 +106,53 @@ public interface CommAppDao {
      */
     CommodityOutput findDetail(@Param("id")long id);
 
+    /**
+     * 根据商品名称，品牌名称，供应商名称模糊搜索商品
+     * @param name
+     * @return
+     */
+    List<CommAppOutput>  findComms(@Param("name") String name);
+
+    /**
+     * 根据科属的等级参数获取所有的1或2或3级科属或供应商名下的1或2或3级科属
+     *
+     * @param supplierId 供应商ID
+     * @param level 分类等级
+     * @return
+     */
+    List<CategoryOutput> findSupplierCategories( @Param("supplierId") Long supplierId, @Param("level") Integer level );
+    /**
+     * 根据商品名称模糊查询商品，返回商品列表
+     * @param name 商品名称
+     * @return
+     */
+    List<Map> findGoodsByGoodsName(@Param("name") String name);
+
+    /**
+     * 根据供应商ID查询其可用的所有商品分类信息或所有可用的商品分类信息
+     * @param supplierId
+     * @return
+     */
+    List<CategoryOutput> findBySupplierId(@Param("supplierId") Long supplierId);
+
+    /**
+     * 根据一类分类ID查询
+     * @param id 一类分类ID
+     * @return
+     */
+    List<CategoryOutput> findOneLevel (@Param("id") Long id);
+    /**
+     * 根据品牌名称模糊查询品牌，返回品牌名称列表
+     * @param name 品牌名称
+     * @return
+     */
+    List<Map> findGoodsByBrandName(@Param("name") String name);
+
+    /**
+     * 根据供应商名称模糊查询供应商，返回供应商名称列表
+     * @param name 供应商名称
+     * @return
+     */
+    List<Map> findGoodsBySupplierName(@Param("name") String name);
 
 }

@@ -1,12 +1,11 @@
 package so.sao.shop.supplier.dao;
 
-import io.swagger.models.auth.In;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import so.sao.shop.supplier.domain.Qualification;
 import so.sao.shop.supplier.pojo.input.QualificationInput;
 import so.sao.shop.supplier.pojo.output.QualificationListOut;
 import so.sao.shop.supplier.pojo.output.QualificationOut;
-import so.sao.shop.supplier.domain.Qualification;
 
 import java.util.Date;
 import java.util.List;
@@ -25,7 +24,7 @@ public interface QualificationDao {
      * @param reason
      * @param updateDate
      */
-    void updateQualificationStatus(@Param("accountId") Long accountId, @Param("qualificationStatus")Integer qualificationStatus,@Param("reason") String reason, @Param("updateDate")Date updateDate );
+    void updateQualificationStatus(@Param("accountId") Long accountId, @Param("qualificationStatus")Integer qualificationStatus,@Param("reason") String reason,@Param("createDate")Date createDate, @Param("updateDate")Date updateDate );
 
     /**
      * 查询登录供应商的资质状态

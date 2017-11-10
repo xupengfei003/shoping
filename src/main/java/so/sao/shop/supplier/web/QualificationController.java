@@ -1,18 +1,17 @@
 package so.sao.shop.supplier.web;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.domain.User;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.QualificationInput;
 import so.sao.shop.supplier.pojo.input.QualificationSaveInput;
 import so.sao.shop.supplier.service.QualificationService;
-import so.sao.shop.supplier.util.Ognl;
-import org.springframework.web.multipart.MultipartFile;
 import so.sao.shop.supplier.util.CheckUtil;
+
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -20,7 +19,6 @@ import javax.servlet.http.HttpServletRequest;
  */
 @RestController
 @RequestMapping("/account/qualification")
-@Api(description = "供应商资质相关接口")
 public class QualificationController {
 
     @Autowired
@@ -33,7 +31,6 @@ public class QualificationController {
      * @param reason
      * @return Result
      */
-    @ApiOperation(value = "资质审核", notes = "更新资质状态,时间,拒绝原因【负责人：许鹏飞】")
     @PutMapping("/updateQualificationStatus")
     public Result updateQualificationStatus(@RequestParam(value = "accountId" ) Long accountId,
                                             @RequestParam(value = "qualificationStatus") Integer qualificationStatus,
@@ -46,7 +43,6 @@ public class QualificationController {
      * 查询登录供应商的资质状态
      * @return Result
      */
-    @ApiOperation(value = "查询登录供应商的资质状态", notes = "查询登录供应商的资质状态【负责人：许鹏飞】")
     @GetMapping("getAccountQualificationStatus")
     public Result getAccountQualificationStatus( HttpServletRequest request){
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
@@ -64,7 +60,6 @@ public class QualificationController {
      * @param accountId
      * @return
      */
-    @ApiOperation(value = "根据供应商id查询资质详情",notes = "根据供应商id查询资质详情【负责人：张腾飞】")
     @GetMapping("/getByAccountId")
     public Result getQualification(HttpServletRequest request, @RequestParam Long accountId){
         return qualificationService.findByAccountId(accountId);
@@ -76,9 +71,8 @@ public class QualificationController {
      * @param qualificationInput 查询条件
      * @return 返回查询结果
      */
-    @ApiOperation(value = "查询资质列表",notes = "查询资质列表【负责人：张腾飞】")
     @GetMapping("/search")
-    public Result search(HttpServletRequest request,QualificationInput qualificationInput){
+    public Result search(HttpServletRequest request,@Validated QualificationInput qualificationInput){
         return qualificationService.searchQualifications(qualificationInput);
     }
 
@@ -88,7 +82,6 @@ public class QualificationController {
      * @return
      */
     @PostMapping(value = "/upload")
-    @ApiOperation(value = "供应商资质文件上传", notes = "供应商资质文件上传【负责人：刘刚】")
     public Result uploadQualificationFile(@RequestPart("file") MultipartFile multipartFile) {
 
         return qualificationService.uploadQualificationFile(multipartFile);
@@ -100,7 +93,6 @@ public class QualificationController {
      * @return
      */
     @PostMapping(value = "/save")
-    @ApiOperation(value = "添加供应商资质", notes = "添加供应商资质【负责人：刘刚】")
     public Result saveQualification(HttpServletRequest request, @RequestBody QualificationSaveInput qualificationInput) throws Exception{
         //供应商ID校验
         qualificationInput.setAccountId(CheckUtil.supplierIdCheck(request,qualificationInput.getAccountId()));
@@ -113,7 +105,6 @@ public class QualificationController {
      * @return
      */
     @PutMapping(value = "/delete/{accountID}")
-    @ApiOperation(value = "供应商资质删除", notes = "供应商资质删除【负责人：刘刚】")
     public Result deleteQualification(HttpServletRequest request,@PathVariable Long accountID) throws Exception{
         //供应商ID校验
         accountID = CheckUtil.supplierIdCheck(request,accountID);
@@ -125,7 +116,6 @@ public class QualificationController {
      * @param accountId
      * @return result
      */
-    @ApiOperation(value = "资质审核", notes = "更新资质状态消息已读状态【负责人：许鹏飞】")
     @GetMapping("/updateQualificationMessageRead")
     public Result updateQualificationMessageRead(@RequestParam(value = "accountId" ) Long accountId ){
         Result result = qualificationService.updateQualificationMessageRead( accountId );

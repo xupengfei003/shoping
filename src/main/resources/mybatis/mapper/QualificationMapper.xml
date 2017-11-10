@@ -8,6 +8,9 @@
         SET
         qualification_status = #{qualificationStatus},
         reason = #{ reason },
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotNull(createDate)">
+          create_time = #{createDate},
+        </if>
         update_time = #{updateDate}
         WHERE qua.delete = 0 AND account_id = #{accountId};
     </update>
@@ -85,6 +88,12 @@
             AND STR_TO_DATE(DATE_FORMAT(q.update_time,'%Y-%c-%d'),'%Y-%m-%d') <![CDATA[<=]]> STR_TO_DATE(#{endUpdateTime},'%Y-%m-%d')
         </if>
         ORDER BY q.qualification_status,q.create_time
+        <if test="sort == 0">
+            ASC
+        </if>
+        <if test="sort == 1">
+            DESC
+        </if>
     </select>
 
    <!--供应商资质入库-->

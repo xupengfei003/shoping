@@ -26,17 +26,32 @@ public class FreightRules {
     private Integer rulesType;
 
     /**
-     * 省
+     * 省汉字
+     */
+    private String addressProvinceChinese;
+
+    /**
+     * 市汉字
+     */
+    private String addressCityChinese;
+
+    /**
+     * 区汉字
+     */
+    private String addressDistrictChinese;
+
+    /**
+     * 省code
      */
     private String addressProvince;
 
     /**
-     * 市
+     * 市code
      */
     private String addressCity;
 
     /**
-     * 区
+     * 区code
      */
     private String addressDistrict;
 
@@ -219,5 +234,29 @@ public class FreightRules {
 
     public void setDistributionScopeId(Integer distributionScopeId) {
         this.distributionScopeId = distributionScopeId;
+    }
+
+    public String getAddressProvinceChinese() {
+        return addressProvinceChinese;
+    }
+
+    public void setAddressProvinceChinese(String addressProvinceChinese) {
+        this.addressProvinceChinese = addressProvinceChinese;
+    }
+
+    public String getAddressCityChinese() {
+        return addressCityChinese;
+    }
+
+    public void setAddressCityChinese(String addressCityChinese) {
+        this.addressCityChinese = addressCityChinese;
+    }
+
+    public String getAddressDistrictChinese() {
+        return addressDistrictChinese;
+    }
+
+    public void setAddressDistrictChinese(String addressDistrictChinese) {
+        this.addressDistrictChinese = addressDistrictChinese;
     }
 }

@@ -1,8 +1,6 @@
 package so.sao.shop.supplier.web;
 
 import com.github.pagehelper.PageInfo;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,7 +27,6 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/order")
-@Api(description = "管理员订单类-所有接口")
 public class AdminPurchaseController {
     @Resource
     private PurchaseService purchaseService;
@@ -43,7 +40,6 @@ public class AdminPurchaseController {
      * @return
      * @throws Exception
      */
-    @ApiOperation(value = "管理员获取订单列表", notes = "管理员获取所有订单【负责人：白治华】")
     @GetMapping("/adminSearch")
     public Result adminSearch(Integer pageNum, Integer rows, PurchaseSelectInput purchaseSelectInput) throws Exception {
         purchaseSelectInput.setStoreId(null);
@@ -85,7 +81,6 @@ public class AdminPurchaseController {
      * @throws Exception
      */
     @GetMapping(value = "/adminExport")
-    @ApiOperation(value = "管理员POI批量导出订单列表", notes = "管理员POI批量导出订单列表【负责人：白治华】")
     public Result adminExport(HttpServletRequest request, HttpServletResponse response, String pageNum, Integer pageSize,
                               PurchaseSelectInput purchaseSelectInput) throws Exception {
         Long accountId = null;
@@ -115,7 +110,6 @@ public class AdminPurchaseController {
      * @throws Exception
      */
     @GetMapping(value = "/adminPurchase/{orderId}")
-    @ApiOperation(value = "管理员根据订单ID查询订单详情", notes = "管理员查询订单详情【负责人：白治华】")
     public Result adminFindOrderItemById(@PathVariable String orderId) throws Exception {
         PurchaseInfoVo purchaseInfoVo = purchaseService.findById(orderId);
         return Result.success(Constant.MessageConfig.MSG_SUCCESS, purchaseInfoVo);

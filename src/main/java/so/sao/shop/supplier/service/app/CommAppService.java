@@ -105,10 +105,11 @@ public interface CommAppService {
  /**
   * 根据商品名称模糊查询商品，返回商品列表
   *
-  * @param goodsName 商品名称
+  * @param name 搜索名称
+  * @param nameType 名称类型(0:供应商名称，1：商品名称，2:品牌名称)
   * @return
   */
- Result getGoods(String goodsName);
+ Result getGoods(String name, int nameType);
 
  /**
   * 根据供应商商品ID获取商品详细信息
@@ -116,4 +117,34 @@ public interface CommAppService {
   * @return
   */
  Result getCommodity(Long id);
+
+ /**
+  * 根据商品名称，品牌名称，供应商名称模糊搜索商品
+  * @param name
+  * @param pageNum
+  * @param pageSize
+  * @return
+  */
+ Result getComms(String name, Integer pageNum, Integer pageSize);
+
+ /**
+  * 根据分类等级查询全部商品科属信息或供应商商品科属信息
+  *
+  * @param supplierId 供应商ID
+  * @param level 商品科属分类等级
+  * @return
+  * @throws Exception
+  */
+ Result getCategories(Long supplierId,Integer level) throws Exception;
+
+ /**
+  * 根据一级分类ID查询对应二级及三级分类信息
+  *
+  * @param supplierId 供应商ID
+  * @param id  一级分类ID
+  * @return
+  * @throws Exception
+  */
+ Result getTwoAndThreeCategories(Long supplierId, Long id) throws Exception;
+
 }

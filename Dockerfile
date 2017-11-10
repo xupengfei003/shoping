@@ -1,4 +1,4 @@
-FROM frolvlad/alpine-oraclejdk8:slim
+FROM anapsix/alpine-java:8_server-jre_unlimited
 VOLUME /tmp
 VOLUME /data
 ADD build/libs/shop-supplier-*.jar app.jar

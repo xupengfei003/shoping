@@ -1,7 +1,5 @@
 package so.sao.shop.supplier.web;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import so.sao.shop.supplier.config.Constant;
@@ -19,15 +17,13 @@ import so.sao.shop.supplier.util.Ognl;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
+import java.util.Date;
 import java.util.Map;
 
 /**
  * Created by niewenchao on 2017/7/19.
  */
 @RestController
-@Api(description = "结算明细")
 @RequestMapping(value = "/billingDetails")
 public class OrderMoneyRecordController {
 
@@ -40,8 +36,7 @@ public class OrderMoneyRecordController {
      * 1.校验参数合法性
      *      1.1 如果入参对象为null,则返回失败信息
      *      1.2 判断起始时间、结束时间、结算状态不为空
-     *      1.3 判断时间格式是否正确
-     *      1.4 判断起始时间是否小于结束时间
+     *      1.3 判断起始时间是否小于结束时间
      * 2.查询结算明细列表
      *      2.1 未查找到结果
      *      2.2 查询成功，返回结果
@@ -52,9 +47,8 @@ public class OrderMoneyRecordController {
      * @return
      * @throws Exception
      */
-    @ApiOperation(value = "查询结算明细列表", notes = "查询结算明细列表【负责人:聂文超】")
     @GetMapping(value = "/search")
-    public Result search(Integer pageNum, Integer pageSize, OrderMoneyRecordInput input) throws Exception {
+    public Result search(Integer pageNum, Integer pageSize, @Valid OrderMoneyRecordInput input) throws Exception {
 
         //1.校验参数合法性
         //1.1 如果入参对象为null,则返回失败信息
@@ -62,22 +56,18 @@ public class OrderMoneyRecordController {
             return Result.fail(Constant.MessageConfig.MSG_FAILURE);
         }
 
-        String startTime = input.getStartTime();
-        String endTime = input.getEndTime();
+        Date startTime = input.getStartTime();
+        Date endTime = input.getEndTime();
 
         //1.2 判断起始时间、结束时间、结算状态不为空
         if (Ognl.isEmpty(startTime) || Ognl.isEmpty(endTime) || Ognl.isEmpty(input.getState())) {
             return Result.fail(Constant.MessageConfig.MSG_NOT_EMPTY);
         }
 
-        //1.3 判断时间格式是否正确
-        if (!DateUtil.isDate(startTime) || !DateUtil.isDate(endTime)) {
-            return Result.fail(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
-        }
-
-        //1.4 判断起始时间是否小于结束时间
-        if (DataCompare.compareDate(startTime, endTime)) {
-            return Result.fail(Constant.MessageConfig.DateNOTLate);
+        //1.3 判断起始时间是否小于结束时间
+        String timeMsg = DataCompare.createAtCheck(startTime, endTime);
+        if (Ognl.isNotEmpty(timeMsg)) {
+            return Result.fail(timeMsg);
         }
 
         //2.查询结算明细列表
@@ -106,7 +96,6 @@ public class OrderMoneyRecordController {
      * @return
      * @throws Exception
      */
-    @ApiOperation(value = "更新结算状态", notes = "更新结算状态【负责人:聂文超】")
     @PostMapping(value = "/orderMoneyRecord/updateState")
     public Result updateState(@RequestBody Map params) throws Exception {
         String recordId = (String) params.get("recordId");
@@ -140,7 +129,6 @@ public class OrderMoneyRecordController {
      * @param put
      * @return
      */
-    @ApiOperation(value = "根据账户ID查询已结算/待结算明细", notes = "根据账户ID查询已结算/待结算明细并分页【负责人：方洲】")
     @GetMapping(value = "/orderMoneyRecords")
     public Result searchOrderMoneyRecords(Integer pageNum, Integer pageSize, HttpServletRequest request, @Valid OrderMoneyRecordRankInput put) throws Exception {
         //获取用户
@@ -149,17 +137,11 @@ public class OrderMoneyRecordController {
         if (Ognl.isNull(user)) {
             return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
-        // 若传入起始时间，校验其是否是时间格式
-        if (Ognl.isNotEmpty(put.getStartTime()) && !DateUtil.isDate(put.getStartTime())) {
-            return Result.fail(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
-        }
-        // 若传入结束时间，校验其是否是时间格式
-        if (Ognl.isNotEmpty(put.getEndTime()) && !DateUtil.isDate(put.getEndTime())) {
-            return Result.fail(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
-        }
+
         // 若传入起始和结束时间，检查起始时间是否大于结束时间
-        if (DataCompare.compareDate(put.getStartTime(), put.getEndTime())) {
-            return Result.fail(Constant.MessageConfig.DateNOTLate);
+        String timeMsg = DataCompare.createAtCheck(put.getStartTime(), put.getEndTime());
+        if (Ognl.isNotEmpty(timeMsg)) {
+            return Result.fail(timeMsg);
         }
         // 查询数据
         Map<String, Object> map = orderMoneyRecordService.searchRecords(user.getAccountId(), put, pageNum, pageSize);
@@ -180,7 +162,6 @@ public class OrderMoneyRecordController {
      * @param orderId  订单id
      * @return
      */
-    @ApiOperation(value = "根据结算明细id查询该明细对应的订单列表", notes = "根据结算明细id查询该明细对应的订单列表，并根据pageNum和pageSize进行分页【负责人:聂文超】")
     @GetMapping(value = "/orderMoneyRecord/searchPurchasesByRecordId")
     public Result searchOMRPurchaseDetails(String recordId, Integer pageNum, Integer pageSize, String orderId) throws Exception {
 
@@ -204,7 +185,6 @@ public class OrderMoneyRecordController {
      * @param endTime   本月结束时间
      * @return settled_amount 已结算金额
      */
-    @ApiOperation(value = "根据开始时间和结束时间查询已结算金额", notes = "根据开始时间和结束时间,计算其已结算金额【负责人:巨江坤】")
     @GetMapping(value = "/orderMoneyRecord/settlement")
     public Result settlementMoney(String startTime, String endTime) throws Exception {
         //判断null和空值
@@ -235,7 +215,6 @@ public class OrderMoneyRecordController {
      * @param endTime   本月结束时间
      * @return totalMoney 待结算金额
      */
-    @ApiOperation(value = "根据开始时间和结束时间查询未结算金额", notes = "根据开始时间和结束时间,计算其未结算金额 【负责人:巨江坤】")
     @GetMapping(value = "/orderMoneyRecord/unsettled")
     public Result totalMoney(String startTime, String endTime) throws Exception {
         //判断null和空值
@@ -261,12 +240,11 @@ public class OrderMoneyRecordController {
 
 
     /**
-     * 结算明细列表 导出excel
+     * 结算账单列表 导出excel
      * @param request
      * @param response
      * @throws Exception
      */
-    @ApiOperation(value="导出结算明细excel", notes = "根据查询条件导出excel【负责人:王翼云】")
     @GetMapping("/excel")
     public void exportExcel(HttpServletRequest request, HttpServletResponse response) throws Exception{
         orderMoneyRecordService.exportExcel(request,response);
@@ -277,7 +255,6 @@ public class OrderMoneyRecordController {
      * @param timeType 统计时间类型--时间类型（1.本周，2.当月，3.近三个月）
      * @return
      */
-    @ApiOperation(value="供应商订单金额统计", notes = "供应商订单金额统计【负责人:郑振海】")
     @GetMapping("/countOrderMoneyRecords")
     public Result countOrderMoneyRecords(HttpServletRequest request,@RequestParam Integer timeType){
         //获取用户
@@ -288,6 +265,20 @@ public class OrderMoneyRecordController {
         }
         Map<String,Object> resultMap = orderMoneyRecordService.countOrderMoneyRecords(timeType,user.getAccountId());
         return Result.success(Constant.MessageConfig.MSG_SUCCESS,resultMap);
+    }
+
+    /**
+     * 账单明细数据列表 导出Excel
+     * @param recordId 结算明细id
+     * @param orderId 订单id
+     * @param pageNum  页码
+     * @param pageSize 每页条数
+     * @param response
+     * @throws Exception
+     */
+    @GetMapping("/orderMoneyRecord/recordToPurchasesExcel")
+    public void exportRecordToPurchasesExcel(String recordId, String orderId, String pageNum, String pageSize, HttpServletResponse response) throws Exception {
+        orderMoneyRecordService.exportRecordToPurchasesExcel(recordId, orderId, pageNum, pageSize, response);
     }
 
 }

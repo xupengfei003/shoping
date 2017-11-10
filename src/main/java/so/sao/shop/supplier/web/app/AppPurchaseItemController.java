@@ -1,7 +1,5 @@
 package so.sao.shop.supplier.web.app;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,12 +16,10 @@ import javax.annotation.Resource;
  */
 @RestController
 @RequestMapping("/order")
-@Api(description = "App订单详情类-所有接口")
 public class AppPurchaseItemController {
     @Resource
     private AppPurchaseItemService appPurchaseItemService;
     @GetMapping(value = "/appOrderItem/{orderId}")
-    @ApiOperation(value = "门店端获取订单列表", notes = "负责人【白治华】")
     public Result findPurchaseItemByOrderId(@PathVariable("orderId") String orderId) throws Exception{
         AppPurchaseItemOutput appPurchaseItemOutput = appPurchaseItemService.findOrderItemList(orderId);
         if(null != appPurchaseItemOutput) {

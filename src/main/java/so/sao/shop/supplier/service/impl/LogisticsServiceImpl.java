@@ -9,8 +9,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-import org.codehaus.jackson.JsonEncoding;
-import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +27,6 @@ import so.sao.shop.supplier.util.MD5Util;
 
 import javax.annotation.Resource;
 import java.io.IOException;
-import java.io.ObjectStreamClass;
 import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -47,8 +44,10 @@ public class LogisticsServiceImpl implements LogisticsService {
     private PurchaseDao purchaseDao;
     @Resource
     private NotificationDao notificationDao;
+
     /**
      * 根据物流单好查询物流信息
+     *
      * @param num 物流单号
      * @return
      */
@@ -58,7 +57,7 @@ public class LogisticsServiceImpl implements LogisticsService {
         try {
             //查询快递100信息
             String data = kuaidi100(num);
-            if(data == null){
+            if (data == null) {
                 result.setCode(Constant.CodeConfig.CODE_SYSTEM_EXCEPTION);
                 result.setMessage(Constant.MessageConfig.MSG_SYSTEM_EXCEPTION);
                 return result;
@@ -69,15 +68,15 @@ public class LogisticsServiceImpl implements LogisticsService {
             //转换json字符为对象
             ObjectMapper objectMapper = new ObjectMapper();
             //Object o = objectMapper.readValue(data,Object.class);
-            Map<String,Object> map = objectMapper.readValue(data,Map.class);
+            Map<String, Object> map = objectMapper.readValue(data, Map.class);
             String comStr = map.get("com").toString();
             String companyName = logisticsDao.findCompanyNameByCom(comStr);
-            if (null != companyName){
-                map.put("com",companyName);
+            if (null != companyName) {
+                map.put("com", companyName);
             }
             result.setData(map);
         } catch (Exception e) {
-            logger.error(e.getMessage(),e);
+            logger.error(e.getMessage(), e);
             result.setCode(Constant.CodeConfig.CODE_FAILURE);
             result.setMessage(Constant.MessageConfig.MSG_NO_DATA);
             return result;
@@ -87,8 +86,9 @@ public class LogisticsServiceImpl implements LogisticsService {
 
     /**
      * 发送http请求
-     * @param url 请求地址
-     * @param map 参数
+     *
+     * @param url      请求地址
+     * @param map      参数
      * @param encoding 编码格式
      * @return
      * @throws Exception
@@ -132,7 +132,7 @@ public class LogisticsServiceImpl implements LogisticsService {
             if (entity != null && response.getStatusLine().getStatusCode() == 200) {
                 //按指定编码转换结果实体为String类型
                 body = EntityUtils.toString(entity, encoding);
-            }else{
+            } else {
                 throw new Exception();
             }
 
@@ -140,7 +140,7 @@ public class LogisticsServiceImpl implements LogisticsService {
             EntityUtils.consume(entity);
             //释放链接
             response.close();
-        }catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
             throw e;
         } finally {
@@ -154,6 +154,7 @@ public class LogisticsServiceImpl implements LogisticsService {
 
     /**
      * 向快递100发送请求
+     *
      * @param num 物流单号
      * @return
      * @throws Exception
@@ -161,34 +162,34 @@ public class LogisticsServiceImpl implements LogisticsService {
     private String kuaidi100(String num) throws Exception {
 
         String resp = null;
-        String customer ="835162313549B821995B976FE413644C";
+        String customer = "835162313549B821995B976FE413644C";
         String key = "rzBnXFmG1070";
         try {
             //获取公司代码
             HashMap params = new HashMap();
-            params.put("key",key);
-            params.put("num",num);
-            String com = postRequest("http://www.kuaidi100.com/autonumber/auto",params,"utf-8");
-            com = com.substring(1,com.length()-1);
-            if(com == null || com.length() <= 0){
-               return null;
+            params.put("key", key);
+            params.put("num", num);
+            String com = postRequest("http://www.kuaidi100.com/autonumber/auto", params, "utf-8");
+            com = com.substring(1, com.length() - 1);
+            if (com == null || com.length() <= 0) {
+                return null;
             }
-            logger.debug("【快递100返回的公司代码json字符串】 ："+com);
+            logger.debug("【快递100返回的公司代码json字符串】 ：" + com);
             ObjectMapper objectMapper = new ObjectMapper();
-            Map<String,Object> maps = objectMapper.readValue(com,HashMap.class);
+            Map<String, Object> maps = objectMapper.readValue(com, HashMap.class);
 
             //获取快递信息
-            String param = "{\"com\":\""+maps.get("comCode")+"\",\"num\":\""+num+"\"}";
-            String sign = MD5Util.getMD5(param+key+customer);
-            sign = encode(param+key+customer);
+            String param = "{\"com\":\"" + maps.get("comCode") + "\",\"num\":\"" + num + "\"}";
+            String sign = MD5Util.getMD5(param + key + customer);
+            sign = encode(param + key + customer);
             params = new HashMap();
-            params.put("param",param);
-            params.put("sign",sign);
-            params.put("customer",customer);
-            resp = postRequest("http://poll.kuaidi100.com/poll/query.do",params,"utf-8");
-            logger.debug("【快递100返回的物流信息json字符串】 ："+resp);
+            params.put("param", param);
+            params.put("sign", sign);
+            params.put("customer", customer);
+            resp = postRequest("http://poll.kuaidi100.com/poll/query.do", params, "utf-8");
+            logger.debug("【快递100返回的物流信息json字符串】 ：" + resp);
         } catch (Exception e) {
-            logger.debug("系统异常",e);
+            logger.debug("系统异常", e);
             throw e;
         }
         return resp;
@@ -196,13 +197,14 @@ public class LogisticsServiceImpl implements LogisticsService {
 
     /**
      * md5加密
+     *
      * @param pwd 被加密字符串
      * @return
      */
     private String encode(String pwd) {
         //用于加密的字符
-        char md5String[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-                'A', 'B', 'C', 'D', 'E', 'F' };
+        char md5String[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+                'A', 'B', 'C', 'D', 'E', 'F'};
         try {
             //使用平台的默认字符集将此 String 编码为 byte序列，并将结果存储到一个新的 byte数组中
             byte[] btInput = pwd.getBytes();
@@ -241,23 +243,23 @@ public class LogisticsServiceImpl implements LogisticsService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Map<String,Object> insertReceivedOrder(String orderId) throws Exception {
-        Map<String,Object> resultMap = new HashMap<>();
+    public Map<String, Object> insertReceivedOrder(String orderId) throws Exception {
+        Map<String, Object> resultMap = new HashMap<>();
         Integer orderStatus = purchaseDao.getOrderStatus(orderId);
-        Map<String,Object> map = new HashMap<>();
-        if(null != orderStatus && orderStatus == Constant.OrderStatusConfig.ISSUE_SHIP){
-            map.put("orderId",orderId);
-            map.put("createTime",new Date());
-            map.put("orderStatus",Constant.OrderStatusConfig.CONFIRM_RECEIVED);
+        Map<String, Object> map = new HashMap<>();
+        if (null != orderStatus && orderStatus == Constant.OrderStatusConfig.ISSUE_SHIP) {
+            map.put("orderId", orderId);
+            map.put("createTime", new Date());
+            map.put("orderStatus", Constant.OrderStatusConfig.CONFIRM_RECEIVED);
             logisticsDao.updateOrderStatus(map);
             Integer count = logisticsDao.insertReceivedOrder(map);
-            if(count != 0){
-                resultMap.put("flag","success");
+            if (count != 0) {
+                resultMap.put("flag", "success");
             }
             return resultMap;
         } else {
-            resultMap.put("flag","fail");
-            resultMap.put("msg","订单状态不合法，不能收货");
+            resultMap.put("flag", "fail");
+            resultMap.put("msg", "订单状态不合法，不能收货");
             return resultMap;
         }
     }
@@ -268,7 +270,7 @@ public class LogisticsServiceImpl implements LogisticsService {
      * @return List<String> 订单编号集合
      */
     @Override
-    public List<String> findOrderIdByTime(){
+    public List<String> findOrderIdByTime() {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:ss:mm");
         String nowTime = simpleDateFormat.format(new Date());
         List<String> orderIds = logisticsDao.findOrderIdByTime(nowTime);
@@ -284,14 +286,14 @@ public class LogisticsServiceImpl implements LogisticsService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int receiveOrder(List<String> orderIds) {
-        Map<String,Object> map = new HashMap<>();
-        map.put("orderIds",orderIds);
-        map.put("date",new Date());
-        map.put("status",1);
+        Map<String, Object> map = new HashMap<>();
+        map.put("orderIds", orderIds);
+        map.put("date", new Date());
+        map.put("status", 1);
         logisticsDao.updateQrcodesStatus(map);//更改二维码状态
         int num = logisticsDao.receiveOrder(map);//确认收货
         // 推送收货消息
-        for(String orderId : orderIds){
+        for (String orderId : orderIds) {
             pushNotification(orderId, Constant.OrderStatusConfig.RECEIVED);
         }
         return num;
@@ -314,7 +316,7 @@ public class LogisticsServiceImpl implements LogisticsService {
      * @return PurchaseInfoVo 订单信息列表
      */
     @Override
-    public List<PurchaseInfoVo>  findOrderInfoByOrderStatus(Integer orderStatus) {
+    public List<PurchaseInfoVo> findOrderInfoByOrderStatus(Integer orderStatus) {
         return logisticsDao.findOrderInfoByOrderStatus(orderStatus);
     }
 
@@ -338,21 +340,21 @@ public class LogisticsServiceImpl implements LogisticsService {
         notification.setNotifiStatus(0);    //消息状态:0未读,1已读
         notification.setOrderId(orderId);
         String notifiDetail = "";
-        if (Objects.equals(Constant.OrderStatusConfig.PAYMENT,status)) {
+        if (Objects.equals(Constant.OrderStatusConfig.PAYMENT, status)) {
             notifiDetail = Constant.NotifiConfig.PAYMENT_NOTIFI;
-        } else if (Objects.equals(Constant.OrderStatusConfig.PENDING_SHIP,status)) {
+        } else if (Objects.equals(Constant.OrderStatusConfig.PENDING_SHIP, status)) {
             notifiDetail = Constant.NotifiConfig.PENDING_SHIP_NOTIFI;
-        } else if (Objects.equals(Constant.OrderStatusConfig.ISSUE_SHIP,status)) {
+        } else if (Objects.equals(Constant.OrderStatusConfig.ISSUE_SHIP, status)) {
             notifiDetail = Constant.NotifiConfig.ISSUE_SHIP_NOTIFI;
-        } else if (Objects.equals(Constant.OrderStatusConfig.RECEIVED,status)) {
+        } else if (Objects.equals(Constant.OrderStatusConfig.RECEIVED, status)) {
             notifiDetail = Constant.NotifiConfig.RECEIVED_NOTIFI;
-        } else if (Objects.equals(Constant.OrderStatusConfig.REJECT,status)) {
+        } else if (Objects.equals(Constant.OrderStatusConfig.REJECT, status)) {
             notifiDetail = Constant.NotifiConfig.REJECT_NOTIFI;
-        } else if (Objects.equals(Constant.OrderStatusConfig.REFUNDED,status)) {
+        } else if (Objects.equals(Constant.OrderStatusConfig.REFUNDED, status)) {
             notifiDetail = Constant.NotifiConfig.REFUNDED_NOTIFI;
-        } else if (Objects.equals(Constant.OrderStatusConfig.CANCEL_ORDER,status)) {
+        } else if (Objects.equals(Constant.OrderStatusConfig.CANCEL_ORDER, status)) {
             notifiDetail = Constant.NotifiConfig.CANCEL_ORDER;
-        } else if (Objects.equals(Constant.OrderStatusConfig.PAYMENT_CANCEL_ORDER,status)) {
+        } else if (Objects.equals(Constant.OrderStatusConfig.PAYMENT_CANCEL_ORDER, status)) {
             notifiDetail = Constant.NotifiConfig.PAYMENT_CANCEL_ORDER;
         }
         notification.setNotifiDetail(notifiDetail + orderId);

@@ -95,4 +95,16 @@ public interface OrderMoneyRecordService {
      * @return
      */
     Map<String,Object> countOrderMoneyRecords(Integer timeType,Long accountId);
+
+    /**
+     * 导出结算明细对应的订单列表
+     * @param recordId  结算明细id
+     * @param orderId   订单id
+     * @param pageNum   页码
+     * @param pageSize  每页条数
+     * @param response
+     * @throws Exception
+     */
+    void exportRecordToPurchasesExcel(String recordId, String orderId, String pageNum, String pageSize, HttpServletResponse response) throws Exception;
+
 }

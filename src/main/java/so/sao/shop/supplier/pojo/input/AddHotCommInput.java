@@ -1,28 +1,21 @@
 package so.sao.shop.supplier.pojo.input;
 
-import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Created by acer on 2017/9/19.
  */
 public class AddHotCommInput {
 
-    @ApiModelProperty(value = "商品条码/商品名称模糊")
     private String inputvalue ;
 
-    @ApiModelProperty(value = "商品一级类别")
     Long categoryOneId ;
 
-    @ApiModelProperty(value = "商品二级类别")
     Long categoryTwoId ;
 
-    @ApiModelProperty(value = "商品三级类别")
     Long categoryThreeId ;
 
-    @ApiModelProperty(value = "页码")
     private Integer pageNum ;
 
-    @ApiModelProperty(value = "大小")
     private Integer pageSize ;
 
     public String getInputvalue() {

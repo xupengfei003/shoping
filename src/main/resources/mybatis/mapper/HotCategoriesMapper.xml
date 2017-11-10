@@ -19,9 +19,21 @@
     <!--查询所有热门分类，按sort字段排序-->
     <select id="find" resultMap="BaseResultMap">
        SELECT
-       ID,MIN_IMG,URL,CATEGORY_ONE_ID,CATEGORY_ONE_NAME,CATEGORY_TWO_ID,CATEGORY_TWO_NAME,CATEGORY_THREE_ID,CATEGORY_THREE_NAME,SORT,OPERATOR,CREATE_AT,UPDATE_AT
-       FROM hot_category
-       ORDER BY SORT
+       hc.ID,
+       hc.MIN_IMG,
+       hc.URL,
+       hc.CATEGORY_ONE_ID,
+       (SELECT NAME FROM  comm_category WHERE id = hc.CATEGORY_ONE_ID)AS CATEGORY_ONE_NAME,
+       hc.CATEGORY_TWO_ID,
+       (SELECT NAME FROM  comm_category WHERE id = hc.CATEGORY_TWO_ID) AS CATEGORY_TWO_NAME,
+       hc.CATEGORY_THREE_ID,
+       (SELECT NAME FROM  comm_category WHERE id = hc.CATEGORY_THREE_ID) AS CATEGORY_THREE_NAME,
+       hc.SORT,
+       hc.OPERATOR,
+       hc.CREATE_AT,
+       hc.UPDATE_AT
+       FROM hot_category hc
+       ORDER  BY hc.SORT
     </select>
 
     <!--删除hot_category数据表-->
@@ -31,12 +43,13 @@
 
     <!--批量插入热门分类信息-->
     <insert id="saveBatch" useGeneratedKeys="true" keyProperty="id">
-       INSERT INTO
-       hot_category(min_img,url,category_one_id,category_one_name,category_two_id,category_two_name,category_three_id,category_three_name,sort,operator,create_at,update_at)
-       VALUES
+        INSERT INTO
+        hot_category(min_img,url,category_one_id,category_two_id,category_three_id,sort,operator,create_at,update_at)
+        VALUES
         <foreach item="hotCategory" index="index" collection="hotCategories"  separator="," >
-            ( #{hotCategory.minImg},#{hotCategory.url},#{hotCategory.categoryOneId},#{hotCategory.categoryOneName},#{hotCategory.categoryTwoId},#{hotCategory.categoryTwoName},
-            #{hotCategory.categoryThreeId},#{hotCategory.categoryThreeName},#{hotCategory.sort},#{hotCategory.operator},#{hotCategory.createAt},#{hotCategory.updateAt})
+            ( #{hotCategory.minImg},#{hotCategory.url},#{hotCategory.categoryOneId},#{hotCategory.categoryTwoId},
+            #{hotCategory.categoryThreeId},#{hotCategory.sort},#{hotCategory.operator},#{hotCategory.createAt},#{hotCategory.updateAt})
         </foreach>
     </insert>
+
 </mapper>

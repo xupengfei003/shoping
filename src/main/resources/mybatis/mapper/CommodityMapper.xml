@@ -360,6 +360,16 @@
             AND t.price BETWEEN #{minPrice}
             AND #{maxPrice}
         </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(minUnitPrice) and @so.sao.shop.supplier.util.Ognl@isEmpty(maxUnitPrice)">
+            AND t.unit_price<![CDATA[ >= #{minUnitPrice}]]>
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(maxUnitPrice) and @so.sao.shop.supplier.util.Ognl@isEmpty(minUnitPrice)">
+            AND  t.unit_price<![CDATA[<= #{maxUnitPrice}]]>
+        </if>
+        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(minUnitPrice) and @so.sao.shop.supplier.util.Ognl@isNotEmpty(maxUnitPrice)">
+            AND t.unit_price BETWEEN #{minUnitPrice}
+            AND #{maxUnitPrice}
+        </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(typeId)">
             AND categoryOneId = #{typeId}
         </if>
@@ -373,7 +383,15 @@
             AND Date(createdAt) BETWEEN #{beginUpdateAt}
             AND #{endUpdateAt}
         </if>
-        ORDER BY t.updated_at DESC ,t.id DESC
+        ORDER BY
+        <if test="sortStatus==0">
+            t.updated_at ASC ,
+        </if>
+        <if test="sortStatus==1">
+            t.updated_at DESC ,
+        </if>
+
+        t.id DESC
     </select>
 
     <!--根据code69 商品编码查询商品名称-->

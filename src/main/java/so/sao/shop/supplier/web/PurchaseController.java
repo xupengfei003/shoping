@@ -1,10 +1,7 @@
 package so.sao.shop.supplier.web;
 
 import com.github.pagehelper.PageInfo;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.util.StringUtils;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.domain.User;
@@ -15,6 +12,7 @@ import so.sao.shop.supplier.pojo.output.OrderRefuseReasonOutput;
 import so.sao.shop.supplier.pojo.output.PurchaseItemPrintOutput;
 import so.sao.shop.supplier.pojo.vo.PurchaseInfoVo;
 import so.sao.shop.supplier.pojo.vo.PurchasesVo;
+import so.sao.shop.supplier.service.InvoiceSettingService;
 import so.sao.shop.supplier.service.PurchaseService;
 import so.sao.shop.supplier.util.DataCompare;
 import so.sao.shop.supplier.util.DateUtil;
@@ -38,11 +36,12 @@ import java.util.*;
  */
 @RestController
 @RequestMapping("/order")
-@Api(description = "订单类-所有接口")
 public class PurchaseController {
 
     @Resource
     private PurchaseService purchaseService;
+    @Resource
+    private InvoiceSettingService invoiceSettingService;
 
     /**
      * 保存订单
@@ -51,7 +50,6 @@ public class PurchaseController {
      * @return
      */
     @RequestMapping(value = "/createPurchase", method = RequestMethod.POST)
-    @ApiOperation(value = "生成订单", notes = "生成订单")
     public Result createPurchase(@RequestBody @Valid PurchaseInput purchase) throws Exception {
         Map<String, Object> resMap = purchaseService.savePurchase(purchase);
         Integer status = Integer.parseInt(String.valueOf(resMap.get("status")));
@@ -71,7 +69,6 @@ public class PurchaseController {
      * @return Result
      */
     @RequestMapping(value = "/purchase/{orderId}", method = RequestMethod.GET)
-    @ApiOperation(value = "获取订单详情", notes = "获取订单详情")
     public Result findById(@PathVariable String orderId) throws Exception {
         PurchaseInfoVo purchaseInfoVo = purchaseService.findById(orderId);
         return Result.success(Constant.MessageConfig.MSG_SUCCESS, purchaseInfoVo);
@@ -86,7 +83,6 @@ public class PurchaseController {
      * @param pageSize pageSize
      */
     @RequestMapping(value = "/export", method = RequestMethod.GET)
-    @ApiOperation(value = "POI批量导出订单列表", notes = "POI批量导出订单列表")
     @ResponseBody
     public Result exportExcel(HttpServletRequest request, HttpServletResponse response, String pageNum, Integer pageSize,
                               @RequestParam(required = false) Long accountId, PurchaseSelectInput purchaseSelectInput) throws Exception {
@@ -100,10 +96,13 @@ public class PurchaseController {
             }
         }
         //对比开始时间和结束时间
-        if (restrictDate(dateList)) return Result.fail(Constant.MessageConfig.DateNOTLate);
+        if (restrictDate(dateList)) {
+            return Result.fail(Constant.MessageConfig.DateNOTLate);
+        }
         //对比开始金额和结束金额
-        if (DataCompare.compareMoney(purchaseSelectInput.getBeginMoney(), purchaseSelectInput.getEndMoney()))
+        if (DataCompare.compareMoney(purchaseSelectInput.getBeginMoney(), purchaseSelectInput.getEndMoney())) {
             return Result.fail(Constant.MessageConfig.MoneyNOTLate);
+        }
         purchaseService.exportExcel(request, response, pageNum, pageSize, accountId, purchaseSelectInput);
         return Result.success(Constant.MessageConfig.MSG_SUCCESS);
     }
@@ -118,7 +117,6 @@ public class PurchaseController {
      * @return PurchaseSelectOutput
      */
     @GetMapping(value = "/search")
-    @ApiOperation(value = "查询订单列表", notes = "*")
     public Result search(HttpServletRequest request, Integer pageNum, Integer rows, PurchaseSelectInput purchaseSelectInput) throws Exception {
         //获取当前登陆账户
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
@@ -144,10 +142,13 @@ public class PurchaseController {
             }
         }
         //对比开始时间和结束时间
-        if (restrictDate(dateList)) return Result.fail(Constant.MessageConfig.DateNOTLate);
+        if (restrictDate(dateList)) {
+            return Result.fail(Constant.MessageConfig.DateNOTLate);
+        }
         //对比开始金额和结束金额
-        if (DataCompare.compareMoney(purchaseSelectInput.getBeginMoney(), purchaseSelectInput.getEndMoney()))
+        if (DataCompare.compareMoney(purchaseSelectInput.getBeginMoney(), purchaseSelectInput.getEndMoney())) {
             return Result.fail(Constant.MessageConfig.MoneyNOTLate);
+        }
         //查询订单
         if (rows == null || rows <= 0) {
             rows = 10;
@@ -168,7 +169,6 @@ public class PurchaseController {
      * @throws Exception Exception
      */
     @PostMapping(value = "/deliverGoods/{orderId}")
-    @ApiOperation(value = "发货接口", notes = "发货接口")
     public Result deliverGoods(@RequestBody @PathVariable("orderId") String orderId, @RequestBody Map map) throws Exception {
         //订单状态验证
         if (!verifyOrderStatus(orderId, Constant.OrderStatusConfig.ISSUE_SHIP)) {
@@ -189,7 +189,6 @@ public class PurchaseController {
      * @return BaseResult
      */
     @RequestMapping(value = "/delete/purchases", method = RequestMethod.POST)
-    @ApiOperation(value = "删除订单", notes = "")
     public Result delete(String orderIds) {
         if (orderIds != null) {
             purchaseService.deletePurchase(orderIds);
@@ -209,9 +208,8 @@ public class PurchaseController {
      * @param input    查询条件封装类
      * @return 出参
      */
-    @ApiOperation(value = "收入明细查询(高级查询)", notes = " 根据商户id及查询条件（起始创建订单-结束创建订单时间/起始下单时间-结束下单时间/支付方式;订单编号/收货人名称/收货人联系方式）分页显示订单【负责人:郑振海】")
     @GetMapping(value = "/account/PurchasesHigh")
-    public Result searchHigh(Integer pageNum, Integer pageSize, @Validated AccountPurchaseInput input, HttpServletRequest request) throws ParseException {
+    public Result searchHigh(Integer pageNum, Integer pageSize, @Valid AccountPurchaseInput input, HttpServletRequest request) throws ParseException {
         //1.取出当前登录用户
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         if (null == user || Ognl.isEmpty(user.getAccountId())) {   //验证用户是否登陆
@@ -219,18 +217,6 @@ public class PurchaseController {
         }
         //2.校验入参中的条件检索类
         if (Ognl.isNotEmpty(input)) {
-            if (Ognl.isNotEmpty(input.getPayBeginTime()) && !DateUtil.isDate(input.getPayBeginTime())) {//开始时间（支付时间）
-                return Result.fail(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
-            }
-            if (Ognl.isNotEmpty(input.getPayEndTime()) && !DateUtil.isDate(input.getPayEndTime())) {//结束时间（支付时间）
-                return Result.fail(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
-            }
-            if (Ognl.isNotEmpty(input.getCreateBeginTime()) && !DateUtil.isDate(input.getCreateBeginTime())) {//开始时间（创建时间）
-                return Result.fail(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
-            }
-            if (Ognl.isNotEmpty(input.getCreateEndTime()) && !DateUtil.isDate(input.getCreateEndTime())) {//结束时间（创建时间）
-                return Result.fail(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
-            }
             if (Ognl.isNotEmpty(input.getOrderPaymentMethod()) && 0 == input.getOrderPaymentMethod()) {//支付方式
                 input.setOrderPaymentMethod(null);
             }
@@ -242,32 +228,22 @@ public class PurchaseController {
     /**
      * 账户收入明细查询(普通查询)
      * 1.取出当前登录用户
-     * 2.校验入参中的条件检索类
-     * 3.访问业务层，获取数据
+     * 2.访问业务层，获取数据
      *
      * @param pageNum  当前页码
      * @param pageSize 每页显示条数
      * @param input    查询条件封装类
      * @return 出参
      */
-    @ApiOperation(value = "收入明细查询(普通查询)", notes = " 根据商户id及查询条件（起始创建订单-结束创建订单时间/支付流水号/订单编号/收货人名称）分页显示订单【负责人:郑振海】")
     @GetMapping(value = "/account/PurchasesLow")
-    public Result searchLow(Integer pageNum, Integer pageSize, AccountPurchaseLowInput input, HttpServletRequest request) throws ParseException {
+    public Result searchLow(Integer pageNum, Integer pageSize, @Valid AccountPurchaseLowInput input, HttpServletRequest request) throws ParseException {
         //1.取出当前登录用户
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         if (null == user || Ognl.isEmpty(user.getAccountId())) {   //验证用户是否登陆
             return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
-        //2.校验入参中的条件检索类
-        if (Ognl.isNotEmpty(input)) {
-            if (Ognl.isNotEmpty(input.getCreateBeginTime()) && !DateUtil.isDate(input.getCreateBeginTime())) {//开始时间（创建时间）
-                return Result.fail(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
-            }
-            if (Ognl.isNotEmpty(input.getCreateEndTime()) && !DateUtil.isDate(input.getCreateEndTime())) {//结束时间（创建时间）
-                return Result.fail(Constant.MessageConfig.MSG_DATE_INPUT_FORMAT_ERROR);
-            }
-        }
-        //3.访问业务层。获取数据
+
+        //2.访问业务层。获取数据
         return purchaseService.searchPurchasesLow(pageNum, pageSize, input, user.getAccountId());
     }
 
@@ -276,7 +252,6 @@ public class PurchaseController {
      *
      * @return
      */
-    @ApiOperation(value = "获取商户总金额", notes = "商户的历史总金额【负责人：巨江坤】")
     @GetMapping(value = "/findincome")
     public Result findOrderStatus(HttpServletRequest request) throws Exception {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
@@ -299,7 +274,6 @@ public class PurchaseController {
      * @return 返回一个Result对象
      * @throws Exception 异常
      */
-    @ApiOperation(value = "查询打印商品条目接口", notes = "根据订单编号查询打印页面的信息及订单对应的商品条目【负责人：杨恒乐】")
     @GetMapping("/searchPrintItems")
     public Result searchPrintItems(String orderId) throws Exception {
         // 1.验证参数合法性
@@ -327,7 +301,6 @@ public class PurchaseController {
      * @return 返回一个Result对象
      * @throws Exception 异常
      */
-    @ApiOperation(value = "生成收货二维码接口", notes = "根据订单编号生成收货二维码接口【负责人：杨恒乐】")
     @PostMapping("/createReceivingQrcode")
     public Result createReceivingQrcode(@RequestBody Map params) throws Exception {
         String orderId = (String) params.get("orderId");
@@ -354,7 +327,6 @@ public class PurchaseController {
      * @return 返回一个Result对象
      * @throws Exception 异常
      */
-    @ApiOperation(value = "扫码收货接口", notes = "根据订单编号验证订单，修改订单状态，并将二维码状态设置为失效【负责人：杨恒乐】")
     @PostMapping("/sweepReceiving")
     public Result sweepReceiving(@RequestBody Map params) throws Exception {
         String orderId = (String) params.get("orderId");
@@ -385,7 +357,6 @@ public class PurchaseController {
      * @param refuseOrderInput 封装了订单编号，拒收理由，拒收图片
      * @return Result 返回状态码code 、 状态描述message 及 数据data
      */
-    @ApiOperation("拒收货接口")
     @PostMapping("/refuseOrder")
     public Result refuseOrder(@RequestBody @Valid RefuseOrderInput refuseOrderInput) throws Exception {
         //判断订单状态
@@ -402,7 +373,6 @@ public class PurchaseController {
      * @param orderId 订单ID
      * @return Result 返回状态码code 、 状态描述message 及 数据data
      */
-    @ApiOperation("查看拒收理由接口")
     @GetMapping("/scanRefuseOrderReason/{orderId}")
     public Result scanRefuseOrderReason(@PathVariable("orderId") String orderId) throws Exception {
         OrderRefuseReasonOutput orderRefuseReasonOutput = purchaseService.searchRefuseReasonByOrderId(orderId);
@@ -416,7 +386,6 @@ public class PurchaseController {
      * @return Result 返回状态码code 、 状态描述message 及 数据data
      * @throws Exception
      */
-    @ApiOperation("新增取消订单原因接口")
     @PostMapping("/insertCancelReason")
     public Result insertCancelReason(@RequestBody @Valid CancelReasonInput cancelReasonInput) throws Exception {
         //判断订单状态
@@ -435,7 +404,6 @@ public class PurchaseController {
      * @return Result 返回状态码code 、 状态描述message 及 数据data
      * @throws Exception
      */
-    @ApiOperation("查看取消订单原因接口")
     @GetMapping("/scanCancelReason/{orderId}")
     public Result scanCancelReason(@PathVariable("orderId") String orderId) throws Exception {
         OrderCancelReasonOutput cancelReason = purchaseService.searchCancelReasonByOrderId(orderId);
@@ -456,7 +424,6 @@ public class PurchaseController {
      * @return 返回一个Result对象
      * @throws Exception 异常
      */
-    @ApiOperation(value = "退款接口", notes = "根据订单编号调用退款接口退款并修改订单状态【负责人：杨恒乐】")
     @PostMapping("/refund/{orderId}")
     public Result refund(@PathVariable("orderId") String orderId) throws Exception {
         // 1.验证参数合法性
@@ -483,13 +450,13 @@ public class PurchaseController {
     private boolean verifyOrderStatus(String orderId, Integer orderStatus) {
         Integer getOrderStatus = purchaseService.findOrderStatus(orderId);
         //合并取消
-        if(orderId.length() == 28){
+        if (orderId.length() == 28) {
             getOrderStatus = Constant.OrderStatusConfig.PAYMENT;
         }
-        if(null == getOrderStatus){
+        if (null == getOrderStatus) {
             return false;
         }
-        if(null != getOrderStatus && Objects.equals(Constant.OrderStatusConfig.CONFIRM_RECEIVED,getOrderStatus)){
+        if (null != getOrderStatus && Objects.equals(Constant.OrderStatusConfig.CONFIRM_RECEIVED, getOrderStatus)) {
             getOrderStatus = Constant.OrderStatusConfig.ISSUE_SHIP;
         }
         String status = Constant.OrderStatusRule.RULES[getOrderStatus - 1];
@@ -527,10 +494,9 @@ public class PurchaseController {
      * 根据订单编号和用户id验证用户的订单是否存在，存在返回二维码地址，否则返回失败地址
      *
      * @param orderId 订单编号
-     * @param userId 用户id
+     * @param userId  用户id
      * @return
      */
-    @ApiOperation(value = "验证二维码", notes = "根据订单编号和用户id验证用户的订单是否存在【负责人：杨恒乐】")
     @GetMapping("/checkQrcode")
     public Result checkQrcode(String orderId, String userId) {
         if (Ognl.isEmpty(orderId) || Ognl.isEmpty(userId)) {
@@ -539,21 +505,22 @@ public class PurchaseController {
         return Result.success(Constant.MessageConfig.MSG_SUCCESS, purchaseService.getReceiveUrl(orderId, userId));
     }
 
-  /**
+    /**
      * 商户各类订单数量统计接口
+     *
      * @return
      */
-    @ApiOperation(value = "供应商各类订单数量统计接口",notes = "根据供应商ID获取该供应商割裂订单数量【负责人：郑振海】")
     @GetMapping("/countOrderNumByOrderStatus")
-    public Result countOrderNumByOrderStatus(HttpServletRequest request){
+    public Result countOrderNumByOrderStatus(HttpServletRequest request) {
         //1.取出当前登录用户
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         if (null == user || Ognl.isEmpty(user.getAccountId())) {   //验证用户是否登陆
             return Result.fail(Constant.MessageConfig.MSG_USER_NOT_LOGIN);
         }
         Map<Object, Object> orderNum = purchaseService.countOrderNumByOrderStatus(user.getAccountId());
-        return Result.success(Constant.MessageConfig.MSG_SUCCESS,orderNum);
+        return Result.success(Constant.MessageConfig.MSG_SUCCESS, orderNum);
     }
+
     /**
      * 更改物流信息
      *
@@ -561,13 +528,40 @@ public class PurchaseController {
      * @return Result 结果
      * @throws Exception
      */
-    @ApiOperation(value = "更改物流信息", notes = "根据订单编号更改物流信息【负责人：白治华】")
     @PostMapping("/updateLogisticInfoByOrderId")
-    public  Result updateLogisticInfoByOrderId(@RequestBody @Valid LogisticInfoUpdateInput logisticInfoUpdateInput) throws Exception {
+    public Result updateLogisticInfoByOrderId(@RequestBody @Valid LogisticInfoUpdateInput logisticInfoUpdateInput) throws Exception {
         boolean flag = purchaseService.updateLogisticInfoByOrderId(logisticInfoUpdateInput);
         if (flag) {
             return Result.success(Constant.MessageConfig.MSG_SUCCESS);
         }
         return Result.fail(Constant.MessageConfig.MSG_FAILURE);
     }
+
+    /**
+     * 供应商是否支持发票接口
+     *
+     * @return Result 结果
+     * @throws Exception
+     */
+    @GetMapping("/isOpenReceipt/{supplierId}")
+    public Result updateLogisticInfoByOrderId(@PathVariable("supplierId") Long supplierId) throws Exception {
+
+        return invoiceSettingService.getBySupplierId(supplierId);
+    }
+
+    /**
+     * 订单详情-发票详情
+     *
+     * @return Result 结果
+     */
+    @GetMapping("/receiptItem")
+    public Result findReceiptItemByOrderId(String orderId) throws Exception {
+        //1.入参校验
+        if (Ognl.isEmpty(orderId)) {
+            return Result.fail(Constant.MessageConfig.MSG_NOT_EMPTY);
+        }
+        return purchaseService.findReceiptItemByOrderId(orderId);
+    }
+
+
 }

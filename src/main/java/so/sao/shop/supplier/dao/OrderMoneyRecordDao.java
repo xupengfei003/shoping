@@ -4,11 +4,10 @@ package so.sao.shop.supplier.dao;
 import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Param;
 import so.sao.shop.supplier.domain.OrderMoneyRecord;
-import so.sao.shop.supplier.domain.Purchase;
 import so.sao.shop.supplier.pojo.input.OrderMoneyRecordInput;
+import so.sao.shop.supplier.pojo.vo.AccountPurchaseVo;
 
 import java.math.BigDecimal;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -71,7 +70,7 @@ public interface OrderMoneyRecordDao {
      * @param orderId
      * @return
      */
-    List<Purchase> findPageOMRPurchase(@Param("recordId") String recordId, @Param("orderId") String orderId);
+    List<AccountPurchaseVo> findPageOMRPurchase(@Param("recordId") String recordId, @Param("orderId") String orderId);
 
     /**
      * 根据开始时间和结束时间查询已结算金额
@@ -130,4 +129,20 @@ public interface OrderMoneyRecordDao {
      */
     @MapKey(value = "state")
     Map<Object,Object> countOrderMoneyRecords(@Param("startTime")String startTime,@Param("endTime") String endTime,@Param("accountId") Long accountId);
+
+    /**
+     * 根据结算明细id获取该帐单对应的明细
+     * @param recordId 结算明细id
+     * @param orderId 订单id
+     * @param limits 分页信息
+     * @return
+     */
+    List<AccountPurchaseVo> findPurchasesByRecordId(@Param("recordId") String recordId, @Param("orderId") String orderId, @Param("limits") String limits);
+
+    /**
+     * 结算明细列表页面 总计金额
+     * @param recordId 结算明细id
+     * @return
+     */
+    BigDecimal countOrderTotalPrice(@Param("recordId") String recordId);
 }

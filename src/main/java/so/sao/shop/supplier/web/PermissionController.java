@@ -1,6 +1,5 @@
 package so.sao.shop.supplier.web;
 
-import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,7 +19,6 @@ public class PermissionController {
     @Autowired
     private PermissionService permissionService;
 
-    @ApiOperation("获取数据列表")
     @GetMapping(value = "/list")
     /**
      * 获得所有权限集合

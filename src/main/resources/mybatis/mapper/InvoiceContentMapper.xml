@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="so.sao.shop.supplier.dao.external.InvoiceContentDao">
+    <resultMap id="baseResultMap" type="so.sao.shop.supplier.domain.external.InvoiceContent">
+        <result column="id" property="id"/>
+        <result column="invoice_content_name" property="invoiceContentName"/>
+        <result column="operator" property="operator"/>
+        <result column="create_at" property="createAt"/>
+        <result column="update_at" property="updateAt"/>
+    </resultMap>
+
+    <sql id="baseColumn">
+        id AS id,
+        invoice_content_name AS invoiceContentName,
+        operator,
+        create_at AS createAt,
+        update_at AS updateAt
+    </sql>
+
+    <!--添加发票内容-->
+    <insert id="save" parameterType="so.sao.shop.supplier.domain.external.InvoiceContent">
+        INSERT INTO invoice_content
+        (
+        invoice_content_name,
+        operator,
+        create_at,
+        update_at
+        ) VALUES
+        (
+        #{invoiceContentName},
+        #{operator},
+        #{createAt},
+        #{updateAt}
+        )
+    </insert>
+
+    <!--编辑发票内容-->
+    <update id="update" parameterType="so.sao.shop.supplier.domain.external.InvoiceContent">
+        UPDATE invoice_content
+        SET
+        invoice_content_name = #{invoiceContentName},
+        update_at = #{updateAt}
+        where id = #{id}
+    </update>
+
+    <!--根据id删除发票内容-->
+    <delete id="delete" parameterType="java.lang.Long">
+        DELETE FROM invoice_content where id = #{id}
+    </delete>
+
+    <!--查询发票内容列表-->
+    <select id="findAll" resultType="so.sao.shop.supplier.domain.external.InvoiceContent">
+        SELECT
+        <include refid="baseColumn"/>
+        FROM invoice_content
+        ORDER BY update_at DESC
+    </select>
+
+    <!--校验发票内容是否存在-->
+    <select id="countInvoiceContent" parameterType="string" resultType="int">
+        SELECT COUNT(id) FROM invoice_content WHERE invoice_content_name = #{invoiceContentName}
+    </select>
+
+    <!--统计发票内容列表条数-->
+    <select id="countTotal" resultType="int">
+        SELECT COUNT(id) FROM invoice_content
+    </select>
+</mapper>

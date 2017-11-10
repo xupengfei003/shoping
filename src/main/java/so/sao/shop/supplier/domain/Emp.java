@@ -2,12 +2,7 @@ package so.sao.shop.supplier.domain;
 
 import java.util.Date;
 
-import javax.validation.constraints.Pattern;
 
-import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.NotEmpty;
-
-import io.swagger.annotations.ApiModelProperty;
 /**
  * <p>Title: Emp</p>
  * <p>Description: 员工对象</p>
@@ -19,52 +14,38 @@ public class Emp {
 	/**
 	 * 员工id
 	 */
-	@ApiModelProperty(hidden = true)
 	private Long id;
 	/**
 	 * 用户id
 	 */
-	@ApiModelProperty(hidden = true)
 	private Long userId;
 	/**
 	 * 供应商id
 	 */
-	@ApiModelProperty(hidden = true)
 	private Long accountId;
 	/**
 	 * 员工姓名
 	 */
-	@NotEmpty(message = "请输入员工姓名")
-	@Length(max = 50,message = "员工姓名长度不能超过50")
-	@ApiModelProperty(value = "员工姓名")
 	private String empName;
 	/**
 	 * 员工性别
 	 */
-	@NotEmpty(message = "请选择员工性别")
-	@ApiModelProperty(value = "员工性别")
 	private String empSex;
 	/**
 	 * 员工电话
 	 */
-	@ApiModelProperty(value = "员工电话")
-	@NotEmpty(message = "请输入正确的手机号码")
-	@Pattern(regexp = "^1[34578]\\d{9}$", message = "请输入正确的手机号码")
 	private String empTel;
 	/**
 	 * 创建时间
 	 */
-	@ApiModelProperty(hidden = true)
 	private Date createAt;
 	/**
 	 * 更新时间
 	 */
-	@ApiModelProperty(hidden = true)
 	private Date updateAt;
 	/**
 	 * 员工状态
 	 */
-	@ApiModelProperty(hidden = true)
 	private String empStatus;
 	
 	public Long getId() {

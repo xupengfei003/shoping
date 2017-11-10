@@ -1,12 +1,10 @@
 package so.sao.shop.supplier.domain;
 
 
-import java.util.Date;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import java.util.Date;
+
 
 /**
  * <p>
@@ -16,7 +14,6 @@ import io.swagger.annotations.ApiModelProperty;
  * @author zhangruibing
  * @since 2017-07-17
  */
-@ApiModel(value = "收货地址对象", description = "deliveryAddress")
 public class DeliveryAddress {
 
     private static final long serialVersionUID = 1L;
@@ -24,81 +21,68 @@ public class DeliveryAddress {
     /**
      * 收货地址id
      */
-    @ApiModelProperty(hidden = true)
 	private Long addrId;
 
     /**
      * 收货人
      */
-	@ApiModelProperty(value = "收货人")
 	private String consignee;
 
     /**
      * 联系电话
      */
-	@ApiModelProperty(value = "联系电话")
 	private String consigneePhone;
 
     /**
      * 省
      */
-	@ApiModelProperty(value = "省")
 	private String addrProvince;
 
     /**
      * 市
      */
-	@ApiModelProperty(value = "市")
 	private String addrCity;
 
     /**
      * 区
      */
-	@ApiModelProperty(value = "区")
 	private String addrArea;
 
     /**
      * 详细地址
      */
-	@ApiModelProperty(value = "详细地址")
 	private String addrDetails;
 
 	/**
 	 * 街道
 	 */
-	@ApiModelProperty(value = "街道")
 	private String addrStreet;
 
     /**
      * 是否设为默认地址(0：非默认地址；1：默认地址)
      */
-	@ApiModelProperty(value = "默认地址")
 	private Integer addrDefault;
 
 	/**
      * 删除状态(0：未删除；1：已删除)
      */
-	@ApiModelProperty(hidden = true)
 	private Integer delState;
 
     /**
      * 创建时间
      */
-	@ApiModelProperty(hidden = true)
 	@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
 	private Date createdAt;
 
     /**
      * 更新时间
      */
-	@ApiModelProperty(hidden = true)
 	@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
 	private Date updatedAt;
 
     /**
      * 用户id
      */
-	@ApiModelProperty(hidden = true)
 	private Long userId;
 
 

@@ -82,7 +82,7 @@
     <select id="countByScidAndAuditResult" resultType="int">
         select
         count(id) as num
-        from supplier_commodity_audit where audit_result = 2 AND sc_id = #{1}
+        from supplier_commodity_audit where audit_result = 2 AND sc_id = #{scId}
     </select>
 
     <!--根据scId数组和audit_result判断该供应商商品数组中是否有已处于待审核状态的商品-->
@@ -197,15 +197,13 @@
         t1.audit_opinion AS auditOpinion,
         t1.status AS status
         FROM `supplier_commodity` sc
-        RIGHT JOIN (SELECT
-        <include refid="audit"/>
-        FROM `supplier_commodity_audit` t WHERE t.`status` != 6) t1
-        ON sc.`id` = t1.sc_id
+        RIGHT JOIN `supplier_commodity_audit` t1 ON sc.`id` = t1.sc_id
         INNER JOIN account a ON t1.supplier_id=a.account_id
         INNER JOIN commodity c ON sc.code69 = c.code69
+        LEFT JOIN supplier_commodity_tmp sctmp ON sctmp.sca_id = t1.id
         LEFT JOIN comm_unit cu ON sc.unit_id = cu.id
         LEFT JOIN comm_brand cb ON c.brand_id = cb.id
-        WHERE sc.`deleted` = 0
+        WHERE sc.`deleted` = 0 AND sctmp.id IS NULL
         UNION
         SELECT
         t1.id AS id,
@@ -229,15 +227,12 @@
         t1.audit_opinion AS auditOpinion,
         t1.status AS status
         FROM `supplier_commodity_tmp` sctmp
-        RIGHT JOIN (SELECT
-        <include refid="audit"/>
-        FROM `supplier_commodity_audit` t WHERE t.`status` = 6) t1
-        ON sctmp.`sca_id` = t1.id
+        RIGHT JOIN `supplier_commodity_audit` t1 ON sctmp.`sca_id` = t1.id
         INNER JOIN account a ON t1.supplier_id=a.account_id
         INNER JOIN commodity c ON sctmp.code69 = c.code69
+        LEFT JOIN supplier_commodity sc on sc.`id` = t1.sc_id
         LEFT JOIN comm_unit cu ON sctmp.unit_id = cu.id
         LEFT JOIN comm_brand cb ON c.brand_id = cb.id
-        LEFT JOIN supplier_commodity sc on sc.id = t1.sc_id
         ) t2
         <where>
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(status)">
@@ -246,8 +241,21 @@
             <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(auditResult)">
                 AND t2.auditResult = #{auditResult}
             </if>
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(inputvalue)">
+                AND (code69 = #{inputvalue}
+                OR name LIKE "%${inputvalue}%" OR supplierName LIKE "%${inputvalue}%" )
+            </if>
+
         </where>
-        ORDER BY t2.createdAt ASC
+        ORDER BY
+        <if test="sortStatus==0">
+            t2.createdAt ASC
+        </if>
+        <if test="sortStatus==1">
+            t2.createdAt  DESC
+        </if>
+
+
     </select>
 
     <!-- 查询审核记录详情 -->

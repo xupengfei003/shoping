@@ -1,7 +1,5 @@
 package so.sao.shop.supplier.web;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,7 +21,6 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/feedback")
-@Api(description = "反馈管理-所有接口 【负责人:郭兴业】")
 public class FeedbackController {
 
     @Autowired
@@ -36,7 +33,6 @@ public class FeedbackController {
      * @return baseResult
      */
     @PostMapping("/createFeedback")
-    @ApiOperation(value = "提交反馈", notes = "提交反馈")
     public Result createFeedback(HttpServletRequest request, @RequestBody Map map) throws Exception {
         //验证供应商是否登陆并取出accountId
         User user = (User) request.getAttribute(Constant.REQUEST_USER);

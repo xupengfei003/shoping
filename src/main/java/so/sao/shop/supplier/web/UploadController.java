@@ -1,11 +1,8 @@
 package so.sao.shop.supplier.web;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -15,8 +12,8 @@ import so.sao.shop.supplier.config.azure.AzureBlobService;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.vo.CommBlobUpload;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -25,14 +22,12 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/upload")
-@Api(description = "图片上传接口")
 public class UploadController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     private AzureBlobService azureBlobService;
 
     @PostMapping(value = "/file")
-    @ApiOperation(value = "文件批量上传", notes = "商品-图片文件批量上传【负责人：许鹏飞】")
     public Result loadFile(@RequestPart("file") MultipartFile[] multipartFile) {
         List<CommBlobUpload> blobUploadList = new ArrayList<CommBlobUpload>();
         try {

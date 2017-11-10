@@ -1,9 +1,10 @@
 package so.sao.shop.supplier.pojo.input;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.Pattern;
+import java.util.Date;
 
 /**
  * Created by niewenchao on 2017/7/24.
@@ -14,14 +15,14 @@ public class OrderMoneyRecordInput {
     /**
      * 查询起始时间
      */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private String startTime;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date startTime;
 
     /**
      * 查询结束时间
      */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private String endTime;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date endTime;
 
     /**
      * 结算状态 0 待结算 1 已结算
@@ -30,19 +31,19 @@ public class OrderMoneyRecordInput {
     @NotEmpty(message = "状态不能为空")
     private String state;
 
-    public String getStartTime() {
+    public Date getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(String startTime) {
+    public void setStartTime(Date startTime) {
         this.startTime = startTime;
     }
 
-    public String getEndTime() {
+    public Date getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(String endTime) {
+    public void setEndTime(Date endTime) {
         this.endTime = endTime;
     }
 

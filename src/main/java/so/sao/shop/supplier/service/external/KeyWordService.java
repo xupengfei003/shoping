@@ -12,7 +12,6 @@ public interface KeyWordService {
 
     /**
      * 添加关键字配置
-     *
      * @param keyWords KeyWord对象集合
      * @return Result添加结果
      */
@@ -31,5 +30,5 @@ public interface KeyWordService {
      * @param pageSize
      * @return 关键字集合
      */
-    Result searchKeyWords(Integer pageNum,Integer pageSize);
+    Result searchKeyWords(Integer pageNum, Integer pageSize);
 }

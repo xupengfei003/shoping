@@ -1,5 +1,11 @@
 package so.sao.shop.supplier.pojo.input;
 
+import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import javax.validation.constraints.Pattern;
+import java.util.Date;
+
 /**
  * <p>
  * 账户余额明细查询input类 (普通查询条件类)
@@ -13,31 +19,47 @@ public class AccountPurchaseLowInput {
     /**
      * 开始时间（创建时间）  用于判断时间格式
      */
-    private String createBeginTime;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date createBeginTime;
 
     /**
      * 结束时间（创建时间）  用于判断时间格式
      */
-    private String createEndTime;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date createEndTime;
 
     /**
-     * 查询条件(收货人名称/订单编号/流水号)
+     * 查询条件(订单编号/流水号)
      */
     private String condition;
 
-    public String getCreateBeginTime() {
+    /**
+     * 排序的字段 0 付款时间
+     */
+    @Pattern(regexp = "^[0]$", message = "排序字段不存在")
+    @NotEmpty(message = "排序字段码不能为空")
+    private String sortName;
+
+    /**
+     * 排序的次序 0 正序; 1 逆序
+     */
+    @Pattern(regexp = "^[0-1]$", message = "排序次序码错误")
+    @NotEmpty(message = "排序次序码不能为空")
+    private String sortType;
+
+    public Date getCreateBeginTime() {
         return createBeginTime;
     }
 
-    public void setCreateBeginTime(String createBeginTime) {
+    public void setCreateBeginTime(Date createBeginTime) {
         this.createBeginTime = createBeginTime;
     }
 
-    public String getCreateEndTime() {
+    public Date getCreateEndTime() {
         return createEndTime;
     }
 
-    public void setCreateEndTime(String createEndTime) {
+    public void setCreateEndTime(Date createEndTime) {
         this.createEndTime = createEndTime;
     }
 
@@ -47,6 +69,22 @@ public class AccountPurchaseLowInput {
 
     public void setCondition(String condition) {
         this.condition = condition;
+    }
+
+    public String getSortName() {
+        return sortName;
+    }
+
+    public void setSortName(String sortName) {
+        this.sortName = sortName;
+    }
+
+    public String getSortType() {
+        return sortType;
+    }
+
+    public void setSortType(String sortType) {
+        this.sortType = sortType;
     }
 
     @Override
