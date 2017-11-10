@@ -519,7 +519,8 @@
         cc.id, cc.name, cc.level, cc.pid
         FROM comm_category cc, commodity comm
         WHERE
-        comm.code69
+        cc.status = 1
+        and comm.code69
         IN
         (SELECT sc.code69 FROM supplier_commodity sc
         WHERE sc.deleted = 0
@@ -540,6 +541,7 @@
         FROM comm_category cc, commodity comm
         WHERE
         cc.level = 1
+        and cc.status = 1
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(id)">
             AND cc.id = #{id}
         </if>
