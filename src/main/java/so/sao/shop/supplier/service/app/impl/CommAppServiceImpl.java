@@ -177,6 +177,7 @@ public class CommAppServiceImpl implements CommAppService {
      * @param level
      * @return
      */
+    @Override
     public Result getAllLevelTwoOrThreeCategories( Long supplierId, Integer level){
         List<CategoryOutput> categoryOutputList = commAppDao.findCategories(supplierId, level);
         if( null == categoryOutputList || categoryOutputList.size() <= 0 ){
@@ -190,6 +191,7 @@ public class CommAppServiceImpl implements CommAppService {
      * @param categoryId
      * @return
      */
+    @Override
     public Result getAllBrands(Long supplierId, Integer categoryId ){
         List<CommBrandOutput>  commBrandOutputList = commAppDao.findAllBrands( supplierId,categoryId );
         if( null == commBrandOutputList || commBrandOutputList.size() <= 0 ){
