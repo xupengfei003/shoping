@@ -192,7 +192,6 @@ public class FreightRulesServiceImpl implements FreightRulesService {
         return 0;
     }
 
-
     /**
      * 地址匹配 ---配送范围与下单收货地址的匹配
      *
@@ -211,11 +210,15 @@ public class FreightRulesServiceImpl implements FreightRulesService {
                 if (Ognl.isNotEmpty(dbDistrict) && dbDistrict.equals(district)) {//匹配区
                     return freightRules;
                 }
-                if (Ognl.isNotEmpty(dbCity) && dbCity.equals(city)) {//匹配市
-                    rulesCity = freightRules;
-                }
-                if (Ognl.isNotEmpty(dbProvince) && dbProvince.equals(province)) {//匹配省
-                    rulesProvince = freightRules;
+                if (Ognl.isEmpty(dbDistrict) || Ognl.isNull(dbDistrict)){//匹配全部区
+                    if (Ognl.isNotEmpty(dbCity) && dbCity.equals(city)) {//匹配市
+                        rulesCity = freightRules;
+                    }
+                    if (Ognl.isNull(dbCity) || Ognl.isEmpty(dbCity)){//匹配全部市
+                        if (Ognl.isNotEmpty(dbProvince) && dbProvince.equals(province)) {//匹配省
+                            rulesProvince = freightRules;
+                        }
+                    }
                 }
             }
 
