@@ -288,7 +288,24 @@ public class CommAppServiceImpl implements CommAppService {
         return Result.success("查询成功",pageInfo);
     }
 
-    /**
+     /**
+     * 根据商品名称模糊查询商品，返回商品列表
+     *
+     * @param goodsName 商品名称
+     * @return
+     */
+    @Override
+    public Result getGoods(String goodsName) {
+        List<Map> goods = commAppDao.findGoodsByGoodsName(goodsName);
+        if( null == goods || goods.size() <= 0  ){
+            return Result.fail("暂无数据");
+        }
+        return Result.success("查询成功", goods );
+    }
+
+	
+	
+	/**
      * 根据商品名称模糊查询商品，返回商品列表
      *
      * @param name 搜索名称
@@ -498,6 +515,9 @@ public class CommAppServiceImpl implements CommAppService {
             // 5.查询传入的一级分类Id下对应的2级和3级分类
             //取出2级集合
             List<CategoryOutput> pList = pMap.get(id);
+            if (Ognl.isNull(pList)){
+                return Result.success("此一级分类下无二、三级分类");
+            }
             List childrenList = new ArrayList();
             //循环递归
             for (CategoryOutput com:pList) {

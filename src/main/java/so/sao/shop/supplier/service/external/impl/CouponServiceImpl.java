@@ -52,6 +52,12 @@ public class CouponServiceImpl implements CouponService{
             return result;
         }
 
+        if(coupon.getCouponValue().multiply(new BigDecimal(2)).compareTo(coupon.getUsableValue())==1){
+            result  = Result.fail("使用金额不能超过满减金额的50%");
+            return result;
+        }
+
+
         //默认是全部类别
         coupon.setCategoryId(0L);
         //默认满减
