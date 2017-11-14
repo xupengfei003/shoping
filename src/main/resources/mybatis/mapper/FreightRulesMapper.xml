@@ -125,7 +125,7 @@
         id, supplier_id supplierId, rules_type rulesType, address_province AS addressProvince, address_city addressCity,address_district  addressDistrict,
         p.name addressProvinceChinese, c.name addressCityChinese,d.name  addressDistrictChinese,
         whether_shipping whetherShipping,
-        send_amount sendAmount, default_piece defaultPiece, excess_piece excessPiece, default_amount defaultAmount, excess_amount excesAmount, remark,
+        send_amount sendAmount, default_piece defaultPiece, excess_piece excessPiece, default_amount defaultAmount, excess_amount excessAmount, remark,
         created_at createdAt, update_at updateAt,distribution_scope_id distributionScopeId
         FROM freight_rules f
         LEFT JOIN sys_region p ON address_province = p.sr_id

@@ -14,6 +14,7 @@ import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.service.external.CouponService;
 import so.sao.shop.supplier.util.PageTool;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -51,6 +52,12 @@ public class CouponServiceImpl implements CouponService{
             result  = Result.fail("开始时间与结束时间不正确");
             return result;
         }
+
+        if(coupon.getCouponValue().multiply(new BigDecimal(2)).compareTo(coupon.getUsableValue())==1){
+            result  = Result.fail("使用金额不能超过满减金额的50%");
+            return result;
+        }
+
 
         //默认是全部类别
         coupon.setCategoryId(0L);

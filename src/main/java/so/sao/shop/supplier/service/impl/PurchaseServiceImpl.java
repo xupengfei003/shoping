@@ -1357,10 +1357,11 @@ public class PurchaseServiceImpl implements PurchaseService {
         //1.已拒收，只退订单金额，不退运费（实付金额-运费）
         //2.已付款已取消，需要退运费，则退实付金额
         if (Objects.equals(orderStatus, Constant.OrderStatusConfig.REJECT)) {
-//            amount = purchase.getOrderPrice();
             amount = purchase.getPayAmount().subtract(purchase.getOrderPostage());
+            if (amount.compareTo(BigDecimal.ZERO) <= 0){
+                amount = BigDecimal.ZERO;
+            }
         } else if (Objects.equals(orderStatus, Constant.OrderStatusConfig.CANCEL_ORDER)) {
-//            amount = purchase.getOrderPrice().add(purchase.getOrderPostage());
             amount = purchase.getPayAmount();
         }
         //添加退款原因
@@ -1370,7 +1371,12 @@ public class PurchaseServiceImpl implements PurchaseService {
         }
         // 2.调用支付宝退款接口实现真正的退款
         // TODO: 2017/8/31 调用退款接口实现真正的退款,退款失败返回失败信息
-        String refundMsg = AlipayRefundUtil.alipayRefundRequest(purchase.getOrderId(), purchase.getPayId(), purchase.getOrderPaymentNum(), amount, cancelReason);
+        String refundMsg = "";
+        if (amount.compareTo(BigDecimal.ZERO) > 0){
+            refundMsg = AlipayRefundUtil.alipayRefundRequest(purchase.getOrderId(), purchase.getPayId(), purchase.getOrderPaymentNum(), amount, cancelReason);
+        } else {
+            refundMsg = "SUCCESS";
+        }
         if ("SUCCESS".equals(refundMsg)) {
             // 3.修改订单状态为退款，修改退款时间为当前时间
             Map params = new HashMap();
