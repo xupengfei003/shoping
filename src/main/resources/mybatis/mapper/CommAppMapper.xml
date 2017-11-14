@@ -233,7 +233,7 @@
             AND sc.supplier_id = #{ supplierId }
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(categoryId)">
-            AND ( comm.category_two_id = #{categoryId}  OR  comm.category_three_id = #{categoryId} )
+            AND ( comm.category_one_id = #{categoryId} OR  comm.category_two_id = #{categoryId}  OR  comm.category_three_id = #{categoryId} )
         </if>
         ORDER BY brand.updated_at DESC
     </select>
