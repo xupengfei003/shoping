@@ -22,7 +22,8 @@ public class CouponRulesUtil {
      * @return 优惠后的商品价格表
      */
     public static List<Purchase> couponRule(List<Purchase> listPurchase, BigDecimal usableValue, BigDecimal couponValue) {
-
+        usableValue = usableValue.setScale(2,BigDecimal.ROUND_HALF_UP);
+        couponValue = couponValue.setScale(2,BigDecimal.ROUND_HALF_UP);
         //优惠前总金额
         BigDecimal beforeTotal = BigDecimal.valueOf(0);
 
@@ -36,11 +37,11 @@ public class CouponRulesUtil {
             //每单价格
             BigDecimal orderPrice = purchase.getOrderPrice().add(purchase.getOrderPostage());
             //计算折扣优惠
-            purchase.setDiscount(orderPrice.divide(beforeTotal, 2, RoundingMode.HALF_UP).multiply(couponValue));
+            purchase.setDiscount(orderPrice.multiply(couponValue).divide(beforeTotal, 2, RoundingMode.HALF_UP));
             //计算合计金额
             purchase.setOrderTotalPrice(orderPrice.subtract(purchase.getDiscount()));
 
-            afterTotal = afterTotal.add(orderPrice.subtract(purchase.getDiscount()));
+            afterTotal = afterTotal.add(orderPrice.subtract(purchase.getDiscount()).setScale(2,BigDecimal.ROUND_HALF_UP));
         }
         //除不尽 误差值
         BigDecimal error = (afterTotal.add(couponValue)).subtract(beforeTotal);
