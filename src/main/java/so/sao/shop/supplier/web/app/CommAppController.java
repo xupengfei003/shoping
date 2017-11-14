@@ -85,6 +85,16 @@ public class CommAppController {
                                 @RequestParam(required = false) Integer pageNum, @RequestParam(required = false) Integer pageSize){
         return commAppService.listCommodities(supplierId,commName, pageNum, pageSize);
     }
+    
+
+    @GetMapping(value="/getNames/{goodsName}")
+    public Result searchGoods(@PathVariable String goodsName){
+        return commAppService.getGoods(goodsName);
+    }
+
+	
+	
+	
     @GetMapping(value="/getNames")
     public Result searchGoods(@RequestParam String name, @RequestParam Integer nameType){
         return commAppService.getGoods(name, nameType);
