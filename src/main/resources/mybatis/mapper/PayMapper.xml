@@ -35,7 +35,7 @@
 
     <select id="findPayOrderTotalPrice" parameterType="java.lang.String" resultType="java.math.BigDecimal">
         SELECT
-        order_total_price
+        SUM(order_total_price)
         FROM purchase
         WHERE pay_id = #{payId}
     </select>
