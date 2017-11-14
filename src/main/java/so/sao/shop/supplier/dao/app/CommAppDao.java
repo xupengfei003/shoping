@@ -79,7 +79,7 @@ public interface CommAppDao {
 
     /**
      * 根据动态条件(供应商ID/分类/品牌ids/排序条件)查询商品
-     * @param CommAppInput commAppInput
+     * @param commodityAppInput commAppInput
      * @return
      */
     List<CommAppOutput> findCommoditiesByConditionOrder( CommodityAppInput commodityAppInput );

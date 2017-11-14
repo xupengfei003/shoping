@@ -233,7 +233,7 @@
             AND sc.supplier_id = #{ supplierId }
         </if>
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(categoryId)">
-            AND ( comm.category_two_id = #{categoryId}  OR  comm.category_three_id = #{categoryId} )
+            AND ( comm.category_one_id = #{categoryId} OR  comm.category_two_id = #{categoryId}  OR  comm.category_three_id = #{categoryId} )
         </if>
         ORDER BY brand.updated_at DESC
     </select>
@@ -493,66 +493,84 @@
 
     <!--根据科属的等级参数获取所有的1或2或3级科属或供应商名下的1或2或3级科属-->
     <select id="findSupplierCategories" resultType="so.sao.shop.supplier.pojo.output.CategoryOutput">
-        SELECT DISTINCT
-        cc.id, cc.name, cc.level, cc.pid
-        FROM comm_category cc, commodity comm
-        WHERE
-        cc.level = #{level}
-        and cc.status = 1
-        AND ( cc.id = comm.category_one_id OR cc.id = comm.category_two_id OR cc.id = comm.category_three_id )
-        AND comm.code69
-        IN
-        (SELECT sc.code69 FROM supplier_commodity sc
-        WHERE sc.deleted = 0
-        AND sc.status=2
-        AND sc.invalid_status=1
+        SELECT cc.id, cc.name, cc.level, cc.pid  FROM comm_category cc
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierId)">
-            AND sc.supplier_id = #{ supplierId }
+        ,(
+            SELECT c.category_one_id  id FROM
+            supplier_commodity sc LEFT JOIN commodity c ON c.code69 = sc.code69
+            WHERE sc.supplier_id = #{ supplierId }
+            and sc.deleted = 0
+            AND sc.status=2
+            AND sc.invalid_status=1
+            UNION
+            SELECT c.category_two_id FROM
+            supplier_commodity sc LEFT JOIN commodity c ON c.code69 = sc.code69
+            WHERE sc.supplier_id = #{ supplierId }
+            and sc.deleted = 0
+            AND sc.status=2
+            AND sc.invalid_status=1
+            UNION
+            SELECT c.category_three_id FROM
+            supplier_commodity sc LEFT JOIN commodity c ON c.code69 = sc.code69
+            WHERE sc.supplier_id = #{ supplierId }
+            and sc.deleted = 0
+            AND sc.status=2
+            AND sc.invalid_status=1
+            ) t
+            WHERE cc.id  = t.id
+            and cc.level = #{level}
+            and cc.status = 1
         </if>
-        )
+        <if test="@so.sao.shop.supplier.util.Ognl@isEmpty(supplierId)">
+            WHERE cc.level = #{level}
+            and cc.status = 1
+        </if>
         ORDER BY cc.updated_at DESC
     </select>
 
     <!--根据供应商ID查询其可用的所有商品分类信息或所有可用的商品分类信息-->
     <select id="findBySupplierId" resultType="so.sao.shop.supplier.pojo.output.CategoryOutput">
-        SELECT DISTINCT
-        cc.id, cc.name, cc.level, cc.pid
-        FROM comm_category cc, commodity comm
-        WHERE
-        cc.status = 1
-        and comm.code69
-        IN
-        (SELECT sc.code69 FROM supplier_commodity sc
-        WHERE sc.deleted = 0
-        AND sc.status=2
-        AND sc.invalid_status=1
+        SELECT cc.id, cc.name, cc.level, cc.pid  FROM comm_category cc
         <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(supplierId)">
-            AND sc.supplier_id = #{ supplierId }
+            ,(
+            SELECT c.category_one_id  id FROM
+            supplier_commodity sc LEFT JOIN commodity c ON c.code69 = sc.code69
+            WHERE sc.supplier_id = #{ supplierId }
+            and sc.deleted = 0
+            AND sc.status=2
+            AND sc.invalid_status=1
+            UNION
+            SELECT c.category_two_id FROM
+            supplier_commodity sc LEFT JOIN commodity c ON c.code69 = sc.code69
+            WHERE sc.supplier_id = #{ supplierId }
+            and sc.deleted = 0
+            AND sc.status=2
+            AND sc.invalid_status=1
+            UNION
+            SELECT c.category_three_id FROM
+            supplier_commodity sc LEFT JOIN commodity c ON c.code69 = sc.code69
+            WHERE sc.supplier_id = #{ supplierId }
+            and sc.deleted = 0
+            AND sc.status=2
+            AND sc.invalid_status=1
+            ) t
+            WHERE cc.id  = t.id
+            and cc.status = 1
         </if>
-        )
-        AND (  cc.id = comm.category_one_id OR cc.id = comm.category_two_id OR cc.id = comm.category_three_id )
+        <if test="@so.sao.shop.supplier.util.Ognl@isEmpty(supplierId)">
+            WHERE cc.status = 1
+        </if>
         ORDER BY cc.updated_at DESC
     </select>
 
     <!--查看传入Id是否为一类分类ID-->
     <select id="findOneLevel" resultType="so.sao.shop.supplier.pojo.output.CategoryOutput">
-        SELECT DISTINCT
-        cc.id, cc.name, cc.level, cc.pid
-        FROM comm_category cc, commodity comm
-        WHERE
-        cc.level = 1
-        and cc.status = 1
-        <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(id)">
-            AND cc.id = #{id}
-        </if>
-        AND comm.code69
-        IN
-        (SELECT sc.code69 FROM supplier_commodity sc
-        WHERE sc.deleted = 0
-        AND sc.status=2
-        AND sc.invalid_status=1
-        )
-        AND (  cc.id = comm.category_one_id OR cc.id = comm.category_two_id OR cc.id = comm.category_three_id )
+        SELECT cc.id, cc.name, cc.level, cc.pid  FROM comm_category cc where
+            cc.level = 1
+            and cc.status = 1
+            <if test="@so.sao.shop.supplier.util.Ognl@isNotEmpty(id)">
+                AND cc.id = #{id}
+            </if>
     </select>
 
 
