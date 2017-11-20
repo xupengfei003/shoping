@@ -1,7 +1,5 @@
 package so.sao.shop.supplier.web;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,37 +21,31 @@ import javax.validation.Valid;
  */
 @RestController
 @RequestMapping("/comm")
-@Api(description = "商品管理接口")
 public class CommodityController {
 
     @Autowired
     private CommodityService commodityService;
     
-    @ApiOperation(value="查询供应商商品信息集合（高级搜索）", notes="根据参数返回符合条件的商品信息集合（高级搜索）【责任人：唐文斌】")
     @GetMapping(value="/search")
     public Result search(HttpServletRequest request, CommSearchInput commSearchInput) throws Exception {
         return commodityService.searchCommodities(commSearchInput,request);
     }
 
-    @ApiOperation(value="查询供应商商品信息集合（简单查询）", notes="根据参数返回符合条件的商品信息集合（简单查询）【责任人：唐文斌】")
     @GetMapping(value="/simplesearch")
     public Result simpleSearch(HttpServletRequest request, CommSimpleSearchInput commSimpleSearchInput) throws Exception {
         return commodityService.simpleSearchCommodities(commSimpleSearchInput,request);
     }
 
-    @ApiOperation(value="查询商品详情信息", notes="根据ID返回相应的商品信息【责任人：唐文斌】")
     @GetMapping(value="/get/{id}")
     public Result get(@PathVariable Long id){
         return commodityService.getCommodity(id);
     }
 
-    @ApiOperation(value = "查询商品详情信息", notes = "根据code69返回商品信息【责任人：陈沙】")
     @GetMapping(value = "/findByCode69/{code69}")
     public Result find(@PathVariable String code69) {
         return commodityService.findCommodity(code69);
     }
 
-    @ApiOperation(value="新增商品信息", notes="责任人：武凯江")
     @PostMapping(value="/save")
     public Result save(HttpServletRequest request,@Valid @RequestBody CommodityInput commodityInput,@RequestParam(required = false) Long supplierId) throws Exception {
         //校验供应商ID
@@ -61,7 +53,6 @@ public class CommodityController {
         return commodityService.saveCommodity(commodityInput, supplierId);
     }
 
-    @ApiOperation(value="修改商品信息", notes="责任人：武凯江")
     @PutMapping(value="/update")
     public Result update(HttpServletRequest request, @Valid @RequestBody CommodityUpdateInput commodityUpdateInput, @RequestParam(required = false) Long supplierId) throws Exception {
         //校验供应商ID
@@ -69,7 +60,6 @@ public class CommodityController {
         return commodityService.updateCommodity(commodityUpdateInput, supplierId);
     }
 
-    @ApiOperation(value="上架商品", notes="【负责人：张瑞兵】")
     @PutMapping(value="/onShelves/{id}")
     public Result onShelves(HttpServletRequest request ,@PathVariable long id){
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
@@ -79,7 +69,6 @@ public class CommodityController {
         return commodityService.onShelves(id);
     }
 
-    @ApiOperation(value="批量商品上架", notes="【负责人：张瑞兵】")
     @PutMapping(value="/onShelves/batch")
     public Result onShelvesBatch(HttpServletRequest request, @RequestParam Long[] ids){
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
@@ -96,7 +85,6 @@ public class CommodityController {
         return commodityService.onShelvesBatchBySupplier(ids, supplierId);
     }
 
-    @ApiOperation(value="下架商品", notes="【负责人：张瑞兵】")
     @PutMapping(value="/offShelves/{id}")
     public Result offShelves(HttpServletRequest request, @PathVariable long id){
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
@@ -107,7 +95,6 @@ public class CommodityController {
         return commodityService.offShelves(id);
     }
 
-    @ApiOperation(value="批量商品下架", notes="【负责人：张瑞兵】")
     @PutMapping(value="/offShelves/batch")
     public Result offShelvesBatch(HttpServletRequest request, @RequestParam Long[] ids){
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
@@ -118,19 +105,16 @@ public class CommodityController {
         return commodityService.offShelvesBatch(ids);
     }
 
-    @ApiOperation(value="删除商品信息", notes="根据ID删除相应的商品【责任人：武凯江】")
     @DeleteMapping(value="/delete/{id}")
     public Result delete(@PathVariable Long id){
         return commodityService.deleteCommodity(id);
     }
 
-    @ApiOperation(value="批量删除商品信息", notes="根据ID批量删除相应的商品【责任人：武凯江】")
     @DeleteMapping(value="/delete/bulk")
     public Result delete(@RequestParam Long[] id){
         return commodityService.deleteCommodities(id);
     }
 
-    @ApiOperation(value="批量导入商品", notes="通过Excel模板批量导入商品信息【负责人：潘帅帅】")
     @PostMapping(value="/importExcel")
     public  Result importExcel(@RequestPart(value = "excelFile") MultipartFile excelFile, HttpServletRequest request,@RequestParam(required = false) Long supplierId ) throws Exception {
         //校验供应商ID
@@ -142,7 +126,6 @@ public class CommodityController {
        return commodityService.importExcel(excelFile, request, supplierId);
     }
 
-    @ApiOperation(value="高级查询结果导出商品信息到Excel模板", notes="【责任人：张瑞兵】")
     @GetMapping(value="/exportExcel")
     public Result exportExcel(HttpServletRequest request , HttpServletResponse response , CommExportInput commExportInput)throws Exception {
         //校验供应商id
@@ -150,14 +133,12 @@ public class CommodityController {
         return  commodityService.exportExcel(request , response , commExportInput);
     }
 
-    @ApiOperation(value="简单查询结果导出商品信息到Excel模板", notes="【责任人：张瑞兵】")
     @GetMapping(value="/simpleExportExcel")
     public Result simpleExportExcel(HttpServletRequest request , HttpServletResponse response , CommExportInput commExportInput)throws Exception {
         //校验供应商id
         commExportInput.setSupplierId(CheckUtil.supplierIdCheck(request,commExportInput.getSupplierId()));
         return  commodityService.exportExcel(request , response , commExportInput);
     }
-    @ApiOperation(value="商品批量审核", notes="【责任人：【潘帅帅】")
     @PostMapping(value="/audit/bulk")
     public Result auditBatch(HttpServletRequest request , HttpServletResponse response , @Valid @RequestBody  CommAuditInput commAuditInput)throws Exception {
         //校验管理员
@@ -168,7 +149,6 @@ public class CommodityController {
 
         return  commodityService.auditBatch(request ,  commAuditInput);
     }
-    @ApiOperation(value="查询商品审核列表", notes="【责任人：汪涛】")
     @GetMapping(value="/findApproval")
     public Result searchCommodityAudit(HttpServletRequest request, CommodityAuditInput commodityAuditInput){
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
@@ -178,13 +158,11 @@ public class CommodityController {
         return commodityService.serachCommodityAudit(commodityAuditInput);
     }
 
-    @ApiOperation(value="查询商品审核记录详情信息", notes="根据ID返回相应的审核记录详情信息【责任人：唐文斌】")
     @GetMapping(value="/getAudit/{id}")
     public Result getAuditDetail(@PathVariable Long id){
         return commodityService.findAuditDetail(id);
     }
 
-    @ApiOperation(value="供应商首页-商品信息部分统计", notes="【责任人：赵延】")
     @GetMapping(value="/countDetail")
     public Result countCommDetail(HttpServletRequest request){
         User user = (User) request.getAttribute(Constant.REQUEST_USER);

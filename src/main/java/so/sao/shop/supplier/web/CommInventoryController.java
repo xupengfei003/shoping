@@ -1,8 +1,6 @@
 package so.sao.shop.supplier.web;
 
 import com.github.pagehelper.PageInfo;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import so.sao.shop.supplier.config.Constant;
@@ -24,7 +22,6 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/commInventory")
-@Api(description = "库存管理")
 public class CommInventoryController {
     @Autowired
     private CommInventoryService commInventoryService;
@@ -35,7 +32,6 @@ public class CommInventoryController {
      * @return Result
      */
     @GetMapping("search")
-    @ApiOperation(value = "商品库存查询接口", notes = "商品库存查询接口")
     public Result search(HttpServletRequest request, CommInventoryInput commInventoryInput) throws Exception {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         if (Ognl.isNull(user)) { //判断是否登陆
@@ -57,7 +53,6 @@ public class CommInventoryController {
      * @return Result
      */
     @GetMapping("/getInventoryById/{id}")
-    @ApiOperation(value = "获取某商品库存信息", notes = "获取某商品库存信息")
     public Result getInventoryById(@PathVariable Long id) throws Exception {
         return Result.success(Constant.MessageConfig.MSG_SUCCESS, commInventoryService.getInventoryById(id));
     }
@@ -69,7 +64,6 @@ public class CommInventoryController {
      * @throws Exception Exception
      */
     @PostMapping("/updateInventory")
-    @ApiOperation(value = "更新某商品库存信息", notes = "更新某商品库存信息")
     public Result updateInventoryById(@RequestBody @Valid CommInventoryInfoInput commInventoryInfoInput) throws Exception {
         Long inventoryIncreasement = (commInventoryInfoInput.getInventoryIncreasement() != null ? commInventoryInfoInput.getInventoryIncreasement() : 0);
         CommInventoryInfoOutput commInventoryInfoOutput = commInventoryService.getInventoryById(commInventoryInfoInput.getId());

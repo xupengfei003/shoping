@@ -1,7 +1,5 @@
 package so.sao.shop.supplier.web;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import so.sao.shop.supplier.config.Constant;
@@ -9,6 +7,7 @@ import so.sao.shop.supplier.domain.User;
 import so.sao.shop.supplier.pojo.Result;
 import so.sao.shop.supplier.pojo.input.InvoiceSettingUpdateInput;
 import so.sao.shop.supplier.service.InvoiceSettingService;
+
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -19,13 +18,11 @@ import javax.servlet.http.HttpServletRequest;
  */
 @RestController
 @RequestMapping("/invoiceSetting")
-@Api(description = "辅助设置-供应商发票")
 public class InvoiceSettingController {
     @Autowired
     private InvoiceSettingService invoiceSettingService;
 
     @PutMapping(value = "update")
-    @ApiOperation(value = "修改供应商发票状态", notes = "修改供应商发票状态【负责人：赵延】")
     public Result update(HttpServletRequest request, @RequestBody InvoiceSettingUpdateInput invoiceSettingUpdateInput) {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //判断是否非法登录
@@ -40,7 +37,6 @@ public class InvoiceSettingController {
     }
 
     @GetMapping(value = "get")
-    @ApiOperation(value = "查询供应商发票状态", notes = "查询供应商发票状态【负责人：赵延】")
     public Result search(HttpServletRequest request) {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //判断是否非法登录

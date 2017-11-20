@@ -1,7 +1,5 @@
 package so.sao.shop.supplier.web;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,7 +18,6 @@ import so.sao.shop.supplier.service.PurchaseItemService;
  **/
 @RestController
 @RequestMapping(value = "/orderItem")
-@Api(description = "订单明细接口")
 public class PurchaseItemController {
     @Autowired
     private PurchaseItemService purchaseItemService;
@@ -33,7 +30,6 @@ public class PurchaseItemController {
      * @param orderId  订单编号
      * @return result 显示数据
      */
-    @ApiOperation(value = "分页显示订单明细列表", notes = "  根据订单编号分页显示订单明细【负责人:郑振海】")
     @GetMapping(value = "/purchase/{orderId}/PurchaseItems")
     public Result search(Integer pageNum, Integer pageSize, @PathVariable("orderId") String orderId) {
 

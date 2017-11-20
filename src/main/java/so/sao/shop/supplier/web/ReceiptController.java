@@ -1,7 +1,5 @@
 package so.sao.shop.supplier.web;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 import so.sao.shop.supplier.config.Constant;
 import so.sao.shop.supplier.domain.Receipt;
@@ -23,7 +21,6 @@ import java.util.Date;
  */
 @RestController
 @RequestMapping("/receipt")
-@Api(description = "发票类-所有接口")
 public class ReceiptController {
     @Resource
     private ReceiptService receiptService;
@@ -33,7 +30,6 @@ public class ReceiptController {
      *
      * @return
      */
-    @ApiOperation(value = "发票记录录入或更改", notes = "发票记录录入或更改【负责人：郑振海】")
     @PostMapping("/createReceipt")
     public Result createReceipt(@RequestBody @Valid Receipt receipt) {
 
@@ -75,7 +71,6 @@ public class ReceiptController {
      * @param receiptType 1增值税普通单位发票 2增值税专用发票
      * @return
      */
-    @ApiOperation(value = "根据门店ID和发票类型获取发票记录", notes = "根据门店ID和发票类型获取发票记录【负责人：郑振海】")
     @GetMapping("/getReceipt/{userId}")
     public Result getReceiptByUserIdAndType(@PathVariable("userId") Long userId, Integer receiptType) {
 

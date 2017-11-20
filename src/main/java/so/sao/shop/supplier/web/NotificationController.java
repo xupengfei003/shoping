@@ -1,8 +1,6 @@
 package so.sao.shop.supplier.web;
 
 import com.github.pagehelper.PageInfo;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import so.sao.shop.supplier.config.Constant;
@@ -23,7 +21,6 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/notification")
-@Api(description = "消息管理-所有接口【负责人：郭兴业】")
 public class NotificationController {
 
     @Autowired
@@ -37,7 +34,6 @@ public class NotificationController {
      * @return Result
      */
     @PostMapping("/createNotifi")
-    @ApiOperation(value = "消息发送", notes = "消息发送")
     public Result createNotifi(HttpServletRequest request, @RequestBody @Valid NotificationInput notificationInput) throws Exception {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //判断是否登陆
@@ -63,7 +59,6 @@ public class NotificationController {
      * @return Result
      */
     @GetMapping("/getPage")
-    @ApiOperation(value = "分页查询消息通知", notes = "分页查询消息通知")
     public Result search(HttpServletRequest request, Integer pageNum, Integer pageSize, Integer notifiType) throws Exception {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //判断是否登陆
@@ -91,7 +86,6 @@ public class NotificationController {
      * @return Result
      */
     @GetMapping("/getTotal")
-    @ApiOperation(value = "获取未读消息总数", notes = "获取未读消息总数")
     public Result getTotal(HttpServletRequest request) throws Exception {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //判断是否登陆
@@ -112,7 +106,6 @@ public class NotificationController {
      * @return Result
      */
     @GetMapping("/searchUnread")
-    @ApiOperation(value = "查询未读消息列表(供应商操作)", notes = "查询未读消息列表(供应商操作)")
     public Result searchUnread(HttpServletRequest request, Integer notifiType, Integer count) throws Exception {
         //判断是否登陆
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
@@ -134,7 +127,6 @@ public class NotificationController {
      * @return Result
      */
     @GetMapping("/getNotificationById/{notifiId}")
-    @ApiOperation(value = "获取某条记录详细信息", notes = "获取某条记录详细信息")
     public Result getNotificationById(HttpServletRequest request, @PathVariable Integer notifiId) throws Exception {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //判断是否登陆
@@ -153,7 +145,6 @@ public class NotificationController {
      * @return Result
      */
     @PostMapping("/deleteBySigin")
-    @ApiOperation(value = "系统消息删除接口", notes = "系统消息删除接口(管理员操作)")
     public Result deleteBySigin(HttpServletRequest request, String sigin) throws Exception {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //判断是否登陆
@@ -179,7 +170,6 @@ public class NotificationController {
      * @return Result
      */
     @PostMapping("/updateStatus/{notifiId}")
-    @ApiOperation(value = "供应商更改消息状态", notes = "供应商更改消息状态")
     public Result updateStatus(@PathVariable Integer notifiId) throws Exception {
         notificationService.updateStatus(notifiId);
         return Result.success(Constant.MessageConfig.MSG_SUCCESS);
@@ -192,7 +182,6 @@ public class NotificationController {
      * @return Result
      */
     @GetMapping("/marqueeShow")
-    @ApiOperation(value = "消息跑马灯显示", notes = "消息跑马灯显示")
     public Result marqueeShow(HttpServletRequest request) throws Exception {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         Long accountId;

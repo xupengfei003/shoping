@@ -1,7 +1,5 @@
 package so.sao.shop.supplier.web.app;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +23,6 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping(value = "/cart")
-@Api(description = "购物车-所有接口【方洲】")
 public class AppCartController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -41,7 +38,6 @@ public class AppCartController {
      * @return
      * @throws Exception
      */
-    @ApiOperation(value = "根据购物车ID删除购物车记录", notes = "根据购物车ID删除购物车记录")
     @GetMapping(value = "/cartitem/delete")
     public Result deleteCartItem(Long cartitemId, Long userId) throws Exception {
         if (Ognl.isNull(cartitemId)) {
@@ -67,7 +63,6 @@ public class AppCartController {
      * @return
      * @throws Exception
      */
-    @ApiOperation(value = "根据购物车ID批量删除购物车记录", notes = "根据购物车ID批量删除购物车记录")
     @GetMapping(value = "/cartitem/deleteBatch")
     public Result deleteCartItem(String cartitemId, Long userId) throws Exception {
         if (Ognl.isNull(cartitemId)) {
@@ -92,7 +87,6 @@ public class AppCartController {
      * @return
      * @throws Exception
      */
-    @ApiOperation(value = "更新购物车商品数量", notes = "更新购物车商品数量")
     @PostMapping(value = "/cartitem/update")
     public Result updateCartItem(@RequestBody @Valid AppCartItemInput input) throws Exception {
         Integer number = Integer.valueOf(input.getNumber());
@@ -109,7 +103,6 @@ public class AppCartController {
         }
     }
 
-    @ApiOperation(value = "批量更新购物车商品数量", notes = "批量更新购物车商品数量")
     @PostMapping(value = "/cartitem/updateBatch")
     public Result updateCartItemBatch(@RequestBody @Valid AppCartItemBatchInput inputList) throws Exception {
         List<AppCartItemInput> list = inputList.getList();
@@ -133,7 +126,6 @@ public class AppCartController {
      * @return
      * @throws Exception
      */
-    @ApiOperation(value = "向购物车添加购物记录", notes = "向购物车添加购物记录")
     @PostMapping(value = "/cartitem/save")
     public Result createCartItems(@RequestBody @Valid AppCartItemSaveInput input) throws Exception {
         // 转化为Integer
@@ -158,7 +150,6 @@ public class AppCartController {
      * @param userId
      * @return
      */
-    @ApiOperation(value = "根据用户id获取用户购物车信息", notes = "根据用户id获取用户购物车信息【负责人：王翼云】")
     @GetMapping(value = "/cartitem/select")
     public Result getCartItemsByUser(Long userId) throws Exception {
         if (Ognl.isNull(userId)) {

@@ -1,7 +1,5 @@
 package so.sao.shop.supplier.web.external;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +21,6 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/external/commCategory")
-@Api(description = "商品分类管理接口")
 public class CommCategoryPortalController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -31,13 +28,11 @@ public class CommCategoryPortalController {
     @Autowired
     private CommCategoryPortalService commCategoryPortalService;
 
-    @ApiOperation(value="批量修改商品分类名称和显示状态", notes="【责任人：韩超】")
     @PutMapping("/updateCommCategory")
     public Result updateCommCategorys(@Valid @RequestBody CommCategoryListInput commCategoryListInput) throws Exception {
         return commCategoryPortalService.updateCommCategorys(commCategoryListInput);
     }
 
-    @ApiOperation(value = "查询所有商品分类（树形结构）", notes = "【责任人：韩超】")
     @GetMapping("/searchCommCategory")
     public Result searchAll() throws Exception {
         //查询

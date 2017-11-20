@@ -1,7 +1,5 @@
 package so.sao.shop.supplier.web;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +17,6 @@ import javax.servlet.http.HttpServletRequest;
  */
 @RestController
 @RequestMapping("/commUnit")
-@Api(description = "库存单位管理接口")
 public class CommUnitController {
 @Autowired
    private CommUnitService commUnitService;
@@ -29,7 +26,6 @@ public class CommUnitController {
      * @param request
      * @return 库存单位集合
      */
-    @ApiOperation(value = "查询库存单位集合",notes = "根据参数返回符合要求的结果集【负责人：任志平】")
     @GetMapping(value="/search")
     public Result search(HttpServletRequest request,Long supplierId ){
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
@@ -51,7 +47,6 @@ public class CommUnitController {
      * @param name 库存单位名称
      * @return 添加结果
      */
-    @ApiOperation(value = "库存单位添加",notes = "添加库存单位信息【负责人：任志平】")
     @PostMapping("/save")
     public Result create(HttpServletRequest request, @RequestParam(required=false) String name ){
         //校验输入name是否为空
@@ -83,7 +78,6 @@ public class CommUnitController {
      * @param id 库存单位id
      * @return 删除结果
      */
-    @ApiOperation(value = "库存单位删除" ,notes = "通过id删除库存单位【负责人：任志平】")
     @DeleteMapping("/delete")
     public Result delete(HttpServletRequest request, @RequestParam Long id){
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
@@ -106,7 +100,6 @@ public class CommUnitController {
      * @return 修改结果
      */
     @PutMapping("/update")
-    @ApiOperation(value = "更新库存单位" , notes = "根据id修改库存单位【负责人：任志平】")
     public Result update(HttpServletRequest request, @Validated @RequestBody CommUnitUpdateInput commUnitUpdateInput) {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //判断user是否为空

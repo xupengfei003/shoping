@@ -1,7 +1,5 @@
 package so.sao.shop.supplier.web;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -22,13 +20,11 @@ import javax.servlet.http.HttpServletRequest;
  */
 @RestController
 @RequestMapping("/commTag")
-@Api(description = "辅助设置-商品标签管理")
 public class CommTagController {
     @Autowired
     private CommTagService commTagService;
 
     @PostMapping(value = "save")
-    @ApiOperation(value = "新增商品标签", notes = "新增商品标签【负责人：赵延】")
     public Result create(HttpServletRequest request, @RequestParam(required=false) String name) {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //判断是否非法登录
@@ -52,7 +48,6 @@ public class CommTagController {
     }
 
     @DeleteMapping(value = "delete")
-    @ApiOperation(value = "删除商品标签", notes = "根据商品标签ID删除商品标签【负责人：赵延】")
     public Result delete(HttpServletRequest request, @RequestParam Long id) {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //判断是否非法登录
@@ -68,7 +63,6 @@ public class CommTagController {
     }
 
     @PutMapping(value = "update")
-    @ApiOperation(value = "修改商品标签", notes = "修改商品标签信息【负责人：赵延】")
     public Result update(HttpServletRequest request, @Validated @RequestBody CommTagUpdateInput commTagUpdateInput) {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //判断是否非法登录
@@ -84,7 +78,6 @@ public class CommTagController {
     }
 
     @GetMapping(value = "search")
-    @ApiOperation(value = "查询商品标签集合", notes = "查询供应商及公用的商品标签【负责人：赵延】")
     public Result search(HttpServletRequest request,Long supplierId) {
         User user = (User) request.getAttribute(Constant.REQUEST_USER);
         //判断是否非法登录
