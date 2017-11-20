@@ -101,7 +101,6 @@ public class AccountController {
 
     /**
      * 初始化银行信息
-     *
      * @return
      */
     @GetMapping("/selectBank")
