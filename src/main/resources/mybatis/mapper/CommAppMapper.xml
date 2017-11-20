@@ -279,8 +279,7 @@
         , comm_category cc2
         , comm_category cc3
         , account acc
-        WHERE
-            sc.deleted = 0
+        WHERE sc.deleted = 0
         AND sc.invalid_status = 1
         AND sc.status = 2
         AND sc.measure_spec_id = cms.id
