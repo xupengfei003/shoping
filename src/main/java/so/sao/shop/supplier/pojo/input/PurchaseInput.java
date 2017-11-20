@@ -77,7 +77,6 @@ public class PurchaseInput {
     /**
      * 供应商发票列表
      */
-    @Valid
     private List<ReceiptPurchaseInputVo> listReceipts;
 
     public Long getUserId() {

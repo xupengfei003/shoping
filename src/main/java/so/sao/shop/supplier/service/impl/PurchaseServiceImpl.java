@@ -270,7 +270,8 @@ public class PurchaseServiceImpl implements PurchaseService {
             Coupon coupon = couponDao.findCouponById(purchase.getCouponId());
             if (Ognl.isNotNull(coupon)) {
                 if (coupon.getUsableValue().compareTo(coupon.getCouponValue()) == 1) {
-                    List<AccountCoupon> accountCouponList = appAccountCouponDao.findAccountCoupon(purchase.getUserId(), coupon.getId());
+                    List<AccountCoupon> accountCouponList = appAccountCouponDao.findAccountCoupon(purchase.getUserId(), coupon.getId(
+                    ));
                     if (Ognl.isNotNull(accountCouponList) && accountCouponList.size() > 0) {
                         if (accountCouponList.get(0).getStatus().equals(0)) {
                             //获取当前时间
